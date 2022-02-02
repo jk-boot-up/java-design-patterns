@@ -1,10 +1,10 @@
 package com.jk.explore.builder;
 
 public class Student {
-    final String name;
-    final String id;
+    private final String name;
+    private final String id;
 
-    public Student(Builder builder) {
+    private Student(Builder builder) {
         this.name = builder.name;
         this.id = builder.id;
     }
@@ -18,8 +18,8 @@ public class Student {
     }
 
     public static class Builder {
-        String id;
-        String name;
+        private String id;
+        private String name;
         private Builder() {
             // private
         }
@@ -27,16 +27,16 @@ public class Student {
             return new Builder();
         }
 
-        Builder setName(String name) {
+        public Builder setName(String name) {
             this.name = name;
             return this;
         }
-        Builder setId(String id) {
+        public Builder setId(String id) {
             this.id = id;
             return this;
         }
 
-        Student build() {
+        public Student build() {
             return new Student(this);
         }
     }
