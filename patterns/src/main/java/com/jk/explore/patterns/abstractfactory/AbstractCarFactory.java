@@ -10,6 +10,13 @@ public abstract class AbstractCarFactory {
                 return new BMWUSCarFactory();
             }
         }
+        if(make == "AUDI") {
+            if(madeInCountry == "INDIA") {
+                return new AUDIIndiaCarFactory();
+            } else if(madeInCountry == "USA") {
+                return new AUDIUSCarFactory();
+            }
+        }
         return null;
     }
 
