@@ -6,12 +6,12 @@
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
 		<version>2.7.0</version>
-		<relativePath/> <!-- lookup parent from repository -->
+		<relativePath/>
 	</parent>
 	<groupId>com.explore.jk.design.patterns</groupId>
-	<artifactId>chainofresponsibility</artifactId>
+	<artifactId>chain-of-responsibility</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>demo</name>
+	<name>chain-of-responsibility</name>
 	<description>Demo project for chain of responsibility design pattern</description>
 	<properties>
 		<java.version>17</java.version>
