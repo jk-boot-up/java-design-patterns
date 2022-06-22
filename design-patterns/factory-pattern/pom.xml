@@ -13,8 +13,9 @@
     <packaging>pom</packaging>
 
     <groupId>com.jk.explore</groupId>
-    <artifactId>patterns</artifactId>
+    <artifactId>factory-pattern</artifactId>
     <version>1.0-SNAPSHOT</version>
+    <name>factory-pattern</name>
 
     <properties>
         <java.version>17</java.version>
