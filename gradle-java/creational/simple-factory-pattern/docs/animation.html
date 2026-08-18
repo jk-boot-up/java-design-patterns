@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Simple Factory Pattern — Animated Walkthrough</title>
+<style>
+  :root {
+    --bg: #0f172a;
+    --panel: #1e293b;
+    --panel-hi: #334155;
+    --line: #475569;
+    --text: #e2e8f0;
+    --muted: #94a3b8;
+    --client: #38bdf8;
+    --factory: #a78bfa;
+    --iface: #f472b6;
+    --card: #34d399;
+    --upi: #fbbf24;
+    --pp: #fb7185;
+    --nb: #22d3ee;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 28px 20px 60px;
+    background: var(--bg);
+    color: var(--text);
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  h1 { text-align: center; font-size: 28px; margin: 0 0 4px; }
+  .sub { text-align: center; color: var(--muted); margin: 0 0 24px; font-size: 15px; }
+
+  .wrap { max-width: 1180px; margin: 0 auto; }
+
+  .controls { display: flex; gap: 10px; justify-content: center; margin-bottom: 26px; flex-wrap: wrap; }
+  button {
+    background: var(--panel-hi); color: var(--text); border: 1px solid var(--line);
+    padding: 9px 20px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer;
+    transition: background .15s, transform .1s;
+  }
+  button:hover:not(:disabled) { background: #475569; }
+  button:active:not(:disabled) { transform: translateY(1px); }
+  button:disabled { opacity: .4; cursor: not-allowed; }
+  button.primary { background: var(--factory); color: #1e1b4b; border-color: var(--factory); }
+  button.primary:hover:not(:disabled) { background: #b9a3ff; }
+  button.on { background: #0c2b3d; border-color: var(--client); color: var(--client); }
+  button.on:hover:not(:disabled) { background: #123a52; }
+
+  .audio-note {
+    text-align: center; color: var(--muted); font-size: 12.5px;
+    margin: -14px 0 22px; min-height: 17px;
+  }
+
+  .stage { display: grid; grid-template-columns: 200px 1fr; gap: 22px; align-items: start; }
+
+  .col-client { display: flex; flex-direction: column; align-items: center; gap: 14px; padding-top: 90px; }
+
+  .box {
+    background: var(--panel); border: 2px solid var(--line); border-radius: 12px;
+    padding: 14px 16px; text-align: center; width: 100%;
+    transition: border-color .3s, box-shadow .3s, transform .3s, background .3s, opacity .3s;
+  }
+  .box .name { font-weight: 700; font-size: 15px; letter-spacing: .2px; }
+  .box .role { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-top: 3px; }
+  .box.active {
+    transform: translateY(-3px);
+    box-shadow: 0 0 0 3px rgba(255,255,255,.07), 0 10px 28px rgba(0,0,0,.45);
+  }
+  .box.client.active   { border-color: var(--client);  background: #0c2b3d; }
+  .box.factory.active  { border-color: var(--factory); background: #2b2247; }
+  .box.iface.active    { border-color: var(--iface);   background: #3b1229; }
+  .box.p-card.active   { border-color: var(--card);    background: #0f2e24; }
+  .box.p-upi.active    { border-color: var(--upi);     background: #322612; }
+  .box.p-pp.active     { border-color: var(--pp);      background: #35161f; }
+  .box.p-nb.active     { border-color: var(--nb);      background: #0b2e33; }
+  .box.chosen { border-color: var(--upi); }
+  .box.chosen::after { content: " ✓"; color: #4ade80; font-weight: 700; }
+  .box.faded { opacity: .35; }
+
+  .col-main { display: flex; flex-direction: column; gap: 18px; }
+
+  .factory-shell {
+    border: 2px dashed var(--factory); border-radius: 14px; padding: 16px;
+    background: rgba(167,139,250,.05);
+  }
+  .factory-label {
+    font-size: 11px; color: var(--factory); text-transform: uppercase;
+    letter-spacing: 1.4px; font-weight: 700; margin-bottom: 12px; text-align: center;
+  }
+  .hint {
+    text-align: center; color: var(--muted); font-size: 11.5px;
+    letter-spacing: .4px; margin: 12px 0 8px;
+  }
+  .subs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+
+  .arrow-rail { height: 30px; position: relative; }
+  .arrow {
+    position: absolute; left: 50%; transform: translateX(-50%);
+    font-size: 13px; color: var(--muted); opacity: 0;
+    transition: opacity .3s; white-space: nowrap;
+  }
+  .arrow.show { opacity: 1; }
+
+  .narration {
+    background: var(--panel); border-left: 4px solid var(--factory);
+    border-radius: 0 10px 10px 0; padding: 16px 20px; min-height: 76px;
+    font-size: 15px; line-height: 1.6;
+  }
+  .narration .step-no { color: var(--muted); font-size: 12px; letter-spacing: 1px; text-transform: uppercase; }
+  .narration .text { margin-top: 5px; }
+
+  .console {
+    background: #020617; border: 1px solid var(--line); border-radius: 10px;
+    padding: 14px 16px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 13px; line-height: 1.75; min-height: 150px;
+  }
+  .console .ttl { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+  .console div.ln { opacity: 0; transition: opacity .35s; }
+  .console div.ln.show { opacity: 1; }
+  .c-client { color: var(--client); }
+  .c-upi    { color: var(--upi); }
+  .c-ret    { color: #4ade80; }
+
+  .progress { display: flex; gap: 5px; justify-content: center; margin-top: 22px; }
+  .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--line); transition: background .3s, transform .3s; }
+  .dot.on { background: var(--factory); transform: scale(1.35); }
+
+  .legend { text-align: center; color: var(--muted); font-size: 13px; margin-top: 26px; line-height: 1.7; }
+  .legend b { color: var(--text); }
+
+  @media (max-width: 860px) {
+    .stage { grid-template-columns: 1fr; }
+    .col-client { padding-top: 0; }
+    .subs { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>The Simple Factory Pattern</h1>
+  <p class="sub">A type name goes in &rarr; one factory decides &rarr; an interface comes back out</p>
+
+  <div class="controls">
+    <button id="play" class="primary">&#9654;&nbsp; Play</button>
+    <button id="step">Step &rarr;</button>
+    <button id="reset">Reset</button>
+    <button id="audio" aria-pressed="false" title="Narrate each step (N)">
+      <span id="audio-icon">&#128263;</span>&nbsp; Narration: off
+    </button>
+  </div>
+  <p class="audio-note" id="audio-note"></p>
+
+  <div class="stage">
+
+    <div class="col-client">
+      <div class="box client" id="b-client">
+        <div class="name">CheckoutService</div>
+        <div class="role">Client</div>
+      </div>
+      <div style="font-size:26px;color:var(--line)">&#8595;</div>
+      <div style="font-size:11px;color:var(--muted);text-align:center;line-height:1.5">
+        names a type,<br>never a class
+      </div>
+    </div>
+
+    <div class="col-main">
+
+      <div class="arrow-rail">
+        <div class="arrow" id="a-in">create(PaymentType.UPI) &nbsp;&#8595;</div>
+      </div>
+
+      <div class="factory-shell">
+        <div class="factory-label">Factory</div>
+        <div class="box factory" id="b-factory">
+          <div class="name">PaymentMethodFactory</div>
+          <div class="role">switch (type) &rarr; new &hellip;</div>
+        </div>
+
+        <div class="hint">knows every implementation &mdash; so nobody else has to</div>
+
+        <div class="subs">
+          <div class="box p-card" id="b-card">
+            <div class="name">CreditCardPayment</div>
+            <div class="role">CREDIT_CARD</div>
+          </div>
+          <div class="box p-upi" id="b-upi">
+            <div class="name">UpiPayment</div>
+            <div class="role">UPI</div>
+          </div>
+          <div class="box p-pp" id="b-pp">
+            <div class="name">PayPalPayment</div>
+            <div class="role">PAYPAL</div>
+          </div>
+          <div class="box p-nb" id="b-nb">
+            <div class="name">NetBankingPayment</div>
+            <div class="role">NET_BANKING</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="arrow-rail">
+        <div class="arrow" id="a-out">&#8593; &nbsp; returns a PaymentMethod</div>
+      </div>
+
+      <div class="box iface" id="b-iface">
+        <div class="name">PaymentMethod</div>
+        <div class="role">the only type the client sees</div>
+      </div>
+
+      <div class="narration" id="narration">
+        <div class="step-no">Ready</div>
+        <div class="text">Press <b>Play</b> to watch a type name turn into an object &mdash; without the client ever writing <code>new</code>.</div>
+      </div>
+
+      <div class="console">
+        <div class="ttl">Program output</div>
+        <div id="console-lines"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="progress" id="progress"></div>
+
+  <p class="legend">
+    <b>The client names the type as data. The factory names the class.</b><br>
+    Add a fifth payment method and only one file changes &mdash; and the compiler tells you which.<br>
+    <span style="font-size:12px">
+      Keys: <b>Space</b> play/pause &nbsp;·&nbsp; <b>&rarr;</b> next step
+      &nbsp;·&nbsp; <b>N</b> narration &nbsp;·&nbsp; <b>R</b> reset
+    </span>
+  </p>
+
+</div>
+
+<script>
+const STEPS = [
+  {
+    title: "Step 1 — The client asks for a payment method",
+    text: "CheckoutService has a PaymentType — data that came from a dropdown or a JSON field. It hands that to the factory and asks for something it can use. It does not know the name of a single payment class.",
+    active: ["b-client"], arrow: "a-in", out: null
+  },
+  {
+    title: "Step 2 — The factory switches on the type",
+    text: "PaymentMethodFactory holds the one switch in the whole codebase that maps a type to a class. Because PaymentType is an enum and PaymentMethod is sealed, the compiler checks that every case is covered.",
+    active: ["b-factory"], arrow: null, out: null
+  },
+  {
+    title: "Step 3 — One implementation is chosen",
+    text: "The UPI case wins, so the factory calls new UpiPayment(). The other three are never touched — but the factory is the only place that knows they exist at all.",
+    active: ["b-factory", "b-upi"], chosen: ["b-upi"], faded: ["b-card", "b-pp", "b-nb"], arrow: null, out: null
+  },
+  {
+    title: "Step 4 — It comes back as the interface",
+    text: "The new object travels back to the client typed as PaymentMethod, not as UpiPayment. That single fact is what keeps the client decoupled from every concrete class.",
+    active: ["b-iface"], chosen: ["b-upi"], faded: ["b-card", "b-pp", "b-nb"], arrow: "a-out", out: null
+  },
+  {
+    title: "Step 5 — The client uses it, knowing nothing",
+    text: "CheckoutService asks for a display name. It is talking to an interface, so this line reads exactly the same no matter which implementation arrived.",
+    active: ["b-client", "b-iface"], chosen: ["b-upi"], faded: ["b-card", "b-pp", "b-nb"], arrow: null,
+    out: { cls: "c-client", txt: "Checkout: paying for ORD-1001 with UPI" }
+  },
+  {
+    title: "Step 6 — The real implementation runs",
+    text: "pay() is called on the interface, and polymorphism does the rest: the UPI code runs. The client never chose this behaviour — it only chose a type name.",
+    active: ["b-iface", "b-upi"], chosen: ["b-upi"], faded: ["b-card", "b-pp", "b-nb"], arrow: null,
+    out: { cls: "c-upi", txt: "UPI: sending a collect request to CUST-001\nUPI: customer approved 49.98 in the payments app" }
+  },
+  {
+    title: "Step 7 — Swap the type, change nothing else",
+    text: "A PaymentReceipt comes back and checkout is done. Now change UPI to PAYPAL: a different object arrives, the payment lines differ — and not one line of client code changes.",
+    active: ["b-client"], chosen: ["b-upi"], arrow: null,
+    out: { cls: "c-ret", txt: "Checkout: done, transaction UPI-E89BF12E\nReceipt: PaymentReceipt[transactionId=UPI-E89BF12E, method=UPI, amount=49.98]" }
+  }
+];
+
+const ALL_BOXES = ["b-client", "b-factory", "b-iface", "b-card", "b-upi", "b-pp", "b-nb"];
+const ARROWS = ["a-in", "a-out"];
+
+const STEP_MS = 3200;      // pace when narration is off
+const GAP_MS = 700;        // breathing room after a clip finishes
+
+let idx = -1;
+let playing = false;
+let timer = null;
+
+// Narration is optional: if the audio clips are missing (or the browser
+// blocks playback) the animation still works exactly as before.
+let audioOn = false;
+let clips = [];
+let current = null;
+
+const $ = id => document.getElementById(id);
+const progressEl = $("progress");
+const linesEl = $("console-lines");
+const noteEl = $("audio-note");
+
+STEPS.forEach(() => {
+  const d = document.createElement("div");
+  d.className = "dot";
+  progressEl.appendChild(d);
+});
+
+// ---- optional narration ------------------------------------------------
+
+clips = STEPS.map((_, i) => {
+  const a = new Audio("audio/step-" + (i + 1) + ".m4a");
+  a.preload = "none";
+  return a;
+});
+
+function stopAudio() {
+  if (!current) return;
+  current.pause();
+  current.currentTime = 0;
+  current.onended = null;
+  current = null;
+}
+
+/** Play the clip for step i. onDone fires when it finishes (or cannot play). */
+function playClip(i, onDone) {
+  stopAudio();
+  if (!audioOn) { if (onDone) onDone(); return; }
+
+  const a = clips[i];
+  current = a;
+  a.currentTime = 0;
+  a.onended = () => { current = null; if (onDone) onDone(); };
+
+  a.play().catch(() => {
+    // Missing file, or autoplay blocked -> fall back to timed pacing.
+    current = null;
+    noteEl.textContent =
+      "Narration audio could not be played — falling back to timed steps. " +
+      "Run docs/make_animation_audio.sh to generate the clips.";
+    if (onDone) onDone();
+  });
+}
+
+function setAudio(on) {
+  audioOn = on;
+  const btn = $("audio");
+  btn.classList.toggle("on", on);
+  btn.setAttribute("aria-pressed", String(on));
+  btn.innerHTML = '<span id="audio-icon">' + (on ? "&#128266;" : "&#128263;") +
+                  "</span>&nbsp; Narration: " + (on ? "on" : "off");
+  noteEl.textContent = on
+    ? "Each step is narrated, and the animation waits for the voice to finish."
+    : "";
+  if (!on) stopAudio();
+}
+
+// ------------------------------------------------------------------------
+
+function clearHighlights() {
+  ALL_BOXES.forEach(b => $(b).classList.remove("active", "faded"));
+  ARROWS.forEach(a => $(a).classList.remove("show"));
+}
+
+function render(i) {
+  clearHighlights();
+  const s = STEPS[i];
+
+  s.active.forEach(b => $(b).classList.add("active"));
+  (s.faded || []).forEach(b => $(b).classList.add("faded"));
+  (s.chosen || []).forEach(b => $(b).classList.add("chosen"));
+  if (s.arrow) $(s.arrow).classList.add("show");
+
+  $("narration").innerHTML =
+    '<div class="step-no">' + s.title + '</div><div class="text">' + s.text + '</div>';
+
+  // Rebuild console output up to this step
+  linesEl.innerHTML = "";
+  for (let k = 0; k <= i; k++) {
+    if (!STEPS[k].out) continue;
+    STEPS[k].out.txt.split("\n").forEach(txt => {
+      const div = document.createElement("div");
+      div.className = "ln " + STEPS[k].out.cls;
+      div.textContent = txt;
+      linesEl.appendChild(div);
+      requestAnimationFrame(() => div.classList.add("show"));
+    });
+  }
+
+  [...progressEl.children].forEach((d, k) => d.classList.toggle("on", k <= i));
+}
+
+/** Advance one step. In play mode, schedule the following step afterwards. */
+function next() {
+  if (idx >= STEPS.length - 1) { stop(); return; }
+  idx++;
+  render(idx);
+
+  if (!playing) { playClip(idx); return; }
+
+  if (audioOn) {
+    // Wait for the voice to finish this step, then move on.
+    playClip(idx, () => {
+      if (!playing) return;
+      timer = setTimeout(next, GAP_MS);
+    });
+  } else {
+    timer = setTimeout(next, STEP_MS);
+  }
+}
+
+function stop() {
+  playing = false;
+  clearTimeout(timer);
+  stopAudio();
+  $("play").innerHTML = "&#9654;&nbsp; Play";
+  $("step").disabled = false;
+}
+
+function reset() {
+  stop();
+  idx = -1;
+  clearHighlights();
+  ALL_BOXES.forEach(b => $(b).classList.remove("chosen"));
+  linesEl.innerHTML = "";
+  [...progressEl.children].forEach(d => d.classList.remove("on"));
+  $("narration").innerHTML =
+    '<div class="step-no">Ready</div><div class="text">Press <b>Play</b> to watch a type name turn into an object &mdash; without the client ever writing <code>new</code>.</div>';
+}
+
+$("play").addEventListener("click", () => {
+  if (playing) { stop(); return; }
+  if (idx >= STEPS.length - 1) reset();
+  playing = true;
+  $("play").innerHTML = "&#10074;&#10074;&nbsp; Pause";
+  $("step").disabled = true;
+  next();   // next() now schedules the rest of the run itself
+});
+
+$("step").addEventListener("click", () => { stop(); if (idx >= STEPS.length - 1) reset(); next(); });
+$("reset").addEventListener("click", reset);
+
+$("audio").addEventListener("click", () => {
+  setAudio(!audioOn);
+  // Turning narration on mid-run: speak the step already on screen.
+  if (audioOn && playing && idx >= 0) {
+    clearTimeout(timer);
+    playClip(idx, () => {
+      if (!playing) return;
+      timer = setTimeout(next, GAP_MS);
+    });
+  }
+});
+
+document.addEventListener("keydown", e => {
+  if (e.code === "Space") { e.preventDefault(); $("play").click(); }
+  if (e.code === "ArrowRight") { e.preventDefault(); $("step").click(); }
+  if (e.code === "KeyR") reset();
+  if (e.code === "KeyN") $("audio").click();
+});
+
+setAudio(false);
+reset();
+</script>
+</body>
+</html>

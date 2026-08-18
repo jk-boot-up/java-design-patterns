@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Factory Method Pattern — Animated Walkthrough</title>
+<style>
+  :root {
+    --bg: #0f172a;
+    --panel: #1e293b;
+    --panel-hi: #334155;
+    --line: #475569;
+    --text: #e2e8f0;
+    --muted: #94a3b8;
+    --client: #38bdf8;
+    --creator: #a78bfa;
+    --iface: #f472b6;
+    --std: #34d399;
+    --exp: #fbbf24;
+    --sday: #fb7185;
+    --intl: #22d3ee;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 28px 20px 60px;
+    background: var(--bg);
+    color: var(--text);
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  h1 { text-align: center; font-size: 28px; margin: 0 0 4px; }
+  .sub { text-align: center; color: var(--muted); margin: 0 0 24px; font-size: 15px; }
+
+  .wrap { max-width: 1180px; margin: 0 auto; }
+
+  .controls { display: flex; gap: 10px; justify-content: center; margin-bottom: 26px; flex-wrap: wrap; }
+  button {
+    background: var(--panel-hi); color: var(--text); border: 1px solid var(--line);
+    padding: 9px 20px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer;
+    transition: background .15s, transform .1s;
+  }
+  button:hover:not(:disabled) { background: #475569; }
+  button:active:not(:disabled) { transform: translateY(1px); }
+  button:disabled { opacity: .4; cursor: not-allowed; }
+  button.primary { background: var(--creator); color: #1e1b4b; border-color: var(--creator); }
+  button.primary:hover:not(:disabled) { background: #b9a3ff; }
+  button.on { background: #0c2b3d; border-color: var(--client); color: var(--client); }
+  button.on:hover:not(:disabled) { background: #123a52; }
+
+  .audio-note {
+    text-align: center; color: var(--muted); font-size: 12.5px;
+    margin: -14px 0 22px; min-height: 17px;
+  }
+
+  .stage { display: grid; grid-template-columns: 200px 1fr; gap: 22px; align-items: start; }
+
+  .col-client { display: flex; flex-direction: column; align-items: center; gap: 14px; padding-top: 90px; }
+
+  .box {
+    background: var(--panel); border: 2px solid var(--line); border-radius: 12px;
+    padding: 14px 16px; text-align: center; width: 100%;
+    transition: border-color .3s, box-shadow .3s, transform .3s, background .3s, opacity .3s;
+  }
+  .box .name { font-weight: 700; font-size: 15px; letter-spacing: .2px; }
+  .box .role { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-top: 3px; }
+  .box.active {
+    transform: translateY(-3px);
+    box-shadow: 0 0 0 3px rgba(255,255,255,.07), 0 10px 28px rgba(0,0,0,.45);
+  }
+  .box.client.active   { border-color: var(--client);  background: #0c2b3d; }
+  .box.creator.active  { border-color: var(--creator); background: #2b2247; }
+  .box.iface.active    { border-color: var(--iface);   background: #3b1229; }
+  .box.t-std.active    { border-color: var(--std);     background: #0f2e24; }
+  .box.t-exp.active    { border-color: var(--exp);     background: #322612; }
+  .box.t-sday.active   { border-color: var(--sday);    background: #35161f; }
+  .box.t-intl.active   { border-color: var(--intl);    background: #0b2e33; }
+  .box.chosen { border-color: var(--exp); }
+  .box.chosen::after { content: " ✓"; color: #4ade80; font-weight: 700; }
+  .box.faded { opacity: .35; }
+
+  .col-main { display: flex; flex-direction: column; gap: 18px; }
+
+  .creator-shell {
+    border: 2px dashed var(--creator); border-radius: 14px; padding: 16px;
+    background: rgba(167,139,250,.05);
+  }
+  .creator-label {
+    font-size: 11px; color: var(--creator); text-transform: uppercase;
+    letter-spacing: 1.4px; font-weight: 700; margin-bottom: 12px; text-align: center;
+  }
+  .workflow {
+    display: flex; flex-direction: column; gap: 6px; margin-top: 12px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12.5px;
+  }
+  .wf {
+    padding: 6px 12px; border-radius: 7px; border: 1px solid transparent;
+    color: var(--muted); transition: all .3s;
+  }
+  .wf.hole { color: var(--creator); border-style: dashed; border-color: var(--creator); }
+  .wf.lit { background: #2b2247; border-color: var(--creator); color: var(--text); }
+  .hint {
+    text-align: center; color: var(--muted); font-size: 11.5px;
+    letter-spacing: .4px; margin: 14px 0 8px;
+  }
+  .subs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+
+  .arrow-rail { height: 30px; position: relative; }
+  .arrow {
+    position: absolute; left: 50%; transform: translateX(-50%);
+    font-size: 13px; color: var(--muted); opacity: 0;
+    transition: opacity .3s; white-space: nowrap;
+  }
+  .arrow.show { opacity: 1; }
+
+  .narration {
+    background: var(--panel); border-left: 4px solid var(--creator);
+    border-radius: 0 10px 10px 0; padding: 16px 20px; min-height: 76px;
+    font-size: 15px; line-height: 1.6;
+  }
+  .narration .step-no { color: var(--muted); font-size: 12px; letter-spacing: 1px; text-transform: uppercase; }
+  .narration .text { margin-top: 5px; }
+
+  .console {
+    background: #020617; border: 1px solid var(--line); border-radius: 10px;
+    padding: 14px 16px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 13px; line-height: 1.75; min-height: 150px;
+  }
+  .console .ttl { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+  .console div.ln { opacity: 0; transition: opacity .35s; }
+  .console div.ln.show { opacity: 1; }
+  .c-tier { color: var(--creator); }
+  .c-air  { color: var(--exp); }
+  .c-ret  { color: #4ade80; }
+
+  .progress { display: flex; gap: 5px; justify-content: center; margin-top: 22px; }
+  .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--line); transition: background .3s, transform .3s; }
+  .dot.on { background: var(--creator); transform: scale(1.35); }
+
+  .legend { text-align: center; color: var(--muted); font-size: 13px; margin-top: 26px; line-height: 1.7; }
+  .legend b { color: var(--text); }
+
+  @media (max-width: 860px) {
+    .stage { grid-template-columns: 1fr; }
+    .col-client { padding-top: 0; }
+    .subs { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>The Factory Method Pattern</h1>
+  <p class="sub">One shared workflow &rarr; with a hole in the middle &rarr; that a subclass fills in</p>
+
+  <div class="controls">
+    <button id="play" class="primary">&#9654;&nbsp; Play</button>
+    <button id="step">Step &rarr;</button>
+    <button id="reset">Reset</button>
+    <button id="audio" aria-pressed="false" title="Narrate each step (N)">
+      <span id="audio-icon">&#128263;</span>&nbsp; Narration: off
+    </button>
+  </div>
+  <p class="audio-note" id="audio-note"></p>
+
+  <div class="stage">
+
+    <div class="col-client">
+      <div class="box client" id="b-client">
+        <div class="name">FactoryMethodDemo</div>
+        <div class="role">Client</div>
+      </div>
+      <div style="font-size:26px;color:var(--line)">&#8595;</div>
+      <div style="font-size:11px;color:var(--muted);text-align:center;line-height:1.5">
+        holds a delivery service,<br>never a courier
+      </div>
+    </div>
+
+    <div class="col-main">
+
+      <div class="arrow-rail">
+        <div class="arrow" id="a-in">service.ship(order) &nbsp;&#8595;</div>
+      </div>
+
+      <div class="creator-shell">
+        <div class="creator-label">Creator</div>
+        <div class="box creator" id="b-creator">
+          <div class="name">DeliveryService</div>
+          <div class="role">abstract &mdash; owns the workflow</div>
+        </div>
+
+        <div class="workflow">
+          <div class="wf" id="wf-1">1. check the order has weight</div>
+          <div class="wf hole" id="wf-2">2. Courier c = createCourier(); &nbsp; &larr; abstract, no body here</div>
+          <div class="wf" id="wf-3">3. log &quot;preparing&hellip;&quot; &nbsp;·&nbsp; c.dispatch(order) &nbsp;·&nbsp; log &quot;booked&hellip;&quot;</div>
+        </div>
+
+        <div class="hint">step 2 is the only thing a subclass may change</div>
+
+        <div class="subs">
+          <div class="box t-std" id="b-std">
+            <div class="name">StandardDelivery</div>
+            <div class="role">new PostalCourier()</div>
+          </div>
+          <div class="box t-exp" id="b-exp">
+            <div class="name">ExpressDelivery</div>
+            <div class="role">new AirCourier()</div>
+          </div>
+          <div class="box t-sday" id="b-sday">
+            <div class="name">SameDayDelivery</div>
+            <div class="role">new BikeCourier()</div>
+          </div>
+          <div class="box t-intl" id="b-intl">
+            <div class="name">InternationalDelivery</div>
+            <div class="role">new GlobalCourier()</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="arrow-rail">
+        <div class="arrow" id="a-out">&#8593; &nbsp; the subclass returns a Courier</div>
+      </div>
+
+      <div class="box iface" id="b-iface">
+        <div class="name">Courier</div>
+        <div class="role">the only type the creator sees</div>
+      </div>
+
+      <div class="narration" id="narration">
+        <div class="step-no">Ready</div>
+        <div class="text">Press <b>Play</b> to watch a parent class call a method it does not implement &mdash; and a subclass answer.</div>
+      </div>
+
+      <div class="console">
+        <div class="ttl">Program output</div>
+        <div id="console-lines"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="progress" id="progress"></div>
+
+  <p class="legend">
+    <b>The parent writes the call. The child decides what comes back.</b><br>
+    Add a fifth delivery tier and you add a file &mdash; you never edit one.<br>
+    <span style="font-size:12px">
+      Keys: <b>Space</b> play/pause &nbsp;·&nbsp; <b>&rarr;</b> next step
+      &nbsp;·&nbsp; <b>N</b> narration &nbsp;·&nbsp; <b>R</b> reset
+    </span>
+  </p>
+
+</div>
+
+<script>
+const STEPS = [
+  {
+    title: "Step 1 — The client asks a service to ship",
+    text: "FactoryMethodDemo holds an ExpressDelivery, but only as a DeliveryService. It calls ship(order) and that is the last decision it makes. It never names a courier class.",
+    active: ["b-client"], arrow: "a-in", wf: [], out: null
+  },
+  {
+    title: "Step 2 — The shared workflow starts",
+    text: "ship() lives in the abstract parent and is final. Its first step guards the order: no weight, no shipment. This check is written once and protects every tier that will ever exist.",
+    active: ["b-creator"], wf: ["wf-1"], arrow: null, out: null
+  },
+  {
+    title: "Step 3 — The workflow reaches the hole",
+    text: "Line two calls createCourier(). Look at the parent class: there is no body for that method. It is abstract. The parent has written a call it cannot answer itself.",
+    active: ["b-creator"], wf: ["wf-2"], arrow: null, out: null
+  },
+  {
+    title: "Step 4 — The subclass answers",
+    text: "At runtime the object really is an ExpressDelivery, so the call lands there and returns a new AirCourier. The other three tiers each answer differently — and none of them knows the others exist.",
+    active: ["b-exp"], chosen: ["b-exp"], faded: ["b-std", "b-sday", "b-intl"], wf: ["wf-2"], arrow: null, out: null
+  },
+  {
+    title: "Step 5 — It comes back as the interface",
+    text: "The courier travels back up into ship() typed as Courier, not as AirCourier. The parent can call name() and dispatch(), and nothing else. That is what keeps it free of every carrier.",
+    active: ["b-iface"], chosen: ["b-exp"], faded: ["b-std", "b-sday", "b-intl"], wf: ["wf-2"], arrow: "a-out",
+    out: { cls: "c-tier", txt: "Express: preparing ORD-2001 for Edinburgh via SkyLink Air" }
+  },
+  {
+    title: "Step 6 — The real courier runs",
+    text: "dispatch() is called on the interface and polymorphism does the rest: the SkyLink Air code runs, priced and timed its own way. The workflow around it did not choose this behaviour.",
+    active: ["b-iface", "b-exp"], chosen: ["b-exp"], faded: ["b-std", "b-sday", "b-intl"], wf: ["wf-3"],
+    out: { cls: "c-air", txt: "SkyLink Air: booking ORD-2001 onto tonight's flight" }
+  },
+  {
+    title: "Step 7 — Swap the tier, change nothing else",
+    text: "The shared workflow logs the tracking number and hands back a Shipment. Now swap ExpressDelivery for SameDayDelivery: a different courier arrives, the price and the date change — and not one existing line is edited.",
+    active: ["b-client"], chosen: ["b-exp"], wf: ["wf-3"], arrow: null,
+    out: { cls: "c-ret", txt: "Express: booked SL-832C886D, arriving in 2 day(s)\nShipment: Shipment[trackingId=SL-832C886D, carrier=SkyLink Air, etaDays=2, cost=15.5]" }
+  }
+];
+
+const ALL_BOXES = ["b-client", "b-creator", "b-iface", "b-std", "b-exp", "b-sday", "b-intl"];
+const ARROWS = ["a-in", "a-out"];
+const WF = ["wf-1", "wf-2", "wf-3"];
+
+const STEP_MS = 3200;      // pace when narration is off
+const GAP_MS = 700;        // breathing room after a clip finishes
+
+let idx = -1;
+let playing = false;
+let timer = null;
+
+// Narration is optional: if the audio clips are missing (or the browser
+// blocks playback) the animation still works exactly as before.
+let audioOn = false;
+let clips = [];
+let current = null;
+
+const $ = id => document.getElementById(id);
+const progressEl = $("progress");
+const linesEl = $("console-lines");
+const noteEl = $("audio-note");
+
+STEPS.forEach(() => {
+  const d = document.createElement("div");
+  d.className = "dot";
+  progressEl.appendChild(d);
+});
+
+// ---- optional narration ------------------------------------------------
+
+clips = STEPS.map((_, i) => {
+  const a = new Audio("audio/step-" + (i + 1) + ".m4a");
+  a.preload = "none";
+  return a;
+});
+
+function stopAudio() {
+  if (!current) return;
+  current.pause();
+  current.currentTime = 0;
+  current.onended = null;
+  current = null;
+}
+
+/** Play the clip for step i. onDone fires when it finishes (or cannot play). */
+function playClip(i, onDone) {
+  stopAudio();
+  if (!audioOn) { if (onDone) onDone(); return; }
+
+  const a = clips[i];
+  current = a;
+  a.currentTime = 0;
+  a.onended = () => { current = null; if (onDone) onDone(); };
+
+  a.play().catch(() => {
+    // Missing file, or autoplay blocked -> fall back to timed pacing.
+    current = null;
+    noteEl.textContent =
+      "Narration audio could not be played — falling back to timed steps. " +
+      "Run docs/make_animation_audio.sh to generate the clips.";
+    if (onDone) onDone();
+  });
+}
+
+function setAudio(on) {
+  audioOn = on;
+  const btn = $("audio");
+  btn.classList.toggle("on", on);
+  btn.setAttribute("aria-pressed", String(on));
+  btn.innerHTML = '<span id="audio-icon">' + (on ? "&#128266;" : "&#128263;") +
+                  "</span>&nbsp; Narration: " + (on ? "on" : "off");
+  noteEl.textContent = on
+    ? "Each step is narrated, and the animation waits for the voice to finish."
+    : "";
+  if (!on) stopAudio();
+}
+
+// ------------------------------------------------------------------------
+
+function clearHighlights() {
+  ALL_BOXES.forEach(b => $(b).classList.remove("active", "faded"));
+  ARROWS.forEach(a => $(a).classList.remove("show"));
+  WF.forEach(w => $(w).classList.remove("lit"));
+}
+
+function render(i) {
+  clearHighlights();
+  const s = STEPS[i];
+
+  s.active.forEach(b => $(b).classList.add("active"));
+  (s.faded || []).forEach(b => $(b).classList.add("faded"));
+  (s.chosen || []).forEach(b => $(b).classList.add("chosen"));
+  (s.wf || []).forEach(w => $(w).classList.add("lit"));
+  if (s.arrow) $(s.arrow).classList.add("show");
+
+  $("narration").innerHTML =
+    '<div class="step-no">' + s.title + '</div><div class="text">' + s.text + '</div>';
+
+  // Rebuild console output up to this step
+  linesEl.innerHTML = "";
+  for (let k = 0; k <= i; k++) {
+    if (!STEPS[k].out) continue;
+    STEPS[k].out.txt.split("\n").forEach(txt => {
+      const div = document.createElement("div");
+      div.className = "ln " + STEPS[k].out.cls;
+      div.textContent = txt;
+      linesEl.appendChild(div);
+      requestAnimationFrame(() => div.classList.add("show"));
+    });
+  }
+
+  [...progressEl.children].forEach((d, k) => d.classList.toggle("on", k <= i));
+}
+
+/** Advance one step. In play mode, schedule the following step afterwards. */
+function next() {
+  if (idx >= STEPS.length - 1) { stop(); return; }
+  idx++;
+  render(idx);
+
+  if (!playing) { playClip(idx); return; }
+
+  if (audioOn) {
+    // Wait for the voice to finish this step, then move on.
+    playClip(idx, () => {
+      if (!playing) return;
+      timer = setTimeout(next, GAP_MS);
+    });
+  } else {
+    timer = setTimeout(next, STEP_MS);
+  }
+}
+
+function stop() {
+  playing = false;
+  clearTimeout(timer);
+  stopAudio();
+  $("play").innerHTML = "&#9654;&nbsp; Play";
+  $("step").disabled = false;
+}
+
+function reset() {
+  stop();
+  idx = -1;
+  clearHighlights();
+  ALL_BOXES.forEach(b => $(b).classList.remove("chosen"));
+  linesEl.innerHTML = "";
+  [...progressEl.children].forEach(d => d.classList.remove("on"));
+  $("narration").innerHTML =
+    '<div class="step-no">Ready</div><div class="text">Press <b>Play</b> to watch a parent class call a method it does not implement &mdash; and a subclass answer.</div>';
+}
+
+$("play").addEventListener("click", () => {
+  if (playing) { stop(); return; }
+  if (idx >= STEPS.length - 1) reset();
+  playing = true;
+  $("play").innerHTML = "&#10074;&#10074;&nbsp; Pause";
+  $("step").disabled = true;
+  next();   // next() now schedules the rest of the run itself
+});
+
+$("step").addEventListener("click", () => { stop(); if (idx >= STEPS.length - 1) reset(); next(); });
+$("reset").addEventListener("click", reset);
+
+$("audio").addEventListener("click", () => {
+  setAudio(!audioOn);
+  // Turning narration on mid-run: speak the step already on screen.
+  if (audioOn && playing && idx >= 0) {
+    clearTimeout(timer);
+    playClip(idx, () => {
+      if (!playing) return;
+      timer = setTimeout(next, GAP_MS);
+    });
+  }
+});
+
+document.addEventListener("keydown", e => {
+  if (e.code === "Space") { e.preventDefault(); $("play").click(); }
+  if (e.code === "ArrowRight") { e.preventDefault(); $("step").click(); }
+  if (e.code === "KeyR") reset();
+  if (e.code === "KeyN") $("audio").click();
+});
+
+setAudio(false);
+reset();
+</script>
+</body>
+</html>

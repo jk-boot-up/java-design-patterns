@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Facade Pattern — Animated Walkthrough</title>
+<style>
+  :root {
+    --bg: #0f172a;
+    --panel: #1e293b;
+    --panel-hi: #334155;
+    --line: #475569;
+    --text: #e2e8f0;
+    --muted: #94a3b8;
+    --client: #38bdf8;
+    --facade: #a78bfa;
+    --inv: #34d399;
+    --pay: #fbbf24;
+    --ship: #fb7185;
+    --note: #22d3ee;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 28px 20px 60px;
+    background: var(--bg);
+    color: var(--text);
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  h1 { text-align: center; font-size: 28px; margin: 0 0 4px; }
+  .sub { text-align: center; color: var(--muted); margin: 0 0 24px; font-size: 15px; }
+
+  .wrap { max-width: 1180px; margin: 0 auto; }
+
+  .controls { display: flex; gap: 10px; justify-content: center; margin-bottom: 26px; flex-wrap: wrap; }
+  button {
+    background: var(--panel-hi); color: var(--text); border: 1px solid var(--line);
+    padding: 9px 20px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer;
+    transition: background .15s, transform .1s;
+  }
+  button:hover:not(:disabled) { background: #475569; }
+  button:active:not(:disabled) { transform: translateY(1px); }
+  button:disabled { opacity: .4; cursor: not-allowed; }
+  button.primary { background: var(--facade); color: #1e1b4b; border-color: var(--facade); }
+  button.primary:hover:not(:disabled) { background: #b9a3ff; }
+  button.on { background: #0c2b3d; border-color: var(--client); color: var(--client); }
+  button.on:hover:not(:disabled) { background: #123a52; }
+
+  .audio-note {
+    text-align: center; color: var(--muted); font-size: 12.5px;
+    margin: -14px 0 22px; min-height: 17px;
+  }
+
+  .speaking { color: var(--client); }
+
+  .stage { display: grid; grid-template-columns: 190px 1fr; gap: 22px; align-items: start; }
+
+  .col-client { display: flex; flex-direction: column; align-items: center; gap: 14px; padding-top: 90px; }
+
+  .box {
+    background: var(--panel); border: 2px solid var(--line); border-radius: 12px;
+    padding: 14px 16px; text-align: center; width: 100%;
+    transition: border-color .3s, box-shadow .3s, transform .3s, background .3s;
+  }
+  .box .name { font-weight: 700; font-size: 15px; letter-spacing: .2px; }
+  .box .role { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-top: 3px; }
+  .box.active {
+    transform: translateY(-3px);
+    box-shadow: 0 0 0 3px rgba(255,255,255,.07), 0 10px 28px rgba(0,0,0,.45);
+  }
+  .box.client.active  { border-color: var(--client); background: #0c2b3d; }
+  .box.facade.active  { border-color: var(--facade); background: #2b2247; }
+  .box.sub-inv.active  { border-color: var(--inv);   background: #0f2e24; }
+  .box.sub-pay.active  { border-color: var(--pay);   background: #322612; }
+  .box.sub-ship.active { border-color: var(--ship);  background: #35161f; }
+  .box.sub-note.active { border-color: var(--note);  background: #0b2e33; }
+  .box.done { border-color: #14532d; }
+  .box.done::after { content: " ✓"; color: #4ade80; font-weight: 700; }
+
+  .col-main { display: flex; flex-direction: column; gap: 18px; }
+
+  .facade-shell {
+    border: 2px dashed var(--facade); border-radius: 14px; padding: 16px;
+    background: rgba(167,139,250,.05);
+  }
+  .facade-label {
+    font-size: 11px; color: var(--facade); text-transform: uppercase;
+    letter-spacing: 1.4px; font-weight: 700; margin-bottom: 12px; text-align: center;
+  }
+  .subs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 14px; }
+
+  .arrow-rail { height: 30px; position: relative; }
+  .arrow {
+    position: absolute; left: 50%; transform: translateX(-50%);
+    font-size: 13px; color: var(--muted); opacity: 0;
+    transition: opacity .3s; white-space: nowrap;
+  }
+  .arrow.show { opacity: 1; }
+
+  .narration {
+    background: var(--panel); border-left: 4px solid var(--facade);
+    border-radius: 0 10px 10px 0; padding: 16px 20px; min-height: 76px;
+    font-size: 15px; line-height: 1.6;
+  }
+  .narration .step-no { color: var(--muted); font-size: 12px; letter-spacing: 1px; text-transform: uppercase; }
+  .narration .text { margin-top: 5px; }
+
+  .console {
+    background: #020617; border: 1px solid var(--line); border-radius: 10px;
+    padding: 14px 16px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 13px; line-height: 1.75; min-height: 150px;
+  }
+  .console .ttl { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+  .console div.ln { opacity: 0; transition: opacity .35s; }
+  .console div.ln.show { opacity: 1; }
+  .c-inv  { color: var(--inv); }
+  .c-pay  { color: var(--pay); }
+  .c-ship { color: var(--ship); }
+  .c-note { color: var(--note); }
+  .c-ret  { color: var(--client); }
+
+  .progress { display: flex; gap: 5px; justify-content: center; margin-top: 22px; }
+  .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--line); transition: background .3s, transform .3s; }
+  .dot.on { background: var(--facade); transform: scale(1.35); }
+
+  .legend { text-align: center; color: var(--muted); font-size: 13px; margin-top: 26px; line-height: 1.7; }
+  .legend b { color: var(--text); }
+
+  @media (max-width: 860px) {
+    .stage { grid-template-columns: 1fr; }
+    .col-client { padding-top: 0; }
+    .subs { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>The Facade Pattern</h1>
+  <p class="sub">One simple call in &rarr; four subsystems coordinated &rarr; one simple result out</p>
+
+  <div class="controls">
+    <button id="play" class="primary">&#9654;&nbsp; Play</button>
+    <button id="step">Step &rarr;</button>
+    <button id="reset">Reset</button>
+    <button id="audio" aria-pressed="false" title="Narrate each step (N)">
+      <span id="audio-icon">&#128263;</span>&nbsp; Narration: off
+    </button>
+  </div>
+  <p class="audio-note" id="audio-note"></p>
+
+  <div class="stage">
+
+    <div class="col-client">
+      <div class="box client" id="b-client">
+        <div class="name">FacadeDemo</div>
+        <div class="role">Client</div>
+      </div>
+      <div style="font-size:26px;color:var(--line)">&#8595;</div>
+      <div style="font-size:11px;color:var(--muted);text-align:center;line-height:1.5">
+        knows only<br>the facade
+      </div>
+    </div>
+
+    <div class="col-main">
+
+      <div class="arrow-rail">
+        <div class="arrow" id="a-in">placeOrder(OrderRequest) &nbsp;&#8595;</div>
+      </div>
+
+      <div class="facade-shell">
+        <div class="facade-label">Facade</div>
+        <div class="box facade" id="b-facade">
+          <div class="name">OrderFacade</div>
+          <div class="role">placeOrder(request)</div>
+        </div>
+
+        <div class="subs">
+          <div class="box sub-inv" id="b-inv">
+            <div class="name">InventoryService</div>
+            <div class="role">reserveStock</div>
+          </div>
+          <div class="box sub-pay" id="b-pay">
+            <div class="name">PaymentService</div>
+            <div class="role">charge</div>
+          </div>
+          <div class="box sub-ship" id="b-ship">
+            <div class="name">ShippingService</div>
+            <div class="role">scheduleShipment</div>
+          </div>
+          <div class="box sub-note" id="b-note">
+            <div class="name">NotificationService</div>
+            <div class="role">sendOrderConfirmation</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="arrow-rail">
+        <div class="arrow" id="a-out">&#8593; &nbsp; returns OrderConfirmation</div>
+      </div>
+
+      <div class="narration" id="narration">
+        <div class="step-no">Ready</div>
+        <div class="text">Press <b>Play</b> to watch a single call to the facade fan out across four subsystems.</div>
+      </div>
+
+      <div class="console">
+        <div class="ttl">Program output</div>
+        <div id="console-lines"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="progress" id="progress"></div>
+
+  <p class="legend">
+    <b>The facade knows the subsystems. The subsystems never know the facade.</b><br>
+    That one-way arrow is what keeps each service independently reusable and testable.<br>
+    <span style="font-size:12px">
+      Keys: <b>Space</b> play/pause &nbsp;·&nbsp; <b>&rarr;</b> next step
+      &nbsp;·&nbsp; <b>N</b> narration &nbsp;·&nbsp; <b>R</b> reset
+    </span>
+  </p>
+
+</div>
+
+<script>
+const STEPS = [
+  {
+    title: "Step 1 — The client makes one call",
+    text: "FacadeDemo builds an OrderRequest and calls placeOrder(). It has no idea that inventory, payment, shipping or email even exist.",
+    active: ["b-client"], arrow: "a-in", out: null
+  },
+  {
+    title: "Step 2 — The facade takes over",
+    text: "OrderFacade receives the request and generates an order id. It now becomes responsible for calling each subsystem in the correct order.",
+    active: ["b-facade"], arrow: null, out: null
+  },
+  {
+    title: "Step 3 — Reserve the stock first",
+    text: "Inventory is checked before anything else. If stock cannot be reserved the facade stops right here, so nobody is ever charged for an item we cannot ship.",
+    active: ["b-facade", "b-inv"], done: ["b-inv"], arrow: null,
+    out: { cls: "c-inv", txt: "Inventory: reserving 2 unit(s) of SKU-1234" }
+  },
+  {
+    title: "Step 4 — Only now, take the payment",
+    text: "With stock secured, the facade charges the customer and keeps the returned payment id. This ordering is exactly the kind of rule a facade exists to enforce.",
+    active: ["b-facade", "b-pay"], done: ["b-inv", "b-pay"], arrow: null,
+    out: { cls: "c-pay", txt: "Payment: charged $49.98 to customer CUST-001 (paymentId=PMT-C68994F4)" }
+  },
+  {
+    title: "Step 5 — Schedule the shipment",
+    text: "The warehouse is told to ship the order, and returns a tracking id that the facade holds on to for the confirmation.",
+    active: ["b-facade", "b-ship"], done: ["b-inv", "b-pay", "b-ship"], arrow: null,
+    out: { cls: "c-ship", txt: "Shipping: scheduled shipment for order ORD-0D1ADD0C to 221B Baker Street, London (trackingId=TRK-A844891E)" }
+  },
+  {
+    title: "Step 6 — Tell the customer",
+    text: "Finally the confirmation email goes out, carrying the order id and tracking id the earlier steps produced.",
+    active: ["b-facade", "b-note"], done: ["b-inv", "b-pay", "b-ship", "b-note"], arrow: null,
+    out: { cls: "c-note", txt: "Notification: emailed customer CUST-001 confirmation for order ORD-0D1ADD0C (trackingId=TRK-A844891E)" }
+  },
+  {
+    title: "Step 7 — One result comes back",
+    text: "Three separate results are assembled into a single OrderConfirmation and handed back. The client sees one call, one object — never the complexity underneath.",
+    active: ["b-client", "b-facade"], done: ["b-inv", "b-pay", "b-ship", "b-note"], arrow: "a-out",
+    out: { cls: "c-ret", txt: "Order placed: OrderConfirmation[orderId=ORD-0D1ADD0C, paymentId=PMT-C68994F4, trackingId=TRK-A844891E]" }
+  }
+];
+
+const ALL_BOXES = ["b-client", "b-facade", "b-inv", "b-pay", "b-ship", "b-note"];
+const ARROWS = ["a-in", "a-out"];
+
+const STEP_MS = 3200;      // pace when narration is off
+const GAP_MS = 700;        // breathing room after a clip finishes
+
+let idx = -1;
+let playing = false;
+let timer = null;
+
+// Narration is optional: if the audio clips are missing (or the browser
+// blocks playback) the animation still works exactly as before.
+let audioOn = false;
+let clips = [];
+let current = null;
+
+const $ = id => document.getElementById(id);
+const progressEl = $("progress");
+const linesEl = $("console-lines");
+const noteEl = $("audio-note");
+
+STEPS.forEach(() => {
+  const d = document.createElement("div");
+  d.className = "dot";
+  progressEl.appendChild(d);
+});
+
+// ---- optional narration ------------------------------------------------
+
+clips = STEPS.map((_, i) => {
+  const a = new Audio("audio/step-" + (i + 1) + ".m4a");
+  a.preload = "none";
+  return a;
+});
+
+function stopAudio() {
+  if (!current) return;
+  current.pause();
+  current.currentTime = 0;
+  current.onended = null;
+  current = null;
+}
+
+/** Play the clip for step i. onDone fires when it finishes (or cannot play). */
+function playClip(i, onDone) {
+  stopAudio();
+  if (!audioOn) { if (onDone) onDone(); return; }
+
+  const a = clips[i];
+  current = a;
+  a.currentTime = 0;
+  a.onended = () => { current = null; if (onDone) onDone(); };
+
+  a.play().catch(() => {
+    // Missing file, or autoplay blocked -> fall back to timed pacing.
+    current = null;
+    noteEl.textContent =
+      "Narration audio could not be played — falling back to timed steps. " +
+      "Run docs/make_animation_audio.sh to generate the clips.";
+    if (onDone) onDone();
+  });
+}
+
+function setAudio(on) {
+  audioOn = on;
+  const btn = $("audio");
+  btn.classList.toggle("on", on);
+  btn.setAttribute("aria-pressed", String(on));
+  $("audio-icon").innerHTML = on ? "&#128266;" : "&#128263;";
+  btn.innerHTML = '<span id="audio-icon">' + (on ? "&#128266;" : "&#128263;") +
+                  "</span>&nbsp; Narration: " + (on ? "on" : "off");
+  noteEl.textContent = on
+    ? "Each step is narrated, and the animation waits for the voice to finish."
+    : "";
+  if (!on) stopAudio();
+}
+
+// ------------------------------------------------------------------------
+
+function clearHighlights() {
+  ALL_BOXES.forEach(b => $(b).classList.remove("active"));
+  ARROWS.forEach(a => $(a).classList.remove("show"));
+}
+
+function render(i) {
+  clearHighlights();
+  const s = STEPS[i];
+
+  s.active.forEach(b => $(b).classList.add("active"));
+  (s.done || []).forEach(b => $(b).classList.add("done"));
+  if (s.arrow) $(s.arrow).classList.add("show");
+
+  $("narration").innerHTML =
+    '<div class="step-no">' + s.title + '</div><div class="text">' + s.text + '</div>';
+
+  // Rebuild console output up to this step
+  linesEl.innerHTML = "";
+  for (let k = 0; k <= i; k++) {
+    if (!STEPS[k].out) continue;
+    const div = document.createElement("div");
+    div.className = "ln " + STEPS[k].out.cls;
+    div.textContent = STEPS[k].out.txt;
+    linesEl.appendChild(div);
+    requestAnimationFrame(() => div.classList.add("show"));
+  }
+
+  [...progressEl.children].forEach((d, k) => d.classList.toggle("on", k <= i));
+}
+
+/** Advance one step. In play mode, schedule the following step afterwards. */
+function next() {
+  if (idx >= STEPS.length - 1) { stop(); return; }
+  idx++;
+  render(idx);
+
+  if (!playing) { playClip(idx); return; }
+
+  if (audioOn) {
+    // Wait for the voice to finish this step, then move on.
+    playClip(idx, () => {
+      if (!playing) return;
+      timer = setTimeout(next, GAP_MS);
+    });
+  } else {
+    timer = setTimeout(next, STEP_MS);
+  }
+}
+
+function stop() {
+  playing = false;
+  clearTimeout(timer);
+  stopAudio();
+  $("play").innerHTML = "&#9654;&nbsp; Play";
+  $("step").disabled = false;
+}
+
+function reset() {
+  stop();
+  idx = -1;
+  clearHighlights();
+  ALL_BOXES.forEach(b => $(b).classList.remove("done"));
+  linesEl.innerHTML = "";
+  [...progressEl.children].forEach(d => d.classList.remove("on"));
+  $("narration").innerHTML =
+    '<div class="step-no">Ready</div><div class="text">Press <b>Play</b> to watch a single call to the facade fan out across four subsystems.</div>';
+}
+
+$("play").addEventListener("click", () => {
+  if (playing) { stop(); return; }
+  if (idx >= STEPS.length - 1) reset();
+  playing = true;
+  $("play").innerHTML = "&#10074;&#10074;&nbsp; Pause";
+  $("step").disabled = true;
+  next();   // next() now schedules the rest of the run itself
+});
+
+$("step").addEventListener("click", () => { stop(); if (idx >= STEPS.length - 1) reset(); next(); });
+$("reset").addEventListener("click", reset);
+
+$("audio").addEventListener("click", () => {
+  setAudio(!audioOn);
+  // Turning narration on mid-run: speak the step already on screen.
+  if (audioOn && playing && idx >= 0) {
+    clearTimeout(timer);
+    playClip(idx, () => {
+      if (!playing) return;
+      timer = setTimeout(next, GAP_MS);
+    });
+  }
+});
+
+document.addEventListener("keydown", e => {
+  if (e.code === "Space") { e.preventDefault(); $("play").click(); }
+  if (e.code === "ArrowRight") { e.preventDefault(); $("step").click(); }
+  if (e.code === "KeyR") reset();
+  if (e.code === "KeyN") $("audio").click();
+});
+
+setAudio(false);
+reset();
+</script>
+</body>
+</html>
