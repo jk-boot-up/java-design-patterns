@@ -13,7 +13,7 @@ knowledge.
 | `static-factory-pattern-explained.srt` | Subtitles, timed from the encoded scene clips. Upload alongside the video for accurate captions. |
 | `poster.png` | The opening title card, 1920×1080. Upload it as the video's custom thumbnail. |
 
-**Runtime:** approximately 10 minutes.
+**Runtime:** approximately 11 and a half minutes.
 **Narration:** female voice (macOS `Samantha`, US English).
 
 None of the four are committed — they are build output. Run
@@ -52,6 +52,19 @@ either, players show black at 0:00. If you change the ffmpeg calls, check
 with `ffprobe -show_entries stream=start_time` that both streams still start
 at zero.
 
+The narration is cleaned up before it is encoded, and that matters more than
+it sounds. Every voice macOS ships by default is the compact 22 kHz tier, and
+resampling it straight to the 48 kHz the AAC track needs leaves an audible
+hiss. The `CLEANUP` filter chain in `build_video.sh` resamples carefully,
+denoises with `afftdn`, lifts the consonant range slightly, band-limits the
+empty top end, and normalises to YouTube's -16 LUFS target. That drops the
+noise floor by roughly 15 dB.
+
+An Enhanced or Premium voice would sound better still — those sample at
+44.1 kHz — but they are a manual download: **System Settings → Accessibility
+→ Spoken Content → System Voice → Manage Voices**. Once one is installed,
+just re-run the build.
+
 Set `KEEP_INTERMEDIATE=1` to retain the per-scene narration and clips for
 inspection.
 
@@ -60,13 +73,13 @@ inspection.
 Both are environment variables:
 
 ```bash
-VOICE=Ava RATE=160 ./build_video.sh
+VOICE=Ava RATE=155 ./build_video.sh
 ```
 
 | Variable | Default | Meaning |
 | --- | --- | --- |
 | `VOICE` | `Samantha` | Any voice from `say -v '?'` |
-| `RATE` | `170` | Speaking rate in words per minute |
+| `RATE` | `165` | Speaking rate in words per minute |
 
 ### Requirements
 
@@ -116,9 +129,16 @@ video script.
 ## Editing the Script
 
 Narration lives in `scenes.py`, next to the slide it belongs to. Edit the
-`narration` field of a scene, then re-run `./build_video.sh`. Keep
-`narration.md` in sync if you change the wording substantially — it is the
-human-readable copy used for review.
+`narration` field of a scene, then re-run `./build_video.sh`.
+
+The script is written to be spoken rather than read, and `[[slnc NNN]]`
+markers insert a pause of NNN milliseconds where a person would draw
+breath. They are instructions to `say`, not words: `make_subtitles.py`
+strips them, so keep any new ones in that exact form or they will be read
+out loud.
+
+Keep `narration.md` in sync if you change the wording substantially — it is
+the human-readable copy used for review.
 
 Note that currency and symbols are written out in words — "five pounds"
 rather than "£5", "ten percent" rather than "10%". Keep that habit, or the

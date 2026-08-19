@@ -15,7 +15,7 @@ cd "$(dirname "$0")"
 
 OUT=audio
 VOICE="${VOICE:-Samantha}"     # female US English voice, matches the video
-RATE="${RATE:-170}"            # words per minute
+RATE="${RATE:-165}"            # words per minute
 
 command -v ffmpeg >/dev/null || { echo "ffmpeg is required"; exit 1; }
 command -v say    >/dev/null || { echo "macOS 'say' is required"; exit 1; }

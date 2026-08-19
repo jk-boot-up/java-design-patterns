@@ -8,7 +8,7 @@ idiom using this project.
 - **Format:** live coding + discussion
 - **Prerequisites:** see [`prerequisites.md`](prerequisites.md)
 
-> **Optional pre-work.** Ask participants to watch the ~7 minute video
+> **Optional pre-work.** Ask participants to watch the ~7.5 minute video
 > (`video/simple-factory-pattern-explained.mp4`) beforehand. If they do, you
 > can compress the problem and pattern segments and spend the extra time on
 > the exercises. If you are teaching a group that has *not* watched it, run

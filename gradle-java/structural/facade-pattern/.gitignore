@@ -9,4 +9,5 @@
 /video/*.mp4
 /video/*.m4a
 /video/*.srt
+/video/poster.png
 __pycache__/

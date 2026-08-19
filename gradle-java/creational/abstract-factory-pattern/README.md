@@ -50,7 +50,7 @@ path.
 | [`docs/uml-diagram.md`](docs/uml-diagram.md) | Runtime call flow |
 | [`docs/animation.html`](docs/animation.html) | Animated, step-by-step walkthrough — open in a browser. Optional narration via the **Narration** button |
 | [`docs/session.md`](docs/session.md) | A 60-minute guided session plan for teaching it |
-| [`video/`](video/) | A narrated ~9 minute video, plus the script and build pipeline |
+| [`video/`](video/) | A narrated ~9.5 minute video, plus the script and build pipeline |
 
 ### The pattern in one picture
 
@@ -62,7 +62,7 @@ path.
 
 ### Video
 
-`video/abstract-factory-pattern-explained.mp4` — 1080p, ~9 minutes, narrated.
+`video/abstract-factory-pattern-explained.mp4` — 1080p, ~9.5 minutes, narrated.
 An audio-only version is alongside it. See
 [`video/README.md`](video/README.md) to rebuild or re-record it.
 

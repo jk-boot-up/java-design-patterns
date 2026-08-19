@@ -36,9 +36,19 @@ def duration(path):
     return float(out.strip())
 
 
+def spoken_text(text):
+    """Drop the embedded speech commands `say` understands.
+
+    The narration carries `[[slnc NNN]]` pause markers for pacing. They are
+    instructions to the synthesiser, not words, so they must never reach the
+    captions.
+    """
+    return re.sub(r"\s+", " ", re.sub(r"\[\[[^\]]*\]\]", " ", text)).strip()
+
+
 def split_cues(text, max_chars=MAX_CHARS):
     """Split narration into caption-sized chunks, preferring sentence ends."""
-    sentences = re.findall(r"[^.!?]+[.!?]?", text)
+    sentences = re.findall(r"[^.!?]+[.!?]?", spoken_text(text))
     cues, cur = [], ""
     for s in sentences:
         s = s.strip()

@@ -8,7 +8,7 @@ pattern using this project.
 - **Format:** live coding + discussion
 - **Prerequisites:** see [`prerequisites.md`](prerequisites.md)
 
-> **Optional pre-work.** Ask participants to watch the ~9 minute video
+> **Optional pre-work.** Ask participants to watch the ~9.5 minute video
 > (`video/abstract-factory-pattern-explained.mp4`) beforehand. If they do, you
 > can compress the problem and pattern segments and spend the extra time on
 > the exercises.

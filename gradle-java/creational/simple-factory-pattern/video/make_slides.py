@@ -230,7 +230,121 @@ def kind_diagram(scene, img, d):
            font=f(SANS, 28), fill=MUTED, anchor="ma")
 
 
+AUTHOR = "Jayasekhar Konduru"
+POSTER_TOP = (49, 16, 92)
+POSTER_BOTTOM = (10, 18, 58)
+GOLD = AMBER
+
+
+def gradient(img, top, bottom):
+    """A vertical wash, used by the poster and the sign-off card."""
+    g = ImageDraw.Draw(img)
+    for y in range(H):
+        t = y / (H - 1)
+        g.line([(0, y), (W, y)],
+               fill=tuple(int(a + (b - a) * t) for a, b in zip(top, bottom)))
+
+
+def pill(d, x, y, w, h, colour, code, note, strike=False):
+    """A code sample in a coloured box, with a one-line verdict under it."""
+    d.rounded_rectangle([x, y, x + w, y + h], radius=22,
+                        fill=(12, 18, 46), outline=colour, width=5)
+    fnt = f(MONO_B, 42)
+    while fnt.getlength(code) > w - 60:
+        fnt = f(MONO_B, fnt.size - 2)
+    cx, cy = x + w // 2, y + 34
+    d.text((cx, cy), code, font=fnt, fill=TEXT, anchor="ma")
+    if strike:
+        half = fnt.getlength(code) / 2
+        d.line([(cx - half, cy + 26), (cx + half, cy + 26)], fill=colour, width=6)
+    d.text((cx, y + h - 58), note, font=f(SANS_B, 34), fill=colour, anchor="ma")
+
+
+def name_pill(d, x, y):
+    """The author's name in a box, sized to the text. x=None centres it."""
+    text = "by " + AUTHOR
+    fnt = f(SANS_B, 54)
+    w = int(fnt.getlength(text)) + 96
+    if x is None:
+        x = (W - w) // 2
+    d.rounded_rectangle([x, y, x + w, y + 104], radius=52,
+                        fill=(12, 18, 46), outline=CLIENT, width=4)
+    d.text((x + w // 2, y + 22), text, font=fnt, fill=CLIENT, anchor="ma")
+
+
+def kind_poster(scene, img, d):
+    """Title card and YouTube thumbnail in one."""
+    gradient(img, POSTER_TOP, POSTER_BOTTOM)
+    d = ImageDraw.Draw(img)
+
+    d.rectangle([0, 0, W, 14], fill=GOLD)
+    d.text((110, 88), "DESIGN PATTERNS  -  JAVA", font=f(SANS_B, 36), fill=GOLD)
+
+    d.text((110, 156), "SIMPLE FACTORY", font=f(SANS_B, 128), fill=TEXT)
+    d.text((110, 296), "PATTERN", font=f(SANS_B, 128), fill=ACCENT)
+
+    d.rectangle([110, 462, 620, 472], fill=PINK)
+
+    # One box around the whole idea - the two call sites and the sentence that
+    # explains them - so the tagline reads as part of the pattern rather than
+    # as a caption floating under it.
+    d.rounded_rectangle([110, 516, W - 110, 842], radius=26,
+                        outline=ACCENT, width=4)
+
+    # The right-hand pill carries the project's real factory call, which is a
+    # long name, so it gets the wider box of the two.
+    pill(d, 150, 556, 620, 170, RED, "new CreditCardPayment()",
+         "every caller picks a class", strike=True)
+    pill(d, 1010, 556, 760, 170, GREEN, "PaymentMethodFactory.create(type)",
+         "one place picks the class")
+
+    arrow_y = 636
+    d.line([(800, arrow_y), (930, arrow_y)], fill=TEXT, width=8)
+    d.polygon([(930, arrow_y - 22), (930, arrow_y + 22), (972, arrow_y)],
+              fill=TEXT)
+
+    d.text((W // 2, 758), "Let data choose the class",
+           font=f(SANS_B, 54), fill=TEXT, anchor="ma")
+
+    # Bottom left, on the same edge as the eyebrow, the title and the rule, and
+    # clear of YouTube's own furniture: the duration badge sits bottom right and
+    # the watched-progress bar covers the last forty pixels of the height.
+    name_pill(d, 110, 896)
+
+
+def kind_outro(scene, img, d):
+    """The sign-off card: like, subscribe, and who made it."""
+    gradient(img, POSTER_BOTTOM, POSTER_TOP)
+    d = ImageDraw.Draw(img)
+
+    d.rectangle([0, 0, W, 14], fill=GOLD)
+
+    d.text((W // 2, 150), scene["title"], font=f(SANS_B, 96), fill=TEXT, anchor="ma")
+    d.line([(W // 2 - 240, 290), (W // 2 + 240, 290)], fill=PINK, width=6)
+
+    labels = [("LIKE", GREEN), ("SUBSCRIBE", RED), ("SHARE", CLIENT)]
+    box_w, gap = 480, 60
+    left = (W - (box_w * 3 + gap * 2)) // 2
+    for i, (label, colour) in enumerate(labels):
+        x = left + i * (box_w + gap)
+        d.rounded_rectangle([x, 350, x + box_w, 490], radius=24,
+                            fill=(12, 18, 46), outline=colour, width=5)
+        d.text((x + box_w // 2, 388), label, font=f(SANS_B, 58),
+               fill=colour, anchor="ma")
+
+    y = 580
+    for ln in scene["body"]:
+        d.text((W // 2, y), ln, font=f(SANS, 42), fill=MUTED, anchor="ma")
+        y += 66
+
+    # This card is centred throughout and is never a thumbnail, so the name
+    # stays centred here rather than pinned left as it is on the poster.
+    name_pill(d, None, 880)
+
+
 RENDERERS = {
+    "poster": kind_poster,
+    "outro": kind_outro,
     "title": kind_title,
     "bullets": kind_bullets,
     "quote": kind_quote,
@@ -246,7 +360,7 @@ def main():
     for i, scene in enumerate(SCENES, start=1):
         img, d = base_slide()
         RENDERERS[scene["kind"]](scene, img, d)
-        if scene["kind"] != "title":
+        if scene["kind"] not in ("title", "poster", "outro"):
             footer(d, "%d / %d" % (i, len(SCENES)))
         path = os.path.join(out_dir, scene["key"] + ".png")
         img.save(path)

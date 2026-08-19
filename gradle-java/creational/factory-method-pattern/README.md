@@ -47,7 +47,7 @@ learning path.
 | [`docs/uml-diagram.md`](docs/uml-diagram.md) | Runtime call flow |
 | [`docs/animation.html`](docs/animation.html) | Animated, step-by-step walkthrough — open in a browser. Optional narration via the **Narration** button |
 | [`docs/session.md`](docs/session.md) | A 60-minute guided session plan for teaching it |
-| [`video/`](video/) | A narrated ~7 minute video, plus the script and build pipeline |
+| [`video/`](video/) | A narrated ~8 minute video, plus the script and build pipeline |
 
 ### The pattern in one picture
 
@@ -55,7 +55,7 @@ learning path.
 
 ### Video
 
-`video/factory-method-pattern-explained.mp4` — 1080p, ~7 minutes, narrated.
+`video/factory-method-pattern-explained.mp4` — 1080p, ~8 minutes, narrated.
 An audio-only version is alongside it. See
 [`video/README.md`](video/README.md) to rebuild or re-record it.
 
