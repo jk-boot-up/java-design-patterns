@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Builds the Abstract Factory pattern teaching video.
+# Builds the Static Factory Method teaching video.
 #
 #   1. renders one 1920x1080 slide per scene          (make_slides.py)
 #   2. narrates each scene with a female voice        (macOS `say`)
@@ -8,9 +8,9 @@
 #   4. concatenates every scene into the final video  (ffmpeg)
 #
 # Outputs:
-#   abstract-factory-pattern-explained.mp4   1080p H.264 + AAC, ready for YouTube
-#   abstract-factory-pattern-explained.m4a   audio-only version (podcast / revision)
-#   poster.png                               title card, for use as the YouTube thumbnail
+#   static-factory-pattern-explained.mp4   1080p H.264 + AAC, ready for YouTube
+#   static-factory-pattern-explained.m4a   audio-only version (podcast / revision)
+#   poster.png                             title card, for use as the YouTube thumbnail
 #
 # Requirements: macOS (for `say`), ffmpeg, python3 with pillow + matplotlib.
 #
@@ -21,9 +21,9 @@ cd "$(dirname "$0")"
 BUILD=build
 VOICE="${VOICE:-Samantha}"     # female US English voice
 RATE="${RATE:-170}"            # words per minute
-OUT_VIDEO=abstract-factory-pattern-explained.mp4
-OUT_AUDIO=abstract-factory-pattern-explained.m4a
-OUT_SUBS=abstract-factory-pattern-explained.srt
+OUT_VIDEO=static-factory-pattern-explained.mp4
+OUT_AUDIO=static-factory-pattern-explained.m4a
+OUT_SUBS=static-factory-pattern-explained.srt
 OUT_POSTER=poster.png            # first frame, doubles as the YouTube thumbnail
 
 command -v ffmpeg >/dev/null || { echo "ffmpeg is required"; exit 1; }

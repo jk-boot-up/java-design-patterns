@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Static Factory Method — Animated Walkthrough</title>
+<style>
+  :root {
+    --bg: #0f172a;
+    --panel: #1e293b;
+    --panel-hi: #334155;
+    --line: #475569;
+    --text: #e2e8f0;
+    --muted: #94a3b8;
+    --client: #38bdf8;
+    --factory: #a78bfa;
+    --iface: #f472b6;
+    --hidden: #fbbf24;
+    --ok: #34d399;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 28px 20px 60px;
+    background: var(--bg);
+    color: var(--text);
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  h1 { text-align: center; font-size: 28px; margin: 0 0 4px; }
+  .sub { text-align: center; color: var(--muted); margin: 0 0 24px; font-size: 15px; }
+
+  .wrap { max-width: 1180px; margin: 0 auto; }
+
+  .controls { display: flex; gap: 10px; justify-content: center; margin-bottom: 26px; flex-wrap: wrap; }
+  button {
+    background: var(--panel-hi); color: var(--text); border: 1px solid var(--line);
+    padding: 9px 20px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer;
+    transition: background .15s, transform .1s;
+  }
+  button:hover:not(:disabled) { background: #475569; }
+  button:active:not(:disabled) { transform: translateY(1px); }
+  button:disabled { opacity: .4; cursor: not-allowed; }
+  button.primary { background: var(--factory); color: #1e1b4b; border-color: var(--factory); }
+  button.primary:hover:not(:disabled) { background: #b9a3ff; }
+  button.on { background: #0c2b3d; border-color: var(--client); color: var(--client); }
+  button.on:hover:not(:disabled) { background: #123a52; }
+
+  .audio-note {
+    text-align: center; color: var(--muted); font-size: 12.5px;
+    margin: -14px 0 22px; min-height: 17px;
+  }
+
+  .stage { display: grid; grid-template-columns: 200px 1fr; gap: 22px; align-items: start; }
+
+  .col-client { display: flex; flex-direction: column; align-items: center; gap: 14px; padding-top: 70px; }
+
+  .box {
+    background: var(--panel); border: 2px solid var(--line); border-radius: 12px;
+    padding: 14px 16px; text-align: center; width: 100%;
+    transition: border-color .3s, box-shadow .3s, transform .3s, background .3s, opacity .3s;
+  }
+  .box .name { font-weight: 700; font-size: 15px; letter-spacing: .2px; }
+  .box .role { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-top: 3px; }
+  .box.active {
+    transform: translateY(-3px);
+    box-shadow: 0 0 0 3px rgba(255,255,255,.07), 0 10px 28px rgba(0,0,0,.45);
+  }
+  .box.client.active  { border-color: var(--client);  background: #0c2b3d; }
+  .box.iface.active   { border-color: var(--factory); background: #2b2247; }
+  .box.impl.active    { border-color: var(--hidden);  background: #322612; }
+  .box.chosen { border-color: var(--ok); }
+  .box.chosen::after { content: " ✓"; color: #4ade80; font-weight: 700; }
+  .box.faded { opacity: .3; }
+
+  .col-main { display: flex; flex-direction: column; gap: 18px; }
+
+  .factory-shell {
+    border: 2px dashed var(--factory); border-radius: 14px; padding: 16px;
+    background: rgba(167,139,250,.05);
+  }
+  .factory-label {
+    font-size: 11px; color: var(--factory); text-transform: uppercase;
+    letter-spacing: 1.4px; font-weight: 700; margin-bottom: 12px; text-align: center;
+  }
+  .methods {
+    display: flex; flex-direction: column; gap: 6px; margin-top: 12px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12.5px;
+  }
+  .mf {
+    padding: 6px 12px; border-radius: 7px; border: 1px dashed var(--factory);
+    color: var(--factory); transition: all .3s;
+  }
+  .mf.lit { background: #2b2247; border-style: solid; color: var(--text); }
+  .mf.dead { border-color: #7f1d1d; color: #f87171; text-decoration: line-through; }
+  .hint {
+    text-align: center; color: var(--muted); font-size: 11.5px;
+    letter-spacing: .4px; margin: 14px 0 8px;
+  }
+
+  .hidden-shell {
+    border: 2px dashed var(--hidden); border-radius: 14px; padding: 14px 12px;
+    background: rgba(251,191,36,.05);
+  }
+  .hidden-label {
+    font-size: 11px; color: var(--hidden); text-transform: uppercase;
+    letter-spacing: 1.4px; font-weight: 700; margin-bottom: 10px; text-align: center;
+  }
+  .impls { display: grid; grid-template-columns: repeat(5, 1fr); gap: 9px; }
+  .impls .box { padding: 11px 7px; }
+  .impls .box .name { font-size: 12.5px; }
+  .impls .box .role { font-size: 9.5px; letter-spacing: .6px; }
+
+  .arrow-rail { height: 30px; position: relative; }
+  .arrow {
+    position: absolute; left: 50%; transform: translateX(-50%);
+    font-size: 13px; color: var(--muted); opacity: 0;
+    transition: opacity .3s; white-space: nowrap;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  }
+  .arrow.show { opacity: 1; }
+
+  .narration {
+    background: var(--panel); border-left: 4px solid var(--factory);
+    border-radius: 0 10px 10px 0; padding: 16px 20px; min-height: 76px;
+    font-size: 15px; line-height: 1.6;
+  }
+  .narration .step-no { color: var(--muted); font-size: 12px; letter-spacing: 1px; text-transform: uppercase; }
+  .narration .text { margin-top: 5px; }
+
+  .console {
+    background: #020617; border: 1px solid var(--line); border-radius: 10px;
+    padding: 14px 16px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 13px; line-height: 1.75; min-height: 150px;
+  }
+  .console .ttl { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+  .console div.ln { opacity: 0; transition: opacity .35s; }
+  .console div.ln.show { opacity: 1; }
+  .c-name { color: var(--iface); }
+  .c-same { color: var(--factory); }
+  .c-tot  { color: #4ade80; }
+  .c-rej  { color: #f87171; }
+
+  .progress { display: flex; gap: 5px; justify-content: center; margin-top: 22px; }
+  .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--line); transition: background .3s, transform .3s; }
+  .dot.on { background: var(--factory); transform: scale(1.35); }
+
+  .legend { text-align: center; color: var(--muted); font-size: 13px; margin-top: 26px; line-height: 1.7; }
+  .legend b { color: var(--text); }
+
+  @media (max-width: 860px) {
+    .stage { grid-template-columns: 1fr; }
+    .col-client { padding-top: 0; }
+    .impls { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>The Static Factory Method</h1>
+  <p class="sub">Ask for what you want &rarr; the type decides what to build &rarr; and you never learn its name</p>
+
+  <div class="controls">
+    <button id="play" class="primary">&#9654;&nbsp; Play</button>
+    <button id="step">Step &rarr;</button>
+    <button id="reset">Reset</button>
+    <button id="audio" aria-pressed="false" title="Narrate each step (N)">
+      <span id="audio-icon">&#128263;</span>&nbsp; Narration: off
+    </button>
+  </div>
+  <p class="audio-note" id="audio-note"></p>
+
+  <div class="stage">
+
+    <div class="col-client">
+      <div class="box client" id="b-caller">
+        <div class="name">Your code</div>
+        <div class="role">the caller</div>
+      </div>
+      <div style="font-size:26px;color:var(--line)">&#8595;</div>
+      <div style="font-size:11px;color:var(--muted);text-align:center;line-height:1.5">
+        says what it wants,<br>never how to build it
+      </div>
+      <div class="box client" id="b-checkout" style="margin-top:14px">
+        <div class="name">CheckoutService</div>
+        <div class="role">applies whatever it gets</div>
+      </div>
+    </div>
+
+    <div class="col-main">
+
+      <div class="arrow-rail">
+        <div class="arrow" id="a-in">Discount.percentage(10) &nbsp;&#8595;</div>
+      </div>
+
+      <div class="factory-shell">
+        <div class="factory-label">The type is its own factory</div>
+        <div class="box iface" id="b-discount">
+          <div class="name">Discount</div>
+          <div class="role">public interface &mdash; six static factory methods</div>
+        </div>
+
+        <div class="methods">
+          <div class="mf" id="mf-0">new Discount(10) &nbsp; &rarr; &nbsp; no such thing</div>
+          <div class="mf" id="mf-1">Discount.none() &nbsp; &rarr; &nbsp; Discount</div>
+          <div class="mf" id="mf-2">Discount.percentage(int) &nbsp; &rarr; &nbsp; Discount</div>
+          <div class="mf" id="mf-3">Discount.amountOff(Money) &nbsp; &rarr; &nbsp; Discount</div>
+          <div class="mf" id="mf-4">Discount.freeShipping() &nbsp; &rarr; &nbsp; Discount</div>
+          <div class="mf" id="mf-5">Discount.bestOf(Discount, Discount) &nbsp; &rarr; &nbsp; Discount</div>
+          <div class="mf" id="mf-6">Discount.forCoupon(String) &nbsp; &rarr; &nbsp; Discount</div>
+        </div>
+
+        <div class="hint">every method has a name, and every one returns the interface &mdash; never a class</div>
+      </div>
+
+      <div class="arrow-rail">
+        <div class="arrow" id="a-out">&#8595; &nbsp; the method picks the class &mdash; you only ever see Discount</div>
+      </div>
+
+      <div class="hidden-shell">
+        <div class="hidden-label">package-private &mdash; your code cannot name any of these</div>
+        <div class="impls">
+          <div class="box impl" id="b-none">
+            <div class="name">NoDiscount</div>
+            <div class="role">shared</div>
+          </div>
+          <div class="box impl" id="b-pct">
+            <div class="name">Percentage</div>
+            <div class="role">% off</div>
+          </div>
+          <div class="box impl" id="b-amt">
+            <div class="name">AmountOff</div>
+            <div class="role">flat</div>
+          </div>
+          <div class="box impl" id="b-ship">
+            <div class="name">FreeShipping</div>
+            <div class="role">shared</div>
+          </div>
+          <div class="box impl" id="b-best">
+            <div class="name">BestOf</div>
+            <div class="role">composite</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="narration" id="narration">
+        <div class="step-no">Ready</div>
+        <div class="text">Press <b>Play</b> to watch a type create itself &mdash; with names a constructor could never have had.</div>
+      </div>
+
+      <div class="console">
+        <div class="ttl">Program output</div>
+        <div id="console-lines"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="progress" id="progress"></div>
+
+  <p class="legend">
+    <b>A constructor cannot be named, and cannot refuse to allocate. A static factory method can do both.</b><br>
+    Add a sixth kind of discount and you add one file &mdash; you never edit a caller.<br>
+    <span style="font-size:12px">
+      Keys: <b>Space</b> play/pause &nbsp;·&nbsp; <b>&rarr;</b> next step
+      &nbsp;·&nbsp; <b>N</b> narration &nbsp;·&nbsp; <b>R</b> reset
+    </span>
+  </p>
+
+</div>
+
+<script>
+const STEPS = [
+  {
+    title: "Step 1 — The constructor that cannot exist",
+    text: "We want \"10% off\" and \"£10 off\". Both are one number, so both would be Discount(double) — and Java will not let two constructors share a signature. A constructor's name is the class name, so there is nowhere to put the meaning.",
+    active: ["b-caller"], chosen: [], faded: ["b-none", "b-pct", "b-amt", "b-ship", "b-best", "b-checkout"],
+    dead: ["mf-0"], mf: [], arrow: null, out: null
+  },
+  {
+    title: "Step 2 — Give the method a name",
+    text: "Discount.percentage(10) says exactly what it means, and hands back a PercentageDiscount typed only as Discount. The caller asked for what it wanted, not for a class to build.",
+    active: ["b-discount", "b-pct"], chosen: ["b-pct"], faded: ["b-none", "b-amt", "b-ship", "b-best", "b-checkout"],
+    dead: ["mf-0"], mf: ["mf-2"], arrow: "a-in", out: null
+  },
+  {
+    title: "Step 3 — The same argument, a different meaning",
+    text: "Discount.amountOff(Money.pounds(10)) takes one value too, and nobody could confuse the two. As constructors these could not have coexisted at all; as named methods they sit happily side by side.",
+    active: ["b-discount", "b-amt"], chosen: ["b-amt"], faded: ["b-none", "b-pct", "b-ship", "b-best", "b-checkout"],
+    dead: ["mf-0"], mf: ["mf-3"], arrow: "a-out", out: null
+  },
+  {
+    title: "Step 4 — Freedom not to allocate",
+    text: "Discount.none() returns the very same object every time, because a discount of nothing has no state worth copying. The word new is defined as making something new, so a constructor could never have done this.",
+    active: ["b-discount", "b-none"], chosen: ["b-none"], faded: ["b-pct", "b-amt", "b-ship", "b-best", "b-checkout"],
+    dead: ["mf-0"], mf: ["mf-1"], arrow: null,
+    out: { cls: "c-same", txt: "none() is shared: true\nzero() is shared: true" }
+  },
+  {
+    title: "Step 5 — Freedom to choose the class",
+    text: "Ask for percentage(0) and you do not get a percentage discount of zero — you get the shared do-nothing one instead. You asked for an outcome, so the method was free to serve it however it liked. Nobody outside can tell.",
+    active: ["b-discount", "b-none"], chosen: ["b-none"], faded: ["b-pct", "b-amt", "b-ship", "b-best", "b-checkout"],
+    dead: ["mf-0"], mf: ["mf-2"],
+    out: { cls: "c-name", txt: "percentage(0) -> No discount" }
+  },
+  {
+    title: "Step 6 — One call site, any class at all",
+    text: "Discount.forCoupon reads a code from the storefront and returns whichever implementation fits. BESTDEAL builds a composite holding two other discounts — a class the caller could not have assembled, because it cannot name any of the three.",
+    active: ["b-discount", "b-best"], chosen: ["b-best"], faded: ["b-none", "b-pct", "b-amt", "b-ship", "b-checkout"],
+    dead: ["mf-0"], mf: ["mf-6"], arrow: "a-out",
+    out: { cls: "c-name", txt: "Coupon: BESTDEAL -> Best of: 10% off / £5.00 off" }
+  },
+  {
+    title: "Step 7 — The client never chose anything",
+    text: "CheckoutService applies whatever it is handed. Search it for new, for an if on the kind of discount, or for any of those five class names, and you will find nothing — all the choosing happened inside a factory method, long before this code ran. An unknown coupon never becomes an object at all.",
+    active: ["b-checkout", "b-discount"], chosen: [], faded: [],
+    dead: ["mf-0"], mf: [], arrow: null,
+    out: [
+      { cls: "c-tot", txt: "Checkout: order ORD-4001 subtotal £120.00 + shipping £4.99\nCheckout: 10% off saves £12.00\nCheckout: total £112.99" },
+      { cls: "c-rej", txt: "Rejected: unknown coupon code: SAVE99" }
+    ]
+  }
+];
+
+const ALL_BOXES = ["b-caller", "b-checkout", "b-discount", "b-none", "b-pct", "b-amt", "b-ship", "b-best"];
+const ARROWS = ["a-in", "a-out"];
+const MF = ["mf-0", "mf-1", "mf-2", "mf-3", "mf-4", "mf-5", "mf-6"];
+
+const STEP_MS = 3200;      // pace when narration is off
+const GAP_MS = 700;        // breathing room after a clip finishes
+
+let idx = -1;
+let playing = false;
+let timer = null;
+
+// Narration is optional: if the audio clips are missing (or the browser
+// blocks playback) the animation still works exactly as before.
+let audioOn = false;
+let clips = [];
+let current = null;
+
+const $ = id => document.getElementById(id);
+const progressEl = $("progress");
+const linesEl = $("console-lines");
+const noteEl = $("audio-note");
+
+STEPS.forEach(() => {
+  const d = document.createElement("div");
+  d.className = "dot";
+  progressEl.appendChild(d);
+});
+
+// ---- optional narration ------------------------------------------------
+
+clips = STEPS.map((_, i) => {
+  const a = new Audio("audio/step-" + (i + 1) + ".m4a");
+  a.preload = "none";
+  return a;
+});
+
+function stopAudio() {
+  if (!current) return;
+  current.pause();
+  current.currentTime = 0;
+  current.onended = null;
+  current = null;
+}
+
+/** Play the clip for step i. onDone fires when it finishes (or cannot play). */
+function playClip(i, onDone) {
+  stopAudio();
+  if (!audioOn) { if (onDone) onDone(); return; }
+
+  const a = clips[i];
+  current = a;
+  a.currentTime = 0;
+  a.onended = () => { current = null; if (onDone) onDone(); };
+
+  a.play().catch(() => {
+    // Missing file, or autoplay blocked -> fall back to timed pacing.
+    current = null;
+    noteEl.textContent =
+      "Narration audio could not be played — falling back to timed steps. " +
+      "Run docs/make_animation_audio.sh to generate the clips.";
+    if (onDone) onDone();
+  });
+}
+
+function setAudio(on) {
+  audioOn = on;
+  const btn = $("audio");
+  btn.classList.toggle("on", on);
+  btn.setAttribute("aria-pressed", String(on));
+  btn.innerHTML = '<span id="audio-icon">' + (on ? "&#128266;" : "&#128263;") +
+                  "</span>&nbsp; Narration: " + (on ? "on" : "off");
+  noteEl.textContent = on
+    ? "Each step is narrated, and the animation waits for the voice to finish."
+    : "";
+  if (!on) stopAudio();
+}
+
+// ------------------------------------------------------------------------
+
+function clearHighlights() {
+  ALL_BOXES.forEach(b => $(b).classList.remove("active", "faded"));
+  ARROWS.forEach(a => $(a).classList.remove("show"));
+  MF.forEach(m => $(m).classList.remove("lit", "dead"));
+}
+
+function render(i) {
+  clearHighlights();
+  const s = STEPS[i];
+
+  ALL_BOXES.forEach(b => $(b).classList.remove("chosen"));
+
+  s.active.forEach(b => $(b).classList.add("active"));
+  (s.faded || []).forEach(b => $(b).classList.add("faded"));
+  (s.chosen || []).forEach(b => $(b).classList.add("chosen"));
+  (s.mf || []).forEach(m => $(m).classList.add("lit"));
+  (s.dead || []).forEach(m => $(m).classList.add("dead"));
+  if (s.arrow) $(s.arrow).classList.add("show");
+
+  $("narration").innerHTML =
+    '<div class="step-no">' + s.title + '</div><div class="text">' + s.text + '</div>';
+
+  // Rebuild console output up to this step. A step may print one block or
+  // several, each with its own colour.
+  linesEl.innerHTML = "";
+  for (let k = 0; k <= i; k++) {
+    if (!STEPS[k].out) continue;
+    const blocks = [].concat(STEPS[k].out);
+    blocks.forEach(block => block.txt.split("\n").forEach(txt => {
+      const div = document.createElement("div");
+      div.className = "ln " + block.cls;
+      div.textContent = txt;
+      linesEl.appendChild(div);
+      requestAnimationFrame(() => div.classList.add("show"));
+    }));
+  }
+
+  [...progressEl.children].forEach((d, k) => d.classList.toggle("on", k <= i));
+}
+
+/** Advance one step. In play mode, schedule the following step afterwards. */
+function next() {
+  if (idx >= STEPS.length - 1) { stop(); return; }
+  idx++;
+  render(idx);
+
+  if (!playing) { playClip(idx); return; }
+
+  if (audioOn) {
+    // Wait for the voice to finish this step, then move on.
+    playClip(idx, () => {
+      if (!playing) return;
+      timer = setTimeout(next, GAP_MS);
+    });
+  } else {
+    timer = setTimeout(next, STEP_MS);
+  }
+}
+
+function stop() {
+  playing = false;
+  clearTimeout(timer);
+  stopAudio();
+  $("play").innerHTML = "&#9654;&nbsp; Play";
+  $("step").disabled = false;
+}
+
+function reset() {
+  stop();
+  idx = -1;
+  clearHighlights();
+  ALL_BOXES.forEach(b => $(b).classList.remove("chosen"));
+  linesEl.innerHTML = "";
+  [...progressEl.children].forEach(d => d.classList.remove("on"));
+  $("narration").innerHTML =
+    '<div class="step-no">Ready</div><div class="text">Press <b>Play</b> to watch a type create itself &mdash; with names a constructor could never have had.</div>';
+}
+
+$("play").addEventListener("click", () => {
+  if (playing) { stop(); return; }
+  if (idx >= STEPS.length - 1) reset();
+  playing = true;
+  $("play").innerHTML = "&#10074;&#10074;&nbsp; Pause";
+  $("step").disabled = true;
+  next();   // next() now schedules the rest of the run itself
+});
+
+$("step").addEventListener("click", () => { stop(); if (idx >= STEPS.length - 1) reset(); next(); });
+$("reset").addEventListener("click", reset);
+
+$("audio").addEventListener("click", () => {
+  setAudio(!audioOn);
+  // Turning narration on mid-run: speak the step already on screen.
+  if (audioOn && playing && idx >= 0) {
+    clearTimeout(timer);
+    playClip(idx, () => {
+      if (!playing) return;
+      timer = setTimeout(next, GAP_MS);
+    });
+  }
+});
+
+document.addEventListener("keydown", e => {
+  if (e.code === "Space") { e.preventDefault(); $("play").click(); }
+  if (e.code === "ArrowRight") { e.preventDefault(); $("step").click(); }
+  if (e.code === "KeyR") reset();
+  if (e.code === "KeyN") $("audio").click();
+});
+
+setAudio(false);
+reset();
+</script>
+</body>
+</html>

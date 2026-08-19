@@ -9,14 +9,17 @@ Each scene has:
 """
 
 SCENES = [
+    # The poster is also the YouTube thumbnail, so it is the first frame of
+    # the video and is saved separately as poster.png by build_video.sh.
     dict(
-        key="01-title",
-        kind="title",
+        key="01-poster",
+        kind="poster",
         title="The Abstract Factory Pattern",
-        body=["A beginner's guide, in Java 21",
-              "Learn it by building an online store's regional checkout"],
+        body=None,
         narration=(
-            "Hello, and welcome. In this short video we are going to learn the Abstract "
+            "Hello, and welcome. This video is written and presented by "
+            "Jayasekhar Konduru. "
+            "Today we are going to learn the Abstract "
             "Factory, the most ambitious of the factory patterns in the Gang of Four "
             "book. It sounds intimidating, and I think that is entirely the name's fault. "
             "The idea underneath is simple and you will recognise it from real life. So "
@@ -391,8 +394,28 @@ Rejected: "EH1 1YZ" is not a valid United States ZIP code""",
             "chooses with inheritance. An abstract factory chooses a whole family at once. "
             "If you remember one sentence from this video, make it this one. If getting "
             "two objects from different groups would be a bug, you want an abstract "
-            "factory. The full source code, the written notes and an interactive animation "
-            "are all in the repository. Thank you for watching, and enjoy the pattern."
+            "factory."
+        ),
+    ),
+    dict(
+        key="16-outro",
+        kind="outro",
+        title="Thanks for Watching",
+        body=[
+            "If this helped, a thumbs up and a subscribe go a long way",
+            "towards keeping more videos like it coming.",
+            "",
+            "Full source code, notes and an animation are in the repository.",
+        ],
+        narration=(
+            "If you found this useful, please do give the video a thumbs up and "
+            "subscribe to the channel. It genuinely helps the channel grow, and "
+            "it is what makes more content like this possible. "
+            "If there is a pattern you would like covered next, leave it in the "
+            "comments and I will read every one. "
+            "The full source code, the written notes and an interactive animation "
+            "are all in the repository. Thank you for watching, and I will see you "
+            "in the next one."
         ),
     ),
 ]

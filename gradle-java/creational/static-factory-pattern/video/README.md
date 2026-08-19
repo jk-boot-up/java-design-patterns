@@ -1,6 +1,6 @@
-# Abstract Factory Pattern — Teaching Video
+# Static Factory Method — Teaching Video
 
-A narrated, slide-based video that teaches the Abstract Factory pattern using
+A narrated, slide-based video that teaches the static factory method using
 this project's code. Aimed at beginners with no prior design-pattern
 knowledge.
 
@@ -8,12 +8,12 @@ knowledge.
 
 | File | What it is |
 | --- | --- |
-| `abstract-factory-pattern-explained.mp4` | The video — 1920×1080, H.264, 30 fps, stereo AAC. Upload-ready for YouTube. |
-| `abstract-factory-pattern-explained.m4a` | Audio-only version, for listening on the move or for revision. |
-| `abstract-factory-pattern-explained.srt` | Subtitles, timed from the encoded scene clips. Upload alongside the video for accurate captions. |
+| `static-factory-pattern-explained.mp4` | The video — 1920×1080, H.264, 30 fps, stereo AAC. Upload-ready for YouTube. |
+| `static-factory-pattern-explained.m4a` | Audio-only version, for listening on the move or for revision. |
+| `static-factory-pattern-explained.srt` | Subtitles, timed from the encoded scene clips. Upload alongside the video for accurate captions. |
 | `poster.png` | The opening title card, 1920×1080. Upload it as the video's custom thumbnail. |
 
-**Runtime:** approximately 9 and a half minutes.
+**Runtime:** approximately 10 minutes.
 **Narration:** female voice (macOS `Samantha`, US English).
 
 None of the four are committed — they are build output. Run
@@ -80,24 +80,27 @@ VOICE=Ava RATE=160 ./build_video.sh
 | # | Scene | Covers |
 | --- | --- | --- |
 | 1 | Poster | Title card, author credit, and the thumbnail |
-| 2 | The Scenario | Three markets, three sets of rules |
-| 3 | Nine Classes, Three Legal Combinations | The 3×3 grid, and what a "family" means |
-| 4 | The Problem | Three branches on the same string |
-| 5 | Why That Hurts | Silent mismatches, three-way edits, a wrong invoice |
-| 6 | The Abstract Factory | The GoF definition, then the plain-language one |
-| 7 | The Set Menu | How to remember it forever |
-| 8 | The Roles | Client, abstract factory, concrete factories, products |
-| 9 | The Abstract Factory | The interface — and the parameter that is missing |
-| 10 | A Concrete Factory | Three `new` calls, and zero validation |
-| 11 | The Client | Four lines of setup, then no country anywhere |
-| 12 | What You Gain | Impossible mismatches, additive markets, testable families |
-| 13 | The Honest Cost | Rows are cheap, columns are expensive |
-| 14 | Running It | The real program output, including the rejection |
-| 15 | Wrap Up | When to use it, when not to, and the one sentence to remember |
-| 16 | Thanks for Watching | Like, subscribe, and where the source code lives |
+| 2 | The Job | One order, five kinds of discount |
+| 3 | The First Attempt Does Not Compile | Two constructors, one signature |
+| 4 | So Everyone Writes This Instead | The widened constructor, and four unreadable call sites |
+| 5 | Why That Hurts | Five separate costs, none of them the type's fault |
+| 6 | The Static Factory Method | *Effective Java* Item 1 — and why it is not a GoF pattern |
+| 7 | A Vending Machine | The analogy: a labelled button, not reaching inside |
+| 8 | The Shape of It | One public door, five classes nobody outside can name |
+| 9 | The Type Is Its Own Factory | The `Discount` interface and its six named ways in |
+| 10 | Freedom Two: Not to Allocate | `NoDiscount.INSTANCE`, and why `new` could never do it |
+| 11 | Freedom Three: to Choose the Class | `percentage(0)` quietly returning something else |
+| 12 | What the Client Looks Like | No `new`, no branch, no implementation names |
+| 13 | The Same Trick on a Value Type | `Money.pounds` versus `Money.pence` |
+| 14 | You Already Use This Every Day | The JDK examples and the naming conventions |
+| 15 | Running It | The real program output, including the rejected coupon |
+| 16 | Where It Stops | No subclassing, harder to find, and the compile-time ceiling |
+| 17 | The Rest of the Family | How the four factory projects relate |
+| 18 | One Sentence to Keep | The takeaway |
+| 19 | Thanks for Watching | Like, subscribe, and where the source code lives |
 
 The first and last scenes carry the branding: scene 1 credits the author out
-loud, scene 16 asks for the thumbs up and the subscribe. Both are rendered by
+loud, scene 19 asks for the thumbs up and the subscribe. Both are rendered by
 their own slide styles (`poster` and `outro` in `make_slides.py`) and are the
 only two scenes with no page number in the footer.
 
@@ -117,8 +120,8 @@ Narration lives in `scenes.py`, next to the slide it belongs to. Edit the
 `narration.md` in sync if you change the wording substantially — it is the
 human-readable copy used for review.
 
-Note that some words are spelled phonetically for the synthesiser — "V A T"
-rather than "VAT", "à la carte" spoken as written. Keep that habit, or the
+Note that currency and symbols are written out in words — "five pounds"
+rather than "£5", "ten percent" rather than "10%". Keep that habit, or the
 narration will mispronounce them.
 
 ## Publishing Notes
@@ -126,14 +129,14 @@ narration will mispronounce them.
 The video is encoded to YouTube's recommended settings already (1080p,
 H.264, 30 fps, stereo AAC at 48 kHz), so it can be uploaded as-is.
 
-**Upload `abstract-factory-pattern-explained.mp4`, with `poster.png` as the
+**Upload `static-factory-pattern-explained.mp4`, with `poster.png` as the
 thumbnail and the `.srt` as the captions.** The `.m4a` and the build scripts
 have no role on YouTube.
 
 ### Adding the subtitles
 
 YouTube auto-generates captions, but they mis-hear class names like
-`MarketFactory`. Uploading `abstract-factory-pattern-explained.srt` gives
+`PercentageDiscount`. Uploading `static-factory-pattern-explained.srt` gives
 exact wording and makes the video searchable.
 
 **During upload** — on the *Video elements* step, choose **Add subtitles**
@@ -161,11 +164,13 @@ Two further things that affect how well it plays for viewers:
 
 Suggested description:
 
-> Learn the Abstract Factory pattern in Java 21 by building an online
-> store's regional checkout. We start with the problem — three separate
-> if/else chains that must all agree with each other, and silently produce a
-> wrong invoice when they don't — and end with a design where a mismatched
-> family is not caught but impossible. We also cover, honestly, why adding a
-> new product kind is the expensive direction, and when the pattern is more
-> machinery than the job needs. No prior design-pattern knowledge needed.
-> Full source code and written notes are in the repository.
+> Learn the static factory method in Java 21 — Item 1 of Effective Java, and
+> the creational technique you have already used every time you wrote
+> List.of. We start from a constructor that will not compile, because ten
+> percent off and ten pounds off are both a single number, and end with a
+> discount type that names its own ways in, shares instances where it can,
+> and hides every implementation class from its callers. We also cover,
+> honestly, what it cannot do: a static method is resolved at compile time,
+> so it cannot be overridden or configured — which is exactly why the other
+> factory patterns exist. No prior design-pattern knowledge needed. Full
+> source code and written notes are in the repository.
