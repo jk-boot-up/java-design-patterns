@@ -17,13 +17,20 @@ SCENES = [
         title="The Simple Factory Pattern",
         body=None,
         narration=(
-            "Hello, and welcome. This one is written and presented by Jayasekhar "
-            "Konduru. [[slnc 300]] Today we are doing the pattern that almost "
-            "every Java developer writes long before they know it has a name. The "
-            "simple factory. [[slnc 250]] And we will learn it properly, by "
-            "building a real working Java project. The payment step of an online "
-            "store. By the end you'll know what a factory is, why it exists, "
-            "and how to write one yourself."
+            "Hello, and welcome. This video explains the Simple Factory pattern "
+            "in Java, and it is written and presented by Jayasekhar Konduru. "
+            "[[slnc 300]] Let's start with the simple definition. A simple "
+            "factory is one place that decides which class to create. Rather than "
+            "every caller writing new and choosing a type for itself, callers "
+            "hand over a piece of data — a name, a code, a setting — and get back "
+            "an object behind an interface they already know. The decision is "
+            "made once, in one file, instead of everywhere. [[slnc 350]] That's "
+            "the idea in a sentence, and it's the pattern almost every Java "
+            "developer writes long before they learn it has a name. The rest of "
+            "the video does it properly, by building a real working Java project: "
+            "the payment step of an online store. [[slnc 250]] By the end you'll "
+            "know what a factory is, why it exists, and how to write one "
+            "yourself."
         ),
     ),
     dict(

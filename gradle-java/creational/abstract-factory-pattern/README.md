@@ -30,6 +30,27 @@ produce it.
 ./gradlew run
 ```
 
+Which prints:
+
+```text
+Checkout: United Kingdom order ORD-3001 to postcode EH1 1YZ
+Checkout: VAT of £24.00 on £120.00
+Checkout: total £144.00 GBP
+Quote: Quote[market=United Kingdom, subtotal=£120.00, taxLabel=VAT, tax=£24.00, total=£144.00]
+
+Checkout: United States order ORD-3001 to ZIP code 10001
+Checkout: Sales Tax of $10.65 on $120.00
+Checkout: total $130.65 USD
+Quote: Quote[market=United States, subtotal=$120.00, taxLabel=Sales Tax, tax=$10.65, total=$130.65]
+
+Checkout: India order ORD-3001 to PIN code 560001
+Checkout: GST of ₹21.60 on ₹120.00
+Checkout: total ₹141.60 INR
+Quote: Quote[market=India, subtotal=₹120.00, taxLabel=GST, tax=₹21.60, total=₹141.60]
+
+Rejected: "EH1 1YZ" is not a valid United States ZIP code
+```
+
 ## Test
 
 ```bash
@@ -50,7 +71,10 @@ path.
 | [`docs/uml-diagram.md`](docs/uml-diagram.md) | Runtime call flow |
 | [`docs/animation.html`](docs/animation.html) | Animated, step-by-step walkthrough — open in a browser. Optional narration via the **Narration** button |
 | [`docs/session.md`](docs/session.md) | A 60-minute guided session plan for teaching it |
-| [`video/`](video/) | A narrated ~9.5 minute video, plus the script and build pipeline |
+| [`docs/youtube.md`](docs/youtube.md) | Title, description, chapters and thumbnail for publishing the video |
+| [`docs/thumbnail.png`](docs/thumbnail.png) | The 1280×720 image to upload as the YouTube thumbnail |
+| [`docs/spec.md`](docs/spec.md) | The project specification — problem, code, video and publishing quality bar. Also as [`spec.html`](docs/spec.html) |
+| [`video/`](video/) | A narrated ~10 minute video, plus the script and build pipeline |
 
 ### The pattern in one picture
 
@@ -62,7 +86,7 @@ path.
 
 ### Video
 
-`video/abstract-factory-pattern-explained.mp4` — 1080p, ~9.5 minutes, narrated.
+`video/abstract-factory-pattern-explained.mp4` — 1080p, ~10 minutes, narrated.
 An audio-only version is alongside it. See
 [`video/README.md`](video/README.md) to rebuild or re-record it.
 

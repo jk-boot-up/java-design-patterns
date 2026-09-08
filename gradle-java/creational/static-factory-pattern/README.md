@@ -36,6 +36,47 @@ with.
 ./gradlew run
 ```
 
+Which prints:
+
+```text
+Coupon: SAVE10
+Checkout: order ORD-4001 subtotal £120.00 + shipping £4.99
+Checkout: 10% off saves £12.00
+Checkout: total £112.99
+Receipt: Receipt[orderId=ORD-4001, subtotal=£120.00, shipping=£4.99, discountLabel=10% off, discountAmount=£12.00, total=£112.99]
+
+Coupon: FIVEROFF
+Checkout: order ORD-4001 subtotal £120.00 + shipping £4.99
+Checkout: £5.00 off saves £5.00
+Checkout: total £119.99
+Receipt: Receipt[orderId=ORD-4001, subtotal=£120.00, shipping=£4.99, discountLabel=£5.00 off, discountAmount=£5.00, total=£119.99]
+
+Coupon: FREESHIP
+Checkout: order ORD-4001 subtotal £120.00 + shipping £4.99
+Checkout: Free shipping saves £4.99
+Checkout: total £120.00
+Receipt: Receipt[orderId=ORD-4001, subtotal=£120.00, shipping=£4.99, discountLabel=Free shipping, discountAmount=£4.99, total=£120.00]
+
+Coupon: BESTDEAL
+Checkout: order ORD-4001 subtotal £120.00 + shipping £4.99
+Checkout: Best of: 10% off / £5.00 off saves £12.00
+Checkout: total £112.99
+Receipt: Receipt[orderId=ORD-4001, subtotal=£120.00, shipping=£4.99, discountLabel=Best of: 10% off / £5.00 off, discountAmount=£12.00, total=£112.99]
+
+Coupon: (none)
+Checkout: order ORD-4001 subtotal £120.00 + shipping £4.99
+Checkout: No discount saves £0.00
+Checkout: total £124.99
+Receipt: Receipt[orderId=ORD-4001, subtotal=£120.00, shipping=£4.99, discountLabel=No discount, discountAmount=£0.00, total=£124.99]
+
+percentage(10) -> 10% off
+amountOff(£10) -> £10.00 off
+none() is shared: true
+zero() is shared: true
+percentage(0) -> No discount
+Rejected: unknown coupon code: SAVE99
+```
+
 ## Test
 
 ```bash
@@ -59,7 +100,11 @@ learning path.
 | [`docs/uml-diagram.md`](docs/uml-diagram.md) | Runtime call flow |
 | [`docs/animation.html`](docs/animation.html) | Animated, step-by-step walkthrough — open in a browser. Optional narration via the **Narration** button |
 | [`docs/session.md`](docs/session.md) | A 60-minute guided session plan for teaching it |
-| [`video/`](video/) | A narrated ~11.5 minute video, plus the script and build pipeline |
+| [`docs/video-spec.md`](docs/video-spec.md) | The specification the teaching video is built to — outputs, slide system, narration rules, and how to port it to another project |
+| [`docs/youtube.md`](docs/youtube.md) | Title, description, chapters and thumbnail for publishing the video |
+| [`docs/thumbnail.png`](docs/thumbnail.png) | The 1280×720 image to upload as the YouTube thumbnail |
+| [`docs/spec.md`](docs/spec.md) | The project specification — problem, code, video and publishing quality bar. Also as [`spec.html`](docs/spec.html) |
+| [`video/`](video/) | A narrated ~12 minute video, plus the script and build pipeline |
 
 ### The pattern in one picture
 
@@ -71,7 +116,7 @@ learning path.
 
 ### Video
 
-`video/static-factory-pattern-explained.mp4` — 1080p, ~11.5 minutes, narrated.
+`video/static-factory-pattern-explained.mp4` — 1080p, ~12 minutes, narrated.
 An audio-only version is alongside it. See
 [`video/README.md`](video/README.md) to rebuild or re-record it.
 

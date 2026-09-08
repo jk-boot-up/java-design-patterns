@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Visitor Pattern — Animated Walkthrough</title>
+<style>
+  :root {
+    --bg: #0f172a;
+    --panel: #1e293b;
+    --panel-hi: #334155;
+    --line: #475569;
+    --text: #e2e8f0;
+    --muted: #94a3b8;
+    --client: #38bdf8;
+    --receiver: #34d399;
+    --command: #a78bfa;
+    --picked: #fbbf24;
+    --bad: #f87171;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 28px 20px 60px;
+    background: var(--bg);
+    color: var(--text);
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  h1 { text-align: center; font-size: 28px; margin: 0 0 4px; }
+  .sub { text-align: center; color: var(--muted); margin: 0 0 24px; font-size: 15px; }
+
+  .wrap { max-width: 1100px; margin: 0 auto; }
+
+  .controls { display: flex; gap: 10px; justify-content: center; margin-bottom: 26px; flex-wrap: wrap; }
+  button {
+    background: var(--panel-hi); color: var(--text); border: 1px solid var(--line);
+    padding: 9px 20px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer;
+    transition: background .15s, transform .1s;
+  }
+  button:hover:not(:disabled) { background: #475569; }
+  button:active:not(:disabled) { transform: translateY(1px); }
+  button:disabled { opacity: .4; cursor: not-allowed; }
+  button.primary { background: var(--command); color: #1e1b4b; border-color: var(--command); }
+  button.primary:hover:not(:disabled) { background: #b9a3ff; }
+  button.on { background: #0c2b3d; border-color: var(--client); color: var(--client); }
+  button.on:hover:not(:disabled) { background: #123a52; }
+
+  .audio-note {
+    text-align: center; color: var(--muted); font-size: 12.5px;
+    margin: -14px 0 22px; min-height: 17px;
+  }
+
+  .stage { display: grid; grid-template-columns: 250px 1fr; gap: 22px; align-items: start; }
+
+  .col-client { display: flex; flex-direction: column; align-items: center; gap: 12px; padding-top: 20px; }
+
+  .box {
+    background: var(--panel); border: 2px solid var(--line); border-radius: 12px;
+    padding: 14px 16px; text-align: center; width: 100%;
+    transition: border-color .3s, box-shadow .3s, transform .3s, background .3s;
+  }
+  .box .name { font-weight: 700; font-size: 14px; letter-spacing: .2px; }
+  .box .role { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-top: 3px; }
+  .box.active {
+    transform: translateY(-3px);
+    box-shadow: 0 0 0 3px rgba(255,255,255,.07), 0 10px 28px rgba(0,0,0,.45);
+    border-color: var(--client); background: #0c2b3d;
+  }
+  .box.base.active { border-color: var(--command); background: #1c1636; box-shadow: 0 0 0 3px rgba(167,139,250,.16); }
+  .box.naive.active { border-color: var(--bad); background: #2c1010; box-shadow: 0 0 0 3px rgba(248,113,113,.16); }
+  .box.hidden { display: none; }
+
+  /* The seven states, drawn inside the context so the current one is visible. */
+  .stacks {
+    margin-top: 10px; padding-top: 9px; border-top: 1px dashed var(--line);
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px;
+    text-align: left; line-height: 1.55;
+  }
+  .stacks .ttl { color: var(--muted); text-transform: uppercase; letter-spacing: .8px; font-size: 9.5px; }
+  .stacks .entry {
+    background: rgba(167,139,250,.14); color: #cbb9ff; border-radius: 5px;
+    padding: 2px 6px; margin: 3px 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .stacks .entry.top { background: rgba(251,191,36,.18); color: var(--picked); font-weight: 700; }
+  .stacks .entry.bad { background: rgba(248,113,113,.16); color: var(--bad); font-weight: 700; }
+  .stacks .empty { color: var(--line); font-style: italic; padding: 2px 0; }
+  .stacks .redo { margin-top: 8px; }
+
+  .col-main { display: flex; flex-direction: column; gap: 18px; }
+
+  .family {
+    border: 2px dashed var(--receiver); border-radius: 14px; padding: 18px 20px;
+    background: rgba(52,211,153,.05);
+  }
+  .family-label {
+    font-size: 11px; color: var(--receiver); text-transform: uppercase;
+    letter-spacing: 1.4px; font-weight: 700; margin-bottom: 14px; text-align: center;
+  }
+
+  .row {
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    border: 2px solid var(--line); border-radius: 8px; background: var(--panel);
+    padding: 8px 14px; margin-bottom: 6px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 13px;
+    transition: border-color .3s, background .3s, transform .3s, opacity .3s;
+  }
+  .row .name { min-width: 74px; }
+  .row .note { color: var(--muted); font-size: 11px; flex: 1; text-align: right; }
+  .row.hidden { display: none; }
+  .row.gone { opacity: .3; }
+  .row.active {
+    transform: translateX(4px);
+    border-color: var(--client);
+    box-shadow: 0 0 0 3px rgba(56,189,248,.15);
+  }
+  .row .value {
+    font-weight: 700; min-width: 44px; text-align: center;
+    padding: 2px 8px; border-radius: 6px; background: rgba(52,211,153,.14); color: var(--receiver);
+    font-size: 11px; white-space: nowrap;
+  }
+  .row.changed .value { background: rgba(251,191,36,.16); color: var(--picked); }
+  .row.wrong { border-color: var(--bad); background: #2c1010; }
+  .row.wrong .value { background: rgba(248,113,113,.16); color: var(--bad); }
+
+  /* What the step running right now is allowed to rely on. */
+  .capture {
+    border: 2px solid var(--line); border-radius: 10px; padding: 11px 16px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12.5px;
+    color: var(--muted); background: var(--panel); transition: border-color .3s, color .3s, background .3s;
+  }
+  .capture .ttl { font-size: 10px; text-transform: uppercase; letter-spacing: 1.2px; margin-bottom: 5px; }
+  .capture.on { border-color: var(--picked); background: #2a1f05; color: var(--picked); font-weight: 700; }
+  .capture.bad { border-color: var(--bad); background: #2c1010; color: var(--bad); font-weight: 700; }
+  .capture.off { opacity: .45; }
+
+  .bridge-rail { text-align: center; color: var(--muted); font-size: 12px; margin: -6px 0 2px; min-height: 16px; transition: color .3s; }
+  .bridge-rail.active { color: var(--client); font-weight: 700; }
+
+  .narration {
+    background: var(--panel); border-left: 4px solid var(--command);
+    border-radius: 0 10px 10px 0; padding: 16px 20px; min-height: 76px;
+    font-size: 15px; line-height: 1.6;
+  }
+  .narration .step-no { color: var(--muted); font-size: 12px; letter-spacing: 1px; text-transform: uppercase; }
+  .narration .text { margin-top: 5px; }
+
+  .console {
+    background: #020617; border: 1px solid var(--line); border-radius: 10px;
+    padding: 14px 16px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 12.5px; line-height: 1.7; min-height: 130px;
+  }
+  .console .ttl { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+  .console div.ln { opacity: 0; transition: opacity .35s; }
+  .console div.ln.show { opacity: 1; }
+  .c-receiver { color: var(--receiver); }
+  .c-command  { color: var(--command); }
+  .c-out  { color: var(--client); }
+  .c-pick { color: var(--picked); }
+  .c-bad  { color: var(--bad); }
+
+  .progress { display: flex; gap: 5px; justify-content: center; margin-top: 22px; }
+  .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--line); transition: background .3s, transform .3s; }
+  .dot.on { background: var(--command); transform: scale(1.35); }
+
+  .legend { text-align: center; color: var(--muted); font-size: 13px; margin-top: 26px; line-height: 1.7; }
+  .legend b { color: var(--text); }
+
+  @media (max-width: 860px) {
+    .stage { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>The Visitor Pattern</h1>
+  <p class="sub">Four reports written on the catalog drift apart &mdash; four reports written as visitors share one walk, and the model is never opened</p>
+
+  <div class="controls">
+    <button id="play" class="primary">&#9654;&nbsp; Play</button>
+    <button id="step">Step &rarr;</button>
+    <button id="reset">Reset</button>
+    <button id="audio" aria-pressed="false" title="Narrate each step (N)">
+      <span id="audio-icon">&#128263;</span>&nbsp; Narration: off
+    </button>
+  </div>
+  <p class="audio-note" id="audio-note"></p>
+
+  <div class="stage">
+
+    <div class="col-client">
+      <div class="box client" id="b-client">
+        <div class="name">CatalogReportDemo</div>
+        <div class="role">Client</div>
+      </div>
+      <div style="font-size:22px;color:var(--line)">&#8595;</div>
+
+      <div class="box naive" id="b-naive">
+        <div class="name">NaiveCatalogNode</div>
+        <div class="role">The trap</div>
+        <div class="stacks">
+          <div class="ttl">methods on the model</div>
+          <div id="naive-copies"><div class="empty">none read yet</div></div>
+        </div>
+      </div>
+
+      <div class="box base hidden" id="b-base">
+        <div class="name">Category.accept</div>
+        <div class="role">The one walk</div>
+        <div class="stacks">
+          <div class="ttl">the walk, node by node</div>
+          <div id="s-sequence"><div class="empty">not walked</div></div>
+        </div>
+      </div>
+
+      <div style="font-size:11px;color:var(--muted);text-align:center;line-height:1.5" id="left-foot">
+a new report is <b>a new file</b>,<br>and a new node type breaks <b>every visitor</b>
+      </div>
+    </div>
+
+    <div class="col-main">
+
+      <div class="family">
+        <div class="family-label" id="family-label">The four reports &mdash; and what each of them says about this catalog</div>
+        <div class="row" id="r-value">
+          <span class="name">inventory value</span>
+          <span class="note">what is the stock worth?</span>
+          <span class="value">&mdash;</span>
+        </div>
+        <div class="row" id="r-count">
+          <span class="name">count by category</span>
+          <span class="note">how many lines sit where?</span>
+          <span class="value">&mdash;</span>
+        </div>
+        <div class="row" id="r-csv">
+          <span class="name">CSV export</span>
+          <span class="note">the catalog, for the spreadsheet</span>
+          <span class="value">&mdash;</span>
+        </div>
+        <div class="row" id="r-audit">
+          <span class="name">compliance audit</span>
+          <span class="note">what cannot simply go in a box?</span>
+          <span class="value">&mdash;</span>
+        </div>
+        <div class="row" id="r-fifth">
+          <span class="name">low stock</span>
+          <span class="note">the report asked for this morning</span>
+          <span class="value">&mdash;</span>
+        </div>
+      </div>
+
+      <div class="capture off" id="capture">
+        <div class="ttl">what the shipping team is told</div>
+        <div id="capture-text">nothing yet</div>
+      </div>
+
+      <div class="bridge-rail" id="bridge-rail"></div>
+
+      <div class="narration" id="narration">
+        <div class="step-no">Ready</div>
+        <div class="text">Press <b>Play</b> to watch four reports written on the catalog drift apart until a lithium cell is cleared for air freight &mdash; and then watch the same four reports written as visitors, over a model that is never opened.</div>
+      </div>
+
+      <div class="console">
+        <div class="ttl">Program output</div>
+        <div id="console-lines"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="progress" id="progress"></div>
+
+  <p class="legend">
+    <b>A method on the node makes reports expensive. A visitor makes node types expensive.</b><br>
+    Watch the <b>walk</b> on the left &mdash; it is written once, and every report on the right uses it.<br>
+    <span style="font-size:12px">
+      Keys: <b>Space</b> play/pause &nbsp;&middot;&nbsp; <b>&rarr;</b> next step
+      &nbsp;&middot;&nbsp; <b>N</b> narration &nbsp;&middot;&nbsp; <b>R</b> reset
+    </span>
+  </p>
+
+</div>
+
+<script>
+const STEPS = [
+  {
+    title: "Step 1 — One tree, and a business that keeps asking new questions",
+    text: "The catalog is a tree. Categories hold products, bundles and other categories, and it has looked like that since the composite project built it. What changes is not the tree. It is what the business wants to know about it: what the stock is worth, how many lines sit in each category, a CSV for the spreadsheet, and which items cannot simply be put in a box.",
+    active: ["b-client", "b-naive"], naive: true,
+    copies: ["name()  —  the only method about the catalog"],
+    run: {}, did: {},
+    bridge: "three node types, and a new report every month",
+    out: { cls: "c-receiver", txt: "Electronics/  ->  Phone, Accessories/, Kits/, Clearance/     7 sellable lines" }
+  },
+  {
+    title: "Step 2 — The first two reports are methods, and they are correct",
+    text: "Written the obvious way, a report is a method on the node. Inventory value asks each node what it is worth and adds them up. The counts do the same. Both are the shortest correct way to answer their question, both agree with the visitor version to the penny, and nobody minded writing them.",
+    active: ["b-naive"], naive: true,
+    copies: ["auditInto(...)", "appendCsvTo(...)", "countInto(...)", "inventoryValue()", "name()"],
+    run: { value: "£78,609.86", count: "5 categories" },
+    did: { value: "correct — and pleasant to write", count: "correct" },
+    activeRows: ["r-value", "r-count"],
+    bridge: "for two reports over a stable tree, this is the right answer",
+    out: { cls: "c-receiver", txt: "Report 1 - inventory value: £78,609.86\nReport 2 - lines in Electronics/Accessories: 4" }
+  },
+  {
+    title: "Step 3 — The third report teaches a product about spreadsheets",
+    text: "The CSV export is not about a product. It is about the rule that a field containing a comma is wrapped in quotes, and a quote inside it is doubled. That rule now lives on a class whose job is to describe a thing on a shelf. And it lives there twice, because the bundle needed one too.",
+    active: ["b-naive"], naive: true,
+    copies: ["appendCsvTo(...)  —  and a private quote(), twice", "auditInto(...)", "countInto(...)", "inventoryValue()", "name()"],
+    run: { value: "£78,609.86", count: "5 categories", csv: "quoting on the model" },
+    did: { value: "correct", count: "correct", csv: "RFC 4180, on a domain class" },
+    activeRows: ["r-csv"],
+    bridge: "the quoting rule is now in the codebase twice",
+    out: { cls: "c-command", txt: "NaiveProduct.quote(...)   NaiveBundle — copied, and edited" }
+  },
+  {
+    title: "Step 4 — Knowing it twice is how it comes to be known differently",
+    text: "The bundle class was written eighteen months after the product class, by copying it. The copy dropped the quoting. Nothing failed, because no kit had a comma in its name that year. Then marketing renamed the kit to Starter Kit comma three items, and one row of the finance spreadsheet quietly gained a column.",
+    active: ["b-naive"], naive: true,
+    copies: ["appendCsvTo(...)  —  drifted on the bundle", "auditInto(...)", "countInto(...)", "inventoryValue()", "name()"],
+    run: { value: "£78,609.86", count: "5 categories", csv: "7 fields, then 8" },
+    did: { value: "correct", count: "correct", csv: "one row has a column the others do not" },
+    wrong: ["r-csv"],
+    bridge: "no test failed, because the bundle's tests were copied too",
+    out: { cls: "c-bad", txt: "Electronics/Kits,KIT-01,Starter Kit, 3 items,bundle,639.00,25,   (8 fields)" }
+  },
+  {
+    title: "Step 5 — And the fourth copy is the one that matters",
+    text: "The compliance audit on the product reads the product's restriction field. The bundle version was copied from it, so it reads its own restriction field — a field that came across with the copy and is never set. A bundle has no restriction of its own. It is restricted by what is in the box.",
+    active: ["b-naive"], naive: true,
+    copies: ["auditInto(...)  —  reads a field that is never set", "appendCsvTo(...)  —  drifted on the bundle", "countInto(...)", "inventoryValue()", "name()"],
+    run: { value: "£78,609.86", count: "5 categories", csv: "7 fields, then 8", audit: "2 findings" },
+    did: { value: "correct", count: "correct", csv: "misaligned", audit: "the loose battery, and the cleaner" },
+    wrong: ["r-audit"],
+    bridge: "the Starter Kit contains a spare lithium cell, and is not on the list",
+    out: { cls: "c-bad", txt: "Report 4 - the compliance audit, 2 findings:\n  Electronics/Accessories/Spare Battery Pack  lithium cell   UN3481 declaration required" }
+  },
+  {
+    title: "Step 6 — What that costs, outside the codebase",
+    text: "The shipment is filed as clear for air freight with an undeclared lithium cell in it. Nobody wrote that bug. It is what four near-identical implementations of the same idea do over eighteen months, and the interface could not have caught it: it says the method exists, and both classes have one.",
+    active: ["b-naive"], naive: true,
+    copies: ["auditInto(...)  —  reads a field that is never set", "appendCsvTo(...)  —  drifted on the bundle", "countInto(...)", "inventoryValue()", "name()"],
+    run: { value: "£78,609.86", count: "5 categories", csv: "7 fields, then 8", audit: "2 findings" },
+    did: { value: "correct", count: "correct", csv: "misaligned", audit: "the kit is missing" },
+    wrong: ["r-audit", "r-csv"],
+    capture: "clear for air freight — with an undeclared lithium cell in the box",
+    captureBad: true,
+    bridge: "and the fifth report is a fifth method on three finished classes",
+    out: { cls: "c-bad", txt: "clearForAir() : true      (it is not)" }
+  },
+  {
+    title: "Step 7 — Turn it around: one method on the node, forever",
+    text: "The visitor version takes every report method off the model and puts one method back: accept, which hands the node to a visitor. Every implementation is one line, and it is the same line in all three classes. From here on, a new report is a new file and the model is never opened again.",
+    active: ["b-client", "b-base"], base: true,
+    seq: ["accept(visitor)  —  on Product, Bundle and Category"], seqAt: 0,
+    run: {}, did: {},
+    bridge: "visitor.visit(this)  —  and it is not redundant",
+    out: { cls: "c-command", txt: "public void accept(CatalogVisitor visitor) { visitor.visit(this); }" }
+  },
+  {
+    title: "Step 8 — Why accept has to exist",
+    text: "Call visit on a node held as a catalog component and it does not compile. Java picks between overloads using the static type — what the compiler can see — and there is no visit that takes a component. Move the same call inside the product class and it compiles, because there, this is a product. Two calls to reach one method. That is double dispatch, and nobody finds it obvious the first time.",
+    active: ["b-base"], base: true,
+    seq: ["node.accept(v)  —  runtime, picks the node", "v.visit(this)  —  compile time, picks the report"], seqAt: 1,
+    run: {}, did: {},
+    bridge: "the price of the type test never being written",
+    out: { cls: "c-bad", txt: "visitor.visit(node);   // does not compile — node is a CatalogComponent" }
+  },
+  {
+    title: "Step 9 — The walk is written once, in the structure",
+    text: "Category.accept visits itself, then hands the visitor to each child in turn, then says it is leaving. Depth first, parents before children, siblings in the order they were added — and the same order on every run, because a report that reorders itself cannot be diffed. No visitor contains a loop.",
+    active: ["b-base"], base: true,
+    seq: ["Electronics/", "  Phone", "  Accessories/", "    Case, Charger, Battery, Cleaner", "    Cables/  ->  USB-C Cable", "  Kits/  ->  Starter Kit", "  Clearance/  —  empty, still visited"], seqAt: 0,
+    run: {}, did: {},
+    bridge: "seventeen calls, and the report that receives them has no recursion in it",
+    out: { cls: "c-command", txt: "visit(Category) Electronics/ ... visit(Product) Phone ... visit(Bundle) Starter Kit ... leave(Category)" }
+  },
+  {
+    title: "Step 10 — The same four reports, as four visitors",
+    text: "Each report is now a class implementing three visit methods, and not one of them required a line of change to the product, the bundle or the category. The inventory value is the same to the penny. The CSV has one quoting rule, in the class that is about CSV, applied to every node — so every row has the same number of columns.",
+    active: ["b-base"], base: true,
+    seq: ["InventoryValueVisitor", "CategoryCountVisitor", "CsvExportVisitor", "ComplianceAuditVisitor"], seqAt: 2,
+    run: { value: "£78,609.86", count: "5 categories", csv: "7 fields, every row" },
+    did: { value: "same total, no model change", count: "empty categories included", csv: "one quoting rule, one class" },
+    activeRows: ["r-csv"], changed: ["r-csv"],
+    bridge: "four files added  ·  zero files edited",
+    out: { cls: "c-out", txt: "Electronics/Kits,KIT-01,\"Starter Kit, 3 items\",bundle,639.00,25,   (7 fields)" }
+  },
+  {
+    title: "Step 11 — visit of Bundle is where the missing rule lives",
+    text: "A product is restricted or it is not: one field, one line. A bundle is restricted by what is inside it, and that is a genuinely different rule. Because visit of Bundle is a different method from visit of Product, the loop over the contents has somewhere to be written — and the kit is on the list.",
+    active: ["b-base"], base: true,
+    seq: ["visit(Product)  —  its own restriction", "visit(Bundle)   —  every restriction in the box"], seqAt: 1,
+    run: { value: "£78,609.86", count: "5 categories", csv: "7 fields, every row", audit: "3 findings" },
+    did: { value: "correct", count: "correct", csv: "aligned", audit: "the kit, from the cell in the box" },
+    activeRows: ["r-audit"], changed: ["r-audit"],
+    capture: "not clear for air freight — UN3481 declaration required for the Starter Kit",
+    captureOn: true,
+    bridge: "there is nowhere else that loop could have gone",
+    out: { cls: "c-out", txt: "Electronics/Kits/Starter Kit, 3 items  KIT-01  lithium cell  (from Spare Battery Pack in the box)" }
+  },
+  {
+    title: "Step 12 — A fifth report, asked for this morning",
+    text: "Low stock: everything with fewer than a hundred units, and what it would cost to buy the cover back. It is a private class inside the demo file, written below main, and adding it changed no interface, no node type and no other report. In the naive design it is a fifth method on the interface and three more implementations of it.",
+    active: ["b-client", "b-base"], base: true,
+    seq: ["InventoryValueVisitor", "CategoryCountVisitor", "CsvExportVisitor", "ComplianceAuditVisitor", "LowStockVisitor  —  written today, in the demo file"], seqAt: 4,
+    run: { value: "£78,609.86", count: "5 categories", csv: "7 fields, every row", audit: "3 findings", fifth: "3 lines short" },
+    did: { value: "correct", count: "correct", csv: "aligned", audit: "complete", fifth: "no model file was opened" },
+    activeRows: ["r-fifth"], changed: ["r-fifth"],
+    bridge: "the model has one method about reporting, and it is accept",
+    out: { cls: "c-out", txt: "Phone 74 left · Spare Battery Pack 62 left · Starter Kit 25 left   —   £64,854.36 of cover to buy" }
+  },
+  {
+    title: "Step 13 — The bill, and when not to do this",
+    text: "Add one node type — a gift card, say — and the visitor interface gains a method, and all six reports stop compiling until it is written. The naive design takes a new node type in its stride. A visitor also cannot prune: the walk belongs to the structure, so a report wanting only accessories still sees the whole tree. Use this when the node types are settled and the reports are not. In a catalog that is true. In a hierarchy still growing types, write the methods on the nodes.",
+    active: ["b-base"], base: true,
+    seq: ["InventoryValueVisitor  —  breaks", "CategoryCountVisitor  —  breaks", "CsvExportVisitor  —  breaks", "ComplianceAuditVisitor  —  breaks", "DispatchTraceVisitor  —  breaks", "LowStockVisitor  —  breaks"], seqAt: 0,
+    run: { value: "one file", count: "one file", csv: "one file", audit: "one file", fifth: "one file" },
+    did: { value: "cheap to add", count: "cheap to add", csv: "cheap to add", audit: "cheap to add", fifth: "cheap to add — and six to edit for a new node type" },
+    capture: "reports are free  ·  node types are not  ·  and the two hops are never obvious",
+    captureOn: true,
+    bridge: "3 node types, 6 reports, and only one of those numbers is growing",
+    out: { cls: "c-command", txt: "a new report : 1 new file, 0 edits        a new node type : 1 new class, 7 edits" }
+  }
+];
+
+const BOXES = ["b-client", "b-naive", "b-base"];
+const ROWS = ["r-value", "r-count", "r-csv", "r-audit", "r-fifth"];
+const ROW_KEY = {
+  "r-value": "value",
+  "r-count": "count",
+  "r-csv": "csv",
+  "r-audit": "audit",
+  "r-fifth": "fifth"
+};
+const ROW_NOTE = {
+  "r-value": "what is the stock worth?",
+  "r-count": "how many lines sit where?",
+  "r-csv": "the catalog, for the spreadsheet",
+  "r-audit": "what cannot simply go in a box?",
+  "r-fifth": "the report asked for this morning"
+};
+
+const STEP_MS = 3200;      // pace when narration is off
+const GAP_MS = 700;        // breathing room after a clip finishes
+
+let idx = -1;
+let playing = false;
+let timer = null;
+
+// Narration is optional: if the audio clips are missing (or the browser
+// blocks playback) the animation still works exactly as before.
+let audioOn = false;
+let clips = [];
+let current = null;
+
+const $ = id => document.getElementById(id);
+const progressEl = $("progress");
+const linesEl = $("console-lines");
+const noteEl = $("audio-note");
+const bridgeEl = $("bridge-rail");
+const captureEl = $("capture");
+const captureTextEl = $("capture-text");
+
+STEPS.forEach(() => {
+  const d = document.createElement("div");
+  d.className = "dot";
+  progressEl.appendChild(d);
+});
+
+// ---- optional narration ------------------------------------------------
+
+clips = STEPS.map((_, i) => {
+  const a = new Audio("audio/step-" + (i + 1) + ".m4a");
+  a.preload = "none";
+  return a;
+});
+
+function stopAudio() {
+  if (!current) return;
+  current.pause();
+  current.currentTime = 0;
+  current.onended = null;
+  current = null;
+}
+
+/** Play the clip for step i. onDone fires when it finishes (or cannot play). */
+function playClip(i, onDone) {
+  stopAudio();
+  if (!audioOn) { if (onDone) onDone(); return; }
+
+  const a = clips[i];
+  current = a;
+  a.currentTime = 0;
+  a.onended = () => { current = null; if (onDone) onDone(); };
+
+  a.play().catch(() => {
+    // Missing file, or autoplay blocked -> fall back to timed pacing.
+    current = null;
+    noteEl.textContent =
+      "Narration audio could not be played — falling back to timed steps. " +
+      "Run docs/make_animation_audio.sh to generate the clips.";
+    if (onDone) onDone();
+  });
+}
+
+function setAudio(on) {
+  audioOn = on;
+  const btn = $("audio");
+  btn.classList.toggle("on", on);
+  btn.setAttribute("aria-pressed", String(on));
+  btn.innerHTML = '<span id="audio-icon">' + (on ? "&#128266;" : "&#128263;") +
+                  "</span>&nbsp; Narration: " + (on ? "on" : "off");
+  noteEl.textContent = on
+    ? "Each step is narrated, and the animation waits for the voice to finish."
+    : "";
+  if (!on) stopAudio();
+}
+
+// ------------------------------------------------------------------------
+
+function clearHighlights() {
+  BOXES.forEach(b => $(b).classList.remove("active"));
+  ROWS.forEach(r => $(r).classList.remove("active", "changed", "wrong", "gone"));
+}
+
+/** A plain list, most relevant first — the report methods on the model. */
+function drawStack(el, entries, emptyText) {
+  el.innerHTML = "";
+  if (!entries || entries.length === 0) {
+    const d = document.createElement("div");
+    d.className = "empty";
+    d.textContent = emptyText || "empty";
+    el.appendChild(d);
+    return;
+  }
+  entries.forEach((text, k) => {
+    const d = document.createElement("div");
+    d.className = "entry" + (k === 0 ? " top" : "") + (/drifted|never set|breaks/.test(text) ? " bad" : "");
+    d.textContent = text;
+    el.appendChild(d);
+  });
+}
+
+/**
+ * The walk, or the list of reports, with the current one picked out. Drawn top
+ * to bottom, so the traversal is visible beside the rows.
+ */
+function drawSequence(el, entries, at, emptyText) {
+  el.innerHTML = "";
+  if (!entries || entries.length === 0) {
+    const d = document.createElement("div");
+    d.className = "empty";
+    d.textContent = emptyText || "not walked";
+    el.appendChild(d);
+    return;
+  }
+  entries.forEach((text, k) => {
+    const d = document.createElement("div");
+    d.className = "entry" + (k === at ? " top" : "");
+    d.textContent = text;
+    el.appendChild(d);
+  });
+}
+
+function render(i) {
+  clearHighlights();
+  const s = STEPS[i];
+
+  // The naive model is off screen once the pattern takes over, and the walk
+  // does not appear until then. One story at a time.
+  $("b-naive").classList.toggle("hidden", !s.naive);
+  $("b-base").classList.toggle("hidden", !s.base);
+  $("family-label").textContent = s.naive
+    ? "NaiveCatalogNode — the four reports, as methods on the model"
+    : "CatalogVisitor — the four reports, as visitors over one walk";
+
+  s.active.forEach(b => $(b).classList.add("active"));
+  (s.activeRows || []).forEach(r => $(r).classList.add("active"));
+  (s.changed || []).forEach(r => $(r).classList.add("changed"));
+  (s.wrong || []).forEach(r => $(r).classList.add("wrong"));
+
+  ROWS.forEach(r => {
+    const key = ROW_KEY[r];
+    const order = (s.run || {})[key];
+    $(r).querySelector(".value").textContent = order || "—";
+    $(r).querySelector(".note").textContent = (s.did || {})[key] || ROW_NOTE[r];
+    // A step that has not run yet is dimmed, so the eye follows the sequence.
+    $(r).classList.toggle("gone", !order);
+  });
+
+  drawStack($("naive-copies"), s.copies, "none read yet");
+  drawSequence($("s-sequence"), s.seq, s.seqAt, "not walked");
+
+  captureTextEl.textContent = s.capture || "nothing yet";
+  captureEl.classList.toggle("on", !!s.captureOn);
+  captureEl.classList.toggle("bad", !!s.captureBad);
+  captureEl.classList.toggle("off", !s.capture);
+
+  bridgeEl.textContent = s.bridge || "";
+  bridgeEl.classList.add("active");
+
+  $("narration").innerHTML =
+    '<div class="step-no">' + s.title + '</div><div class="text">' + s.text + '</div>';
+
+  // Rebuild console output up to this step
+  linesEl.innerHTML = "";
+  for (let k = 0; k <= i; k++) {
+    if (!STEPS[k].out) continue;
+    STEPS[k].out.txt.split("\n").forEach(txt => {
+      const div = document.createElement("div");
+      div.className = "ln " + STEPS[k].out.cls;
+      div.textContent = txt;
+      linesEl.appendChild(div);
+      requestAnimationFrame(() => div.classList.add("show"));
+    });
+  }
+
+  [...progressEl.children].forEach((d, k) => d.classList.toggle("on", k <= i));
+}
+
+/** Advance one step. In play mode, schedule the following step afterwards. */
+function next() {
+  if (idx >= STEPS.length - 1) { stop(); return; }
+  idx++;
+  render(idx);
+
+  if (!playing) { playClip(idx); return; }
+
+  if (audioOn) {
+    // Wait for the voice to finish this step, then move on.
+    playClip(idx, () => {
+      if (!playing) return;
+      timer = setTimeout(next, GAP_MS);
+    });
+  } else {
+    timer = setTimeout(next, STEP_MS);
+  }
+}
+
+function stop() {
+  playing = false;
+  clearTimeout(timer);
+  stopAudio();
+  $("play").innerHTML = "&#9654;&nbsp; Play";
+  $("step").disabled = false;
+}
+
+function reset() {
+  stop();
+  idx = -1;
+  clearHighlights();
+  $("b-naive").classList.remove("hidden");
+  $("b-base").classList.add("hidden");
+  ROWS.forEach(r => {
+    $(r).querySelector(".value").textContent = "—";
+    $(r).querySelector(".note").textContent = ROW_NOTE[r];
+    $(r).classList.add("gone");
+  });
+  drawStack($("naive-copies"), [], "none read yet");
+  drawSequence($("s-sequence"), [], -1, "not walked");
+  captureTextEl.textContent = "nothing yet";
+  captureEl.classList.remove("on", "bad");
+  captureEl.classList.add("off");
+  linesEl.innerHTML = "";
+  bridgeEl.textContent = "";
+  bridgeEl.classList.remove("active");
+  [...progressEl.children].forEach(d => d.classList.remove("on"));
+  $("narration").innerHTML =
+    '<div class="step-no">Ready</div><div class="text">Press <b>Play</b> to watch four reports written on the catalog drift apart until a lithium cell is cleared for air freight &mdash; and then watch the same four reports written as visitors, over a model that is never opened.</div>';
+}
+
+$("play").addEventListener("click", () => {
+  if (playing) { stop(); return; }
+  if (idx >= STEPS.length - 1) reset();
+  playing = true;
+  $("play").innerHTML = "&#10074;&#10074;&nbsp; Pause";
+  $("step").disabled = true;
+  next();   // next() now schedules the rest of the run itself
+});
+
+$("step").addEventListener("click", () => { stop(); if (idx >= STEPS.length - 1) reset(); next(); });
+$("reset").addEventListener("click", reset);
+
+$("audio").addEventListener("click", () => {
+  setAudio(!audioOn);
+  // Turning narration on mid-run: speak the step already on screen.
+  if (audioOn && playing && idx >= 0) {
+    clearTimeout(timer);
+    playClip(idx, () => {
+      if (!playing) return;
+      timer = setTimeout(next, GAP_MS);
+    });
+  }
+});
+
+document.addEventListener("keydown", e => {
+  if (e.code === "Space") { e.preventDefault(); $("play").click(); }
+  if (e.code === "ArrowRight") { e.preventDefault(); $("step").click(); }
+  if (e.code === "KeyR") reset();
+  if (e.code === "KeyN") $("audio").click();
+});
+
+setAudio(false);
+reset();
+</script>
+</body>
+</html>

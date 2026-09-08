@@ -27,6 +27,34 @@ one.
 ./gradlew run
 ```
 
+Which prints:
+
+```text
+Standard: preparing ORD-2001 for Edinburgh via Royal Post
+Royal Post: dropping ORD-2001 into the postal network
+Standard: booked RP-FB66A083, arriving in 5 day(s)
+Shipment: Shipment[trackingId=RP-FB66A083, carrier=Royal Post, etaDays=5, cost=5.24]
+
+Express: preparing ORD-2001 for Edinburgh via SkyLink Air
+SkyLink Air: booking ORD-2001 onto tonight's flight
+Express: booked SL-3B5DD59E, arriving in 2 day(s)
+Shipment: Shipment[trackingId=SL-3B5DD59E, carrier=SkyLink Air, etaDays=2, cost=15.5]
+
+Same Day: preparing ORD-2001 for Edinburgh via CityRide Bikes
+CityRide Bikes: assigning a rider to ORD-2001 right now
+Same Day: booked CR-B42EC524, arriving in 0 day(s)
+Shipment: Shipment[trackingId=CR-B42EC524, carrier=CityRide Bikes, etaDays=0, cost=8.75]
+
+International: preparing ORD-2001 for Edinburgh via TransWorld Freight
+TransWorld Freight: filing customs papers for ORD-2001
+TransWorld Freight: handing over to the destination carrier in Edinburgh
+International: booked TW-FAC23427, arriving in 9 day(s)
+Shipment: Shipment[trackingId=TW-FAC23427, carrier=TransWorld Freight, etaDays=9, cost=29.25]
+```
+
+The identifiers are generated per run, so the transaction, order and
+tracking codes differ each time; everything else is stable.
+
 ## Test
 
 ```bash
@@ -47,6 +75,9 @@ learning path.
 | [`docs/uml-diagram.md`](docs/uml-diagram.md) | Runtime call flow |
 | [`docs/animation.html`](docs/animation.html) | Animated, step-by-step walkthrough — open in a browser. Optional narration via the **Narration** button |
 | [`docs/session.md`](docs/session.md) | A 60-minute guided session plan for teaching it |
+| [`docs/youtube.md`](docs/youtube.md) | Title, description, chapters and thumbnail for publishing the video |
+| [`docs/thumbnail.png`](docs/thumbnail.png) | The 1280×720 image to upload as the YouTube thumbnail |
+| [`docs/spec.md`](docs/spec.md) | The project specification — problem, code, video and publishing quality bar. Also as [`spec.html`](docs/spec.html) |
 | [`video/`](video/) | A narrated ~8 minute video, plus the script and build pipeline |
 
 ### The pattern in one picture

@@ -1,2 +1,72 @@
-/.idea/
+# ---------------------------------------------------------------------------
+# Build output and other generated files.
+#
+# Nothing under here is source. Every pattern project can regenerate all of
+# it from the files that are committed: `./gradlew build` for the compiled
+# classes, `video/build_video.sh` for the slides and the video, and
+# `docs/make_animation_audio.sh` for the animation clips. Keeping the output
+# out of the repository is what stops a push failing on GitHub's file-size
+# limits -- a single rendered video is around 26 MB, and there is one per
+# pattern.
+# ---------------------------------------------------------------------------
 
+# --- Gradle / Maven / Java ---
+build/
+target/
+out/
+bin/
+.gradle/
+!gradle/wrapper/
+*.class
+*.war
+*.ear
+hs_err_pid*
+replay_pid*
+
+# --- Rendered video output -------------------------------------------------
+# video/build/ holds the per-scene slide PNGs, and the mp4, m4a and srt next to
+# them are the finished deliverables -- uploaded to YouTube rather than
+# committed. video/poster.png is the exception: it is the YouTube thumbnail as
+# well as the opening title card, it is only ~80 KB, and it is wanted in the
+# repository alongside docs/thumbnail.png. See each project's video/README.md.
+**/video/build/
+**/video/*.mp4
+**/video/*.m4a
+**/video/*.srt
+**/video/*.wav
+**/video/*.aac
+
+# --- Generated narration for the interactive animation ---------------------
+# docs/audio/ holds one short m4a per step of docs/animation.html, produced by
+# docs/make_animation_audio.sh from the narration in that script. It is the
+# largest generated thing left in the tree (~1.7 MB per project), and it is
+# output rather than source, so it is not committed. Anyone who wants the
+# narration runs the script.
+#
+# The diagrams in docs/images/ and each project's docs/thumbnail.png are
+# deliberately NOT ignored: nothing rebuilds them on GitHub, so ignoring them
+# would leave the docs rendering with broken images, and the thumbnail ships
+# alongside docs/youtube.md by convention.
+**/docs/audio/
+
+# Loudness measurements cached by gradle-java/docs/make_specs.py; derived,
+# and keyed on each MP4 the specs are generated from.
+gradle-java/docs/.loudness-cache.json
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# --- Editors and OS ---
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/
+.settings/
+.classpath
+.project
+.DS_Store
+Thumbs.db

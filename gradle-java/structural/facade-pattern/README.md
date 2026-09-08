@@ -19,6 +19,19 @@ order checkout as an example.
 ./gradlew run
 ```
 
+Which prints:
+
+```text
+Inventory: reserving 2 unit(s) of SKU-1234
+Payment: charged $49.98 to customer CUST-001 (paymentId=PMT-ABE8E8A6)
+Shipping: scheduled shipment for order ORD-C07428B5 to 221B Baker Street, London (trackingId=TRK-0A80D1BE)
+Notification: emailed customer CUST-001 confirmation for order ORD-C07428B5 (trackingId=TRK-0A80D1BE)
+Order placed: OrderConfirmation[orderId=ORD-C07428B5, paymentId=PMT-ABE8E8A6, trackingId=TRK-0A80D1BE]
+```
+
+The identifiers are generated per run, so the transaction, order and
+tracking codes differ each time; everything else is stable.
+
 ## Test
 
 ```bash
@@ -39,6 +52,9 @@ learning path.
 | [`docs/uml-diagram.md`](docs/uml-diagram.md) | Runtime call flow |
 | [`docs/animation.html`](docs/animation.html) | Animated, step-by-step walkthrough — open in a browser. Optional narration via the **Narration** button |
 | [`docs/session.md`](docs/session.md) | A 60-minute guided session plan for teaching it |
+| [`docs/youtube.md`](docs/youtube.md) | Title, description, chapters and thumbnail for publishing the video |
+| [`docs/thumbnail.png`](docs/thumbnail.png) | The 1280×720 image to upload as the YouTube thumbnail |
+| [`docs/spec.md`](docs/spec.md) | The project specification — problem, code, video and publishing quality bar. Also as [`spec.html`](docs/spec.html) |
 | [`video/`](video/) | A narrated ~7 minute video, plus the script and build pipeline |
 
 ### The pattern in one picture

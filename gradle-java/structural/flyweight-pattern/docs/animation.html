@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Flyweight Pattern — Animated Walkthrough</title>
+<style>
+  :root {
+    --bg: #0f172a;
+    --panel: #1e293b;
+    --panel-hi: #334155;
+    --line: #475569;
+    --text: #e2e8f0;
+    --muted: #94a3b8;
+    --client: #38bdf8;
+    --factory: #a78bfa;
+    --enum: #34d399;
+    --legacy: #fbbf24;
+    --bad: #f87171;
+    --note: #22d3ee;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 28px 20px 60px;
+    background: var(--bg);
+    color: var(--text);
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  h1 { text-align: center; font-size: 28px; margin: 0 0 4px; }
+  .sub { text-align: center; color: var(--muted); margin: 0 0 24px; font-size: 15px; }
+
+  .wrap { max-width: 1180px; margin: 0 auto; }
+
+  .controls { display: flex; gap: 10px; justify-content: center; margin-bottom: 26px; flex-wrap: wrap; }
+  button {
+    background: var(--panel-hi); color: var(--text); border: 1px solid var(--line);
+    padding: 9px 20px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer;
+    transition: background .15s, transform .1s;
+  }
+  button:hover:not(:disabled) { background: #475569; }
+  button:active:not(:disabled) { transform: translateY(1px); }
+  button:disabled { opacity: .4; cursor: not-allowed; }
+  button.primary { background: var(--factory); color: #1e1b4b; border-color: var(--factory); }
+  button.primary:hover:not(:disabled) { background: #b9a3ff; }
+  button.on { background: #0c2b3d; border-color: var(--client); color: var(--client); }
+  button.on:hover:not(:disabled) { background: #123a52; }
+
+  .audio-note {
+    text-align: center; color: var(--muted); font-size: 12.5px;
+    margin: -14px 0 22px; min-height: 17px;
+  }
+
+  .stage { display: grid; grid-template-columns: 190px 1fr; gap: 22px; align-items: start; }
+
+  .col-client { display: flex; flex-direction: column; align-items: center; gap: 14px; padding-top: 90px; }
+
+  .box {
+    background: var(--panel); border: 2px solid var(--line); border-radius: 12px;
+    padding: 14px 16px; text-align: center; width: 100%;
+    transition: border-color .3s, box-shadow .3s, transform .3s, background .3s;
+  }
+  .box .name { font-weight: 700; font-size: 14px; letter-spacing: .2px; }
+  .box .role { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-top: 3px; }
+  .box.active {
+    transform: translateY(-3px);
+    box-shadow: 0 0 0 3px rgba(255,255,255,.07), 0 10px 28px rgba(0,0,0,.45);
+  }
+  .box.client.active  { border-color: var(--client); background: #0c2b3d; }
+  .box.factory.active { border-color: var(--factory); background: #2b2247; }
+  .box.tile.active    { border-color: var(--enum); background: #0f2e24; }
+  .box.tile.built     { border-color: #14532d; }
+  .box.tile.built .name::after { content: " ✓ cached"; color: #4ade80; font-size: 10px; font-weight: 700; }
+  .box.naive.active   { border-color: var(--legacy); background: #322612; }
+  .box.naive.rebuilt::after { content: " ⟲ rebuilt"; color: var(--bad); font-size: 10px; font-weight: 700; display: block; margin-top: 4px; }
+
+  .col-main { display: flex; flex-direction: column; gap: 18px; }
+
+  .factory-shell {
+    border: 2px dashed var(--factory); border-radius: 14px; padding: 16px;
+    background: rgba(167,139,250,.05);
+  }
+  .factory-label {
+    font-size: 11px; color: var(--factory); text-transform: uppercase;
+    letter-spacing: 1.4px; font-weight: 700; margin-bottom: 12px; text-align: center;
+  }
+  .tiles { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 14px; }
+
+  .naive-shell {
+    border: 2px dashed var(--legacy); border-radius: 14px; padding: 16px;
+    background: rgba(251,191,36,.05);
+  }
+  .naive-label {
+    font-size: 11px; color: var(--legacy); text-transform: uppercase;
+    letter-spacing: 1.4px; font-weight: 700; margin-bottom: 12px; text-align: center;
+  }
+  .naives { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+
+  .arrow-rail { height: 26px; position: relative; }
+  .arrow {
+    position: absolute; left: 50%; transform: translateX(-50%);
+    font-size: 13px; color: var(--muted); opacity: 0;
+    transition: opacity .3s; white-space: nowrap;
+  }
+  .arrow.show { opacity: 1; }
+
+  .narration {
+    background: var(--panel); border-left: 4px solid var(--factory);
+    border-radius: 0 10px 10px 0; padding: 16px 20px; min-height: 76px;
+    font-size: 15px; line-height: 1.6;
+  }
+  .narration .step-no { color: var(--muted); font-size: 12px; letter-spacing: 1px; text-transform: uppercase; }
+  .narration .text { margin-top: 5px; }
+
+  .console {
+    background: #020617; border: 1px solid var(--line); border-radius: 10px;
+    padding: 14px 16px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 12.5px; line-height: 1.7; min-height: 150px;
+  }
+  .console .ttl { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+  .console div.ln { opacity: 0; transition: opacity .35s; }
+  .console div.ln.show { opacity: 1; }
+  .c-build { color: var(--factory); }
+  .c-hit   { color: var(--enum); }
+  .c-out   { color: var(--client); }
+  .c-naive { color: var(--legacy); }
+  .c-bad   { color: var(--bad); }
+
+  .progress { display: flex; gap: 5px; justify-content: center; margin-top: 22px; }
+  .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--line); transition: background .3s, transform .3s; }
+  .dot.on { background: var(--factory); transform: scale(1.35); }
+
+  .legend { text-align: center; color: var(--muted); font-size: 13px; margin-top: 26px; line-height: 1.7; }
+  .legend b { color: var(--text); }
+
+  @media (max-width: 860px) {
+    .stage { grid-template-columns: 1fr; }
+    .col-client { padding-top: 0; }
+    .tiles { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>The Flyweight Pattern</h1>
+  <p class="sub">Many listings &rarr; a small cache of shared styles &rarr; one instance per badge type, not per listing</p>
+
+  <div class="controls">
+    <button id="play" class="primary">&#9654;&nbsp; Play</button>
+    <button id="step">Step &rarr;</button>
+    <button id="reset">Reset</button>
+    <button id="audio" aria-pressed="false" title="Narrate each step (N)">
+      <span id="audio-icon">&#128263;</span>&nbsp; Narration: off
+    </button>
+  </div>
+  <p class="audio-note" id="audio-note"></p>
+
+  <div class="stage">
+
+    <div class="col-client">
+      <div class="box client" id="b-client">
+        <div class="name">BadgeDemo</div>
+        <div class="role">Client</div>
+      </div>
+      <div style="font-size:26px;color:var(--line)">&#8595;</div>
+      <div style="font-size:11px;color:var(--muted);text-align:center;line-height:1.5">
+        asks for a style<br>by badge type
+      </div>
+    </div>
+
+    <div class="col-main">
+
+      <div class="arrow-rail">
+        <div class="arrow" id="a-in">styleFor(SALE) &nbsp;&#8595;</div>
+      </div>
+
+      <div class="factory-shell">
+        <div class="factory-label">BadgeStyleFactory — the cache</div>
+        <div class="tiles">
+          <div class="box tile" id="t-new">
+            <div class="name">NEW</div>
+            <div class="role">BadgeStyle</div>
+          </div>
+          <div class="box tile" id="t-sale">
+            <div class="name">SALE</div>
+            <div class="role">BadgeStyle</div>
+          </div>
+          <div class="box tile" id="t-best">
+            <div class="name">BESTSELLER</div>
+            <div class="role">BadgeStyle</div>
+          </div>
+          <div class="box tile" id="t-low">
+            <div class="name">LOW_STOCK</div>
+            <div class="role">BadgeStyle</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="arrow-rail">
+        <div class="arrow" id="a-out">&#8593; &nbsp; same BadgeStyle instance, every time</div>
+      </div>
+
+      <div class="naive-shell">
+        <div class="naive-label">NaiveListingBadge — no cache, for contrast</div>
+        <div class="naives">
+          <div class="box naive" id="n-a">
+            <div class="name">LST-1002</div>
+            <div class="role">own copy of everything</div>
+          </div>
+          <div class="box naive" id="n-b">
+            <div class="name">LST-1003</div>
+            <div class="role">own copy of everything</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="narration" id="narration">
+        <div class="step-no">Ready</div>
+        <div class="text">Press <b>Play</b> to watch two listings share one badge style, while two naive badges each pay for their own.</div>
+      </div>
+
+      <div class="console">
+        <div class="ttl">Program output</div>
+        <div id="console-lines"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="progress" id="progress"></div>
+
+  <p class="legend">
+    <b>The factory shares intrinsic state. Extrinsic state is a parameter, never a field.</b><br>
+    That's why one BadgeStyle can safely serve a hundred thousand listings at once.<br>
+    <span style="font-size:12px">
+      Keys: <b>Space</b> play/pause &nbsp;·&nbsp; <b>&rarr;</b> next step
+      &nbsp;·&nbsp; <b>N</b> narration &nbsp;·&nbsp; <b>R</b> reset
+    </span>
+  </p>
+
+</div>
+
+<script>
+const STEPS = [
+  {
+    title: "Step 1 — First request for SALE: a cache miss",
+    text: "Listing LST-1002 asks the factory for a SALE style. The cache is empty for SALE, so BadgeStyleFactory builds a new BadgeStyle — icon, colours, artwork — and caches it.",
+    active: ["b-client", "t-sale"], built: ["t-sale"], arrow: "a-in",
+    out: { cls: "c-build", txt: "BadgeStyleFactory: cache miss for SALE — building BadgeStyle" }
+  },
+  {
+    title: "Step 2 — Rendered for this listing",
+    text: "The shared style renders using this listing's own extrinsic state: its id and no custom label. Nothing about LST-1002 is stored on the style itself.",
+    active: ["t-sale"], built: ["t-sale"], arrow: null,
+    out: { cls: "c-out", txt: "[SALE] ★ SALE on LST-1002 (bg=#DC2626, fg=#FFFFFF)" }
+  },
+  {
+    title: "Step 3 — Second request for SALE: a cache hit",
+    text: "Listing LST-1003 also wants a SALE badge. The factory finds SALE already cached and hands back the exact same BadgeStyle instance — no construction happens.",
+    active: ["b-client", "t-sale"], built: ["t-sale"], arrow: "a-in",
+    out: { cls: "c-hit", txt: "BadgeStyleFactory: cache hit for SALE — returning shared instance" }
+  },
+  {
+    title: "Step 4 — Rendered for a different listing, same object",
+    text: "Same BadgeStyle, a different listing id and a custom label this time. styleFor(SALE) == styleFor(SALE) is true — one object served both calls.",
+    active: ["t-sale"], built: ["t-sale"], arrow: "a-out",
+    out: { cls: "c-out", txt: "[SALE] ★ FLASH SALE on LST-1003 (bg=#DC2626, fg=#FFFFFF)" }
+  },
+  {
+    title: "Step 5 — The naive path: no factory in the way",
+    text: "NaiveListingBadge skips the factory entirely. Building one for LST-1002 means rebuilding the icon, the colours and the full 64 KB artwork from scratch.",
+    active: ["n-a"], arrow: null,
+    out: { cls: "c-naive", txt: "NaiveListingBadge: building icon/colours/artwork for LST-1002 (no cache)" }
+  },
+  {
+    title: "Step 6 — And again, for the next listing",
+    text: "LST-1003 needs an identical SALE design, so NaiveListingBadge pays the full construction cost a second time. naiveA == naiveB is false: two SALE badges, two independent copies.",
+    active: ["n-b"], rebuilt: ["n-a", "n-b"], arrow: null,
+    out: { cls: "c-bad", txt: "NaiveListingBadge: building icon/colours/artwork for LST-1003 (no cache) — naiveA == naiveB: false" }
+  },
+  {
+    title: "Step 7 — What that difference costs at catalog scale",
+    text: "Stretch this over a hundred-thousand-listing catalog. The naive path pays for every listing; the flyweight path pays for every distinct badge type — four, not a hundred thousand.",
+    active: ["t-new", "t-sale", "t-best", "t-low"], built: ["t-new", "t-sale", "t-best", "t-low"], arrow: null,
+    out: { cls: "c-out", txt: "Naive: 100,000 x 64 KB ≈ 6,250 MB   Flyweight: 4 x 64 KB ≈ 256 KB" }
+  }
+];
+
+const ALL_BOXES = ["b-client", "t-new", "t-sale", "t-best", "t-low", "n-a", "n-b"];
+const ARROWS = ["a-in", "a-out"];
+
+const STEP_MS = 3200;      // pace when narration is off
+const GAP_MS = 700;        // breathing room after a clip finishes
+
+let idx = -1;
+let playing = false;
+let timer = null;
+
+// Narration is optional: if the audio clips are missing (or the browser
+// blocks playback) the animation still works exactly as before.
+let audioOn = false;
+let clips = [];
+let current = null;
+
+const $ = id => document.getElementById(id);
+const progressEl = $("progress");
+const linesEl = $("console-lines");
+const noteEl = $("audio-note");
+
+STEPS.forEach(() => {
+  const d = document.createElement("div");
+  d.className = "dot";
+  progressEl.appendChild(d);
+});
+
+// ---- optional narration ------------------------------------------------
+
+clips = STEPS.map((_, i) => {
+  const a = new Audio("audio/step-" + (i + 1) + ".m4a");
+  a.preload = "none";
+  return a;
+});
+
+function stopAudio() {
+  if (!current) return;
+  current.pause();
+  current.currentTime = 0;
+  current.onended = null;
+  current = null;
+}
+
+/** Play the clip for step i. onDone fires when it finishes (or cannot play). */
+function playClip(i, onDone) {
+  stopAudio();
+  if (!audioOn) { if (onDone) onDone(); return; }
+
+  const a = clips[i];
+  current = a;
+  a.currentTime = 0;
+  a.onended = () => { current = null; if (onDone) onDone(); };
+
+  a.play().catch(() => {
+    // Missing file, or autoplay blocked -> fall back to timed pacing.
+    current = null;
+    noteEl.textContent =
+      "Narration audio could not be played — falling back to timed steps. " +
+      "Run docs/make_animation_audio.sh to generate the clips.";
+    if (onDone) onDone();
+  });
+}
+
+function setAudio(on) {
+  audioOn = on;
+  const btn = $("audio");
+  btn.classList.toggle("on", on);
+  btn.setAttribute("aria-pressed", String(on));
+  $("audio-icon").innerHTML = on ? "&#128266;" : "&#128263;";
+  btn.innerHTML = '<span id="audio-icon">' + (on ? "&#128266;" : "&#128263;") +
+                  "</span>&nbsp; Narration: " + (on ? "on" : "off");
+  noteEl.textContent = on
+    ? "Each step is narrated, and the animation waits for the voice to finish."
+    : "";
+  if (!on) stopAudio();
+}
+
+// ------------------------------------------------------------------------
+
+function clearHighlights() {
+  ALL_BOXES.forEach(b => $(b).classList.remove("active"));
+  ARROWS.forEach(a => $(a).classList.remove("show"));
+}
+
+function render(i) {
+  clearHighlights();
+  const s = STEPS[i];
+
+  s.active.forEach(b => $(b).classList.add("active"));
+  if (s.arrow) $(s.arrow).classList.add("show");
+
+  // "built" (cached) badges accumulate and never get un-cached.
+  for (let k = 0; k <= i; k++) {
+    (STEPS[k].built || []).forEach(b => $(b).classList.add("built"));
+    (STEPS[k].rebuilt || []).forEach(b => $(b).classList.add("rebuilt"));
+  }
+
+  $("narration").innerHTML =
+    '<div class="step-no">' + s.title + '</div><div class="text">' + s.text + '</div>';
+
+  // Rebuild console output up to this step
+  linesEl.innerHTML = "";
+  for (let k = 0; k <= i; k++) {
+    if (!STEPS[k].out) continue;
+    const div = document.createElement("div");
+    div.className = "ln " + STEPS[k].out.cls;
+    div.textContent = STEPS[k].out.txt;
+    linesEl.appendChild(div);
+    requestAnimationFrame(() => div.classList.add("show"));
+  }
+
+  [...progressEl.children].forEach((d, k) => d.classList.toggle("on", k <= i));
+}
+
+/** Advance one step. In play mode, schedule the following step afterwards. */
+function next() {
+  if (idx >= STEPS.length - 1) { stop(); return; }
+  idx++;
+  render(idx);
+
+  if (!playing) { playClip(idx); return; }
+
+  if (audioOn) {
+    // Wait for the voice to finish this step, then move on.
+    playClip(idx, () => {
+      if (!playing) return;
+      timer = setTimeout(next, GAP_MS);
+    });
+  } else {
+    timer = setTimeout(next, STEP_MS);
+  }
+}
+
+function stop() {
+  playing = false;
+  clearTimeout(timer);
+  stopAudio();
+  $("play").innerHTML = "&#9654;&nbsp; Play";
+  $("step").disabled = false;
+}
+
+function reset() {
+  stop();
+  idx = -1;
+  clearHighlights();
+  ALL_BOXES.forEach(b => { $(b).classList.remove("built"); $(b).classList.remove("rebuilt"); });
+  linesEl.innerHTML = "";
+  [...progressEl.children].forEach(d => d.classList.remove("on"));
+  $("narration").innerHTML =
+    '<div class="step-no">Ready</div><div class="text">Press <b>Play</b> to watch two listings share one badge style, while two naive badges each pay for their own.</div>';
+}
+
+$("play").addEventListener("click", () => {
+  if (playing) { stop(); return; }
+  if (idx >= STEPS.length - 1) reset();
+  playing = true;
+  $("play").innerHTML = "&#10074;&#10074;&nbsp; Pause";
+  $("step").disabled = true;
+  next();   // next() now schedules the rest of the run itself
+});
+
+$("step").addEventListener("click", () => { stop(); if (idx >= STEPS.length - 1) reset(); next(); });
+$("reset").addEventListener("click", reset);
+
+$("audio").addEventListener("click", () => {
+  setAudio(!audioOn);
+  // Turning narration on mid-run: speak the step already on screen.
+  if (audioOn && playing && idx >= 0) {
+    clearTimeout(timer);
+    playClip(idx, () => {
+      if (!playing) return;
+      timer = setTimeout(next, GAP_MS);
+    });
+  }
+});
+
+document.addEventListener("keydown", e => {
+  if (e.code === "Space") { e.preventDefault(); $("play").click(); }
+  if (e.code === "ArrowRight") { e.preventDefault(); $("step").click(); }
+  if (e.code === "KeyR") reset();
+  if (e.code === "KeyN") $("audio").click();
+});
+
+setAudio(false);
+reset();
+</script>
+</body>
+</html>

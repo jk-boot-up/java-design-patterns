@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Observer Pattern — Animated Walkthrough</title>
+<style>
+  :root {
+    --bg: #0f172a;
+    --panel: #1e293b;
+    --panel-hi: #334155;
+    --line: #475569;
+    --text: #e2e8f0;
+    --muted: #94a3b8;
+    --client: #38bdf8;
+    --subject: #34d399;
+    --observer: #a78bfa;
+    --picked: #fbbf24;
+    --bad: #f87171;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 28px 20px 60px;
+    background: var(--bg);
+    color: var(--text);
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  h1 { text-align: center; font-size: 28px; margin: 0 0 4px; }
+  .sub { text-align: center; color: var(--muted); margin: 0 0 24px; font-size: 15px; }
+
+  .wrap { max-width: 1100px; margin: 0 auto; }
+
+  .controls { display: flex; gap: 10px; justify-content: center; margin-bottom: 26px; flex-wrap: wrap; }
+  button {
+    background: var(--panel-hi); color: var(--text); border: 1px solid var(--line);
+    padding: 9px 20px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer;
+    transition: background .15s, transform .1s;
+  }
+  button:hover:not(:disabled) { background: #475569; }
+  button:active:not(:disabled) { transform: translateY(1px); }
+  button:disabled { opacity: .4; cursor: not-allowed; }
+  button.primary { background: var(--observer); color: #1e1b4b; border-color: var(--observer); }
+  button.primary:hover:not(:disabled) { background: #b9a3ff; }
+  button.on { background: #0c2b3d; border-color: var(--client); color: var(--client); }
+  button.on:hover:not(:disabled) { background: #123a52; }
+
+  .audio-note {
+    text-align: center; color: var(--muted); font-size: 12.5px;
+    margin: -14px 0 22px; min-height: 17px;
+  }
+
+  .stage { display: grid; grid-template-columns: 230px 1fr; gap: 22px; align-items: start; }
+
+  .col-client { display: flex; flex-direction: column; align-items: center; gap: 12px; padding-top: 20px; }
+
+  .box {
+    background: var(--panel); border: 2px solid var(--line); border-radius: 12px;
+    padding: 14px 16px; text-align: center; width: 100%;
+    transition: border-color .3s, box-shadow .3s, transform .3s, background .3s;
+  }
+  .box .name { font-weight: 700; font-size: 14px; letter-spacing: .2px; }
+  .box .role { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-top: 3px; }
+  .box.active {
+    transform: translateY(-3px);
+    box-shadow: 0 0 0 3px rgba(255,255,255,.07), 0 10px 28px rgba(0,0,0,.45);
+    border-color: var(--client); background: #0c2b3d;
+  }
+  .box.subject.active { border-color: var(--subject); background: #06281f; box-shadow: 0 0 0 3px rgba(52,211,153,.15); }
+  .holding {
+    margin-top: 9px; padding-top: 8px; border-top: 1px dashed var(--line);
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px;
+    color: var(--muted); line-height: 1.6; text-align: left;
+  }
+  .holding b { color: var(--picked); font-weight: 700; }
+
+  .col-main { display: flex; flex-direction: column; gap: 18px; }
+
+  .family {
+    border: 2px dashed var(--observer); border-radius: 14px; padding: 18px 20px;
+    background: rgba(167,139,250,.05);
+  }
+  .family-label {
+    font-size: 11px; color: var(--observer); text-transform: uppercase;
+    letter-spacing: 1.4px; font-weight: 700; margin-bottom: 14px; text-align: center;
+  }
+
+  .row {
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    border: 2px solid var(--line); border-radius: 8px; background: var(--panel);
+    padding: 8px 14px; margin-bottom: 6px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 13px;
+    transition: border-color .3s, background .3s, transform .3s, opacity .3s;
+  }
+  .row .note { color: var(--muted); font-size: 11px; }
+  .row.hidden { display: none; }
+  .row.pending { opacity: .38; }
+  .row.active {
+    transform: translateX(4px);
+    border-color: var(--client);
+    box-shadow: 0 0 0 3px rgba(56,189,248,.15);
+  }
+  .row .value {
+    font-weight: 700; opacity: 0; transition: opacity .3s;
+    padding: 2px 8px; border-radius: 6px; background: rgba(251,191,36,.14); color: var(--picked);
+    font-size: 11px; white-space: nowrap;
+  }
+  .row.done .value { opacity: 1; }
+  .row.failed { border-color: var(--bad); background: #2c1010; }
+  .row.failed .value { opacity: 1; background: rgba(248,113,113,.16); color: var(--bad); }
+
+  .bridge-rail { text-align: center; color: var(--muted); font-size: 12px; margin: -6px 0 2px; min-height: 16px; transition: color .3s; }
+  .bridge-rail.active { color: var(--client); font-weight: 700; }
+
+  .narration {
+    background: var(--panel); border-left: 4px solid var(--observer);
+    border-radius: 0 10px 10px 0; padding: 16px 20px; min-height: 76px;
+    font-size: 15px; line-height: 1.6;
+  }
+  .narration .step-no { color: var(--muted); font-size: 12px; letter-spacing: 1px; text-transform: uppercase; }
+  .narration .text { margin-top: 5px; }
+
+  .console {
+    background: #020617; border: 1px solid var(--line); border-radius: 10px;
+    padding: 14px 16px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 12.5px; line-height: 1.7; min-height: 130px;
+  }
+  .console .ttl { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+  .console div.ln { opacity: 0; transition: opacity .35s; }
+  .console div.ln.show { opacity: 1; }
+  .c-subject  { color: var(--subject); }
+  .c-observer { color: var(--observer); }
+  .c-out  { color: var(--client); }
+  .c-pick { color: var(--picked); }
+  .c-bad  { color: var(--bad); }
+
+  .progress { display: flex; gap: 5px; justify-content: center; margin-top: 22px; }
+  .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--line); transition: background .3s, transform .3s; }
+  .dot.on { background: var(--observer); transform: scale(1.35); }
+
+  .legend { text-align: center; color: var(--muted); font-size: 13px; margin-top: 26px; line-height: 1.7; }
+  .legend b { color: var(--text); }
+
+  @media (max-width: 860px) {
+    .stage { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>The Observer Pattern</h1>
+  <p class="sub">The order announces once &mdash; who reacts, and how many, is nothing to do with it</p>
+
+  <div class="controls">
+    <button id="play" class="primary">&#9654;&nbsp; Play</button>
+    <button id="step">Step &rarr;</button>
+    <button id="reset">Reset</button>
+    <button id="audio" aria-pressed="false" title="Narrate each step (N)">
+      <span id="audio-icon">&#128263;</span>&nbsp; Narration: off
+    </button>
+  </div>
+  <p class="audio-note" id="audio-note"></p>
+
+  <div class="stage">
+
+    <div class="col-client">
+      <div class="box client" id="b-client">
+        <div class="name">OrderEventsDemo</div>
+        <div class="role">Client</div>
+      </div>
+      <div style="font-size:22px;color:var(--line)">&#8595;</div>
+      <div class="box subject" id="b-subject">
+        <div class="name">Order</div>
+        <div class="role">Subject</div>
+        <div class="holding" id="holding">
+          status: <b>Placed</b><br>listeners: <b>0</b>
+        </div>
+      </div>
+      <div style="font-size:11px;color:var(--muted);text-align:center;line-height:1.5">
+        one loop:<br>listener.onStatusChanged(e)
+      </div>
+    </div>
+
+    <div class="col-main">
+
+      <div class="family">
+        <div class="family-label">The subscribers &mdash; peers behind one interface, none aware of the others</div>
+        <div class="row" id="r-inventory">
+          <span class="name">InventoryListener</span>
+          <span class="note">wants SHIPPED, CANCELLED</span>
+          <span class="value">released</span>
+        </div>
+        <div class="row" id="r-email">
+          <span class="name">EmailListener</span>
+          <span class="note">wants everything</span>
+          <span class="value">sent</span>
+        </div>
+        <div class="row" id="r-analytics">
+          <span class="name">AnalyticsListener</span>
+          <span class="note">wants everything</span>
+          <span class="value">counted</span>
+        </div>
+        <div class="row" id="r-warehouse">
+          <span class="name">WarehouseFeedListener</span>
+          <span class="note">wants PAID, SHIPPED</span>
+          <span class="value">wrote a line</span>
+        </div>
+        <div class="row hidden" id="r-loyalty">
+          <span class="name">loyalty-points</span>
+          <span class="note">written after Order was compiled</span>
+          <span class="value">credited 120</span>
+        </div>
+      </div>
+
+      <div class="bridge-rail" id="bridge-rail"></div>
+
+      <div class="narration" id="narration">
+        <div class="step-no">Ready</div>
+        <div class="text">Press <b>Play</b> to watch one status change reach four independent systems &mdash; and then watch one of them fail without taking the others down.</div>
+      </div>
+
+      <div class="console">
+        <div class="ttl">Program output</div>
+        <div id="console-lines"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="progress" id="progress"></div>
+
+  <p class="legend">
+    <b>Order has no field called email, inventory, analytics or warehouse &mdash; there is no message it could send to find out who is listening.</b><br>
+    Adding a fifth reaction is one new class and one addListener call. Nothing that already works gets edited.<br>
+    <span style="font-size:12px">
+      Keys: <b>Space</b> play/pause &nbsp;·&nbsp; <b>&rarr;</b> next step
+      &nbsp;·&nbsp; <b>N</b> narration &nbsp;·&nbsp; <b>R</b> reset
+    </span>
+  </p>
+
+</div>
+
+<script>
+const STEPS = [
+  {
+    title: "Step 1 — Four systems care when an order moves, and none of them is 'the' one",
+    text: "Inventory, email, analytics and the warehouse feed. Four completely unrelated reactions, sharing nothing but the OrderListener interface. Notice they do not even want the same events -- inventory ignores everything except shipping and cancellation, and analytics wants the lot.",
+    active: [], pending: true, reveal: 4, status: "Placed", count: 0,
+    bridge: "one interface: String name(), void onStatusChanged(OrderEvent)",
+    out: { cls: "c-observer", txt: "interface OrderListener { void onStatusChanged(OrderEvent); }" }
+  },
+  {
+    title: "Step 2 — They subscribe. The order does not go looking for them",
+    text: "Four calls to addListener, and the direction matters: the subscribers attach themselves. Order now holds four OrderListener references and knows absolutely nothing else about them -- not their types, not what they do, not that a mail server is involved anywhere.",
+    active: ["b-client", "b-subject"], reveal: 4, status: "Placed", count: 4,
+    bridge: "order.addListener(...)  ×4  --  the subscriber owns the relationship",
+    out: { cls: "c-pick", txt: "order.addListener(inventory); ... addListener(warehouseFeed);" }
+  },
+  {
+    title: "Step 3 — The order ships, and updates itself before it says a word",
+    text: "moveTo(SHIPPED) builds an OrderEvent -- order id, the status it came from, the status it is going to -- and sets its own status first. That order matters: a listener that does look at the order should see the world the event describes, not the one it replaced.",
+    active: ["b-subject"], reveal: 4, status: "Shipped", count: 4,
+    bridge: "OrderEvent(\"A-1002\", Paid, Shipped)  --  a value, with no way back to the Order",
+    out: { cls: "c-subject", txt: "order.moveTo(SHIPPED)" }
+  },
+  {
+    title: "Step 4 — Inventory is told, and releases the reservation",
+    text: "One message: onStatusChanged. The order is not calling a method named after inventory; it is calling the interface method on whatever happens to be first in the list. Inventory checks the status it was handed, sees SHIPPED, and releases the stock.",
+    active: ["b-subject", "r-inventory"], reveal: 4, done: ["r-inventory"], status: "Shipped", count: 4,
+    bridge: "listener.onStatusChanged(event)  --  message one of four, all identical",
+    out: { cls: "c-observer", txt: "  [inventory] released the reservation for A-1002" }
+  },
+  {
+    title: "Step 5 — Email is told, and writes to the customer",
+    text: "Exactly the same message to a completely different object. The wording of the shipping email lives in EmailListener and nowhere else, so marketing rewriting it touches one file -- and it is not the file the payment team is editing.",
+    active: ["b-subject", "r-email"], reveal: 4, done: ["r-inventory", "r-email"], status: "Shipped", count: 4,
+    bridge: "listener.onStatusChanged(event)  --  the identical line, a different object",
+    out: { cls: "c-observer", txt: "  [email] to grace@example.com: Your order A-1002 is on its way" }
+  },
+  {
+    title: "Step 6 — Analytics is told, and counts it",
+    text: "Analytics wants every transition, including ones nobody has invented yet. Under the pattern that is a subscription and nothing else. Under the version that calls each system by name, it is a standing obligation on every method that ever changes a status -- and the one that forgets is a hole in the funnel nobody notices for a quarter.",
+    active: ["b-subject", "r-analytics"], reveal: 4,
+    done: ["r-inventory", "r-email", "r-analytics"], status: "Shipped", count: 4,
+    bridge: "listener.onStatusChanged(event)  --  message three",
+    out: { cls: "c-observer", txt: "  [analytics] recorded A-1002: Paid -> Shipped" }
+  },
+  {
+    title: "Step 7 — The warehouse feed is told, and the call returns empty",
+    text: "The last listener writes its line, and moveTo hands back an empty list of failures. Four systems reacted to one status change, and Order still does not know what any of them did.",
+    active: ["b-subject", "r-warehouse"], reveal: 4,
+    done: ["r-inventory", "r-email", "r-analytics", "r-warehouse"], status: "Shipped", count: 4,
+    bridge: "moveTo returns []  --  nobody threw",
+    out: { cls: "c-out", txt: "  [warehouse-feed] wrote \"A-1002,SHIPPED\"   ->  failures: []" }
+  },
+  {
+    title: "Step 8 — A fifth reaction, written after Order was compiled",
+    text: "Loyalty points on delivery. It is defined in the demo file, against nothing but the interface, and attached with one more addListener call. Order was compiled long before this existed and did not need recompiling. That is the extension point being real rather than a list of four.",
+    active: ["b-client", "r-loyalty"], reveal: 5,
+    done: ["r-inventory", "r-email", "r-analytics", "r-warehouse", "r-loyalty"], status: "Delivered", count: 5,
+    bridge: "order.addListener(new OrderListener() { ... })  --  Order.java unchanged",
+    out: { cls: "c-pick", txt: "  [loyalty-points] credited 120 points for A-1003" }
+  },
+  {
+    title: "Step 9 — Now the mail server times out",
+    text: "EmailListener throws, in the middle of the notification loop. This is the moment the naive design falls over: with four direct calls in a row and no try block, the order is already marked shipped, the stock is already released, and the two systems after email never run at all.",
+    active: ["b-subject", "r-email"], reveal: 5, failed: ["r-email"],
+    done: ["r-inventory"], status: "Shipped", count: 5,
+    bridge: "IllegalStateException: SMTP timeout after 30s",
+    out: { cls: "c-bad", txt: "  !! email threw: SMTP timeout after 30s" }
+  },
+  {
+    title: "Step 10 — Order catches it, writes it down, and carries on",
+    text: "The exception is caught inside the loop, recorded as a ListenerFailure against the listener's name, and the loop moves to the next subscriber. Analytics is still counted. The warehouse feed is still written. The parcel still gets picked.",
+    active: ["b-subject", "r-analytics", "r-warehouse"], reveal: 5, failed: ["r-email"],
+    done: ["r-inventory", "r-analytics", "r-warehouse"], status: "Shipped", count: 5,
+    bridge: "caught, recorded, loop continues  --  one deliberate try/catch",
+    out: { cls: "c-out", txt: "  [warehouse-feed] wrote \"A-1004,SHIPPED\"   ->  failures: [email failed: SMTP timeout after 30s]" }
+  },
+  {
+    title: "Step 11 — That is the payoff, and here is what it cost",
+    text: "One announcement reached five independent systems, a broken one did not take the rest down, and Order was never edited. The honest cost is that reading moveTo now tells you nothing about what happens when an order ships -- you have to find every addListener call, and your development environment cannot help, because they are all typed as the interface. That is a real loss of legibility, traded for a real gain in independence.",
+    active: ["b-subject"], reveal: 5, failed: ["r-email"],
+    done: ["r-inventory", "r-analytics", "r-warehouse", "r-loyalty"], status: "Shipped", count: 5,
+    bridge: "a fifth reaction = one new class, and nothing that works gets edited",
+    out: { cls: "c-subject", txt: "grep -n \"email\" Order.java   ->  no matches" }
+  }
+];
+
+const BOXES = ["b-client", "b-subject"];
+const ROWS = ["r-inventory", "r-email", "r-analytics", "r-warehouse", "r-loyalty"];
+const ALL_BOXES = BOXES.concat(ROWS);
+
+const STEP_MS = 3200;      // pace when narration is off
+const GAP_MS = 700;        // breathing room after a clip finishes
+
+let idx = -1;
+let playing = false;
+let timer = null;
+
+// Narration is optional: if the audio clips are missing (or the browser
+// blocks playback) the animation still works exactly as before.
+let audioOn = false;
+let clips = [];
+let current = null;
+
+const $ = id => document.getElementById(id);
+const progressEl = $("progress");
+const linesEl = $("console-lines");
+const noteEl = $("audio-note");
+const bridgeEl = $("bridge-rail");
+const holdingEl = $("holding");
+
+STEPS.forEach(() => {
+  const d = document.createElement("div");
+  d.className = "dot";
+  progressEl.appendChild(d);
+});
+
+// ---- optional narration ------------------------------------------------
+
+clips = STEPS.map((_, i) => {
+  const a = new Audio("audio/step-" + (i + 1) + ".m4a");
+  a.preload = "none";
+  return a;
+});
+
+function stopAudio() {
+  if (!current) return;
+  current.pause();
+  current.currentTime = 0;
+  current.onended = null;
+  current = null;
+}
+
+/** Play the clip for step i. onDone fires when it finishes (or cannot play). */
+function playClip(i, onDone) {
+  stopAudio();
+  if (!audioOn) { if (onDone) onDone(); return; }
+
+  const a = clips[i];
+  current = a;
+  a.currentTime = 0;
+  a.onended = () => { current = null; if (onDone) onDone(); };
+
+  a.play().catch(() => {
+    // Missing file, or autoplay blocked -> fall back to timed pacing.
+    current = null;
+    noteEl.textContent =
+      "Narration audio could not be played — falling back to timed steps. " +
+      "Run docs/make_animation_audio.sh to generate the clips.";
+    if (onDone) onDone();
+  });
+}
+
+function setAudio(on) {
+  audioOn = on;
+  const btn = $("audio");
+  btn.classList.toggle("on", on);
+  btn.setAttribute("aria-pressed", String(on));
+  btn.innerHTML = '<span id="audio-icon">' + (on ? "&#128266;" : "&#128263;") +
+                  "</span>&nbsp; Narration: " + (on ? "on" : "off");
+  noteEl.textContent = on
+    ? "Each step is narrated, and the animation waits for the voice to finish."
+    : "";
+  if (!on) stopAudio();
+}
+
+// ------------------------------------------------------------------------
+
+function clearHighlights() {
+  ALL_BOXES.forEach(b => $(b).classList.remove("active"));
+  ROWS.forEach(r => $(r).classList.remove("pending", "failed", "done"));
+}
+
+function render(i) {
+  clearHighlights();
+  const s = STEPS[i];
+
+  // The fifth subscriber does not exist until it is written, so it is not on
+  // screen until the step that writes it.
+  ROWS.forEach((r, k) => $(r).classList.toggle("hidden", k >= (s.reveal || 4)));
+
+  s.active.forEach(b => $(b).classList.add("active"));
+
+  // Before anyone has subscribed the rows are drawn back, so the eye reads
+  // them as "these exist" rather than "these are attached".
+  if (s.pending) ROWS.forEach(r => $(r).classList.add("pending"));
+
+  (s.done || []).forEach(r => $(r).classList.add("done"));
+  (s.failed || []).forEach(r => $(r).classList.add("failed"));
+
+  holdingEl.innerHTML =
+    "status: <b>" + s.status + "</b><br>listeners: <b>" + s.count + "</b>";
+
+  bridgeEl.textContent = s.bridge || "";
+  bridgeEl.classList.add("active");
+
+  $("narration").innerHTML =
+    '<div class="step-no">' + s.title + '</div><div class="text">' + s.text + '</div>';
+
+  // Rebuild console output up to this step
+  linesEl.innerHTML = "";
+  for (let k = 0; k <= i; k++) {
+    if (!STEPS[k].out) continue;
+    const div = document.createElement("div");
+    div.className = "ln " + STEPS[k].out.cls;
+    div.textContent = STEPS[k].out.txt;
+    linesEl.appendChild(div);
+    requestAnimationFrame(() => div.classList.add("show"));
+  }
+
+  [...progressEl.children].forEach((d, k) => d.classList.toggle("on", k <= i));
+}
+
+/** Advance one step. In play mode, schedule the following step afterwards. */
+function next() {
+  if (idx >= STEPS.length - 1) { stop(); return; }
+  idx++;
+  render(idx);
+
+  if (!playing) { playClip(idx); return; }
+
+  if (audioOn) {
+    // Wait for the voice to finish this step, then move on.
+    playClip(idx, () => {
+      if (!playing) return;
+      timer = setTimeout(next, GAP_MS);
+    });
+  } else {
+    timer = setTimeout(next, STEP_MS);
+  }
+}
+
+function stop() {
+  playing = false;
+  clearTimeout(timer);
+  stopAudio();
+  $("play").innerHTML = "&#9654;&nbsp; Play";
+  $("step").disabled = false;
+}
+
+function reset() {
+  stop();
+  idx = -1;
+  clearHighlights();
+  ROWS.forEach((r, k) => $(r).classList.toggle("hidden", k >= 4));
+  holdingEl.innerHTML = "status: <b>Placed</b><br>listeners: <b>0</b>";
+  linesEl.innerHTML = "";
+  bridgeEl.textContent = "";
+  bridgeEl.classList.remove("active");
+  [...progressEl.children].forEach(d => d.classList.remove("on"));
+  $("narration").innerHTML =
+    '<div class="step-no">Ready</div><div class="text">Press <b>Play</b> to watch one status change reach four independent systems &mdash; and then watch one of them fail without taking the others down.</div>';
+}
+
+$("play").addEventListener("click", () => {
+  if (playing) { stop(); return; }
+  if (idx >= STEPS.length - 1) reset();
+  playing = true;
+  $("play").innerHTML = "&#10074;&#10074;&nbsp; Pause";
+  $("step").disabled = true;
+  next();   // next() now schedules the rest of the run itself
+});
+
+$("step").addEventListener("click", () => { stop(); if (idx >= STEPS.length - 1) reset(); next(); });
+$("reset").addEventListener("click", reset);
+
+$("audio").addEventListener("click", () => {
+  setAudio(!audioOn);
+  // Turning narration on mid-run: speak the step already on screen.
+  if (audioOn && playing && idx >= 0) {
+    clearTimeout(timer);
+    playClip(idx, () => {
+      if (!playing) return;
+      timer = setTimeout(next, GAP_MS);
+    });
+  }
+});
+
+document.addEventListener("keydown", e => {
+  if (e.code === "Space") { e.preventDefault(); $("play").click(); }
+  if (e.code === "ArrowRight") { e.preventDefault(); $("step").click(); }
+  if (e.code === "KeyR") reset();
+  if (e.code === "KeyN") $("audio").click();
+});
+
+setAudio(false);
+reset();
+</script>
+</body>
+</html>

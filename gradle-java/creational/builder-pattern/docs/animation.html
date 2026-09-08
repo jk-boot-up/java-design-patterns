@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Builder Pattern — Animated Walkthrough</title>
+<style>
+  :root {
+    --bg: #0f172a;
+    --panel: #1e293b;
+    --panel-hi: #334155;
+    --line: #475569;
+    --text: #e2e8f0;
+    --muted: #94a3b8;
+    --client: #38bdf8;
+    --builder: #a78bfa;
+    --piece: #f472b6;
+    --product: #fbbf24;
+    --ok: #34d399;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 28px 20px 60px;
+    background: var(--bg);
+    color: var(--text);
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  h1 { text-align: center; font-size: 28px; margin: 0 0 4px; }
+  .sub { text-align: center; color: var(--muted); margin: 0 0 24px; font-size: 15px; }
+
+  .wrap { max-width: 1180px; margin: 0 auto; }
+
+  .controls { display: flex; gap: 10px; justify-content: center; margin-bottom: 26px; flex-wrap: wrap; }
+  button {
+    background: var(--panel-hi); color: var(--text); border: 1px solid var(--line);
+    padding: 9px 20px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer;
+    transition: background .15s, transform .1s;
+  }
+  button:hover:not(:disabled) { background: #475569; }
+  button:active:not(:disabled) { transform: translateY(1px); }
+  button:disabled { opacity: .4; cursor: not-allowed; }
+  button.primary { background: var(--builder); color: #1e1b4b; border-color: var(--builder); }
+  button.primary:hover:not(:disabled) { background: #b9a3ff; }
+  button.on { background: #0c2b3d; border-color: var(--client); color: var(--client); }
+  button.on:hover:not(:disabled) { background: #123a52; }
+
+  .audio-note {
+    text-align: center; color: var(--muted); font-size: 12.5px;
+    margin: -14px 0 22px; min-height: 17px;
+  }
+
+  .stage { display: grid; grid-template-columns: 200px 1fr; gap: 22px; align-items: start; }
+
+  .col-client { display: flex; flex-direction: column; align-items: center; gap: 14px; padding-top: 70px; }
+
+  .box {
+    background: var(--panel); border: 2px solid var(--line); border-radius: 12px;
+    padding: 14px 16px; text-align: center; width: 100%;
+    transition: border-color .3s, box-shadow .3s, transform .3s, background .3s, opacity .3s;
+  }
+  .box .name { font-weight: 700; font-size: 15px; letter-spacing: .2px; }
+  .box .role { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-top: 3px; }
+  .box.active {
+    transform: translateY(-3px);
+    box-shadow: 0 0 0 3px rgba(255,255,255,.07), 0 10px 28px rgba(0,0,0,.45);
+  }
+  .box.client.active  { border-color: var(--client);  background: #0c2b3d; }
+  .box.builder.active { border-color: var(--builder); background: #2b2247; }
+  .box.piece.active   { border-color: var(--piece);   background: #3a1230; }
+  .box.product.active { border-color: var(--product); background: #322612; }
+  .box.chosen { border-color: var(--ok); }
+  .box.chosen::after { content: " ✓"; color: #4ade80; font-weight: 700; }
+  .box.faded { opacity: .3; }
+
+  .col-main { display: flex; flex-direction: column; gap: 18px; }
+
+  .builder-shell {
+    border: 2px dashed var(--builder); border-radius: 14px; padding: 16px;
+    background: rgba(167,139,250,.05);
+  }
+  .builder-label {
+    font-size: 11px; color: var(--builder); text-transform: uppercase;
+    letter-spacing: 1.4px; font-weight: 700; margin-bottom: 12px; text-align: center;
+  }
+  .methods {
+    display: flex; flex-direction: column; gap: 6px; margin-top: 12px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12.5px;
+  }
+  .mf {
+    padding: 6px 12px; border-radius: 7px; border: 1px dashed var(--builder);
+    color: var(--builder); transition: all .3s;
+  }
+  .mf.lit { background: #2b2247; border-style: solid; color: var(--text); }
+  .mf.dead { border-color: #7f1d1d; color: #f87171; text-decoration: line-through; }
+  .hint {
+    text-align: center; color: var(--muted); font-size: 11.5px;
+    letter-spacing: .4px; margin: 14px 0 8px;
+  }
+
+  .pieces-shell {
+    border: 2px dashed var(--piece); border-radius: 14px; padding: 14px 12px;
+    background: rgba(244,114,182,.05);
+  }
+  .pieces-label {
+    font-size: 11px; color: var(--piece); text-transform: uppercase;
+    letter-spacing: 1.4px; font-weight: 700; margin-bottom: 10px; text-align: center;
+  }
+  .pieces { display: grid; grid-template-columns: repeat(5, 1fr); gap: 9px; }
+  .pieces .box { padding: 11px 7px; }
+  .pieces .box .name { font-size: 12.5px; }
+  .pieces .box .role { font-size: 9.5px; letter-spacing: .6px; }
+
+  .product-shell {
+    border: 2px dashed var(--product); border-radius: 14px; padding: 14px 12px;
+    background: rgba(251,191,36,.05);
+  }
+  .product-label {
+    font-size: 11px; color: var(--product); text-transform: uppercase;
+    letter-spacing: 1.4px; font-weight: 700; margin-bottom: 10px; text-align: center;
+  }
+
+  .arrow-rail { height: 30px; position: relative; }
+  .arrow {
+    position: absolute; left: 50%; transform: translateX(-50%);
+    font-size: 13px; color: var(--muted); opacity: 0;
+    transition: opacity .3s; white-space: nowrap;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  }
+  .arrow.show { opacity: 1; }
+
+  .narration {
+    background: var(--panel); border-left: 4px solid var(--builder);
+    border-radius: 0 10px 10px 0; padding: 16px 20px; min-height: 76px;
+    font-size: 15px; line-height: 1.6;
+  }
+  .narration .step-no { color: var(--muted); font-size: 12px; letter-spacing: 1px; text-transform: uppercase; }
+  .narration .text { margin-top: 5px; }
+
+  .console {
+    background: #020617; border: 1px solid var(--line); border-radius: 10px;
+    padding: 14px 16px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 13px; line-height: 1.75; min-height: 150px;
+  }
+  .console .ttl { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+  .console div.ln { opacity: 0; transition: opacity .35s; }
+  .console div.ln.show { opacity: 1; }
+  .c-name { color: var(--piece); }
+  .c-same { color: var(--builder); }
+  .c-tot  { color: #4ade80; }
+  .c-rej  { color: #f87171; }
+
+  .progress { display: flex; gap: 5px; justify-content: center; margin-top: 22px; }
+  .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--line); transition: background .3s, transform .3s; }
+  .dot.on { background: var(--builder); transform: scale(1.35); }
+
+  .legend { text-align: center; color: var(--muted); font-size: 13px; margin-top: 26px; line-height: 1.7; }
+  .legend b { color: var(--text); }
+
+  @media (max-width: 860px) {
+    .stage { grid-template-columns: 1fr; }
+    .col-client { padding-top: 0; }
+    .pieces { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>The Builder Pattern</h1>
+  <p class="sub">Decide the object a piece at a time &rarr; in any order &rarr; checked complete only when you say you are done</p>
+
+  <div class="controls">
+    <button id="play" class="primary">&#9654;&nbsp; Play</button>
+    <button id="step">Step &rarr;</button>
+    <button id="reset">Reset</button>
+    <button id="audio" aria-pressed="false" title="Narrate each step (N)">
+      <span id="audio-icon">&#128263;</span>&nbsp; Narration: off
+    </button>
+  </div>
+  <p class="audio-note" id="audio-note"></p>
+
+  <div class="stage">
+
+    <div class="col-client">
+      <div class="box client" id="b-caller">
+        <div class="name">PurchaseOrderDemo</div>
+        <div class="role">the caller</div>
+      </div>
+      <div style="font-size:26px;color:var(--line)">&#8595;</div>
+      <div style="font-size:11px;color:var(--muted);text-align:center;line-height:1.5">
+        one call at a time,<br>in whatever order it likes
+      </div>
+      <div class="box client" id="b-presets" style="margin-top:14px">
+        <div class="name">PurchaseOrderPresets</div>
+        <div class="role">a director, without a class</div>
+      </div>
+    </div>
+
+    <div class="col-main">
+
+      <div class="arrow-rail">
+        <div class="arrow" id="a-in">PurchaseOrder.builder("ORD-9001", "CUST-100") &nbsp;&#8595;</div>
+      </div>
+
+      <div class="builder-shell">
+        <div class="builder-label">PurchaseOrder.Builder &mdash; chainable, one call per piece</div>
+        <div class="box builder" id="b-builder">
+          <div class="name">Builder</div>
+          <div class="role">static nested class &mdash; every method returns this</div>
+        </div>
+
+        <div class="methods">
+          <div class="mf" id="mf-0">new PurchaseOrder(orderId, customerId, ...9 args) &nbsp; &rarr; &nbsp; no thanks</div>
+          <div class="mf" id="mf-1">addItem(LineItem) &nbsp; &rarr; &nbsp; Builder</div>
+          <div class="mf" id="mf-2">shippingAddress(Address) &nbsp; &rarr; &nbsp; Builder</div>
+          <div class="mf" id="mf-3">giftMessage(String) &nbsp; &rarr; &nbsp; Builder</div>
+          <div class="mf" id="mf-4">couponCode(String) &nbsp; &rarr; &nbsp; Builder</div>
+          <div class="mf" id="mf-5">priority() &nbsp; &rarr; &nbsp; Builder</div>
+          <div class="mf" id="mf-6">build() &nbsp; &rarr; &nbsp; PurchaseOrder</div>
+        </div>
+
+        <div class="hint">every method except build() hands back the same builder &mdash; that is what lets the calls chain</div>
+      </div>
+
+      <div class="arrow-rail">
+        <div class="arrow" id="a-out">&#8595; &nbsp; build() checks completeness, then constructs</div>
+      </div>
+
+      <div class="pieces-shell">
+        <div class="pieces-label">Accumulated inside the builder, one call at a time</div>
+        <div class="pieces">
+          <div class="box piece" id="b-mug">
+            <div class="name">mug</div>
+            <div class="role">LineItem</div>
+          </div>
+          <div class="box piece" id="b-book">
+            <div class="name">book</div>
+            <div class="role">LineItem</div>
+          </div>
+          <div class="box piece" id="b-home">
+            <div class="name">home</div>
+            <div class="role">Address</div>
+          </div>
+          <div class="box piece" id="b-msg">
+            <div class="name">"Happy birthday!"</div>
+            <div class="role">giftMessage</div>
+          </div>
+          <div class="box piece" id="b-coupon">
+            <div class="name">WELCOME10</div>
+            <div class="role">couponCode</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="product-shell">
+        <div class="product-label">Produced only by build() &mdash; immutable from here on</div>
+        <div class="box product" id="b-order">
+          <div class="name">PurchaseOrder</div>
+          <div class="role">private constructor &mdash; List.copyOf snapshots every collection</div>
+        </div>
+      </div>
+
+      <div class="narration" id="narration">
+        <div class="step-no">Ready</div>
+        <div class="text">Press <b>Play</b> to watch a nine-parameter constructor turn into a chain of small, named calls.</div>
+      </div>
+
+      <div class="console">
+        <div class="ttl">Program output</div>
+        <div id="console-lines"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="progress" id="progress"></div>
+
+  <p class="legend">
+    <b>A constructor makes you decide the whole object in one call. A builder lets you decide it a piece at a time, and checks it is complete only when you say you are done.</b><br>
+    Add a sixth optional piece and every existing call site keeps compiling &mdash; nobody who ignores it has to type anything new.<br>
+    <span style="font-size:12px">
+      Keys: <b>Space</b> play/pause &nbsp;·&nbsp; <b>&rarr;</b> next step
+      &nbsp;·&nbsp; <b>N</b> narration &nbsp;·&nbsp; <b>R</b> reset
+    </span>
+  </p>
+
+</div>
+
+<script>
+const STEPS = [
+  {
+    title: "Step 1 — The constructor with nine parameters",
+    text: "orderId, customerId, items, shippingAddress, giftWrapped, giftMessage, couponCode, priority, notes — nine positional parameters, most of them optional, and two of them booleans a compiler will happily let you swap without a word of complaint.",
+    active: ["b-caller"], chosen: [], faded: ["b-builder", "b-mug", "b-book", "b-home", "b-msg", "b-coupon", "b-order", "b-presets"],
+    dead: ["mf-0"], mf: [], arrow: null, out: null
+  },
+  {
+    title: "Step 2 — One door in: builder(id, customer)",
+    text: "PurchaseOrder.builder(\"ORD-9001\", \"CUST-100\") is the only way to a fresh Builder, and it only asks for the two facts every order truly needs. Nothing has been assembled yet.",
+    active: ["b-caller", "b-builder"], chosen: [], faded: ["b-mug", "b-book", "b-home", "b-msg", "b-coupon", "b-order", "b-presets"],
+    dead: ["mf-0"], mf: [], arrow: "a-in", out: null
+  },
+  {
+    title: "Step 3 — addItem, called twice",
+    text: "addItem(mug).addItem(book) — each call returns the same builder, so the next call chains straight off the end of it. The order the items were added in is the order they will appear in.",
+    active: ["b-builder", "b-mug", "b-book"], chosen: ["b-mug", "b-book"], faded: ["b-home", "b-msg", "b-coupon", "b-order", "b-presets"],
+    dead: ["mf-0"], mf: ["mf-1"], arrow: null, out: null
+  },
+  {
+    title: "Step 4 — shippingAddress(home)",
+    text: "A required piece, but it still arrives through a named call rather than a fixed constructor slot. build() will refuse to proceed without it, but nothing stops you setting it first, last, or anywhere in between.",
+    active: ["b-builder", "b-home"], chosen: ["b-mug", "b-book", "b-home"], faded: ["b-msg", "b-coupon", "b-order", "b-presets"],
+    dead: ["mf-0"], mf: ["mf-2"], arrow: null, out: null
+  },
+  {
+    title: "Step 5 — giftMessage sets a second field too",
+    text: "giftMessage(\"Happy birthday!\") does two things: it stores the message, and it quietly sets giftWrapped to true, because a gift message on an unwrapped box makes no sense in this domain. That rule lives in exactly one place — the builder method — not scattered across every caller.",
+    active: ["b-builder", "b-msg"], chosen: ["b-mug", "b-book", "b-home", "b-msg"], faded: ["b-coupon", "b-order", "b-presets"],
+    dead: ["mf-0"], mf: ["mf-3"], arrow: null,
+    out: { cls: "c-same", txt: "giftMessage(...) also sets giftWrapped = true" }
+  },
+  {
+    title: "Step 6 — couponCode, in any order you like",
+    text: "couponCode(\"WELCOME10\") could just as easily have come before the gift message, or before the shipping address. There is no fixed slot to get wrong, because there is no positional argument list at all.",
+    active: ["b-builder", "b-coupon"], chosen: ["b-mug", "b-book", "b-home", "b-msg", "b-coupon"], faded: ["b-order", "b-presets"],
+    dead: ["mf-0"], mf: ["mf-4"], arrow: "a-out", out: null
+  },
+  {
+    title: "Step 7 — build() checks, then constructs",
+    text: "build() asks two questions no earlier call could have honestly answered: is there at least one item, and is there a shipping address? Only once both are true does it call the private PurchaseOrder constructor, which takes List.copyOf snapshots of everything the builder held.",
+    active: ["b-builder", "b-order"], chosen: ["b-mug", "b-book", "b-home", "b-msg", "b-coupon", "b-order"], faded: ["b-presets"],
+    dead: ["mf-0"], mf: ["mf-6"], arrow: null,
+    out: { cls: "c-tot", txt: "first items: 1, second items: 2\n(the reused builder never reaches back into an order it already built)" }
+  },
+  {
+    title: "Step 8 — the Director, without a class",
+    text: "PurchaseOrderPresets.giftOrder(...) plays the Director role the Gang of Four book draws as its own interface — but it only ever calls Builder's public methods, never PurchaseOrder's constructor. Two orders built by hand fail on purpose: one with no items, one with no address.",
+    active: ["b-presets", "b-builder"], chosen: [], faded: [],
+    dead: ["mf-0"], mf: [], arrow: null,
+    out: [
+      { cls: "c-name", txt: "gift order      -> giftWrapped=true message=Happy birthday!\nstandard order  -> giftWrapped=false priority=false\nexpress order   -> priority=true notes=Ship same-day if received before 2pm." },
+      { cls: "c-rej", txt: "Rejected: a purchase order needs at least one item\nRejected: a purchase order needs a shipping address" }
+    ]
+  }
+];
+
+const ALL_BOXES = ["b-caller", "b-presets", "b-builder", "b-mug", "b-book", "b-home", "b-msg", "b-coupon", "b-order"];
+const ARROWS = ["a-in", "a-out"];
+const MF = ["mf-0", "mf-1", "mf-2", "mf-3", "mf-4", "mf-5", "mf-6"];
+
+const STEP_MS = 3200;      // pace when narration is off
+const GAP_MS = 700;        // breathing room after a clip finishes
+
+let idx = -1;
+let playing = false;
+let timer = null;
+
+// Narration is optional: if the audio clips are missing (or the browser
+// blocks playback) the animation still works exactly as before.
+let audioOn = false;
+let clips = [];
+let current = null;
+
+const $ = id => document.getElementById(id);
+const progressEl = $("progress");
+const linesEl = $("console-lines");
+const noteEl = $("audio-note");
+
+STEPS.forEach(() => {
+  const d = document.createElement("div");
+  d.className = "dot";
+  progressEl.appendChild(d);
+});
+
+// ---- optional narration ------------------------------------------------
+
+clips = STEPS.map((_, i) => {
+  const a = new Audio("audio/step-" + (i + 1) + ".m4a");
+  a.preload = "none";
+  return a;
+});
+
+function stopAudio() {
+  if (!current) return;
+  current.pause();
+  current.currentTime = 0;
+  current.onended = null;
+  current = null;
+}
+
+/** Play the clip for step i. onDone fires when it finishes (or cannot play). */
+function playClip(i, onDone) {
+  stopAudio();
+  if (!audioOn) { if (onDone) onDone(); return; }
+
+  const a = clips[i];
+  current = a;
+  a.currentTime = 0;
+  a.onended = () => { current = null; if (onDone) onDone(); };
+
+  a.play().catch(() => {
+    // Missing file, or autoplay blocked -> fall back to timed pacing.
+    current = null;
+    noteEl.textContent =
+      "Narration audio could not be played — falling back to timed steps. " +
+      "Run docs/make_animation_audio.sh to generate the clips.";
+    if (onDone) onDone();
+  });
+}
+
+function setAudio(on) {
+  audioOn = on;
+  const btn = $("audio");
+  btn.classList.toggle("on", on);
+  btn.setAttribute("aria-pressed", String(on));
+  btn.innerHTML = '<span id="audio-icon">' + (on ? "&#128266;" : "&#128263;") +
+                  "</span>&nbsp; Narration: " + (on ? "on" : "off");
+  noteEl.textContent = on
+    ? "Each step is narrated, and the animation waits for the voice to finish."
+    : "";
+  if (!on) stopAudio();
+}
+
+// ------------------------------------------------------------------------
+
+function clearHighlights() {
+  ALL_BOXES.forEach(b => $(b).classList.remove("active", "faded"));
+  ARROWS.forEach(a => $(a).classList.remove("show"));
+  MF.forEach(m => $(m).classList.remove("lit", "dead"));
+}
+
+function render(i) {
+  clearHighlights();
+  const s = STEPS[i];
+
+  ALL_BOXES.forEach(b => $(b).classList.remove("chosen"));
+
+  s.active.forEach(b => $(b).classList.add("active"));
+  (s.faded || []).forEach(b => $(b).classList.add("faded"));
+  (s.chosen || []).forEach(b => $(b).classList.add("chosen"));
+  (s.mf || []).forEach(m => $(m).classList.add("lit"));
+  (s.dead || []).forEach(m => $(m).classList.add("dead"));
+  if (s.arrow) $(s.arrow).classList.add("show");
+
+  $("narration").innerHTML =
+    '<div class="step-no">' + s.title + '</div><div class="text">' + s.text + '</div>';
+
+  // Rebuild console output up to this step. A step may print one block or
+  // several, each with its own colour.
+  linesEl.innerHTML = "";
+  for (let k = 0; k <= i; k++) {
+    if (!STEPS[k].out) continue;
+    const blocks = [].concat(STEPS[k].out);
+    blocks.forEach(block => block.txt.split("\n").forEach(txt => {
+      const div = document.createElement("div");
+      div.className = "ln " + block.cls;
+      div.textContent = txt;
+      linesEl.appendChild(div);
+      requestAnimationFrame(() => div.classList.add("show"));
+    }));
+  }
+
+  [...progressEl.children].forEach((d, k) => d.classList.toggle("on", k <= i));
+}
+
+/** Advance one step. In play mode, schedule the following step afterwards. */
+function next() {
+  if (idx >= STEPS.length - 1) { stop(); return; }
+  idx++;
+  render(idx);
+
+  if (!playing) { playClip(idx); return; }
+
+  if (audioOn) {
+    // Wait for the voice to finish this step, then move on.
+    playClip(idx, () => {
+      if (!playing) return;
+      timer = setTimeout(next, GAP_MS);
+    });
+  } else {
+    timer = setTimeout(next, STEP_MS);
+  }
+}
+
+function stop() {
+  playing = false;
+  clearTimeout(timer);
+  stopAudio();
+  $("play").innerHTML = "&#9654;&nbsp; Play";
+  $("step").disabled = false;
+}
+
+function reset() {
+  stop();
+  idx = -1;
+  clearHighlights();
+  ALL_BOXES.forEach(b => $(b).classList.remove("chosen"));
+  linesEl.innerHTML = "";
+  [...progressEl.children].forEach(d => d.classList.remove("on"));
+  $("narration").innerHTML =
+    '<div class="step-no">Ready</div><div class="text">Press <b>Play</b> to watch a nine-parameter constructor turn into a chain of small, named calls.</div>';
+}
+
+$("play").addEventListener("click", () => {
+  if (playing) { stop(); return; }
+  if (idx >= STEPS.length - 1) reset();
+  playing = true;
+  $("play").innerHTML = "&#10074;&#10074;&nbsp; Pause";
+  $("step").disabled = true;
+  next();   // next() now schedules the rest of the run itself
+});
+
+$("step").addEventListener("click", () => { stop(); if (idx >= STEPS.length - 1) reset(); next(); });
+$("reset").addEventListener("click", reset);
+
+$("audio").addEventListener("click", () => {
+  setAudio(!audioOn);
+  // Turning narration on mid-run: speak the step already on screen.
+  if (audioOn && playing && idx >= 0) {
+    clearTimeout(timer);
+    playClip(idx, () => {
+      if (!playing) return;
+      timer = setTimeout(next, GAP_MS);
+    });
+  }
+});
+
+document.addEventListener("keydown", e => {
+  if (e.code === "Space") { e.preventDefault(); $("play").click(); }
+  if (e.code === "ArrowRight") { e.preventDefault(); $("step").click(); }
+  if (e.code === "KeyR") reset();
+  if (e.code === "KeyN") $("audio").click();
+});
+
+setAudio(false);
+reset();
+</script>
+</body>
+</html>

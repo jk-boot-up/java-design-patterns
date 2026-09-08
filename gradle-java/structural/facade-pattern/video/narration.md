@@ -2,7 +2,7 @@
 
 Narration for the Facade pattern teaching video. Each scene below maps to
 one slide. The narration is spoken by macOS `Samantha`, a female US English
-voice, at 165 words per minute.
+voice, at 145 words per minute.
 
 Total scenes: 15. Approximate runtime: about 7 minutes.
 
@@ -19,12 +19,16 @@ stripped from the text below and from the subtitles.
 
 ## Scene 1 — The Facade Pattern
 
-Hello, and welcome. This one is written and presented by Jayasekhar
-Konduru. Today we're doing one of the most useful, and honestly one of the
-most approachable, design patterns in software. The facade. And we'll
-learn it by building a real working Java project, an online store
-checkout. By the end you'll know what a facade is, why it exists, and how
-to write one yourself.
+Hello, and welcome. This video explains the Facade pattern in Java, and it
+is written and presented by Jayasekhar Konduru. Let's start with the simple
+definition. The facade pattern puts one simple interface in front of a
+complicated set of classes. The subsystem keeps every one of its parts, and
+the specialist can still reach them, but the ordinary caller talks to a
+single object with a single method instead of orchestrating six. That's the
+idea in a sentence, and it's one of the most useful and most approachable
+patterns in software. The rest of the video does it properly, by building a
+real working Java project: the checkout of an online store. By the end
+you'll know what a facade is, why it exists, and how to write one yourself.
 
 ## Scene 2 — The Scenario
 

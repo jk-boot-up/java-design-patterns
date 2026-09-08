@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>State Pattern — Animated Walkthrough</title>
+<style>
+  :root {
+    --bg: #0f172a;
+    --panel: #1e293b;
+    --panel-hi: #334155;
+    --line: #475569;
+    --text: #e2e8f0;
+    --muted: #94a3b8;
+    --client: #38bdf8;
+    --receiver: #34d399;
+    --command: #a78bfa;
+    --picked: #fbbf24;
+    --bad: #f87171;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 28px 20px 60px;
+    background: var(--bg);
+    color: var(--text);
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  h1 { text-align: center; font-size: 28px; margin: 0 0 4px; }
+  .sub { text-align: center; color: var(--muted); margin: 0 0 24px; font-size: 15px; }
+
+  .wrap { max-width: 1100px; margin: 0 auto; }
+
+  .controls { display: flex; gap: 10px; justify-content: center; margin-bottom: 26px; flex-wrap: wrap; }
+  button {
+    background: var(--panel-hi); color: var(--text); border: 1px solid var(--line);
+    padding: 9px 20px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer;
+    transition: background .15s, transform .1s;
+  }
+  button:hover:not(:disabled) { background: #475569; }
+  button:active:not(:disabled) { transform: translateY(1px); }
+  button:disabled { opacity: .4; cursor: not-allowed; }
+  button.primary { background: var(--command); color: #1e1b4b; border-color: var(--command); }
+  button.primary:hover:not(:disabled) { background: #b9a3ff; }
+  button.on { background: #0c2b3d; border-color: var(--client); color: var(--client); }
+  button.on:hover:not(:disabled) { background: #123a52; }
+
+  .audio-note {
+    text-align: center; color: var(--muted); font-size: 12.5px;
+    margin: -14px 0 22px; min-height: 17px;
+  }
+
+  .stage { display: grid; grid-template-columns: 250px 1fr; gap: 22px; align-items: start; }
+
+  .col-client { display: flex; flex-direction: column; align-items: center; gap: 12px; padding-top: 20px; }
+
+  .box {
+    background: var(--panel); border: 2px solid var(--line); border-radius: 12px;
+    padding: 14px 16px; text-align: center; width: 100%;
+    transition: border-color .3s, box-shadow .3s, transform .3s, background .3s;
+  }
+  .box .name { font-weight: 700; font-size: 14px; letter-spacing: .2px; }
+  .box .role { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-top: 3px; }
+  .box.active {
+    transform: translateY(-3px);
+    box-shadow: 0 0 0 3px rgba(255,255,255,.07), 0 10px 28px rgba(0,0,0,.45);
+    border-color: var(--client); background: #0c2b3d;
+  }
+  .box.base.active { border-color: var(--command); background: #1c1636; box-shadow: 0 0 0 3px rgba(167,139,250,.16); }
+  .box.naive.active { border-color: var(--bad); background: #2c1010; box-shadow: 0 0 0 3px rgba(248,113,113,.16); }
+  .box.hidden { display: none; }
+
+  /* The seven states, drawn inside the context so the current one is visible. */
+  .stacks {
+    margin-top: 10px; padding-top: 9px; border-top: 1px dashed var(--line);
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px;
+    text-align: left; line-height: 1.55;
+  }
+  .stacks .ttl { color: var(--muted); text-transform: uppercase; letter-spacing: .8px; font-size: 9.5px; }
+  .stacks .entry {
+    background: rgba(167,139,250,.14); color: #cbb9ff; border-radius: 5px;
+    padding: 2px 6px; margin: 3px 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .stacks .entry.top { background: rgba(251,191,36,.18); color: var(--picked); font-weight: 700; }
+  .stacks .entry.bad { background: rgba(248,113,113,.16); color: var(--bad); font-weight: 700; }
+  .stacks .empty { color: var(--line); font-style: italic; padding: 2px 0; }
+  .stacks .redo { margin-top: 8px; }
+
+  .col-main { display: flex; flex-direction: column; gap: 18px; }
+
+  .family {
+    border: 2px dashed var(--receiver); border-radius: 14px; padding: 18px 20px;
+    background: rgba(52,211,153,.05);
+  }
+  .family-label {
+    font-size: 11px; color: var(--receiver); text-transform: uppercase;
+    letter-spacing: 1.4px; font-weight: 700; margin-bottom: 14px; text-align: center;
+  }
+
+  .row {
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    border: 2px solid var(--line); border-radius: 8px; background: var(--panel);
+    padding: 8px 14px; margin-bottom: 6px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 13px;
+    transition: border-color .3s, background .3s, transform .3s, opacity .3s;
+  }
+  .row .name { min-width: 74px; }
+  .row .note { color: var(--muted); font-size: 11px; flex: 1; text-align: right; }
+  .row.hidden { display: none; }
+  .row.gone { opacity: .3; }
+  .row.active {
+    transform: translateX(4px);
+    border-color: var(--client);
+    box-shadow: 0 0 0 3px rgba(56,189,248,.15);
+  }
+  .row .value {
+    font-weight: 700; min-width: 44px; text-align: center;
+    padding: 2px 8px; border-radius: 6px; background: rgba(52,211,153,.14); color: var(--receiver);
+    font-size: 11px; white-space: nowrap;
+  }
+  .row.changed .value { background: rgba(251,191,36,.16); color: var(--picked); }
+  .row.wrong { border-color: var(--bad); background: #2c1010; }
+  .row.wrong .value { background: rgba(248,113,113,.16); color: var(--bad); }
+
+  /* What the step running right now is allowed to rely on. */
+  .capture {
+    border: 2px solid var(--line); border-radius: 10px; padding: 11px 16px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12.5px;
+    color: var(--muted); background: var(--panel); transition: border-color .3s, color .3s, background .3s;
+  }
+  .capture .ttl { font-size: 10px; text-transform: uppercase; letter-spacing: 1.2px; margin-bottom: 5px; }
+  .capture.on { border-color: var(--picked); background: #2a1f05; color: var(--picked); font-weight: 700; }
+  .capture.bad { border-color: var(--bad); background: #2c1010; color: var(--bad); font-weight: 700; }
+  .capture.off { opacity: .45; }
+
+  .bridge-rail { text-align: center; color: var(--muted); font-size: 12px; margin: -6px 0 2px; min-height: 16px; transition: color .3s; }
+  .bridge-rail.active { color: var(--client); font-weight: 700; }
+
+  .narration {
+    background: var(--panel); border-left: 4px solid var(--command);
+    border-radius: 0 10px 10px 0; padding: 16px 20px; min-height: 76px;
+    font-size: 15px; line-height: 1.6;
+  }
+  .narration .step-no { color: var(--muted); font-size: 12px; letter-spacing: 1px; text-transform: uppercase; }
+  .narration .text { margin-top: 5px; }
+
+  .console {
+    background: #020617; border: 1px solid var(--line); border-radius: 10px;
+    padding: 14px 16px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 12.5px; line-height: 1.7; min-height: 130px;
+  }
+  .console .ttl { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+  .console div.ln { opacity: 0; transition: opacity .35s; }
+  .console div.ln.show { opacity: 1; }
+  .c-receiver { color: var(--receiver); }
+  .c-command  { color: var(--command); }
+  .c-out  { color: var(--client); }
+  .c-pick { color: var(--picked); }
+  .c-bad  { color: var(--bad); }
+
+  .progress { display: flex; gap: 5px; justify-content: center; margin-top: 22px; }
+  .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--line); transition: background .3s, transform .3s; }
+  .dot.on { background: var(--command); transform: scale(1.35); }
+
+  .legend { text-align: center; color: var(--muted); font-size: 13px; margin-top: 26px; line-height: 1.7; }
+  .legend b { color: var(--text); }
+
+  @media (max-width: 860px) {
+    .stage { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>The State Pattern</h1>
+  <p class="sub">A status field spreads one lifecycle across every method &mdash; a state object holds all of it in one place</p>
+
+  <div class="controls">
+    <button id="play" class="primary">&#9654;&nbsp; Play</button>
+    <button id="step">Step &rarr;</button>
+    <button id="reset">Reset</button>
+    <button id="audio" aria-pressed="false" title="Narrate each step (N)">
+      <span id="audio-icon">&#128263;</span>&nbsp; Narration: off
+    </button>
+  </div>
+  <p class="audio-note" id="audio-note"></p>
+
+  <div class="stage">
+
+    <div class="col-client">
+      <div class="box client" id="b-client">
+        <div class="name">OrderStateDemo</div>
+        <div class="role">Client</div>
+      </div>
+      <div style="font-size:22px;color:var(--line)">&#8595;</div>
+
+      <div class="box naive" id="b-naive">
+        <div class="name">NaiveOrder</div>
+        <div class="role">The trap</div>
+        <div class="stacks">
+          <div class="ttl">copies of one lifecycle</div>
+          <div id="naive-copies"><div class="empty">none read yet</div></div>
+        </div>
+      </div>
+
+      <div class="box base hidden" id="b-base">
+        <div class="name">Order</div>
+        <div class="role">Context</div>
+        <div class="stacks">
+          <div class="ttl">private OrderState state</div>
+          <div id="s-sequence"><div class="empty">not started</div></div>
+        </div>
+      </div>
+
+      <div style="font-size:11px;color:var(--muted);text-align:center;line-height:1.5" id="left-foot">
+        the state says <b>what happens</b>,<br>and <b>what comes next</b>
+      </div>
+    </div>
+
+    <div class="col-main">
+
+      <div class="family">
+        <div class="family-label" id="family-label">Order A-1001 &mdash; the six requests, and what this order does with them right now</div>
+        <div class="row" id="r-pay">
+          <span class="name">pay</span>
+          <span class="note">take the customer's money</span>
+          <span class="value">&mdash;</span>
+        </div>
+        <div class="row" id="r-pack">
+          <span class="name">pack</span>
+          <span class="note">box the goods</span>
+          <span class="value">&mdash;</span>
+        </div>
+        <div class="row" id="r-ship">
+          <span class="name">ship</span>
+          <span class="note">hand over to a courier</span>
+          <span class="value">&mdash;</span>
+        </div>
+        <div class="row" id="r-deliver">
+          <span class="name">deliver</span>
+          <span class="note">get it signed for</span>
+          <span class="value">&mdash;</span>
+        </div>
+        <div class="row" id="r-cancel">
+          <span class="name">cancel</span>
+          <span class="note">stop it, and undo whatever has happened</span>
+          <span class="value">&mdash;</span>
+        </div>
+        <div class="row" id="r-refund">
+          <span class="name">refund</span>
+          <span class="note">give the money back, once</span>
+          <span class="value">&mdash;</span>
+        </div>
+      </div>
+
+      <div class="capture off" id="capture">
+        <div class="ttl">the ledger, which is where a wrong answer shows up</div>
+        <div id="capture-text">nothing yet</div>
+      </div>
+
+      <div class="bridge-rail" id="bridge-rail"></div>
+
+      <div class="narration" id="narration">
+        <div class="step-no">Ready</div>
+        <div class="text">Press <b>Play</b> to watch a status field refund a parcel that is on a van, and then pay the same customer a second time &mdash; and then watch the same six requests answered by one class per state.</div>
+      </div>
+
+      <div class="console">
+        <div class="ttl">Program output</div>
+        <div id="console-lines"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="progress" id="progress"></div>
+
+  <p class="legend">
+    <b>One rule written out six times drifts. One class per state cannot.</b><br>
+    The order does not check its status &mdash; it forwards the request, and the state it is holding answers.<br>
+    <span style="font-size:12px">
+      Keys: <b>Space</b> play/pause &nbsp;&middot;&nbsp; <b>&rarr;</b> next step
+      &nbsp;&middot;&nbsp; <b>N</b> narration &nbsp;&middot;&nbsp; <b>R</b> reset
+    </span>
+  </p>
+
+</div>
+
+<script>
+const STEPS = [
+  {
+    title: "Step 1 — Six requests, and an answer that depends on where the order is",
+    text: "An order can be asked to pay, pack, ship, deliver, cancel or refund. The answer to every one of them depends on where the order currently is. Read the cancel row carefully: it is not a yes and a no. Cancelling a paid order refunds; cancelling a packed one refunds and puts the stock back; cancelling a shipped one is not a thing you can do at all.",
+    active: [], naive: true,
+    copies: ["status = PLACED   (one field)"],
+    run: {}, did: {},
+    bridge: "PLACED -> PAID -> PACKED -> SHIPPED -> DELIVERED,  plus cancel and refund",
+    out: { cls: "c-receiver", txt: "order N-9001: headphones + cable, £97.49" }
+  },
+  {
+    title: "Step 2 — The obvious first move: a status field and a check per method",
+    text: "NaiveOrder holds one enum and guards each method with a conditional. Be fair to it. It is short, the whole lifecycle is in one file, and every rule can be found by scrolling. The problem is not the enum. The problem is that the rules are written down once per method, and each copy is phrased in whichever direction its author found natural.",
+    active: ["b-naive"], naive: true,
+    copies: [
+      "status = SHIPPED   (one field)",
+      "cancel()  -> if NOT delivered/cancelled/refunded   <- drifted",
+      "refund()  -> if delivered OR cancelled   <- drifted",
+      "allowedActions() -> switch, and it is right"
+    ],
+    run: { pay: "no", pack: "no", ship: "no", deliver: "yes" },
+    did: { deliver: "the only thing that should be legal here" },
+    activeRows: ["r-deliver"],
+    bridge: "one blocklist, one allowlist, one switch — three copies of one rule",
+    out: { cls: "c-pick", txt: "N-9001 paid, packed, shipped   ->  status = SHIPPED" }
+  },
+  {
+    title: "Step 3 — The screen is right",
+    text: "The third copy, the one written for the user interface, says a shipped order can only be delivered. That is correct. So the cancel button is never drawn, the agent never sees it, and everybody who looks at the application believes the rule is enforced.",
+    active: ["b-naive"], naive: true,
+    copies: [
+      "allowedActions() -> switch, and it is right   <- reading this one",
+      "status = SHIPPED   (one field)",
+      "cancel()  -> if NOT delivered/cancelled/refunded   <- drifted",
+      "refund()  -> if delivered OR cancelled   <- drifted"
+    ],
+    run: { pay: "no", pack: "no", ship: "no", deliver: "yes" },
+    did: { deliver: "the only button the screen draws" },
+    activeRows: ["r-deliver"],
+    capture: "charge  £97.49                    net  £97.49",
+    bridge: "buttons drawn: [deliver]",
+    out: { cls: "c-command", txt: "allowedActions()  ->  [deliver]" }
+  },
+  {
+    title: "Step 4 — And the endpoint accepts the call anyway",
+    text: "The cancel method was written as anything that has not arrived yet can be cancelled, so it lists the three states where it refuses. It reads sensibly. It also quietly includes SHIPPED, because SHIPPED is not on that list. The parcel is on a van, the customer has their money back, and the shop has nothing to put on a shelf.",
+    active: ["b-naive"], naive: true,
+    copies: [
+      "cancel()  -> if NOT delivered/cancelled/refunded   <- drifted",
+      "status = CANCELLED   (one field)",
+      "refund()  -> if delivered OR cancelled   <- drifted",
+      "allowedActions() -> switch, and it is right"
+    ],
+    run: { pay: "no", pack: "no", ship: "no", deliver: "yes", cancel: "taken" },
+    did: { cancel: "refunded £97.49 for goods in transit" },
+    wrong: ["r-cancel"],
+    capture: "charge  £97.49   refund  £97.49    net  £0.00   — for a parcel on a van",
+    captureBad: true,
+    bridge: "the button is not drawn, and the method takes the call",
+    out: { cls: "c-bad", txt: "cancel(\"changed their mind\")  ->  accepted, status = CANCELLED" }
+  },
+  {
+    title: "Step 5 — The second drift pays the customer twice",
+    text: "Refund originally accepted only DELIVERED. Support asked for CANCELLED to be added so they could sort out cancelled orders, and somebody obliged. But a cancel has already refunded. So the second refund is real money leaving a second time, and the ledger ends up ninety-seven pounds forty-nine short of zero.",
+    active: ["b-naive"], naive: true,
+    copies: [
+      "refund()  -> if delivered OR cancelled   <- drifted",
+      "status = REFUNDED   (one field)",
+      "cancel()  -> if NOT delivered/cancelled/refunded   <- drifted",
+      "allowedActions() -> switch, and it is right"
+    ],
+    run: { pay: "no", pack: "no", ship: "no", deliver: "yes", cancel: "taken", refund: "taken" },
+    did: { cancel: "refunded £97.49", refund: "refunded £97.49 again" },
+    wrong: ["r-cancel", "r-refund"],
+    capture: "charge  £97.49   refund  £97.49 ×2    net  -£97.49   over 2 refunds",
+    captureBad: true,
+    bridge: "neither bug is a mistake anybody makes while looking at the whole lifecycle",
+    out: { cls: "c-bad", txt: "refund(\"support ticket 4471\")  ->  accepted, the shop is out -£97.49" }
+  },
+  {
+    title: "Step 6 — Invert the axis",
+    text: "Every one of those was a single condition, in a chain that was copied and then edited. Nobody was looking at the whole lifecycle, because the lifecycle is not anywhere. So stop writing one method for all states, and start writing one state for all methods. Give the condition a type.",
+    active: ["b-naive"], naive: true,
+    copies: [
+      "one method, all states   <- what we have",
+      "one state, all methods   <- what we want"
+    ],
+    run: {}, did: {},
+    capture: "the lifecycle is not written down anywhere you can read it",
+    captureBad: true,
+    bridge: "seven states, seven classes",
+    out: { cls: "c-command", txt: "interface OrderState { pay; pack; ship; deliver; cancel; refund }" }
+  },
+  {
+    title: "Step 7 — Order holds a state, and every request refuses by default",
+    text: "The interface declares all six requests and gives every one of them a body that throws. A state does not list what it forbids. It lists what it allows, by overriding, and everything else refuses on its own. That single decision means a rule nobody thought to write is a refusal rather than an accident — the exact opposite of the enum, where a state left off a guard is a transition you did not mean to open.",
+    active: ["b-client", "b-base"], base: true,
+    seq: ["PLACED   <- state", "PAID", "PACKED", "SHIPPED", "DELIVERED", "CANCELLED", "REFUNDED"],
+    seqAt: 0,
+    run: { pay: "runs", cancel: "runs" },
+    did: { pay: "PlacedState overrides it", cancel: "overridden: nothing to refund yet" },
+    activeRows: ["r-pay", "r-cancel"],
+    capture: "PLACED  allows [pay, cancel]   —  and the four blanks are un-overridden defaults",
+    captureOn: true,
+    bridge: "Order.pay()  ->  state.pay(this)   — one line, no conditional",
+    out: { cls: "c-out", txt: "A-1001  PLACED  [pay, cancel]" }
+  },
+  {
+    title: "Step 8 — pay, and the state hands over to the next state",
+    text: "PlacedState takes the money and then, as the last thing it does, tells the order to become PaidState. That direction is the whole difference from Strategy. Nobody outside chose PaidState. The order arrived there as a consequence of what it just did, and the state named its own successor.",
+    active: ["b-base"], base: true,
+    seq: ["PLACED", "PAID   <- state", "PACKED", "SHIPPED", "DELIVERED", "CANCELLED", "REFUNDED"],
+    seqAt: 1,
+    run: { pack: "runs", cancel: "runs" },
+    did: { pack: "PaidState overrides it", cancel: "overridden: refund £97.49" },
+    changed: ["r-pack"],
+    activeRows: ["r-pack"],
+    capture: "charge  £97.49                    net  £97.49",
+    captureOn: true,
+    bridge: "transitionTo(PaidState, \"pay\", \"£97.49 taken\")",
+    out: { cls: "c-receiver", txt: "pay      PLACED  -> PAID       £97.49 taken" }
+  },
+  {
+    title: "Step 9 — Same verb, genuinely different work",
+    text: "Now the order is packed, and cancel still runs — but it is not the same cancel. PaidState refunds. PackedState refunds and puts the stock back, because somebody has already taped a box shut. Three states, three different bodies for one word. In the enum version those are three branches of one method, and the day somebody merges them because they look nearly the same, the stock stops going back on the shelf.",
+    active: ["b-base"], base: true,
+    seq: ["PLACED", "PAID", "PACKED   <- state", "SHIPPED", "DELIVERED", "CANCELLED", "REFUNDED"],
+    seqAt: 2,
+    run: { ship: "runs", cancel: "runs" },
+    did: { ship: "PackedState overrides it", cancel: "overridden: refund AND return the stock" },
+    changed: ["r-cancel"],
+    activeRows: ["r-cancel"],
+    capture: "PACKED  allows [ship, cancel]  —  cancel here costs more than it did a state ago",
+    captureOn: true,
+    bridge: "behaviour varies by state, not just permission — that is when this pattern earns its keep",
+    out: { cls: "c-receiver", txt: "pack     PAID    -> PACKED     2 item(s) boxed at Reading" }
+  },
+  {
+    title: "Step 10 — ship, and the list shrinks to one",
+    text: "ShippedState overrides deliver, and nothing else. Its allowed actions say deliver, and that answer comes from the same class that holds the methods — so the screen and the endpoint cannot disagree, because there is only one of them now.",
+    active: ["b-base"], base: true,
+    seq: ["PLACED", "PAID", "PACKED", "SHIPPED   <- state", "DELIVERED", "CANCELLED", "REFUNDED"],
+    seqAt: 3,
+    run: { deliver: "runs" },
+    did: { deliver: "signed for, CON-A-1001" },
+    changed: ["r-deliver"],
+    activeRows: ["r-deliver"],
+    capture: "SHIPPED  allows [deliver]   —  the list and the methods are the same class",
+    captureOn: true,
+    bridge: "ship  PACKED -> SHIPPED   courier collected, consignment CON-A-1001",
+    out: { cls: "c-out", txt: "A-1001  SHIPPED  [deliver]" }
+  },
+  {
+    title: "Step 11 — The same cancel, refused, and no money moves",
+    text: "This is the request that broke the naive version. ShippedState does override cancel, but only to refuse it with a reason worth telling a human: it is already with the courier, so the customer must refuse delivery or return it. The state does not change, the ledger is not touched, and Order records the attempt in its history on the way past before rethrowing.",
+    active: ["b-base"], base: true,
+    seq: ["PLACED", "PAID", "PACKED", "SHIPPED   <- state", "DELIVERED", "CANCELLED", "REFUNDED"],
+    seqAt: 3,
+    run: { deliver: "runs", cancel: "refused" },
+    did: { deliver: "still the only thing allowed", cancel: "refused — already with the courier" },
+    activeRows: ["r-cancel"],
+    capture: "charge  £97.49                    net  £97.49   — unchanged",
+    captureOn: true,
+    bridge: "history += refused: cancel, SHIPPED",
+    out: { cls: "c-pick", txt: "cancel  ->  cannot cancel a SHIPPED order: it is already with the courier" }
+  },
+  {
+    title: "Step 12 — Delivered, refunded, and then finished",
+    text: "Deliver, then refund, and the order is REFUNDED. That state overrides nothing at all, so it accepts nothing at all — and the refusal explains itself: it is final, and nothing more can happen to it. Not one line of code was written to forbid a second refund. The forbidding is the absence of the code.",
+    active: ["b-base"], base: true,
+    seq: ["PLACED", "PAID", "PACKED", "SHIPPED", "DELIVERED", "CANCELLED", "REFUNDED   <- state"],
+    seqAt: 6,
+    run: { pay: "refused", pack: "refused", ship: "refused", deliver: "refused", cancel: "refused", refund: "refused" },
+    did: {
+      pay: "no override", pack: "no override", ship: "no override",
+      deliver: "no override", cancel: "no override", refund: "no override"
+    },
+    capture: "charge  £97.49   refund  £97.49    net  £0.00   over 1 refund",
+    captureOn: true,
+    bridge: "REFUNDED allows []  —  and the naive version paid out twice here",
+    out: { cls: "c-receiver", txt: "refund   DELIVERED -> REFUNDED   faulty on arrival — returned and refunded £97.49" }
+  },
+  {
+    title: "Step 13 — An eighth state, and the bill",
+    text: "The demo declares an AT-LOCKER state inside its own file, and Order — compiled without it — accepts it and refuses everything it did not override. That is the open closed argument made concretely. Now the bill: seven classes where there was one enum, and the transition table no longer exists anywhere you can read it. Adding a state means editing whichever state hands over to it. For a small, stable machine, an enum and a map of permitted transitions is often clearer, and you should use it. Reach for this one when the behaviour varies by state, not just the permissions.",
+    active: ["b-client", "b-base"], base: true,
+    seq: ["PLACED", "PAID", "PACKED", "AT-LOCKER   <- state, declared in the demo", "DELIVERED", "CANCELLED", "REFUNDED"],
+    seqAt: 3,
+    run: { deliver: "runs", cancel: "refused" },
+    did: { deliver: "collected from the Bristol locker", cancel: "refused, with no code saying so" },
+    activeRows: ["r-deliver"],
+    capture: "new states are cheap  ·  new arrows are not  ·  the table is gone",
+    captureOn: true,
+    bridge: "Order did not change. Neither did any other state — except the one that points at it.",
+    out: { cls: "c-command", txt: "A-1005  AT-LOCKER  [deliver]   ->  DELIVERED" }
+  }
+];
+
+const BOXES = ["b-client", "b-naive", "b-base"];
+const ROWS = ["r-pay", "r-pack", "r-ship", "r-deliver", "r-cancel", "r-refund"];
+const ROW_KEY = {
+  "r-pay": "pay", "r-pack": "pack", "r-ship": "ship",
+  "r-deliver": "deliver", "r-cancel": "cancel", "r-refund": "refund"
+};
+const ROW_NOTE = {
+  "r-pay": "take the customer's money",
+  "r-pack": "box the goods",
+  "r-ship": "hand over to a courier",
+  "r-deliver": "get it signed for",
+  "r-cancel": "stop it, and undo whatever has happened",
+  "r-refund": "give the money back, once"
+};
+
+const STEP_MS = 3200;      // pace when narration is off
+const GAP_MS = 700;        // breathing room after a clip finishes
+
+let idx = -1;
+let playing = false;
+let timer = null;
+
+// Narration is optional: if the audio clips are missing (or the browser
+// blocks playback) the animation still works exactly as before.
+let audioOn = false;
+let clips = [];
+let current = null;
+
+const $ = id => document.getElementById(id);
+const progressEl = $("progress");
+const linesEl = $("console-lines");
+const noteEl = $("audio-note");
+const bridgeEl = $("bridge-rail");
+const captureEl = $("capture");
+const captureTextEl = $("capture-text");
+
+STEPS.forEach(() => {
+  const d = document.createElement("div");
+  d.className = "dot";
+  progressEl.appendChild(d);
+});
+
+// ---- optional narration ------------------------------------------------
+
+clips = STEPS.map((_, i) => {
+  const a = new Audio("audio/step-" + (i + 1) + ".m4a");
+  a.preload = "none";
+  return a;
+});
+
+function stopAudio() {
+  if (!current) return;
+  current.pause();
+  current.currentTime = 0;
+  current.onended = null;
+  current = null;
+}
+
+/** Play the clip for step i. onDone fires when it finishes (or cannot play). */
+function playClip(i, onDone) {
+  stopAudio();
+  if (!audioOn) { if (onDone) onDone(); return; }
+
+  const a = clips[i];
+  current = a;
+  a.currentTime = 0;
+  a.onended = () => { current = null; if (onDone) onDone(); };
+
+  a.play().catch(() => {
+    // Missing file, or autoplay blocked -> fall back to timed pacing.
+    current = null;
+    noteEl.textContent =
+      "Narration audio could not be played — falling back to timed steps. " +
+      "Run docs/make_animation_audio.sh to generate the clips.";
+    if (onDone) onDone();
+  });
+}
+
+function setAudio(on) {
+  audioOn = on;
+  const btn = $("audio");
+  btn.classList.toggle("on", on);
+  btn.setAttribute("aria-pressed", String(on));
+  btn.innerHTML = '<span id="audio-icon">' + (on ? "&#128266;" : "&#128263;") +
+                  "</span>&nbsp; Narration: " + (on ? "on" : "off");
+  noteEl.textContent = on
+    ? "Each step is narrated, and the animation waits for the voice to finish."
+    : "";
+  if (!on) stopAudio();
+}
+
+// ------------------------------------------------------------------------
+
+function clearHighlights() {
+  BOXES.forEach(b => $(b).classList.remove("active"));
+  ROWS.forEach(r => $(r).classList.remove("active", "changed", "wrong", "gone"));
+}
+
+/** A plain list, most relevant first — the copies of the lifecycle. */
+function drawStack(el, entries, emptyText) {
+  el.innerHTML = "";
+  if (!entries || entries.length === 0) {
+    const d = document.createElement("div");
+    d.className = "empty";
+    d.textContent = emptyText || "empty";
+    el.appendChild(d);
+    return;
+  }
+  entries.forEach((text, k) => {
+    const d = document.createElement("div");
+    d.className = "entry" + (k === 0 ? " top" : "") + (/drifted/.test(text) ? " bad" : "");
+    d.textContent = text;
+    el.appendChild(d);
+  });
+}
+
+/**
+ * The seven states, with the one the order is currently holding picked out.
+ * Drawn top to bottom in lifecycle order, so the walk through them is visible.
+ */
+function drawSequence(el, entries, at, emptyText) {
+  el.innerHTML = "";
+  if (!entries || entries.length === 0) {
+    const d = document.createElement("div");
+    d.className = "empty";
+    d.textContent = emptyText || "not running";
+    el.appendChild(d);
+    return;
+  }
+  entries.forEach((text, k) => {
+    const d = document.createElement("div");
+    d.className = "entry" + (k === at ? " top" : "");
+    d.textContent = text;
+    el.appendChild(d);
+  });
+}
+
+function render(i) {
+  clearHighlights();
+  const s = STEPS[i];
+
+  // NaiveOrder is off screen once the pattern takes over, and Order does not
+  // appear until then. One story at a time.
+  $("b-naive").classList.toggle("hidden", !s.naive);
+  $("b-base").classList.toggle("hidden", !s.base);
+  $("family-label").textContent = s.naive
+    ? "NaiveOrder — the six requests, and what a chain of conditionals does with them"
+    : "Order — the six requests, and what the state it is holding does with them";
+
+  s.active.forEach(b => $(b).classList.add("active"));
+  (s.activeRows || []).forEach(r => $(r).classList.add("active"));
+  (s.changed || []).forEach(r => $(r).classList.add("changed"));
+  (s.wrong || []).forEach(r => $(r).classList.add("wrong"));
+
+  ROWS.forEach(r => {
+    const key = ROW_KEY[r];
+    const order = (s.run || {})[key];
+    $(r).querySelector(".value").textContent = order || "—";
+    $(r).querySelector(".note").textContent = (s.did || {})[key] || ROW_NOTE[r];
+    // A step that has not run yet is dimmed, so the eye follows the sequence.
+    $(r).classList.toggle("gone", !order);
+  });
+
+  drawStack($("naive-copies"), s.copies, "none read yet");
+  drawSequence($("s-sequence"), s.seq, s.seqAt, "not started");
+
+  captureTextEl.textContent = s.capture || "nothing yet";
+  captureEl.classList.toggle("on", !!s.captureOn);
+  captureEl.classList.toggle("bad", !!s.captureBad);
+  captureEl.classList.toggle("off", !s.capture);
+
+  bridgeEl.textContent = s.bridge || "";
+  bridgeEl.classList.add("active");
+
+  $("narration").innerHTML =
+    '<div class="step-no">' + s.title + '</div><div class="text">' + s.text + '</div>';
+
+  // Rebuild console output up to this step
+  linesEl.innerHTML = "";
+  for (let k = 0; k <= i; k++) {
+    if (!STEPS[k].out) continue;
+    STEPS[k].out.txt.split("\n").forEach(txt => {
+      const div = document.createElement("div");
+      div.className = "ln " + STEPS[k].out.cls;
+      div.textContent = txt;
+      linesEl.appendChild(div);
+      requestAnimationFrame(() => div.classList.add("show"));
+    });
+  }
+
+  [...progressEl.children].forEach((d, k) => d.classList.toggle("on", k <= i));
+}
+
+/** Advance one step. In play mode, schedule the following step afterwards. */
+function next() {
+  if (idx >= STEPS.length - 1) { stop(); return; }
+  idx++;
+  render(idx);
+
+  if (!playing) { playClip(idx); return; }
+
+  if (audioOn) {
+    // Wait for the voice to finish this step, then move on.
+    playClip(idx, () => {
+      if (!playing) return;
+      timer = setTimeout(next, GAP_MS);
+    });
+  } else {
+    timer = setTimeout(next, STEP_MS);
+  }
+}
+
+function stop() {
+  playing = false;
+  clearTimeout(timer);
+  stopAudio();
+  $("play").innerHTML = "&#9654;&nbsp; Play";
+  $("step").disabled = false;
+}
+
+function reset() {
+  stop();
+  idx = -1;
+  clearHighlights();
+  $("b-naive").classList.remove("hidden");
+  $("b-base").classList.add("hidden");
+  ROWS.forEach(r => {
+    $(r).querySelector(".value").textContent = "—";
+    $(r).querySelector(".note").textContent = ROW_NOTE[r];
+    $(r).classList.add("gone");
+  });
+  drawStack($("naive-copies"), [], "none read yet");
+  drawSequence($("s-sequence"), [], -1, "not started");
+  captureTextEl.textContent = "nothing yet";
+  captureEl.classList.remove("on", "bad");
+  captureEl.classList.add("off");
+  linesEl.innerHTML = "";
+  bridgeEl.textContent = "";
+  bridgeEl.classList.remove("active");
+  [...progressEl.children].forEach(d => d.classList.remove("on"));
+  $("narration").innerHTML =
+    '<div class="step-no">Ready</div><div class="text">Press <b>Play</b> to watch a status field refund a parcel that is on a van, and then pay the same customer a second time &mdash; and then watch the same six requests answered by one class per state.</div>';
+}
+
+$("play").addEventListener("click", () => {
+  if (playing) { stop(); return; }
+  if (idx >= STEPS.length - 1) reset();
+  playing = true;
+  $("play").innerHTML = "&#10074;&#10074;&nbsp; Pause";
+  $("step").disabled = true;
+  next();   // next() now schedules the rest of the run itself
+});
+
+$("step").addEventListener("click", () => { stop(); if (idx >= STEPS.length - 1) reset(); next(); });
+$("reset").addEventListener("click", reset);
+
+$("audio").addEventListener("click", () => {
+  setAudio(!audioOn);
+  // Turning narration on mid-run: speak the step already on screen.
+  if (audioOn && playing && idx >= 0) {
+    clearTimeout(timer);
+    playClip(idx, () => {
+      if (!playing) return;
+      timer = setTimeout(next, GAP_MS);
+    });
+  }
+});
+
+document.addEventListener("keydown", e => {
+  if (e.code === "Space") { e.preventDefault(); $("play").click(); }
+  if (e.code === "ArrowRight") { e.preventDefault(); $("step").click(); }
+  if (e.code === "KeyR") reset();
+  if (e.code === "KeyN") $("audio").click();
+});
+
+setAudio(false);
+reset();
+</script>
+</body>
+</html>

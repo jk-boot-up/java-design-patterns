@@ -13,7 +13,7 @@ knowledge.
 | `factory-method-pattern-explained.srt` | Subtitles, timed from the encoded scene clips. Upload alongside the video for accurate captions. |
 | `poster.png` | The opening title card, 1920×1080. Upload it as the video's custom thumbnail. |
 
-**Runtime:** approximately 8 minutes.
+**Runtime:** approximately 8 minutes 30 seconds.
 **Narration:** female voice (macOS `Samantha`, US English).
 
 None of the four are committed — they are build output. Run
@@ -44,6 +44,39 @@ The script will:
 4. concatenate the clips, export the audio-only version and lift out `poster.png`,
 5. generate the SRT subtitles, then clean up the intermediates.
 
+### Why audio and video are kept apart until the last step
+
+This is the part of the pipeline most worth understanding before changing
+anything, because getting it wrong produces a file that looks fine and
+sounds broken.
+
+AAC is a lapped format: every separately encoded clip carries priming
+samples at its head and padding at its tail. Concatenating such clips with
+`-c copy` cannot strip either, so each join leaves a hole in the timeline —
+the voice cuts out for a moment at every scene change, and over a full
+video the gaps add up to tens of seconds of missing narration. So each
+scene's narration is written as lossless WAV, and the whole narration is
+encoded to AAC exactly once, at the mux. One encode, one set of priming
+samples, no internal joins.
+
+Loudness normalisation is run in two passes for a related reason. Left to
+itself `loudnorm` works dynamically, riding the level as it goes, and on
+some narrations that makes it emit a timestamp discontinuity partway
+through — the same audible hole, in the middle of a sentence, with nothing
+wrong anywhere upstream. Measuring the narration first and handing the
+numbers back with `linear=true` reduces it to one constant gain, which
+cannot do that, and which also stops it pumping between quiet and loud
+lines.
+
+The build checks itself for both: after the mux it reads every audio packet
+timestamp and fails if any two are more than one AAC frame apart. If you
+change the ffmpeg calls, that check is what will tell you.
+
+Scene lengths are rounded up to a whole number of video frames and the
+audio padded to match, so a scene's picture and its narration are exactly
+the same length. Slide changes therefore cannot drift away from the voice,
+however many scenes the video grows to.
+
 The final mux is deliberate, not incidental: the file is written with
 `+faststart` so the index sits at the front and the poster paints the moment
 the file is opened, and the AAC priming edit list is dropped so the video
@@ -55,10 +88,22 @@ at zero.
 The narration is cleaned up before it is encoded, and that matters more than
 it sounds. Every voice macOS ships by default is the compact 22 kHz tier, and
 resampling it straight to the 48 kHz the AAC track needs leaves an audible
-hiss. The `CLEANUP` filter chain in `build_video.sh` resamples carefully,
-denoises with `afftdn`, lifts the consonant range slightly, band-limits the
-empty top end, and normalises to YouTube's -16 LUFS target. That drops the
-noise floor by roughly 15 dB.
+hiss. The `CLEANUP` filter chain in `build_video.sh` resamples with a long filter so the
+upsampling adds no grit of its own, drops the rumble below the voice, and
+lifts the consonant range slightly.
+
+There is deliberately no denoiser in that chain. An earlier version ran
+`afftdn` over the narration, and by the numbers it worked — about 15 dB off
+the noise floor. It also made the voice noticeably worse. A spectral
+denoiser assumes a real, roughly stationary noise floor to subtract;
+synthesised speech has almost none, so `afftdn` ends up subtracting parts of
+the speech instead and leaves it warbling. The faint hiss is much the lesser
+problem, so it stays.
+
+Levelling is deliberately not part of that chain either — run per scene it
+re-measures on every clip, so a quiet scene gets pushed up to match a loud
+one and the level audibly steps at each join. It happens once instead, over
+the whole narration, at YouTube's -16 LUFS target.
 
 An Enhanced or Premium voice would sound better still — those sample at
 44.1 kHz — but they are a manual download: **System Settings → Accessibility
@@ -79,7 +124,7 @@ VOICE=Ava RATE=155 ./build_video.sh
 | Variable | Default | Meaning |
 | --- | --- | --- |
 | `VOICE` | `Samantha` | Any voice from `say -v '?'` |
-| `RATE` | `165` | Speaking rate in words per minute |
+| `RATE` | `145` | Speaking rate in words per minute — the pace educational YouTube converges on for technical material |
 
 ### Requirements
 
@@ -92,7 +137,7 @@ VOICE=Ava RATE=155 ./build_video.sh
 
 | # | Scene | Covers |
 | --- | --- | --- |
-| 1 | Poster | Title card, author credit, and the thumbnail |
+| 1 | Poster | Title card, author credit, the plain-language definition of the pattern, and the thumbnail |
 | 2 | The Scenario | Four delivery tiers, four carriers |
 | 3 | The Workflow Is Always the Same | Three shared steps, one that varies |
 | 4 | The Problem | One class doing the workflow *and* the choosing |

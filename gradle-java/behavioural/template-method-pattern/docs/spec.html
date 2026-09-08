@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Template Method Pattern — Project Specification</title>
+<style>
+:root {
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --ok: #34d399;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: #7dd3fc; }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: rgba(167, 139, 250, 0.08);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: rgba(30, 41, 59, 0.55); }
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+</style>
+</head>
+<body>
+<main>
+<h1>Template Method Pattern — Project Specification</h1>
+<p>The single reference document for this project: what it teaches, how it is built, and the quality bar its video and its YouTube publication have to meet.</p>
+<p>This is a <em>specification</em>, not a tutorial. It says what must be true and why. The teaching material itself lives in <a href="template-method-pattern-explained.md"><code>template-method-pattern-explained.md</code></a>; the problem it addresses is set out at length in <a href="problem-statement.md"><code>problem-statement.md</code></a>.</p>
+<p>Where this document repeats a rule from the repository-wide <a href="../../../docs/video-and-publishing-spec.html"><code>video-and-publishing-spec.md</code></a>, that document is the authority. This project&#x27;s <code>video/build_video.sh</code> is generated from <code>creational/abstract-factory-pattern</code>&#x27;s, differing only in the pattern name and the output filenames, so a change to the pipeline belongs there and in the repository-wide spec, not here.</p>
+<hr>
+<h2>1. Purpose</h2>
+<p>Teach fixing the <em>order</em> of an algorithm in one <code>final</code> method on a base class, while leaving each individual step for a subclass to fill in — and teach the choice between a step that must be answered, a step with a default, and a hook that exists only to be opted into.</p>
+<p>The three formats are not alternatives. A learner is expected to read the problem statement, run the code, then watch the video — or watch first and read after. Whichever order they choose, the class names, the numbers and the scenario must be identical, because the value of the repository is that a learner carries one e-commerce domain from pattern to pattern and only has to absorb the new structure.</p>
+<h3>Non-goals</h3>
+<ul><li>Not Strategy. The steps here are not swappable at run time and are not independent of each other; the notes and the video set the two against each other explicitly, and recommend Strategy where it is the better answer, rather than pretending inheritance always wins.</li><li>Not Factory Method. That pattern is this one narrowed to a single hole that returns a product. The distinction is drawn in the notes because it is the most common confusion in this corner of the catalogue, but no factory is built here.</li><li>Not a defence of inheritance. The project says out loud that the pattern spends the subclass&#x27;s one inheritance slot permanently, and that this is the reason composition is the better modern default for most problems.</li><li>Not a workflow engine. There is one sequence, six steps long, in one process. Conditional branches, retries, compensation and persistence are all out of scope.</li></ul>
+<hr>
+<h2>2. Problem statement</h2>
+<p>The full treatment is in <a href="problem-statement.md"><code>problem-statement.md</code></a>. In brief:</p>
+<p>An online shop fulfils every order through the same six steps — validate, reserve, charge, pack, dispatch, notify — and that order is not a style choice. Charging before reserving takes money for goods the shop cannot supply; notifying before dispatching emails a customer a reference that does not exist yet. What varies, and varies enormously, is the inside of each step: the shop fulfils from its own warehouse, from marketplace sellers, and as digital downloads, and one of those has no shipping address at all.</p>
+<p>Written the obvious way, that is three methods, each spelling the sequence out from beginning to end. It is a third of the code of the alternative and on the day each was written it was correct. But the sequence exists only as a convention typed by hand in three places, and nothing in the language, the compiler or the test suite knows those six calls have an order — so the copies drift one line at a time. The digital copy now notifies before it dispatches, so a customer is emailed <code>Key: (not dispatched)</code> and the correct licence key, minted a microsecond later, is never sent to anybody. The marketplace copy charges before the seller confirms, so a customer is charged £42.00 and then told the order is refused. Nothing throws, nothing fails to compile, and both orders are marked fulfilled.</p>
+<p><strong>What the pattern must deliver:</strong> one <code>final</code> template method that owns the order and is the only thing that does; abstract steps for the parts no default could get right; defaults for the parts most routes want unchanged; hooks for the parts a route may need to opt into or out of; and a fourth route that is one new class with no edit to the base class or to any route that already works.</p>
+<hr>
+<h2>3. Code</h2>
+<h3>Structure</h3>
+<p>14 production classes under <code>com.jk.explore.templatemethod</code>:</p>
+<table><thead><tr><th>Role</th><th>Types</th></tr></thead><tbody><tr><td>Abstract class</td><td><code>FulfilmentProcess</code></td></tr><tr><td>Template method</td><td><code>fulfil(Order)</code> — <code>final</code></td></tr><tr><td>Private step</td><td><code>validate</code></td></tr><tr><td>Abstract steps</td><td><code>routeName</code>, <code>reserveStock</code>, <code>charge</code>, <code>dispatch</code></td></tr><tr><td>Steps with defaults</td><td><code>pack</code>, <code>notifyCustomer</code></td></tr><tr><td>Hooks</td><td><code>requiresShippingAddress()</code>, <code>afterFulfilment()</code></td></tr><tr><td>Concrete routes</td><td><code>WarehouseFulfilment</code>, <code>MarketplaceFulfilment</code>, <code>DigitalFulfilment</code></td></tr><tr><td>Naive alternative</td><td><code>NaiveFulfilment</code></td></tr><tr><td>Supporting types</td><td><code>Order</code>, <code>OrderLine</code>, <code>FulfilmentReport</code>, <code>Money</code>, <code>StockLedger</code>, <code>SellerApi</code>, <code>LicenceKeys</code>, <code>FulfilmentException</code></td></tr><tr><td>Entry point</td><td><code>FulfilmentDemo</code></td></tr></tbody></table>
+<h3>Requirements</h3>
+<ol><li><strong>The template method is <code>final</code>.</strong> A route may decide how a step behaves and may never decide when the steps run; attempting to override <code>fulfil</code> must be a compile error, not a code-review comment.</li><li><strong>Every step records itself on a report</strong>, so the pattern&#x27;s central claim is observable rather than asserted: the demo prints the step names of four routes side by side and they are character-for-character identical, and a <code>RecordingRoute</code> in the tests asserts on the call order directly.</li><li><strong>A later step may rely on an earlier step&#x27;s work.</strong> <code>DigitalFulfilment.notifyCustomer</code> quotes the licence key that its own <code>dispatch</code> minted, using the same two lines the naive copy has in the wrong order — and it is safe only because <code>fulfil</code> is <code>final</code>.</li><li><strong><code>validate</code> is <code>private</code>, and the hook is the only say a route gets.</strong> The digital route answers <code>requiresShippingAddress()</code> with <code>false</code> and gets its addressless orders through, without weakening the address check for any other route and without being able to skip validation.</li><li><strong>A hook must not be able to change the sequence.</strong> <code>afterFulfilment</code> posts a <em>note</em> rather than a step, so the marketplace route&#x27;s commission entry cannot alter a step list a test asserts on.</li><li><strong>The naive alternative is argued against honestly.</strong> Its warehouse copy is still correct, so the case is drift rather than incompetence, and its two bugs are pinned by <em>passing</em> tests that assert the wrong behaviour.</li><li><strong>Java 21, no third-party runtime dependencies.</strong> JUnit 5 for tests only, so the project is readable by someone who does not know a DI framework.</li><li><strong>Every class fits on a slide.</strong> This is teaching code; a class that needs scrolling to read has failed its purpose regardless of its design.</li></ol>
+<h3>Verification</h3>
+<ul><li><code>./gradlew build</code> passes. 46 test methods across <code>FulfilmentProcessTest</code>, <code>FulfilmentRouteTest</code>, <code>NaiveFulfilmentTest</code>.</li><li><code>./gradlew run</code> output is quoted verbatim in the top-level <code>README.md</code>, and must still match.</li></ul>
+<hr>
+<h2>4. Written material</h2>
+<p>Every document in <code>docs/</code> is required, and each has one job. A learner reading them in the order given by the top-level README&#x27;s table should never need to jump forward.</p>
+<table><thead><tr><th>Document</th><th>Job</th></tr></thead><tbody><tr><td><code>prerequisites.md</code></td><td>What to know and install first</td></tr><tr><td><code>problem-statement.md</code></td><td>The problem and why the naive approach hurts</td></tr><tr><td><code>template-method-pattern-explained.md</code></td><td>The pattern, the code, pitfalls, comparisons</td></tr><tr><td><code>class-diagram.md</code> + PNG</td><td>Static structure</td></tr><tr><td><code>uml-diagram.md</code> + PNG</td><td>Runtime call flow</td></tr><tr><td><code>animation.html</code></td><td>Step-by-step walkthrough, optionally narrated</td></tr><tr><td><code>session.md</code></td><td>A 60-minute guided teaching session</td></tr><tr><td><code>youtube.md</code></td><td>Everything needed to publish the video</td></tr><tr><td><code>thumbnail.png</code></td><td>The image to upload</td></tr><tr><td><code>spec.md</code> / <code>spec.html</code></td><td>This document</td></tr></tbody></table>
+<p>Both Mermaid diagrams are committed as source <em>and</em> rendered PNG. The PNG is what the README embeds, because GitHub&#x27;s Mermaid rendering cannot be relied on at these diagrams&#x27; size; the source is what gets edited. Regenerating after an edit is mandatory — a diagram that disagrees with the code is worse than no diagram.</p>
+<hr>
+<h2>5. Video quality specification</h2>
+<p>The finished video is <code>video/template-method-pattern-explained.mp4</code>, with an audio-only <code>.m4a</code> and a <code>.srt</code> subtitle track alongside it. It is built by <code>video/build_video.sh</code>, from scenes declared in <code>video/scenes.py</code> and slides rendered by <code>video/make_slides.py</code>.</p>
+<h3>5.1 The opening, in four steps</h3>
+<p>Scene 1 is the only scene whose narration has a required structure, and it is required because it is the scene that decides whether anybody watches the second one. It must run in this order:</p>
+<ol><li><strong>What the video is</strong> — &quot;This video explains the Template Method pattern in Java&quot;, plainly, before anything else.</li><li><strong>The author credit</strong> — &quot;and it is written and presented by Jayasekhar Konduru&quot;.</li><li><strong>The pattern&#x27;s definition, in general terms</strong> — two or three sentences of plain language, with no mention yet of the store, the catalog or the checkout. A viewer who stops here has still learnt what the pattern is.</li><li><strong>Then the same thing in full, in the e-commerce domain</strong> — the worked scenario, and what the viewer will be able to do by the end.</li></ol>
+<blockquote><p><strong>Requirement.</strong> Steps 3 and 4 are separate and in that order. They used to be one step: the video opened straight into the shop&#x27;s scenario and left the general definition to be inferred from a worked example, which works for a viewer already halfway to knowing the pattern and fails for everyone else. The cost is fifteen to thirty seconds of runtime, spent at the only point in the video where a viewer is still deciding whether to leave.</p></blockquote>
+<h3>5.2 Delivered characteristics</h3>
+<table><thead><tr><th>Property</th><th>Value</th><th>Why</th></tr></thead><tbody><tr><td>Container</td><td>MP4, <code>+faststart</code></td><td>The index sits at the front, so the poster paints the moment the file opens</td></tr><tr><td>Video</td><td>H.264, 1920×1080, 30 fps, CRF 18, <code>preset slow</code>, <code>yuv420p</code></td><td>1080p is the minimum at which code on a slide is readable; <code>yuv420p</code> is what every player accepts</td></tr><tr><td>B-frames</td><td>Disabled (<code>-bf 0</code>)</td><td>They save nothing on a static slide and complicate the timestamps the gap check reads</td></tr><tr><td>Audio</td><td>AAC-LC, 48 kHz, stereo, 192 kbps</td><td>YouTube&#x27;s recommended upload settings, so no re-encode on their side</td></tr><tr><td>Loudness</td><td>−16 LUFS integrated, true peak ≤ −1.5 dBTP</td><td>YouTube&#x27;s normalisation target — deliver at it and the platform leaves the audio alone</td></tr><tr><td>Stream start</td><td>Both streams at exactly 0.000 s</td><td>Otherwise the video track starts 21 ms late and players show black at 0:00</td></tr><tr><td>Narration</td><td>macOS <code>say</code>, voice Samantha, 145 wpm</td><td>The pace educational YouTube converges on for technical material</td></tr><tr><td>Inter-scene pause</td><td>0.9 s of appended silence</td><td>So slides do not snap past the moment a sentence ends</td></tr><tr><td>Runtime</td><td>~13:20 over 15 scenes, 199 subtitle cues</td><td></td></tr></tbody></table>
+<h3>5.3 The two defects this pipeline exists to prevent</h3>
+<p>Both produce a file that looks fine and sounds broken, and both were live in this repository before the current build script. They are documented here because the obvious &quot;simplification&quot; of the pipeline reintroduces them.</p>
+<p><strong>Per-scene AAC concatenation.</strong> AAC is a lapped format: every separately encoded clip carries priming samples at its head and padding at its tail. Concatenating such clips with <code>-c copy</code> strips neither, so each join leaves a hole in the timeline. Measured on the reference project before the fix: 30 gaps totalling 31 seconds of missing narration.</p>
+<blockquote><p><strong>Requirement.</strong> Each scene&#x27;s narration is written as lossless PCM WAV. The joined narration is encoded to AAC exactly once, at the final mux. There must be exactly one <code>-c:a aac</code> in the build script.</p></blockquote>
+<p><strong>Dynamic-mode <code>loudnorm</code>.</strong> Left to itself <code>loudnorm</code> rides the level as it goes, and on some narrations emits a timestamp discontinuity partway through — the same audible hole, mid-sentence, with nothing wrong upstream of it.</p>
+<blockquote><p><strong>Requirement.</strong> Loudness is measured over the whole narration in a first pass, and the measured figures are fed back with <code>linear=true</code> so the second pass applies one constant gain. This also stops the level pumping between quiet and loud lines.</p></blockquote>
+<h3>5.4 Why there is no denoiser</h3>
+<p>An earlier version ran <code>afftdn</code> over the narration and, by the numbers, it worked — about 15 dB off the noise floor. It also made the voice noticeably worse. A spectral denoiser needs a real, roughly stationary noise floor to subtract; synthesised speech has almost none, so <code>afftdn</code> subtracts parts of the speech instead and leaves it warbling.</p>
+<blockquote><p><strong>Requirement.</strong> The <code>CLEANUP</code> chain contains no <code>afftdn</code> and no <code>lowpass</code>. It is exactly: resample to 48 kHz with a long filter (<code>filter_size=512</code>, <code>cutoff=0.98</code>, <code>linear_interp=1</code>), a 75 Hz high-pass for rumble, and a gentle +1.5 dB shelf at 3 kHz for consonants. The faint remaining hiss is much the lesser problem.</p></blockquote>
+<p>Levelling is deliberately not in this chain either: run per scene it re-measures on every clip, so a quiet scene is pushed up to match a loud one and the level audibly steps at each join. It happens once, over the whole narration.</p>
+<h3>5.5 Synchronisation</h3>
+<p>Scene lengths are rounded up to a whole number of video frames — <code>frames = ceil(duration × 30)</code>, <code>target = frames / 30</code> — and each scene&#x27;s WAV is padded to exactly that target. Picture and narration are therefore the same length for every scene, so slide changes cannot drift away from the voice however many scenes the video grows to.</p>
+<h3>5.6 Self-check, and its limit</h3>
+<p>After the mux the build reads every audio packet timestamp and fails if any two are more than one AAC frame apart, printing <code>audio timeline continuous: N packets, no gaps</code>. A build that does not print that line has not passed.</p>
+<p><strong>This check verifies continuity, not fidelity.</strong> It cannot hear warbling, clipping or a bad voice — the <code>afftdn</code> problem passed it cleanly for weeks. Any change to the filter chain or the voice requires someone to actually listen to the result before it is called done. Objective measurement of the delivered file (integrated loudness, true peak, silence detection) is a useful guard but is not a substitute for that.</p>
+<hr>
+<h2>6. Poster and thumbnail</h2>
+<p>Two different images, for two different jobs. Conflating them is the mistake this section exists to prevent.</p>
+<p><strong><code>video/poster.png</code></strong> — 1920×1080, the video&#x27;s opening frame, lifted out of the build. It carries the before/after comparison: the approach being replaced on one side, the pattern on the other.</p>
+<p><strong><code>docs/thumbnail.png</code></strong> — 1280×720, generated by <a href="../../../docs/make_thumbnails.py"><code>make_thumbnails.py</code></a>, and the image that is uploaded. It is deliberately not the poster: YouTube serves a thumbnail at roughly 360 pixels wide in a search result, and at that size a two-column code comparison is a smudge. The thumbnail therefore carries three things only — the pattern name, one line of promise, and one short piece of code — each set large enough to survive the shrink.</p>
+<blockquote><p><strong>Requirement.</strong> Neither image strikes out its &quot;before&quot; sample. A rule drawn through monospace is hard to read at full size and illegible at thumbnail size, and striking the code out makes the card read as being about what is wrong rather than what is being taught. The rejected approach is marked with a <code>BEFORE</code> chip and the pattern with an <code>AFTER</code> chip; colour and label carry the contrast.</p></blockquote>
+<blockquote><p><strong>Requirement.</strong> The poster is inspected visually before it is considered done, not merely confirmed to exist. <code>proxy-pattern</code> once shipped a poster reading &quot;DECORATOR PATTERN&quot;, complete with decorator&#x27;s code samples, because <code>make_slides.py</code> was copied and <code>kind_poster</code> was never updated. Only looking at the image catches that.</p></blockquote>
+<hr>
+<h2>7. YouTube publication</h2>
+<p><a href="youtube.md"><code>youtube.md</code></a> holds everything needed to publish, so that uploading is copy-and-paste rather than reconstruction. Seven sections are required:</p>
+<ol><li><strong>Title</strong> — the exact string, ≤ 60 characters so search does not truncate it, leading with the pattern name. Currently <em>&quot;Template Method in Java - The Fulfilment Workflow&quot;</em>, 49 characters. The suffix after the dash names the worked e-commerce scenario, so the title says what the viewer will actually watch rather than only which pattern it is about.</li><li><strong>Description</strong> — first two lines carry the hook, because that is what shows above the fold; then what the video covers, the chapters, the repository link, the prerequisites.</li><li><strong>Chapters</strong> — <code>mm:ss Title</code>, one per scene, first entry <code>00:00</code>. YouTube needs at least three and the first at zero to render them at all.</li><li><strong>Tags</strong> — comma-separated, under 500 characters.</li><li><strong>Thumbnail</strong> — pointing at <code>docs/thumbnail.png</code>, and explaining why it is not the poster.</li><li><strong>Upload checklist</strong> — subtitles, language, thumbnail, HD processing, playlist.</li><li><strong>Cards and end screen</strong> — which video comes next in the learning order. For this project: State.</li></ol>
+<blockquote><p><strong>Requirement.</strong> Chapter timings are generated from the built <code>.srt</code>, never written by hand, by <code>python3 ../../docs/make_youtube_docs.py template-method</code>. They are the one part of the file that goes stale silently: any change to the narration text or the speaking rate invalidates every timestamp, and a chapter list that is thirty seconds out is worse than none. Regenerate after any rebuild.</p></blockquote>
+<p>Subtitles are uploaded from the generated <code>.srt</code> rather than left to YouTube&#x27;s automatic captions, which mis-transcribe class names throughout.</p>
+<hr>
+<h2>8. Conformance</h2>
+<p>This project is compliant when all of the following hold. The full version, which governs all fourteen projects, is in <a href="../../../docs/video-and-publishing-spec.html"><code>video-and-publishing-spec.md</code></a> §9.</p>
+<ul class="task"><li>The worked example is e-commerce.</li><li><code>./gradlew build</code> passes, and the README quotes the real <code>./gradlew run</code> output, which still matches.</li><li>Scene 1 follows the four-step opening of §5.1 — what the video is, the author credit, the pattern&#x27;s definition in general terms, and only then the e-commerce scenario.</li><li><code>RATE</code> is 145 and <code>VOICE</code> is Samantha.</li><li><code>CLEANUP</code> is exactly as §5.4 gives it — no <code>afftdn</code>, no <code>lowpass</code>.</li><li>Per-scene audio is PCM; exactly one AAC encode, at the mux.</li><li><code>loudnorm</code> is two-pass with <code>linear=true</code>.</li><li>The build prints <code>audio timeline continuous: N packets, no gaps</code>.</li><li><code>poster.png</code> shows the correct pattern name and contains no strikethrough, confirmed by looking at it.</li><li><code>docs/youtube.md</code> has all seven sections, and its chapter timings match the current <code>.srt</code>.</li><li><code>video/README.md</code> describes the pipeline as it actually is.</li></ul>
+<p>Last verified: all eleven items pass. The delivered MP4 measures -16.02 LUFS integrated, -3.38 dBTP true peak, and both streams start at 0.000.</p>
+<hr>
+<h2>9. Rebuilding</h2>
+<p>From the project root:</p>
+<pre><code>(cd video &amp;&amp; ./build_video.sh)        # CPU-bound at CRF 18</code></pre>
+<p>Then, because the narration timings will have moved:</p>
+<pre><code>python3 ../../docs/make_youtube_docs.py template-method
+python3 ../../docs/make_specs.py template-method</code></pre>
+<p>Changing the voice or the filter chain means listening to the result. Changing the narration text means both of the above, and re-checking the runtime claims in the top-level <code>README.md</code> and in <code>video/README.md</code>.</p>
+</main>
+<footer>
+Generated from <code>spec.md</code> by <code>docs/make_specs.py</code> &mdash;
+edit the generator, not this file.
+</footer>
+</body>
+</html>

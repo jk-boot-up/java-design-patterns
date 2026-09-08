@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Decorator Pattern — Animated Walkthrough</title>
+<style>
+  :root {
+    --bg: #0f172a;
+    --panel: #1e293b;
+    --panel-hi: #334155;
+    --line: #475569;
+    --text: #e2e8f0;
+    --muted: #94a3b8;
+    --client: #38bdf8;
+    --component: #34d399;
+    --decorator: #a78bfa;
+    --express: #fbbf24;
+    --bad: #f87171;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 28px 20px 60px;
+    background: var(--bg);
+    color: var(--text);
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  h1 { text-align: center; font-size: 28px; margin: 0 0 4px; }
+  .sub { text-align: center; color: var(--muted); margin: 0 0 24px; font-size: 15px; }
+
+  .wrap { max-width: 1100px; margin: 0 auto; }
+
+  .controls { display: flex; gap: 10px; justify-content: center; margin-bottom: 26px; flex-wrap: wrap; }
+  button {
+    background: var(--panel-hi); color: var(--text); border: 1px solid var(--line);
+    padding: 9px 20px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer;
+    transition: background .15s, transform .1s;
+  }
+  button:hover:not(:disabled) { background: #475569; }
+  button:active:not(:disabled) { transform: translateY(1px); }
+  button:disabled { opacity: .4; cursor: not-allowed; }
+  button.primary { background: var(--decorator); color: #1e1b4b; border-color: var(--decorator); }
+  button.primary:hover:not(:disabled) { background: #b9a3ff; }
+  button.on { background: #0c2b3d; border-color: var(--client); color: var(--client); }
+  button.on:hover:not(:disabled) { background: #123a52; }
+
+  .audio-note {
+    text-align: center; color: var(--muted); font-size: 12.5px;
+    margin: -14px 0 22px; min-height: 17px;
+  }
+
+  .stage { display: grid; grid-template-columns: 190px 1fr; gap: 22px; align-items: start; }
+
+  .col-client { display: flex; flex-direction: column; align-items: center; gap: 14px; padding-top: 20px; }
+
+  .box {
+    background: var(--panel); border: 2px solid var(--line); border-radius: 12px;
+    padding: 14px 16px; text-align: center; width: 100%;
+    transition: border-color .3s, box-shadow .3s, transform .3s, background .3s;
+  }
+  .box .name { font-weight: 700; font-size: 14px; letter-spacing: .2px; }
+  .box .role { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-top: 3px; }
+  .box.active {
+    transform: translateY(-3px);
+    box-shadow: 0 0 0 3px rgba(255,255,255,.07), 0 10px 28px rgba(0,0,0,.45);
+    border-color: var(--client); background: #0c2b3d;
+  }
+
+  .col-main { display: flex; flex-direction: column; gap: 18px; }
+
+  .stack {
+    border: 2px dashed var(--decorator); border-radius: 14px; padding: 18px 20px;
+    background: rgba(167,139,250,.05);
+  }
+  .stack-label {
+    font-size: 11px; color: var(--decorator); text-transform: uppercase;
+    letter-spacing: 1.4px; font-weight: 700; margin-bottom: 14px; text-align: center;
+  }
+
+  .row {
+    display: flex; align-items: center; justify-content: space-between;
+    border: 2px solid var(--line); border-radius: 8px; background: var(--panel);
+    padding: 8px 14px; margin-bottom: 6px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 13px;
+    transition: border-color .3s, background .3s, transform .3s;
+  }
+  .row.active {
+    transform: translateX(4px);
+    border-color: var(--client);
+    box-shadow: 0 0 0 3px rgba(56,189,248,.15);
+  }
+  .row.component.active { border-color: var(--component); box-shadow: 0 0 0 3px rgba(52,211,153,.15); }
+  .row.express.active { border-color: var(--express); box-shadow: 0 0 0 3px rgba(251,191,36,.15); }
+  .row .value {
+    font-weight: 700; opacity: 0; transition: opacity .3s;
+    padding: 2px 8px; border-radius: 6px; background: rgba(56,189,248,.12); color: var(--client);
+    font-size: 11px;
+  }
+  .row.done .value { opacity: 1; }
+
+  .bridge-rail { text-align: center; color: var(--muted); font-size: 12px; margin: -6px 0 2px; min-height: 16px; transition: color .3s; }
+  .bridge-rail.active { color: var(--client); font-weight: 700; }
+
+  .narration {
+    background: var(--panel); border-left: 4px solid var(--decorator);
+    border-radius: 0 10px 10px 0; padding: 16px 20px; min-height: 76px;
+    font-size: 15px; line-height: 1.6;
+  }
+  .narration .step-no { color: var(--muted); font-size: 12px; letter-spacing: 1px; text-transform: uppercase; }
+  .narration .text { margin-top: 5px; }
+
+  .console {
+    background: #020617; border: 1px solid var(--line); border-radius: 10px;
+    padding: 14px 16px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 12.5px; line-height: 1.7; min-height: 130px;
+  }
+  .console .ttl { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+  .console div.ln { opacity: 0; transition: opacity .35s; }
+  .console div.ln.show { opacity: 1; }
+  .c-component { color: var(--component); }
+  .c-decorator { color: var(--decorator); }
+  .c-out  { color: var(--client); }
+  .c-bad  { color: var(--bad); }
+
+  .progress { display: flex; gap: 5px; justify-content: center; margin-top: 22px; }
+  .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--line); transition: background .3s, transform .3s; }
+  .dot.on { background: var(--decorator); transform: scale(1.35); }
+
+  .legend { text-align: center; color: var(--muted); font-size: 13px; margin-top: 26px; line-height: 1.7; }
+  .legend b { color: var(--text); }
+
+  @media (max-width: 860px) {
+    .stage { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>The Decorator Pattern</h1>
+  <p class="sub">Each layer wraps the one beneath it, adding its own fee &mdash; none of them know how deep the stack goes</p>
+
+  <div class="controls">
+    <button id="play" class="primary">&#9654;&nbsp; Play</button>
+    <button id="step">Step &rarr;</button>
+    <button id="reset">Reset</button>
+    <button id="audio" aria-pressed="false" title="Narrate each step (N)">
+      <span id="audio-icon">&#128263;</span>&nbsp; Narration: off
+    </button>
+  </div>
+  <p class="audio-note" id="audio-note"></p>
+
+  <div class="stage">
+
+    <div class="col-client">
+      <div class="box client" id="b-client">
+        <div class="name">PricingDemo</div>
+        <div class="role">Client</div>
+      </div>
+      <div style="font-size:26px;color:var(--line)">&#8594;</div>
+      <div style="font-size:11px;color:var(--muted);text-align:center;line-height:1.5">
+        one call:<br>cost()
+      </div>
+    </div>
+
+    <div class="col-main">
+
+      <div class="stack">
+        <div class="stack-label">The decorator stack, outermost first</div>
+        <div class="row express" id="r-express">
+          <span class="name">ExpressHandlingDecorator</span>
+          <span class="value">+ $9.99</span>
+        </div>
+        <div class="row" id="r-insurance">
+          <span class="name">InsuranceDecorator</span>
+          <span class="value">+ 2% premium</span>
+        </div>
+        <div class="row" id="r-giftwrap">
+          <span class="name">GiftWrapDecorator</span>
+          <span class="value">+ $3.50</span>
+        </div>
+        <div class="row component" id="r-product">
+          <span class="name">Product</span>
+          <span class="value">$79.99</span>
+        </div>
+      </div>
+
+      <div class="bridge-rail" id="bridge-rail"></div>
+
+      <div class="narration" id="narration">
+        <div class="step-no">Ready</div>
+        <div class="text">Press <b>Play</b> to watch one cost() call travel down through three decorators to a plain Product, and back up as fees accumulate.</div>
+      </div>
+
+      <div class="console">
+        <div class="ttl">Program output</div>
+        <div id="console-lines"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="progress" id="progress"></div>
+
+  <p class="legend">
+    <b>Every layer only ever calls wrapped.cost(). None of them know what's beneath them, or how many layers there are.</b><br>
+    Removing or reordering a layer never requires touching any other layer's code.<br>
+    <span style="font-size:12px">
+      Keys: <b>Space</b> play/pause &nbsp;·&nbsp; <b>&rarr;</b> next step
+      &nbsp;·&nbsp; <b>N</b> narration &nbsp;·&nbsp; <b>R</b> reset
+    </span>
+  </p>
+
+</div>
+
+<script>
+const STEPS = [
+  {
+    title: "Step 1 — The client calls the outermost decorator, nothing else",
+    text: "PricingDemo calls cost() on the outermost layer it holds. Right now that happens to be an ExpressHandlingDecorator, but the client's code never names any decorator directly -- it only ever calls cost() on a PricedItem.",
+    active: ["b-client", "r-express"], done: [], bridge: "PricingDemo  ---cost()--->  ExpressHandlingDecorator",
+    out: { cls: "c-out", txt: "priced.cost()" }
+  },
+  {
+    title: "Step 2 — ExpressHandlingDecorator delegates before adding its fee",
+    text: "ExpressHandlingDecorator calls wrapped.cost() first, before adding its own $9.99 fee. It has no idea whether wrapped is a plain Product or another decorator.",
+    active: ["r-express", "r-insurance"], done: [], bridge: "wrapped.cost()  -- ExpressHandlingDecorator asks the next layer down",
+    out: { cls: "c-decorator", txt: "ExpressHandlingDecorator -> wrapped.cost()" }
+  },
+  {
+    title: "Step 3 — InsuranceDecorator delegates too, before pricing its premium",
+    text: "InsuranceDecorator also calls wrapped.cost() first. Its 2% premium will be computed on whatever number comes back -- it is about to price the gift-wrapped total, not the bare product price.",
+    active: ["r-insurance", "r-giftwrap"], done: [], bridge: "wrapped.cost()  -- InsuranceDecorator asks the next layer down",
+    out: { cls: "c-decorator", txt: "InsuranceDecorator -> wrapped.cost()" }
+  },
+  {
+    title: "Step 4 — GiftWrapDecorator delegates to the plain Product",
+    text: "GiftWrapDecorator calls wrapped.cost() one more time. This time wrapped really is the plain Product -- the bottom of the stack.",
+    active: ["r-giftwrap", "r-product"], done: [], bridge: "wrapped.cost()  -- GiftWrapDecorator asks Product directly",
+    out: { cls: "c-decorator", txt: "GiftWrapDecorator -> wrapped.cost()" }
+  },
+  {
+    title: "Step 5 — Product returns its own price, knowing nothing about decorators",
+    text: "Product.cost() simply returns $79.99. It was never written with any decorator in mind -- it has no idea it's wrapped by anything at all.",
+    active: ["r-product"], done: ["r-product"], bridge: "Product returns $79.99",
+    out: { cls: "c-component", txt: "Product.cost() = $79.99" }
+  },
+  {
+    title: "Step 6 — GiftWrapDecorator adds its flat fee on the way back up",
+    text: "GiftWrapDecorator adds its flat $3.50 fee to the $79.99 it got back, and returns $83.49 to whoever called it.",
+    active: ["r-giftwrap"], done: ["r-product", "r-giftwrap"], bridge: "$79.99 + $3.50 = $83.49",
+    out: { cls: "c-decorator", txt: "GiftWrapDecorator.cost() = $83.49" }
+  },
+  {
+    title: "Step 7 — InsuranceDecorator prices a premium on the gift-wrapped total",
+    text: "InsuranceDecorator computes 2% of $83.49 -- the gift-wrapped total, not the original $79.99 -- and adds that premium. This is why stacking order matters: insurance prices whatever it wraps.",
+    active: ["r-insurance"], done: ["r-product", "r-giftwrap", "r-insurance"], bridge: "$83.49 + 2% of $83.49 = $85.16",
+    out: { cls: "c-decorator", txt: "InsuranceDecorator.cost() = $85.16" }
+  },
+  {
+    title: "Step 8 — ExpressHandlingDecorator adds the last flat fee",
+    text: "ExpressHandlingDecorator adds its flat $9.99 fee on top of $85.16, and returns the final total to PricingDemo.",
+    active: ["r-express"], done: ["r-product", "r-giftwrap", "r-insurance", "r-express"], bridge: "$85.16 + $9.99 = $95.15",
+    out: { cls: "c-out", txt: "returns $95.15" }
+  },
+  {
+    title: "Step 9 — That is the entire payoff of Decorator",
+    text: "Four independent classes -- Product plus three decorators -- combined into one total, with zero combination-specific classes. Reorder or drop any layer and every other layer's code stays exactly the same.",
+    active: ["r-express"], done: ["r-product", "r-giftwrap", "r-insurance", "r-express"], bridge: "any stacking order, any subset -- no new classes needed",
+    out: { cls: "c-out", txt: "PricingDemo never names a combination class" }
+  }
+];
+
+const ALL_BOXES = ["b-client", "r-express", "r-insurance", "r-giftwrap", "r-product"];
+
+const STEP_MS = 3200;      // pace when narration is off
+const GAP_MS = 700;        // breathing room after a clip finishes
+
+let idx = -1;
+let playing = false;
+let timer = null;
+
+// Narration is optional: if the audio clips are missing (or the browser
+// blocks playback) the animation still works exactly as before.
+let audioOn = false;
+let clips = [];
+let current = null;
+
+const $ = id => document.getElementById(id);
+const progressEl = $("progress");
+const linesEl = $("console-lines");
+const noteEl = $("audio-note");
+const bridgeEl = $("bridge-rail");
+
+STEPS.forEach(() => {
+  const d = document.createElement("div");
+  d.className = "dot";
+  progressEl.appendChild(d);
+});
+
+// ---- optional narration ------------------------------------------------
+
+clips = STEPS.map((_, i) => {
+  const a = new Audio("audio/step-" + (i + 1) + ".m4a");
+  a.preload = "none";
+  return a;
+});
+
+function stopAudio() {
+  if (!current) return;
+  current.pause();
+  current.currentTime = 0;
+  current.onended = null;
+  current = null;
+}
+
+/** Play the clip for step i. onDone fires when it finishes (or cannot play). */
+function playClip(i, onDone) {
+  stopAudio();
+  if (!audioOn) { if (onDone) onDone(); return; }
+
+  const a = clips[i];
+  current = a;
+  a.currentTime = 0;
+  a.onended = () => { current = null; if (onDone) onDone(); };
+
+  a.play().catch(() => {
+    // Missing file, or autoplay blocked -> fall back to timed pacing.
+    current = null;
+    noteEl.textContent =
+      "Narration audio could not be played — falling back to timed steps. " +
+      "Run docs/make_animation_audio.sh to generate the clips.";
+    if (onDone) onDone();
+  });
+}
+
+function setAudio(on) {
+  audioOn = on;
+  const btn = $("audio");
+  btn.classList.toggle("on", on);
+  btn.setAttribute("aria-pressed", String(on));
+  btn.innerHTML = '<span id="audio-icon">' + (on ? "&#128266;" : "&#128263;") +
+                  "</span>&nbsp; Narration: " + (on ? "on" : "off");
+  noteEl.textContent = on
+    ? "Each step is narrated, and the animation waits for the voice to finish."
+    : "";
+  if (!on) stopAudio();
+}
+
+// ------------------------------------------------------------------------
+
+function clearHighlights() {
+  ALL_BOXES.forEach(b => $(b).classList.remove("active"));
+}
+
+function render(i) {
+  clearHighlights();
+  const s = STEPS[i];
+
+  s.active.forEach(b => $(b).classList.add("active"));
+
+  ALL_BOXES.forEach(b => $(b).classList.remove("done"));
+  s.done.forEach(b => $(b).classList.add("done"));
+
+  bridgeEl.textContent = s.bridge || "";
+  bridgeEl.classList.add("active");
+
+  $("narration").innerHTML =
+    '<div class="step-no">' + s.title + '</div><div class="text">' + s.text + '</div>';
+
+  // Rebuild console output up to this step
+  linesEl.innerHTML = "";
+  for (let k = 0; k <= i; k++) {
+    if (!STEPS[k].out) continue;
+    const div = document.createElement("div");
+    div.className = "ln " + STEPS[k].out.cls;
+    div.textContent = STEPS[k].out.txt;
+    linesEl.appendChild(div);
+    requestAnimationFrame(() => div.classList.add("show"));
+  }
+
+  [...progressEl.children].forEach((d, k) => d.classList.toggle("on", k <= i));
+}
+
+/** Advance one step. In play mode, schedule the following step afterwards. */
+function next() {
+  if (idx >= STEPS.length - 1) { stop(); return; }
+  idx++;
+  render(idx);
+
+  if (!playing) { playClip(idx); return; }
+
+  if (audioOn) {
+    // Wait for the voice to finish this step, then move on.
+    playClip(idx, () => {
+      if (!playing) return;
+      timer = setTimeout(next, GAP_MS);
+    });
+  } else {
+    timer = setTimeout(next, STEP_MS);
+  }
+}
+
+function stop() {
+  playing = false;
+  clearTimeout(timer);
+  stopAudio();
+  $("play").innerHTML = "&#9654;&nbsp; Play";
+  $("step").disabled = false;
+}
+
+function reset() {
+  stop();
+  idx = -1;
+  clearHighlights();
+  ALL_BOXES.forEach(b => $(b).classList.remove("done"));
+  linesEl.innerHTML = "";
+  bridgeEl.textContent = "";
+  bridgeEl.classList.remove("active");
+  [...progressEl.children].forEach(d => d.classList.remove("on"));
+  $("narration").innerHTML =
+    '<div class="step-no">Ready</div><div class="text">Press <b>Play</b> to watch one cost() call travel down through three decorators to a plain Product, and back up as fees accumulate.</div>';
+}
+
+$("play").addEventListener("click", () => {
+  if (playing) { stop(); return; }
+  if (idx >= STEPS.length - 1) reset();
+  playing = true;
+  $("play").innerHTML = "&#10074;&#10074;&nbsp; Pause";
+  $("step").disabled = true;
+  next();   // next() now schedules the rest of the run itself
+});
+
+$("step").addEventListener("click", () => { stop(); if (idx >= STEPS.length - 1) reset(); next(); });
+$("reset").addEventListener("click", reset);
+
+$("audio").addEventListener("click", () => {
+  setAudio(!audioOn);
+  // Turning narration on mid-run: speak the step already on screen.
+  if (audioOn && playing && idx >= 0) {
+    clearTimeout(timer);
+    playClip(idx, () => {
+      if (!playing) return;
+      timer = setTimeout(next, GAP_MS);
+    });
+  }
+});
+
+document.addEventListener("keydown", e => {
+  if (e.code === "Space") { e.preventDefault(); $("play").click(); }
+  if (e.code === "ArrowRight") { e.preventDefault(); $("step").click(); }
+  if (e.code === "KeyR") reset();
+  if (e.code === "KeyN") $("audio").click();
+});
+
+setAudio(false);
+reset();
+</script>
+</body>
+</html>

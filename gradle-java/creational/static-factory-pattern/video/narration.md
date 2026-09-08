@@ -23,7 +23,7 @@ subscribe call to action; keep both if you re-record.
 
 ## Scene 1 — Static Factory Method
 
-Hello, and welcome. This one is written and presented by Jayasekhar Konduru. Today we're doing the static factory method. It's the simplest way to create objects well, and honestly, if you've ever written List dot of, you've already used it. You just didn't know it had a name. We'll build it out in a small e-commerce checkout, in Java 21. And by the end, you'll know exactly what it buys you, and exactly where it runs out of road.
+Hello, and welcome. This video explains the Static Factory Method pattern in Java, and it is written and presented by Jayasekhar Konduru. Let's start with the simple definition. A static factory method is a static method that returns an instance of its own class, standing in place of a public constructor. Because it has a name it can say what it makes; and because it is a method rather than a constructor, it is free to hand back a cached object, or a subtype, instead of always building something new. That's the idea in a sentence, and if you've ever written List dot of, you have already used it — you just didn't know it had a name. The rest of the video does it properly, by building a real working Java project: a small e-commerce checkout, in Java 21. By the end you'll know exactly what it buys you, and exactly where it runs out of road.
 
 ## Scene 2 — The Job
 

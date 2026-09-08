@@ -17,14 +17,20 @@ SCENES = [
         title="The Factory Method Pattern",
         body=None,
         narration=(
-            "Hello, and welcome. This one is written and presented by Jayasekhar "
-            "Konduru. [[slnc 300]] Today we're doing one of the most useful "
-            "patterns in the Gang of Four book. The factory method. [[slnc 250]] "
-            "Now it's got a reputation for being confusing, and honestly, I think "
-            "that's only because of the way it usually gets explained. So we'll "
-            "learn it by building a real working Java project. The delivery step "
-            "of an online store. [[slnc 250]] And by the end, you'll know what a "
-            "factory method is, why it exists, and how to write one yourself."
+            "Hello, and welcome. This video explains the Factory Method pattern "
+            "in Java, and it is written and presented by Jayasekhar Konduru. "
+            "[[slnc 300]] Let's start with the simple definition. The factory "
+            "method pattern moves the creation of an object into a method that "
+            "subclasses override. A base class writes down the steps that never "
+            "change and calls that method wherever a new object is needed, so "
+            "each subclass decides which class gets created without a line of the "
+            "surrounding code changing. [[slnc 350]] That's the idea in a "
+            "sentence. It has a reputation for being confusing, and honestly I "
+            "think that's only the way it usually gets explained, so the rest of "
+            "the video does it properly, by building a real working Java project: "
+            "the delivery step of an online store. [[slnc 250]] By the end you'll "
+            "know what a factory method is, why it exists, and how to write one "
+            "yourself."
         ),
     ),
     dict(

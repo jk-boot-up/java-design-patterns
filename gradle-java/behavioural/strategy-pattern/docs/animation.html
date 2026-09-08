@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Strategy Pattern — Animated Walkthrough</title>
+<style>
+  :root {
+    --bg: #0f172a;
+    --panel: #1e293b;
+    --panel-hi: #334155;
+    --line: #475569;
+    --text: #e2e8f0;
+    --muted: #94a3b8;
+    --client: #38bdf8;
+    --context: #34d399;
+    --strategy: #a78bfa;
+    --picked: #fbbf24;
+    --bad: #f87171;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 28px 20px 60px;
+    background: var(--bg);
+    color: var(--text);
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  h1 { text-align: center; font-size: 28px; margin: 0 0 4px; }
+  .sub { text-align: center; color: var(--muted); margin: 0 0 24px; font-size: 15px; }
+
+  .wrap { max-width: 1100px; margin: 0 auto; }
+
+  .controls { display: flex; gap: 10px; justify-content: center; margin-bottom: 26px; flex-wrap: wrap; }
+  button {
+    background: var(--panel-hi); color: var(--text); border: 1px solid var(--line);
+    padding: 9px 20px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer;
+    transition: background .15s, transform .1s;
+  }
+  button:hover:not(:disabled) { background: #475569; }
+  button:active:not(:disabled) { transform: translateY(1px); }
+  button:disabled { opacity: .4; cursor: not-allowed; }
+  button.primary { background: var(--strategy); color: #1e1b4b; border-color: var(--strategy); }
+  button.primary:hover:not(:disabled) { background: #b9a3ff; }
+  button.on { background: #0c2b3d; border-color: var(--client); color: var(--client); }
+  button.on:hover:not(:disabled) { background: #123a52; }
+
+  .audio-note {
+    text-align: center; color: var(--muted); font-size: 12.5px;
+    margin: -14px 0 22px; min-height: 17px;
+  }
+
+  .stage { display: grid; grid-template-columns: 210px 1fr; gap: 22px; align-items: start; }
+
+  .col-client { display: flex; flex-direction: column; align-items: center; gap: 12px; padding-top: 20px; }
+
+  .box {
+    background: var(--panel); border: 2px solid var(--line); border-radius: 12px;
+    padding: 14px 16px; text-align: center; width: 100%;
+    transition: border-color .3s, box-shadow .3s, transform .3s, background .3s;
+  }
+  .box .name { font-weight: 700; font-size: 14px; letter-spacing: .2px; }
+  .box .role { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-top: 3px; }
+  .box.active {
+    transform: translateY(-3px);
+    box-shadow: 0 0 0 3px rgba(255,255,255,.07), 0 10px 28px rgba(0,0,0,.45);
+    border-color: var(--client); background: #0c2b3d;
+  }
+  .box.context.active { border-color: var(--context); background: #06281f; box-shadow: 0 0 0 3px rgba(52,211,153,.15); }
+  .holding {
+    margin-top: 9px; padding-top: 8px; border-top: 1px dashed var(--line);
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px;
+    color: var(--muted); line-height: 1.5;
+  }
+  .holding b { color: var(--picked); font-weight: 700; }
+
+  .col-main { display: flex; flex-direction: column; gap: 18px; }
+
+  .family {
+    border: 2px dashed var(--strategy); border-radius: 14px; padding: 18px 20px;
+    background: rgba(167,139,250,.05);
+  }
+  .family-label {
+    font-size: 11px; color: var(--strategy); text-transform: uppercase;
+    letter-spacing: 1.4px; font-weight: 700; margin-bottom: 14px; text-align: center;
+  }
+
+  .row {
+    display: flex; align-items: center; justify-content: space-between;
+    border: 2px solid var(--line); border-radius: 8px; background: var(--panel);
+    padding: 8px 14px; margin-bottom: 6px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 13px;
+    transition: border-color .3s, background .3s, transform .3s, opacity .3s;
+  }
+  .row .note { color: var(--muted); font-size: 11px; }
+  .row.dim { opacity: .38; }
+  .row.picked {
+    border-color: var(--picked); background: #2a2008;
+  }
+  .row.active {
+    transform: translateX(4px);
+    border-color: var(--client);
+    box-shadow: 0 0 0 3px rgba(56,189,248,.15);
+  }
+  .row .value {
+    font-weight: 700; opacity: 0; transition: opacity .3s;
+    padding: 2px 8px; border-radius: 6px; background: rgba(251,191,36,.14); color: var(--picked);
+    font-size: 11px;
+  }
+  .row.done .value { opacity: 1; }
+
+  .bridge-rail { text-align: center; color: var(--muted); font-size: 12px; margin: -6px 0 2px; min-height: 16px; transition: color .3s; }
+  .bridge-rail.active { color: var(--client); font-weight: 700; }
+
+  .narration {
+    background: var(--panel); border-left: 4px solid var(--strategy);
+    border-radius: 0 10px 10px 0; padding: 16px 20px; min-height: 76px;
+    font-size: 15px; line-height: 1.6;
+  }
+  .narration .step-no { color: var(--muted); font-size: 12px; letter-spacing: 1px; text-transform: uppercase; }
+  .narration .text { margin-top: 5px; }
+
+  .console {
+    background: #020617; border: 1px solid var(--line); border-radius: 10px;
+    padding: 14px 16px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 12.5px; line-height: 1.7; min-height: 130px;
+  }
+  .console .ttl { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+  .console div.ln { opacity: 0; transition: opacity .35s; }
+  .console div.ln.show { opacity: 1; }
+  .c-context { color: var(--context); }
+  .c-strategy { color: var(--strategy); }
+  .c-out  { color: var(--client); }
+  .c-pick { color: var(--picked); }
+  .c-bad  { color: var(--bad); }
+
+  .progress { display: flex; gap: 5px; justify-content: center; margin-top: 22px; }
+  .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--line); transition: background .3s, transform .3s; }
+  .dot.on { background: var(--strategy); transform: scale(1.35); }
+
+  .legend { text-align: center; color: var(--muted); font-size: 13px; margin-top: 26px; line-height: 1.7; }
+  .legend b { color: var(--text); }
+
+  @media (max-width: 860px) {
+    .stage { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>The Strategy Pattern</h1>
+  <p class="sub">The rule is chosen once, from outside &mdash; after that, every quote is the same three messages</p>
+
+  <div class="controls">
+    <button id="play" class="primary">&#9654;&nbsp; Play</button>
+    <button id="step">Step &rarr;</button>
+    <button id="reset">Reset</button>
+    <button id="audio" aria-pressed="false" title="Narrate each step (N)">
+      <span id="audio-icon">&#128263;</span>&nbsp; Narration: off
+    </button>
+  </div>
+  <p class="audio-note" id="audio-note"></p>
+
+  <div class="stage">
+
+    <div class="col-client">
+      <div class="box client" id="b-client">
+        <div class="name">ShippingCostDemo</div>
+        <div class="role">Client</div>
+      </div>
+      <div style="font-size:22px;color:var(--line)">&#8595;</div>
+      <div class="box context" id="b-context">
+        <div class="name">CheckoutService</div>
+        <div class="role">Context</div>
+        <div class="holding" id="holding">holding: <b>&mdash;</b></div>
+      </div>
+      <div style="font-size:11px;color:var(--muted);text-align:center;line-height:1.5">
+        one call:<br>rule.costFor(shipment)
+      </div>
+    </div>
+
+    <div class="col-main">
+
+      <div class="family">
+        <div class="family-label">The family of rules &mdash; four peers behind one interface</div>
+        <div class="row" id="r-flat">
+          <span class="name">FlatRateRule</span>
+          <span class="note">reads nothing</span>
+          <span class="value">&pound;4.99</span>
+        </div>
+        <div class="row" id="r-weight">
+          <span class="name">WeightBandedRule</span>
+          <span class="note">reads weightKg</span>
+          <span class="value">&pound;12.00</span>
+        </div>
+        <div class="row" id="r-distance">
+          <span class="name">DistanceBasedRule</span>
+          <span class="note">reads distanceMiles</span>
+          <span class="value">&pound;5.00</span>
+        </div>
+        <div class="row" id="r-campaign">
+          <span class="name">FreeOverThresholdRule</span>
+          <span class="note">reads orderSubtotal</span>
+          <span class="value">&pound;0.00</span>
+        </div>
+      </div>
+
+      <div class="bridge-rail" id="bridge-rail"></div>
+
+      <div class="narration" id="narration">
+        <div class="step-no">Ready</div>
+        <div class="text">Press <b>Play</b> to watch one rule get chosen at the edge, price an order, and then be swapped for another &mdash; without CheckoutService changing at all.</div>
+      </div>
+
+      <div class="console">
+        <div class="ttl">Program output</div>
+        <div id="console-lines"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="progress" id="progress"></div>
+
+  <p class="legend">
+    <b>CheckoutService has no branch that depends on which rule it holds &mdash; there is no message it could send to find out.</b><br>
+    Adding a fifth rule is one new class. Nothing that already works gets edited.<br>
+    <span style="font-size:12px">
+      Keys: <b>Space</b> play/pause &nbsp;·&nbsp; <b>&rarr;</b> next step
+      &nbsp;·&nbsp; <b>N</b> narration &nbsp;·&nbsp; <b>R</b> reset
+    </span>
+  </p>
+
+</div>
+
+<script>
+const STEPS = [
+  {
+    title: "Step 1 — Four rules exist, and none of them is 'the' rule",
+    text: "Flat rate, weight bands, distance, and the free-over-fifty campaign. Four completely different calculations, sharing nothing but the ShippingCostRule interface. Notice each one reads a different field of the shipment -- and FlatRateRule reads none at all.",
+    active: [], picked: null, dim: false, holding: null,
+    bridge: "one interface: String name(), Money costFor(Shipment)",
+    out: { cls: "c-strategy", txt: "interface ShippingCostRule { Money costFor(Shipment); }" }
+  },
+  {
+    title: "Step 2 — The shop is configured, and the choice is made once",
+    text: "ShippingRules.byName(\"weight\") turns a configuration value into an object. This is the only branch left in the whole design, it runs when the shop is configured rather than on every order, and in a real store it would be a database row.",
+    active: ["r-weight"], picked: "r-weight", dim: true, holding: null,
+    bridge: "ShippingRules.byName(\"weight\")  →  WeightBandedRule",
+    out: { cls: "c-pick", txt: "ShippingRules.byName(\"weight\")" }
+  },
+  {
+    title: "Step 3 — CheckoutService is handed the rule it will use",
+    text: "The rule arrives as a constructor argument. CheckoutService did not create it, cannot replace it, and has no way of asking which of the four it turned out to be.",
+    active: ["b-context"], picked: "r-weight", dim: true, holding: "WeightBandedRule",
+    bridge: "new CheckoutService(rule)  --  the context never chooses for itself",
+    out: { cls: "c-context", txt: "new CheckoutService(rule)" }
+  },
+  {
+    title: "Step 4 — An order arrives: Cardiff, 6.5 kg, 180 miles, £64.00",
+    text: "The client calls quote() with the whole shipment. It carries destination, weight, distance and subtotal -- more than any single rule uses, which is exactly what keeps the interface stable when a new rule needs a field the others ignore.",
+    active: ["b-client", "b-context"], picked: "r-weight", dim: true, holding: "WeightBandedRule",
+    bridge: "ShippingCostDemo  ---quote(shipment)--->  CheckoutService",
+    out: { cls: "c-out", txt: "checkout.quote(Cardiff, 6.5kg, 180mi, £64.00)" }
+  },
+  {
+    title: "Step 5 — One message: costFor(shipment)",
+    text: "This is the whole of CheckoutService's pricing logic. No if, no instanceof, no enum. It asks the rule exactly once -- calling it twice would double-charge the day somebody writes a rule that is not free of side effects.",
+    active: ["b-context", "r-weight"], picked: "r-weight", dim: true, holding: "WeightBandedRule",
+    bridge: "rule.costFor(shipment)  --  the only line that matters",
+    out: { cls: "c-context", txt: "shippingRule.costFor(shipment)" }
+  },
+  {
+    title: "Step 6 — The rule walks its own band table and answers £12.00",
+    text: "WeightBandedRule checks 6.5 kg against its bands: over one kilo, over five, under twenty. Twelve pounds. That band table lives in this class and nowhere else, and it has its own test that never goes near checkout.",
+    active: ["r-weight"], picked: "r-weight", dim: true, done: ["r-weight"], holding: "WeightBandedRule",
+    bridge: "6.5kg  →  band ≤20kg  →  £12.00",
+    out: { cls: "c-strategy", txt: "WeightBandedRule.costFor(...) = £12.00" }
+  },
+  {
+    title: "Step 7 — The quote comes back: £64.00 + £12.00 = £76.00",
+    text: "CheckoutService also asks the rule for its name, so the receipt can say which policy priced it. That second message is why the interface has two methods: without it, the client would need a table mapping rules to display names, and that table is the deleted switch growing back somewhere new.",
+    active: ["b-client", "b-context"], picked: "r-weight", dim: true, done: ["r-weight"], holding: "WeightBandedRule",
+    bridge: "Quote(\"Weight banded\", £64.00, £12.00)  →  total £76.00",
+    out: { cls: "c-out", txt: "Weight banded: subtotal £64.00 + delivery £12.00 = £76.00" }
+  },
+  {
+    title: "Step 8 — Marketing turns on free delivery over fifty pounds",
+    text: "A different rule is selected at the edge -- one configuration value changes. Watch what happens to CheckoutService in the next two steps: nothing.",
+    active: ["r-campaign"], picked: "r-campaign", dim: true, done: ["r-weight"], holding: "FreeOverThresholdRule",
+    bridge: "ShippingRules.byName(\"campaign\")  →  FreeOverThresholdRule",
+    out: { cls: "c-pick", txt: "ShippingRules.byName(\"campaign\")" }
+  },
+  {
+    title: "Step 9 — The same order, the same messages, a different answer",
+    text: "quote(), then costFor(), then name(). Identical to steps four through seven. The rule reads the subtotal instead of the weight, sees sixty four pounds is over the fifty pound threshold, and charges nothing.",
+    active: ["b-context", "r-campaign"], picked: "r-campaign", dim: true, done: ["r-weight", "r-campaign"], holding: "FreeOverThresholdRule",
+    bridge: "rule.costFor(shipment)  --  the identical line, a different object",
+    out: { cls: "c-strategy", txt: "FreeOverThresholdRule.costFor(...) = £0.00" }
+  },
+  {
+    title: "Step 10 — That is the entire payoff of Strategy",
+    text: "The delivery charge went from twelve pounds to nothing, and not one line of CheckoutService was edited, recompiled or retested. Adding a fifth rule -- locker collection, say -- is one new class implementing one interface. The switch did not move somewhere else. It is gone.",
+    active: ["b-context"], picked: "r-campaign", dim: false, done: ["r-weight", "r-campaign"], holding: "FreeOverThresholdRule",
+    bridge: "a fifth rule = one new class, and nothing that works gets edited",
+    out: { cls: "c-out", txt: "Free over £50.00: subtotal £64.00 + delivery FREE = £64.00" }
+  }
+];
+
+const BOXES = ["b-client", "b-context"];
+const ROWS = ["r-flat", "r-weight", "r-distance", "r-campaign"];
+const ALL_BOXES = BOXES.concat(ROWS);
+
+const STEP_MS = 3200;      // pace when narration is off
+const GAP_MS = 700;        // breathing room after a clip finishes
+
+let idx = -1;
+let playing = false;
+let timer = null;
+
+// Narration is optional: if the audio clips are missing (or the browser
+// blocks playback) the animation still works exactly as before.
+let audioOn = false;
+let clips = [];
+let current = null;
+
+const $ = id => document.getElementById(id);
+const progressEl = $("progress");
+const linesEl = $("console-lines");
+const noteEl = $("audio-note");
+const bridgeEl = $("bridge-rail");
+const holdingEl = $("holding");
+
+STEPS.forEach(() => {
+  const d = document.createElement("div");
+  d.className = "dot";
+  progressEl.appendChild(d);
+});
+
+// ---- optional narration ------------------------------------------------
+
+clips = STEPS.map((_, i) => {
+  const a = new Audio("audio/step-" + (i + 1) + ".m4a");
+  a.preload = "none";
+  return a;
+});
+
+function stopAudio() {
+  if (!current) return;
+  current.pause();
+  current.currentTime = 0;
+  current.onended = null;
+  current = null;
+}
+
+/** Play the clip for step i. onDone fires when it finishes (or cannot play). */
+function playClip(i, onDone) {
+  stopAudio();
+  if (!audioOn) { if (onDone) onDone(); return; }
+
+  const a = clips[i];
+  current = a;
+  a.currentTime = 0;
+  a.onended = () => { current = null; if (onDone) onDone(); };
+
+  a.play().catch(() => {
+    // Missing file, or autoplay blocked -> fall back to timed pacing.
+    current = null;
+    noteEl.textContent =
+      "Narration audio could not be played — falling back to timed steps. " +
+      "Run docs/make_animation_audio.sh to generate the clips.";
+    if (onDone) onDone();
+  });
+}
+
+function setAudio(on) {
+  audioOn = on;
+  const btn = $("audio");
+  btn.classList.toggle("on", on);
+  btn.setAttribute("aria-pressed", String(on));
+  btn.innerHTML = '<span id="audio-icon">' + (on ? "&#128266;" : "&#128263;") +
+                  "</span>&nbsp; Narration: " + (on ? "on" : "off");
+  noteEl.textContent = on
+    ? "Each step is narrated, and the animation waits for the voice to finish."
+    : "";
+  if (!on) stopAudio();
+}
+
+// ------------------------------------------------------------------------
+
+function clearHighlights() {
+  ALL_BOXES.forEach(b => $(b).classList.remove("active"));
+  ROWS.forEach(r => $(r).classList.remove("picked", "dim"));
+}
+
+function render(i) {
+  clearHighlights();
+  const s = STEPS[i];
+
+  s.active.forEach(b => $(b).classList.add("active"));
+
+  // The chosen rule stays highlighted; the rules not in force fade back, so
+  // the eye follows "which one is the context holding right now".
+  if (s.picked) $(s.picked).classList.add("picked");
+  if (s.dim) ROWS.filter(r => r !== s.picked).forEach(r => $(r).classList.add("dim"));
+
+  ROWS.forEach(r => $(r).classList.remove("done"));
+  (s.done || []).forEach(r => $(r).classList.add("done"));
+
+  holdingEl.innerHTML = "holding: <b>" + (s.holding || "&mdash;") + "</b>";
+
+  bridgeEl.textContent = s.bridge || "";
+  bridgeEl.classList.add("active");
+
+  $("narration").innerHTML =
+    '<div class="step-no">' + s.title + '</div><div class="text">' + s.text + '</div>';
+
+  // Rebuild console output up to this step
+  linesEl.innerHTML = "";
+  for (let k = 0; k <= i; k++) {
+    if (!STEPS[k].out) continue;
+    const div = document.createElement("div");
+    div.className = "ln " + STEPS[k].out.cls;
+    div.textContent = STEPS[k].out.txt;
+    linesEl.appendChild(div);
+    requestAnimationFrame(() => div.classList.add("show"));
+  }
+
+  [...progressEl.children].forEach((d, k) => d.classList.toggle("on", k <= i));
+}
+
+/** Advance one step. In play mode, schedule the following step afterwards. */
+function next() {
+  if (idx >= STEPS.length - 1) { stop(); return; }
+  idx++;
+  render(idx);
+
+  if (!playing) { playClip(idx); return; }
+
+  if (audioOn) {
+    // Wait for the voice to finish this step, then move on.
+    playClip(idx, () => {
+      if (!playing) return;
+      timer = setTimeout(next, GAP_MS);
+    });
+  } else {
+    timer = setTimeout(next, STEP_MS);
+  }
+}
+
+function stop() {
+  playing = false;
+  clearTimeout(timer);
+  stopAudio();
+  $("play").innerHTML = "&#9654;&nbsp; Play";
+  $("step").disabled = false;
+}
+
+function reset() {
+  stop();
+  idx = -1;
+  clearHighlights();
+  ROWS.forEach(r => $(r).classList.remove("done"));
+  holdingEl.innerHTML = "holding: <b>&mdash;</b>";
+  linesEl.innerHTML = "";
+  bridgeEl.textContent = "";
+  bridgeEl.classList.remove("active");
+  [...progressEl.children].forEach(d => d.classList.remove("on"));
+  $("narration").innerHTML =
+    '<div class="step-no">Ready</div><div class="text">Press <b>Play</b> to watch one rule get chosen at the edge, price an order, and then be swapped for another &mdash; without CheckoutService changing at all.</div>';
+}
+
+$("play").addEventListener("click", () => {
+  if (playing) { stop(); return; }
+  if (idx >= STEPS.length - 1) reset();
+  playing = true;
+  $("play").innerHTML = "&#10074;&#10074;&nbsp; Pause";
+  $("step").disabled = true;
+  next();   // next() now schedules the rest of the run itself
+});
+
+$("step").addEventListener("click", () => { stop(); if (idx >= STEPS.length - 1) reset(); next(); });
+$("reset").addEventListener("click", reset);
+
+$("audio").addEventListener("click", () => {
+  setAudio(!audioOn);
+  // Turning narration on mid-run: speak the step already on screen.
+  if (audioOn && playing && idx >= 0) {
+    clearTimeout(timer);
+    playClip(idx, () => {
+      if (!playing) return;
+      timer = setTimeout(next, GAP_MS);
+    });
+  }
+});
+
+document.addEventListener("keydown", e => {
+  if (e.code === "Space") { e.preventDefault(); $("play").click(); }
+  if (e.code === "ArrowRight") { e.preventDefault(); $("step").click(); }
+  if (e.code === "KeyR") reset();
+  if (e.code === "KeyN") $("audio").click();
+});
+
+setAudio(false);
+reset();
+</script>
+</body>
+</html>

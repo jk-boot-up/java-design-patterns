@@ -17,12 +17,18 @@ SCENES = [
         title="The Facade Pattern",
         body=None,
         narration=(
-            "Hello, and welcome. This one is written and presented by Jayasekhar "
-            "Konduru. [[slnc 300]] Today we're doing one of the most useful, and "
-            "honestly one of the most approachable, design patterns in software. "
-            "The facade. [[slnc 250]] And we'll learn it by building a real "
-            "working Java project, an online store checkout. By the end you'll "
-            "know what a facade is, why it exists, and how to write one yourself."
+            "Hello, and welcome. This video explains the Facade pattern in Java, "
+            "and it is written and presented by Jayasekhar Konduru. [[slnc 300]] "
+            "Let's start with the simple definition. The facade pattern puts one "
+            "simple interface in front of a complicated set of classes. The "
+            "subsystem keeps every one of its parts, and the specialist can still "
+            "reach them, but the ordinary caller talks to a single object with a "
+            "single method instead of orchestrating six. [[slnc 350]] That's the "
+            "idea in a sentence, and it's one of the most useful and most "
+            "approachable patterns in software. The rest of the video does it "
+            "properly, by building a real working Java project: the checkout of "
+            "an online store. [[slnc 250]] By the end you'll know what a facade "
+            "is, why it exists, and how to write one yourself."
         ),
     ),
     dict(

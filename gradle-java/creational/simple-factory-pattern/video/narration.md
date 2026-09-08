@@ -5,7 +5,7 @@ scene. This is the human-readable copy used for review; the authoritative
 text lives next to each slide in [`scenes.py`](scenes.py). If you change the
 wording there, update this file too.
 
-- **Voice:** macOS `Samantha` (female, US English) at 165 words per minute
+- **Voice:** macOS `Samantha` (female, US English) at 145 words per minute
 - **Runtime:** approximately 7 and a half minutes.
 - **Audience:** beginners with no prior design-pattern knowledge
 
@@ -27,12 +27,18 @@ stripped from the text below and from the subtitles.
 
 ## 1. The Simple Factory Pattern
 
-Hello, and welcome. This one is written and presented by Jayasekhar
-Konduru. Today we are doing the pattern that almost every Java developer
-writes long before they know it has a name. The simple factory. And we
-will learn it properly, by building a real working Java project. The
-payment step of an online store. By the end you'll know what a factory is,
-why it exists, and how to write one yourself.
+Hello, and welcome. This video explains the Simple Factory pattern in Java,
+and it is written and presented by Jayasekhar Konduru. Let's start with the
+simple definition. A simple factory is one place that decides which class
+to create. Rather than every caller writing new and choosing a type for
+itself, callers hand over a piece of data — a name, a code, a setting — and
+get back an object behind an interface they already know. The decision is
+made once, in one file, instead of everywhere. That's the idea in a
+sentence, and it's the pattern almost every Java developer writes long
+before they learn it has a name. The rest of the video does it properly, by
+building a real working Java project: the payment step of an online store.
+By the end you'll know what a factory is, why it exists, and how to write
+one yourself.
 
 ## 2. The Scenario
 

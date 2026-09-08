@@ -314,19 +314,33 @@ POSTER_BOTTOM = (10, 18, 58)
 GOLD = US
 
 
-def pill(d, x, y, w, h, colour, code, note, strike=False):
-    """A code sample in a coloured box, with a one-line verdict under it."""
+def pill(d, x, y, w, h, colour, code, note, tag=None):
+    """A code sample in a coloured box, with a one-line verdict under it.
+
+    `tag` puts a small chip on the top edge -- BEFORE on the rejected
+    approach, AFTER on the pattern. That chip replaces the strikethrough the
+    "before" sample used to carry. A rule drawn through monospace is hard to
+    read at full size and illegible at the ~360 px wide thumbnail YouTube
+    actually serves in search results, which is the size that decides whether
+    anyone clicks; and striking the code out made the card read as being about
+    what is wrong rather than about what is worth learning. The contrast is
+    still there, carried by colour and by the label instead.
+    """
     d.rounded_rectangle([x, y, x + w, y + h], radius=22,
                         fill=(12, 18, 46), outline=colour, width=5)
+    if tag:
+        tag_font = f(SANS_B, 26)
+        tag_w = int(tag_font.getlength(tag)) + 44
+        d.rounded_rectangle([x + 28, y - 20, x + 28 + tag_w, y + 20],
+                            radius=20, fill=colour)
+        d.text((x + 28 + tag_w // 2, y - 16), tag, font=tag_font,
+               fill=(12, 18, 46), anchor="ma")
     fnt = f(MONO_B, 42)
     while fnt.getlength(code) > w - 60:
         fnt = f(MONO_B, fnt.size - 2)
-    cx, cy = x + w // 2, y + 34
-    d.text((cx, cy), code, font=fnt, fill=TEXT, anchor="ma")
-    if strike:
-        half = fnt.getlength(code) / 2
-        d.line([(cx - half, cy + 26), (cx + half, cy + 26)], fill=colour, width=6)
-    d.text((cx, y + h - 58), note, font=f(SANS_B, 34), fill=colour, anchor="ma")
+    d.text((x + w // 2, y + 46), code, font=fnt, fill=TEXT, anchor="ma")
+    d.text((x + w // 2, y + h - 58), note, font=f(SANS_B, 34), fill=colour,
+           anchor="ma")
 
 
 def byline(d, y=896):
@@ -364,9 +378,9 @@ def kind_poster(scene, img, d):
                         outline=ACCENT, width=4)
 
     pill(d, 150, 556, 700, 170, RED, "VAT + $ + ZIP", "picked a piece at a time",
-         strike=True)
+         tag="BEFORE")
     pill(d, 1070, 556, 700, 170, GREEN, "VAT + " + chr(163) + " + postcode",
-         "picked as one set")
+         "picked as one set", tag="AFTER")
 
     arrow_y = 636
     d.line([(880, arrow_y), (1010, arrow_y)], fill=TEXT, width=8)

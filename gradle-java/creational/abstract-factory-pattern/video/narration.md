@@ -24,15 +24,19 @@ stripped from the text below and from the subtitles.
 
 ## Scene 1 — The Abstract Factory Pattern
 
-Hello, and welcome. This one is written and presented by Jayasekhar
-Konduru. Today we're doing the abstract factory. It's the most ambitious
-of the factory patterns in the Gang of Four book. It sounds intimidating,
-and honestly, I think that's entirely the name's fault, because the idea
-underneath is simple, and you'll recognise it straight away from real
-life. We'll learn it by building a real working Java project. The checkout
-step of an online store that sells into three countries. And by the end
-you'll know what an abstract factory is, why it exists, and, just as
-importantly, when not to use it.
+Hello, and welcome. This video explains the Abstract Factory pattern in
+Java, and it is written and presented by Jayasekhar Konduru. Let's start
+with the simple definition. An abstract factory is one object that creates
+a whole family of related objects. You choose the factory once, and
+everything it hands you afterwards is guaranteed to belong together — you
+never assemble the family piece by piece, and you can never accidentally
+mix one family with another. That's the idea in a sentence. It's the most
+ambitious of the factory patterns in the Gang of Four book and it sounds
+intimidating, which I think is entirely the name's fault. The rest of the
+video does it properly, by building a real working Java project: the
+checkout step of an online store that sells into three countries. By the
+end you'll know what an abstract factory is, why it exists, and — just as
+importantly — when not to use it.
 
 ## Scene 2 — The Scenario
 

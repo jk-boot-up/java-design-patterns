@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Singleton Pattern — Animated Walkthrough</title>
+<style>
+  :root {
+    --bg: #0f172a;
+    --panel: #1e293b;
+    --panel-hi: #334155;
+    --line: #475569;
+    --text: #e2e8f0;
+    --muted: #94a3b8;
+    --client: #38bdf8;
+    --enum: #a78bfa;
+    --legacy: #fbbf24;
+    --ok: #34d399;
+    --bad: #f87171;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 28px 20px 60px;
+    background: var(--bg);
+    color: var(--text);
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  h1 { text-align: center; font-size: 28px; margin: 0 0 4px; }
+  .sub { text-align: center; color: var(--muted); margin: 0 0 24px; font-size: 15px; }
+
+  .wrap { max-width: 1180px; margin: 0 auto; }
+
+  .controls { display: flex; gap: 10px; justify-content: center; margin-bottom: 26px; flex-wrap: wrap; }
+  button {
+    background: var(--panel-hi); color: var(--text); border: 1px solid var(--line);
+    padding: 9px 20px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer;
+    transition: background .15s, transform .1s;
+  }
+  button:hover:not(:disabled) { background: #475569; }
+  button:active:not(:disabled) { transform: translateY(1px); }
+  button:disabled { opacity: .4; cursor: not-allowed; }
+  button.primary { background: var(--enum); color: #1e1b4b; border-color: var(--enum); }
+  button.primary:hover:not(:disabled) { background: #b9a3ff; }
+  button.on { background: #0c2b3d; border-color: var(--client); color: var(--client); }
+  button.on:hover:not(:disabled) { background: #123a52; }
+
+  .audio-note {
+    text-align: center; color: var(--muted); font-size: 12.5px;
+    margin: -14px 0 22px; min-height: 17px;
+  }
+
+  .stage { display: grid; grid-template-columns: 200px 1fr; gap: 22px; align-items: start; }
+
+  .col-client { display: flex; flex-direction: column; align-items: center; gap: 14px; padding-top: 70px; }
+
+  .box {
+    background: var(--panel); border: 2px solid var(--line); border-radius: 12px;
+    padding: 14px 16px; text-align: center; width: 100%;
+    transition: border-color .3s, box-shadow .3s, transform .3s, background .3s, opacity .3s;
+  }
+  .box .name { font-weight: 700; font-size: 15px; letter-spacing: .2px; }
+  .box .role { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-top: 3px; }
+  .box.active {
+    transform: translateY(-3px);
+    box-shadow: 0 0 0 3px rgba(255,255,255,.07), 0 10px 28px rgba(0,0,0,.45);
+  }
+  .box.client.active  { border-color: var(--client); background: #0c2b3d; }
+  .box.enum.active    { border-color: var(--enum);   background: #2b2247; }
+  .box.legacy.active  { border-color: var(--legacy); background: #33260a; }
+  .box.rejected        { border-color: var(--ok); }
+  .box.rejected::after { content: " ✓ rejected"; color: #4ade80; font-weight: 700; font-size: 11px; }
+  .box.broken           { border-color: var(--bad); }
+  .box.broken::after    { content: " ✗ succeeded"; color: #f87171; font-weight: 700; font-size: 11px; }
+  .box.chosen { border-color: var(--ok); }
+  .box.faded { opacity: .3; }
+
+  .col-main { display: flex; flex-direction: column; gap: 18px; }
+
+  .enum-shell {
+    border: 2px dashed var(--enum); border-radius: 14px; padding: 16px;
+    background: rgba(167,139,250,.05);
+  }
+  .enum-label {
+    font-size: 11px; color: var(--enum); text-transform: uppercase;
+    letter-spacing: 1.4px; font-weight: 700; margin-bottom: 12px; text-align: center;
+  }
+  .methods {
+    display: flex; flex-direction: column; gap: 6px; margin-top: 12px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12.5px;
+  }
+  .mf {
+    padding: 6px 12px; border-radius: 7px; border: 1px dashed var(--enum);
+    color: var(--enum); transition: all .3s;
+  }
+  .mf.lit { background: #2b2247; border-style: solid; color: var(--text); }
+  .mf.dead { border-color: #7f1d1d; color: #f87171; text-decoration: line-through; }
+  .hint {
+    text-align: center; color: var(--muted); font-size: 11.5px;
+    letter-spacing: .4px; margin: 14px 0 8px;
+  }
+
+  .attacks-shell {
+    border: 2px dashed var(--ok); border-radius: 14px; padding: 14px 12px;
+    background: rgba(52,211,153,.05);
+  }
+  .attacks-shell.bad { border-color: var(--bad); background: rgba(248,113,113,.05); }
+  .attacks-label {
+    font-size: 11px; color: var(--ok); text-transform: uppercase;
+    letter-spacing: 1.4px; font-weight: 700; margin-bottom: 10px; text-align: center;
+  }
+  .attacks-shell.bad .attacks-label { color: var(--bad); }
+  .attacks { display: grid; grid-template-columns: repeat(2, 1fr); gap: 9px; }
+
+  .legacy-shell {
+    border: 2px dashed var(--legacy); border-radius: 14px; padding: 16px;
+    background: rgba(251,191,36,.05);
+  }
+  .legacy-label {
+    font-size: 11px; color: var(--legacy); text-transform: uppercase;
+    letter-spacing: 1.4px; font-weight: 700; margin-bottom: 12px; text-align: center;
+  }
+  .mf.legacy-mf { border-color: var(--legacy); color: var(--legacy); }
+  .mf.legacy-mf.lit { background: #33260a; border-style: solid; color: var(--text); }
+
+  .arrow-rail { height: 30px; position: relative; }
+  .arrow {
+    position: absolute; left: 50%; transform: translateX(-50%);
+    font-size: 13px; color: var(--muted); opacity: 0;
+    transition: opacity .3s; white-space: nowrap;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  }
+  .arrow.show { opacity: 1; }
+
+  .narration {
+    background: var(--panel); border-left: 4px solid var(--enum);
+    border-radius: 0 10px 10px 0; padding: 16px 20px; min-height: 76px;
+    font-size: 15px; line-height: 1.6;
+  }
+  .narration .step-no { color: var(--muted); font-size: 12px; letter-spacing: 1px; text-transform: uppercase; }
+  .narration .text { margin-top: 5px; }
+
+  .console {
+    background: #020617; border: 1px solid var(--line); border-radius: 10px;
+    padding: 14px 16px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 13px; line-height: 1.75; min-height: 150px;
+  }
+  .console .ttl { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+  .console div.ln { opacity: 0; transition: opacity .35s; }
+  .console div.ln.show { opacity: 1; }
+  .c-ok  { color: #4ade80; }
+  .c-bad { color: #f87171; }
+  .c-neutral { color: var(--enum); }
+
+  .progress { display: flex; gap: 5px; justify-content: center; margin-top: 22px; }
+  .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--line); transition: background .3s, transform .3s; }
+  .dot.on { background: var(--enum); transform: scale(1.35); }
+
+  .legend { text-align: center; color: var(--muted); font-size: 13px; margin-top: 26px; line-height: 1.7; }
+  .legend b { color: var(--text); }
+
+  @media (max-width: 860px) {
+    .stage { grid-template-columns: 1fr; }
+    .col-client { padding-top: 0; }
+    .attacks { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>The Singleton Pattern</h1>
+  <p class="sub">One enum constant, three guarantees &rarr; the classic private-constructor shape has none of them</p>
+
+  <div class="controls">
+    <button id="play" class="primary">&#9654;&nbsp; Play</button>
+    <button id="step">Step &rarr;</button>
+    <button id="reset">Reset</button>
+    <button id="audio" aria-pressed="false" title="Narrate each step (N)">
+      <span id="audio-icon">&#128263;</span>&nbsp; Narration: off
+    </button>
+  </div>
+  <p class="audio-note" id="audio-note"></p>
+
+  <div class="stage">
+
+    <div class="col-client">
+      <div class="box client" id="b-caller">
+        <div class="name">OrderSequenceGeneratorDemo</div>
+        <div class="role">the caller — and the attacker</div>
+      </div>
+      <div style="font-size:26px;color:var(--line)">&#8595;</div>
+      <div style="font-size:11px;color:var(--muted);text-align:center;line-height:1.5">
+        one code path,<br>two implementations to attack
+      </div>
+    </div>
+
+    <div class="col-main">
+
+      <div class="arrow-rail">
+        <div class="arrow" id="a-in">INSTANCE.nextOrderNumber() &nbsp;&#8595;</div>
+      </div>
+
+      <div class="enum-shell">
+        <div class="enum-label">OrderSequenceGenerator &mdash; a single-element enum</div>
+        <div class="box enum" id="b-enum">
+          <div class="name">INSTANCE</div>
+          <div class="role">created once, by the JVM, at class load</div>
+        </div>
+
+        <div class="methods">
+          <div class="mf" id="mf-0">no constructor a caller can reach</div>
+          <div class="mf" id="mf-1">nextOrderNumber() &nbsp; &rarr; &nbsp; String</div>
+          <div class="mf" id="mf-2">counter : AtomicLong &nbsp; &mdash; &nbsp; safe under concurrency</div>
+        </div>
+
+        <div class="hint">no getInstance(), no null check, no lock &mdash; the compiler builds INSTANCE for you</div>
+      </div>
+
+      <div class="arrow-rail">
+        <div class="arrow" id="a-attack-good">&#8595; &nbsp; attacked with reflection, then serialization</div>
+      </div>
+
+      <div class="attacks-shell">
+        <div class="attacks-label">Both attacks rejected</div>
+        <div class="attacks">
+          <div class="box" id="b-reflect-good">
+            <div class="name">Constructor.newInstance()</div>
+            <div class="role">reflection</div>
+          </div>
+          <div class="box" id="b-serial-good">
+            <div class="name">serialize &rarr; deserialize</div>
+            <div class="role">same INSTANCE back</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="arrow-rail">
+        <div class="arrow" id="a-legacy">&#8595; &nbsp; the shape most tutorials teach first</div>
+      </div>
+
+      <div class="legacy-shell">
+        <div class="legacy-label">LegacyOrderSequenceGenerator &mdash; private constructor, static field</div>
+        <div class="box legacy" id="b-legacy">
+          <div class="name">getInstance()</div>
+          <div class="role">looks identical to callers, under normal use</div>
+        </div>
+        <div class="methods">
+          <div class="mf legacy-mf" id="mf-3">private LegacyOrderSequenceGenerator()</div>
+          <div class="mf legacy-mf" id="mf-4">implements Serializable &mdash; no readResolve()</div>
+        </div>
+      </div>
+
+      <div class="arrow-rail">
+        <div class="arrow" id="a-attack-bad">&#8595; &nbsp; the same two attacks, tried again</div>
+      </div>
+
+      <div class="attacks-shell bad">
+        <div class="attacks-label">Both attacks succeed</div>
+        <div class="attacks">
+          <div class="box" id="b-reflect-bad">
+            <div class="name">Constructor.newInstance()</div>
+            <div class="role">reflection</div>
+          </div>
+          <div class="box" id="b-serial-bad">
+            <div class="name">serialize &rarr; deserialize</div>
+            <div class="role">a second, independent instance</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="narration" id="narration">
+        <div class="step-no">Ready</div>
+        <div class="text">Press <b>Play</b> to watch one singleton resist two attacks, and another fall to both.</div>
+      </div>
+
+      <div class="console">
+        <div class="ttl">Program output</div>
+        <div id="console-lines"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="progress" id="progress"></div>
+
+  <p class="legend">
+    <b>A private constructor is a promise the compiler checks, not one the JVM enforces at runtime. A single-element enum is the one Java singleton shape that closes both holes, for free.</b><br>
+    Add a readResolve() to LegacyOrderSequenceGenerator and watch the serialization attack start failing &mdash; then notice the enum never needed one.<br>
+    <span style="font-size:12px">
+      Keys: <b>Space</b> play/pause &nbsp;·&nbsp; <b>&rarr;</b> next step
+      &nbsp;·&nbsp; <b>N</b> narration &nbsp;·&nbsp; <b>R</b> reset
+    </span>
+  </p>
+
+</div>
+
+<script>
+const STEPS = [
+  {
+    title: "Step 1 — INSTANCE, created once",
+    text: "OrderSequenceGenerator is an enum with a single constant, INSTANCE. The JVM creates it exactly once, during class loading, before any caller's code can reference it. There is no constructor to call — enum constants are not built by ordinary code.",
+    active: ["b-caller", "b-enum"], chosen: [], faded: ["b-reflect-good", "b-serial-good", "b-legacy", "b-reflect-bad", "b-serial-bad"],
+    dead: [], mf: ["mf-0"], arrow: null, out: null
+  },
+  {
+    title: "Step 2 — nextOrderNumber(), safely",
+    text: "INSTANCE.nextOrderNumber() increments an AtomicLong and formats the result. Because there truly is only one instance, it is reachable from every thread in the program at once — AtomicLong.incrementAndGet() is what keeps concurrent callers from ever landing on the same number.",
+    active: ["b-caller", "b-enum"], chosen: [], faded: ["b-reflect-good", "b-serial-good", "b-legacy", "b-reflect-bad", "b-serial-bad"],
+    dead: [], mf: ["mf-0", "mf-1", "mf-2"], arrow: "a-in",
+    out: { cls: "c-neutral", txt: "first == second: true\nORD-000001\nORD-000002" }
+  },
+  {
+    title: "Step 3 — Attacking it: reflection",
+    text: "Reflection can call a private constructor directly — unless the class is an enum. Constructor.newInstance() on an enum's constructor is specifically rejected by the reflection API itself, no defensive code required in this project.",
+    active: ["b-enum", "b-reflect-good"], chosen: [], faded: ["b-serial-good", "b-legacy", "b-reflect-bad", "b-serial-bad"],
+    dead: [], mf: ["mf-0"], arrow: "a-attack-good",
+    out: { cls: "c-ok", txt: "Rejected: Cannot reflectively create enum objects" }
+  },
+  {
+    title: "Step 4 — Attacking it: serialization",
+    text: "Serializing INSTANCE and reading it back does not rebuild a new object from its fields. The language defines an enum's serialized form as its name, and deserialization resolves that name against the existing constant — the same INSTANCE comes back.",
+    active: ["b-enum", "b-serial-good"], chosen: ["b-reflect-good", "b-serial-good"], faded: ["b-legacy", "b-reflect-bad", "b-serial-bad"],
+    dead: [], mf: ["mf-0"], arrow: null,
+    out: { cls: "c-ok", txt: "roundTripped == INSTANCE: true" }
+  },
+  {
+    title: "Step 5 — The classic shape, for comparison",
+    text: "LegacyOrderSequenceGenerator uses the shape most singleton tutorials teach first: a private constructor, a static field, a public getInstance(). Under ordinary use it behaves identically to the enum — every caller gets the same shared instance back.",
+    active: ["b-legacy"], chosen: ["b-reflect-good", "b-serial-good"], faded: ["b-enum", "b-reflect-good", "b-serial-good", "b-reflect-bad", "b-serial-bad"],
+    dead: [], mf: ["mf-3", "mf-4"], arrow: "a-legacy",
+    out: { cls: "c-neutral", txt: "legacyFirst == legacySecond: true" }
+  },
+  {
+    title: "Step 6 — Breaking it: reflection",
+    text: "getDeclaredConstructor().setAccessible(true) bypasses the private access check that was the only thing standing between a caller and a second instance. LegacyOrderSequenceGenerator has no special protection against this — nothing about being a \"singleton\" is enforced by the JVM here.",
+    active: ["b-legacy", "b-reflect-bad"], chosen: ["b-reflect-good", "b-serial-good"], faded: ["b-enum", "b-reflect-good", "b-serial-good", "b-serial-bad"],
+    dead: [], mf: ["mf-3"], arrow: "a-attack-bad",
+    out: { cls: "c-bad", txt: "forged == legacyFirst: false" }
+  },
+  {
+    title: "Step 7 — Breaking it: serialization",
+    text: "Default Java serialization never calls a constructor at all — it rebuilds an object's fields straight from bytes. Implementing Serializable without a readResolve() method means a round trip mints a brand-new instance, counter reset and all.",
+    active: ["b-legacy", "b-serial-bad"], chosen: ["b-reflect-good", "b-serial-good", "b-reflect-bad", "b-serial-bad"], faded: ["b-enum", "b-reflect-good", "b-serial-good"],
+    dead: [], mf: ["mf-4"], arrow: null,
+    out: { cls: "c-bad", txt: "legacyRoundTripped == legacyFirst: false" }
+  }
+];
+
+const ALL_BOXES = ["b-caller", "b-enum", "b-reflect-good", "b-serial-good", "b-legacy", "b-reflect-bad", "b-serial-bad"];
+const ARROWS = ["a-in", "a-attack-good", "a-legacy", "a-attack-bad"];
+const MF = ["mf-0", "mf-1", "mf-2", "mf-3", "mf-4"];
+const REJECTED_BOXES = ["b-reflect-good", "b-serial-good"];
+const BROKEN_BOXES = ["b-reflect-bad", "b-serial-bad"];
+
+const STEP_MS = 3200;      // pace when narration is off
+const GAP_MS = 700;        // breathing room after a clip finishes
+
+let idx = -1;
+let playing = false;
+let timer = null;
+
+// Narration is optional: if the audio clips are missing (or the browser
+// blocks playback) the animation still works exactly as before.
+let audioOn = false;
+let clips = [];
+let current = null;
+
+const $ = id => document.getElementById(id);
+const progressEl = $("progress");
+const linesEl = $("console-lines");
+const noteEl = $("audio-note");
+
+STEPS.forEach(() => {
+  const d = document.createElement("div");
+  d.className = "dot";
+  progressEl.appendChild(d);
+});
+
+// ---- optional narration ------------------------------------------------
+
+clips = STEPS.map((_, i) => {
+  const a = new Audio("audio/step-" + (i + 1) + ".m4a");
+  a.preload = "none";
+  return a;
+});
+
+function stopAudio() {
+  if (!current) return;
+  current.pause();
+  current.currentTime = 0;
+  current.onended = null;
+  current = null;
+}
+
+/** Play the clip for step i. onDone fires when it finishes (or cannot play). */
+function playClip(i, onDone) {
+  stopAudio();
+  if (!audioOn) { if (onDone) onDone(); return; }
+
+  const a = clips[i];
+  current = a;
+  a.currentTime = 0;
+  a.onended = () => { current = null; if (onDone) onDone(); };
+
+  a.play().catch(() => {
+    // Missing file, or autoplay blocked -> fall back to timed pacing.
+    current = null;
+    noteEl.textContent =
+      "Narration audio could not be played — falling back to timed steps. " +
+      "Run docs/make_animation_audio.sh to generate the clips.";
+    if (onDone) onDone();
+  });
+}
+
+function setAudio(on) {
+  audioOn = on;
+  const btn = $("audio");
+  btn.classList.toggle("on", on);
+  btn.setAttribute("aria-pressed", String(on));
+  btn.innerHTML = '<span id="audio-icon">' + (on ? "&#128266;" : "&#128263;") +
+                  "</span>&nbsp; Narration: " + (on ? "on" : "off");
+  noteEl.textContent = on
+    ? "Each step is narrated, and the animation waits for the voice to finish."
+    : "";
+  if (!on) stopAudio();
+}
+
+// ------------------------------------------------------------------------
+
+function clearHighlights() {
+  ALL_BOXES.forEach(b => $(b).classList.remove("active", "faded"));
+  ARROWS.forEach(a => $(a).classList.remove("show"));
+  MF.forEach(m => $(m).classList.remove("lit", "dead"));
+}
+
+function render(i) {
+  clearHighlights();
+  const s = STEPS[i];
+
+  ALL_BOXES.forEach(b => $(b).classList.remove("chosen"));
+  REJECTED_BOXES.forEach(b => $(b).classList.remove("rejected"));
+  BROKEN_BOXES.forEach(b => $(b).classList.remove("broken"));
+
+  s.active.forEach(b => $(b).classList.add("active"));
+  (s.faded || []).forEach(b => $(b).classList.add("faded"));
+  (s.chosen || []).forEach(b => $(b).classList.add("chosen"));
+  (s.mf || []).forEach(m => $(m).classList.add("lit"));
+  (s.dead || []).forEach(m => $(m).classList.add("dead"));
+  if (s.arrow) $(s.arrow).classList.add("show");
+
+  // Once a step has run, its attack box keeps its verdict badge.
+  if (i >= 2) $("b-reflect-good").classList.add("rejected");
+  if (i >= 3) $("b-serial-good").classList.add("rejected");
+  if (i >= 5) $("b-reflect-bad").classList.add("broken");
+  if (i >= 6) $("b-serial-bad").classList.add("broken");
+
+  $("narration").innerHTML =
+    '<div class="step-no">' + s.title + '</div><div class="text">' + s.text + '</div>';
+
+  // Rebuild console output up to this step. A step may print one block or
+  // several, each with its own colour.
+  linesEl.innerHTML = "";
+  for (let k = 0; k <= i; k++) {
+    if (!STEPS[k].out) continue;
+    const blocks = [].concat(STEPS[k].out);
+    blocks.forEach(block => block.txt.split("\n").forEach(txt => {
+      const div = document.createElement("div");
+      div.className = "ln " + block.cls;
+      div.textContent = txt;
+      linesEl.appendChild(div);
+      requestAnimationFrame(() => div.classList.add("show"));
+    }));
+  }
+
+  [...progressEl.children].forEach((d, k) => d.classList.toggle("on", k <= i));
+}
+
+/** Advance one step. In play mode, schedule the following step afterwards. */
+function next() {
+  if (idx >= STEPS.length - 1) { stop(); return; }
+  idx++;
+  render(idx);
+
+  if (!playing) { playClip(idx); return; }
+
+  if (audioOn) {
+    // Wait for the voice to finish this step, then move on.
+    playClip(idx, () => {
+      if (!playing) return;
+      timer = setTimeout(next, GAP_MS);
+    });
+  } else {
+    timer = setTimeout(next, STEP_MS);
+  }
+}
+
+function stop() {
+  playing = false;
+  clearTimeout(timer);
+  stopAudio();
+  $("play").innerHTML = "&#9654;&nbsp; Play";
+  $("step").disabled = false;
+}
+
+function reset() {
+  stop();
+  idx = -1;
+  clearHighlights();
+  ALL_BOXES.forEach(b => $(b).classList.remove("chosen"));
+  REJECTED_BOXES.forEach(b => $(b).classList.remove("rejected"));
+  BROKEN_BOXES.forEach(b => $(b).classList.remove("broken"));
+  linesEl.innerHTML = "";
+  [...progressEl.children].forEach(d => d.classList.remove("on"));
+  $("narration").innerHTML =
+    '<div class="step-no">Ready</div><div class="text">Press <b>Play</b> to watch one singleton resist two attacks, and another fall to both.</div>';
+}
+
+$("play").addEventListener("click", () => {
+  if (playing) { stop(); return; }
+  if (idx >= STEPS.length - 1) reset();
+  playing = true;
+  $("play").innerHTML = "&#10074;&#10074;&nbsp; Pause";
+  $("step").disabled = true;
+  next();   // next() now schedules the rest of the run itself
+});
+
+$("step").addEventListener("click", () => { stop(); if (idx >= STEPS.length - 1) reset(); next(); });
+$("reset").addEventListener("click", reset);
+
+$("audio").addEventListener("click", () => {
+  setAudio(!audioOn);
+  // Turning narration on mid-run: speak the step already on screen.
+  if (audioOn && playing && idx >= 0) {
+    clearTimeout(timer);
+    playClip(idx, () => {
+      if (!playing) return;
+      timer = setTimeout(next, GAP_MS);
+    });
+  }
+});
+
+document.addEventListener("keydown", e => {
+  if (e.code === "Space") { e.preventDefault(); $("play").click(); }
+  if (e.code === "ArrowRight") { e.preventDefault(); $("step").click(); }
+  if (e.code === "KeyR") reset();
+  if (e.code === "KeyN") $("audio").click();
+});
+
+setAudio(false);
+reset();
+</script>
+</body>
+</html>
