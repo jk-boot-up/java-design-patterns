@@ -305,7 +305,7 @@ OrderConfirmation confirmation = orderFacade.placeOrder(request);
         body="""$ ./gradlew run
 
 Inventory: reserving 2 unit(s) of SKU-1234
-Payment: charged $49.98 to customer CUST-001 (paymentId=PMT-C68994F4)
+Payment: charged £49.98 to customer CUST-001 (paymentId=PMT-C68994F4)
 Shipping: scheduled shipment for order ORD-0D1ADD0C
           to 221B Baker Street, London (trackingId=TRK-A844891E)
 Notification: emailed customer CUST-001 confirmation for

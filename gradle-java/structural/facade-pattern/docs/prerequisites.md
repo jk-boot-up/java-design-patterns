@@ -114,7 +114,7 @@ Expected output from `./gradlew run`:
 
 ```
 Inventory: reserving 2 unit(s) of SKU-1234
-Payment: charged $49.98 to customer CUST-001 (paymentId=PMT-XXXXXXXX)
+Payment: charged £49.98 to customer CUST-001 (paymentId=PMT-XXXXXXXX)
 Shipping: scheduled shipment for order ORD-XXXXXXXX to 221B Baker Street, London (trackingId=TRK-XXXXXXXX)
 Notification: emailed customer CUST-001 confirmation for order ORD-XXXXXXXX (trackingId=TRK-XXXXXXXX)
 Order placed: OrderConfirmation[orderId=ORD-XXXXXXXX, paymentId=PMT-XXXXXXXX, trackingId=TRK-XXXXXXXX]

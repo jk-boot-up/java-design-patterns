@@ -23,7 +23,7 @@ Which prints:
 
 ```text
 Inventory: reserving 2 unit(s) of SKU-1234
-Payment: charged $49.98 to customer CUST-001 (paymentId=PMT-ABE8E8A6)
+Payment: charged £49.98 to customer CUST-001 (paymentId=PMT-ABE8E8A6)
 Shipping: scheduled shipment for order ORD-C07428B5 to 221B Baker Street, London (trackingId=TRK-0A80D1BE)
 Notification: emailed customer CUST-001 confirmation for order ORD-C07428B5 (trackingId=TRK-0A80D1BE)
 Order placed: OrderConfirmation[orderId=ORD-C07428B5, paymentId=PMT-ABE8E8A6, trackingId=TRK-0A80D1BE]
