@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Interpreter Pattern — Animated Walkthrough</title>
+<style>
+  :root {
+    --bg: #0f172a;
+    --panel: #1e293b;
+    --panel-hi: #334155;
+    --line: #475569;
+    --text: #e2e8f0;
+    --muted: #94a3b8;
+    --client: #38bdf8;
+    --context: #34d399;
+    --strategy: #a78bfa;
+    --picked: #fbbf24;
+    --bad: #f87171;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 28px 20px 60px;
+    background: var(--bg);
+    color: var(--text);
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  h1 { text-align: center; font-size: 28px; margin: 0 0 4px; }
+  .sub { text-align: center; color: var(--muted); margin: 0 0 24px; font-size: 15px; }
+
+  .wrap { max-width: 1100px; margin: 0 auto; }
+
+  .controls { display: flex; gap: 10px; justify-content: center; margin-bottom: 26px; flex-wrap: wrap; }
+  button {
+    background: var(--panel-hi); color: var(--text); border: 1px solid var(--line);
+    padding: 9px 20px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer;
+    transition: background .15s, transform .1s;
+  }
+  button:hover:not(:disabled) { background: #475569; }
+  button:active:not(:disabled) { transform: translateY(1px); }
+  button:disabled { opacity: .4; cursor: not-allowed; }
+  button.primary { background: var(--strategy); color: #1e1b4b; border-color: var(--strategy); }
+  button.primary:hover:not(:disabled) { background: #b9a3ff; }
+  button.on { background: #0c2b3d; border-color: var(--client); color: var(--client); }
+  button.on:hover:not(:disabled) { background: #123a52; }
+
+  .audio-note {
+    text-align: center; color: var(--muted); font-size: 12.5px;
+    margin: -14px 0 22px; min-height: 17px;
+  }
+
+  .stage { display: grid; grid-template-columns: 230px 1fr; gap: 22px; align-items: start; }
+
+  .col-client { display: flex; flex-direction: column; align-items: center; gap: 12px; padding-top: 20px; }
+
+  .box {
+    background: var(--panel); border: 2px solid var(--line); border-radius: 12px;
+    padding: 14px 16px; text-align: center; width: 100%;
+    transition: border-color .3s, box-shadow .3s, transform .3s, background .3s;
+  }
+  .box .name { font-weight: 700; font-size: 14px; letter-spacing: .2px; }
+  .box .role { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-top: 3px; }
+  .box.active {
+    transform: translateY(-3px);
+    box-shadow: 0 0 0 3px rgba(255,255,255,.07), 0 10px 28px rgba(0,0,0,.45);
+    border-color: var(--client); background: #0c2b3d;
+  }
+  .box.context.active { border-color: var(--context); background: #06281f; box-shadow: 0 0 0 3px rgba(52,211,153,.15); }
+  .holding {
+    margin-top: 9px; padding-top: 8px; border-top: 1px dashed var(--line);
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px;
+    color: var(--muted); line-height: 1.5;
+  }
+  .holding b { color: var(--picked); font-weight: 700; }
+
+  .col-main { display: flex; flex-direction: column; gap: 18px; }
+
+  .family {
+    border: 2px dashed var(--strategy); border-radius: 14px; padding: 18px 20px;
+    background: rgba(167,139,250,.05);
+  }
+  .family.tree { border-color: var(--picked); background: rgba(251,191,36,.05); }
+  .family.tree .family-label { color: var(--picked); }
+
+  .family-label {
+    font-size: 11px; color: var(--strategy); text-transform: uppercase;
+    letter-spacing: 1.4px; font-weight: 700; margin-bottom: 14px; text-align: center;
+  }
+
+  .row {
+    display: flex; align-items: center; justify-content: space-between;
+    border: 2px solid var(--line); border-radius: 8px; background: var(--panel);
+    padding: 8px 14px; margin-bottom: 6px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 13px;
+    transition: border-color .3s, background .3s, transform .3s, opacity .3s;
+  }
+  .row .note { color: var(--muted); font-size: 11px; text-align: right; }
+  .row.dim { opacity: .38; }
+  .row.picked { border-color: var(--picked); background: #2a2008; }
+  .row.active {
+    transform: translateX(4px);
+    border-color: var(--client);
+    box-shadow: 0 0 0 3px rgba(56,189,248,.15);
+  }
+  /* "wrong" marks a promotion the hand-written branches answer incorrectly. */
+  .row.wrong { border-color: var(--bad); background: #2b0f12; }
+  .row.wrong .note { color: #fca5a5; }
+  /* the two leaves sit one indent in from the connective that holds them */
+  .row.child { margin-left: 34px; }
+
+  .bridge-rail { text-align: center; color: var(--muted); font-size: 12px; margin: -6px 0 2px; min-height: 16px; transition: color .3s; }
+  .bridge-rail.active { color: var(--client); font-weight: 700; }
+
+  .narration {
+    background: var(--panel); border-left: 4px solid var(--strategy);
+    border-radius: 0 10px 10px 0; padding: 16px 20px; min-height: 76px;
+    font-size: 15px; line-height: 1.6;
+  }
+  .narration .step-no { color: var(--muted); font-size: 12px; letter-spacing: 1px; text-transform: uppercase; }
+  .narration .text { margin-top: 5px; }
+
+  .console {
+    background: #020617; border: 1px solid var(--line); border-radius: 10px;
+    padding: 14px 16px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 12.5px; line-height: 1.7; min-height: 130px;
+  }
+  .console .ttl { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+  .console div.ln { opacity: 0; transition: opacity .35s; }
+  .console div.ln.show { opacity: 1; }
+  .c-context { color: var(--context); }
+  .c-strategy { color: var(--strategy); }
+  .c-out  { color: var(--client); }
+  .c-pick { color: var(--picked); }
+  .c-bad  { color: var(--bad); }
+
+  .progress { display: flex; gap: 5px; justify-content: center; margin-top: 22px; }
+  .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--line); transition: background .3s, transform .3s; }
+  .dot.on { background: var(--strategy); transform: scale(1.35); }
+
+  .legend { text-align: center; color: var(--muted); font-size: 13px; margin-top: 26px; line-height: 1.7; }
+  .legend b { color: var(--text); }
+
+  @media (max-width: 860px) {
+    .stage { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>The Interpreter Pattern</h1>
+  <p class="sub">One small class per kind of phrase &mdash; and a big phrase is just one holding others</p>
+
+  <div class="controls">
+    <button id="play" class="primary">&#9654;&nbsp; Play</button>
+    <button id="step">Step &rarr;</button>
+    <button id="reset">Reset</button>
+    <button id="audio" aria-pressed="false" title="Narrate each step (N)">
+      <span id="audio-icon">&#128263;</span>&nbsp; Narration: off
+    </button>
+  </div>
+  <p class="audio-note" id="audio-note"></p>
+
+  <div class="stage">
+
+    <div class="col-client">
+      <div class="box client" id="b-book">
+        <div class="name">PromotionBook</div>
+        <div class="role">Client &mdash; asks, never decides</div>
+        <div class="holding" id="holding">promotions: <b>3</b></div>
+      </div>
+      <div style="font-size:22px;color:var(--line)">&#8595;</div>
+      <div class="box context" id="b-order">
+        <div class="name">Order</div>
+        <div class="role">Context &mdash; what a rule is asked about</div>
+        <div class="holding" id="order-state">&pound;120 &middot; UK &middot; 4 items</div>
+      </div>
+      <div style="font-size:11px;color:var(--muted);text-align:center;line-height:1.5">
+        four accessors.<br>the whole vocabulary.
+      </div>
+    </div>
+
+    <div class="col-main">
+
+      <div class="family">
+        <div class="family-label" id="family-label">The promotions &mdash; a code, a percentage, and a rule about who qualifies</div>
+        <div class="row" id="r-save10">
+          <span class="name">SAVE10 &nbsp;10%</span>
+          <span class="note" id="n-save10">country is UK and basket over 50</span>
+        </div>
+        <div class="row" id="r-save15">
+          <span class="name">SAVE15 &nbsp;15%</span>
+          <span class="note" id="n-save15">country is UK and basket over 100</span>
+        </div>
+        <div class="row" id="r-freeship">
+          <span class="name">FREESHIP &nbsp;5%</span>
+          <span class="note" id="n-freeship">country is UK and items at least 3</span>
+        </div>
+        <div class="row" id="r-big">
+          <span class="name">&mdash;</span>
+          <span class="note" id="n-big">&mdash;</span>
+        </div>
+      </div>
+
+      <div class="family tree">
+        <div class="family-label" id="tree-label">The rule tree &mdash; nothing has been parsed yet</div>
+        <div class="row" id="r-and">
+          <span class="name">AndRule</span>
+          <span class="note" id="n-and">&mdash;</span>
+        </div>
+        <div class="row child" id="r-country">
+          <span class="name">&#8627; CountryIs</span>
+          <span class="note" id="n-country">&mdash;</span>
+        </div>
+        <div class="row child" id="r-basket">
+          <span class="name">&#8627; BasketOver</span>
+          <span class="note" id="n-basket">&mdash;</span>
+        </div>
+      </div>
+
+      <div class="bridge-rail" id="bridge-rail"></div>
+
+      <div class="narration" id="narration">
+        <div class="step-no">Ready</div>
+        <div class="text">Press <b>Play</b> to watch a rule written as a sentence turn into objects &mdash; and to see the two bugs the hand-written version ships without a sound.</div>
+      </div>
+
+      <div class="console">
+        <div class="ttl">Program output</div>
+        <div id="console-lines"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="progress" id="progress"></div>
+
+  <p class="legend">
+    <b>The tree is the sentence. Running it is calling one method on the top of it.</b><br>
+    Write the same rules as Java branches and each new one is a copy of the last &mdash; which is where both of the wrong answers came from.<br>
+    <span style="font-size:12px">
+      Keys: <b>Space</b> play/pause &nbsp;·&nbsp; <b>&rarr;</b> next step
+      &nbsp;·&nbsp; <b>N</b> narration &nbsp;·&nbsp; <b>R</b> reset
+    </span>
+  </p>
+
+</div>
+
+<script>
+// Each step may set any row's caption; captions persist until changed, so a
+// step only lists what it actually moves.
+const STEPS = [
+  {
+    title: "Step 1 — Three promotions, and a rule about who gets each one",
+    text: "A code, a percentage, and a condition. Written as Java, the first one is four lines and there is nothing wrong with it. The trouble is not the first promotion. It is the fourth, because by then each new one is written by copying the one above it.",
+    active: [], dim: false, holding: "3",
+    bridge: "if (\"UK\".equals(order.country()) && order.basketPounds() > 50) { return 10; }",
+    out: { cls: "c-strategy", txt: "// three offers, three hand-written branches" }
+  },
+  {
+    title: "Step 2 — The first copy gives money away",
+    text: "SAVE fifteen was meant to be a UK order over one hundred pounds. That it was UK only sat in the paragraph above the sentence somebody read, so no line of code was ever written for it. Every large overseas order now takes fifteen percent off.",
+    active: ["r-save15"], dim: true, holding: "3",
+    wrong: ["r-save15"],
+    captions: { save15: "the UK check was never written" },
+    bridge: "if (order.basketPounds() > 100) { return 15; }      // and that is all of it",
+    out: { cls: "c-bad", txt: "£120, US order   ->   15% off     // it should have been 0%" }
+  },
+  {
+    title: "Step 3 — The second copy withholds it",
+    text: "FREESHIP was copied from a welcome offer that retired last spring, and the first order check came along with it. A returning UK shopper with three items is offered nothing. Nobody reports that one, because a missing discount looks exactly like a shopper who did not qualify.",
+    active: ["r-freeship"], dim: true, holding: "3",
+    wrong: ["r-save15", "r-freeship"],
+    captions: { freeship: "still testing firstOrder()" },
+    bridge: "neither bug throws  ·  neither is logged  ·  both passed review",
+    out: { cls: "c-bad", txt: "£30, UK, 3 items, returning   ->   0% off      // silently" }
+  },
+  {
+    title: "Step 4 — So write the rule as a sentence instead",
+    text: "Country is UK and basket over one hundred. That is the offer, in the words it was written in, and it can live in a database or a spreadsheet rather than in a source file. The people who own the promotions can read it, which means they can check it.",
+    active: ["r-save15"], dim: true, holding: "3",
+    captions: { save15: "country is UK and basket over 100" },
+    bridge: "SAVE15 | 15 | country is UK and basket over 100",
+    out: { cls: "c-context", txt: "Promotion.fromLine(\"SAVE15 | 15 | country is UK and basket over 100\")" }
+  },
+  {
+    title: "Step 5 — The sentence becomes a tree of objects",
+    text: "An And rule holding two leaves. This tree is not a description of the rule. It is the rule -- the thing the checkout will actually obey. Two kinds of class, and that is the entire pattern: a leaf holds a value, and a connective holds other rules.",
+    active: ["r-and", "r-country", "r-basket"], dim: false, holding: "3",
+    treeLabel: "The rule tree — one AndRule, two terminals",
+    captions: { and: "holds 2 parts", country: "\"UK\"", basket: "100" },
+    bridge: "new AndRule(List.of(new CountryIs(\"UK\"), new BasketOver(100)))",
+    out: { cls: "c-context", txt: "the tree IS the sentence — not a copy of it" }
+  },
+  {
+    title: "Step 6 — The first leaf asks the order one question",
+    text: "Country is asks the order for its country, compares it, and answers. One comparison, and no other rule inside it. That is a terminal expression, and every terminal in this project is about that size.",
+    active: ["r-country", "b-order"], dim: true, holding: "3",
+    captions: { country: "order.country() == \"UK\"  →  true" },
+    bridge: "CountryIs.matches(order)   →   true",
+    out: { cls: "c-out", txt: "CountryIs(\"UK\").matches(order)   ->   true" }
+  },
+  {
+    title: "Step 7 — The second leaf asks a different one",
+    text: "Basket over asks for the basket total, and one hundred and twenty is more than one hundred. Note that only the leaves ever touch the order. The connective above them never reads it at all, which is why it can be reused in a language it knows nothing about.",
+    active: ["r-basket", "b-order"], dim: true, holding: "3",
+    captions: { basket: "order.basketPounds() > 100  →  true" },
+    bridge: "only leaves touch the context      ·      connectives only ask",
+    out: { cls: "c-out", txt: "BasketOver(100).matches(order)   ->   true" }
+  },
+  {
+    title: "Step 8 — The connective adds nothing but a loop",
+    text: "Every part said yes, so the And rule says yes. Read it again and notice what is missing: it does not know what its parts are, whether they are leaves, or how deep the tree below it goes. It only ever asks. Put a whole other tree in either slot and not one line of this changes.",
+    active: ["r-and"], dim: true, holding: "3",
+    captions: { and: "every part said yes  →  true" },
+    bridge: "for (Rule part : parts) if (!part.matches(order)) return false;",
+    out: { cls: "c-pick", txt: "SAVE15 applies   ->   15% off" }
+  },
+  {
+    title: "Step 9 — And the tree can say what it is",
+    text: "Describe walks the same nodes and gives back the sentence. It is rebuilt from the objects the checkout obeyed, not remembered from the line that was read in, so the audit log and the code cannot drift apart. That is what makes why did this order get fifteen percent off a question the program can answer.",
+    active: ["r-and", "r-country", "r-basket"], dim: false, holding: "3",
+    captions: { and: "\"… and …\"", country: "\"country is UK\"", basket: "\"basket over 100\"" },
+    bridge: "describe()  →  rebuilt from the tree, in the words of the offer",
+    out: { cls: "c-context", txt: "because SAVE15 (15% off) applies when country is UK and basket over 100" }
+  },
+  {
+    title: "Step 10 — The overseas order, this time answered correctly",
+    text: "Country is says no, and the And rule stops there -- basket over is never even asked. Zero percent, which is what the offer always said. Same order, same shop, and the only difference is that the rule is an object rather than a branch somebody copied.",
+    active: ["r-country", "r-and"], dim: true, holding: "3",
+    orderState: "£120 · US · 2 items",
+    captions: { country: "\"US\" ≠ \"UK\"  →  false", basket: "never asked", and: "short-circuits  →  false" },
+    bridge: "AndRule stops at the first no      ·      naive version: 15%",
+    out: { cls: "c-out", txt: "£120, US   ->   0% off        // naive answer was 15%" }
+  },
+  {
+    title: "Step 11 — Friday. Marketing wants one more",
+    text: "Basket over two hundred, or items at least ten. That shape appears nowhere in the code -- it is an Or rule, and the shop has never had one. Adding it is one line of text. No new class, nothing recompiled, nothing deployed.",
+    active: ["r-big"], dim: true, holding: "4",
+    orderState: "£90 · UK · 12 items",
+    captions: { big: "basket over 200 or items at least 10" },
+    treeLabel: "The rule tree — a shape the code has never seen before",
+    bridge: "BIGBASKET | 20 | basket over 200 or items at least 10",
+    out: { cls: "c-pick", txt: "£90, UK, 12 items   ->   20% off      // one line of text" }
+  },
+  {
+    title: "Step 12 — And a typo is refused on Wednesday",
+    text: "Basket ovr fifty. The parser does not guess -- it names the phrase it cannot read and refuses the promotion as it is being saved. Compare that with a mistyped Java condition, which is valid Java, compiles, ships, and misprices an order on Friday with nothing to object to it.",
+    active: [], dim: false, holding: "4",
+    bridge: "refused when the promotion is saved  --  not when an order is priced",
+    out: { cls: "c-bad", txt: "refused: I do not understand \"basket ovr 50\"" }
+  }
+];
+
+const BOXES = ["b-book", "b-order"];
+const ROWS = ["r-save10", "r-save15", "r-freeship", "r-big",
+              "r-and", "r-country", "r-basket"];
+const ALL_BOXES = BOXES.concat(ROWS);
+
+const STEP_MS = 3200;      // pace when narration is off
+const GAP_MS = 700;        // breathing room after a clip finishes
+
+let idx = -1;
+let playing = false;
+let timer = null;
+
+// Narration is optional: if the audio clips are missing (or the browser
+// blocks playback) the animation still works exactly as before.
+let audioOn = false;
+let clips = [];
+let current = null;
+
+const $ = id => document.getElementById(id);
+const progressEl = $("progress");
+const linesEl = $("console-lines");
+const noteEl = $("audio-note");
+const bridgeEl = $("bridge-rail");
+const holdingEl = $("holding");
+const orderEl = $("order-state");
+const labelEl = $("family-label");
+const treeLabelEl = $("tree-label");
+
+const DEFAULT_LABEL = "The promotions — a code, a percentage, and a rule about who qualifies";
+const DEFAULT_TREE_LABEL = "The rule tree — nothing has been parsed yet";
+const DEFAULT_ORDER = "£120 · UK · 4 items";
+const DEFAULT_CAPTIONS = {
+  save10: "country is UK and basket over 50",
+  save15: "country is UK and basket over 100",
+  freeship: "country is UK and items at least 3",
+  big: "—",
+  and: "—",
+  country: "—",
+  basket: "—"
+};
+
+STEPS.forEach(() => {
+  const d = document.createElement("div");
+  d.className = "dot";
+  progressEl.appendChild(d);
+});
+
+// ---- optional narration ------------------------------------------------
+
+clips = STEPS.map((_, i) => {
+  const a = new Audio("audio/step-" + (i + 1) + ".m4a");
+  a.preload = "none";
+  return a;
+});
+
+function stopAudio() {
+  if (!current) return;
+  current.pause();
+  current.currentTime = 0;
+  current.onended = null;
+  current = null;
+}
+
+/** Play the clip for step i. onDone fires when it finishes (or cannot play). */
+function playClip(i, onDone) {
+  stopAudio();
+  if (!audioOn) { if (onDone) onDone(); return; }
+
+  const a = clips[i];
+  current = a;
+  a.currentTime = 0;
+  a.onended = () => { current = null; if (onDone) onDone(); };
+
+  a.play().catch(() => {
+    // Missing file, or autoplay blocked -> fall back to timed pacing.
+    current = null;
+    noteEl.textContent =
+      "Narration audio could not be played — falling back to timed steps. " +
+      "Run docs/make_animation_audio.sh to generate the clips.";
+    if (onDone) onDone();
+  });
+}
+
+function setAudio(on) {
+  audioOn = on;
+  const btn = $("audio");
+  btn.classList.toggle("on", on);
+  btn.setAttribute("aria-pressed", String(on));
+  btn.innerHTML = '<span id="audio-icon">' + (on ? "&#128266;" : "&#128263;") +
+                  "</span>&nbsp; Narration: " + (on ? "on" : "off");
+  noteEl.textContent = on
+    ? "Each step is narrated, and the animation waits for the voice to finish."
+    : "";
+  if (!on) stopAudio();
+}
+
+// ------------------------------------------------------------------------
+
+function clearHighlights() {
+  ALL_BOXES.forEach(b => $(b).classList.remove("active"));
+  ROWS.forEach(r => $(r).classList.remove("dim", "wrong"));
+}
+
+function render(i) {
+  clearHighlights();
+  const s = STEPS[i];
+
+  s.active.forEach(b => $(b).classList.add("active"));
+
+  // Rows not involved in this step fade back, so the eye follows the one
+  // question currently being asked.
+  if (s.dim) ROWS.filter(r => !s.active.includes(r)).forEach(r => $(r).classList.add("dim"));
+
+  // "wrong" marks a promotion the hand-written branches answer incorrectly.
+  (s.wrong || []).forEach(r => $(r).classList.add("wrong"));
+
+  // Captions are cumulative: replay every step up to this one so that
+  // stepping backwards or jumping about still shows a consistent picture.
+  const caps = Object.assign({}, DEFAULT_CAPTIONS);
+  let label = DEFAULT_LABEL;
+  let treeLabel = DEFAULT_TREE_LABEL;
+  let order = DEFAULT_ORDER;
+  for (let k = 0; k <= i; k++) {
+    Object.assign(caps, STEPS[k].captions || {});
+    if (STEPS[k].label) label = STEPS[k].label;
+    if (STEPS[k].treeLabel) treeLabel = STEPS[k].treeLabel;
+    if (STEPS[k].orderState) order = STEPS[k].orderState;
+  }
+  Object.keys(caps).forEach(key => { $("n-" + key).textContent = caps[key]; });
+  labelEl.textContent = label;
+  treeLabelEl.textContent = treeLabel;
+  orderEl.textContent = order;
+
+  holdingEl.innerHTML = "promotions: <b>" + (s.holding || "&mdash;") + "</b>";
+
+  bridgeEl.textContent = s.bridge || "";
+  bridgeEl.classList.add("active");
+
+  $("narration").innerHTML =
+    '<div class="step-no">' + s.title + '</div><div class="text">' + s.text + '</div>';
+
+  // Rebuild console output up to this step
+  linesEl.innerHTML = "";
+  for (let k = 0; k <= i; k++) {
+    if (!STEPS[k].out) continue;
+    const div = document.createElement("div");
+    div.className = "ln " + STEPS[k].out.cls;
+    div.textContent = STEPS[k].out.txt;
+    linesEl.appendChild(div);
+    requestAnimationFrame(() => div.classList.add("show"));
+  }
+
+  [...progressEl.children].forEach((d, k) => d.classList.toggle("on", k <= i));
+}
+
+/** Advance one step. In play mode, schedule the following step afterwards. */
+function next() {
+  if (idx >= STEPS.length - 1) { stop(); return; }
+  idx++;
+  render(idx);
+
+  if (!playing) { playClip(idx); return; }
+
+  if (audioOn) {
+    // Wait for the voice to finish this step, then move on.
+    playClip(idx, () => {
+      if (!playing) return;
+      timer = setTimeout(next, GAP_MS);
+    });
+  } else {
+    timer = setTimeout(next, STEP_MS);
+  }
+}
+
+function stop() {
+  playing = false;
+  clearTimeout(timer);
+  stopAudio();
+  $("play").innerHTML = "&#9654;&nbsp; Play";
+  $("step").disabled = false;
+}
+
+function reset() {
+  stop();
+  idx = -1;
+  clearHighlights();
+  Object.keys(DEFAULT_CAPTIONS).forEach(k => { $("n-" + k).textContent = DEFAULT_CAPTIONS[k]; });
+  labelEl.textContent = DEFAULT_LABEL;
+  treeLabelEl.textContent = DEFAULT_TREE_LABEL;
+  orderEl.textContent = DEFAULT_ORDER;
+  holdingEl.innerHTML = "promotions: <b>3</b>";
+  linesEl.innerHTML = "";
+  bridgeEl.textContent = "";
+  bridgeEl.classList.remove("active");
+  [...progressEl.children].forEach(d => d.classList.remove("on"));
+  $("narration").innerHTML =
+    '<div class="step-no">Ready</div><div class="text">Press <b>Play</b> to watch a rule written as a sentence turn into objects &mdash; and to see the two bugs the hand-written version ships without a sound.</div>';
+}
+
+$("play").addEventListener("click", () => {
+  if (playing) { stop(); return; }
+  if (idx >= STEPS.length - 1) reset();
+  playing = true;
+  $("play").innerHTML = "&#10074;&#10074;&nbsp; Pause";
+  $("step").disabled = true;
+  next();   // next() now schedules the rest of the run itself
+});
+
+$("step").addEventListener("click", () => { stop(); if (idx >= STEPS.length - 1) reset(); next(); });
+$("reset").addEventListener("click", reset);
+
+$("audio").addEventListener("click", () => {
+  setAudio(!audioOn);
+  // Turning narration on mid-run: speak the step already on screen.
+  if (audioOn && playing && idx >= 0) {
+    clearTimeout(timer);
+    playClip(idx, () => {
+      if (!playing) return;
+      timer = setTimeout(next, GAP_MS);
+    });
+  }
+});
+
+document.addEventListener("keydown", e => {
+  if (e.code === "Space") { e.preventDefault(); $("play").click(); }
+  if (e.code === "ArrowRight") { e.preventDefault(); $("step").click(); }
+  if (e.code === "KeyR") reset();
+  if (e.code === "KeyN") $("audio").click();
+});
+
+setAudio(false);
+reset();
+</script>
+</body>
+</html>

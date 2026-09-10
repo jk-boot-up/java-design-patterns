@@ -458,21 +458,19 @@ void stepsRunInTheOrderTheTemplateDefines() {
             "Full source, notes, diagrams and an animated walkthrough",
             "are in the repository — including the exercise that adds a",
             "seventh step to both versions, and counts the edits.",
-            "",
-            "Next in the behavioural series: the State pattern.",
         ],
         narration=(
             "That's the template method pattern. [[slnc 250]] The full source, "
-            "the written notes, the diagrams and an animated walkthrough are all "
-            "in the repository — including the exercise I would most recommend: "
-            "add a fraud check between validate and reserve, first to the "
-            "template and then to the three hand-written copies, and count the "
-            "edits each one takes. The shape of those two diffs is the entire "
-            "argument, and it lands better when you have typed it than when I "
-            "have said it. [[slnc 300]] If this helped, a like genuinely does "
-            "help other people find it, and subscribe if you would like the rest "
-            "of the behavioural series — the state pattern is next. [[slnc 250]] "
-            "Thanks for watching, and I'll see you in the next one."
+            "the written notes, the diagrams and an animated walkthrough are "
+            "all in the repository — including the exercise I would most "
+            "recommend: add a fraud check between validate and reserve, first "
+            "to the template and then to the three hand-written copies, and "
+            "count the edits each one takes. The shape of those two diffs is "
+            "the entire argument, and it lands better when you have typed it "
+            "than when I have said it. [[slnc 300]] If this helped, a like "
+            "genuinely does help other people find it, and subscribe if you "
+            "would like the rest of the behavioural series. [[slnc 250]] Thanks "
+            "for watching, and I'll see you in the next one."
         ),
     ),
 ]

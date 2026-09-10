@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Iterator Pattern — Animated Walkthrough</title>
+<style>
+  :root {
+    --bg: #0f172a;
+    --panel: #1e293b;
+    --panel-hi: #334155;
+    --line: #475569;
+    --text: #e2e8f0;
+    --muted: #94a3b8;
+    --client: #38bdf8;
+    --context: #34d399;
+    --strategy: #a78bfa;
+    --picked: #fbbf24;
+    --bad: #f87171;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 28px 20px 60px;
+    background: var(--bg);
+    color: var(--text);
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  h1 { text-align: center; font-size: 28px; margin: 0 0 4px; }
+  .sub { text-align: center; color: var(--muted); margin: 0 0 24px; font-size: 15px; }
+
+  .wrap { max-width: 1100px; margin: 0 auto; }
+
+  .controls { display: flex; gap: 10px; justify-content: center; margin-bottom: 26px; flex-wrap: wrap; }
+  button {
+    background: var(--panel-hi); color: var(--text); border: 1px solid var(--line);
+    padding: 9px 20px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer;
+    transition: background .15s, transform .1s;
+  }
+  button:hover:not(:disabled) { background: #475569; }
+  button:active:not(:disabled) { transform: translateY(1px); }
+  button:disabled { opacity: .4; cursor: not-allowed; }
+  button.primary { background: var(--strategy); color: #1e1b4b; border-color: var(--strategy); }
+  button.primary:hover:not(:disabled) { background: #b9a3ff; }
+  button.on { background: #0c2b3d; border-color: var(--client); color: var(--client); }
+  button.on:hover:not(:disabled) { background: #123a52; }
+
+  .audio-note {
+    text-align: center; color: var(--muted); font-size: 12.5px;
+    margin: -14px 0 22px; min-height: 17px;
+  }
+
+  .stage { display: grid; grid-template-columns: 230px 1fr; gap: 22px; align-items: start; }
+
+  .col-client { display: flex; flex-direction: column; align-items: center; gap: 12px; padding-top: 20px; }
+
+  .box {
+    background: var(--panel); border: 2px solid var(--line); border-radius: 12px;
+    padding: 14px 16px; text-align: center; width: 100%;
+    transition: border-color .3s, box-shadow .3s, transform .3s, background .3s;
+  }
+  .box .name { font-weight: 700; font-size: 14px; letter-spacing: .2px; }
+  .box .role { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-top: 3px; }
+  .box.active {
+    transform: translateY(-3px);
+    box-shadow: 0 0 0 3px rgba(255,255,255,.07), 0 10px 28px rgba(0,0,0,.45);
+    border-color: var(--client); background: #0c2b3d;
+  }
+  .box.context.active { border-color: var(--context); background: #06281f; box-shadow: 0 0 0 3px rgba(52,211,153,.15); }
+  .holding {
+    margin-top: 9px; padding-top: 8px; border-top: 1px dashed var(--line);
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px;
+    color: var(--muted); line-height: 1.5;
+  }
+  .holding b { color: var(--picked); font-weight: 700; }
+
+  .col-main { display: flex; flex-direction: column; gap: 18px; }
+
+  .family {
+    border: 2px dashed var(--strategy); border-radius: 14px; padding: 18px 20px;
+    background: rgba(167,139,250,.05);
+  }
+  .family-label {
+    font-size: 11px; color: var(--strategy); text-transform: uppercase;
+    letter-spacing: 1.4px; font-weight: 700; margin-bottom: 14px; text-align: center;
+  }
+
+  .row {
+    display: flex; align-items: center; justify-content: space-between;
+    border: 2px solid var(--line); border-radius: 8px; background: var(--panel);
+    padding: 8px 14px; margin-bottom: 6px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 13px;
+    transition: border-color .3s, background .3s, transform .3s, opacity .3s;
+  }
+  .row .note { color: var(--muted); font-size: 11px; }
+  .row.dim { opacity: .38; }
+  .row.picked {
+    border-color: var(--picked); background: #2a2008;
+  }
+  .row.active {
+    transform: translateX(4px);
+    border-color: var(--client);
+    box-shadow: 0 0 0 3px rgba(56,189,248,.15);
+  }
+  .row .value {
+    font-weight: 700; opacity: 0; transition: opacity .3s;
+    padding: 2px 8px; border-radius: 6px; background: rgba(251,191,36,.14); color: var(--picked);
+    font-size: 11px;
+  }
+  .row.done .value { opacity: 1; }
+
+  .bridge-rail { text-align: center; color: var(--muted); font-size: 12px; margin: -6px 0 2px; min-height: 16px; transition: color .3s; }
+  .bridge-rail.active { color: var(--client); font-weight: 700; }
+
+  .narration {
+    background: var(--panel); border-left: 4px solid var(--strategy);
+    border-radius: 0 10px 10px 0; padding: 16px 20px; min-height: 76px;
+    font-size: 15px; line-height: 1.6;
+  }
+  .narration .step-no { color: var(--muted); font-size: 12px; letter-spacing: 1px; text-transform: uppercase; }
+  .narration .text { margin-top: 5px; }
+
+  .console {
+    background: #020617; border: 1px solid var(--line); border-radius: 10px;
+    padding: 14px 16px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 12.5px; line-height: 1.7; min-height: 130px;
+  }
+  .console .ttl { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+  .console div.ln { opacity: 0; transition: opacity .35s; }
+  .console div.ln.show { opacity: 1; }
+  .c-context { color: var(--context); }
+  .c-strategy { color: var(--strategy); }
+  .c-out  { color: var(--client); }
+  .c-pick { color: var(--picked); }
+  .c-bad  { color: var(--bad); }
+
+  .progress { display: flex; gap: 5px; justify-content: center; margin-top: 22px; }
+  .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--line); transition: background .3s, transform .3s; }
+  .dot.on { background: var(--strategy); transform: scale(1.35); }
+
+  .legend { text-align: center; color: var(--muted); font-size: 13px; margin-top: 26px; line-height: 1.7; }
+  .legend b { color: var(--text); }
+
+  @media (max-width: 860px) {
+    .stage { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>The Iterator Pattern</h1>
+  <p class="sub">The catalogue knows what is in it &mdash; the iterator knows where you are</p>
+
+  <div class="controls">
+    <button id="play" class="primary">&#9654;&nbsp; Play</button>
+    <button id="step">Step &rarr;</button>
+    <button id="reset">Reset</button>
+    <button id="audio" aria-pressed="false" title="Narrate each step (N)">
+      <span id="audio-icon">&#128263;</span>&nbsp; Narration: off
+    </button>
+  </div>
+  <p class="audio-note" id="audio-note"></p>
+
+  <div class="stage">
+
+    <div class="col-client">
+      <div class="box context" id="b-catalogue">
+        <div class="name">ProductCatalogue</div>
+        <div class="role">Aggregate &mdash; the book</div>
+      </div>
+      <div style="font-size:22px;color:var(--line)">&#8595;</div>
+      <div class="box client" id="b-iterator">
+        <div class="name">CatalogueIterator</div>
+        <div class="role">Iterator &mdash; the bookmark</div>
+        <div class="holding" id="holding">at: <b>&mdash;</b></div>
+      </div>
+      <div style="font-size:11px;color:var(--muted);text-align:center;line-height:1.5">
+        two methods:<br>hasNext() &nbsp;/&nbsp; next()
+      </div>
+    </div>
+
+    <div class="col-main">
+
+      <div class="family">
+        <div class="family-label">CatalogueFeed &mdash; the warehouse hands out three products per page</div>
+        <div class="row" id="r-p0">
+          <span class="name">page(0)</span>
+          <span class="note">T&#8209;Shirt &pound;12 &middot; Socks &pound;4 &middot; Scarf &pound;18</span>
+          <span class="value">fetched</span>
+        </div>
+        <div class="row" id="r-p1">
+          <span class="name">page(1)</span>
+          <span class="note">Lamp &pound;30 &middot; Mug &pound;8 &middot; Cushion &pound;15</span>
+          <span class="value">fetched</span>
+        </div>
+        <div class="row" id="r-p2">
+          <span class="name">page(2)</span>
+          <span class="note">Novel &pound;9 &middot; Cookbook &pound;22</span>
+          <span class="value">fetched</span>
+        </div>
+        <div class="row" id="r-p3">
+          <span class="name">page(3)</span>
+          <span class="note">empty &mdash; this is how the feed says "that is everything"</span>
+          <span class="value">fetched</span>
+        </div>
+      </div>
+
+      <div class="bridge-rail" id="bridge-rail"></div>
+
+      <div class="narration" id="narration">
+        <div class="step-no">Ready</div>
+        <div class="text">Press <b>Play</b> to watch one <code>for</code>&#8209;each loop walk a catalogue that arrives in pages &mdash; without the loop ever mentioning a page.</div>
+      </div>
+
+      <div class="console">
+        <div class="ttl">Program output</div>
+        <div id="console-lines"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="progress" id="progress"></div>
+
+  <p class="legend">
+    <b>Nothing in the for-each loop mentions a page &mdash; and no page is fetched until somebody reaches it.</b><br>
+    Move the position onto the catalogue and two readers would fight over one bookmark.<br>
+    <span style="font-size:12px">
+      Keys: <b>Space</b> play/pause &nbsp;·&nbsp; <b>&rarr;</b> next step
+      &nbsp;·&nbsp; <b>N</b> narration &nbsp;·&nbsp; <b>R</b> reset
+    </span>
+  </p>
+
+</div>
+
+<script>
+const STEPS = [
+  {
+    title: "Step 1 — The catalogue does not arrive all at once",
+    text: "Eight products live in the warehouse system, and it will only hand them over three at a time. You ask for page zero, then page one, and you know you have finished when a page comes back empty. There is no size, and no has-more-pages. This is the shape the pattern exists to hide.",
+    active: [], picked: null, dim: false, holding: null,
+    bridge: "List<Product> page(int number)  --  and nothing else",
+    out: { cls: "c-strategy", txt: "feed.page(0), feed.page(1), feed.page(2), feed.page(3) -> []" }
+  },
+  {
+    title: "Step 2 — The loop that hides all of it",
+    text: "For each product in catalogue. That is the entire call site. No page number, no stop condition, nothing to get wrong. Everything you are about to watch happens underneath this one line.",
+    active: ["b-catalogue"], picked: null, dim: true, holding: null,
+    bridge: "for (Product product : catalogue) { ... }",
+    out: { cls: "c-out", txt: "for (Product product : catalogue) {" }
+  },
+  {
+    title: "Step 3 — for-each asks the catalogue for an iterator",
+    text: "This is what the compiler does with that line: it calls iterator once, and gets back a fresh bookmark. Look at the pages -- not one has been fetched. Asking for an iterator costs nothing.",
+    active: ["b-catalogue", "b-iterator"], picked: null, dim: true, holding: "nothing fetched yet",
+    bridge: "catalogue.iterator()  →  a new CatalogueIterator",
+    out: { cls: "c-context", txt: "Iterator<Product> it = catalogue.iterator();" }
+  },
+  {
+    title: "Step 4 — hasNext() is where the first page is fetched",
+    text: "The loop asks: is there anything there? To answer, the iterator has to look, so it fetches page zero. This is the laziness the tests assert -- the fetch happens on the first hasNext, not when the iterator was created.",
+    active: ["b-iterator", "r-p0"], picked: "r-p0", dim: true, done: ["r-p0"], holding: "page 0, item 0",
+    bridge: "hasNext()  →  feed.page(0)  →  true",
+    out: { cls: "c-strategy", txt: "feed.page(0)  ->  3 products   [pages fetched: 1]" }
+  },
+  {
+    title: "Step 5 — next() hands over one product",
+    text: "The cotton t-shirt, twelve pounds. The iterator moves its own position along by one. Notice that the catalogue was not involved at all -- it has dropped out of the conversation, and every message from here goes to the bookmark.",
+    active: ["b-iterator", "r-p0"], picked: "r-p0", dim: true, done: ["r-p0"], holding: "page 0, item 1",
+    bridge: "next()  →  SKU-001 Cotton T-Shirt",
+    out: { cls: "c-out", txt: "  SKU-001  Cotton T-Shirt   clothing  £12" }
+  },
+  {
+    title: "Step 6 — And again, still on page zero",
+    text: "The socks, four pounds -- the cheapest thing in the shop. Two products have come out, and exactly one page has been fetched. If the customer stops looking now, the warehouse is never asked for anything else.",
+    active: ["b-iterator", "r-p0"], picked: "r-p0", dim: true, done: ["r-p0"], holding: "page 0, item 2",
+    bridge: "two products in, one page fetched",
+    out: { cls: "c-out", txt: "  SKU-002  Cotton Socks     clothing  £4" }
+  },
+  {
+    title: "Step 7 — The position lives here, not on the catalogue",
+    text: "Look at the bookmark: page zero, item two. That is the whole state of the walk, and every bit of it is on the iterator. The catalogue holds what is in it and nothing about who is reading. Get this split wrong and two readers share one bookmark.",
+    active: ["b-iterator"], picked: "r-p0", dim: true, done: ["r-p0"], holding: "page 0, item 2",
+    bridge: "the book knows what is in it  ·  the bookmark knows where you are",
+    out: { cls: "c-pick", txt: "// ProductCatalogue has no page number and no position" }
+  },
+  {
+    title: "Step 8 — The last product on the page",
+    text: "The wool scarf, eighteen pounds. Page zero is now used up, and the loop is about to ask hasNext again. What happens next is the only interesting moment in the whole pattern.",
+    active: ["b-iterator", "r-p0"], picked: "r-p0", dim: true, done: ["r-p0"], holding: "page 0, exhausted",
+    bridge: "next()  →  SKU-003 Wool Scarf   --  page 0 is now used up",
+    out: { cls: "c-out", txt: "  SKU-003  Wool Scarf       clothing  £18" }
+  },
+  {
+    title: "Step 9 — Crossing a page boundary, invisibly",
+    text: "hasNext sees it has run off the end of page zero, so it fetches page one and says yes. The loop asked one question and got one answer. It has no idea a page boundary was just crossed, and that is precisely the point.",
+    active: ["b-iterator", "r-p1"], picked: "r-p1", dim: true, done: ["r-p0", "r-p1"], holding: "page 1, item 0",
+    bridge: "hasNext()  →  feed.page(1)  →  true      the caller cannot tell",
+    out: { cls: "c-strategy", txt: "feed.page(1)  ->  3 products   [pages fetched: 2]" }
+  },
+  {
+    title: "Step 10 — The walk carries on to the end",
+    text: "Lamp, mug, cushion, then page two brings the novel and the cookbook. Eight products, in order, out of a source that never once offered you all eight.",
+    active: ["b-iterator", "r-p2"], picked: "r-p2", dim: true, done: ["r-p0", "r-p1", "r-p2"], holding: "page 2, exhausted",
+    bridge: "SKU-004 … SKU-008   --  the same two methods, over and over",
+    out: { cls: "c-out", txt: "  SKU-004 … SKU-008        (five more products)" }
+  },
+  {
+    title: "Step 11 — The empty page is the full stop",
+    text: "hasNext fetches page three, gets an empty list, and returns false. The for-each loop ends. Translating that empty page into a plain no is work the caller used to do by hand, in three different places, and got wrong in two of them.",
+    active: ["b-iterator", "r-p3"], picked: "r-p3", dim: true, done: ["r-p0", "r-p1", "r-p2", "r-p3"], holding: "finished",
+    bridge: "hasNext()  →  feed.page(3)  →  []  →  false",
+    out: { cls: "c-context", txt: "}   // 8 products, 4 page fetches, zero page numbers in the loop" }
+  },
+  {
+    title: "Step 12 — Two readers, two bookmarks",
+    text: "Ask the catalogue for a second iterator and you get a second, independent position. One reader can be on page two while the other is still on page zero, because neither of them is stored on the book. That is what makes a loop inside a loop over the same catalogue simply work.",
+    active: ["b-catalogue", "b-iterator"], picked: null, dim: false, done: ["r-p0", "r-p1", "r-p2", "r-p3"], holding: "one position each",
+    bridge: "catalogue.iterator()  ·  catalogue.iterator()   --  independent",
+    out: { cls: "c-pick", txt: "outer.next() -> Socks   |   inner.next() -> T-Shirt  (still at the start)" }
+  }
+];
+
+const BOXES = ["b-catalogue", "b-iterator"];
+const ROWS = ["r-p0", "r-p1", "r-p2", "r-p3"];
+const ALL_BOXES = BOXES.concat(ROWS);
+
+const STEP_MS = 3200;      // pace when narration is off
+const GAP_MS = 700;        // breathing room after a clip finishes
+
+let idx = -1;
+let playing = false;
+let timer = null;
+
+// Narration is optional: if the audio clips are missing (or the browser
+// blocks playback) the animation still works exactly as before.
+let audioOn = false;
+let clips = [];
+let current = null;
+
+const $ = id => document.getElementById(id);
+const progressEl = $("progress");
+const linesEl = $("console-lines");
+const noteEl = $("audio-note");
+const bridgeEl = $("bridge-rail");
+const holdingEl = $("holding");
+
+STEPS.forEach(() => {
+  const d = document.createElement("div");
+  d.className = "dot";
+  progressEl.appendChild(d);
+});
+
+// ---- optional narration ------------------------------------------------
+
+clips = STEPS.map((_, i) => {
+  const a = new Audio("audio/step-" + (i + 1) + ".m4a");
+  a.preload = "none";
+  return a;
+});
+
+function stopAudio() {
+  if (!current) return;
+  current.pause();
+  current.currentTime = 0;
+  current.onended = null;
+  current = null;
+}
+
+/** Play the clip for step i. onDone fires when it finishes (or cannot play). */
+function playClip(i, onDone) {
+  stopAudio();
+  if (!audioOn) { if (onDone) onDone(); return; }
+
+  const a = clips[i];
+  current = a;
+  a.currentTime = 0;
+  a.onended = () => { current = null; if (onDone) onDone(); };
+
+  a.play().catch(() => {
+    // Missing file, or autoplay blocked -> fall back to timed pacing.
+    current = null;
+    noteEl.textContent =
+      "Narration audio could not be played — falling back to timed steps. " +
+      "Run docs/make_animation_audio.sh to generate the clips.";
+    if (onDone) onDone();
+  });
+}
+
+function setAudio(on) {
+  audioOn = on;
+  const btn = $("audio");
+  btn.classList.toggle("on", on);
+  btn.setAttribute("aria-pressed", String(on));
+  btn.innerHTML = '<span id="audio-icon">' + (on ? "&#128266;" : "&#128263;") +
+                  "</span>&nbsp; Narration: " + (on ? "on" : "off");
+  noteEl.textContent = on
+    ? "Each step is narrated, and the animation waits for the voice to finish."
+    : "";
+  if (!on) stopAudio();
+}
+
+// ------------------------------------------------------------------------
+
+function clearHighlights() {
+  ALL_BOXES.forEach(b => $(b).classList.remove("active"));
+  ROWS.forEach(r => $(r).classList.remove("picked", "dim"));
+}
+
+function render(i) {
+  clearHighlights();
+  const s = STEPS[i];
+
+  s.active.forEach(b => $(b).classList.add("active"));
+
+  // The page being read stays highlighted; the others fade back, so the eye
+  // follows "where in the catalogue is the bookmark right now".
+  if (s.picked) $(s.picked).classList.add("picked");
+  if (s.dim) ROWS.filter(r => r !== s.picked).forEach(r => $(r).classList.add("dim"));
+
+  // "done" means the page has actually been fetched from the feed.
+  ROWS.forEach(r => $(r).classList.remove("done"));
+  (s.done || []).forEach(r => $(r).classList.add("done"));
+
+  holdingEl.innerHTML = "at: <b>" + (s.holding || "&mdash;") + "</b>";
+
+  bridgeEl.textContent = s.bridge || "";
+  bridgeEl.classList.add("active");
+
+  $("narration").innerHTML =
+    '<div class="step-no">' + s.title + '</div><div class="text">' + s.text + '</div>';
+
+  // Rebuild console output up to this step
+  linesEl.innerHTML = "";
+  for (let k = 0; k <= i; k++) {
+    if (!STEPS[k].out) continue;
+    const div = document.createElement("div");
+    div.className = "ln " + STEPS[k].out.cls;
+    div.textContent = STEPS[k].out.txt;
+    linesEl.appendChild(div);
+    requestAnimationFrame(() => div.classList.add("show"));
+  }
+
+  [...progressEl.children].forEach((d, k) => d.classList.toggle("on", k <= i));
+}
+
+/** Advance one step. In play mode, schedule the following step afterwards. */
+function next() {
+  if (idx >= STEPS.length - 1) { stop(); return; }
+  idx++;
+  render(idx);
+
+  if (!playing) { playClip(idx); return; }
+
+  if (audioOn) {
+    // Wait for the voice to finish this step, then move on.
+    playClip(idx, () => {
+      if (!playing) return;
+      timer = setTimeout(next, GAP_MS);
+    });
+  } else {
+    timer = setTimeout(next, STEP_MS);
+  }
+}
+
+function stop() {
+  playing = false;
+  clearTimeout(timer);
+  stopAudio();
+  $("play").innerHTML = "&#9654;&nbsp; Play";
+  $("step").disabled = false;
+}
+
+function reset() {
+  stop();
+  idx = -1;
+  clearHighlights();
+  ROWS.forEach(r => $(r).classList.remove("done"));
+  holdingEl.innerHTML = "at: <b>&mdash;</b>";
+  linesEl.innerHTML = "";
+  bridgeEl.textContent = "";
+  bridgeEl.classList.remove("active");
+  [...progressEl.children].forEach(d => d.classList.remove("on"));
+  $("narration").innerHTML =
+    '<div class="step-no">Ready</div><div class="text">Press <b>Play</b> to watch one <code>for</code>&#8209;each loop walk a catalogue that arrives in pages &mdash; without the loop ever mentioning a page.</div>';
+}
+
+$("play").addEventListener("click", () => {
+  if (playing) { stop(); return; }
+  if (idx >= STEPS.length - 1) reset();
+  playing = true;
+  $("play").innerHTML = "&#10074;&#10074;&nbsp; Pause";
+  $("step").disabled = true;
+  next();   // next() now schedules the rest of the run itself
+});
+
+$("step").addEventListener("click", () => { stop(); if (idx >= STEPS.length - 1) reset(); next(); });
+$("reset").addEventListener("click", reset);
+
+$("audio").addEventListener("click", () => {
+  setAudio(!audioOn);
+  // Turning narration on mid-run: speak the step already on screen.
+  if (audioOn && playing && idx >= 0) {
+    clearTimeout(timer);
+    playClip(idx, () => {
+      if (!playing) return;
+      timer = setTimeout(next, GAP_MS);
+    });
+  }
+});
+
+document.addEventListener("keydown", e => {
+  if (e.code === "Space") { e.preventDefault(); $("play").click(); }
+  if (e.code === "ArrowRight") { e.preventDefault(); $("step").click(); }
+  if (e.code === "KeyR") reset();
+  if (e.code === "KeyN") $("audio").click();
+});
+
+setAudio(false);
+reset();
+</script>
+</body>
+</html>

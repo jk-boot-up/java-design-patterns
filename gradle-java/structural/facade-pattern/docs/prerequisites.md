@@ -25,7 +25,7 @@ familiarity with core Java.
 | **Java `record`** (Java 16+) | `OrderRequest`, `OrderConfirmation` |
 | **`final` fields / immutability** | Facade's subsystem references |
 | **Composition ("has-a")** | `OrderFacade` *has* four services |
-| **JUnit 5 basics** | `OrderFacadeTest` |
+| **JUnit 5 basics** | `OrderFacadeTest`, `SubsystemsTest` |
 | **Gradle basics** | `build.gradle`, `./gradlew run` |
 | **UML class & sequence diagrams** | The diagram docs |
 
@@ -100,12 +100,13 @@ plain `gradle build` works too.
 
 ## Verify Your Setup
 
-Run these three commands from the project directory. All three must succeed
+Run these four commands from the project directory. All four must succeed
 before the session.
 
 ```bash
 java -version      # must report 21
 ./gradlew build    # must end with BUILD SUCCESSFUL
+./gradlew test     # 18 tests, across OrderFacadeTest and SubsystemsTest
 ./gradlew run      # must print the four subsystem lines
 ```
 

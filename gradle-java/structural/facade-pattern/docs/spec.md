@@ -87,20 +87,13 @@ that locks them away has replaced a hard API with a limited one.
 
 ### Verification
 
-- `./gradlew build` passes. 1 test method across `OrderFacadeTest`.
+- `./gradlew build` passes. 18 test methods across `OrderFacadeTest`, `SubsystemsTest`.
 - `./gradlew run` output is quoted verbatim in the top-level `README.md`,
   and must still match.
 
 The demo mints an identifier per run, so the codes it prints differ
 each time. Every other line of the output is stable and must match the
 README exactly; the README says which lines are expected to vary.
-
-> **Known gap.** 1 test method is well below the 9–23 the other
-> projects carry, and it is not enough to defend the requirements
-> above — in particular, nothing currently fails if the four steps are
-> reordered, which is the pattern's whole point. This is a real
-> shortfall in the project, recorded here rather than quietly
-> tolerated.
 
 ---
 

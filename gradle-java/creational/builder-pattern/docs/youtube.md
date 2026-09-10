@@ -103,7 +103,7 @@ YouTube will not pick the thumbnail up on its own — upload it under **Details 
 
 ## Cards and end screen
 
-End screen links to **Prototype Pattern**, the next video in the learning order.
+End screen links to whichever pattern video goes up next — set it at upload time rather than assuming an order.
 
 Add a card partway through pointing at the playlist, so a viewer who arrives at this pattern from search can find the rest of the series.
 

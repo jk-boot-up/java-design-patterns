@@ -440,20 +440,18 @@ void anUnknownCommandWorksUnchanged() {
             "Full source, notes, diagrams and an animated walkthrough",
             "are in the repository — including the exercise that breaks",
             "undo on purpose by moving one line into the constructor.",
-            "",
-            "Next in the behavioural series: the Template Method pattern.",
         ],
         narration=(
             "That's the command pattern. [[slnc 250]] The full source, the "
             "written notes, the diagrams and an animated walkthrough are all in "
             "the repository — including the exercise I would most recommend: "
             "move that capture out of execute and into the constructor, run the "
-            "suite, and watch exactly one test go red. Understanding which test, "
-            "and why it is that one, is worth more than the rest of this video. "
-            "[[slnc 300]] If this helped, a like genuinely does help other people "
-            "find it, and subscribe if you would like the rest of the behavioural "
-            "series — the template method pattern is next. [[slnc 250]] Thanks "
-            "for watching, and I'll see you in the next one."
+            "suite, and watch exactly one test go red. Understanding which "
+            "test, and why it is that one, is worth more than the rest of this "
+            "video. [[slnc 300]] If this helped, a like genuinely does help "
+            "other people find it, and subscribe if you would like the rest of "
+            "the behavioural series. [[slnc 250]] Thanks for watching, and I'll "
+            "see you in the next one."
         ),
     ),
 ]

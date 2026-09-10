@@ -15,10 +15,20 @@ public class OrderFacade {
     private final NotificationService notificationService;
 
     public OrderFacade() {
-        this.inventoryService = new InventoryService();
-        this.paymentService = new PaymentService();
-        this.shippingService = new ShippingService();
-        this.notificationService = new NotificationService();
+        this(new InventoryService(), new PaymentService(), new ShippingService(), new NotificationService());
+    }
+
+    /**
+     * Package-private, and deliberately so: callers get the no-argument
+     * constructor above, while the tests can hand in subsystems that record
+     * what they were asked or refuse the stock. It is not a second public API.
+     */
+    OrderFacade(InventoryService inventoryService, PaymentService paymentService,
+                ShippingService shippingService, NotificationService notificationService) {
+        this.inventoryService = inventoryService;
+        this.paymentService = paymentService;
+        this.shippingService = shippingService;
+        this.notificationService = notificationService;
     }
 
     public OrderConfirmation placeOrder(OrderRequest request) {

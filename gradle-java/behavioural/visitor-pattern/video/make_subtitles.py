@@ -81,7 +81,7 @@ def ts(seconds):
 
 def main():
     build = sys.argv[1] if len(sys.argv) > 1 else "build"
-    out_path = sys.argv[2] if len(sys.argv) > 2 else "chain-of-responsibility-pattern-explained.srt"
+    out_path = sys.argv[2] if len(sys.argv) > 2 else "visitor-pattern-explained.srt"
 
     blocks, index, clock = [], 1, 0.0
 

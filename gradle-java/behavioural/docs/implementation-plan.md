@@ -1,6 +1,12 @@
 # Behavioural Patterns — Implementation Plan
 
-How the eleven projects specified in [`spec.md`](spec.md) get built.
+How the eleven projects specified in [`spec.md`](spec.md) were built.
+
+**All eleven are now complete**, so this document is a record rather than a
+forecast: it is kept in the present tense because the sequence it describes is
+the one to follow when a twelfth project is added or an existing one is rebuilt.
+The state of the category as delivered is at the bottom, under
+[Definition of done](#definition-of-done).
 
 This is the *how*. The *what* is in `spec.md`, and the video and publishing
 standard both inherit from is
@@ -8,12 +14,12 @@ standard both inherit from is
 
 ---
 
-## Current state
+## Starting state
 
-Nothing exists. `gradle-java/behavioural/` contains this `docs/` directory and
-no projects.
+At the time this plan was written, nothing existed: `gradle-java/behavioural/`
+contained this `docs/` directory and no projects.
 
-That is the significant difference from the plan that built the other fourteen:
+That was the significant difference from the plan that built the other fourteen:
 that one was a remediation, bringing existing projects up to a standard written
 after the fact. This one has the standard first, so every project can be
 correct on the first pass and nothing needs re-rendering. The cost of getting
@@ -67,11 +73,14 @@ proxy poster shipped reading "DECORATOR PATTERN".
 Observer, Command, Template Method, State, Chain of Responsibility, Iterator,
 Mediator, Memento, Visitor, Interpreter.
 
-In order, and one at a time, because each project's video end screen points at
-the next and because the cross-references in `spec.md` §4 read forward: State
-refers back to Strategy, Mediator back to Observer, Memento back to Command.
-Building out of order means writing those references against projects that do
-not exist yet.
+In order, and one at a time, because the cross-references in `spec.md` §4 read
+forward: State refers back to Strategy, Mediator back to Observer, Memento back
+to Command. Building out of order means writing those references against
+projects that do not exist yet.
+
+The videos themselves carry no such forward reference. No end screen names the
+pattern that comes next, because YouTube publishing order is not the build
+order and a rendered video cannot be corrected without re-uploading it.
 
 Per project, in this sequence — the code first, because every other artefact
 quotes it, and the video last, because it is the only step that is expensive
@@ -148,12 +157,18 @@ narration or slide problem until every project has one.
 
 The category is complete when:
 
-- [ ] Eleven projects exist, each passing the repository-wide conformance
+- [x] Eleven projects exist, each passing the repository-wide conformance
       checklist and the four category items in `spec.md` §7.
-- [ ] Every project builds, tests pass, and its README quotes real run output.
-- [ ] Eleven videos are rendered, each having printed
+- [x] Every project builds, tests pass, and its README quotes real run output.
+- [x] Eleven videos are rendered, each having printed
       `audio timeline continuous`, each listened to at least once.
-- [ ] Eleven posters and thumbnails have been looked at.
-- [ ] All twenty-five projects' `spec.md` / `spec.html` regenerate clean.
-- [ ] The root `README.md` and the repository-wide spec both describe
+- [x] Eleven posters and thumbnails have been looked at.
+- [x] All twenty-five projects' `spec.md` / `spec.html` regenerate clean.
+- [x] The root `README.md` and the repository-wide spec both describe
       twenty-five projects across three categories.
+
+As delivered: eleven projects, runtimes from 10:07 to 13:57, every MP4
+measuring between -16.00 and -16.02 LUFS, and `./gradlew test` green in all
+eleven. The one file-set audit worth repeating before a release is the loop over
+`behavioural/*-pattern` that checks for the seventeen required files per
+project; it currently reports nothing missing.

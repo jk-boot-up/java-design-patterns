@@ -159,12 +159,19 @@ public Result validateTradeAccount(CheckoutRequest request) {
         key="06-pattern",
         kind="quote",
         title="The Chain of Responsibility Pattern",
-        body=(
-            "Avoid coupling the sender of a request to its receiver by giving "
-            "more than one object a chance to handle the request. Chain the "
-            "receiving objects and pass the request along the chain until an "
-            "object handles it."
-        ),
+        # One line per rendered line: kind_quote lays these out as-is.
+        body=[
+            "Avoid coupling the sender of a request to its receiver",
+            "by giving more than one object a chance to handle the",
+            "request. Chain the receiving objects and pass the",
+            "request along the chain until an object handles it.",
+            "",
+            "— Gang of Four",
+            "",
+            "In plain terms:",
+            "the caller does not know which object will answer,",
+            "and it never needs to find out.",
+        ],
         narration=(
             "Here is the definition from the Gang of Four book, and the first half "
             "is the half everybody skips. [[slnc 250]] Avoid coupling the sender of "
@@ -442,18 +449,16 @@ return Optional.empty();""",
             "Full source, notes, diagrams and an animated walkthrough",
             "are in the repository — including the exercise that moves",
             "one link and watches the customer get a different answer.",
-            "",
-            "Next in the behavioural series: Iterator.",
         ],
         narration=(
             "That's chain of responsibility. [[slnc 250]] The full source, the "
-            "written notes, the diagrams and an animated walkthrough are all in the "
-            "repository — including the exercise I'd most recommend. Take the "
-            "standard chain, move the payment link above the fraud link, run the "
-            "demo, and watch a customer get told something different about the same "
-            "order. [[slnc 300]] If this helped, a like genuinely does help other "
-            "people find it, and subscribe if you'd like the rest of the "
-            "behavioural series — iterator is next. [[slnc 250]] Thanks for "
+            "written notes, the diagrams and an animated walkthrough are all in "
+            "the repository — including the exercise I'd most recommend. Take "
+            "the standard chain, move the payment link above the fraud link, "
+            "run the demo, and watch a customer get told something different "
+            "about the same order. [[slnc 300]] If this helped, a like "
+            "genuinely does help other people find it, and subscribe if you'd "
+            "like the rest of the behavioural series. [[slnc 250]] Thanks for "
             "watching, and I'll see you in the next one."
         ),
     ),

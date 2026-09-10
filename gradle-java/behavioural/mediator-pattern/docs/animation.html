@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mediator Pattern — Animated Walkthrough</title>
+<style>
+  :root {
+    --bg: #0f172a;
+    --panel: #1e293b;
+    --panel-hi: #334155;
+    --line: #475569;
+    --text: #e2e8f0;
+    --muted: #94a3b8;
+    --client: #38bdf8;
+    --context: #34d399;
+    --strategy: #a78bfa;
+    --picked: #fbbf24;
+    --bad: #f87171;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 28px 20px 60px;
+    background: var(--bg);
+    color: var(--text);
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  h1 { text-align: center; font-size: 28px; margin: 0 0 4px; }
+  .sub { text-align: center; color: var(--muted); margin: 0 0 24px; font-size: 15px; }
+
+  .wrap { max-width: 1100px; margin: 0 auto; }
+
+  .controls { display: flex; gap: 10px; justify-content: center; margin-bottom: 26px; flex-wrap: wrap; }
+  button {
+    background: var(--panel-hi); color: var(--text); border: 1px solid var(--line);
+    padding: 9px 20px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer;
+    transition: background .15s, transform .1s;
+  }
+  button:hover:not(:disabled) { background: #475569; }
+  button:active:not(:disabled) { transform: translateY(1px); }
+  button:disabled { opacity: .4; cursor: not-allowed; }
+  button.primary { background: var(--strategy); color: #1e1b4b; border-color: var(--strategy); }
+  button.primary:hover:not(:disabled) { background: #b9a3ff; }
+  button.on { background: #0c2b3d; border-color: var(--client); color: var(--client); }
+  button.on:hover:not(:disabled) { background: #123a52; }
+
+  .audio-note {
+    text-align: center; color: var(--muted); font-size: 12.5px;
+    margin: -14px 0 22px; min-height: 17px;
+  }
+
+  .stage { display: grid; grid-template-columns: 230px 1fr; gap: 22px; align-items: start; }
+
+  .col-client { display: flex; flex-direction: column; align-items: center; gap: 12px; padding-top: 20px; }
+
+  .box {
+    background: var(--panel); border: 2px solid var(--line); border-radius: 12px;
+    padding: 14px 16px; text-align: center; width: 100%;
+    transition: border-color .3s, box-shadow .3s, transform .3s, background .3s;
+  }
+  .box .name { font-weight: 700; font-size: 14px; letter-spacing: .2px; }
+  .box .role { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-top: 3px; }
+  .box.active {
+    transform: translateY(-3px);
+    box-shadow: 0 0 0 3px rgba(255,255,255,.07), 0 10px 28px rgba(0,0,0,.45);
+    border-color: var(--client); background: #0c2b3d;
+  }
+  .box.context.active { border-color: var(--context); background: #06281f; box-shadow: 0 0 0 3px rgba(52,211,153,.15); }
+  .holding {
+    margin-top: 9px; padding-top: 8px; border-top: 1px dashed var(--line);
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px;
+    color: var(--muted); line-height: 1.5;
+  }
+  .holding b { color: var(--picked); font-weight: 700; }
+
+  .col-main { display: flex; flex-direction: column; gap: 18px; }
+
+  .family {
+    border: 2px dashed var(--strategy); border-radius: 14px; padding: 18px 20px;
+    background: rgba(167,139,250,.05);
+  }
+  .family-label {
+    font-size: 11px; color: var(--strategy); text-transform: uppercase;
+    letter-spacing: 1.4px; font-weight: 700; margin-bottom: 14px; text-align: center;
+  }
+
+  .row {
+    display: flex; align-items: center; justify-content: space-between;
+    border: 2px solid var(--line); border-radius: 8px; background: var(--panel);
+    padding: 8px 14px; margin-bottom: 6px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 13px;
+    transition: border-color .3s, background .3s, transform .3s, opacity .3s;
+  }
+  .row .note { color: var(--muted); font-size: 11px; text-align: right; }
+  .row.dim { opacity: .38; }
+  .row.picked {
+    border-color: var(--picked); background: #2a2008;
+  }
+  .row.active {
+    transform: translateX(4px);
+    border-color: var(--client);
+    box-shadow: 0 0 0 3px rgba(56,189,248,.15);
+  }
+  /* "wrong" marks a widget the tangled form has left in a bad state. */
+  .row.wrong { border-color: var(--bad); background: #2b0f12; }
+  .row.wrong .note { color: #fca5a5; }
+
+  .bridge-rail { text-align: center; color: var(--muted); font-size: 12px; margin: -6px 0 2px; min-height: 16px; transition: color .3s; }
+  .bridge-rail.active { color: var(--client); font-weight: 700; }
+
+  .narration {
+    background: var(--panel); border-left: 4px solid var(--strategy);
+    border-radius: 0 10px 10px 0; padding: 16px 20px; min-height: 76px;
+    font-size: 15px; line-height: 1.6;
+  }
+  .narration .step-no { color: var(--muted); font-size: 12px; letter-spacing: 1px; text-transform: uppercase; }
+  .narration .text { margin-top: 5px; }
+
+  .console {
+    background: #020617; border: 1px solid var(--line); border-radius: 10px;
+    padding: 14px 16px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 12.5px; line-height: 1.7; min-height: 130px;
+  }
+  .console .ttl { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+  .console div.ln { opacity: 0; transition: opacity .35s; }
+  .console div.ln.show { opacity: 1; }
+  .c-context { color: var(--context); }
+  .c-strategy { color: var(--strategy); }
+  .c-out  { color: var(--client); }
+  .c-pick { color: var(--picked); }
+  .c-bad  { color: var(--bad); }
+
+  .progress { display: flex; gap: 5px; justify-content: center; margin-top: 22px; }
+  .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--line); transition: background .3s, transform .3s; }
+  .dot.on { background: var(--strategy); transform: scale(1.35); }
+
+  .legend { text-align: center; color: var(--muted); font-size: 13px; margin-top: 26px; line-height: 1.7; }
+  .legend b { color: var(--text); }
+
+  @media (max-width: 860px) {
+    .stage { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>The Mediator Pattern</h1>
+  <p class="sub">Five controls that affect each other &mdash; and none of them holding another</p>
+
+  <div class="controls">
+    <button id="play" class="primary">&#9654;&nbsp; Play</button>
+    <button id="step">Step &rarr;</button>
+    <button id="reset">Reset</button>
+    <button id="audio" aria-pressed="false" title="Narrate each step (N)">
+      <span id="audio-icon">&#128263;</span>&nbsp; Narration: off
+    </button>
+  </div>
+  <p class="audio-note" id="audio-note"></p>
+
+  <div class="stage">
+
+    <div class="col-client">
+      <div class="box client" id="b-shopper">
+        <div class="name">The shopper</div>
+        <div class="role">clicks one control</div>
+      </div>
+      <div style="font-size:22px;color:var(--line)">&#8595;</div>
+      <div class="box context" id="b-form">
+        <div class="name">CheckoutForm</div>
+        <div class="role">Mediator &mdash; the tower</div>
+        <div class="holding" id="holding">form: <b>&mdash;</b></div>
+      </div>
+      <div style="font-size:11px;color:var(--muted);text-align:center;line-height:1.5">
+        one method:<br>changed(FormWidget&nbsp;source)
+      </div>
+    </div>
+
+    <div class="col-main">
+
+      <div class="family">
+        <div class="family-label" id="family-label">The five controls &mdash; each holds the mediator, and nothing else</div>
+        <div class="row" id="r-country">
+          <span class="name">CountrySelector</span>
+          <span class="note" id="n-country">nothing chosen</span>
+        </div>
+        <div class="row" id="r-shipping">
+          <span class="name">ShippingSelector</span>
+          <span class="note" id="n-shipping">no options offered</span>
+        </div>
+        <div class="row" id="r-giftwrap">
+          <span class="name">GiftWrapCheckbox</span>
+          <span class="note" id="n-giftwrap">offered, not ticked</span>
+        </div>
+        <div class="row" id="r-total">
+          <span class="name">TotalLabel</span>
+          <span class="note" id="n-total">Total: &pound;40</span>
+        </div>
+        <div class="row" id="r-button">
+          <span class="name">PlaceOrderButton</span>
+          <span class="note" id="n-button">disabled</span>
+        </div>
+      </div>
+
+      <div class="bridge-rail" id="bridge-rail"></div>
+
+      <div class="narration" id="narration">
+        <div class="step-no">Ready</div>
+        <div class="text">Press <b>Play</b> to watch one click ripple across a checkout page &mdash; without any control on it knowing that the others exist.</div>
+      </div>
+
+      <div class="console">
+        <div class="ttl">Program output</div>
+        <div id="console-lines"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="progress" id="progress"></div>
+
+  <p class="legend">
+    <b>Every arrow into the form is &ldquo;something about me changed&rdquo;. Every arrow out is the form pushing state down.</b><br>
+    Wire the controls to each other instead and the same page needs nine references, two of which nobody remembers to write.<br>
+    <span style="font-size:12px">
+      Keys: <b>Space</b> play/pause &nbsp;·&nbsp; <b>&rarr;</b> next step
+      &nbsp;·&nbsp; <b>N</b> narration &nbsp;·&nbsp; <b>R</b> reset
+    </span>
+  </p>
+
+</div>
+
+<script>
+// Each step may set any widget's caption; captions persist until changed, so a
+// step only lists what it actually moves.
+const STEPS = [
+  {
+    title: "Step 1 — Five controls, and they are not independent",
+    text: "A checkout page. Country, shipping method, gift wrap, the total, and the place order button. Change the country and the courier list has to change with it, gift wrapping may have to be withdrawn, the total moves, and the button may no longer be pressable. Four rules. The difficulty is never the rules -- it is where you write them down.",
+    active: [], dim: false, holding: "empty",
+    bridge: "five controls  ·  four rules  ·  one question: where do the rules live?",
+    out: { cls: "c-strategy", txt: "// country -> shipping -> gift wrap -> total -> button" }
+  },
+  {
+    title: "Step 2 — The usual answer: wire each one to the ones it affects",
+    text: "The obvious place for when the country changes, refill the couriers is inside the country widget, because that is where the country changes. So it is given the shipping widget. Then gift wrap depends on the country too, so it gets that. And the total. And the button. Nine references, on a page with five controls.",
+    active: ["r-country"], dim: true, holding: "empty",
+    label: "The tangle — country holds four, shipping holds three, gift wrap holds two",
+    bridge: "country.wire(shipping, giftWrap, total, placeOrder)   --  and so on",
+    out: { cls: "c-bad", txt: "9 cross-references between 5 controls  ->  and 10 controls would need 90" }
+  },
+  {
+    title: "Step 3 — And that is where the bugs come from",
+    text: "Change the country on that version and gift wrapping is withdrawn but the tick is left behind, so the shopper pays two pounds for wrapping the warehouse will never do. The shipping method is cleared but nobody re-checks the button, so the order goes through with no courier on it. Neither of those is a line of code you could review. Both are a line nobody wrote.",
+    active: [], dim: false, holding: "empty",
+    wrong: ["r-giftwrap", "r-button"],
+    label: "The tangle — two bugs, and neither of them is a line of code",
+    captions: { giftwrap: "withdrawn, but still ticked", button: "enabled, with no courier" },
+    bridge: "the bugs are omissions  --  and you cannot review code that is not there",
+    out: { cls: "c-bad", txt: "Total: £42  (£2 of it phantom)   place order: enabled" }
+  },
+  {
+    title: "Step 4 — Now give them one thing to talk to instead",
+    text: "Every control holds the form, and the form holds every control. Five references instead of nine, and it stays five when a sixth control arrives. Aircraft near an airport work the same way: they do not negotiate with each other, they all talk to the tower, because the rules of the airspace need to be in one head.",
+    active: ["b-form"], dim: false, holding: "empty",
+    label: "The five controls — each holds the mediator, and nothing else",
+    captions: { country: "nothing chosen", shipping: "no options offered", giftwrap: "offered, not ticked", total: "Total: £40", button: "disabled" },
+    bridge: "5 widgets  →  1 mediator      ·      the rules live in one method",
+    out: { cls: "c-context", txt: "interface CheckoutMediator { void changed(FormWidget source); }" }
+  },
+  {
+    title: "Step 5 — The shopper picks the United Kingdom",
+    text: "Watch how far the country widget's involvement goes. It stores the string, it calls changed, and it stops. It does not know that a courier list exists.",
+    active: ["b-shopper", "r-country"], dim: true, holding: "UK",
+    captions: { country: "UK" },
+    bridge: "country.select(\"UK\")   →   mediator.changed(this)",
+    out: { cls: "c-out", txt: "country.select(\"UK\")" }
+  },
+  {
+    title: "Step 6 — The form works out what that means",
+    text: "The source was the country, so the form reshapes itself: the courier list is refilled with the two that serve the UK, and gift wrapping is offered because the London warehouse can reach this order. Then it reprices and re-checks the button, as it does after every single change.",
+    active: ["b-form", "r-shipping", "r-giftwrap"], dim: true, holding: "UK",
+    captions: { shipping: "Standard, Express  ·  none chosen", giftwrap: "offered, not ticked" },
+    bridge: "showOptions([Standard, Express])  ·  setAvailable(true)  ·  refresh  ·  refresh",
+    out: { cls: "c-context", txt: "shipping options -> [Standard, Express]     place order: disabled" }
+  },
+  {
+    title: "Step 7 — Express shipping, six pounds",
+    text: "This time the source is not the country, so nothing is reshaped -- only the price and the button. Forty pounds of basket plus six of courier, and now that there is both a country and a method, the button comes alive.",
+    active: ["b-shopper", "r-shipping", "r-total", "r-button"], dim: true, holding: "UK · Express · £46",
+    captions: { shipping: "Express", total: "Total: £46", button: "enabled" },
+    bridge: "not the country  →  refreshTotal()  ·  refreshButton()   only",
+    out: { cls: "c-out", txt: "shipping.select(\"Express\")   ->   Total: £46   place order: enabled" }
+  },
+  {
+    title: "Step 8 — And gift wrap it, please",
+    text: "Two pounds more. Forty eight. The tick box announced a change, the form added it up again, and nothing else on the page had to be told.",
+    active: ["b-shopper", "r-giftwrap", "r-total"], dim: true, holding: "UK · Express · wrap · £48",
+    captions: { giftwrap: "offered and ticked", total: "Total: £48" },
+    bridge: "giftWrap.tick(true)   →   Total: £48",
+    out: { cls: "c-out", txt: "giftWrap.tick(true)          ->   Total: £48   place order: enabled" }
+  },
+  {
+    title: "Step 9 — Then they change their mind: send it to the States",
+    text: "This is the moment the tangled version got wrong twice. And the country widget's part in it is exactly what it was before: store the string, say so, stop. It has no idea that anything is about to happen.",
+    active: ["b-shopper", "r-country"], dim: true, holding: "US · Express · wrap · £48",
+    captions: { country: "US" },
+    bridge: "country.select(\"US\")   →   mediator.changed(this)",
+    out: { cls: "c-pick", txt: "country.select(\"US\")   // the widget's entire contribution" }
+  },
+  {
+    title: "Step 10 — The form reshapes: withdrawn and cleared together",
+    text: "The couriers are replaced by the international one, and the method the shopper had chosen is cleared with them, because Express is not on the new list. Gift wrapping is withdrawn -- and the tick goes with it, in the same call. There is no method that does only half of that, so there is nothing to forget.",
+    active: ["b-form", "r-shipping", "r-giftwrap"], dim: true, holding: "US · none · £40",
+    captions: { shipping: "International  ·  none chosen", giftwrap: "withdrawn, and unticked" },
+    bridge: "setAvailable(false)  →  available = false; ticked = false;   one call, both facts",
+    out: { cls: "c-context", txt: "shipping options -> [International]   chosen -> \"\"   gift wrap -> off" }
+  },
+  {
+    title: "Step 11 — Then it reprices and re-checks, as it always does",
+    text: "Forty pounds: the basket, and nothing else, because nothing else is chosen. And the button goes back to disabled. Nobody worked out that clearing the courier ought to disable the button -- the form simply re-asks that question after every change, whatever the change was. Cheap and always right beats clever and sometimes stale.",
+    active: ["b-form", "r-total", "r-button"], dim: true, holding: "US · none · £40",
+    captions: { total: "Total: £40", button: "disabled" },
+    bridge: "refreshTotal()  ·  refreshButton()      --  unconditionally, every time",
+    out: { cls: "c-context", txt: "Total: £40   place order: disabled   // the form re-checked itself" }
+  },
+  {
+    title: "Step 12 — The same click, on the tangled version",
+    text: "Forty two pounds, two of them for gift wrapping that will not happen, and a button that will happily take an order with no courier on it. Same page, same click. The difference is not care or skill. It is that on one of them there is a single place where the answer to what happens when the country changes has to be written down.",
+    active: [], dim: false, holding: "one place for the rules",
+    wrong: ["r-giftwrap", "r-button"],
+    label: "The tangle again — same click, and the rules were in three different files",
+    captions: { giftwrap: "withdrawn, but still ticked", button: "enabled, with no courier" },
+    bridge: "9 references, 3 files, 2 silent bugs      vs.      5 references, 1 method",
+    out: { cls: "c-bad", txt: "naive: Total: £42, enabled    |    mediated: Total: £40, disabled" }
+  }
+];
+
+const BOXES = ["b-shopper", "b-form"];
+const ROWS = ["r-country", "r-shipping", "r-giftwrap", "r-total", "r-button"];
+const ALL_BOXES = BOXES.concat(ROWS);
+
+const STEP_MS = 3200;      // pace when narration is off
+const GAP_MS = 700;        // breathing room after a clip finishes
+
+let idx = -1;
+let playing = false;
+let timer = null;
+
+// Narration is optional: if the audio clips are missing (or the browser
+// blocks playback) the animation still works exactly as before.
+let audioOn = false;
+let clips = [];
+let current = null;
+
+const $ = id => document.getElementById(id);
+const progressEl = $("progress");
+const linesEl = $("console-lines");
+const noteEl = $("audio-note");
+const bridgeEl = $("bridge-rail");
+const holdingEl = $("holding");
+const labelEl = $("family-label");
+
+const DEFAULT_LABEL = "The five controls — each holds the mediator, and nothing else";
+const DEFAULT_CAPTIONS = {
+  country: "nothing chosen",
+  shipping: "no options offered",
+  giftwrap: "offered, not ticked",
+  total: "Total: £40",
+  button: "disabled"
+};
+
+STEPS.forEach(() => {
+  const d = document.createElement("div");
+  d.className = "dot";
+  progressEl.appendChild(d);
+});
+
+// ---- optional narration ------------------------------------------------
+
+clips = STEPS.map((_, i) => {
+  const a = new Audio("audio/step-" + (i + 1) + ".m4a");
+  a.preload = "none";
+  return a;
+});
+
+function stopAudio() {
+  if (!current) return;
+  current.pause();
+  current.currentTime = 0;
+  current.onended = null;
+  current = null;
+}
+
+/** Play the clip for step i. onDone fires when it finishes (or cannot play). */
+function playClip(i, onDone) {
+  stopAudio();
+  if (!audioOn) { if (onDone) onDone(); return; }
+
+  const a = clips[i];
+  current = a;
+  a.currentTime = 0;
+  a.onended = () => { current = null; if (onDone) onDone(); };
+
+  a.play().catch(() => {
+    // Missing file, or autoplay blocked -> fall back to timed pacing.
+    current = null;
+    noteEl.textContent =
+      "Narration audio could not be played — falling back to timed steps. " +
+      "Run docs/make_animation_audio.sh to generate the clips.";
+    if (onDone) onDone();
+  });
+}
+
+function setAudio(on) {
+  audioOn = on;
+  const btn = $("audio");
+  btn.classList.toggle("on", on);
+  btn.setAttribute("aria-pressed", String(on));
+  btn.innerHTML = '<span id="audio-icon">' + (on ? "&#128266;" : "&#128263;") +
+                  "</span>&nbsp; Narration: " + (on ? "on" : "off");
+  noteEl.textContent = on
+    ? "Each step is narrated, and the animation waits for the voice to finish."
+    : "";
+  if (!on) stopAudio();
+}
+
+// ------------------------------------------------------------------------
+
+function clearHighlights() {
+  ALL_BOXES.forEach(b => $(b).classList.remove("active"));
+  ROWS.forEach(r => $(r).classList.remove("dim", "wrong"));
+}
+
+function render(i) {
+  clearHighlights();
+  const s = STEPS[i];
+
+  s.active.forEach(b => $(b).classList.add("active"));
+
+  // Widgets not involved in this step fade back, so the eye follows the one
+  // message the form is currently sending.
+  if (s.dim) ROWS.filter(r => !s.active.includes(r)).forEach(r => $(r).classList.add("dim"));
+
+  // "wrong" marks a widget the tangled form has left in a bad state.
+  (s.wrong || []).forEach(r => $(r).classList.add("wrong"));
+
+  // Captions are cumulative: replay every step up to this one so that
+  // stepping backwards or jumping about still shows a consistent form.
+  const caps = Object.assign({}, DEFAULT_CAPTIONS);
+  let label = DEFAULT_LABEL;
+  for (let k = 0; k <= i; k++) {
+    Object.assign(caps, STEPS[k].captions || {});
+    if (STEPS[k].label) label = STEPS[k].label;
+  }
+  Object.keys(caps).forEach(key => { $("n-" + key).textContent = caps[key]; });
+  labelEl.textContent = label;
+
+  holdingEl.innerHTML = "form: <b>" + (s.holding || "&mdash;") + "</b>";
+
+  bridgeEl.textContent = s.bridge || "";
+  bridgeEl.classList.add("active");
+
+  $("narration").innerHTML =
+    '<div class="step-no">' + s.title + '</div><div class="text">' + s.text + '</div>';
+
+  // Rebuild console output up to this step
+  linesEl.innerHTML = "";
+  for (let k = 0; k <= i; k++) {
+    if (!STEPS[k].out) continue;
+    const div = document.createElement("div");
+    div.className = "ln " + STEPS[k].out.cls;
+    div.textContent = STEPS[k].out.txt;
+    linesEl.appendChild(div);
+    requestAnimationFrame(() => div.classList.add("show"));
+  }
+
+  [...progressEl.children].forEach((d, k) => d.classList.toggle("on", k <= i));
+}
+
+/** Advance one step. In play mode, schedule the following step afterwards. */
+function next() {
+  if (idx >= STEPS.length - 1) { stop(); return; }
+  idx++;
+  render(idx);
+
+  if (!playing) { playClip(idx); return; }
+
+  if (audioOn) {
+    // Wait for the voice to finish this step, then move on.
+    playClip(idx, () => {
+      if (!playing) return;
+      timer = setTimeout(next, GAP_MS);
+    });
+  } else {
+    timer = setTimeout(next, STEP_MS);
+  }
+}
+
+function stop() {
+  playing = false;
+  clearTimeout(timer);
+  stopAudio();
+  $("play").innerHTML = "&#9654;&nbsp; Play";
+  $("step").disabled = false;
+}
+
+function reset() {
+  stop();
+  idx = -1;
+  clearHighlights();
+  Object.keys(DEFAULT_CAPTIONS).forEach(k => { $("n-" + k).textContent = DEFAULT_CAPTIONS[k]; });
+  labelEl.textContent = DEFAULT_LABEL;
+  holdingEl.innerHTML = "form: <b>&mdash;</b>";
+  linesEl.innerHTML = "";
+  bridgeEl.textContent = "";
+  bridgeEl.classList.remove("active");
+  [...progressEl.children].forEach(d => d.classList.remove("on"));
+  $("narration").innerHTML =
+    '<div class="step-no">Ready</div><div class="text">Press <b>Play</b> to watch one click ripple across a checkout page &mdash; without any control on it knowing that the others exist.</div>';
+}
+
+$("play").addEventListener("click", () => {
+  if (playing) { stop(); return; }
+  if (idx >= STEPS.length - 1) reset();
+  playing = true;
+  $("play").innerHTML = "&#10074;&#10074;&nbsp; Pause";
+  $("step").disabled = true;
+  next();   // next() now schedules the rest of the run itself
+});
+
+$("step").addEventListener("click", () => { stop(); if (idx >= STEPS.length - 1) reset(); next(); });
+$("reset").addEventListener("click", reset);
+
+$("audio").addEventListener("click", () => {
+  setAudio(!audioOn);
+  // Turning narration on mid-run: speak the step already on screen.
+  if (audioOn && playing && idx >= 0) {
+    clearTimeout(timer);
+    playClip(idx, () => {
+      if (!playing) return;
+      timer = setTimeout(next, GAP_MS);
+    });
+  }
+});
+
+document.addEventListener("keydown", e => {
+  if (e.code === "Space") { e.preventDefault(); $("play").click(); }
+  if (e.code === "ArrowRight") { e.preventDefault(); $("step").click(); }
+  if (e.code === "KeyR") reset();
+  if (e.code === "KeyN") $("audio").click();
+});
+
+setAudio(false);
+reset();
+</script>
+</body>
+</html>

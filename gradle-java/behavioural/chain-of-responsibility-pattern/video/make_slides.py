@@ -79,16 +79,21 @@ def kind_bullets(scene, img, d):
 
 def kind_quote(scene, img, d):
     draw_title(d, scene["title"])
+    # A bare string here would be iterated character by character, which puts
+    # one letter on each line. Guard against it rather than trusting the data.
+    body = scene["body"]
+    if isinstance(body, str):
+        raise TypeError("quote body must be a list of lines, not a string")
     d.rectangle([100, 260, 112, 860], fill=ACCENT)
     y = 290
-    for ln in scene["body"]:
+    for ln in body:
         col = TEXT
         fnt = f(SANS, 42)
         if ln.startswith("—"):
             col, fnt = MUTED, f(SANS, 34)
-        elif ln.startswith("In plain") or ln.startswith("the subclass") \
-                or ln.startswith("It never"):
-            col, fnt = ACCENT, f(SANS_B, 42)
+        elif ln.startswith("In plain") or ln.startswith("the caller") \
+                or ln.startswith("and it never"):
+            col, fnt = ACCENT, f(SANS_B, 40)
         d.text((150, y), ln, font=fnt, fill=col)
         y += 62
 

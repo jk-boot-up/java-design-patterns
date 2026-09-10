@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Memento Pattern — Animated Walkthrough</title>
+<style>
+  :root {
+    --bg: #0f172a;
+    --panel: #1e293b;
+    --panel-hi: #334155;
+    --line: #475569;
+    --text: #e2e8f0;
+    --muted: #94a3b8;
+    --client: #38bdf8;
+    --context: #34d399;
+    --strategy: #a78bfa;
+    --picked: #fbbf24;
+    --bad: #f87171;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 28px 20px 60px;
+    background: var(--bg);
+    color: var(--text);
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  h1 { text-align: center; font-size: 28px; margin: 0 0 4px; }
+  .sub { text-align: center; color: var(--muted); margin: 0 0 24px; font-size: 15px; }
+
+  .wrap { max-width: 1100px; margin: 0 auto; }
+
+  .controls { display: flex; gap: 10px; justify-content: center; margin-bottom: 26px; flex-wrap: wrap; }
+  button {
+    background: var(--panel-hi); color: var(--text); border: 1px solid var(--line);
+    padding: 9px 20px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer;
+    transition: background .15s, transform .1s;
+  }
+  button:hover:not(:disabled) { background: #475569; }
+  button:active:not(:disabled) { transform: translateY(1px); }
+  button:disabled { opacity: .4; cursor: not-allowed; }
+  button.primary { background: var(--strategy); color: #1e1b4b; border-color: var(--strategy); }
+  button.primary:hover:not(:disabled) { background: #b9a3ff; }
+  button.on { background: #0c2b3d; border-color: var(--client); color: var(--client); }
+  button.on:hover:not(:disabled) { background: #123a52; }
+
+  .audio-note {
+    text-align: center; color: var(--muted); font-size: 12.5px;
+    margin: -14px 0 22px; min-height: 17px;
+  }
+
+  .stage { display: grid; grid-template-columns: 230px 1fr; gap: 22px; align-items: start; }
+
+  .col-client { display: flex; flex-direction: column; align-items: center; gap: 12px; padding-top: 20px; }
+
+  .box {
+    background: var(--panel); border: 2px solid var(--line); border-radius: 12px;
+    padding: 14px 16px; text-align: center; width: 100%;
+    transition: border-color .3s, box-shadow .3s, transform .3s, background .3s;
+  }
+  .box .name { font-weight: 700; font-size: 14px; letter-spacing: .2px; }
+  .box .role { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-top: 3px; }
+  .box.active {
+    transform: translateY(-3px);
+    box-shadow: 0 0 0 3px rgba(255,255,255,.07), 0 10px 28px rgba(0,0,0,.45);
+    border-color: var(--client); background: #0c2b3d;
+  }
+  .box.context.active { border-color: var(--context); background: #06281f; box-shadow: 0 0 0 3px rgba(52,211,153,.15); }
+  .holding {
+    margin-top: 9px; padding-top: 8px; border-top: 1px dashed var(--line);
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px;
+    color: var(--muted); line-height: 1.5;
+  }
+  .holding b { color: var(--picked); font-weight: 700; }
+
+  .col-main { display: flex; flex-direction: column; gap: 18px; }
+
+  .family {
+    border: 2px dashed var(--strategy); border-radius: 14px; padding: 18px 20px;
+    background: rgba(167,139,250,.05);
+  }
+  .family.snap { border-color: var(--picked); background: rgba(251,191,36,.05); }
+  .family.snap .family-label { color: var(--picked); }
+
+  .family-label {
+    font-size: 11px; color: var(--strategy); text-transform: uppercase;
+    letter-spacing: 1.4px; font-weight: 700; margin-bottom: 14px; text-align: center;
+  }
+
+  .row {
+    display: flex; align-items: center; justify-content: space-between;
+    border: 2px solid var(--line); border-radius: 8px; background: var(--panel);
+    padding: 8px 14px; margin-bottom: 6px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 13px;
+    transition: border-color .3s, background .3s, transform .3s, opacity .3s;
+  }
+  .row .note { color: var(--muted); font-size: 11px; text-align: right; }
+  .row.dim { opacity: .38; }
+  .row.picked {
+    border-color: var(--picked); background: #2a2008;
+  }
+  .row.active {
+    transform: translateX(4px);
+    border-color: var(--client);
+    box-shadow: 0 0 0 3px rgba(56,189,248,.15);
+  }
+  /* "wrong" marks a widget the tangled form has left in a bad state. */
+  .row.wrong { border-color: var(--bad); background: #2b0f12; }
+  .row.wrong .note { color: #fca5a5; }
+
+  .bridge-rail { text-align: center; color: var(--muted); font-size: 12px; margin: -6px 0 2px; min-height: 16px; transition: color .3s; }
+  .bridge-rail.active { color: var(--client); font-weight: 700; }
+
+  .narration {
+    background: var(--panel); border-left: 4px solid var(--strategy);
+    border-radius: 0 10px 10px 0; padding: 16px 20px; min-height: 76px;
+    font-size: 15px; line-height: 1.6;
+  }
+  .narration .step-no { color: var(--muted); font-size: 12px; letter-spacing: 1px; text-transform: uppercase; }
+  .narration .text { margin-top: 5px; }
+
+  .console {
+    background: #020617; border: 1px solid var(--line); border-radius: 10px;
+    padding: 14px 16px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 12.5px; line-height: 1.7; min-height: 130px;
+  }
+  .console .ttl { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+  .console div.ln { opacity: 0; transition: opacity .35s; }
+  .console div.ln.show { opacity: 1; }
+  .c-context { color: var(--context); }
+  .c-strategy { color: var(--strategy); }
+  .c-out  { color: var(--client); }
+  .c-pick { color: var(--picked); }
+  .c-bad  { color: var(--bad); }
+
+  .progress { display: flex; gap: 5px; justify-content: center; margin-top: 22px; }
+  .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--line); transition: background .3s, transform .3s; }
+  .dot.on { background: var(--strategy); transform: scale(1.35); }
+
+  .legend { text-align: center; color: var(--muted); font-size: 13px; margin-top: 26px; line-height: 1.7; }
+  .legend b { color: var(--text); }
+
+  @media (max-width: 860px) {
+    .stage { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>The Memento Pattern</h1>
+  <p class="sub">Undo, done by taking a copy &mdash; and by nobody else being able to look at it</p>
+
+  <div class="controls">
+    <button id="play" class="primary">&#9654;&nbsp; Play</button>
+    <button id="step">Step &rarr;</button>
+    <button id="reset">Reset</button>
+    <button id="audio" aria-pressed="false" title="Narrate each step (N)">
+      <span id="audio-icon">&#128263;</span>&nbsp; Narration: off
+    </button>
+  </div>
+  <p class="audio-note" id="audio-note"></p>
+
+  <div class="stage">
+
+    <div class="col-client">
+      <div class="box client" id="b-shopper">
+        <div class="name">The shopper</div>
+        <div class="role">adds, removes, undoes</div>
+      </div>
+      <div style="font-size:22px;color:var(--line)">&#8595;</div>
+      <div class="box context" id="b-history">
+        <div class="name">BasketHistory</div>
+        <div class="role">Caretaker &mdash; the friend</div>
+        <div class="holding" id="holding">undo stack: <b>&mdash;</b></div>
+      </div>
+      <div style="font-size:11px;color:var(--muted);text-align:center;line-height:1.5">
+        holds snapshots.<br>never opens one.
+      </div>
+    </div>
+
+    <div class="col-main">
+
+      <div class="family">
+        <div class="family-label" id="family-label">Basket &mdash; the originator, and the only class that knows its own state</div>
+        <div class="row" id="r-cable">
+          <span class="name">2 &times; USB-C cable</span>
+          <span class="note" id="n-cable">&pound;18</span>
+        </div>
+        <div class="row" id="r-stand">
+          <span class="name">1 &times; Laptop stand</span>
+          <span class="note" id="n-stand">&pound;34</span>
+        </div>
+        <div class="row" id="r-mat">
+          <span class="name">1 &times; Desk mat</span>
+          <span class="note" id="n-mat">&pound;18</span>
+        </div>
+        <div class="row" id="r-voucher">
+          <span class="name">voucher</span>
+          <span class="note" id="n-voucher">SAVE5</span>
+        </div>
+        <div class="row" id="r-total">
+          <span class="name">total</span>
+          <span class="note" id="n-total">&pound;65</span>
+        </div>
+      </div>
+
+      <div class="family snap">
+        <div class="family-label" id="snap-label">BasketSnapshot &mdash; nothing has been saved yet</div>
+        <div class="row" id="r-snap">
+          <span class="name">lines</span>
+          <span class="note" id="n-snap">&mdash;</span>
+        </div>
+        <div class="row" id="r-snapv">
+          <span class="name">voucher</span>
+          <span class="note" id="n-snapv">&mdash;</span>
+        </div>
+        <div class="row" id="r-snaplabel">
+          <span class="name">label()  <span style="color:var(--muted)">// public</span></span>
+          <span class="note" id="n-snaplabel">&mdash;</span>
+        </div>
+      </div>
+
+      <div class="bridge-rail" id="bridge-rail"></div>
+
+      <div class="narration" id="narration">
+        <div class="step-no">Ready</div>
+        <div class="text">Press <b>Play</b> to watch an undo work &mdash; and to see why the obvious version of it silently empties the basket.</div>
+      </div>
+
+      <div class="console">
+        <div class="ttl">Program output</div>
+        <div id="console-lines"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="progress" id="progress"></div>
+
+  <p class="legend">
+    <b>A snapshot is a photograph, not a window. The history holds it; only the basket can open it.</b><br>
+    Save a reference instead of a copy and undo empties the basket &mdash; quietly, with no exception and nothing in the log.<br>
+    <span style="font-size:12px">
+      Keys: <b>Space</b> play/pause &nbsp;·&nbsp; <b>&rarr;</b> next step
+      &nbsp;·&nbsp; <b>N</b> narration &nbsp;·&nbsp; <b>R</b> reset
+    </span>
+  </p>
+
+</div>
+
+<script>
+// Each step may set any widget's caption; captions persist until changed, so a
+// step only lists what it actually moves.
+const STEPS = [
+  {
+    title: "Step 1 — A basket, and a ticket that says \"add an undo button\"",
+    text: "Three products and a voucher: sixty five pounds. The basket's state is two things -- the lines in it, and the voucher code applied to it. Undo has to put back whatever the last change touched. It sounds like an afternoon's work.",
+    active: [], dim: false, holding: "empty",
+    bridge: "state = the lines  +  the voucher      ·      undo = put the last one back",
+    out: { cls: "c-strategy", txt: "// 4 items, voucher SAVE5, total £65" }
+  },
+  {
+    title: "Step 2 — The obvious attempt: keep a \"before\" copy in a field",
+    text: "Save the list, and put it back when undo is pressed. Except that savedLines equals lines does not copy anything. It writes down where the list is, not what is in it, so the save and the live basket are the same list. Every later change edits both.",
+    active: ["r-snap"], dim: true, holding: "empty",
+    wrong: ["r-snap"],
+    snapLabel: "The naive \"save\" — the same list under a second name",
+    captions: { snap: "→ the live list itself", snapv: "not saved at all", snaplabel: "—" },
+    bridge: "savedLines = lines;      // one list, two names",
+    out: { cls: "c-bad", txt: "savedLines == lines   ->   true" }
+  },
+  {
+    title: "Step 3 — So undo empties the basket",
+    text: "Undo clears the live list, which is also the saved list, and then copies the now-empty saved list back over it. The shopper presses undo and their basket is gone. And the voucher was never saved at all -- nobody decided that, it simply was not on anyone's mind. There is no line of code you could review to find it.",
+    active: [], dim: false, holding: "empty",
+    wrong: ["r-cable", "r-stand", "r-mat", "r-voucher", "r-total"],
+    captions: { cable: "gone", stand: "gone", mat: "gone", voucher: "whatever it happened to be", total: "£0" },
+    bridge: "lines.clear()  clears the save too  --  and then restores nothing",
+    out: { cls: "c-bad", txt: "after undo:  0 items,  total £0     // no exception, no log" }
+  },
+  {
+    title: "Step 4 — Now do it properly: ask the basket for a snapshot",
+    text: "The basket copies its own state into a snapshot, because the basket is the only class that knows what its state is. List dot copyOf makes a real copy, taken at this moment, that nothing can reach afterwards. A photograph of the basket rather than a window onto it.",
+    active: ["r-snap", "r-snapv", "r-snaplabel"], dim: false, holding: "empty",
+    snapLabel: "BasketSnapshot — a copy, sealed, taken now",
+    captions: { cable: "£18", stand: "£34", mat: "£18", voucher: "SAVE5", total: "£65",
+                snap: "a copy of all 4 lines", snapv: "SAVE5", snaplabel: "\"removed the laptop stand\"" },
+    bridge: "basket.save(\"removed the laptop stand\")   →   List.copyOf(lines)",
+    out: { cls: "c-context", txt: "BasketSnapshot before = basket.save(\"removed the laptop stand\");" }
+  },
+  {
+    title: "Step 5 — The history holds it, and cannot open it",
+    text: "The snapshot goes on the undo stack. The history can read the label, because label is public, so an undo menu can say removed the laptop stand. Lines and voucher are package private, so only the basket can get the state back out. Undo works here without the history knowing that a basket contains anything at all.",
+    active: ["b-history", "r-snaplabel"], dim: true, holding: "1 snapshot",
+    bridge: "public label()   ·   package-private lines(), voucher()",
+    out: { cls: "c-context", txt: "history.record(basket, \"removed the laptop stand\")   // stack: 1" }
+  },
+  {
+    title: "Step 6 — The shopper removes the laptop stand by mistake",
+    text: "The live basket changes: three items, thirty one pounds. Now look at the snapshot. It has not moved. That is the whole difference between a copy and a reference, and it is one line of code wide.",
+    active: ["b-shopper", "r-stand", "r-total"], dim: true, holding: "1 snapshot",
+    captions: { stand: "removed", total: "£31" },
+    bridge: "basket.remove(\"Laptop stand\")      ·      the snapshot is untouched",
+    out: { cls: "c-out", txt: "basket:  3 items,  £31        snapshot:  4 items,  £65" }
+  },
+  {
+    title: "Step 7 — Undo. The history hands the snapshot back",
+    text: "It pops the snapshot off the stack and passes it to the basket. That is its entire contribution: hold this, and give it back later. It never looked inside, and it did not need to, because putting the basket back is the basket's job.",
+    active: ["b-shopper", "b-history"], dim: true, holding: "handing it back",
+    bridge: "history.undo(basket)   →   basket.restore(snapshot)",
+    out: { cls: "c-out", txt: "history.undo(basket)   // returns the label, for the menu" }
+  },
+  {
+    title: "Step 8 — Only now is the envelope opened, and only by the basket",
+    text: "Restore calls lines and voucher on the snapshot. Those two methods are invisible from outside the package, so this is the one place in the program where a snapshot gives up what it is holding.",
+    active: ["r-snap", "r-snapv"], dim: true, holding: "0 snapshots",
+    bridge: "snapshot.lines()   ·   snapshot.voucher()      --  package-private, so: Basket only",
+    out: { cls: "c-context", txt: "lines <- the copied lines     voucher <- \"SAVE5\"" }
+  },
+  {
+    title: "Step 9 — Both fields come back, because both were saved",
+    text: "Four items, the voucher, sixty five pounds. Lines and voucher travel together, because they are both state and a snapshot is complete by definition. The naive version restored one of them and silently forgot the other.",
+    active: ["r-cable", "r-stand", "r-mat", "r-voucher", "r-total"], dim: false, holding: "0 snapshots",
+    captions: { stand: "£34", total: "£65", voucher: "SAVE5" },
+    bridge: "4 items  ·  SAVE5  ·  £65      --  exactly as it was",
+    out: { cls: "c-out", txt: "after undo:  4 items,  voucher SAVE5,  total £65" }
+  },
+  {
+    title: "Step 10 — And the snapshot survived being used",
+    text: "Restore read from it and left it exactly as it was. Nothing was consumed. That is why redo, or a branching history, is an addition later rather than a rewrite -- the same snapshot could be restored again tomorrow.",
+    active: ["r-snap", "r-snapv", "r-snaplabel"], dim: true, holding: "0 snapshots",
+    bridge: "restore() reads  ·  it does not consume      →      redo is about ten lines",
+    out: { cls: "c-context", txt: "the same snapshot can be restored twice" }
+  },
+  {
+    title: "Step 11 — Next month, the basket grows a gift message",
+    text: "Add it to save and to restore, and undo covers it. Two methods, in the class that already knew what the state was. Nothing outside the basket has to hear about the new field -- not the history, not the undo button, not the tests for either.",
+    active: [], dim: false, holding: "0 snapshots",
+    snapLabel: "BasketSnapshot — one more field, and undo still correct",
+    captions: { snap: "a copy of all 4 lines", snapv: "SAVE5", snaplabel: "+ giftMessage" },
+    bridge: "new field  →  2 methods to change  →  undo still correct",
+    out: { cls: "c-context", txt: "save() + restore()   // the only two places that know the state" }
+  },
+  {
+    title: "Step 12 — The same undo, on the version without a snapshot",
+    text: "An empty basket, and a voucher that will not come back. Same shopper, same click. The difference is not care or skill: it is that on one of them, the object that owns the state is the only one that copies it, and it copies all of it.",
+    active: [], dim: false, holding: "photograph, not window",
+    wrong: ["r-snap"],
+    snapLabel: "The naive \"save\" — a reference, and half the state missing",
+    captions: { snap: "→ the live list itself", snapv: "not saved at all", snaplabel: "—" },
+    bridge: "saved a reference, saved half the state      vs.      saved a copy, saved all of it",
+    out: { cls: "c-bad", txt: "naive: 0 items, £0    |    memento: 4 items, SAVE5, £65" }
+  }
+];
+
+const BOXES = ["b-shopper", "b-history"];
+const ROWS = ["r-cable", "r-stand", "r-mat", "r-voucher", "r-total",
+              "r-snap", "r-snapv", "r-snaplabel"];
+const ALL_BOXES = BOXES.concat(ROWS);
+
+const STEP_MS = 3200;      // pace when narration is off
+const GAP_MS = 700;        // breathing room after a clip finishes
+
+let idx = -1;
+let playing = false;
+let timer = null;
+
+// Narration is optional: if the audio clips are missing (or the browser
+// blocks playback) the animation still works exactly as before.
+let audioOn = false;
+let clips = [];
+let current = null;
+
+const $ = id => document.getElementById(id);
+const progressEl = $("progress");
+const linesEl = $("console-lines");
+const noteEl = $("audio-note");
+const bridgeEl = $("bridge-rail");
+const holdingEl = $("holding");
+const labelEl = $("family-label");
+const snapLabelEl = $("snap-label");
+
+const DEFAULT_LABEL = "Basket — the originator, and the only class that knows its own state";
+const DEFAULT_SNAP_LABEL = "BasketSnapshot — nothing has been saved yet";
+const DEFAULT_CAPTIONS = {
+  cable: "£18",
+  stand: "£34",
+  mat: "£18",
+  voucher: "SAVE5",
+  total: "£65",
+  snap: "—",
+  snapv: "—",
+  snaplabel: "—"
+};
+
+STEPS.forEach(() => {
+  const d = document.createElement("div");
+  d.className = "dot";
+  progressEl.appendChild(d);
+});
+
+// ---- optional narration ------------------------------------------------
+
+clips = STEPS.map((_, i) => {
+  const a = new Audio("audio/step-" + (i + 1) + ".m4a");
+  a.preload = "none";
+  return a;
+});
+
+function stopAudio() {
+  if (!current) return;
+  current.pause();
+  current.currentTime = 0;
+  current.onended = null;
+  current = null;
+}
+
+/** Play the clip for step i. onDone fires when it finishes (or cannot play). */
+function playClip(i, onDone) {
+  stopAudio();
+  if (!audioOn) { if (onDone) onDone(); return; }
+
+  const a = clips[i];
+  current = a;
+  a.currentTime = 0;
+  a.onended = () => { current = null; if (onDone) onDone(); };
+
+  a.play().catch(() => {
+    // Missing file, or autoplay blocked -> fall back to timed pacing.
+    current = null;
+    noteEl.textContent =
+      "Narration audio could not be played — falling back to timed steps. " +
+      "Run docs/make_animation_audio.sh to generate the clips.";
+    if (onDone) onDone();
+  });
+}
+
+function setAudio(on) {
+  audioOn = on;
+  const btn = $("audio");
+  btn.classList.toggle("on", on);
+  btn.setAttribute("aria-pressed", String(on));
+  btn.innerHTML = '<span id="audio-icon">' + (on ? "&#128266;" : "&#128263;") +
+                  "</span>&nbsp; Narration: " + (on ? "on" : "off");
+  noteEl.textContent = on
+    ? "Each step is narrated, and the animation waits for the voice to finish."
+    : "";
+  if (!on) stopAudio();
+}
+
+// ------------------------------------------------------------------------
+
+function clearHighlights() {
+  ALL_BOXES.forEach(b => $(b).classList.remove("active"));
+  ROWS.forEach(r => $(r).classList.remove("dim", "wrong"));
+}
+
+function render(i) {
+  clearHighlights();
+  const s = STEPS[i];
+
+  s.active.forEach(b => $(b).classList.add("active"));
+
+  // Widgets not involved in this step fade back, so the eye follows the one
+  // message the form is currently sending.
+  if (s.dim) ROWS.filter(r => !s.active.includes(r)).forEach(r => $(r).classList.add("dim"));
+
+  // "wrong" marks a widget the tangled form has left in a bad state.
+  (s.wrong || []).forEach(r => $(r).classList.add("wrong"));
+
+  // Captions are cumulative: replay every step up to this one so that
+  // stepping backwards or jumping about still shows a consistent form.
+  const caps = Object.assign({}, DEFAULT_CAPTIONS);
+  let label = DEFAULT_LABEL;
+  let snapLabel = DEFAULT_SNAP_LABEL;
+  for (let k = 0; k <= i; k++) {
+    Object.assign(caps, STEPS[k].captions || {});
+    if (STEPS[k].label) label = STEPS[k].label;
+    if (STEPS[k].snapLabel) snapLabel = STEPS[k].snapLabel;
+  }
+  Object.keys(caps).forEach(key => { $("n-" + key).textContent = caps[key]; });
+  labelEl.textContent = label;
+  snapLabelEl.textContent = snapLabel;
+
+  holdingEl.innerHTML = "undo stack: <b>" + (s.holding || "&mdash;") + "</b>";
+
+  bridgeEl.textContent = s.bridge || "";
+  bridgeEl.classList.add("active");
+
+  $("narration").innerHTML =
+    '<div class="step-no">' + s.title + '</div><div class="text">' + s.text + '</div>';
+
+  // Rebuild console output up to this step
+  linesEl.innerHTML = "";
+  for (let k = 0; k <= i; k++) {
+    if (!STEPS[k].out) continue;
+    const div = document.createElement("div");
+    div.className = "ln " + STEPS[k].out.cls;
+    div.textContent = STEPS[k].out.txt;
+    linesEl.appendChild(div);
+    requestAnimationFrame(() => div.classList.add("show"));
+  }
+
+  [...progressEl.children].forEach((d, k) => d.classList.toggle("on", k <= i));
+}
+
+/** Advance one step. In play mode, schedule the following step afterwards. */
+function next() {
+  if (idx >= STEPS.length - 1) { stop(); return; }
+  idx++;
+  render(idx);
+
+  if (!playing) { playClip(idx); return; }
+
+  if (audioOn) {
+    // Wait for the voice to finish this step, then move on.
+    playClip(idx, () => {
+      if (!playing) return;
+      timer = setTimeout(next, GAP_MS);
+    });
+  } else {
+    timer = setTimeout(next, STEP_MS);
+  }
+}
+
+function stop() {
+  playing = false;
+  clearTimeout(timer);
+  stopAudio();
+  $("play").innerHTML = "&#9654;&nbsp; Play";
+  $("step").disabled = false;
+}
+
+function reset() {
+  stop();
+  idx = -1;
+  clearHighlights();
+  Object.keys(DEFAULT_CAPTIONS).forEach(k => { $("n-" + k).textContent = DEFAULT_CAPTIONS[k]; });
+  labelEl.textContent = DEFAULT_LABEL;
+  snapLabelEl.textContent = DEFAULT_SNAP_LABEL;
+  holdingEl.innerHTML = "undo stack: <b>&mdash;</b>";
+  linesEl.innerHTML = "";
+  bridgeEl.textContent = "";
+  bridgeEl.classList.remove("active");
+  [...progressEl.children].forEach(d => d.classList.remove("on"));
+  $("narration").innerHTML =
+    '<div class="step-no">Ready</div><div class="text">Press <b>Play</b> to watch an undo work &mdash; and to see why the obvious version of it silently empties the basket.</div>';
+}
+
+$("play").addEventListener("click", () => {
+  if (playing) { stop(); return; }
+  if (idx >= STEPS.length - 1) reset();
+  playing = true;
+  $("play").innerHTML = "&#10074;&#10074;&nbsp; Pause";
+  $("step").disabled = true;
+  next();   // next() now schedules the rest of the run itself
+});
+
+$("step").addEventListener("click", () => { stop(); if (idx >= STEPS.length - 1) reset(); next(); });
+$("reset").addEventListener("click", reset);
+
+$("audio").addEventListener("click", () => {
+  setAudio(!audioOn);
+  // Turning narration on mid-run: speak the step already on screen.
+  if (audioOn && playing && idx >= 0) {
+    clearTimeout(timer);
+    playClip(idx, () => {
+      if (!playing) return;
+      timer = setTimeout(next, GAP_MS);
+    });
+  }
+});
+
+document.addEventListener("keydown", e => {
+  if (e.code === "Space") { e.preventDefault(); $("play").click(); }
+  if (e.code === "ArrowRight") { e.preventDefault(); $("step").click(); }
+  if (e.code === "KeyR") reset();
+  if (e.code === "KeyN") $("audio").click();
+});
+
+setAudio(false);
+reset();
+</script>
+</body>
+</html>

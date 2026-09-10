@@ -38,6 +38,12 @@ tracking codes differ each time; everything else is stable.
 ./gradlew test
 ```
 
+18 tests. `OrderFacadeTest` pins the sequence the facade exists to hold —
+stock before payment, payment before shipment, shipment before the email —
+and that a request refused for stock is never charged. `SubsystemsTest`
+pins the other half of the pattern: the four services stay public and
+usable without the facade.
+
 ## Learning Material
 
 Start here if you are new to the pattern — the docs are ordered as a

@@ -7,10 +7,10 @@ Chapter timings are generated from the video's `.srt`. Re-run `python3 docs/make
 ## Title
 
 ```
-Abstract Factory Pattern in Java - Explained
+Abstract Factory in Java - A Regional Checkout
 ```
 
-44 characters — under the 60 YouTube shows before truncating in search results.
+46 characters — under the 60 YouTube shows before truncating in search results.
 
 ## Description
 
@@ -97,7 +97,7 @@ YouTube will not pick the thumbnail up on its own — upload it under **Details 
 
 ## Cards and end screen
 
-End screen links to **Builder Pattern**, the next video in the learning order.
+End screen links to whichever pattern video goes up next — set it at upload time rather than assuming an order.
 
 Add a card partway through pointing at the playlist, so a viewer who arrives at this pattern from search can find the rest of the series.
 

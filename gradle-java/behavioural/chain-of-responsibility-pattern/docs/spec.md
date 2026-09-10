@@ -185,7 +185,7 @@ watches the second one. It must run in this order:
 | Stream start | Both streams at exactly 0.000 s | Otherwise the video track starts 21 ms late and players show black at 0:00 |
 | Narration | macOS `say`, voice Samantha, 145 wpm | The pace educational YouTube converges on for technical material |
 | Inter-scene pause | 0.9 s of appended silence | So slides do not snap past the moment a sentence ends |
-| Runtime | ~11:01 over 15 scenes, 160 subtitle cues |  |
+| Runtime | ~10:59 over 15 scenes, 160 subtitle cues |  |
 
 ### 5.3 The two defects this pipeline exists to prevent
 

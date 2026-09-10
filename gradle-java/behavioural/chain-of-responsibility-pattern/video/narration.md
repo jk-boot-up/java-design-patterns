@@ -58,4 +58,4 @@ So, what to take away. First, the confusion I promised to clear up. Chain of res
 
 ## 15. Thanks for Watching
 
-That's chain of responsibility. The full source, the written notes, the diagrams and an animated walkthrough are all in the repository — including the exercise I'd most recommend. Take the standard chain, move the payment link above the fraud link, run the demo, and watch a customer get told something different about the same order. If this helped, a like genuinely does help other people find it, and subscribe if you'd like the rest of the behavioural series — iterator is next. Thanks for watching, and I'll see you in the next one.
+That's chain of responsibility. The full source, the written notes, the diagrams and an animated walkthrough are all in the repository — including the exercise I'd most recommend. Take the standard chain, move the payment link above the fraud link, run the demo, and watch a customer get told something different about the same order. If this helped, a like genuinely does help other people find it, and subscribe if you'd like the rest of the behavioural series. Thanks for watching, and I'll see you in the next one.

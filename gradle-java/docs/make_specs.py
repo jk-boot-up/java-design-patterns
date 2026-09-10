@@ -1309,6 +1309,418 @@ requirements=[
 ],
 ),
 
+"iterator": dict(
+purpose="""
+Teach handing out a small object that remembers where a caller has got to, so
+that walking an awkward collection is written once instead of once per caller
+-- and teach the split the pattern turns on, which is that the collection
+knows what is in it and the iterator knows where you are, in two different
+objects, with no exceptions.
+""",
+nongoals=[
+    "Not an argument for wrapping a `List`. A `List` already has an "
+    "iterator, and the notes say plainly that writing another one around it "
+    "is ceremony; the pattern earns its keep here because the storage is "
+    "paged, and the explainer names the other cases -- trees, streams of "
+    "lines, sequences with no end -- rather than implying it is always "
+    "worthwhile.",
+    "Not a streams tutorial, and not an argument against streams. The "
+    "comparison section places index loops, iterators and streams side by "
+    "side and states explicitly that streams are built on this pattern "
+    "rather than being an alternative to it. `java.util.stream` is not "
+    "imported anywhere in the project.",
+    "Not a lesson in generics. `Iterable<Product>` and `Iterator<Product>` "
+    "are read, never written; no class in the project declares a type "
+    "parameter, because a beginner should not have to learn generic class "
+    "declarations to learn this pattern.",
+    "Not concurrency. `ConcurrentModificationException` gets one mention in "
+    "the pitfalls and nothing more; there are no threads, no fail-fast "
+    "modification counting, and no synchronisation anywhere.",
+    "Not a real paged API. `CatalogueFeed` fakes the warehouse with a list "
+    "and a counter, so there is nothing to install, connect to or stub -- "
+    "the counter is the point, because it turns laziness into something a "
+    "test can assert.",
+],
+problem="""
+The shop's catalogue does not live in the application. It lives in the
+warehouse system, which hands products over three at a time: you ask for page
+zero, then page one, and you know you have reached the end when a page comes
+back empty. There is no `size()` and no `hasMorePages()`. Everything else a
+caller might want, it works out by hand, in a loop.
+
+`NaiveCatalogueBrowser` is what that looks like after three people have each
+needed to walk the catalogue. Three methods, three hand-written copies of the
+same page loop, and two of them are wrong. `countProducts()` hard-codes three
+pages, so it is correct today and silently under-counts on the day a tenth
+product is added. `findCheapest()` starts its page counter at one instead of
+zero, never looks at page zero, and so never sees the four-pound socks -- it
+returns the eight-pound Coffee Mug, which is a real product at a real price,
+correctly formatted, and not the cheapest thing in the shop. Neither bug
+throws, neither is logged, and both can live in production indefinitely.
+
+**What the pattern must deliver:** the page loop written exactly once, in a
+class with a name that can be tested on its own; a catalogue that can be used
+in a `for`-each loop without any caller naming a page; fetching that happens
+only when a caller actually reaches the page, so stopping early costs nothing;
+and two simultaneous walks over one catalogue that do not disturb each other.
+""",
+roles=[
+    ("Aggregate", "`java.lang.Iterable` -- not written here; the JDK's"),
+    ("Iterator", "`java.util.Iterator` -- not written here either"),
+    ("Concrete aggregate",
+     "`ProductCatalogue` -- holds the feed, and no position at all"),
+    ("Concrete iterator",
+     "`CatalogueIterator` -- package-private; every field on it is position"),
+    ("Awkward storage",
+     "`CatalogueFeed` -- pages of three, and a counter of pages fetched"),
+    ("Element", "`Product` -- a record"),
+    ("Naive alternative", "`NaiveCatalogueBrowser` -- three methods, three loops"),
+    ("Entry point", "`CatalogueDemo`"),
+],
+requirements=[
+    "**The page loop exists once.** `CatalogueIterator.hasNext` is the only "
+    "place in the project that increments a page number or knows that an "
+    "empty page means the end. Nothing else -- not the catalogue, not the "
+    "demo, not any test -- contains a second copy.",
+    "**The aggregate holds no position.** `ProductCatalogue` has one field, "
+    "the feed. It has no page number, no index and no `next()`, and "
+    "`iterator()` returns a new instance on every call rather than a cached "
+    "one, which is what makes two simultaneous walks possible.",
+    "**Fetching is lazy, and the build proves it.** `CatalogueFeed` counts "
+    "its own calls, so the tests can assert that creating an iterator fetches "
+    "nothing and that consuming two products fetches exactly one page of "
+    "three. Moving the first fetch into a constructor turns that test red.",
+    "**Two iterators do not interfere.** A test advances one iterator over a "
+    "catalogue and asserts the other is still at the first product. This is "
+    "the test that catches the most common first-attempt mistake, which is "
+    "putting the position on the aggregate.",
+    "**`hasNext()` is safe to call repeatedly.** It consumes nothing, so "
+    "calling it twice in a row returns the same answer and skips no element; "
+    "`next()` calls it rather than trusting the caller, and throws "
+    "`NoSuchElementException` with a readable message at the end.",
+    "**The caller never names a page.** The demo's second section is a plain "
+    "`for`-each loop, and the word `page` does not appear in it. Crossing a "
+    "page boundary is invisible from outside the iterator.",
+    "**The naive alternative is argued against honestly.** Its `allProducts` "
+    "method is correct and its author was not careless; the case against it "
+    "is that the loop was written three times and so could be got wrong three "
+    "ways. Both bugs are pinned by *passing* tests that assert the wrong "
+    "behaviour, each paired with the same question put through the iterator.",
+    "**The cost is stated, not hidden.** The notes say that over an "
+    "`ArrayList` this pattern is pure ceremony, that a `hasNext()` which "
+    "consumes is a real and easy bug, and that `remove()` is left "
+    "unimplemented on purpose -- with an explanation of what it would have to "
+    "do to work against a paged source.",
+],
+),
+
+"mediator": dict(
+purpose="""
+Teach moving the rules about how a group of objects affect one another out of
+the objects themselves and into one hub, so that the wiring grows with the
+number of parts rather than with the square of it -- and teach the honest
+consequence, which is that the hub becomes the one class that knows the whole
+page and has to be kept from turning into a god object.
+""",
+nongoals=[
+    "Not a GUI tutorial. There is no window, no toolkit and no event loop: "
+    "the widgets are plain objects holding a value, and the demo prints to "
+    "the console, so nothing about the lesson depends on Swing, Android or a "
+    "browser.",
+    "Not Observer, and not an argument against it. The comparison section "
+    "puts the two side by side -- Observer broadcasts a fact to whoever "
+    "subscribed, Mediator decides what a change means -- and says plainly "
+    "that a page can use both.",
+    "Not an event bus, a message broker or a framework. The mediator is one "
+    "interface with one method, and the project never suggests reaching for "
+    "infrastructure to get the same decoupling.",
+    "Not an argument that objects must never reference each other. The notes "
+    "recommend two controls wired directly when there really are only two, "
+    "and name the point -- roughly the third rule -- at which the hub starts "
+    "paying for itself.",
+],
+problem="""
+A checkout page has five controls: a country selector, a shipping selector, a
+gift-wrap checkbox, a total, and a Place Order button. Four rules tie them
+together. The country decides which couriers are offered; the country decides
+whether gift wrapping is available at all; the courier and the gift wrap both
+move the total; and the button is enabled only once a country and a courier
+are both chosen.
+
+`NaiveCheckoutForm` is what that looks like when each rule is added on its own
+day, by whoever needed it. Five controls hold nine references to one another,
+two of them mutual, and no single file contains the behaviour of the page.
+Two bugs follow from that arrangement rather than from carelessness. Changing
+the country to one that cannot be gift wrapped withdraws the option but leaves
+the tick where it was, so the form charges two pounds for wrapping that will
+not happen -- a total of forty-two pounds that is wrong in a way no exception
+will ever mention. And the country selector, having reshaped the courier list,
+never re-checks the button, so Place Order stays enabled with no courier
+selected.
+
+**What the pattern must deliver:** every rule about the page in one readable
+method; controls that hold a reference to the hub and to nothing else, so the
+tangle is not merely absent but unrepresentable; a form whose behaviour can be
+asserted without constructing any user interface; and wiring that stays linear
+as controls are added.
+""",
+roles=[
+    ("Mediator", "`CheckoutMediator` -- one method, `changed(FormWidget)`"),
+    ("Concrete mediator",
+     "`CheckoutForm` -- the rules of the page, all of them, in `changed`"),
+    ("Colleague",
+     "`FormWidget` -- a name and a mediator, and deliberately nothing else"),
+    ("Concrete colleagues",
+     "`CountrySelector`, `ShippingSelector`, `GiftWrapCheckbox`, "
+     "`TotalLabel`, `PlaceOrderButton`"),
+    ("Naive alternative",
+     "`NaiveCheckoutForm` -- nine references on five controls, in one file"),
+    ("Entry point", "`CheckoutFormDemo`"),
+],
+requirements=[
+    "**No colleague holds another colleague.** `FormWidget` has two fields, a "
+    "name and a mediator. `WidgetIsolationTest` walks every widget's declared "
+    "fields by reflection and fails naming the offender, so the constraint is "
+    "enforced by the build rather than promised by a comment.",
+    "**Every rule lives in one method.** `CheckoutForm.changed` is the only "
+    "place in the project that knows the country reshapes the courier list, "
+    "that gift wrap is domestic-only, or that the button needs both. Reading "
+    "it is reading the page.",
+    "**The refreshes are unconditional.** `changed` recomputes the total and "
+    "the button on every change rather than trying to work out which of them "
+    "the change could have affected. That is what makes the naive form's "
+    "forgotten re-check structurally impossible rather than merely fixed.",
+    "**The mediator pushes; colleagues do not pull.** Every method the "
+    "mediator calls on a widget is package-private and announces nothing, so "
+    "a widget cannot ask the mediator a question and cannot start a cascade "
+    "by being updated.",
+    "**A widget's own change announces itself once.** Setting a value calls "
+    "`mediator.changed(this)` and stops; no widget works out what its change "
+    "means, because none of them can see far enough to know.",
+    "**The naive alternative is argued against honestly.** Nobody sat down "
+    "and decided to write nine references; each was added alone, for a good "
+    "reason, on a different day. Both of its bugs are pinned by *passing* "
+    "tests that assert the wrong behaviour -- the forty-two pound total and "
+    "the enabled button -- each paired with the same interaction put through "
+    "the mediator.",
+    "**The arithmetic is stated.** The notes give the growth curve directly: "
+    "up to n(n-1) relationships wired directly against n through a hub, with "
+    "the three-, five- and ten-control rows written out, because the curve "
+    "matters more than any single line of the tangle.",
+    "**The cost is stated, not hidden.** The mediator is the one class that "
+    "knows everything, and the notes say what to do when that class grows too "
+    "large, name the god-object risk out loud, and recommend wiring two "
+    "controls directly when there really are only two.",
+],
+),
+
+"memento": dict(
+purpose="""
+Teach saving an object's state so it can be put back later, without opening the
+object up to do it -- and teach the half of the definition that beginners skip,
+which is that the thing holding the copy must still be unable to see inside it.
+""",
+nongoals=[
+    "Not serialization or storage. Snapshots are ordinary objects held in "
+    "memory; `Serializable`, JSON, files and databases appear nowhere, "
+    "because none of them are needed to make the point.",
+    "Not Command, and not an argument against it. The comparison section "
+    "places the two side by side -- state before the change against the "
+    "operation and its inverse -- and states when Command is the better "
+    "trade, which is when the state is large and the operations invert "
+    "cleanly.",
+    "Not a deep-copy tutorial. The copy here is shallow and safe, and the "
+    "notes say exactly what makes it safe (`BasketLine` is a record) and what "
+    "would silently make it unsafe, rather than teaching a cloning recipe.",
+    "Not concurrency, and not a transaction manager. There are no threads and "
+    "no rollback machinery; database transactions get one line in the "
+    "\"where you have seen it\" list and nothing more.",
+],
+problem="""
+A shopper's basket holds two things: its lines, and a voucher code worth five
+pounds off the whole order. The ticket says add an undo button, because
+shoppers keep removing the wrong line and then have to go and find the product
+again.
+
+`NaiveBasket` is the obvious afternoon's work, and it is wrong twice.
+`savedLines = lines` records where the list is rather than what is in it, so
+the save and the live basket are one list under two names; undo then clears the
+list it was about to restore from, and the shopper's basket comes back empty
+with no exception and nothing in the log. And the voucher is not saved at all
+-- not because anyone decided against it, but because it was not on anybody's
+mind on the day undo was written, which is a class of bug no code review can
+catch, since the defect is the absence of a line.
+
+The obvious repair is worse than the bug: making the basket's fields public so
+the undo code can copy them buys one feature at the cost of the basket's
+encapsulation, permanently.
+
+**What the pattern must deliver:** a complete copy of the basket's state, taken
+by the basket itself; a history that can stack those copies and hand them back
+without ever being able to read one; undo that keeps working when a field is
+added, by editing two methods and nothing else; and the basket's fields exactly
+as private afterwards as they were before.
+""",
+roles=[
+    ("Originator",
+     "`Basket` -- the only class that writes a snapshot or reads one back"),
+    ("Memento",
+     "`BasketSnapshot` -- a sealed copy; public outside, opaque inside"),
+    ("Caretaker",
+     "`BasketHistory` -- a capped stack of snapshots it cannot open"),
+    ("Element", "`BasketLine` -- a record, and that is load-bearing"),
+    ("Naive alternative",
+     "`NaiveBasket` -- an alias for a copy, and a forgotten voucher"),
+    ("Entry point", "`BasketUndoDemo`"),
+],
+requirements=[
+    "**The snapshot copies.** `BasketSnapshot`'s constructor calls "
+    "`List.copyOf`, so a snapshot is a photograph rather than a window. A "
+    "test empties the basket completely *after* taking a snapshot and then "
+    "restores, which is the aliasing bug written as an assertion.",
+    "**The narrow interface is enforced by the build.** `label()` is public; "
+    "`lines()`, `voucher()` and the constructor have no modifier at all, so "
+    "only `Basket` can use them. `SnapshotEncapsulationTest` walks the "
+    "class's declared methods by reflection and fails naming any public one "
+    "outside a short allowed list.",
+    "**One place knows what the state is.** `Basket.save` and "
+    "`Basket.restore` are the only six lines in the project aware that a "
+    "basket has lines and a voucher; adding a field means editing them and "
+    "nothing else.",
+    "**The caretaker never opens an envelope.** `BasketHistory` pushes "
+    "snapshots, pops them, hands them to the basket and reads the label. It "
+    "does its entire job without knowing that a basket contains anything.",
+    "**Restore does not consume.** `restore` reads a snapshot without "
+    "changing or discarding it, so the same one can be restored twice -- "
+    "which is what makes redo an addition of about ten lines rather than a "
+    "rewrite.",
+    "**The naive alternative is argued against honestly.** Its two methods "
+    "look like opposites and its author was not careless. Both failures are "
+    "pinned by *passing* tests that assert the wrong answers -- the empty "
+    "basket and the voucher that does not come back -- so the cost of the "
+    "alternative is stated by the build rather than claimed by a README.",
+    "**The memory cost is stated, not hidden.** Every snapshot is a full "
+    "copy, `BasketHistory` caps the stack at twenty for exactly that reason, "
+    "and the notes say that Command is the better trade when the state is "
+    "genuinely large.",
+    "**The shallow copy is explained rather than assumed.** The notes state "
+    "the rule in both directions: immutable parts make a shallow copy safe, "
+    "mutable parts make it a bug waiting to be found -- and warn that "
+    "snapshotting after the change instead of before makes every undo one "
+    "step off, which looks like the pattern failing when it is the caller.",
+],
+),
+
+"interpreter": dict(
+purpose="""
+Teach writing one small class for each kind of phrase in a tiny language, so
+that a promotion rule becomes a line of text an editor can change rather than a
+branch that needs a release -- and teach the sentence beginners skip, which is
+that this pattern is only affordable while the language stays small.
+""",
+nongoals=[
+    "Not a parser tutorial. `RuleParser` is two string splits and a `throw`, "
+    "it is labelled as not part of the pattern everywhere it appears, and the "
+    "one exercise that asks for brackets is deliberately unfinishable so the "
+    "limit is felt rather than asserted.",
+    "Not a rules engine, and not an argument against one. The notes say "
+    "plainly that production shops often buy one, and that this project is "
+    "what such a thing looks like on the inside.",
+    "Not Composite, although it is built from one. The comparison section "
+    "states that the difference is intent rather than structure: Composite is "
+    "about treating one thing and many things alike, Interpreter is about "
+    "meaning.",
+    "Not a claim that an `if` is wrong. Three settled promotions are better "
+    "written as three branches, and the explainer says so before it says "
+    "anything else.",
+],
+problem="""
+An online shop runs promotions, and a promotion is three things: a code, a
+percentage, and a rule about who qualifies. Written in Java the first one is
+four lines, and there is nothing wrong with it. The trouble arrives with the
+fourth, because by then each new offer is written by copying the one above it
+and changing the numbers, which is the fastest correct-looking thing anybody
+can do.
+
+`NaiveVoucherRules` is that shop, and it is wrong in both directions at once.
+SAVE15 was ticketed as fifteen percent on UK baskets over a hundred pounds, but
+the UK part sat in the paragraph above the sentence somebody read, so no line
+was ever written for it and every large overseas order now takes fifteen
+percent off. FREESHIP was copied from a welcome offer that retired last spring
+and kept its `firstOrder()` test, so a returning UK shopper with three items is
+offered nothing -- and nobody reports that one, because a missing discount
+looks exactly like a shopper who did not qualify. Neither bug throws, neither
+is logged, and both passed review.
+
+Underneath the two bugs is one structural fact: a rule change is a code change.
+Moving fifty pounds to seventy-five is a branch, a pull request, a review and a
+release, written by somebody who did not read the campaign brief, and the
+people who own the offers cannot read the version that actually runs.
+
+**What the pattern must deliver:** promotion rules as text the shop's own staff
+can read and write; a rule that can be evaluated against an order and can also
+say what it says, in the words it was written in; a new kind of condition added
+without touching any existing rule class; a typo refused when the promotion is
+saved rather than when an order is priced; and an honest statement of where the
+arrangement stops paying.
+""",
+roles=[
+    ("Abstract expression",
+     "`Rule` -- two methods, `matches(Order)` and `describe()`, no fields"),
+    ("Terminal expressions",
+     "`BasketOver`, `CountryIs`, `ItemsAtLeast`, `FirstOrder` -- one "
+     "comparison each, and no rule inside"),
+    ("Non-terminal expressions",
+     "`AndRule`, `OrRule`, `NotRule` -- hold other rules and answer by "
+     "asking them"),
+    ("Context", "`Order` -- basket total, country, item count, first order"),
+    ("Client-side parser",
+     "`RuleParser` -- builds the tree, and is not part of the pattern"),
+    ("Holder", "`Promotion` and `PromotionBook` -- a code, a percentage, "
+     "and a rule as text"),
+    ("Naive alternative",
+     "`NaiveVoucherRules` -- one branch per offer, copied from the one above"),
+    ("Entry point", "`VoucherRuleDemo`"),
+],
+requirements=[
+    "**Two kinds of class, and no third.** Every rule implements `Rule`; the "
+    "terminals hold values and the non-terminals hold rules. The class "
+    "diagram shows exactly one aggregation looping back into `Rule`, and that "
+    "loop is the whole of the recursion.",
+    "**Only the leaves read the context.** `AndRule` and `OrRule` never touch "
+    "an `Order`; they ask their parts and combine the answers, which is why a "
+    "whole other tree drops into either slot without a line changing.",
+    "**A rule can say what it says.** `describe()` walks the same nodes as "
+    "`matches` and rebuilds the sentence from the objects rather than "
+    "remembering the line that was read in, and "
+    "`parsingAndDescribingRoundTrip` asserts it -- so the audit log and the "
+    "tree the checkout obeys cannot drift apart.",
+    "**The grammar is asserted, not assumed.** `andBindsTighterThanOr` pins "
+    "the precedence that falls out of splitting on `or` first, so the "
+    "exercise that swaps the two splits fails the build instead of quietly "
+    "changing what every promotion in the shop means.",
+    "**A typo is refused on Wednesday.** `RuleParser` does not guess: it "
+    "names the phrase it cannot read and throws while the promotion is being "
+    "saved. The contrast is stated explicitly -- a mistyped Java condition is "
+    "valid Java, and misprices an order on Friday.",
+    "**Adding a condition touches nothing that exists.** A new terminal is "
+    "one record and one `if` in the parser; the session guide has the room "
+    "do it and then asks what the same change would have been in "
+    "`NaiveVoucherRules`.",
+    "**No fact about eligibility lives in code.** `PromotionBook` mentions no "
+    "country, no basket threshold and no item count; every such fact is a "
+    "line of text, which is the point of the whole exercise.",
+    "**The naive alternative is argued against honestly.** Both of its bugs "
+    "are pinned by *passing* tests that assert the wrong answers, so the cost "
+    "is stated by the build rather than claimed by a README.",
+    "**The limit is stated as plainly as the benefit.** One class per phrase "
+    "is fine for seven phrases and unbearable for seventy; the parser is the "
+    "part that grows; every node is an object and every evaluation a virtual "
+    "call; and when the rules never change, two `if` statements are the "
+    "better code.",
+],
+),
+
 "visitor": dict(
 purpose="""
 Teach separating an operation from the structure it runs over, so that a new

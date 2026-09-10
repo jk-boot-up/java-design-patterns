@@ -46,12 +46,11 @@ Factory Method and Abstract Factory both grow out of them.
 
 ## Behavioural — how objects decide and talk
 
-**In progress.** The category is specified and planned; the projects are being
-built in the order below. See
+All eleven are complete. See
 [`behavioural/docs/spec.md`](behavioural/docs/spec.md) for the scenario each
 pattern is taught through and why, and
 [`behavioural/docs/implementation-plan.md`](behavioural/docs/implementation-plan.md)
-for the build order.
+for the order they were built in.
 
 | # | Pattern | Scenario |
 | --- | --- | --- |
@@ -61,11 +60,11 @@ for the build order.
 | 18 | [Template Method](behavioural/template-method-pattern) | Fix the steps, vary the how — the fulfilment workflow |
 | 19 | [State](behavioural/state-pattern) | Behaviour follows the state — the order lifecycle |
 | 20 | [Chain of Responsibility](behavioural/chain-of-responsibility-pattern) | Each link answers or passes it on — checkout screening |
-| 21 | Iterator | Hide how the walk really works — paging the catalog |
-| 22 | Mediator | Components talk through one hub — the checkout page |
-| 23 | Memento | Snapshot it, restore it, safely — restoring a saved cart |
+| 21 | [Iterator](behavioural/iterator-pattern) | Hide how the walk really works — paging the catalog |
+| 22 | [Mediator](behavioural/mediator-pattern) | Components talk through one hub — the checkout page |
+| 23 | [Memento](behavioural/memento-pattern) | Snapshot it, restore it, safely — restoring a saved cart |
 | 24 | [Visitor](behavioural/visitor-pattern) | New reports, untouched model — catalog reports |
-| 25 | Interpreter | Turn a rule into a tree — promotion rules |
+| 25 | [Interpreter](behavioural/interpreter-pattern) | Turn a rule into a tree — promotion rules |
 
 ---
 

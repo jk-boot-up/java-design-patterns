@@ -7,10 +7,10 @@ Chapter timings are generated from the video's `.srt`. Re-run `python3 docs/make
 ## Title
 
 ```
-Template Method in Java - The Fulfilment Workflow
+Template Method Pattern in Java - Fulfilment Steps
 ```
 
-49 characters — under the 60 YouTube shows before truncating in search results.
+50 characters — under the 60 YouTube shows before truncating in search results.
 
 ## Description
 
@@ -95,10 +95,10 @@ YouTube will not pick the thumbnail up on its own — upload it under **Details 
 
 ## Cards and end screen
 
-End screen links to **State Pattern**, the next video in the learning order.
+End screen links to whichever pattern video goes up next — set it at upload time rather than assuming an order.
 
 Add a card partway through pointing at the playlist, so a viewer who arrives at this pattern from search can find the rest of the series.
 
 ## Runtime
 
-Approximately 13:19, narrated at 145 words per minute.
+Approximately 13:17, narrated at 145 words per minute.

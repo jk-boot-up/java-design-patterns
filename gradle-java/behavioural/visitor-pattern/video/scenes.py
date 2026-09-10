@@ -501,20 +501,18 @@ void aVisitorSeesTheWholeTree() {          // the cost, asserted
             "Full source, notes, diagrams and an animated walkthrough",
             "are in the repository — including the exercise that adds",
             "a GiftCard node and makes you fix all six visitors.",
-            "",
-            "Next in the behavioural series: Iterator.",
         ],
         narration=(
-            "That's visitor. [[slnc 250]] The full source, the written notes, the "
-            "diagrams and an animated walkthrough are all in the repository — "
-            "including the exercise I'd most recommend, and it's the unpleasant "
-            "one. Add a gift card node type, then fix every visitor the compiler "
-            "shouts at you about. Count how many needed a real rule, and how many "
-            "just got an empty method to make the build go green. [[slnc 300]] If "
-            "this helped, a like genuinely helps other people find it, and "
-            "subscribe if you'd like the rest of the behavioural series — "
-            "iterator is next. [[slnc 250]] Thanks for watching, and I'll see you "
-            "in the next one."
+            "That's visitor. [[slnc 250]] The full source, the written notes, "
+            "the diagrams and an animated walkthrough are all in the repository "
+            "— including the exercise I'd most recommend, and it's the "
+            "unpleasant one. Add a gift card node type, then fix every visitor "
+            "the compiler shouts at you about. Count how many needed a real "
+            "rule, and how many just got an empty method to make the build go "
+            "green. [[slnc 300]] If this helped, a like genuinely helps other "
+            "people find it, and subscribe if you'd like the rest of the "
+            "behavioural series. [[slnc 250]] Thanks for watching, and I'll see "
+            "you in the next one."
         ),
     ),
 ]

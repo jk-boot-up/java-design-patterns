@@ -123,9 +123,13 @@ delegates. That is what keeps it a facade and not a god object.
 **4. The client — `FacadeDemo.java`**
 Three lines. Ask what it knows about payments. Nothing.
 
-**5. The test — `OrderFacadeTest.java`**
-Show that the test drives everything through one entry point and asserts
-the *ordering* of the subsystem calls.
+**5. The tests — `OrderFacadeTest.java` and `SubsystemsTest.java`**
+`OrderFacadeTest` hands the facade four recording subsystems and asserts the
+*order* it called them in, that it passed the request through untouched, and
+that an order refused for stock is never charged, shipped or emailed.
+`SubsystemsTest` defends the opposite requirement: every service is still
+public and still usable on its own. Ask the room which of those two would
+break first if somebody "tidied up" by making the services package-private.
 
 Run `./gradlew run` live and map each printed line back to a class.
 

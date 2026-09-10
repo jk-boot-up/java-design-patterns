@@ -28,7 +28,9 @@ import sys
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 REPO_URL = "https://github.com/jk-boot-up/java-design-patterns"
 
-# The learning order. Each video's end screen points at the next one.
+# The learning order used by the written docs. It is deliberately NOT used
+# for the end screen: publishing order is not build order, so no video
+# names its successor.
 ORDER = [
     ("creational", "simple-factory"),
     ("creational", "static-factory"),
@@ -75,7 +77,7 @@ META = {
         "tags": ["factory method pattern", "template method", "shipping"],
     },
     "abstract-factory": {
-        "title": "Abstract Factory Pattern in Java - Explained",
+        "title": "Abstract Factory in Java - A Regional Checkout",
         "tags": ["abstract factory pattern", "product family", "localisation"],
     },
     "builder": {
@@ -131,7 +133,7 @@ META = {
         "tags": ["command pattern", "undo redo java", "shopping cart"],
     },
     "template-method": {
-        "title": "Template Method in Java - The Fulfilment Workflow",
+        "title": "Template Method Pattern in Java - Fulfilment Steps",
         "tags": ["template method pattern", "workflow java", "inheritance hooks"],
     },
     "state": {
@@ -139,7 +141,7 @@ META = {
         "tags": ["state pattern", "state machine java", "order lifecycle"],
     },
     "chain-of-responsibility": {
-        "title": "Chain of Responsibility - Checkout Screening",
+        "title": "Chain of Responsibility in Java - Checkout Screening",
         "tags": ["chain of responsibility", "handler chain java", "validation pipeline"],
     },
     "iterator": {
@@ -280,7 +282,6 @@ def write_doc(group, slug):
     assert len(tag_line) < 500, "%s tags are %d chars" % (slug, len(tag_line))
 
     pretty = slug.replace("-", " ").title()
-    nxt = next_video(slug)
     rel = os.path.join(group, slug + "-pattern")
 
     out = ["# YouTube — %s Pattern\n" % pretty]
@@ -361,14 +362,11 @@ def write_doc(group, slug):
                "code slides are unreadable at 360p\n")
 
     out.append("## Cards and end screen\n")
-    if nxt:
-        out.append("End screen links to **%s Pattern**, the next video in "
-                   "the learning order.\n"
-                   % nxt.replace("-", " ").title())
-    else:
-        out.append("This is the last video in the current learning order. "
-                   "The end screen links back to the first, **Simple "
-                   "Factory Pattern**, and to the playlist.\n")
+    # Deliberately not naming a successor. Publishing order is not the build
+    # order, so the end screen is set at upload time to whatever actually went
+    # up next; unlike the video itself, it can be changed afterwards.
+    out.append("End screen links to whichever pattern video goes up next — "
+               "set it at upload time rather than assuming an order.\n")
     out.append("Add a card partway through pointing at the playlist, so a "
                "viewer who arrives at this pattern from search can find the "
                "rest of the series.\n")

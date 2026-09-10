@@ -484,21 +484,19 @@ void theSameScenarioIsRefusedByTheStateVersion() {
             "Full source, notes, diagrams and an animated walkthrough",
             "are in the repository — including the exercise that adds a",
             "RETURN_REQUESTED state to both versions, and counts the edits.",
-            "",
-            "Next in the behavioural series: Chain of Responsibility.",
         ],
         narration=(
-            "That's the state pattern. [[slnc 250]] The full source, the written "
-            "notes, the diagrams and an animated walkthrough are all in the "
-            "repository — including the exercise I would most recommend: add a "
-            "return requested state between delivered and refunded, first to the "
-            "state version and then to the enum, and count what you have to edit "
-            "in each. In one of them it is a new file and one existing class. In "
-            "the other it is six chains of conditionals and a switch. [[slnc "
-            "300]] If this helped, a like genuinely does help other people find "
-            "it, and subscribe if you would like the rest of the behavioural "
-            "series — chain of responsibility is next. [[slnc 250]] Thanks for "
-            "watching, and I'll see you in the next one."
+            "That's the state pattern. [[slnc 250]] The full source, the "
+            "written notes, the diagrams and an animated walkthrough are all in "
+            "the repository — including the exercise I would most recommend: "
+            "add a return requested state between delivered and refunded, first "
+            "to the state version and then to the enum, and count what you have "
+            "to edit in each. In one of them it is a new file and one existing "
+            "class. In the other it is six chains of conditionals and a switch. "
+            "[[slnc 300]] If this helped, a like genuinely does help other "
+            "people find it, and subscribe if you would like the rest of the "
+            "behavioural series. [[slnc 250]] Thanks for watching, and I'll see "
+            "you in the next one."
         ),
     ),
 ]
