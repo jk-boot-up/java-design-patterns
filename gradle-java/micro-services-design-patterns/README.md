@@ -6,15 +6,22 @@ Gradle Java 21 project each, in the same online-store domain, with runnable
 code, tests, written notes, diagrams, an animated walkthrough and a narrated
 video.
 
-**Status: specified, not yet built.** The two documents below fix what the
-projects are before any of them is written.
+**Status: complete.** All twelve projects are built, tested, documented and
+rendered. Each ships its source and tests, six documents, two rendered
+diagrams, an interactive animation and a narrated video.
 
 - [`docs/spec.md`](docs/spec.md) — the scenario each pattern is taught through,
   why it fits, the naive alternative it must show failing, and the honest cost
   it must admit to.
 - [`docs/implementation-plan.md`](docs/implementation-plan.md) — the order the
-  twelve get built in, and the rules that keep the build from having to redo
-  itself.
+  twelve got built in, and the rules that kept the build from having to redo
+  itself. Now a record of a finished build.
+- [`docs/ai-session.md`](docs/ai-session.md) — a handover for resuming work
+  later: the current state, how to verify it rather than trust it, and the
+  standing instructions that govern the whole category.
+- [`docs/ai-build-spec.md`](docs/ai-build-spec.md) — how the artefacts are
+  actually made: the generators and their arguments, the shape each file has to
+  have, the audio chain, and the traps that have cost real time.
 
 ## The twelve
 
