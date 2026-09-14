@@ -1,7 +1,8 @@
 # Design Patterns in Java — A Worked Course
 
-Twenty-five Gang of Four design patterns, each a self-contained Gradle Java 21
-project with runnable code, JUnit 5 tests, written notes, diagrams, an animated
+Thirty-seven design patterns — the twenty-five object-oriented ones first, then
+twelve microservices patterns — each a self-contained Gradle Java 21 project
+with runnable code, JUnit 5 tests, written notes, diagrams, an animated
 walkthrough, and a narrated video.
 
 **Every pattern is taught through the same worked domain: an online store.**
@@ -66,6 +67,34 @@ for the order they were built in.
 | 24 | [Visitor](behavioural/visitor-pattern) | New reports, untouched model — catalog reports |
 | 25 | [Interpreter](behavioural/interpreter-pattern) | Turn a rule into a tree — promotion rules |
 
+## Microservices — one shop, many services
+
+The same online store, split across services that talk over a network. These
+are not Gang of Four patterns, and they are here because the twenty-five above
+stop short of the questions a service raises: what happens when the thing you
+called does not answer, has moved, is slow, or answers twice.
+
+The category's own [`docs/spec.md`](micro-services-design-patterns/docs/spec.md)
+says which scenario each pattern is taught through and why. Every project runs
+in one JVM with nothing installed but a JDK — no Spring, no Docker, no broker
+and no sockets — because a simulated clock and a simulated network make the
+timings exact and the failures repeatable.
+
+| # | Pattern | Scenario |
+| --- | --- | --- |
+| 26 | [API Gateway](micro-services-design-patterns/api-gateway-pattern) | One call from the phone, not seven — the product page |
+| 27 | [Service Registry and Discovery](micro-services-design-patterns/service-discovery-pattern) | Ask where it is, don't hard-code it — finding Catalog |
+| 28 | [Client-Side Load Balancing](micro-services-design-patterns/load-balancing-pattern) | Spread the calls, skip the sick one — three Catalog instances |
+| 29 | [Retry with Backoff](micro-services-design-patterns/retry-pattern) | Try again, but not immediately — a blip in Pricing |
+| 30 | [Circuit Breaker](micro-services-design-patterns/circuit-breaker-pattern) | Stop calling what is down — Recommendations |
+| 31 | [Bulkhead](micro-services-design-patterns/bulkhead-pattern) | One slow service must not sink the page — thread pools |
+| 32 | [Database per Service](micro-services-design-patterns/database-per-service-pattern) | The join you can no longer write — orders and names |
+| 33 | [API Composition](micro-services-design-patterns/api-composition-pattern) | Gather in parallel, decide what to do with a gap — order details |
+| 34 | [CQRS](micro-services-design-patterns/cqrs-pattern) | Keep the page ready — the order history |
+| 35 | [Saga](micro-services-design-patterns/saga-pattern) | No transaction spans five services — placing an order |
+| 36 | [Transactional Outbox](micro-services-design-patterns/transactional-outbox-pattern) | Save it and announce it, or neither — the order event |
+| 37 | [Idempotent Consumer](micro-services-design-patterns/idempotent-consumer-pattern) | The same message, twice — one confirmation email |
+
 ---
 
 ## What each project contains
@@ -102,6 +131,7 @@ Java 21 and no third-party runtime dependencies. JUnit 5 for tests only.
 | [`docs/video-and-publishing-spec.md`](docs/video-and-publishing-spec.md) | The domain rule, narration, audio and video pipeline, poster and thumbnail, publishing |
 | [`docs/implementation-plan.md`](docs/implementation-plan.md) | How the first fourteen were brought up to that standard |
 | [`behavioural/docs/spec.md`](behavioural/docs/spec.md) | The behavioural category's scenarios and extra conformance items |
+| [`micro-services-design-patterns/docs/spec.md`](micro-services-design-patterns/docs/spec.md) | The microservices category's scenarios, its one-JVM rule and its extra conformance items |
 
 The generators in `docs/` — `make_specs.py`, `make_youtube_docs.py`,
 `make_thumbnails.py` — produce the per-project specification, publishing

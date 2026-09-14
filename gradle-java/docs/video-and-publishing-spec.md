@@ -14,20 +14,26 @@ A project is compliant when every item in [Conformance](#conformance) holds.
 
 ## 1. Scope
 
-Twenty-five projects, each a self-contained Gradle Java 21 project with
-sources, JUnit 5 tests, `docs/`, `video/`, and a top-level `README.md`:
+Thirty-seven projects across four categories, each a self-contained Gradle
+Java 21 project with sources, JUnit 5 tests, `docs/`, `video/`, and a top-level
+`README.md`:
 
 | Category | Projects |
 | --- | --- |
 | Creational | abstract-factory, builder, factory-method, prototype, simple-factory, singleton, static-factory |
 | Structural | adapter, bridge, composite, decorator, facade, flyweight, proxy |
 | Behavioural | strategy, observer, command, template-method, state, chain-of-responsibility, iterator, mediator, memento, visitor, interpreter |
+| Microservices | api-gateway, service-discovery, load-balancing, retry, circuit-breaker, bulkhead, database-per-service, api-composition, cqrs, saga, transactional-outbox, idempotent-consumer |
 
-The behavioural category has its own subsidiary specification,
-[`../behavioural/docs/spec.md`](../behavioural/docs/spec.md), which fixes the
-e-commerce scenario each of its eleven patterns is taught through and adds four
-category-specific conformance items. It inherits this document unchanged; where
-the two appear to disagree, this one wins.
+Two categories have their own subsidiary specification, each fixing the
+e-commerce scenario its patterns are taught through and adding
+category-specific conformance items. Both inherit this document unchanged;
+where any of them appears to disagree with it, this one wins.
+
+| Specification | Covers |
+| --- | --- |
+| [`../behavioural/docs/spec.md`](../behavioural/docs/spec.md) | The eleven behavioural patterns, plus four extra conformance items |
+| [`../micro-services-design-patterns/docs/spec.md`](../micro-services-design-patterns/docs/spec.md) | The twelve microservices patterns, their one-JVM rule, and six extra conformance items |
 
 ---
 
@@ -279,7 +285,7 @@ fully legible.
 
 ### 6.2 Layout
 
-Fixed across all fourteen so the series is recognisable as a set:
+Fixed across every project so the series is recognisable as a set:
 
 | Element | Position |
 | --- | --- |

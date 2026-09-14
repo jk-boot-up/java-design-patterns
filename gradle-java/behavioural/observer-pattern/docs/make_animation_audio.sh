@@ -43,7 +43,10 @@ EOF
 }
 
 i=0
-while IFS= read -r line; do
+# The narration is read on file descriptor 3, not stdin. `say`, `ffmpeg` and
+# `ffprobe` all read stdin when it is available, and one of them will happily
+# swallow the first character of the next line if the loop feeds them from it.
+while IFS= read -r line <&3; do
     i=$((i + 1))
     printf '%s' "$line" > "$OUT/.step-$i.txt"
     say -v "$VOICE" -r "$RATE" -o "$OUT/.step-$i.aiff" -f "$OUT/.step-$i.txt"
@@ -52,7 +55,7 @@ while IFS= read -r line; do
     rm -f "$OUT/.step-$i.aiff" "$OUT/.step-$i.txt"
     dur=$(ffprobe -v error -show_entries format=duration -of default=nw=1:nk=1 "$OUT/step-$i.m4a")
     printf 'step-%d.m4a  %5.1fs\n' "$i" "$dur"
-done < <(narrate)
+done 3< <(narrate)
 
 echo
 echo "Wrote $i clips to $OUT/"

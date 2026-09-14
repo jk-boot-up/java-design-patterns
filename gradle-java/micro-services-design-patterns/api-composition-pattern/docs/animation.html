@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>API Composition — an animated walkthrough</title>
+<style>
+  :root {
+    --bg: #0f172a;
+    --panel: #1e293b;
+    --panel-hi: #334155;
+    --line: #475569;
+    --text: #e2e8f0;
+    --muted: #94a3b8;
+    --client: #38bdf8;
+    --context: #34d399;
+    --strategy: #a78bfa;
+    --picked: #fbbf24;
+    --bad: #f87171;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 28px 20px 60px;
+    background: var(--bg);
+    color: var(--text);
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  h1 { text-align: center; font-size: 28px; margin: 0 0 4px; }
+  .sub { text-align: center; color: var(--muted); margin: 0 0 24px; font-size: 15px; }
+
+  .wrap { max-width: 1100px; margin: 0 auto; }
+
+  .controls { display: flex; gap: 10px; justify-content: center; margin-bottom: 26px; flex-wrap: wrap; }
+  button {
+    background: var(--panel-hi); color: var(--text); border: 1px solid var(--line);
+    padding: 9px 20px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer;
+    transition: background .15s, transform .1s;
+  }
+  button:hover:not(:disabled) { background: #475569; }
+  button:active:not(:disabled) { transform: translateY(1px); }
+  button:disabled { opacity: .4; cursor: not-allowed; }
+  button.primary { background: var(--strategy); color: #1e1b4b; border-color: var(--strategy); }
+  button.primary:hover:not(:disabled) { background: #b9a3ff; }
+  button.on { background: #0c2b3d; border-color: var(--client); color: var(--client); }
+  button.on:hover:not(:disabled) { background: #123a52; }
+
+  .audio-note {
+    text-align: center; color: var(--muted); font-size: 12.5px;
+    margin: -14px 0 22px; min-height: 17px;
+  }
+
+  .stage { display: grid; grid-template-columns: 240px 1fr; gap: 22px; align-items: start; }
+
+  .col-client { display: flex; flex-direction: column; align-items: center; gap: 12px; padding-top: 20px; }
+
+  .box {
+    background: var(--panel); border: 2px solid var(--line); border-radius: 12px;
+    padding: 14px 16px; text-align: center; width: 100%;
+    transition: border-color .3s, box-shadow .3s, transform .3s, background .3s;
+  }
+  .box .name { font-weight: 700; font-size: 14px; letter-spacing: .2px; }
+  .box .role { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-top: 3px; }
+  .box.active {
+    transform: translateY(-3px);
+    box-shadow: 0 0 0 3px rgba(255,255,255,.07), 0 10px 28px rgba(0,0,0,.45);
+    border-color: var(--client); background: #0c2b3d;
+  }
+  /* the approach being replaced glows red rather than blue when it is the
+     focus — no strikethrough, just a colour */
+  .box.naive.active { border-color: var(--bad); background: #2b0f12; box-shadow: 0 0 0 3px rgba(248,113,113,.15); }
+  .holding {
+    margin-top: 9px; padding-top: 8px; border-top: 1px dashed var(--line);
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px;
+    color: var(--muted); line-height: 1.5;
+  }
+  .holding b { color: var(--picked); font-weight: 700; }
+
+  .col-main { display: flex; flex-direction: column; gap: 18px; }
+
+  .family {
+    border: 2px dashed var(--strategy); border-radius: 14px; padding: 18px 20px;
+    background: rgba(167,139,250,.05);
+  }
+  /* the failure kinds get their own gold panel, so the thing being judged
+     of the design is never confused with the machines it chooses between */
+  .family.gate { border-color: var(--picked); background: rgba(251,191,36,.05); }
+  .family.gate .family-label { color: var(--picked); }
+
+  .family-label {
+    font-size: 11px; color: var(--strategy); text-transform: uppercase;
+    letter-spacing: 1.4px; font-weight: 700; margin-bottom: 14px; text-align: center;
+  }
+
+  .row {
+    display: flex; align-items: center; justify-content: space-between;
+    border: 2px solid var(--line); border-radius: 8px; background: var(--panel);
+    padding: 8px 14px; margin-bottom: 6px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 13px;
+    transition: border-color .3s, background .3s, transform .3s, opacity .3s;
+  }
+  .row .note { color: var(--muted); font-size: 11px; text-align: right; }
+  .row.dim { opacity: .38; }
+  /* a failure not yet introduced, or an attempt not yet part of the story */
+  .row.absent { opacity: .22; border-style: dashed; }
+  .row.active {
+    transform: translateX(4px);
+    border-color: var(--client);
+    box-shadow: 0 0 0 3px rgba(56,189,248,.15);
+  }
+  /* "wrong" marks a machine getting nothing while the shop pays for it */
+  .row.wrong { border-color: var(--bad); background: #2b0f12; }
+  .row.wrong .note { color: #fca5a5; }
+  /* "ok" marks a machine carrying a sensible share of the work */
+  .row.ok { border-color: var(--context); background: #06281f; }
+  .row.ok .note { color: #6ee7b7; }
+  /* "wait" is this project's special case: an attempt that has not been made
+     yet, or one the retrier is backing off before */
+  .row.wait { border-color: var(--picked); background: #2a1f05; }
+  .row.wait .note { color: var(--picked); }
+
+  .clock {
+    text-align: center; font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 13px; color: var(--muted); border: 1px solid var(--line);
+    border-radius: 8px; padding: 7px 12px; background: #020617;
+  }
+  .clock b { color: var(--picked); font-size: 15px; }
+
+  .bridge-rail { text-align: center; color: var(--muted); font-size: 12px; margin: -6px 0 2px; min-height: 16px; transition: color .3s; }
+  .bridge-rail.active { color: var(--client); font-weight: 700; }
+
+  .narration {
+    background: var(--panel); border-left: 4px solid var(--strategy);
+    border-radius: 0 10px 10px 0; padding: 16px 20px; min-height: 76px;
+    font-size: 15px; line-height: 1.6;
+  }
+  .narration .step-no { color: var(--muted); font-size: 12px; letter-spacing: 1px; text-transform: uppercase; }
+  .narration .text { margin-top: 5px; }
+
+  .console {
+    background: #020617; border: 1px solid var(--line); border-radius: 10px;
+    padding: 14px 16px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 12.5px; line-height: 1.7; min-height: 130px;
+  }
+  .console .ttl { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+  .console div.ln { opacity: 0; transition: opacity .35s; }
+  .console div.ln.show { opacity: 1; }
+  .c-context { color: var(--context); }
+  .c-strategy { color: var(--strategy); }
+  .c-out  { color: var(--client); }
+  .c-pick { color: var(--picked); }
+  .c-bad  { color: var(--bad); }
+
+  .progress { display: flex; gap: 5px; justify-content: center; margin-top: 22px; }
+  .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--line); transition: background .3s, transform .3s; }
+  .dot.on { background: var(--strategy); transform: scale(1.35); }
+
+  .legend { text-align: center; color: var(--muted); font-size: 13px; margin-top: 26px; line-height: 1.7; }
+  .legend b { color: var(--text); }
+
+  @media (max-width: 860px) {
+    .stage { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>API Composition</h1>
+  <p class="sub">One page, three services that each own part of it &mdash; and the difference between 210 milliseconds and 150, and between an error page and an honest one</p>
+
+  <div class="controls">
+    <button id="play" class="primary">&#9654;&nbsp; Play</button>
+    <button id="step">Step &rarr;</button>
+    <button id="reset">Reset</button>
+    <button id="audio" aria-pressed="false" title="Narrate each step (N)">
+      <span id="audio-icon">&#128263;</span>&nbsp; Narration: off
+    </button>
+  </div>
+  <p class="audio-note" id="audio-note"></p>
+
+  <div class="stage">
+
+    <div class="col-client">
+      <div class="box naive" id="b-naive">
+        <div class="name">SequentialComposer</div>
+        <div class="role">three calls, one after another</div>
+        <div class="holding" id="naive-state">cost: <b>30 + 60 + 120 = 210ms</b></div>
+      </div>
+      <div style="font-size:22px;color:var(--line)">&#8595;</div>
+      <div class="box client" id="b-client">
+        <div class="name">OrderDetailsComposer</div>
+        <div class="role">Sends what can go together</div>
+        <div class="holding" id="holding">sections missing: <b>none</b></div>
+      </div>
+      <div style="font-size:11px;color:var(--muted);text-align:center;line-height:1.5">
+        Orders 30ms &nbsp;&middot;&nbsp; Catalog 60ms &nbsp;&middot;&nbsp; Shipping 120ms.<br>
+        in a queue you pay the sum.<br>
+        sent together you pay the slowest.
+      </div>
+    </div>
+
+    <div class="col-main">
+
+      <div class="family gate">
+        <div class="family-label" id="gate-label">The three services &mdash; and which of them the page cannot do without</div>
+        <div class="row absent" id="r-s1">
+          <span class="name">Orders &nbsp;(30ms)</span>
+          <span class="note" id="n-s1">&mdash; the order, the quantities, the money</span>
+        </div>
+        <div class="row absent" id="r-s2">
+          <span class="name">Catalog &nbsp;(60ms)</span>
+          <span class="note" id="n-s2">&mdash; what a sku is actually called</span>
+        </div>
+        <div class="row absent" id="r-s3">
+          <span class="name">Shipping &nbsp;(120ms)</span>
+          <span class="note" id="n-s3">&mdash; the carrier, and where the parcel is</span>
+        </div>
+      </div>
+
+      <div class="family">
+        <div class="family-label" id="family-label">The calls &mdash; when each one leaves, and what came back</div>
+        <div class="row" id="r-c1">
+          <span class="name">orders.fetch(orderId)</span>
+          <span class="note" id="n-c1">not sent yet</span>
+        </div>
+        <div class="row" id="r-c2">
+          <span class="name">catalog.namesFor(skus)</span>
+          <span class="note" id="n-c2">not sent yet</span>
+        </div>
+        <div class="row" id="r-c3">
+          <span class="name">shipping.statusFor(orderId)</span>
+          <span class="note" id="n-c3">not sent yet</span>
+        </div>
+      </div>
+
+      <div class="clock" id="clock">the shopper waited <b>&mdash;</b> &nbsp;&middot;&nbsp; nothing has been asked yet</div>
+
+      <div class="bridge-rail" id="bridge-rail"></div>
+
+      <div class="narration" id="narration">
+        <div class="step-no">Ready</div>
+        <div class="text">Press <b>Play</b> to watch one ordinary page get built out of three services &mdash; and to find out where sixty milliseconds are hiding, what happens to the answers that already arrived when the last call fails, and why three excellent services make a page worse than any of them.</div>
+      </div>
+
+      <div class="console">
+        <div class="ttl">Program output</div>
+        <div id="console-lines"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="progress" id="progress"></div>
+
+  <p class="legend">
+    <b>Watch two things: when each call leaves, and what the page says it does not know.</b><br>
+    The three services never change and their speeds never change. What changes is whether the calls wait for each other &mdash; and whether one failure costs a section or the whole page.<br>
+    <span style="font-size:12px">
+      Keys: <b>Space</b> play/pause &nbsp;·&nbsp; <b>&rarr;</b> next step
+      &nbsp;·&nbsp; <b>N</b> narration &nbsp;·&nbsp; <b>R</b> reset
+    </span>
+  </p>
+
+</div>
+
+<script>
+// Each step may set any row's caption; captions persist until changed, so a
+// step only lists what it actually moves.
+const STEPS = [
+  {
+    title: "Step 1 — One ordinary page, three owners",
+    text: "A shopper opens one of their orders. The page shows the order reference, a line for each thing they bought with its name and its price, the total, and underneath, where the parcel has got to. Utterly unremarkable — except that three different services own those facts, and there is no database join any more. Orders knows what was bought. Catalog knows what a sku is actually called. Shipping knows where the parcel is.",
+    active: ["b-client"], stateOn: ["r-s1", "r-s2", "r-s3"], wait: ["r-c1", "r-c2", "r-c3"],
+    holding: "none", clock: "&mdash;", clockNote: "nothing has been asked yet",
+    bridge: "no single service knows enough to build this page",
+    out: { cls: "c-strategy", txt: "// Orders 30ms  ·  Catalog 60ms  ·  Shipping 120ms" }
+  },
+  {
+    title: "Step 2 — So call all three. One after another.",
+    text: "This is what everybody writes first, and it is three lines of entirely ordinary Java. Fetch the order. Ask Catalog for the names. Ask Shipping for the status. Be fair to it: there is no bug here. It returns exactly the right page, and every test written against it passes. A code review waves it through without a comment, because the cost is not in the code at all.",
+    active: ["b-naive"], stateOn: ["r-s1", "r-s2", "r-s3"], wrong: ["r-c1", "r-c2", "r-c3"],
+    holding: "none", clock: "210ms", clockNote: "30 + 60 + 120, added up",
+    captions: { c1: "left 0ms, back 30ms", c2: "left 30ms, back 90ms", c3: "left 90ms, back 210ms" },
+    bridge: "sequential calls cost the SUM of their latencies",
+    out: { cls: "c-bad", txt: "1. three calls, one after another     the shopper waited 210ms" }
+  },
+  {
+    title: "Step 3 — Where sixty of those milliseconds are hiding",
+    text: "Read the third call again. Shipping left at ninety milliseconds. But what does Shipping actually need? The order id — and the order id arrived at thirty. It sat and waited sixty milliseconds for Catalog's answer, and then never looked at it. That is not a bug anybody could point at in a diff. It is what a sequence of statements does, and it is why nobody ever notices the day a page got slower.",
+    active: ["b-naive", "r-c3"], stateOn: ["r-s1", "r-s2", "r-s3"], wrong: ["r-c3"], ok: ["r-c1", "r-c2"],
+    holding: "none", clock: "210ms", clockNote: "60ms of it bought absolutely nothing",
+    captions: { c3: "waited for an answer it never used" },
+    bridge: "which of these calls actually needed the one before it?",
+    out: { cls: "c-context", txt: "// Shipping needed only the order id — available at 30ms" }
+  },
+  {
+    title: "Step 4 — Send them together. But not all three.",
+    text: "The fix is to stop waiting. Except notice what this page cannot do: it cannot send all three calls at zero milliseconds. Catalog has to be told which skus to look up, and only Orders knows which skus are on the order. So the shape is one call, and then two together. Working out which calls genuinely depend on which is most of the job here, and it is exactly where the instinct to just parallelise everything comes unstuck.",
+    active: ["b-client", "r-c1"], stateOn: ["r-s1", "r-s2", "r-s3"], ok: ["r-c1"], wait: ["r-c2", "r-c3"],
+    holding: "none", clock: "30ms", clockNote: "only now are the skus known",
+    captions: { c1: "left 0ms, back 30ms", c2: "waiting for the skus", c3: "ready to go" },
+    label: "The calls — one first, alone, then two together",
+    bridge: "Catalog cannot go first — only Orders knows which skus to ask about",
+    out: { cls: "c-pick", txt: "Order order = orders.fetch(orderId);   // then the fan-out" }
+  },
+  {
+    title: "Step 5 — Both leave at thirty, and the sum becomes a maximum",
+    text: "Catalog and Shipping now depart at the same instant. Catalog comes back at ninety, Shipping at a hundred and fifty, and the page is finished the moment the slower of the two lands. A hundred and fifty milliseconds instead of two hundred and ten. Nothing got faster — Shipping still takes its full hundred and twenty. What changed is that nobody is queuing. Sequential calls cost the sum of their latencies. Parallel calls cost the maximum.",
+    active: ["b-client"], stateOn: ["r-s1", "r-s2", "r-s3"], ok: ["r-c1", "r-c2", "r-c3"],
+    holding: "none", clock: "150ms", clockNote: "30, then the slower of 60 and 120",
+    captions: { c2: "left 30ms, back 90ms", c3: "left 30ms, back 150ms" },
+    bridge: "GATHERED  2 call(s) in 120ms, 0 failed",
+    out: { cls: "c-out", txt: "2. Orders first, then Catalog and Shipping together    150ms" }
+  },
+  {
+    title: "Step 6 — Now Shipping stops answering",
+    text: "Here is the same outage given to both versions. The sequential one fetches the order, gets the product names, then calls Shipping — and throws. And look at what goes down with it: the order and the names had already arrived, sitting in local variables, perfectly good. Both thrown away. The shopper is shown an error page assembled out of two correct answers that nobody looked at.",
+    active: ["b-naive"], stateOn: ["r-s1", "r-s2"], ok: ["r-c1", "r-c2"], wrong: ["r-c3"],
+    holding: "the whole page", clock: "210ms", clockNote: "sequential: no page at all",
+    captions: { c3: "threw — and took the other two with it" },
+    bridge: "the order and the product names had already arrived. Both thrown away.",
+    out: { cls: "c-bad", txt: "3. Shipping is down    sequential: no page at all" }
+  },
+  {
+    title: "Step 7 — A branch that fails is parked, not propagated",
+    text: "The fan-out does something different, and it is four lines. Each call runs inside a try, and when one throws, the exception is caught and parked on that branch rather than allowed to escape. Nothing else is disturbed. Catalog's answer is still there. The order is still there. And now the composer can ask, afterwards, one branch at a time, whether that particular absence is actually fatal.",
+    active: ["b-client"], stateOn: ["r-s1", "r-s2"], ok: ["r-c1", "r-c2"], wrong: ["r-c3"],
+    holding: "delivery status", clock: "150ms", clockNote: "the other two answers survived",
+    bridge: "catch (RuntimeException thrown) { failure = thrown; }",
+    out: { cls: "c-context", txt: "// GATHERED  2 call(s) in 120ms, 1 failed" }
+  },
+  {
+    title: "Step 8 — Required or optional, and it is one method call",
+    text: "So which absences are fatal? That has to be decided in advance, and in this project it is not a config file and not an annotation. It is which of two methods the composer calls on a branch. One of them rethrows whatever was caught — that is for data the page genuinely needs. The other substitutes a fallback — that is for data the page can do without. One line per dependency, written deliberately by somebody who knows what the page is for.",
+    active: ["r-s2", "r-s3"], stateOn: ["r-s1", "r-s2", "r-s3"], ok: ["r-c1", "r-c2"], wrong: ["r-c3"],
+    holding: "delivery status", clock: "150ms", clockNote: "Orders required · Catalog and Shipping optional",
+    captions: { s1: "— REQUIRED. no order means no page at all", s2: "— optional. sku codes instead of names", s3: "— optional. the page says it cannot check" },
+    gateLabel: "The three services — classified before the outage, not during it",
+    bridge: "value() rethrows.  valueOr(fallback) substitutes.",
+    out: { cls: "c-pick", txt: "delivery.valueOr(DeliveryStatus.unknown())" }
+  },
+  {
+    title: "Step 9 — The page goes out with a named hole in it",
+    text: "So the shopper still sees what they bought, the quantities, and what it cost — because none of that was ever Shipping's to know. And where the delivery section would be, the page says it cannot check this right now, and lists delivery status as missing. That list matters. A page that quietly drops the delivery section looks exactly like a page for an order that has not shipped yet, and the shopper cannot tell the two apart.",
+    active: ["b-client"], stateOn: ["r-s1", "r-s2", "r-s3"], ok: ["r-c1", "r-c2"], wrong: ["r-c3"],
+    holding: "delivery status", clock: "150ms", clockNote: "the page still works, and says what it does not know",
+    bridge: "missing: [delivery status]  —  naming the gap is what makes it honest",
+    out: { cls: "c-out", txt: "  delivery: unknown, we cannot check this right now" }
+  },
+  {
+    title: "Step 10 — And the fallback that would have been easy to write",
+    text: "There is a temptation here worth naming out loud. Instead of saying we cannot check, you could write in transit. It is nearly always true, it reads better, and nobody complains. Do not do it. A shopper who is told their parcel is in transit will not ring up about the one that never left. The page is allowed to say it does not know. It is not allowed to make something up — and there is a test in this project whose only job is to stop somebody being helpful here.",
+    active: ["r-s3"], stateOn: ["r-s1", "r-s2", "r-s3"], ok: ["r-c1", "r-c2"], wrong: ["r-c3"], dim: true,
+    holding: "delivery status", clock: "150ms", clockNote: "\"in transit\" is nearly always true — and wrong to write",
+    captions: { s3: "— say you do not know. never invent a plausible value." },
+    bridge: "itDoesNotInventADeliveryStatus",
+    out: { cls: "c-bad", txt: "// a shopper told 'in transit' will not ring about the parcel that never left" }
+  },
+  {
+    title: "Step 11 — Orders goes down, and refusing is the right answer",
+    text: "Now the other direction. If Orders does not answer, the composer does not degrade anything — it throws, and the shopper gets an honest error. That is correct, not a gap in the pattern. A page with no order on it is not a partial page, it is a blank one. And because the failure happens before the fan-out even exists, Catalog is never called at all. Being able to say this one is required is as much a part of the pattern as being able to degrade.",
+    active: ["r-s1"], stateOn: ["r-s1"], wrong: ["r-c1"], wait: ["r-c2", "r-c3"],
+    holding: "the whole page", clock: "30ms", clockNote: "Catalog was never called: 0 calls",
+    captions: { c1: "threw — and there is no honest page without it", c2: "never sent", c3: "never sent" },
+    bridge: "a composer that degrades everything eventually shows somebody a page about nothing",
+    out: { cls: "c-out", txt: "4. Orders is down     composed: no page -- and that is correct" }
+  },
+  {
+    title: "Step 12 — Why any of this matters: availabilities multiply",
+    text: "Last one, and it is arithmetic rather than code. Suppose each of these three services is up ninety-nine point nine percent of the time. That is a good service: about forty-three minutes of downtime a month. So how good is a page that needs all three? Not ninety-nine point nine. The page is up only when all three are up at the same moment, and those probabilities multiply — ninety-nine point seven percent, which is a hundred and twenty-nine minutes a month. Three excellent services make a page worse than any of them. And the way out is not better services. It is needing fewer of them.",
+    active: ["b-client"], stateOn: ["r-s1", "r-s2", "r-s3"], ok: ["r-c1"], wait: ["r-c2", "r-c3"],
+    holding: "none", clock: "99.700%", clockNote: "129.5 min down a month · with only Orders required: 43.2",
+    gateLabel: "The three services — and what requiring all of them costs",
+    bridge: "0.999 × 0.999 × 0.999 = 0.997   — that is what 'optional' actually buys",
+    out: { cls: "c-pick", txt: "5. with only Orders required: 99.900% -> 43.2 min down a month" }
+  }
+];
+
+const BOXES = ["b-naive", "b-client"];
+const STATES = ["r-s1", "r-s2", "r-s3"];
+const CALLERS = ["r-c1", "r-c2", "r-c3"];
+const ROWS = STATES.concat(CALLERS);
+const ALL_BOXES = BOXES.concat(ROWS);
+
+const STEP_MS = 3800;      // pace when narration is off
+const GAP_MS = 700;        // breathing room after a clip finishes
+
+let idx = -1;
+let playing = false;
+let timer = null;
+
+// Narration is optional: if the audio clips are missing (or the browser
+// blocks playback) the animation still works exactly as before.
+let audioOn = false;
+let clips = [];
+let current = null;
+
+const $ = id => document.getElementById(id);
+const progressEl = $("progress");
+const linesEl = $("console-lines");
+const noteEl = $("audio-note");
+const bridgeEl = $("bridge-rail");
+const holdingEl = $("holding");
+const naiveEl = $("naive-state");
+const clockEl = $("clock");
+const labelEl = $("family-label");
+const gateLabelEl = $("gate-label");
+
+const DEFAULT_LABEL = "The calls — when each one leaves, and what came back";
+const DEFAULT_GATE_LABEL = "The three services — and which of them the page cannot do without";
+const DEFAULT_CAPTIONS = {
+  s1: "— the order, the quantities, the money",
+  s2: "— what a sku is actually called",
+  s3: "— the carrier, and where the parcel is",
+  c1: "not sent yet",
+  c2: "not sent yet",
+  c3: "not sent yet"
+};
+
+STEPS.forEach(() => {
+  const d = document.createElement("div");
+  d.className = "dot";
+  progressEl.appendChild(d);
+});
+
+// ---- optional narration ------------------------------------------------
+
+clips = STEPS.map((_, i) => {
+  const a = new Audio("audio/step-" + (i + 1) + ".m4a");
+  a.preload = "none";
+  return a;
+});
+
+function stopAudio() {
+  if (!current) return;
+  current.pause();
+  current.currentTime = 0;
+  current.onended = null;
+  current = null;
+}
+
+/** Play the clip for step i. onDone fires when it finishes (or cannot play). */
+function playClip(i, onDone) {
+  stopAudio();
+  if (!audioOn) { if (onDone) onDone(); return; }
+
+  const a = clips[i];
+  current = a;
+  a.currentTime = 0;
+  a.onended = () => { current = null; if (onDone) onDone(); };
+
+  a.play().catch(() => {
+    // Missing file, or autoplay blocked -> fall back to timed pacing.
+    current = null;
+    noteEl.textContent =
+      "Narration audio could not be played — falling back to timed steps. " +
+      "Run docs/make_animation_audio.sh to generate the clips.";
+    if (onDone) onDone();
+  });
+}
+
+function setAudio(on) {
+  audioOn = on;
+  const btn = $("audio");
+  btn.classList.toggle("on", on);
+  btn.setAttribute("aria-pressed", String(on));
+  btn.innerHTML = '<span id="audio-icon">' + (on ? "&#128266;" : "&#128263;") +
+                  "</span>&nbsp; Narration: " + (on ? "on" : "off");
+  noteEl.textContent = on
+    ? "Each step is narrated, and the animation waits for the voice to finish."
+    : "";
+  if (!on) stopAudio();
+}
+
+// ------------------------------------------------------------------------
+
+function clearHighlights() {
+  ALL_BOXES.forEach(b => $(b).classList.remove("active"));
+  ROWS.forEach(r => $(r).classList.remove("dim", "wrong", "ok", "wait", "absent"));
+}
+
+function render(i) {
+  clearHighlights();
+  const s = STEPS[i];
+
+  s.active.forEach(b => $(b).classList.add("active"));
+
+  // Rows not involved in this step fade back, so the eye follows the one
+  // decision currently being made.
+  if (s.dim) ROWS.filter(r => !s.active.includes(r)).forEach(r => $(r).classList.add("dim"));
+
+  // A call row: "ok" is a call that came back with an answer, "wrong" is one
+  // that failed or waited for something it did not need, "wait" is a call that
+  // has not been sent yet — either still to come, or blocked behind another.
+  (s.ok || []).forEach(r => $(r).classList.add("ok"));
+  (s.wait || []).forEach(r => { $(r).classList.remove("ok"); $(r).classList.add("wait"); });
+  (s.wrong || []).forEach(r => { $(r).classList.remove("ok", "wait"); $(r).classList.add("wrong"); });
+  CALLERS.filter(r => !(s.ok || []).includes(r)
+                   && !(s.wait || []).includes(r)
+                   && !(s.wrong || []).includes(r))
+          .forEach(r => $(r).classList.add("absent"));
+
+  // A service row is lit while that service is answering, and faint when it is
+  // down — so an outage is visible on the left before it is visible on a call.
+  (s.stateOn || []).forEach(r => $(r).classList.add("wait"));
+  STATES.filter(r => !(s.stateOn || []).includes(r))
+        .forEach(r => $(r).classList.add("absent"));
+
+  // Captions are cumulative: replay every step up to this one so that
+  // stepping backwards or jumping about still shows a consistent picture.
+  const caps = Object.assign({}, DEFAULT_CAPTIONS);
+  let label = DEFAULT_LABEL;
+  let gateLabel = DEFAULT_GATE_LABEL;
+  for (let k = 0; k <= i; k++) {
+    Object.assign(caps, STEPS[k].captions || {});
+    if (STEPS[k].label) label = STEPS[k].label;
+    if (STEPS[k].gateLabel) gateLabel = STEPS[k].gateLabel;
+  }
+  Object.keys(caps).forEach(key => { $("n-" + key).textContent = caps[key]; });
+  labelEl.textContent = label;
+  gateLabelEl.textContent = gateLabel;
+
+  holdingEl.innerHTML = "sections missing: <b>" + (s.holding || "none") + "</b>";
+  naiveEl.innerHTML = "cost: <b>30 + 60 + 120 = 210ms</b>";
+  clockEl.innerHTML = "the shopper waited <b>" + (s.clock || "&mdash;") +
+                      "</b> &nbsp;&middot;&nbsp; " + (s.clockNote || "");
+
+  bridgeEl.textContent = s.bridge || "";
+  bridgeEl.classList.add("active");
+
+  $("narration").innerHTML =
+    '<div class="step-no">' + s.title + '</div><div class="text">' + s.text + '</div>';
+
+  // Rebuild console output up to this step
+  linesEl.innerHTML = "";
+  for (let k = 0; k <= i; k++) {
+    if (!STEPS[k].out) continue;
+    const div = document.createElement("div");
+    div.className = "ln " + STEPS[k].out.cls;
+    div.textContent = STEPS[k].out.txt;
+    linesEl.appendChild(div);
+    requestAnimationFrame(() => div.classList.add("show"));
+  }
+
+  [...progressEl.children].forEach((d, k) => d.classList.toggle("on", k <= i));
+}
+
+/** Advance one step. In play mode, schedule the following step afterwards. */
+function next() {
+  if (idx >= STEPS.length - 1) { stop(); return; }
+  idx++;
+  render(idx);
+
+  if (!playing) { playClip(idx); return; }
+
+  if (audioOn) {
+    // Wait for the voice to finish this step, then move on.
+    playClip(idx, () => {
+      if (!playing) return;
+      timer = setTimeout(next, GAP_MS);
+    });
+  } else {
+    timer = setTimeout(next, STEP_MS);
+  }
+}
+
+function stop() {
+  playing = false;
+  clearTimeout(timer);
+  stopAudio();
+  $("play").innerHTML = "&#9654;&nbsp; Play";
+  $("step").disabled = false;
+}
+
+function reset() {
+  stop();
+  idx = -1;
+  clearHighlights();
+  STATES.forEach(r => $(r).classList.add("absent"));
+  Object.keys(DEFAULT_CAPTIONS).forEach(k => { $("n-" + k).textContent = DEFAULT_CAPTIONS[k]; });
+  labelEl.textContent = DEFAULT_LABEL;
+  gateLabelEl.textContent = DEFAULT_GATE_LABEL;
+  holdingEl.innerHTML = "sections missing: <b>none</b>";
+  naiveEl.innerHTML = "cost: <b>30 + 60 + 120 = 210ms</b>";
+  clockEl.innerHTML = "the shopper waited <b>&mdash;</b> &nbsp;&middot;&nbsp; nothing has been asked yet";
+  linesEl.innerHTML = "";
+  bridgeEl.textContent = "";
+  bridgeEl.classList.remove("active");
+  [...progressEl.children].forEach(d => d.classList.remove("on"));
+  $("narration").innerHTML =
+    '<div class="step-no">Ready</div><div class="text">Press <b>Play</b> to watch one ordinary page get built out of three services &mdash; and to find out where sixty milliseconds are hiding, what happens to the answers that already arrived when the last call fails, and why three excellent services make a page worse than any of them.</div>';
+}
+
+$("play").addEventListener("click", () => {
+  if (playing) { stop(); return; }
+  if (idx >= STEPS.length - 1) reset();
+  playing = true;
+  $("play").innerHTML = "&#10074;&#10074;&nbsp; Pause";
+  $("step").disabled = true;
+  next();   // next() now schedules the rest of the run itself
+});
+
+$("step").addEventListener("click", () => { stop(); if (idx >= STEPS.length - 1) reset(); next(); });
+$("reset").addEventListener("click", reset);
+
+$("audio").addEventListener("click", () => {
+  setAudio(!audioOn);
+  // Turning narration on mid-run: speak the step already on screen.
+  if (audioOn && playing && idx >= 0) {
+    clearTimeout(timer);
+    playClip(idx, () => {
+      if (!playing) return;
+      timer = setTimeout(next, GAP_MS);
+    });
+  }
+});
+
+document.addEventListener("keydown", e => {
+  if (e.code === "Space") { e.preventDefault(); $("play").click(); }
+  if (e.code === "ArrowRight") { e.preventDefault(); $("step").click(); }
+  if (e.code === "KeyR") reset();
+  if (e.code === "KeyN") $("audio").click();
+});
+
+setAudio(false);
+reset();
+</script>
+</body>
+</html>

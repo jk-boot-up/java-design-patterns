@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CQRS Pattern — Project Specification</title>
+<style>
+:root {
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --ok: #34d399;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: #7dd3fc; }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: rgba(167, 139, 250, 0.08);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: rgba(30, 41, 59, 0.55); }
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+</style>
+</head>
+<body>
+<main>
+<h1>CQRS Pattern — Project Specification</h1>
+<p>The single reference document for this project: what it teaches, how it is built, and the quality bar its video and its YouTube publication have to meet.</p>
+<p>This is a <em>specification</em>, not a tutorial. It says what must be true and why. The teaching material itself lives in <a href="cqrs-pattern-explained.md"><code>cqrs-pattern-explained.md</code></a>; the problem it addresses is set out at length in <a href="problem-statement.md"><code>problem-statement.md</code></a>.</p>
+<p>Where this document repeats a rule from the repository-wide <a href="../../../docs/video-and-publishing-spec.html"><code>video-and-publishing-spec.md</code></a>, that document is the authority. This project&#x27;s <code>video/build_video.sh</code> is generated from <code>creational/abstract-factory-pattern</code>&#x27;s, differing only in the pattern name and the output filenames, so a change to the pipeline belongs there and in the repository-wide spec, not here.</p>
+<hr>
+<h2>1. Purpose</h2>
+<p>Teach keeping two shapes of the same data — one for changing it safely, one already in the shape the page needs — and the three things that costs: staleness, a second store, and one number you must never sell against.</p>
+<p>The three formats are not alternatives. A learner is expected to read the problem statement, run the code, then watch the video — or watch first and read after. Whichever order they choose, the class names, the numbers and the scenario must be identical, because the value of the repository is that a learner carries one e-commerce domain from pattern to pattern and only has to absorb the new structure.</p>
+<h3>Non-goals</h3>
+<ul><li>Not event sourcing. Events update a projection here; the write side is still the system of record.</li><li>Not caching. A cache is implemented alongside so the difference can be shown rather than asserted.</li><li>Not a recommendation. For a page nobody looks at, composing on demand is the right answer and is always up to the second.</li></ul>
+<hr>
+<h2>2. Problem statement</h2>
+<p>The full treatment is in <a href="problem-statement.md"><code>problem-statement.md</code></a>. In brief:</p>
+<p>The order history page is composed from Orders and Catalog on every view: three refreshes cost six service calls and produce three identical pages. Reads outnumber writes by orders of magnitude, and the shop pays the composition every single time.</p>
+<p><strong>What the pattern must deliver:</strong> a read model updated when events arrive and read with one lookup; an honest account of the window in which it is wrong; a demonstration of why a cache with an expiry is not the same thing; and the rule that a decision about money or stock is made on the write side, never on the projection.</p>
+<hr>
+<h2>3. Code</h2>
+<h3>Structure</h3>
+<p>18 production classes under <code>com.jk.explore.cqrs</code>:</p>
+<table><thead><tr><th>Role</th><th>Types</th></tr></thead><tbody><tr><td>Write side</td><td><code>OrderWriteService</code>, <code>StockLedger</code></td></tr><tr><td>Read side</td><td><code>OrderHistoryReadModel</code>, <code>OrderHistoryRow</code>, <code>OrdersQueryApi</code></td></tr><tr><td>The version being replaced</td><td><code>ComposingOrderHistory</code></td></tr><tr><td>The thing it is confused with</td><td><code>CachedOrderHistory</code></td></tr><tr><td>Events</td><td><code>EventBus</code>, <code>ShopEvent</code></td></tr><tr><td>Entry point</td><td><code>CqrsDemo</code></td></tr></tbody></table>
+<h3>Requirements</h3>
+<ol><li><strong>The read is one lookup.</strong> Three views cost 15ms and zero calls to other services, against 270ms and six calls for composition.</li><li><strong>The work moved rather than vanished</strong>, and the demo says so: Catalog is called once, when the order is placed.</li><li><strong>The stale window is shown and it closes by itself.</strong> <code>EventBus.holdEvents()</code> lets a test assert a paid, final order that the customer&#x27;s own history page does not yet show — with no polling, retrying or timer involved in fixing it.</li><li><strong>The cache comparison is code.</strong> <code>CachedOrderHistory</code> passes all its tests, and <code>itServesAPageItKnowsNothingAbout</code> plus <code>thereIsNoFreeSetting</code> pin the difference: a read model is corrected by the event that made it wrong, a cache is wrong for however long its timer says.</li><li><strong>The write side decides the sale.</strong> <code>StockLedger</code> checks and decrements in one step, so two shoppers cannot both take the last kettle; a test shows the read model still offering it and the ledger refusing.</li><li><strong>The projection can be rebuilt.</strong> <code>rebuildFrom</code> discards and replays, because a read model that cannot be rebuilt is a second copy of the truth rather than a projection.</li><li><strong>Reads survive an outage.</strong> <code>readsSurviveAnOutage</code> answers while Catalog is down, since nobody is called at read time.</li><li><strong>Java 21, no third-party runtime dependencies.</strong> JUnit 5 for tests only, so the project is readable by someone who does not know a DI framework.</li><li><strong>Every class fits on a slide.</strong> This is teaching code; a class that needs scrolling to read has failed its purpose regardless of its design.</li></ol>
+<h3>Verification</h3>
+<ul><li><code>./gradlew build</code> passes. 18 test methods across <code>CachedOrderHistoryTest</code>, <code>CqrsTest</code>, <code>DemoRunsTest</code>.</li><li><code>./gradlew run</code> output is quoted verbatim in the top-level <code>README.md</code>, and must still match.</li></ul>
+<hr>
+<h2>4. Written material</h2>
+<p>Every document in <code>docs/</code> is required, and each has one job. A learner reading them in the order given by the top-level README&#x27;s table should never need to jump forward.</p>
+<table><thead><tr><th>Document</th><th>Job</th></tr></thead><tbody><tr><td><code>prerequisites.md</code></td><td>What to know and install first</td></tr><tr><td><code>problem-statement.md</code></td><td>The problem and why the naive approach hurts</td></tr><tr><td><code>cqrs-pattern-explained.md</code></td><td>The pattern, the code, pitfalls, comparisons</td></tr><tr><td><code>class-diagram.md</code> + PNG</td><td>Static structure</td></tr><tr><td><code>uml-diagram.md</code> + PNG</td><td>Runtime call flow</td></tr><tr><td><code>animation.html</code></td><td>Step-by-step walkthrough, optionally narrated</td></tr><tr><td><code>session.md</code></td><td>A 60-minute guided teaching session</td></tr><tr><td><code>youtube.md</code></td><td>Everything needed to publish the video</td></tr><tr><td><code>thumbnail.png</code></td><td>The image to upload</td></tr><tr><td><code>spec.md</code> / <code>spec.html</code></td><td>This document</td></tr></tbody></table>
+<p>Both Mermaid diagrams are committed as source <em>and</em> rendered PNG. The PNG is what the README embeds, because GitHub&#x27;s Mermaid rendering cannot be relied on at these diagrams&#x27; size; the source is what gets edited. Regenerating after an edit is mandatory — a diagram that disagrees with the code is worse than no diagram.</p>
+<hr>
+<h2>5. Video quality specification</h2>
+<p>The finished video is <code>video/cqrs-pattern-explained.mp4</code>, with an audio-only <code>.m4a</code> and a <code>.srt</code> subtitle track alongside it. It is built by <code>video/build_video.sh</code>, from scenes declared in <code>video/scenes.py</code> and slides rendered by <code>video/make_slides.py</code>.</p>
+<h3>5.1 The opening, in four steps</h3>
+<p>Scene 1 is the only scene whose narration has a required structure, and it is required because it is the scene that decides whether anybody watches the second one. It must run in this order:</p>
+<ol><li><strong>What the video is</strong> — &quot;This video explains the CQRS pattern in Java&quot;, plainly, before anything else.</li><li><strong>The author credit</strong> — &quot;and it is written and presented by Jayasekhar Konduru&quot;.</li><li><strong>The pattern&#x27;s definition, in general terms</strong> — two or three sentences of plain language, with no mention yet of the store, the catalog or the checkout. A viewer who stops here has still learnt what the pattern is.</li><li><strong>Then the same thing in full, in the e-commerce domain</strong> — the worked scenario, and what the viewer will be able to do by the end.</li></ol>
+<blockquote><p><strong>Requirement.</strong> Steps 3 and 4 are separate and in that order. They used to be one step: the video opened straight into the shop&#x27;s scenario and left the general definition to be inferred from a worked example, which works for a viewer already halfway to knowing the pattern and fails for everyone else. The cost is fifteen to thirty seconds of runtime, spent at the only point in the video where a viewer is still deciding whether to leave.</p></blockquote>
+<h3>5.2 Delivered characteristics</h3>
+<table><thead><tr><th>Property</th><th>Value</th><th>Why</th></tr></thead><tbody><tr><td>Container</td><td>MP4, <code>+faststart</code></td><td>The index sits at the front, so the poster paints the moment the file opens</td></tr><tr><td>Video</td><td>H.264, 1920×1080, 30 fps, CRF 18, <code>preset slow</code>, <code>yuv420p</code></td><td>1080p is the minimum at which code on a slide is readable; <code>yuv420p</code> is what every player accepts</td></tr><tr><td>B-frames</td><td>Disabled (<code>-bf 0</code>)</td><td>They save nothing on a static slide and complicate the timestamps the gap check reads</td></tr><tr><td>Audio</td><td>AAC-LC, 48 kHz, stereo, 192 kbps</td><td>YouTube&#x27;s recommended upload settings, so no re-encode on their side</td></tr><tr><td>Loudness</td><td>−16 LUFS integrated, true peak ≤ −1.5 dBTP</td><td>YouTube&#x27;s normalisation target — deliver at it and the platform leaves the audio alone</td></tr><tr><td>Stream start</td><td>Both streams at exactly 0.000 s</td><td>Otherwise the video track starts 21 ms late and players show black at 0:00</td></tr><tr><td>Narration</td><td>macOS <code>say</code>, voice Samantha, 145 wpm</td><td>The pace educational YouTube converges on for technical material</td></tr><tr><td>Inter-scene pause</td><td>0.9 s of appended silence</td><td>So slides do not snap past the moment a sentence ends</td></tr><tr><td>Runtime</td><td>~17:26 over 16 scenes, 257 subtitle cues</td><td></td></tr></tbody></table>
+<h3>5.3 The two defects this pipeline exists to prevent</h3>
+<p>Both produce a file that looks fine and sounds broken, and both were live in this repository before the current build script. They are documented here because the obvious &quot;simplification&quot; of the pipeline reintroduces them.</p>
+<p><strong>Per-scene AAC concatenation.</strong> AAC is a lapped format: every separately encoded clip carries priming samples at its head and padding at its tail. Concatenating such clips with <code>-c copy</code> strips neither, so each join leaves a hole in the timeline. Measured on the reference project before the fix: 30 gaps totalling 31 seconds of missing narration.</p>
+<blockquote><p><strong>Requirement.</strong> Each scene&#x27;s narration is written as lossless PCM WAV. The joined narration is encoded to AAC exactly once, at the final mux. There must be exactly one <code>-c:a aac</code> in the build script.</p></blockquote>
+<p><strong>Dynamic-mode <code>loudnorm</code>.</strong> Left to itself <code>loudnorm</code> rides the level as it goes, and on some narrations emits a timestamp discontinuity partway through — the same audible hole, mid-sentence, with nothing wrong upstream of it.</p>
+<blockquote><p><strong>Requirement.</strong> Loudness is measured over the whole narration in a first pass, and the measured figures are fed back with <code>linear=true</code> so the second pass applies one constant gain. This also stops the level pumping between quiet and loud lines.</p></blockquote>
+<h3>5.4 Why there is no denoiser</h3>
+<p>An earlier version ran <code>afftdn</code> over the narration and, by the numbers, it worked — about 15 dB off the noise floor. It also made the voice noticeably worse. A spectral denoiser needs a real, roughly stationary noise floor to subtract; synthesised speech has almost none, so <code>afftdn</code> subtracts parts of the speech instead and leaves it warbling.</p>
+<blockquote><p><strong>Requirement.</strong> The <code>CLEANUP</code> chain contains no <code>afftdn</code> and no <code>lowpass</code>. It is exactly: resample to 48 kHz with a long filter (<code>filter_size=512</code>, <code>cutoff=0.98</code>, <code>linear_interp=1</code>), a 75 Hz high-pass for rumble, and a gentle +1.5 dB shelf at 3 kHz for consonants. The faint remaining hiss is much the lesser problem.</p></blockquote>
+<p>Levelling is deliberately not in this chain either: run per scene it re-measures on every clip, so a quiet scene is pushed up to match a loud one and the level audibly steps at each join. It happens once, over the whole narration.</p>
+<h3>5.5 Synchronisation</h3>
+<p>Scene lengths are rounded up to a whole number of video frames — <code>frames = ceil(duration × 30)</code>, <code>target = frames / 30</code> — and each scene&#x27;s WAV is padded to exactly that target. Picture and narration are therefore the same length for every scene, so slide changes cannot drift away from the voice however many scenes the video grows to.</p>
+<h3>5.6 Self-check, and its limit</h3>
+<p>After the mux the build reads every audio packet timestamp and fails if any two are more than one AAC frame apart, printing <code>audio timeline continuous: N packets, no gaps</code>. A build that does not print that line has not passed.</p>
+<p><strong>This check verifies continuity, not fidelity.</strong> It cannot hear warbling, clipping or a bad voice — the <code>afftdn</code> problem passed it cleanly for weeks. Any change to the filter chain or the voice requires someone to actually listen to the result before it is called done. Objective measurement of the delivered file (integrated loudness, true peak, silence detection) is a useful guard but is not a substitute for that.</p>
+<hr>
+<h2>6. Poster and thumbnail</h2>
+<p>Two different images, for two different jobs. Conflating them is the mistake this section exists to prevent.</p>
+<p><strong><code>video/poster.png</code></strong> — 1920×1080, the video&#x27;s opening frame, lifted out of the build. It carries the before/after comparison: the approach being replaced on one side, the pattern on the other.</p>
+<p><strong><code>docs/thumbnail.png</code></strong> — 1280×720, generated by <a href="../../../docs/make_thumbnails.py"><code>make_thumbnails.py</code></a>, and the image that is uploaded. It is deliberately not the poster: YouTube serves a thumbnail at roughly 360 pixels wide in a search result, and at that size a two-column code comparison is a smudge. The thumbnail therefore carries three things only — the pattern name, one line of promise, and one short piece of code — each set large enough to survive the shrink.</p>
+<blockquote><p><strong>Requirement.</strong> Neither image strikes out its &quot;before&quot; sample. A rule drawn through monospace is hard to read at full size and illegible at thumbnail size, and striking the code out makes the card read as being about what is wrong rather than what is being taught. The rejected approach is marked with a <code>BEFORE</code> chip and the pattern with an <code>AFTER</code> chip; colour and label carry the contrast.</p></blockquote>
+<blockquote><p><strong>Requirement.</strong> The poster is inspected visually before it is considered done, not merely confirmed to exist. <code>proxy-pattern</code> once shipped a poster reading &quot;DECORATOR PATTERN&quot;, complete with decorator&#x27;s code samples, because <code>make_slides.py</code> was copied and <code>kind_poster</code> was never updated. Only looking at the image catches that.</p></blockquote>
+<hr>
+<h2>7. YouTube publication</h2>
+<p><a href="youtube.md"><code>youtube.md</code></a> holds everything needed to publish, so that uploading is copy-and-paste rather than reconstruction. Seven sections are required:</p>
+<ol><li><strong>Title</strong> — the exact string, ≤ 60 characters so search does not truncate it, leading with the pattern name. Currently <em>&quot;CQRS in Java - Order History Without the Joins&quot;</em>, 46 characters. The suffix after the dash names the worked e-commerce scenario, so the title says what the viewer will actually watch rather than only which pattern it is about.</li><li><strong>Description</strong> — first two lines carry the hook, because that is what shows above the fold; then what the video covers, the chapters, the repository link, the prerequisites.</li><li><strong>Chapters</strong> — <code>mm:ss Title</code>, one per scene, first entry <code>00:00</code>. YouTube needs at least three and the first at zero to render them at all.</li><li><strong>Tags</strong> — comma-separated, under 500 characters.</li><li><strong>Thumbnail</strong> — pointing at <code>docs/thumbnail.png</code>, and explaining why it is not the poster.</li><li><strong>Upload checklist</strong> — subtitles, language, thumbnail, HD processing, playlist.</li><li><strong>Cards and end screen</strong> — which video comes next in the learning order. For this project: Saga.</li></ol>
+<blockquote><p><strong>Requirement.</strong> Chapter timings are generated from the built <code>.srt</code>, never written by hand, by <code>python3 ../../docs/make_youtube_docs.py cqrs</code>. They are the one part of the file that goes stale silently: any change to the narration text or the speaking rate invalidates every timestamp, and a chapter list that is thirty seconds out is worse than none. Regenerate after any rebuild.</p></blockquote>
+<p>Subtitles are uploaded from the generated <code>.srt</code> rather than left to YouTube&#x27;s automatic captions, which mis-transcribe class names throughout.</p>
+<hr>
+<h2>8. Conformance</h2>
+<p>This project is compliant when all of the following hold. The full version, which governs all fourteen projects, is in <a href="../../../docs/video-and-publishing-spec.html"><code>video-and-publishing-spec.md</code></a> §9.</p>
+<ul class="task"><li>The worked example is e-commerce.</li><li><code>./gradlew build</code> passes, and the README quotes the real <code>./gradlew run</code> output, which still matches.</li><li>Scene 1 follows the four-step opening of §5.1 — what the video is, the author credit, the pattern&#x27;s definition in general terms, and only then the e-commerce scenario.</li><li><code>RATE</code> is 145 and <code>VOICE</code> is Samantha.</li><li><code>CLEANUP</code> is exactly as §5.4 gives it — no <code>afftdn</code>, no <code>lowpass</code>.</li><li>Per-scene audio is PCM; exactly one AAC encode, at the mux.</li><li><code>loudnorm</code> is two-pass with <code>linear=true</code>.</li><li>The build prints <code>audio timeline continuous: N packets, no gaps</code>.</li><li><code>poster.png</code> shows the correct pattern name and contains no strikethrough, confirmed by looking at it.</li><li><code>docs/youtube.md</code> has all seven sections, and its chapter timings match the current <code>.srt</code>.</li><li><code>video/README.md</code> describes the pipeline as it actually is.</li></ul>
+<p>Last verified: all eleven items pass. The delivered MP4 measures -16.02 LUFS integrated, -3.69 dBTP true peak, and both streams start at 0.000.</p>
+<hr>
+<h2>9. Rebuilding</h2>
+<p>From the project root:</p>
+<pre><code>(cd video &amp;&amp; ./build_video.sh)        # CPU-bound at CRF 18</code></pre>
+<p>Then, because the narration timings will have moved:</p>
+<pre><code>python3 ../../docs/make_youtube_docs.py cqrs
+python3 ../../docs/make_specs.py cqrs</code></pre>
+<p>Changing the voice or the filter chain means listening to the result. Changing the narration text means both of the above, and re-checking the runtime claims in the top-level <code>README.md</code> and in <code>video/README.md</code>.</p>
+</main>
+<footer>
+Generated from <code>spec.md</code> by <code>docs/make_specs.py</code> &mdash;
+edit the generator, not this file.
+</footer>
+</body>
+</html>

@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Service Discovery Pattern — Animated Walkthrough</title>
+<style>
+  :root {
+    --bg: #0f172a;
+    --panel: #1e293b;
+    --panel-hi: #334155;
+    --line: #475569;
+    --text: #e2e8f0;
+    --muted: #94a3b8;
+    --client: #38bdf8;
+    --context: #34d399;
+    --strategy: #a78bfa;
+    --picked: #fbbf24;
+    --bad: #f87171;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 28px 20px 60px;
+    background: var(--bg);
+    color: var(--text);
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  h1 { text-align: center; font-size: 28px; margin: 0 0 4px; }
+  .sub { text-align: center; color: var(--muted); margin: 0 0 24px; font-size: 15px; }
+
+  .wrap { max-width: 1100px; margin: 0 auto; }
+
+  .controls { display: flex; gap: 10px; justify-content: center; margin-bottom: 26px; flex-wrap: wrap; }
+  button {
+    background: var(--panel-hi); color: var(--text); border: 1px solid var(--line);
+    padding: 9px 20px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer;
+    transition: background .15s, transform .1s;
+  }
+  button:hover:not(:disabled) { background: #475569; }
+  button:active:not(:disabled) { transform: translateY(1px); }
+  button:disabled { opacity: .4; cursor: not-allowed; }
+  button.primary { background: var(--strategy); color: #1e1b4b; border-color: var(--strategy); }
+  button.primary:hover:not(:disabled) { background: #b9a3ff; }
+  button.on { background: #0c2b3d; border-color: var(--client); color: var(--client); }
+  button.on:hover:not(:disabled) { background: #123a52; }
+
+  .audio-note {
+    text-align: center; color: var(--muted); font-size: 12.5px;
+    margin: -14px 0 22px; min-height: 17px;
+  }
+
+  .stage { display: grid; grid-template-columns: 240px 1fr; gap: 22px; align-items: start; }
+
+  .col-client { display: flex; flex-direction: column; align-items: center; gap: 12px; padding-top: 20px; }
+
+  .box {
+    background: var(--panel); border: 2px solid var(--line); border-radius: 12px;
+    padding: 14px 16px; text-align: center; width: 100%;
+    transition: border-color .3s, box-shadow .3s, transform .3s, background .3s;
+  }
+  .box .name { font-weight: 700; font-size: 14px; letter-spacing: .2px; }
+  .box .role { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-top: 3px; }
+  .box.active {
+    transform: translateY(-3px);
+    box-shadow: 0 0 0 3px rgba(255,255,255,.07), 0 10px 28px rgba(0,0,0,.45);
+    border-color: var(--client); background: #0c2b3d;
+  }
+  /* the naive client is the one being replaced, so when it is the focus it
+     glows red rather than blue — no strikethrough, just a colour */
+  .box.naive.active { border-color: var(--bad); background: #2b0f12; box-shadow: 0 0 0 3px rgba(248,113,113,.15); }
+  .holding {
+    margin-top: 9px; padding-top: 8px; border-top: 1px dashed var(--line);
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px;
+    color: var(--muted); line-height: 1.5;
+  }
+  .holding b { color: var(--picked); font-weight: 700; }
+
+  .col-main { display: flex; flex-direction: column; gap: 18px; }
+
+  .family {
+    border: 2px dashed var(--strategy); border-radius: 14px; padding: 18px 20px;
+    background: rgba(167,139,250,.05);
+  }
+  /* the registry's own panel is gold, so the one box that is the pattern is
+     never confused with the instances it happens to be keeping a list of */
+  .family.gate { border-color: var(--picked); background: rgba(251,191,36,.05); }
+  .family.gate .family-label { color: var(--picked); }
+
+  .family-label {
+    font-size: 11px; color: var(--strategy); text-transform: uppercase;
+    letter-spacing: 1.4px; font-weight: 700; margin-bottom: 14px; text-align: center;
+  }
+
+  .row {
+    display: flex; align-items: center; justify-content: space-between;
+    border: 2px solid var(--line); border-radius: 8px; background: var(--panel);
+    padding: 8px 14px; margin-bottom: 6px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 13px;
+    transition: border-color .3s, background .3s, transform .3s, opacity .3s;
+  }
+  .row .note { color: var(--muted); font-size: 11px; text-align: right; }
+  .row.dim { opacity: .38; }
+  /* a row that is not on the registry's list at all, or an instance that has
+     not been started yet */
+  .row.absent { opacity: .22; border-style: dashed; }
+  .row.active {
+    transform: translateX(4px);
+    border-color: var(--client);
+    box-shadow: 0 0 0 3px rgba(56,189,248,.15);
+  }
+  /* "wrong" marks something that is dead, or a list entry that is a lie */
+  .row.wrong { border-color: var(--bad); background: #2b0f12; }
+  .row.wrong .note { color: #fca5a5; }
+  /* "ok" marks a live instance, or an entry that is telling the truth */
+  .row.ok { border-color: var(--context); background: #06281f; }
+  .row.ok .note { color: #6ee7b7; }
+  /* "stale" is the whole point of this project: on the list, and not alive */
+  .row.stale { border-color: var(--picked); background: #2a1f05; }
+  .row.stale .note { color: var(--picked); }
+
+  .clock {
+    text-align: center; font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 13px; color: var(--muted); border: 1px solid var(--line);
+    border-radius: 8px; padding: 7px 12px; background: #020617;
+  }
+  .clock b { color: var(--picked); font-size: 15px; }
+
+  .bridge-rail { text-align: center; color: var(--muted); font-size: 12px; margin: -6px 0 2px; min-height: 16px; transition: color .3s; }
+  .bridge-rail.active { color: var(--client); font-weight: 700; }
+
+  .narration {
+    background: var(--panel); border-left: 4px solid var(--strategy);
+    border-radius: 0 10px 10px 0; padding: 16px 20px; min-height: 76px;
+    font-size: 15px; line-height: 1.6;
+  }
+  .narration .step-no { color: var(--muted); font-size: 12px; letter-spacing: 1px; text-transform: uppercase; }
+  .narration .text { margin-top: 5px; }
+
+  .console {
+    background: #020617; border: 1px solid var(--line); border-radius: 10px;
+    padding: 14px 16px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 12.5px; line-height: 1.7; min-height: 130px;
+  }
+  .console .ttl { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+  .console div.ln { opacity: 0; transition: opacity .35s; }
+  .console div.ln.show { opacity: 1; }
+  .c-context { color: var(--context); }
+  .c-strategy { color: var(--strategy); }
+  .c-out  { color: var(--client); }
+  .c-pick { color: var(--picked); }
+  .c-bad  { color: var(--bad); }
+
+  .progress { display: flex; gap: 5px; justify-content: center; margin-top: 22px; }
+  .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--line); transition: background .3s, transform .3s; }
+  .dot.on { background: var(--strategy); transform: scale(1.35); }
+
+  .legend { text-align: center; color: var(--muted); font-size: 13px; margin-top: 26px; line-height: 1.7; }
+  .legend b { color: var(--text); }
+
+  @media (max-width: 860px) {
+    .stage { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>The Service Discovery Pattern</h1>
+  <p class="sub">Ask where it is, every time &mdash; and be ready for the answer to be out of date</p>
+
+  <div class="controls">
+    <button id="play" class="primary">&#9654;&nbsp; Play</button>
+    <button id="step">Step &rarr;</button>
+    <button id="reset">Reset</button>
+    <button id="audio" aria-pressed="false" title="Narrate each step (N)">
+      <span id="audio-icon">&#128263;</span>&nbsp; Narration: off
+    </button>
+  </div>
+  <p class="audio-note" id="audio-note"></p>
+
+  <div class="stage">
+
+    <div class="col-client">
+      <div class="box naive" id="b-naive">
+        <div class="name">HardcodedPricingClient</div>
+        <div class="role">Told one address</div>
+        <div class="holding" id="naive-state">knows: <b>pricing-1</b></div>
+      </div>
+      <div style="font-size:22px;color:var(--line)">&#8595;</div>
+      <div class="box client" id="b-client">
+        <div class="name">DiscoveringPricingClient</div>
+        <div class="role">Asks before every call</div>
+        <div class="holding" id="holding">lookups: <b>0</b></div>
+      </div>
+      <div style="font-size:11px;color:var(--muted);text-align:center;line-height:1.5">
+        one call to an instance: 10ms.<br>
+        asking the registry: free here,<br>
+        a cached network call in real life.
+      </div>
+    </div>
+
+    <div class="col-main">
+
+      <div class="family gate">
+        <div class="family-label" id="gate-label">ServiceRegistry &mdash; who is running right now</div>
+        <div class="row absent" id="r-l1">
+          <span class="name">pricing-1</span>
+          <span class="note" id="n-l1">&mdash; nothing registered yet</span>
+        </div>
+        <div class="row absent" id="r-l2">
+          <span class="name">pricing-2</span>
+          <span class="note" id="n-l2">&mdash;</span>
+        </div>
+        <div class="row absent" id="r-l3">
+          <span class="name">pricing-3</span>
+          <span class="note" id="n-l3">&mdash;</span>
+        </div>
+        <div class="row absent" id="r-l4">
+          <span class="name">pricing-4</span>
+          <span class="note" id="n-l4">&mdash;</span>
+        </div>
+      </div>
+
+      <div class="family">
+        <div class="family-label" id="family-label">The Pricing service &mdash; the same program, running more than once</div>
+        <div class="row" id="r-p1">
+          <span class="name">pricing-1 (10.0.1.145:8081)</span>
+          <span class="note" id="n-p1">running</span>
+        </div>
+        <div class="row" id="r-p2">
+          <span class="name">pricing-2 (10.0.1.146:8082)</span>
+          <span class="note" id="n-p2">running</span>
+        </div>
+        <div class="row" id="r-p3">
+          <span class="name">pricing-3 (10.0.1.147:8083)</span>
+          <span class="note" id="n-p3">running</span>
+        </div>
+        <div class="row absent" id="r-p4">
+          <span class="name">pricing-4 (10.0.1.148:8084)</span>
+          <span class="note" id="n-p4">not started</span>
+        </div>
+      </div>
+
+      <div class="clock" id="clock">clock: <b>0ms</b> &nbsp;&middot;&nbsp; a lease is good for 3000ms</div>
+
+      <div class="bridge-rail" id="bridge-rail"></div>
+
+      <div class="narration" id="narration">
+        <div class="step-no">Ready</div>
+        <div class="text">Press <b>Play</b> to watch the same price looked up two ways &mdash; once by a client that was told an address, and once by a client that asks &mdash; and then to watch the list of who is running be wrong for three seconds.</div>
+      </div>
+
+      <div class="console">
+        <div class="ttl">Program output</div>
+        <div id="console-lines"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="progress" id="progress"></div>
+
+  <p class="legend">
+    <b>Both clients ask for the same price and get £449.99. The difference is what happens the next time the set of instances changes.</b><br>
+    A registry is not a machine for always being right &mdash; it cannot be. It is a list that forgets anyone who goes quiet, used by callers that expect to be handed a bad address occasionally.<br>
+    <span style="font-size:12px">
+      Keys: <b>Space</b> play/pause &nbsp;·&nbsp; <b>&rarr;</b> next step
+      &nbsp;·&nbsp; <b>N</b> narration &nbsp;·&nbsp; <b>R</b> reset
+    </span>
+  </p>
+
+</div>
+
+<script>
+// Each step may set any row's caption; captions persist until changed, so a
+// step only lists what it actually moves.
+const STEPS = [
+  {
+    title: "Step 1 — One service, three copies of it",
+    text: "Pricing is busy, so it runs as three copies of the same program. Any of the three can answer any question, and all three give the same answer, because the price of an espresso machine does not depend on which machine you ask. The checkout needs a price, and so it needs an address.",
+    active: ["r-p1", "r-p2", "r-p3"], ok: ["r-p1", "r-p2", "r-p3"],
+    lookups: "0", clock: "0ms",
+    bridge: "three instances, all interchangeable — so which one does the checkout call?",
+    out: { cls: "c-strategy", txt: "// pricing-1, pricing-2, pricing-3 — same program, three times" }
+  },
+  {
+    title: "Step 2 — Writing the address down works, at first",
+    text: "Somebody pasted pricing-1 into the checkout, and it was the right amount of code at the time. It is fast, it has no dependencies, it cannot be misconfigured, and every test written against it passes. The price comes back in ten milliseconds.",
+    active: ["b-naive", "r-p1"], dim: true, ok: ["r-p1", "r-p2", "r-p3"],
+    lookups: "0", clock: "10ms",
+    captions: { p1: "OK — £449.99" },
+    bridge: "private static final String PRICING_INSTANCE = \"pricing-1\";",
+    out: { cls: "c-out", txt: "  0ms ->    10ms  pricing-1        OK        £449.99" }
+  },
+  {
+    title: "Step 3 — Then somebody deploys Pricing",
+    text: "A rolling deployment stops pricing-1. That is not a fault; it is Tuesday. And the checkout is now down — not slow, down — because the only thing it was ever told was the name of a machine that no longer exists.",
+    active: ["b-naive", "r-p1"], wrong: ["r-p1"], ok: ["r-p2", "r-p3"],
+    lookups: "0", clock: "10ms",
+    captions: { p1: "stopped by a deployment" },
+    bridge: "after the deploy:  pricing-1 did not answer",
+    out: { cls: "c-bad", txt: "  after the deploy:  pricing-1 did not answer          // checkout is down" }
+  },
+  {
+    title: "Step 4 — And two healthy instances sit idle",
+    text: "Pricing two and pricing three are up, healthy, and doing nothing, three metres away in the same rack. The client cannot use either of them, and no amount of care inside that client would help, because a constant is not a question you can ask again later.",
+    active: ["r-p2", "r-p3"], wrong: ["r-p1"], ok: ["r-p2", "r-p3"],
+    lookups: "0", clock: "10ms",
+    captions: { p2: "healthy — and unreachable", p3: "healthy — and unreachable" },
+    bridge: "the set of instances changes daily.  the source code changes fortnightly.",
+    out: { cls: "c-bad", txt: "// a fast-moving fact stored inside a slow-moving artefact" }
+  },
+  {
+    title: "Step 5 — So the instances keep the list themselves",
+    text: "Each instance announces itself to a registry as it starts up, and says still here every few seconds afterwards. Nobody edits a file. The list is written by the things it is a list of, which is the only way it can keep up with them.",
+    active: ["r-l1", "r-l2", "r-l3"], dim: true,
+    leaseOk: ["r-l1", "r-l2", "r-l3"], ok: ["r-p1", "r-p2", "r-p3"],
+    lookups: "0", clock: "0ms",
+    gateLabel: "ServiceRegistry — one entry per instance, each on a lease",
+    captions: { l1: "lease renewed just now", l2: "lease renewed just now", l3: "lease renewed just now",
+                p1: "running", p2: "running", p3: "running" },
+    bridge: "registry.register(instance)   //  called by the instance, at startup",
+    out: { cls: "c-context", txt: "  0ms ->     0ms  Registry         REGISTER  pricing-1, pricing-2, pricing-3" }
+  },
+  {
+    title: "Step 6 — The client asks, and then calls",
+    text: "The discovering client does two things where the old one did one. First it asks the registry who is running, and it is offered three. Then it calls the first of them and gets four hundred and forty nine pounds ninety nine, in the same ten milliseconds as before.",
+    active: ["b-client", "r-l1"], dim: true,
+    leaseOk: ["r-l1", "r-l2", "r-l3"], ok: ["r-p1", "r-p2", "r-p3"],
+    lookups: "1", clock: "10ms",
+    bridge: "List<ServiceInstance> candidates = registry.instances(\"Pricing\");",
+    out: { cls: "c-out", txt: "  0ms ->     0ms  Client           LOOKUP    3 Pricing instance(s) offered" }
+  },
+  {
+    title: "Step 7 — Now deploy again, and watch nothing break",
+    text: "Pricing one shuts down politely this time, so on the way out it takes itself off the list. The next lookup is offered two instances instead of three, and pricing two answers. The shopper never finds out that a deployment happened.",
+    active: ["r-l1", "b-client"], dim: false,
+    leaseGone: ["r-l1"], leaseOk: ["r-l2", "r-l3"],
+    wrong: ["r-p1"], ok: ["r-p2", "r-p3"],
+    lookups: "2", clock: "20ms",
+    captions: { l1: "DEREGISTER — left cleanly", p1: "stopped, and off the list" },
+    bridge: " 10ms → 10ms   Registry   DEREGISTER pricing-1 left cleanly",
+    out: { cls: "c-context", txt: " 10ms ->    20ms  Client LOOKUP 2  ->  pricing-2  OK  £449.99" }
+  },
+  {
+    title: "Step 8 — And scaling up needs no permission either",
+    text: "A fourth instance starts for a busy Friday, registers itself, and the very next lookup offers three. No code changed, no restart, no configuration edit. That sentence is the entire return on the pattern.",
+    active: ["r-l4", "r-p4"], dim: true,
+    leaseOk: ["r-l2", "r-l3", "r-l4"], leaseGone: ["r-l1"],
+    ok: ["r-p2", "r-p3", "r-p4"], wrong: ["r-p1"],
+    lookups: "3", clock: "30ms",
+    captions: { l4: "REGISTER — new, and immediately usable", p4: "started for a busy Friday" },
+    bridge: " 20ms → 20ms   Registry   REGISTER  pricing-4 (10.0.1.148:8084)",
+    out: { cls: "c-pick", txt: " 20ms ->    30ms  Client LOOKUP 3  ->  £449.99   // nothing was edited" }
+  },
+  {
+    title: "Step 9 — Then one of them crashes",
+    text: "Pricing two does not shut down politely. The process simply dies. And here is the thing that no design can get around: a process that has crashed cannot send a message saying it has crashed. So the registry does not know, and it goes on listing pricing two as though nothing had happened.",
+    active: ["r-p2", "r-l2"], dim: false,
+    leaseStale: ["r-l2"], leaseOk: ["r-l3", "r-l4"], leaseGone: ["r-l1"],
+    wrong: ["r-p1", "r-p2"], ok: ["r-p3", "r-p4"],
+    lookups: "3", clock: "30ms",
+    captions: { l2: "still listed — and it is a lie", p2: "CRASHED — nobody was told" },
+    bridge: "the registry is not wrong because it is badly written.  it cannot be right.",
+    out: { cls: "c-bad", txt: "  0ms ->     0ms  Pricing          CRASHED   pricing-2 died without deregistering" }
+  },
+  {
+    title: "Step 10 — The client is handed a dead address, and copes",
+    text: "The lookup offers three instances and the first one is dead. The client tries it, gets nothing, writes the word stale into the log, and moves down the list. Pricing three answers five milliseconds later than pricing two would have. A stale entry cost five milliseconds instead of an outage, and the whole of that rescue is a loop and a caught exception.",
+    active: ["b-client", "r-p3"], dim: false,
+    leaseStale: ["r-l2"], leaseOk: ["r-l3", "r-l4"], leaseGone: ["r-l1"],
+    wrong: ["r-p1", "r-p2"], ok: ["r-p3", "r-p4"],
+    lookups: "4", clock: "45ms",
+    captions: { p3: "OK, 5ms late — second name on the list" },
+    bridge: "catch (ServiceUnavailableException e) { log.note(\"STALE\", ...); }   // then try the next",
+    out: { cls: "c-pick", txt: "  5ms ->    15ms  Client STALE pricing-2  ->  pricing-3  OK  £449.99" }
+  },
+  {
+    title: "Step 11 — Three seconds later, the list corrects itself",
+    text: "The living instances keep renewing their leases. The dead one cannot, and after three thousand milliseconds of silence its lease expires and it is dropped. That window is the honest price of the pattern. You can shorten it by heartbeating more often, and you cannot make it zero, because the only message that would close it is the one a dead process cannot send.",
+    active: ["r-l2"], dim: false,
+    leaseGone: ["r-l1", "r-l2"], leaseOk: ["r-l3", "r-l4"],
+    wrong: ["r-p1", "r-p2"], ok: ["r-p3", "r-p4"],
+    lookups: "4", clock: "4000ms",
+    captions: { l2: "EXPIRED — missed its heartbeats" },
+    bridge: "if (clock.millis() - lease.lastHeartbeatAt() > LEASE_MILLIS) { drop it; }",
+    out: { cls: "c-context", txt: "4000ms ->  4000ms  Registry         EXPIRED   pricing-2 missed its heartbeats" }
+  },
+  {
+    title: "Step 12 — Ask every time, and expect to be wrong sometimes",
+    text: "Instances put themselves on a list. The list forgets anyone who goes quiet. Callers ask it before every single call, so their picture of the world is never older than one request. And callers try the next name, because a registry without a client that copes with stale entries fails every time an instance dies, which is exactly the situation it was introduced to fix.",
+    active: ["b-client"], dim: true,
+    leaseGone: ["r-l1", "r-l2"], leaseOk: ["r-l3", "r-l4"],
+    wrong: ["r-p1", "r-p2"], ok: ["r-p3", "r-p4"],
+    lookups: "4", clock: "4000ms",
+    gateLabel: "ServiceRegistry — a list that forgets, which is what makes it trustworthy",
+    bridge: "assertEquals(3, client.lookups());   //  asked on every call, not once at startup",
+    out: { cls: "c-pick", txt: "// and if there is one instance, started by hand, a constant is still the right answer" }
+  }
+];
+
+const BOXES = ["b-naive", "b-client"];
+const LEASES = ["r-l1", "r-l2", "r-l3", "r-l4"];
+const INSTANCES = ["r-p1", "r-p2", "r-p3", "r-p4"];
+const ROWS = LEASES.concat(INSTANCES);
+const ALL_BOXES = BOXES.concat(ROWS);
+
+const STEP_MS = 3800;      // pace when narration is off
+const GAP_MS = 700;        // breathing room after a clip finishes
+
+let idx = -1;
+let playing = false;
+let timer = null;
+
+// Narration is optional: if the audio clips are missing (or the browser
+// blocks playback) the animation still works exactly as before.
+let audioOn = false;
+let clips = [];
+let current = null;
+
+const $ = id => document.getElementById(id);
+const progressEl = $("progress");
+const linesEl = $("console-lines");
+const noteEl = $("audio-note");
+const bridgeEl = $("bridge-rail");
+const holdingEl = $("holding");
+const naiveEl = $("naive-state");
+const clockEl = $("clock");
+const labelEl = $("family-label");
+const gateLabelEl = $("gate-label");
+
+const DEFAULT_LABEL = "The Pricing service — the same program, running more than once";
+const DEFAULT_GATE_LABEL = "ServiceRegistry — who is running right now";
+const DEFAULT_CAPTIONS = {
+  l1: "— nothing registered yet",
+  l2: "—",
+  l3: "—",
+  l4: "—",
+  p1: "running",
+  p2: "running",
+  p3: "running",
+  p4: "not started"
+};
+
+STEPS.forEach(() => {
+  const d = document.createElement("div");
+  d.className = "dot";
+  progressEl.appendChild(d);
+});
+
+// ---- optional narration ------------------------------------------------
+
+clips = STEPS.map((_, i) => {
+  const a = new Audio("audio/step-" + (i + 1) + ".m4a");
+  a.preload = "none";
+  return a;
+});
+
+function stopAudio() {
+  if (!current) return;
+  current.pause();
+  current.currentTime = 0;
+  current.onended = null;
+  current = null;
+}
+
+/** Play the clip for step i. onDone fires when it finishes (or cannot play). */
+function playClip(i, onDone) {
+  stopAudio();
+  if (!audioOn) { if (onDone) onDone(); return; }
+
+  const a = clips[i];
+  current = a;
+  a.currentTime = 0;
+  a.onended = () => { current = null; if (onDone) onDone(); };
+
+  a.play().catch(() => {
+    // Missing file, or autoplay blocked -> fall back to timed pacing.
+    current = null;
+    noteEl.textContent =
+      "Narration audio could not be played — falling back to timed steps. " +
+      "Run docs/make_animation_audio.sh to generate the clips.";
+    if (onDone) onDone();
+  });
+}
+
+function setAudio(on) {
+  audioOn = on;
+  const btn = $("audio");
+  btn.classList.toggle("on", on);
+  btn.setAttribute("aria-pressed", String(on));
+  btn.innerHTML = '<span id="audio-icon">' + (on ? "&#128266;" : "&#128263;") +
+                  "</span>&nbsp; Narration: " + (on ? "on" : "off");
+  noteEl.textContent = on
+    ? "Each step is narrated, and the animation waits for the voice to finish."
+    : "";
+  if (!on) stopAudio();
+}
+
+// ------------------------------------------------------------------------
+
+function clearHighlights() {
+  ALL_BOXES.forEach(b => $(b).classList.remove("active"));
+  ROWS.forEach(r => $(r).classList.remove("dim", "wrong", "ok", "stale", "absent"));
+}
+
+function render(i) {
+  clearHighlights();
+  const s = STEPS[i];
+
+  s.active.forEach(b => $(b).classList.add("active"));
+
+  // Rows not involved in this step fade back, so the eye follows the one
+  // call currently being made.
+  if (s.dim) ROWS.filter(r => !s.active.includes(r)).forEach(r => $(r).classList.add("dim"));
+
+  // An instance row: "ok" is running, "wrong" is not. Rows nobody has
+  // mentioned yet stay faint.
+  (s.ok || []).forEach(r => $(r).classList.add("ok"));
+  (s.wrong || []).forEach(r => { $(r).classList.remove("ok"); $(r).classList.add("wrong"); });
+  INSTANCES.filter(r => !(s.ok || []).includes(r) && !(s.wrong || []).includes(r))
+           .forEach(r => $(r).classList.add("absent"));
+
+  // A registry row: "leaseOk" is a live lease, "leaseStale" is an entry that
+  // is still offered and no longer true, "leaseGone" is off the list.
+  (s.leaseOk || []).forEach(r => $(r).classList.add("ok"));
+  (s.leaseStale || []).forEach(r => $(r).classList.add("stale"));
+  (s.leaseGone || []).forEach(r => $(r).classList.add("absent"));
+  LEASES.filter(r => !(s.leaseOk || []).includes(r)
+                  && !(s.leaseStale || []).includes(r)
+                  && !(s.leaseGone || []).includes(r))
+        .forEach(r => $(r).classList.add("absent"));
+
+  // Captions are cumulative: replay every step up to this one so that
+  // stepping backwards or jumping about still shows a consistent picture.
+  const caps = Object.assign({}, DEFAULT_CAPTIONS);
+  let label = DEFAULT_LABEL;
+  let gateLabel = DEFAULT_GATE_LABEL;
+  for (let k = 0; k <= i; k++) {
+    Object.assign(caps, STEPS[k].captions || {});
+    if (STEPS[k].label) label = STEPS[k].label;
+    if (STEPS[k].gateLabel) gateLabel = STEPS[k].gateLabel;
+  }
+  Object.keys(caps).forEach(key => { $("n-" + key).textContent = caps[key]; });
+  labelEl.textContent = label;
+  gateLabelEl.textContent = gateLabel;
+
+  holdingEl.innerHTML = "lookups: <b>" + (s.lookups || "0") + "</b>";
+  naiveEl.innerHTML = "knows: <b>pricing-1</b>";
+  clockEl.innerHTML = "clock: <b>" + (s.clock || "0ms") +
+                      "</b> &nbsp;&middot;&nbsp; a lease is good for 3000ms";
+
+  bridgeEl.textContent = s.bridge || "";
+  bridgeEl.classList.add("active");
+
+  $("narration").innerHTML =
+    '<div class="step-no">' + s.title + '</div><div class="text">' + s.text + '</div>';
+
+  // Rebuild console output up to this step
+  linesEl.innerHTML = "";
+  for (let k = 0; k <= i; k++) {
+    if (!STEPS[k].out) continue;
+    const div = document.createElement("div");
+    div.className = "ln " + STEPS[k].out.cls;
+    div.textContent = STEPS[k].out.txt;
+    linesEl.appendChild(div);
+    requestAnimationFrame(() => div.classList.add("show"));
+  }
+
+  [...progressEl.children].forEach((d, k) => d.classList.toggle("on", k <= i));
+}
+
+/** Advance one step. In play mode, schedule the following step afterwards. */
+function next() {
+  if (idx >= STEPS.length - 1) { stop(); return; }
+  idx++;
+  render(idx);
+
+  if (!playing) { playClip(idx); return; }
+
+  if (audioOn) {
+    // Wait for the voice to finish this step, then move on.
+    playClip(idx, () => {
+      if (!playing) return;
+      timer = setTimeout(next, GAP_MS);
+    });
+  } else {
+    timer = setTimeout(next, STEP_MS);
+  }
+}
+
+function stop() {
+  playing = false;
+  clearTimeout(timer);
+  stopAudio();
+  $("play").innerHTML = "&#9654;&nbsp; Play";
+  $("step").disabled = false;
+}
+
+function reset() {
+  stop();
+  idx = -1;
+  clearHighlights();
+  LEASES.forEach(r => $(r).classList.add("absent"));
+  $("r-p4").classList.add("absent");
+  Object.keys(DEFAULT_CAPTIONS).forEach(k => { $("n-" + k).textContent = DEFAULT_CAPTIONS[k]; });
+  labelEl.textContent = DEFAULT_LABEL;
+  gateLabelEl.textContent = DEFAULT_GATE_LABEL;
+  holdingEl.innerHTML = "lookups: <b>0</b>";
+  naiveEl.innerHTML = "knows: <b>pricing-1</b>";
+  clockEl.innerHTML = "clock: <b>0ms</b> &nbsp;&middot;&nbsp; a lease is good for 3000ms";
+  linesEl.innerHTML = "";
+  bridgeEl.textContent = "";
+  bridgeEl.classList.remove("active");
+  [...progressEl.children].forEach(d => d.classList.remove("on"));
+  $("narration").innerHTML =
+    '<div class="step-no">Ready</div><div class="text">Press <b>Play</b> to watch the same price looked up two ways &mdash; once by a client that was told an address, and once by a client that asks &mdash; and then to watch the list of who is running be wrong for three seconds.</div>';
+}
+
+$("play").addEventListener("click", () => {
+  if (playing) { stop(); return; }
+  if (idx >= STEPS.length - 1) reset();
+  playing = true;
+  $("play").innerHTML = "&#10074;&#10074;&nbsp; Pause";
+  $("step").disabled = true;
+  next();   // next() now schedules the rest of the run itself
+});
+
+$("step").addEventListener("click", () => { stop(); if (idx >= STEPS.length - 1) reset(); next(); });
+$("reset").addEventListener("click", reset);
+
+$("audio").addEventListener("click", () => {
+  setAudio(!audioOn);
+  // Turning narration on mid-run: speak the step already on screen.
+  if (audioOn && playing && idx >= 0) {
+    clearTimeout(timer);
+    playClip(idx, () => {
+      if (!playing) return;
+      timer = setTimeout(next, GAP_MS);
+    });
+  }
+});
+
+document.addEventListener("keydown", e => {
+  if (e.code === "Space") { e.preventDefault(); $("play").click(); }
+  if (e.code === "ArrowRight") { e.preventDefault(); $("step").click(); }
+  if (e.code === "KeyR") reset();
+  if (e.code === "KeyN") $("audio").click();
+});
+
+setAudio(false);
+reset();
+</script>
+</body>
+</html>

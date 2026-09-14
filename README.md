@@ -1,19 +1,21 @@
 # java-design-patterns
 
-Learning material on the Gang of Four design patterns in Java. The substance of
-this repository is [`gradle-java/`](gradle-java) — a twenty-five project worked
+Learning material on design patterns in Java — the Gang of Four patterns, and
+then the microservices patterns that pick up where they stop. The substance of
+this repository is [`gradle-java/`](gradle-java) — a thirty-seven project worked
 course. Everything else is earlier scratch work, kept for reference.
 
 ## Start here
 
 **[`gradle-java/README.md`](gradle-java/README.md)** is the front door. It lists
-all twenty-five patterns in learning order, across three categories:
+all thirty-seven patterns in learning order, across four categories:
 
 | Category | Patterns | Range |
 | --- | --- | --- |
 | [Creational](gradle-java/creational) | 7 | Simple Factory → Singleton |
 | [Structural](gradle-java/structural) | 7 | Adapter → Proxy |
 | [Behavioural](gradle-java/behavioural) | 11 | Strategy → Interpreter |
+| [Microservices](gradle-java/micro-services-design-patterns) | 12 | API Gateway → Idempotent Consumer |
 
 Every pattern is taught through the same worked domain — an online store — so a
 learner moving from one project to the next carries the setting with them and
@@ -35,13 +37,15 @@ on the `PATH` is the only prerequisite, and every project's
 ## Repository layout
 
 ```
-gradle-java/                 the course — 25 projects in 3 categories
+gradle-java/                 the course — 37 projects in 4 categories
   docs/                      the repository-wide specs and the shared
                              generators for specs, thumbnails and
                              YouTube documents
   creational/                7 projects
   structural/                7 projects
   behavioural/               11 projects
+  micro-services-design-patterns/
+                             12 projects
 
 chain-of-reponsibility-example/    earlier Maven + Spring Boot sketches,
 factory-pattern-example/           predating the course and superseded by

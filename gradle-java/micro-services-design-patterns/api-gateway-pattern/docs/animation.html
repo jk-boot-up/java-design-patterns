@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>API Gateway Pattern — Animated Walkthrough</title>
+<style>
+  :root {
+    --bg: #0f172a;
+    --panel: #1e293b;
+    --panel-hi: #334155;
+    --line: #475569;
+    --text: #e2e8f0;
+    --muted: #94a3b8;
+    --client: #38bdf8;
+    --context: #34d399;
+    --strategy: #a78bfa;
+    --picked: #fbbf24;
+    --bad: #f87171;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 28px 20px 60px;
+    background: var(--bg);
+    color: var(--text);
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  h1 { text-align: center; font-size: 28px; margin: 0 0 4px; }
+  .sub { text-align: center; color: var(--muted); margin: 0 0 24px; font-size: 15px; }
+
+  .wrap { max-width: 1100px; margin: 0 auto; }
+
+  .controls { display: flex; gap: 10px; justify-content: center; margin-bottom: 26px; flex-wrap: wrap; }
+  button {
+    background: var(--panel-hi); color: var(--text); border: 1px solid var(--line);
+    padding: 9px 20px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer;
+    transition: background .15s, transform .1s;
+  }
+  button:hover:not(:disabled) { background: #475569; }
+  button:active:not(:disabled) { transform: translateY(1px); }
+  button:disabled { opacity: .4; cursor: not-allowed; }
+  button.primary { background: var(--strategy); color: #1e1b4b; border-color: var(--strategy); }
+  button.primary:hover:not(:disabled) { background: #b9a3ff; }
+  button.on { background: #0c2b3d; border-color: var(--client); color: var(--client); }
+  button.on:hover:not(:disabled) { background: #123a52; }
+
+  .audio-note {
+    text-align: center; color: var(--muted); font-size: 12.5px;
+    margin: -14px 0 22px; min-height: 17px;
+  }
+
+  .stage { display: grid; grid-template-columns: 230px 1fr; gap: 22px; align-items: start; }
+
+  .col-client { display: flex; flex-direction: column; align-items: center; gap: 12px; padding-top: 20px; }
+
+  .box {
+    background: var(--panel); border: 2px solid var(--line); border-radius: 12px;
+    padding: 14px 16px; text-align: center; width: 100%;
+    transition: border-color .3s, box-shadow .3s, transform .3s, background .3s;
+  }
+  .box .name { font-weight: 700; font-size: 14px; letter-spacing: .2px; }
+  .box .role { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-top: 3px; }
+  .box.active {
+    transform: translateY(-3px);
+    box-shadow: 0 0 0 3px rgba(255,255,255,.07), 0 10px 28px rgba(0,0,0,.45);
+    border-color: var(--client); background: #0c2b3d;
+  }
+  .box.context.active { border-color: var(--context); background: #06281f; box-shadow: 0 0 0 3px rgba(52,211,153,.15); }
+  .holding {
+    margin-top: 9px; padding-top: 8px; border-top: 1px dashed var(--line);
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px;
+    color: var(--muted); line-height: 1.5;
+  }
+  .holding b { color: var(--picked); font-weight: 700; }
+
+  .col-main { display: flex; flex-direction: column; gap: 18px; }
+
+  .family {
+    border: 2px dashed var(--strategy); border-radius: 14px; padding: 18px 20px;
+    background: rgba(167,139,250,.05);
+  }
+  /* the gateway's own panel is gold, so the one box that is the pattern is
+     never confused with the services it happens to be standing in front of */
+  .family.gate { border-color: var(--picked); background: rgba(251,191,36,.05); }
+  .family.gate .family-label { color: var(--picked); }
+
+  .family-label {
+    font-size: 11px; color: var(--strategy); text-transform: uppercase;
+    letter-spacing: 1.4px; font-weight: 700; margin-bottom: 14px; text-align: center;
+  }
+
+  .row {
+    display: flex; align-items: center; justify-content: space-between;
+    border: 2px solid var(--line); border-radius: 8px; background: var(--panel);
+    padding: 8px 14px; margin-bottom: 6px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 13px;
+    transition: border-color .3s, background .3s, transform .3s, opacity .3s;
+  }
+  .row .note { color: var(--muted); font-size: 11px; text-align: right; }
+  .row.dim { opacity: .38; }
+  .row.active {
+    transform: translateX(4px);
+    border-color: var(--client);
+    box-shadow: 0 0 0 3px rgba(56,189,248,.15);
+  }
+  /* "wrong" marks a service that is refusing to answer in this step */
+  .row.wrong { border-color: var(--bad); background: #2b0f12; }
+  .row.wrong .note { color: #fca5a5; }
+  /* "ok" marks an answer that arrived and was kept */
+  .row.ok { border-color: var(--context); background: #06281f; }
+  .row.ok .note { color: #6ee7b7; }
+  /* the optional service is labelled as such from the first frame */
+  .row.optional .name::after {
+    content: "optional";
+    margin-left: 10px; font-size: 10px; letter-spacing: 1px;
+    color: var(--picked); border: 1px solid var(--picked);
+    border-radius: 4px; padding: 1px 5px; vertical-align: 2px;
+  }
+
+  .clock {
+    text-align: center; font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 13px; color: var(--muted); border: 1px solid var(--line);
+    border-radius: 8px; padding: 7px 12px; background: #020617;
+  }
+  .clock b { color: var(--picked); font-size: 15px; }
+
+  .bridge-rail { text-align: center; color: var(--muted); font-size: 12px; margin: -6px 0 2px; min-height: 16px; transition: color .3s; }
+  .bridge-rail.active { color: var(--client); font-weight: 700; }
+
+  .narration {
+    background: var(--panel); border-left: 4px solid var(--strategy);
+    border-radius: 0 10px 10px 0; padding: 16px 20px; min-height: 76px;
+    font-size: 15px; line-height: 1.6;
+  }
+  .narration .step-no { color: var(--muted); font-size: 12px; letter-spacing: 1px; text-transform: uppercase; }
+  .narration .text { margin-top: 5px; }
+
+  .console {
+    background: #020617; border: 1px solid var(--line); border-radius: 10px;
+    padding: 14px 16px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 12.5px; line-height: 1.7; min-height: 130px;
+  }
+  .console .ttl { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+  .console div.ln { opacity: 0; transition: opacity .35s; }
+  .console div.ln.show { opacity: 1; }
+  .c-context { color: var(--context); }
+  .c-strategy { color: var(--strategy); }
+  .c-out  { color: var(--client); }
+  .c-pick { color: var(--picked); }
+  .c-bad  { color: var(--bad); }
+
+  .progress { display: flex; gap: 5px; justify-content: center; margin-top: 22px; }
+  .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--line); transition: background .3s, transform .3s; }
+  .dot.on { background: var(--strategy); transform: scale(1.35); }
+
+  .legend { text-align: center; color: var(--muted); font-size: 13px; margin-top: 26px; line-height: 1.7; }
+  .legend b { color: var(--text); }
+
+  @media (max-width: 860px) {
+    .stage { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>The API Gateway Pattern</h1>
+  <p class="sub">One front door &mdash; and one place to decide what happens when a service stops answering</p>
+
+  <div class="controls">
+    <button id="play" class="primary">&#9654;&nbsp; Play</button>
+    <button id="step">Step &rarr;</button>
+    <button id="reset">Reset</button>
+    <button id="audio" aria-pressed="false" title="Narrate each step (N)">
+      <span id="audio-icon">&#128263;</span>&nbsp; Narration: off
+    </button>
+  </div>
+  <p class="audio-note" id="audio-note"></p>
+
+  <div class="stage">
+
+    <div class="col-client">
+      <div class="box client" id="b-app">
+        <div class="name">MobileApp</div>
+        <div class="role">Client &mdash; on a slow link</div>
+        <div class="holding" id="holding">remote calls: <b>0</b></div>
+      </div>
+      <div style="font-size:22px;color:var(--line)">&#8595;</div>
+      <div class="box context" id="b-auth">
+        <div class="name">AuthService</div>
+        <div class="role">Who is calling?</div>
+        <div class="holding" id="auth-state">token checks: <b>0</b></div>
+      </div>
+      <div style="font-size:11px;color:var(--muted);text-align:center;line-height:1.5">
+        one round trip from a phone:<br>about 200ms.<br>inside the data centre: 10ms.
+      </div>
+    </div>
+
+    <div class="col-main">
+
+      <div class="family gate">
+        <div class="family-label" id="gate-label">No gateway yet &mdash; the app calls the four services itself</div>
+        <div class="row" id="r-gateway">
+          <span class="name">ProductPageGateway</span>
+          <span class="note" id="n-gateway">&mdash; not in the picture yet</span>
+        </div>
+      </div>
+
+      <div class="family">
+        <div class="family-label" id="family-label">The product page &mdash; four services, four owners</div>
+        <div class="row" id="r-catalog">
+          <span class="name">Catalog</span>
+          <span class="note" id="n-catalog">the name and the description</span>
+        </div>
+        <div class="row" id="r-pricing">
+          <span class="name">Pricing</span>
+          <span class="note" id="n-pricing">the price</span>
+        </div>
+        <div class="row" id="r-inventory">
+          <span class="name">Inventory</span>
+          <span class="note" id="n-inventory">in stock or not</span>
+        </div>
+        <div class="row optional" id="r-recs">
+          <span class="name">Recommendations</span>
+          <span class="note" id="n-recs">customers also bought</span>
+        </div>
+      </div>
+
+      <div class="clock" id="clock">shopper has waited <b>0ms</b></div>
+
+      <div class="bridge-rail" id="bridge-rail"></div>
+
+      <div class="narration" id="narration">
+        <div class="step-no">Ready</div>
+        <div class="text">Press <b>Play</b> to watch one product page built twice &mdash; once by an app that calls four services itself, and once through a gateway &mdash; and to see what each version does on the day a service stops answering.</div>
+      </div>
+
+      <div class="console">
+        <div class="ttl">Program output</div>
+        <div id="console-lines"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="progress" id="progress"></div>
+
+  <p class="legend">
+    <b>Both versions return the same page. The difference is what it cost, and what happens when one service is down.</b><br>
+    A gateway is not a machine for hiding failures &mdash; it is the one place where somebody decided, service by service, whether losing it costs a section of the page or the page itself.<br>
+    <span style="font-size:12px">
+      Keys: <b>Space</b> play/pause &nbsp;·&nbsp; <b>&rarr;</b> next step
+      &nbsp;·&nbsp; <b>N</b> narration &nbsp;·&nbsp; <b>R</b> reset
+    </span>
+  </p>
+
+</div>
+
+<script>
+// Each step may set any row's caption; captions persist until changed, so a
+// step only lists what it actually moves.
+const STEPS = [
+  {
+    title: "Step 1 — One page, four owners",
+    text: "The product page for an espresso machine needs four answers, and in a shop built out of services they belong to four different teams. The obvious app asks all four itself. It works, and every test you would think to write for it passes.",
+    active: ["b-app"], dim: false, calls: "0", checks: "0", clock: "0ms",
+    bridge: "Product p = catalog.invoke(sku);  Money price = pricing.invoke(sku);  ...",
+    out: { cls: "c-strategy", txt: "// four calls, from a phone, one after another" }
+  },
+  {
+    title: "Step 2 — The first call costs 200ms",
+    text: "A round trip from a phone on a train to the data centre and back is about two hundred milliseconds, and almost none of that is the work. It is the distance, the radio and setting up a secure connection. The catalog service also checks the shopper's token before it answers.",
+    active: ["r-catalog"], dim: true, ok: ["r-catalog"], calls: "1", checks: "1", clock: "200ms",
+    captions: { catalog: "OK — Barista Pro Espresso Machine" },
+    bridge: "0ms → 200ms   Catalog   OK",
+    out: { cls: "c-out", txt: "  0ms ->  200ms  Catalog          OK   Barista Pro Espresso Machine" }
+  },
+  {
+    title: "Step 3 — And so do the next three",
+    text: "Price, stock, suggestions: three more round trips, three more token checks. Eight hundred milliseconds of a shopper looking at a half-drawn screen, and the same security decision made four times in four different codebases.",
+    active: ["r-pricing", "r-inventory", "r-recs"], dim: true,
+    ok: ["r-catalog", "r-pricing", "r-inventory", "r-recs"],
+    calls: "4", checks: "4", clock: "800ms",
+    captions: { pricing: "OK — £449.99", inventory: "OK — in stock", recs: "OK — 3 suggestions" },
+    bridge: "four round trips  ·  four token checks  ·  800ms",
+    out: { cls: "c-out", txt: "600ms ->  800ms  Recommendations  OK   3 suggestions        (page at last)" }
+  },
+  {
+    title: "Step 4 — Now Recommendations goes down",
+    text: "The name arrived. The price arrived. The stock flag arrived. All three are thrown away with the error, because a row of suggestions nobody would miss did not answer. The shopper wanted to know what an espresso machine costs, and now they cannot find out.",
+    active: ["r-recs"], dim: false, ok: ["r-catalog", "r-pricing", "r-inventory"],
+    wrong: ["r-recs"], calls: "4", checks: "4", clock: "800ms",
+    captions: { recs: "FAILED — no answer" },
+    bridge: "no line of that method says which answers the page can manage without",
+    out: { cls: "c-bad", txt: "no page: Recommendations did not answer   // three good answers discarded" }
+  },
+  {
+    title: "Step 5 — Put one service in front of the four",
+    text: "The gateway is the only thing in the system that knows the product page is made of four parts. The app now makes one call, to one address, and gets back one object already shaped the way the page wants to be drawn.",
+    active: ["r-gateway", "b-app"], dim: true, calls: "1", checks: "0", clock: "0ms",
+    gateLabel: "ProductPageGateway — one front door",
+    captions: { gateway: "one call in, one page out", catalog: "the name and the description", pricing: "the price", inventory: "in stock or not", recs: "customers also bought" },
+    bridge: "gateway.productPage(token, sku)     // the only address the phone knows",
+    out: { cls: "c-strategy", txt: "// one crossing of the slow network, instead of four" }
+  },
+  {
+    title: "Step 6 — The token is checked once, at the edge",
+    text: "At a hundred milliseconds the gateway establishes who is calling, and nothing behind it has to ask again. One security decision, in one place, rather than four copies of it drifting apart in four codebases.",
+    active: ["b-auth", "r-gateway"], dim: true, calls: "1", checks: "1", clock: "100ms",
+    captions: { gateway: "AUTH — one token check for CUST-001" },
+    bridge: "100ms → 100ms   Gateway   AUTH   one token check for CUST-001",
+    out: { cls: "c-context", txt: "100ms ->  100ms  Gateway          AUTH one token check for CUST-001" }
+  },
+  {
+    title: "Step 7 — Behind the door, the calls are cheap",
+    text: "Catalog answers at a hundred and ten, pricing at a hundred and twenty, inventory at a hundred and thirty. These are calls inside the data centre, so each one costs about ten milliseconds rather than two hundred. The same four services; a different network.",
+    active: ["r-catalog", "r-pricing", "r-inventory"], dim: true,
+    ok: ["r-catalog", "r-pricing", "r-inventory"],
+    calls: "1", checks: "1", clock: "130ms",
+    captions: { catalog: "OK at 110ms", pricing: "OK at 120ms", inventory: "OK at 130ms" },
+    bridge: "internal network: about 10ms a call",
+    out: { cls: "c-out", txt: "100ms ->  130ms  Catalog, Pricing, Inventory   OK   (10ms each)" }
+  },
+  {
+    title: "Step 8 — Recommendations fails again, and the page survives",
+    text: "There is exactly one try and catch in the gateway, and it is wrapped around exactly this call. The catch writes the word degraded into the timeline and returns an empty list. The shopper gets the name, the price, the stock and no suggestions, in two hundred and forty milliseconds. Nobody tells them anything is wrong, because from where they are standing, nothing is.",
+    active: ["r-recs", "r-gateway"], dim: false,
+    ok: ["r-catalog", "r-pricing", "r-inventory"], wrong: ["r-recs"],
+    calls: "1", checks: "1", clock: "240ms",
+    captions: { recs: "FAILED — and that is survivable", gateway: "DEGRADED — page served without suggestions" },
+    bridge: "catch (ServiceUnavailableException e) { return List.of(); }   // a page, minus a row",
+    out: { cls: "c-pick", txt: "page: Barista Pro Espresso Machine  £449.99  in stock  0 suggestions" }
+  },
+  {
+    title: "Step 9 — But Catalog failing is a different matter",
+    text: "This time the service that knows the product's own name is down, and the gateway does not degrade. It refuses, and the shopper is told in a hundred and ten milliseconds that the page cannot be shown right now. A product page with no product on it is not a degraded page. It is a blank one.",
+    active: ["r-catalog", "r-gateway"], dim: false, wrong: ["r-catalog"],
+    calls: "1", checks: "1", clock: "110ms",
+    captions: { catalog: "FAILED — and this one is fatal", gateway: "no page, and an honest error" },
+    bridge: "Recommendations costs a section.  The name costs the page.",
+    out: { cls: "c-bad", txt: "no page: Catalog did not answer          // refused, in 110ms" }
+  },
+  {
+    title: "Step 10 — What the gateway must never start doing",
+    text: "It joins and it forwards. It does not price anything, apply a discount, or decide whether a product may be sold. A gateway that fills up with business rules becomes a bottleneck that owns no data and that nobody dares change — the receptionist who starts deciding the room rate.",
+    active: ["r-gateway"], dim: true, calls: "1", checks: "1", clock: "240ms",
+    captions: { gateway: "joins and forwards — nothing else" },
+    bridge: "the price on the page is the pricing service's answer, unmodified",
+    out: { cls: "c-context", txt: "assertEquals(pricing.priceOf(SKU), page.price());   // a test that says so" }
+  },
+  {
+    title: "Step 11 — So the tests assert the cost, not the page",
+    text: "Both versions return the same page, so a test that checks the page would pass on either and prove nothing. Instead the tests assert one remote call against four, one token check against four, and two hundred and forty milliseconds against eight hundred — exact numbers, because the clock is simulated.",
+    active: ["b-app", "b-auth"], dim: true, calls: "1", checks: "1", clock: "240ms",
+    bridge: "assertEquals(1, app.remoteCalls());   //  the naive app: 4",
+    out: { cls: "c-context", txt: "240ms with a gateway   ·   800ms without   ·   same page" }
+  },
+  {
+    title: "Step 12 — One front door, and one place to decide",
+    text: "One crossing of the slow network, one token check, one address for the client to know, and one place where the question of what to do when a service does not answer finally has an owner. That last one is not in the textbook definition, and it is the half that earns its keep.",
+    active: ["r-gateway", "b-app"], dim: false, calls: "1", checks: "1", clock: "240ms",
+    gateLabel: "ProductPageGateway — the one place that knows what the page needs",
+    captions: { gateway: "one call in, one page out, one decision per service" },
+    bridge: "one more service to deploy and watch — so keep it boring",
+    out: { cls: "c-pick", txt: "// and if you have one client and three services, you may not need it yet" }
+  }
+];
+
+const BOXES = ["b-app", "b-auth"];
+const ROWS = ["r-gateway", "r-catalog", "r-pricing", "r-inventory", "r-recs"];
+const ALL_BOXES = BOXES.concat(ROWS);
+
+const STEP_MS = 3800;      // pace when narration is off
+const GAP_MS = 700;        // breathing room after a clip finishes
+
+let idx = -1;
+let playing = false;
+let timer = null;
+
+// Narration is optional: if the audio clips are missing (or the browser
+// blocks playback) the animation still works exactly as before.
+let audioOn = false;
+let clips = [];
+let current = null;
+
+const $ = id => document.getElementById(id);
+const progressEl = $("progress");
+const linesEl = $("console-lines");
+const noteEl = $("audio-note");
+const bridgeEl = $("bridge-rail");
+const holdingEl = $("holding");
+const authEl = $("auth-state");
+const clockEl = $("clock");
+const labelEl = $("family-label");
+const gateLabelEl = $("gate-label");
+
+const DEFAULT_LABEL = "The product page — four services, four owners";
+const DEFAULT_GATE_LABEL = "No gateway yet — the app calls the four services itself";
+const DEFAULT_CAPTIONS = {
+  gateway: "— not in the picture yet",
+  catalog: "the name and the description",
+  pricing: "the price",
+  inventory: "in stock or not",
+  recs: "customers also bought"
+};
+
+STEPS.forEach(() => {
+  const d = document.createElement("div");
+  d.className = "dot";
+  progressEl.appendChild(d);
+});
+
+// ---- optional narration ------------------------------------------------
+
+clips = STEPS.map((_, i) => {
+  const a = new Audio("audio/step-" + (i + 1) + ".m4a");
+  a.preload = "none";
+  return a;
+});
+
+function stopAudio() {
+  if (!current) return;
+  current.pause();
+  current.currentTime = 0;
+  current.onended = null;
+  current = null;
+}
+
+/** Play the clip for step i. onDone fires when it finishes (or cannot play). */
+function playClip(i, onDone) {
+  stopAudio();
+  if (!audioOn) { if (onDone) onDone(); return; }
+
+  const a = clips[i];
+  current = a;
+  a.currentTime = 0;
+  a.onended = () => { current = null; if (onDone) onDone(); };
+
+  a.play().catch(() => {
+    // Missing file, or autoplay blocked -> fall back to timed pacing.
+    current = null;
+    noteEl.textContent =
+      "Narration audio could not be played — falling back to timed steps. " +
+      "Run docs/make_animation_audio.sh to generate the clips.";
+    if (onDone) onDone();
+  });
+}
+
+function setAudio(on) {
+  audioOn = on;
+  const btn = $("audio");
+  btn.classList.toggle("on", on);
+  btn.setAttribute("aria-pressed", String(on));
+  btn.innerHTML = '<span id="audio-icon">' + (on ? "&#128266;" : "&#128263;") +
+                  "</span>&nbsp; Narration: " + (on ? "on" : "off");
+  noteEl.textContent = on
+    ? "Each step is narrated, and the animation waits for the voice to finish."
+    : "";
+  if (!on) stopAudio();
+}
+
+// ------------------------------------------------------------------------
+
+function clearHighlights() {
+  ALL_BOXES.forEach(b => $(b).classList.remove("active"));
+  ROWS.forEach(r => $(r).classList.remove("dim", "wrong", "ok"));
+}
+
+function render(i) {
+  clearHighlights();
+  const s = STEPS[i];
+
+  s.active.forEach(b => $(b).classList.add("active"));
+
+  // Rows not involved in this step fade back, so the eye follows the one
+  // call currently being made.
+  if (s.dim) ROWS.filter(r => !s.active.includes(r)).forEach(r => $(r).classList.add("dim"));
+
+  // "ok" is an answer that arrived and was kept; "wrong" is a service that
+  // is refusing to answer in this step.
+  (s.ok || []).forEach(r => $(r).classList.add("ok"));
+  (s.wrong || []).forEach(r => { $(r).classList.remove("ok"); $(r).classList.add("wrong"); });
+
+  // Captions are cumulative: replay every step up to this one so that
+  // stepping backwards or jumping about still shows a consistent picture.
+  const caps = Object.assign({}, DEFAULT_CAPTIONS);
+  let label = DEFAULT_LABEL;
+  let gateLabel = DEFAULT_GATE_LABEL;
+  for (let k = 0; k <= i; k++) {
+    Object.assign(caps, STEPS[k].captions || {});
+    if (STEPS[k].label) label = STEPS[k].label;
+    if (STEPS[k].gateLabel) gateLabel = STEPS[k].gateLabel;
+  }
+  Object.keys(caps).forEach(key => { $("n-" + key).textContent = caps[key]; });
+  labelEl.textContent = label;
+  gateLabelEl.textContent = gateLabel;
+
+  holdingEl.innerHTML = "remote calls: <b>" + (s.calls || "0") + "</b>";
+  authEl.innerHTML = "token checks: <b>" + (s.checks || "0") + "</b>";
+  clockEl.innerHTML = "shopper has waited <b>" + (s.clock || "0ms") + "</b>";
+
+  bridgeEl.textContent = s.bridge || "";
+  bridgeEl.classList.add("active");
+
+  $("narration").innerHTML =
+    '<div class="step-no">' + s.title + '</div><div class="text">' + s.text + '</div>';
+
+  // Rebuild console output up to this step
+  linesEl.innerHTML = "";
+  for (let k = 0; k <= i; k++) {
+    if (!STEPS[k].out) continue;
+    const div = document.createElement("div");
+    div.className = "ln " + STEPS[k].out.cls;
+    div.textContent = STEPS[k].out.txt;
+    linesEl.appendChild(div);
+    requestAnimationFrame(() => div.classList.add("show"));
+  }
+
+  [...progressEl.children].forEach((d, k) => d.classList.toggle("on", k <= i));
+}
+
+/** Advance one step. In play mode, schedule the following step afterwards. */
+function next() {
+  if (idx >= STEPS.length - 1) { stop(); return; }
+  idx++;
+  render(idx);
+
+  if (!playing) { playClip(idx); return; }
+
+  if (audioOn) {
+    // Wait for the voice to finish this step, then move on.
+    playClip(idx, () => {
+      if (!playing) return;
+      timer = setTimeout(next, GAP_MS);
+    });
+  } else {
+    timer = setTimeout(next, STEP_MS);
+  }
+}
+
+function stop() {
+  playing = false;
+  clearTimeout(timer);
+  stopAudio();
+  $("play").innerHTML = "&#9654;&nbsp; Play";
+  $("step").disabled = false;
+}
+
+function reset() {
+  stop();
+  idx = -1;
+  clearHighlights();
+  Object.keys(DEFAULT_CAPTIONS).forEach(k => { $("n-" + k).textContent = DEFAULT_CAPTIONS[k]; });
+  labelEl.textContent = DEFAULT_LABEL;
+  gateLabelEl.textContent = DEFAULT_GATE_LABEL;
+  holdingEl.innerHTML = "remote calls: <b>0</b>";
+  authEl.innerHTML = "token checks: <b>0</b>";
+  clockEl.innerHTML = "shopper has waited <b>0ms</b>";
+  linesEl.innerHTML = "";
+  bridgeEl.textContent = "";
+  bridgeEl.classList.remove("active");
+  [...progressEl.children].forEach(d => d.classList.remove("on"));
+  $("narration").innerHTML =
+    '<div class="step-no">Ready</div><div class="text">Press <b>Play</b> to watch one product page built twice &mdash; once by an app that calls four services itself, and once through a gateway &mdash; and to see what each version does on the day a service stops answering.</div>';
+}
+
+$("play").addEventListener("click", () => {
+  if (playing) { stop(); return; }
+  if (idx >= STEPS.length - 1) reset();
+  playing = true;
+  $("play").innerHTML = "&#10074;&#10074;&nbsp; Pause";
+  $("step").disabled = true;
+  next();   // next() now schedules the rest of the run itself
+});
+
+$("step").addEventListener("click", () => { stop(); if (idx >= STEPS.length - 1) reset(); next(); });
+$("reset").addEventListener("click", reset);
+
+$("audio").addEventListener("click", () => {
+  setAudio(!audioOn);
+  // Turning narration on mid-run: speak the step already on screen.
+  if (audioOn && playing && idx >= 0) {
+    clearTimeout(timer);
+    playClip(idx, () => {
+      if (!playing) return;
+      timer = setTimeout(next, GAP_MS);
+    });
+  }
+});
+
+document.addEventListener("keydown", e => {
+  if (e.code === "Space") { e.preventDefault(); $("play").click(); }
+  if (e.code === "ArrowRight") { e.preventDefault(); $("step").click(); }
+  if (e.code === "KeyR") reset();
+  if (e.code === "KeyN") $("audio").click();
+});
+
+setAudio(false);
+reset();
+</script>
+</body>
+</html>

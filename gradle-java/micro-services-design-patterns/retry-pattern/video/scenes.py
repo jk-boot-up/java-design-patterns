@@ -1,0 +1,539 @@
+"""Scene definitions for the Retry with Backoff teaching video.
+
+Each scene has:
+  key        - short id, used for the generated file names
+  title      - slide heading
+  kind       - "poster" | "bullets" | "code" | "console" | "quote" | "diagram" | "outro"
+  body       - content, meaning depends on kind
+  narration  - the text spoken by the narrator (see narration.md)
+
+The narration is written to stand on its own. A large share of the audience
+listens rather than watches -- on a phone, in a pocket, on a commute -- so no
+sentence points at the screen, the analogy is spoken in full before any class
+name, and the code slides are described in words rather than read out as
+syntax. The slides illustrate the narration; they never carry it.
+
+Every number quoted in these scenes comes from the real output of
+`./gradlew run`: one attempt costs 50ms, the backoff wait is 103ms rather than
+100 because of jitter, a recovered checkout lands at 203ms, and the two totals
+that the whole video turns on are £449.99 for one charge and £899.98 for two.
+
+Scene order is the argument. The pattern is shown *working* in scenes four to
+seven before the lost reply is mentioned at all, because the room has to
+believe in retrying before it is shown the trap inside it. Do not move the
+lost-reply scenes earlier.
+
+Layout limit: on "bullets" and "quote" slides the body starts at y=260 and
+steps 60 pixels a line, and the footer sits at y~1022, so twelve body lines
+is the maximum.
+"""
+
+SCENES = [
+    # The poster is also the YouTube thumbnail, so it is the first frame of
+    # the video and is saved separately as poster.png by build_video.sh.
+    dict(
+        key="01-poster",
+        kind="poster",
+        title="Retry with Backoff",
+        body=None,
+        narration=(
+            "Hello, and welcome. This video explains the Retry with Backoff "
+            "pattern in Java, and it is written and presented by Jayasekhar "
+            "Konduru. [[slnc 300]] Let's start with the simple definition. When "
+            "a call to another service fails for a reason that might not happen "
+            "again, you try it once or twice more, waiting a little longer "
+            "before each attempt — and you only do that if doing the job twice "
+            "cannot actually do it twice. [[slnc 350]] That last part is the "
+            "half everybody skips, and it is the half that costs money. "
+            "[[slnc 250]] The rest of the video does it properly, by building a "
+            "real working Java project: an online shop that takes card payments "
+            "through somebody else's payment gateway, on the other side of the "
+            "internet, where roughly one call in five fails for reasons that "
+            "have nothing to do with the payment. [[slnc 300]] By the end you'll "
+            "know which failures are worth retrying and which are simply an "
+            "answer; why the waits get longer and why they are deliberately not "
+            "all the same length; and the failure that charges a shopper twice "
+            "while nothing throws an exception, nothing is logged as an error, "
+            "and every single test still passes."
+        ),
+    ),
+    dict(
+        key="02-scenario",
+        kind="bullets",
+        title="The Scenario",
+        body=[
+            "The shop takes card payments through somebody",
+            "else's gateway, across the internet.",
+            "",
+            "About one call in five fails for a reason that has",
+            "nothing to do with the payment:",
+            "",
+            "    a dropped connection  ·  a router that reset",
+            "",
+            "The bank is fine. The money is there. The request",
+            "simply did not make the round trip.",
+            "",
+            "One espresso machine. £449.99. One error page.",
+        ],
+        narration=(
+            "Here is the situation. The shop sells an espresso machine for four "
+            "hundred and forty nine pounds and ninety nine pence, and to take the "
+            "money it calls a payment gateway that belongs to somebody else and "
+            "lives on the other side of the internet. [[slnc 300]] About one call "
+            "in five comes back as a failure, and those failures have nothing to "
+            "do with the payment. A connection is dropped. A router somewhere "
+            "resets. The bank is perfectly happy, the money is sitting there, and "
+            "the request simply did not make the round trip. [[slnc 350]] Now "
+            "think about what that means commercially, because it is not an "
+            "abstraction. Every one of those is a shopper who found the product, "
+            "filled a basket, typed in a card number, pressed pay — and got an "
+            "error page. [[slnc 300]] They did nothing wrong and neither did the "
+            "bank. Most of them do not come back and try again."
+        ),
+    ),
+    dict(
+        key="03-just-try-again",
+        kind="code",
+        title="The Obvious Answer — Just Try Again",
+        body="""for (int attempt = 1; attempt <= 3; attempt++) {
+    try {
+        return payments.charge(request);
+    } catch (RuntimeException failure) {
+        // try again
+    }
+}
+
+// no bug, no slowness, no failing test, nothing to notice""",
+        narration=(
+            "Ask any room of developers what to do about that and somebody will "
+            "say, straight away, just try again. [[slnc 300]] And they are right. "
+            "That is genuinely the idea. Loop up to three times, call the "
+            "gateway, and if it throws something, go round again. Four lines. "
+            "[[slnc 350]] I want to be fair to this version, because almost "
+            "everybody writes it first and it is not stupid. It rescues "
+            "checkouts. It turns a shopper who saw an error page into a shopper "
+            "who got their order. It throws nothing unexpected, it has no "
+            "configuration to get wrong, and every test anybody writes against it "
+            "passes. [[slnc 400]] So hold on to that, because the rest of this "
+            "video is about what the word just is quietly hiding, and the answer "
+            "is not a bug. It is a line of code in the wrong place."
+        ),
+    ),
+    dict(
+        key="04-act-one",
+        kind="console",
+        title="Act One — A Timeout That Recovers",
+        body="""$ ./gradlew run
+
+1. The gateway timed out once, then worked
+      0ms ->    50ms  Payments    TIMEOUT   request never arrived
+     50ms ->    50ms  Retrier     RETRYABLE attempt 1 failed
+    153ms ->   153ms  Retrier     WAITED    103ms before attempt 2
+    153ms ->   203ms  Payments    CHARGED   chg-1 £449.99
+    203ms ->   203ms  Retrier     RECOVERED succeeded on attempt 2
+
+  checkout succeeded: chg-1 £449.99
+  card charged 1 time, £449.99 in total""",
+        narration=(
+            "So let's run it and watch the good case, because the good case is "
+            "real. [[slnc 300]] The first attempt goes out and the gateway times "
+            "out. Nothing was charged, because the request never arrived. The "
+            "retrier looks at that failure, decides it is worth another go, waits "
+            "a moment, and calls again. The second attempt goes through, the card "
+            "is charged, and the checkout succeeds. [[slnc 350]] Read the last "
+            "line, because it is the only number that matters in this entire "
+            "video. The card was charged one time. Four hundred and forty nine "
+            "pounds and ninety nine pence. [[slnc 300]] The shopper waited two "
+            "hundred and three milliseconds instead of fifty, and in exchange "
+            "they got a completed order instead of an error page. That trade is "
+            "the whole reason this pattern exists, and it is a good trade. "
+            "[[slnc 350]] But notice one small thing before we move on. The "
+            "retrier waited one hundred and three milliseconds, not one hundred. "
+            "Hold that thought."
+        ),
+    ),
+    dict(
+        key="05-backoff-jitter",
+        kind="bullets",
+        title="Wait Longer Each Time — And Not All The Same",
+        body=[
+            "Backoff:  100ms, then 200ms, then 400ms.",
+            "",
+            "Not politeness. If the gateway is failing because",
+            "it is overloaded, the thing that makes the next",
+            "attempt work is the gateway getting some room.",
+            "",
+            "Jitter:  every caller waits a slightly different",
+            "amount — 103ms here, 117ms for somebody else.",
+            "",
+            "A thousand callers all waiting exactly 100ms",
+            "come back as one wave, at the same instant.",
+            "The stampede just repeats itself, on a timer.",
+        ],
+        narration=(
+            "Those three extra milliseconds have a name, and before we get to "
+            "them, the wait itself. [[slnc 250]] The retrier does not go straight "
+            "back in. It waits a hundred milliseconds before the second attempt, "
+            "and it would wait two hundred before a third, and four hundred "
+            "before a fourth. Each wait is longer than the one before it. That is "
+            "called backoff. [[slnc 350]] And the reason is not politeness. If "
+            "the gateway is failing because it is overloaded, then the one thing "
+            "that will make your next attempt succeed is the gateway getting some "
+            "room to recover — and a caller that retries instantly is taking room "
+            "away rather than giving it. [[slnc 400]] Now the hundred and three. "
+            "Each caller waits a slightly different amount, and that small random "
+            "difference is called jitter. With one caller it looks like pointless "
+            "noise. [[slnc 300]] So picture a thousand callers instead. They all "
+            "failed at the same instant, because whatever went wrong went wrong "
+            "for all of them at once. They all wait exactly one hundred "
+            "milliseconds. So they all come back at exactly the same moment, as a "
+            "single wave, and the stampede that knocked the gateway over simply "
+            "repeats itself on a timer. [[slnc 350]] Spreading those thousand "
+            "callers across a band of time turns the wave into a trickle. There "
+            "is a test in this project named for exactly that: two callers that "
+            "fail together do not retry together."
+        ),
+    ),
+    dict(
+        key="06-classify",
+        kind="code",
+        title="Not Every Failure Is Worth Another Go",
+        body="""private boolean worthRetrying(RuntimeException failure) {
+    return failure instanceof GatewayTimeoutException;
+}
+
+// retry what you RECOGNISE.
+// the opposite rule -- "retry unless I recognise it" --
+// eventually retries a NullPointerException four hundred
+// times, to get four hundred identical crashes.""",
+        narration=(
+            "That is the first of the retrier's two decisions. Here is the "
+            "second, and it is one line long. [[slnc 300]] Is this failure worth "
+            "trying again at all? [[slnc 250]] A timeout might not happen a "
+            "second time, so yes. But suppose the bank declines the card. That is "
+            "not a network blip. That is an answer. There are no funds, or the "
+            "expiry date is wrong, or there is a block on the account — and every "
+            "one of those reasons is still just as true a hundred milliseconds "
+            "later. [[slnc 400]] So look at the shape of the rule, because it is "
+            "deliberate. It retries the failure it recognises, and treats "
+            "absolutely everything else as permanent. [[slnc 300]] The tempting "
+            "version is the other way round: retry everything unless I recognise "
+            "it as hopeless. Write it that way, and one day a null pointer "
+            "exception in your own code gets retried four hundred times, at four "
+            "hundred times the cost, to produce four hundred identical crashes."
+        ),
+    ),
+    dict(
+        key="07-act-two",
+        kind="console",
+        title="Act Two — A Declined Card",
+        body="""2. The bank declined the card
+      0ms ->    50ms  Payments    DECLINED  the bank said no
+     50ms ->    50ms  Retrier     PERMANENT not retrying
+
+  checkout declined, and the shopper was told at once
+  the gateway was asked 1 time
+
+  a 'no' does not become a 'yes' on the third attempt""",
+        narration=(
+            "Run that case and the output is short, which is the point. "
+            "[[slnc 250]] One attempt. Fifty milliseconds. The bank said no, the "
+            "retrier recognised that as a permanent answer, and it threw it "
+            "straight back so the shopper could be told immediately. [[slnc 350]] "
+            "Compare that with the plain three-times loop from a moment ago. That "
+            "loop asks the gateway three times, and waits twice in between, to "
+            "arrive at exactly the same no. [[slnc 300]] So the shopper waits "
+            "several times longer to be told the same thing, the gateway does "
+            "three times the work for nothing, and on a bad day — when a lot of "
+            "cards are declining at once — you have tripled your own traffic "
+            "against somebody else's service for no benefit whatsoever."
+        ),
+    ),
+    dict(
+        key="08-roles",
+        kind="diagram",
+        title="The Pieces, And What Each One Decides",
+        body=None,
+        narration=(
+            "Let me put the pieces in order, in words, because there are only "
+            "four of them. [[slnc 300]] First, the checkout service. It is the "
+            "caller. It does two things, and the order it does them in turns out "
+            "to be the whole safety property of this project: it builds the "
+            "payment request, and then it hands a retrier the job of making the "
+            "call. [[slnc 350]] Second, the retrier. It is the loop, about forty "
+            "lines, and it contains the two decisions we have just seen. Is this "
+            "failure worth another go, and how long should I wait. [[slnc 300]] "
+            "Third, the retry policy, which answers only that second question. "
+            "How long. A hundred milliseconds, doubling, plus a little jitter. It "
+            "is separate from the retrier so that changing the waiting behaviour "
+            "is a constructor argument rather than an edit. [[slnc 350]] And "
+            "fourth, the payment gateway, which is the thing that fails. It can "
+            "fail in three ways, and this is the part to hold on to. It can time "
+            "out before the request arrives. It can decline the card. Or — and we "
+            "have not met this one yet — it can take the money and then lose the "
+            "reply on the way home. [[slnc 400]] One last thing about the "
+            "retrier, and it matters later. It takes a supplier and runs it. It "
+            "has never heard of payments, or orders, or money. That is what makes "
+            "it reusable, and it is also exactly why it cannot possibly warn you "
+            "that the thing it is retrying is unsafe to repeat."
+        ),
+    ),
+    dict(
+        key="09-lost-reply",
+        kind="quote",
+        title="The Failure You Cannot See",
+        body=[
+            "The request arrives.",
+            "The card IS charged.",
+            "The reply is lost on the way home.",
+            "",
+            "So what does the caller see?",
+            "",
+            "A timeout. The same timeout as act one,",
+            "byte for byte.",
+            "",
+            "No flag. No header. No clever code.",
+            "That is not a gap in this project —",
+            "it is a property of networks.",
+        ],
+        narration=(
+            "Now the third kind of failure, and this is the one the video is "
+            "really about. [[slnc 350]] The request leaves the shop. It arrives "
+            "at the gateway. The card is charged — the money genuinely moves. And "
+            "then the reply is lost on the way home. [[slnc 400]] Stop there and "
+            "ask yourself the question that the whole pattern turns on. What does "
+            "the caller see? [[slnc 450]] It sees a timeout. It sees exactly the "
+            "same timeout as act one, byte for byte, when nothing had been "
+            "charged at all. [[slnc 350]] There is no flag to check. There is no "
+            "header to read. There is no clever piece of code you can write that "
+            "tells apart a request that was lost on the way out from a receipt "
+            "that was lost on the way back. [[slnc 300]] And I want to be precise "
+            "about this, because it sounds like a limitation of a teaching "
+            "project and it is not. That information does not exist on the "
+            "caller's side. It is a property of networks."
+        ),
+    ),
+    dict(
+        key="10-act-four",
+        kind="console",
+        title="Act Four — And The Plain Loop Charges Twice",
+        body="""4. The same failure, with a plain three-times loop
+      0ms ->    50ms  Payments        CHARGED-THEN-LOST chg-1
+     50ms ->    50ms  NaiveCheckout   RETRYING immediately
+     50ms ->   100ms  Payments        CHARGED   chg-2 £449.99
+
+  checkout succeeded: chg-2 £449.99
+  card charged 2 times, £899.98 in total
+
+  the shopper paid twice for one espresso machine.""",
+        narration=(
+            "So let's give that failure to the plain three-times loop, the one "
+            "everybody writes first, and watch what it does. [[slnc 300]] First "
+            "attempt: the card is charged, and the reply is lost. The loop sees a "
+            "failure, and it goes round again, immediately. Second attempt: the "
+            "gateway charges the card again. [[slnc 350]] Eight hundred and "
+            "ninety nine pounds and ninety eight pence, for one espresso machine. "
+            "[[slnc 400]] Now, before you blame the gateway, I want to be fair to "
+            "it, because it did nothing wrong. The second attempt handed it a "
+            "request it had never seen before, and a request it has never seen "
+            "before means, by definition, a new job to do. It did the job. "
+            "[[slnc 350]] Every double charge in this project is the caller's "
+            "doing."
+        ),
+    ),
+    dict(
+        key="11-nothing-went-wrong",
+        kind="bullets",
+        title="And Nothing Went Wrong. That Is The Problem.",
+        body=[
+            "Read what is missing from that output:",
+            "",
+            "    no exception escaped",
+            "    nothing was logged as an error",
+            "    the checkout returned a valid receipt",
+            "    the order looks perfect",
+            "",
+            "NaiveCheckoutServiceTest:  5 tests, 5 passing.",
+            "One of them asserts £899.98.",
+            "",
+            "A double charge does not arrive as a red test.",
+            "It arrives as a phone call, two days later.",
+        ],
+        narration=(
+            "And now read that output again for what is not in it. [[slnc 400]] "
+            "No exception escaped. Nothing was logged as an error. The checkout "
+            "returned a perfectly valid receipt, with a real charge on it. If you "
+            "went and looked at the order in the shop's own admin screens, it "
+            "would look completely fine. [[slnc 350]] There is a test file in "
+            "this project written against that naive checkout. It has five tests "
+            "in it. All five of them pass — and one of them asserts, quite "
+            "deliberately, that eight hundred and ninety nine pounds and ninety "
+            "eight pence left a customer's account. [[slnc 450]] That is the "
+            "sentence to take away from this video. A double charge does not "
+            "announce itself as a failing test, or an alert, or a spike on a "
+            "dashboard. It announces itself as a phone call from a customer, two "
+            "days later, and by then it has happened to everybody else as well."
+        ),
+    ),
+    dict(
+        key="12-the-key",
+        kind="code",
+        title="So Stop Trying To Tell Them Apart",
+        body="""public static PaymentRequest forOrder(String orderId, Money amount) {
+    return new PaymentRequest(orderId, amount, "key-" + orderId);
+}
+
+// CheckoutService.pay -- the line that decides everything:
+PaymentRequest request = PaymentRequest.forOrder(orderId, amount);
+return retrier.call("payment for " + orderId,
+                    () -> payments.charge(request));""",
+        narration=(
+            "So what does a careful caller actually do, given that it cannot tell "
+            "the two failures apart? [[slnc 300]] It stops trying to. It makes "
+            "the difference not matter. [[slnc 350]] It attaches a value to the "
+            "request called an idempotency key, and that key is a promise to the "
+            "other end. The promise says: if you have already seen this key, then "
+            "you have already done this job — so do not do it again, just tell me "
+            "what happened last time. [[slnc 400]] Now listen to what the key is "
+            "built from, because this is the part that goes wrong. It is built "
+            "from the order, and from nothing else at all. Not the attempt "
+            "number. Not the clock. Not a random value. If any of those crept in, "
+            "the two attempts would not be recognisably the same job, and the "
+            "whole promise is worthless. [[slnc 400]] And here is the line that "
+            "decides where the money goes. The careful checkout builds that "
+            "request once, before the first attempt, outside the retry — and then "
+            "hands the retrier something that uses it. The naive loop builds its "
+            "request inside the loop, so every attempt invents a fresh key. "
+            "[[slnc 350]] That is the entire difference between charging a "
+            "shopper once and charging them twice. One line, and where it sits."
+        ),
+    ),
+    dict(
+        key="13-act-three",
+        kind="console",
+        title="Act Three — The Same Failure, The Same Key",
+        body="""3. The card was charged and the reply was lost
+      0ms ->    50ms  Payments    CHARGED-THEN-LOST chg-1 taken
+     50ms ->    50ms  Retrier     RETRYABLE attempt 1 failed
+    153ms ->   153ms  Retrier     WAITED    103ms before attempt 2
+    153ms ->   203ms  Payments    REPLAYED  key already charged
+
+  checkout succeeded: chg-1 £449.99
+  card charged 1 time, £449.99 in total""",
+        narration=(
+            "Same failure. Same money charged and the same reply lost. But this "
+            "time the caller is the careful one. [[slnc 300]] The first attempt "
+            "charges the card and the reply vanishes, exactly as before. The "
+            "retrier waits its hundred and three milliseconds and goes again — "
+            "carrying the same key, because the request was built before any of "
+            "this started. [[slnc 350]] The gateway looks that key up, finds it "
+            "has already charged it, and hands back the charge it made the first "
+            "time instead of making a second one. [[slnc 300]] The word in the "
+            "output is replayed, and the number on the last line is one. The card "
+            "was charged once, and the checkout still succeeded. [[slnc 400]] "
+            "Notice what the caller never had to do. It never found out which "
+            "kind of failure it had suffered. It could not have found out. And it "
+            "did not need to."
+        ),
+    ),
+    dict(
+        key="14-who-keeps-the-record",
+        kind="code",
+        title="Somebody Has To Keep The Record",
+        body="""// inside PaymentGateway.charge -- BEFORE any money moves
+Receipt existing = chargesByKey.get(request.idempotencyKey());
+if (existing != null) {
+    log.note("REPLAYED", "key already charged");
+    return existing;
+}
+
+// one map. that is the entire idempotency mechanism.""",
+        narration=(
+            "There is one more thing to say about that key, and it is the thing "
+            "people miss when they take this pattern to work on Monday. "
+            "[[slnc 300]] A key is only a promise, and a promise is worth exactly "
+            "nothing unless the other end remembers it. [[slnc 350]] Inside the "
+            "gateway there is one map, from key to receipt, and it is checked "
+            "before any money moves. That map is the entire mechanism. Everything "
+            "clever the caller does with keys works only because something at the "
+            "far end is keeping that record. [[slnc 400]] Which means making an "
+            "operation safe to repeat is work at both ends. It is not something "
+            "your retry loop can decide on your behalf, and it is not something a "
+            "library can hand you. [[slnc 300]] Remember that the retrier just "
+            "runs a supplier. It has no idea whether it is retrying a database "
+            "read, which is harmless, or a payment, which is not. It is "
+            "structurally incapable of noticing the difference."
+        ),
+    ),
+    dict(
+        key="15-costs",
+        kind="bullets",
+        title="What It Costs, And When Not To",
+        body=[
+            "Time, and the shopper pays it: 203ms, not 50ms.",
+            "Load, exactly when you can least afford it —",
+            "three attempts each against a struggling service.",
+            "",
+            "A hard requirement on the thing you are calling:",
+            "no key, no retry. A rule, not a preference.",
+            "",
+            "Don't retry a definite answer: a declined card,",
+            "a validation error, a 404, a 401.",
+            "",
+            "And retrying a service that is properly down",
+            "turns a slow system into a dead one.",
+        ],
+        narration=(
+            "So what does retrying cost, because it is not free. [[slnc 300]] "
+            "First, time, and the shopper is the one who pays it. That recovered "
+            "checkout took two hundred and three milliseconds instead of fifty. "
+            "There are calls where a person is waiting and would genuinely rather "
+            "have the error quickly. [[slnc 350]] Second, load, precisely when "
+            "you can least afford it. Three attempts per caller against a service "
+            "that is already struggling is three times the traffic at the moment "
+            "it is least able to cope. Backoff and jitter reduce that. They do "
+            "not remove it. [[slnc 350]] Third, and this is the rule rather than "
+            "a preference: retrying is only safe against an operation that can be "
+            "repeated safely. No key, no retry. [[slnc 300]] And don't retry a "
+            "definite answer. A declined card, a validation error, a four oh "
+            "four, a four oh one. Retrying those is just asking the same question "
+            "louder. [[slnc 350]] There is one more failure mode, and it is worth "
+            "knowing about. If the service you are calling is not flaky but "
+            "properly down, then retrying turns a slow system into a dead one — "
+            "every caller now holds its threads open three times as long, waiting "
+            "on something that is never going to answer. That is not an argument "
+            "against retrying. It is an argument for knowing when to stop."
+        ),
+    ),
+    dict(
+        key="16-outro",
+        kind="outro",
+        title="Thanks for Watching",
+        body=[
+            "Full source, notes, diagrams and an animated walkthrough",
+            "are in the repository — including the exercise that moves",
+            "one line into the lambda and turns the careful checkout",
+            "into the one that charges a shopper twice.",
+        ],
+        narration=(
+            "That's retry with backoff. [[slnc 250]] The full source, the written "
+            "notes, the diagrams and an animated walkthrough are all in the "
+            "repository, and everything runs offline with nothing installed but a "
+            "Java development kit — there is no network in the project at all, and "
+            "no retry library either. [[slnc 300]] If you try one exercise, try "
+            "this one. Go into the careful checkout service and move the line that "
+            "builds the payment request inside the lambda, so that it is built on "
+            "every attempt instead of once. Then run the tests. [[slnc 300]] One "
+            "test fails, and its name tells you exactly what you broke. Then sit "
+            "with the harder question: in a code review, on a Friday afternoon, "
+            "would you have caught that line being in the wrong place? Would "
+            "anyone on your team? [[slnc 350]] Because that is the real lesson "
+            "here. The two halves of a safe retry are, first, that the failure is "
+            "genuinely temporary, and second, that doing the job twice cannot "
+            "actually do it twice. Everybody thinks about the first one. "
+            "[[slnc 300]] If this helped, a like genuinely does help other people "
+            "find it, and subscribe if you would like the rest of the series. "
+            "[[slnc 250]] Thanks for watching, and I'll see you in the next one."
+        ),
+    ),
+]

@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Database per Service — an animated walkthrough</title>
+<style>
+  :root {
+    --bg: #0f172a;
+    --panel: #1e293b;
+    --panel-hi: #334155;
+    --line: #475569;
+    --text: #e2e8f0;
+    --muted: #94a3b8;
+    --client: #38bdf8;
+    --context: #34d399;
+    --strategy: #a78bfa;
+    --picked: #fbbf24;
+    --bad: #f87171;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 28px 20px 60px;
+    background: var(--bg);
+    color: var(--text);
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  h1 { text-align: center; font-size: 28px; margin: 0 0 4px; }
+  .sub { text-align: center; color: var(--muted); margin: 0 0 24px; font-size: 15px; }
+
+  .wrap { max-width: 1100px; margin: 0 auto; }
+
+  .controls { display: flex; gap: 10px; justify-content: center; margin-bottom: 26px; flex-wrap: wrap; }
+  button {
+    background: var(--panel-hi); color: var(--text); border: 1px solid var(--line);
+    padding: 9px 20px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer;
+    transition: background .15s, transform .1s;
+  }
+  button:hover:not(:disabled) { background: #475569; }
+  button:active:not(:disabled) { transform: translateY(1px); }
+  button:disabled { opacity: .4; cursor: not-allowed; }
+  button.primary { background: var(--strategy); color: #1e1b4b; border-color: var(--strategy); }
+  button.primary:hover:not(:disabled) { background: #b9a3ff; }
+  button.on { background: #0c2b3d; border-color: var(--client); color: var(--client); }
+  button.on:hover:not(:disabled) { background: #123a52; }
+
+  .audio-note {
+    text-align: center; color: var(--muted); font-size: 12.5px;
+    margin: -14px 0 22px; min-height: 17px;
+  }
+
+  .stage { display: grid; grid-template-columns: 240px 1fr; gap: 22px; align-items: start; }
+
+  .col-client { display: flex; flex-direction: column; align-items: center; gap: 12px; padding-top: 20px; }
+
+  .box {
+    background: var(--panel); border: 2px solid var(--line); border-radius: 12px;
+    padding: 14px 16px; text-align: center; width: 100%;
+    transition: border-color .3s, box-shadow .3s, transform .3s, background .3s;
+  }
+  .box .name { font-weight: 700; font-size: 14px; letter-spacing: .2px; }
+  .box .role { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-top: 3px; }
+  .box.active {
+    transform: translateY(-3px);
+    box-shadow: 0 0 0 3px rgba(255,255,255,.07), 0 10px 28px rgba(0,0,0,.45);
+    border-color: var(--client); background: #0c2b3d;
+  }
+  /* the approach being replaced glows red rather than blue when it is the
+     focus — no strikethrough, just a colour */
+  .box.naive.active { border-color: var(--bad); background: #2b0f12; box-shadow: 0 0 0 3px rgba(248,113,113,.15); }
+  .holding {
+    margin-top: 9px; padding-top: 8px; border-top: 1px dashed var(--line);
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px;
+    color: var(--muted); line-height: 1.5;
+  }
+  .holding b { color: var(--picked); font-weight: 700; }
+
+  .col-main { display: flex; flex-direction: column; gap: 18px; }
+
+  .family {
+    border: 2px dashed var(--strategy); border-radius: 14px; padding: 18px 20px;
+    background: rgba(167,139,250,.05);
+  }
+  /* the failure kinds get their own gold panel, so the thing being judged
+     of the design is never confused with the machines it chooses between */
+  .family.gate { border-color: var(--picked); background: rgba(251,191,36,.05); }
+  .family.gate .family-label { color: var(--picked); }
+
+  .family-label {
+    font-size: 11px; color: var(--strategy); text-transform: uppercase;
+    letter-spacing: 1.4px; font-weight: 700; margin-bottom: 14px; text-align: center;
+  }
+
+  .row {
+    display: flex; align-items: center; justify-content: space-between;
+    border: 2px solid var(--line); border-radius: 8px; background: var(--panel);
+    padding: 8px 14px; margin-bottom: 6px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 13px;
+    transition: border-color .3s, background .3s, transform .3s, opacity .3s;
+  }
+  .row .note { color: var(--muted); font-size: 11px; text-align: right; }
+  .row.dim { opacity: .38; }
+  /* a failure not yet introduced, or an attempt not yet part of the story */
+  .row.absent { opacity: .22; border-style: dashed; }
+  .row.active {
+    transform: translateX(4px);
+    border-color: var(--client);
+    box-shadow: 0 0 0 3px rgba(56,189,248,.15);
+  }
+  /* "wrong" marks a machine getting nothing while the shop pays for it */
+  .row.wrong { border-color: var(--bad); background: #2b0f12; }
+  .row.wrong .note { color: #fca5a5; }
+  /* "ok" marks a machine carrying a sensible share of the work */
+  .row.ok { border-color: var(--context); background: #06281f; }
+  .row.ok .note { color: #6ee7b7; }
+  /* "wait" is this project's special case: an attempt that has not been made
+     yet, or one the retrier is backing off before */
+  .row.wait { border-color: var(--picked); background: #2a1f05; }
+  .row.wait .note { color: var(--picked); }
+
+  .clock {
+    text-align: center; font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 13px; color: var(--muted); border: 1px solid var(--line);
+    border-radius: 8px; padding: 7px 12px; background: #020617;
+  }
+  .clock b { color: var(--picked); font-size: 15px; }
+
+  .bridge-rail { text-align: center; color: var(--muted); font-size: 12px; margin: -6px 0 2px; min-height: 16px; transition: color .3s; }
+  .bridge-rail.active { color: var(--client); font-weight: 700; }
+
+  .narration {
+    background: var(--panel); border-left: 4px solid var(--strategy);
+    border-radius: 0 10px 10px 0; padding: 16px 20px; min-height: 76px;
+    font-size: 15px; line-height: 1.6;
+  }
+  .narration .step-no { color: var(--muted); font-size: 12px; letter-spacing: 1px; text-transform: uppercase; }
+  .narration .text { margin-top: 5px; }
+
+  .console {
+    background: #020617; border: 1px solid var(--line); border-radius: 10px;
+    padding: 14px 16px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 12.5px; line-height: 1.7; min-height: 130px;
+  }
+  .console .ttl { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+  .console div.ln { opacity: 0; transition: opacity .35s; }
+  .console div.ln.show { opacity: 1; }
+  .c-context { color: var(--context); }
+  .c-strategy { color: var(--strategy); }
+  .c-out  { color: var(--client); }
+  .c-pick { color: var(--picked); }
+  .c-bad  { color: var(--bad); }
+
+  .progress { display: flex; gap: 5px; justify-content: center; margin-top: 22px; }
+  .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--line); transition: background .3s, transform .3s; }
+  .dot.on { background: var(--strategy); transform: scale(1.35); }
+
+  .legend { text-align: center; color: var(--muted); font-size: 13px; margin-top: 26px; line-height: 1.7; }
+  .legend b { color: var(--text); }
+
+  @media (max-width: 860px) {
+    .stage { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>Database per Service</h1>
+  <p class="sub">One shared schema, a correct migration on a Tuesday afternoon &mdash; and what it costs to make sure it can never break anybody again</p>
+
+  <div class="controls">
+    <button id="play" class="primary">&#9654;&nbsp; Play</button>
+    <button id="step">Step &rarr;</button>
+    <button id="reset">Reset</button>
+    <button id="audio" aria-pressed="false" title="Narrate each step (N)">
+      <span id="audio-icon">&#128263;</span>&nbsp; Narration: off
+    </button>
+  </div>
+  <p class="audio-note" id="audio-note"></p>
+
+  <div class="stage">
+
+    <div class="col-client">
+      <div class="box naive" id="b-naive">
+        <div class="name">One shared database</div>
+        <div class="role">orders and products, one schema</div>
+        <div class="holding" id="naive-state">the page: <b>1 query, 1 join</b></div>
+      </div>
+      <div style="font-size:22px;color:var(--line)">&#8595;</div>
+      <div class="box client" id="b-client">
+        <div class="name">Two databases</div>
+        <div class="role">Orders owns orders &middot; Catalog owns products</div>
+        <div class="holding" id="holding">broken by the rename: <b>nothing yet</b></div>
+      </div>
+      <div style="font-size:11px;color:var(--muted);text-align:center;line-height:1.5">
+        the pattern is a refusal.<br>
+        in a real shop it is not Java at all &mdash;<br>
+        it is credentials that cannot see<br>
+        the other service&rsquo;s tables.
+      </div>
+    </div>
+
+    <div class="col-main">
+
+      <div class="family gate">
+        <div class="family-label" id="gate-label">What the design guarantees you</div>
+        <div class="row absent" id="r-s1">
+          <span class="name">one query, one join</span>
+          <span class="note" id="n-s1">&mdash; in force</span>
+        </div>
+        <div class="row absent" id="r-s2">
+          <span class="name">every row comes back with a name</span>
+          <span class="note" id="n-s2">&mdash; in force</span>
+        </div>
+        <div class="row absent" id="r-s3">
+          <span class="name">foreign key: no order can name a missing product</span>
+          <span class="note" id="n-s3">&mdash; in force</span>
+        </div>
+        <div class="row absent" id="r-s4">
+          <span class="name">each team may change its own schema alone</span>
+          <span class="note" id="n-s4">&mdash; not on offer</span>
+        </div>
+      </div>
+
+      <div class="family">
+        <div class="family-label" id="family-label">What somebody does next</div>
+        <div class="row" id="r-c1">
+          <span class="name">the order history page</span>
+          <span class="note" id="n-c1">not run yet</span>
+        </div>
+        <div class="row" id="r-c2">
+          <span class="name">catalog team: rename product_name &rarr; title</span>
+          <span class="note" id="n-c2">not run yet</span>
+        </div>
+        <div class="row" id="r-c3">
+          <span class="name">catalog team: delete SKU-KETTLE</span>
+          <span class="note" id="n-c3">not run yet</span>
+        </div>
+      </div>
+
+      <div class="clock" id="clock">the page: <b>&mdash;</b> &nbsp;&middot;&nbsp; nothing has been asked for yet</div>
+
+      <div class="bridge-rail" id="bridge-rail"></div>
+
+      <div class="narration" id="narration">
+        <div class="step-no">Ready</div>
+        <div class="text">Press <b>Play</b> to watch a correct migration, run by a team that owns the column, break a page in somebody else&rsquo;s repository &mdash; and then to watch the same migration become a non-event, and to count exactly what that cost.</div>
+      </div>
+
+      <div class="console">
+        <div class="ttl">Program output</div>
+        <div id="console-lines"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="progress" id="progress"></div>
+
+  <p class="legend">
+    <b>Watch the guarantees, not the page.</b><br>
+    The page looks the same at the beginning and at the end. What changes is the list above it: three things the database used to promise are handed back, one at a time, in exchange for a single new one &mdash; that a team may change its own schema without asking anybody.<br>
+    <span style="font-size:12px">
+      Keys: <b>Space</b> play/pause &nbsp;·&nbsp; <b>&rarr;</b> next step
+      &nbsp;·&nbsp; <b>N</b> narration &nbsp;·&nbsp; <b>R</b> reset
+    </span>
+  </p>
+
+</div>
+
+<script>
+// Each step may set any row's caption; captions persist until changed, so a
+// step only lists what it actually moves.
+const STEPS = [
+  {
+    title: "Step 1 — One database, two teams",
+    text: "The shop has two teams. The catalog team looks after products — names, prices, photographs. The orders team looks after what people have bought. They share one database: the products table and the orders table sit in it side by side. The order history page is one query that joins them, and it is a good page. Two rows come back, each with an order id, a sku, a product name and a quantity.",
+    active: ["b-naive"], stateOn: ["r-s1", "r-s2", "r-s3"], wait: ["r-c1"],
+    holding: "nothing yet", clock: "1 query", clockNote: "one round trip, and the names come back attached",
+    captions: { c1: "one query, joining orders to products" },
+    bridge: "one schema, one query, one round trip",
+    out: { cls: "c-context", txt: "  ord-101   SKU-KETTLE   Stainless Steel Kettle       x1" }
+  },
+  {
+    title: "Step 2 — Be fair to this, because it is very good",
+    text: "Before anything else, notice what the shared database is giving you, because the rest of this is the story of handing it back. One round trip. A join done by an engine that is extremely good at joins. A join cannot forget a name, so there is no such thing as a half-built page. And a foreign key guarantees the product row is there to be joined to — an order physically cannot refer to a product that does not exist. If a shop can live like this, it should.",
+    active: ["r-s1", "r-s2", "r-s3"], stateOn: ["r-s1", "r-s2", "r-s3"], ok: ["r-c1"], dim: true,
+    holding: "nothing yet", clock: "1 query", clockNote: "3 guarantees, and nothing is eventually consistent",
+    captions: { c1: "2 complete rows" },
+    bridge: "the one thing it will not give you is on the fourth line",
+    out: { cls: "c-context", txt: "  database round trips: 1   ·   every row has a name" }
+  },
+  {
+    title: "Step 3 — Tuesday afternoon: the catalog team renames a column",
+    text: "The catalog team decides that product_name should be called title. They have good reasons of their own — consistency with the rest of their schema, or the word the business actually uses. It is their column, in their table. They write a migration, they run it, their tests pass, their service works, and they go home. Nothing here is careless.",
+    active: ["r-c2"], stateOn: ["r-s1", "r-s2", "r-s3"], ok: ["r-c2"], wait: ["r-c1"],
+    holding: "nothing yet", clock: "1 query", clockNote: "migration ran, catalog tests green",
+    captions: { c2: "their column, their table, their call" },
+    bridge: "a correct migration, by the people who own the column",
+    out: { cls: "c-strategy", txt: "  catalog team: migration ran, catalog tests green, done" }
+  },
+  {
+    title: "Step 4 — Somebody else's page is broken",
+    text: "The order history query names product_name in its own source, and that column no longer exists. The page dies. And now look at who saw what. The catalog team saw a green build. The orders team saw an incident. The two facts are true at the same time, and neither team can see the other one.",
+    active: ["r-c1"], stateOn: ["r-s2", "r-s3"], wrong: ["r-c1"], ok: ["r-c2"],
+    holding: "the order history page", clock: "broken", clockNote: "no column 'product_name' in products",
+    captions: { s1: "— broken by a change in another repository", c1: "ColumnNotFoundException" },
+    bridge: "the query is in a repository the catalog team has no reason to open",
+    out: { cls: "c-bad", txt: "  order history page: no column 'product_name' in products -- somebody renamed it" }
+  },
+  {
+    title: "Step 5 — Nobody did anything wrong",
+    text: "This is the uncomfortable part. The migration was correct: every product name is still there, readable under its new name. The catalog team could not have known, because the query that broke is not in their code, not in their tests, and not in their build. And here is the sharpest way to say it — this project has a test called aRenameBreaksTheOrderHistoryPage, and it passes. Your test suite is not going to warn you. A test suite tests a codebase, and this problem lives between two codebases.",
+    active: ["b-naive", "r-c1"], stateOn: ["r-s2", "r-s3"], wrong: ["r-c1"], ok: ["r-c2"], dim: true,
+    holding: "the order history page", clock: "0 bugs", clockNote: "every test passes, including the one asserting the break",
+    captions: { c1: "not a bug. a correctly working system." },
+    bridge: "the failure lives in the gap between two teams, and nobody owns the gap",
+    out: { cls: "c-bad", txt: "  nobody did anything wrong. The column was theirs." }
+  },
+  {
+    title: "Step 6 — And the expensive part is what happens next",
+    text: "The broken page gets fixed in an hour. What does not get fixed is the conversation afterwards, in which both teams agree that from now on schema changes need a meeting. That agreement is what actually costs money — not today, but for years. Writing a test does not help, because whose repository would it live in? Saying do not rename columns does not help either, and it is the one that usually gets adopted, because nobody has to write it down.",
+    active: ["b-naive"], stateOn: ["r-s2", "r-s3"], wrong: ["r-c1"], ok: ["r-c2"],
+    holding: "the order history page", clock: "a meeting", clockNote: "every schema change now needs one",
+    bridge: "the real cost is not the outage — it is the permission",
+    out: { cls: "c-bad", txt: "// agreed: no schema change without asking the other team first" }
+  },
+  {
+    title: "Step 7 — So: give each service its own database",
+    text: "If the catalog team's data were somewhere the orders team physically could not read, the Tuesday rename would be nobody else's business. So that is what the shop does. Orders gets a database. Catalog gets a database. And every method on each of them takes the name of whoever is asking, and refuses anybody else. That is the whole mechanism. There is no algorithm in it.",
+    active: ["b-client"], stateOn: ["r-s4"], wait: ["r-c1"],
+    holding: "nothing", clock: "2 databases", clockNote: "Orders may not read Catalog's tables, and cannot",
+    gateLabel: "What the design guarantees you — after the split",
+    captions: { s1: "— gone. there is no join across two databases.", s2: "— gone. assembly happens in Java now.", s3: "— gone. no constraint can span two databases.", s4: "— in force, and this is the one thing you bought", c1: "rebuilt without a join", c2: "cannot reach anybody outside Catalog" },
+    bridge: "NotYourDataException — read it as: the database refused",
+    out: { cls: "c-strategy", txt: "  Orders may not read Catalog's database directly. Ask Catalog for it." }
+  },
+  {
+    title: "Step 8 — In a real shop, nothing throws that exception",
+    text: "This is the most important sentence here, so it is worth being slow about. The rule is not enforced in Java and it is not a note in a wiki. The Orders service connects with database credentials that simply cannot see the Catalog tables, so a cross-service read fails as a permissions error long before it reaches any application code. The exception in this project exists only so the rule is visible in something small enough to read. If the rule in your system is a comment asking people not to, you do not have this pattern. You have a wish.",
+    active: ["b-client"], stateOn: ["r-s4"], wait: ["r-c1"], dim: true,
+    holding: "nothing", clock: "credentials", clockNote: "not a convention, not a code review, not a wiki page",
+    bridge: "the unit of ownership is the data, not the code",
+    out: { cls: "c-strategy", txt: "// grant on catalog.products: Catalog only" }
+  },
+  {
+    title: "Step 9 — The same page, for more money",
+    text: "Now rebuild that page. Ask Orders what the customer bought — that comes back as skus and quantities, with no names on it. Collect the skus. Ask Catalog what those skus are called. Then stitch the two answers together in Java. Same page, byte for byte: a test asserts that the assembled page says exactly what the joined page said. But it cost two service calls and twenty milliseconds instead of one query. The cost changed. The answer did not.",
+    active: ["r-c1"], stateOn: ["r-s4"], ok: ["r-c1"],
+    holding: "nothing", clock: "2 calls · 20ms", clockNote: "the same rows, the same names, the same order",
+    captions: { c1: "ask Orders, collect the skus, ask Catalog, stitch" },
+    bridge: "itProducesTheSamePage — which is what makes the comparison fair",
+    out: { cls: "c-context", txt: "  the same page took 20ms and 2 service calls instead of 1 query" }
+  },
+  {
+    title: "Step 10 — Ask once for many, or this gets much worse",
+    text: "One detail in there is doing more work than it looks. The call to Catalog takes a list of skus and returns all the names in one answer. It is not a convenience method. Asking once per row would turn this two-row page into two network calls, a fifty-row page into fifty, and a report into an outage. There is a test that asserts Catalog is called exactly once no matter how many rows there are, and an empty order history never troubles Catalog at all. The batch call is the difference between an assembly step and a disaster.",
+    active: ["r-c1"], stateOn: ["r-s4"], ok: ["r-c1"], dim: true,
+    holding: "nothing", clock: "1 call to Catalog", clockNote: "for 2 rows, or 50 — itAsksCatalogOnce",
+    bridge: "the commonest way to implement this badly is one call per row",
+    out: { cls: "c-context", txt: "     10ms ->    20ms  Catalog          OK        2 name(s) in one call" }
+  },
+  {
+    title: "Step 11 — The same rename, and nothing happens",
+    text: "Now run Tuesday again. The catalog team renames product_name to title, this time in a database only they can read. The rows change and the queries that read them change in the same class, in the same commit, tested together. The order history page is unchanged. And be precise about what has just been bought, because it is easy to oversell: it bought no speed — the split page is slower. It bought no correctness — the page was already right. It bought the catalog team the right to change their mind without asking permission.",
+    active: ["b-client", "r-c2"], stateOn: ["r-s4"], ok: ["r-c1", "r-c2"],
+    holding: "nothing", clock: "unchanged", clockNote: "nothing outside Catalog ever named that column",
+    captions: { c2: "a migration that can no longer reach anybody" },
+    bridge: "an organisational benefit — and it is the only one on offer",
+    out: { cls: "c-strategy", txt: "  the page is unchanged. Nothing outside Catalog ever named that column." }
+  },
+  {
+    title: "Step 12 — And now the bill",
+    text: "Two things were given up, and the second is the one people forget. The join is gone: every question spanning both services is now two calls and some code, and the report somebody runs on a Monday has nowhere to live. And the foreign key is gone. Watch: Catalog deletes a product that an order refers to, and nothing stops it, because the two rows are in different databases and no constraint can span them. The order survives, naming a product nobody has heard of, and the page has to decide what to render. A rule that used to be impossible to break is now merely impolite to break. It lives in code, in tests, and in agreements between teams.",
+    active: ["r-c3"], stateOn: ["r-s4"], ok: ["r-c1"], wrong: ["r-c3"],
+    holding: "nothing — and no foreign key either", clock: "the bill", clockNote: "no join, no foreign key, more moving parts",
+    captions: { c3: "nothing refused the delete" },
+    bridge: "integrity moved out of the database and into hope",
+    out: { cls: "c-bad", txt: "  ord-101   SKU-KETTLE   (no longer in the catalogue) x1" }
+  }
+];
+
+
+const BOXES = ["b-naive", "b-client"];
+const STATES = ["r-s1", "r-s2", "r-s3", "r-s4"];
+const CALLERS = ["r-c1", "r-c2", "r-c3"];
+const ROWS = STATES.concat(CALLERS);
+const ALL_BOXES = BOXES.concat(ROWS);
+
+const STEP_MS = 3800;      // pace when narration is off
+const GAP_MS = 700;        // breathing room after a clip finishes
+
+let idx = -1;
+let playing = false;
+let timer = null;
+
+// Narration is optional: if the audio clips are missing (or the browser
+// blocks playback) the animation still works exactly as before.
+let audioOn = false;
+let clips = [];
+let current = null;
+
+const $ = id => document.getElementById(id);
+const progressEl = $("progress");
+const linesEl = $("console-lines");
+const noteEl = $("audio-note");
+const bridgeEl = $("bridge-rail");
+const holdingEl = $("holding");
+const naiveEl = $("naive-state");
+const clockEl = $("clock");
+const labelEl = $("family-label");
+const gateLabelEl = $("gate-label");
+
+const DEFAULT_LABEL = "What somebody does next";
+const DEFAULT_GATE_LABEL = "What the design guarantees you";
+const DEFAULT_CAPTIONS = {
+  s1: "— in force",
+  s2: "— in force",
+  s3: "— in force",
+  s4: "— not on offer",
+  c1: "not run yet",
+  c2: "not run yet",
+  c3: "not run yet"
+};
+
+STEPS.forEach(() => {
+  const d = document.createElement("div");
+  d.className = "dot";
+  progressEl.appendChild(d);
+});
+
+// ---- optional narration ------------------------------------------------
+
+clips = STEPS.map((_, i) => {
+  const a = new Audio("audio/step-" + (i + 1) + ".m4a");
+  a.preload = "none";
+  return a;
+});
+
+function stopAudio() {
+  if (!current) return;
+  current.pause();
+  current.currentTime = 0;
+  current.onended = null;
+  current = null;
+}
+
+/** Play the clip for step i. onDone fires when it finishes (or cannot play). */
+function playClip(i, onDone) {
+  stopAudio();
+  if (!audioOn) { if (onDone) onDone(); return; }
+
+  const a = clips[i];
+  current = a;
+  a.currentTime = 0;
+  a.onended = () => { current = null; if (onDone) onDone(); };
+
+  a.play().catch(() => {
+    // Missing file, or autoplay blocked -> fall back to timed pacing.
+    current = null;
+    noteEl.textContent =
+      "Narration audio could not be played — falling back to timed steps. " +
+      "Run docs/make_animation_audio.sh to generate the clips.";
+    if (onDone) onDone();
+  });
+}
+
+function setAudio(on) {
+  audioOn = on;
+  const btn = $("audio");
+  btn.classList.toggle("on", on);
+  btn.setAttribute("aria-pressed", String(on));
+  btn.innerHTML = '<span id="audio-icon">' + (on ? "&#128266;" : "&#128263;") +
+                  "</span>&nbsp; Narration: " + (on ? "on" : "off");
+  noteEl.textContent = on
+    ? "Each step is narrated, and the animation waits for the voice to finish."
+    : "";
+  if (!on) stopAudio();
+}
+
+// ------------------------------------------------------------------------
+
+function clearHighlights() {
+  ALL_BOXES.forEach(b => $(b).classList.remove("active"));
+  ROWS.forEach(r => $(r).classList.remove("dim", "wrong", "ok", "wait", "absent"));
+}
+
+function render(i) {
+  clearHighlights();
+  const s = STEPS[i];
+
+  s.active.forEach(b => $(b).classList.add("active"));
+
+  // Rows not involved in this step fade back, so the eye follows the one
+  // decision currently being made.
+  if (s.dim) ROWS.filter(r => !s.active.includes(r)).forEach(r => $(r).classList.add("dim"));
+
+  // A work row: "ok" is work that got a thread and finished, "wrong" is work
+  // that was refused or is stuck holding threads, "wait" is work that has been
+  // submitted but has not finished.
+  (s.ok || []).forEach(r => $(r).classList.add("ok"));
+  (s.wait || []).forEach(r => { $(r).classList.remove("ok"); $(r).classList.add("wait"); });
+  (s.wrong || []).forEach(r => { $(r).classList.remove("ok", "wait"); $(r).classList.add("wrong"); });
+  CALLERS.filter(r => !(s.ok || []).includes(r)
+                   && !(s.wait || []).includes(r)
+                   && !(s.wrong || []).includes(r))
+          .forEach(r => $(r).classList.add("absent"));
+
+  // A thread row is lit while it is held by somebody, and faint while it is
+  // free — so the pool emptying out is visible before checkout ever arrives.
+  (s.stateOn || []).forEach(r => $(r).classList.add("wait"));
+  STATES.filter(r => !(s.stateOn || []).includes(r))
+        .forEach(r => $(r).classList.add("absent"));
+
+  // Captions are cumulative: replay every step up to this one so that
+  // stepping backwards or jumping about still shows a consistent picture.
+  const caps = Object.assign({}, DEFAULT_CAPTIONS);
+  let label = DEFAULT_LABEL;
+  let gateLabel = DEFAULT_GATE_LABEL;
+  for (let k = 0; k <= i; k++) {
+    Object.assign(caps, STEPS[k].captions || {});
+    if (STEPS[k].label) label = STEPS[k].label;
+    if (STEPS[k].gateLabel) gateLabel = STEPS[k].gateLabel;
+  }
+  Object.keys(caps).forEach(key => { $("n-" + key).textContent = caps[key]; });
+  labelEl.textContent = label;
+  gateLabelEl.textContent = gateLabel;
+
+  holdingEl.innerHTML = "broken by the rename: <b>" + (s.holding || "nothing") + "</b>";
+  naiveEl.innerHTML = "the page: <b>1 query, 1 join</b>";
+  clockEl.innerHTML = "the page: <b>" + (s.clock || "&mdash;") +
+                      "</b> &nbsp;&middot;&nbsp; " + (s.clockNote || "");
+
+  bridgeEl.textContent = s.bridge || "";
+  bridgeEl.classList.add("active");
+
+  $("narration").innerHTML =
+    '<div class="step-no">' + s.title + '</div><div class="text">' + s.text + '</div>';
+
+  // Rebuild console output up to this step
+  linesEl.innerHTML = "";
+  for (let k = 0; k <= i; k++) {
+    if (!STEPS[k].out) continue;
+    const div = document.createElement("div");
+    div.className = "ln " + STEPS[k].out.cls;
+    div.textContent = STEPS[k].out.txt;
+    linesEl.appendChild(div);
+    requestAnimationFrame(() => div.classList.add("show"));
+  }
+
+  [...progressEl.children].forEach((d, k) => d.classList.toggle("on", k <= i));
+}
+
+/** Advance one step. In play mode, schedule the following step afterwards. */
+function next() {
+  if (idx >= STEPS.length - 1) { stop(); return; }
+  idx++;
+  render(idx);
+
+  if (!playing) { playClip(idx); return; }
+
+  if (audioOn) {
+    // Wait for the voice to finish this step, then move on.
+    playClip(idx, () => {
+      if (!playing) return;
+      timer = setTimeout(next, GAP_MS);
+    });
+  } else {
+    timer = setTimeout(next, STEP_MS);
+  }
+}
+
+function stop() {
+  playing = false;
+  clearTimeout(timer);
+  stopAudio();
+  $("play").innerHTML = "&#9654;&nbsp; Play";
+  $("step").disabled = false;
+}
+
+function reset() {
+  stop();
+  idx = -1;
+  clearHighlights();
+  STATES.forEach(r => $(r).classList.add("absent"));
+  Object.keys(DEFAULT_CAPTIONS).forEach(k => { $("n-" + k).textContent = DEFAULT_CAPTIONS[k]; });
+  labelEl.textContent = DEFAULT_LABEL;
+  gateLabelEl.textContent = DEFAULT_GATE_LABEL;
+  holdingEl.innerHTML = "broken by the rename: <b>nothing yet</b>";
+  naiveEl.innerHTML = "the page: <b>1 query, 1 join</b>";
+  clockEl.innerHTML = "the page: <b>&mdash;</b> &nbsp;&middot;&nbsp; nothing has been asked for yet";
+  linesEl.innerHTML = "";
+  bridgeEl.textContent = "";
+  bridgeEl.classList.remove("active");
+  [...progressEl.children].forEach(d => d.classList.remove("on"));
+  $("narration").innerHTML =
+    '<div class="step-no">Ready</div><div class="text">Press <b>Play</b> to watch a correct migration, run by a team that owns the column, break a page in somebody else&rsquo;s repository &mdash; and then to watch the same migration become a non-event, and to count exactly what that cost.</div>';
+}
+
+$("play").addEventListener("click", () => {
+  if (playing) { stop(); return; }
+  if (idx >= STEPS.length - 1) reset();
+  playing = true;
+  $("play").innerHTML = "&#10074;&#10074;&nbsp; Pause";
+  $("step").disabled = true;
+  next();   // next() now schedules the rest of the run itself
+});
+
+$("step").addEventListener("click", () => { stop(); if (idx >= STEPS.length - 1) reset(); next(); });
+$("reset").addEventListener("click", reset);
+
+$("audio").addEventListener("click", () => {
+  setAudio(!audioOn);
+  // Turning narration on mid-run: speak the step already on screen.
+  if (audioOn && playing && idx >= 0) {
+    clearTimeout(timer);
+    playClip(idx, () => {
+      if (!playing) return;
+      timer = setTimeout(next, GAP_MS);
+    });
+  }
+});
+
+document.addEventListener("keydown", e => {
+  if (e.code === "Space") { e.preventDefault(); $("play").click(); }
+  if (e.code === "ArrowRight") { e.preventDefault(); $("step").click(); }
+  if (e.code === "KeyR") reset();
+  if (e.code === "KeyN") $("audio").click();
+});
+
+setAudio(false);
+reset();
+</script>
+</body>
+</html>

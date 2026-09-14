@@ -57,6 +57,18 @@ ORDER = [
     ("behavioural", "memento"),
     ("behavioural", "visitor"),
     ("behavioural", "interpreter"),
+    ("micro-services-design-patterns", "api-gateway"),
+    ("micro-services-design-patterns", "service-discovery"),
+    ("micro-services-design-patterns", "load-balancing"),
+    ("micro-services-design-patterns", "retry"),
+    ("micro-services-design-patterns", "circuit-breaker"),
+    ("micro-services-design-patterns", "bulkhead"),
+    ("micro-services-design-patterns", "database-per-service"),
+    ("micro-services-design-patterns", "api-composition"),
+    ("micro-services-design-patterns", "cqrs"),
+    ("micro-services-design-patterns", "saga"),
+    ("micro-services-design-patterns", "transactional-outbox"),
+    ("micro-services-design-patterns", "idempotent-consumer"),
 ]
 
 # Per-project title and tag material. The title is what gets pasted into
@@ -164,7 +176,54 @@ META = {
         "title": "Interpreter Pattern in Java - Promotion Rules",
         "tags": ["interpreter pattern", "expression tree java", "rules engine"],
     },
-
+    "api-gateway": {
+        "title": "API Gateway in Java - One Front Door for the Store",
+        "tags": ["api gateway pattern", "microservices java", "backend for frontend"],
+    },
+    "service-discovery": {
+        "title": "Service Discovery in Java - Finding a Live Instance",
+        "tags": ["service discovery", "service registry", "microservices java"],
+    },
+    "load-balancing": {
+        "title": "Client-Side Load Balancing in Java - Catalog Reads",
+        "tags": ["load balancing", "round robin java", "microservices java"],
+    },
+    "retry": {
+        "title": "Retry with Backoff in Java - A Flaky Payment Gateway",
+        "tags": ["retry pattern", "exponential backoff java", "resilience"],
+    },
+    "circuit-breaker": {
+        "title": "Circuit Breaker in Java - When a Service Stops",
+        "tags": ["circuit breaker pattern", "resilience4j", "fault tolerance java"],
+    },
+    "bulkhead": {
+        "title": "Bulkhead Pattern in Java - Isolating a Slow Job",
+        "tags": ["bulkhead pattern", "thread pool isolation", "resilience java"],
+    },
+    "database-per-service": {
+        "title": "Database per Service in Java - Losing the Join",
+        "tags": ["database per service", "microservices data", "bounded context"],
+    },
+    "api-composition": {
+        "title": "API Composition in Java - The Order Details Page",
+        "tags": ["api composition", "microservices query", "parallel fanout java"],
+    },
+    "cqrs": {
+        "title": "CQRS in Java - Order History Without the Joins",
+        "tags": ["cqrs pattern", "read model java", "event driven"],
+    },
+    "saga": {
+        "title": "Saga Pattern in Java - Placing an Order, Safely",
+        "tags": ["saga pattern", "compensating transaction", "distributed transaction"],
+    },
+    "transactional-outbox": {
+        "title": "Transactional Outbox in Java - Never Lose an Event",
+        "tags": ["transactional outbox", "dual write problem", "event publishing"],
+    },
+    "idempotent-consumer": {
+        "title": "Idempotent Consumer in Java - The Duplicate Message",
+        "tags": ["idempotent consumer", "exactly once java", "message deduplication"],
+    },
 }
 
 COMMON_TAGS = [
@@ -281,7 +340,11 @@ def write_doc(group, slug):
     tag_line = ", ".join(tags)
     assert len(tag_line) < 500, "%s tags are %d chars" % (slug, len(tag_line))
 
-    pretty = slug.replace("-", " ").title()
+    # `.title()` is right for "load balancing" and wrong for "api" and
+    # "cqrs", which are read out letter by letter and are written that way
+    # everywhere else in the repository.
+    ACRONYMS = {"api": "API", "cqrs": "CQRS"}
+    pretty = " ".join(ACRONYMS.get(w, w.title()) for w in slug.split("-"))
     rel = os.path.join(group, slug + "-pattern")
 
     out = ["# YouTube — %s Pattern\n" % pretty]

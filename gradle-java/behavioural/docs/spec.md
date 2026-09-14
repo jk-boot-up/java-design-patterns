@@ -39,9 +39,9 @@ creational and structural projects that already exist.
 | 10 | Visitor | `visitor-pattern` |
 | 11 | Interpreter | `interpreter-pattern` |
 
-The order is the learning order, and the end screen of each video points at
-the next. It is not the book's order. It runs from the patterns a working
-developer meets soonest and can apply immediately (Strategy, Observer) toward
+The order is the learning order. It is not the book's order. It runs from the
+patterns a working developer meets soonest and can apply immediately (Strategy,
+Observer) toward
 the ones that need the most scaffolding before they make sense (Visitor,
 Interpreter).
 

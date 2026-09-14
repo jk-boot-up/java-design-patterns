@@ -15,8 +15,9 @@ project's code. Aimed at beginners with no prior design-pattern knowledge.
 **Runtime:** approximately 12 minutes.
 **Narration:** female voice (macOS `Samantha`, US English).
 
-None of the four are committed — they are build output. Run
-`./build_video.sh` to produce them.
+The `.mp4`, `.m4a` and `.srt` are build output and are not committed — run
+`./build_video.sh` to produce them. `poster.png` *is* committed, so the title
+card is available without a build.
 
 ## Source Files
 

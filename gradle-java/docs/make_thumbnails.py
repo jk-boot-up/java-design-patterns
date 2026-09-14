@@ -101,6 +101,36 @@ META = {
             "node.accept(report)"),
     "interpreter": (['INTERPRETER'], "Turn a rule into a tree",
                 "rule.matches(cart)"),
+    "api-gateway": (['API', 'GATEWAY'], "One front door for the whole store",
+                "gateway.productPage(sku)"),
+    "service-discovery": (['SERVICE', 'DISCOVERY'],
+                      "Ask where it is, don't hardcode it",
+                      "registry.instancesOf(x)"),
+    "load-balancing": (['LOAD', 'BALANCING'], "Spread the work, skip the sick one",
+                   "balancer.choose(pool)"),
+    "retry": (['RETRY'], "Try again, but only when it can help",
+          "retrier.call(payment)"),
+    "circuit-breaker": (['CIRCUIT', 'BREAKER'], "Stop calling what is already down",
+                    "breaker.call(service)"),
+    "bulkhead": (['BULKHEAD'], "One slow job cannot sink checkout",
+             "bulkhead.submit(job)"),
+    "database-per-service": (['DATABASE', 'PER SERVICE'],
+                         "Your data is yours alone",
+                         "orders.rowsFor(id)"),
+    # Not "one join" — the whole premise is that the join is gone, which is why
+    # somebody has to assemble the page by hand.
+    "api-composition": (['API', 'COMPOSITION'], "One page, three services, no join",
+                    "composer.pageFor(id)"),
+    "cqrs": (['CQRS'], "Write one way, read another",
+         "queries.historyFor(id)"),
+    "saga": (['SAGA'], "No rollback, so undo it step by step",
+         "saga.run(context)"),
+    "transactional-outbox": (['TRANSACTIONAL', 'OUTBOX'],
+                         "Save it and send it, or neither",
+                         "outbox.add(message)"),
+    "idempotent-consumer": (['IDEMPOTENT', 'CONSUMER'],
+                        "Same message twice, one effect",
+                        "seen(message.id())"),
 }
 
 GROUP = {
@@ -123,6 +153,14 @@ GROUP = {
     "visitor": "behavioural",
     "interpreter": "behavioural",
 }
+
+# The microservices projects all live in one directory, and there are twelve of
+# them, so listing each by hand above would be twelve lines saying the same
+# thing.
+GROUP.update({slug: "micro-services-design-patterns" for slug in (
+    "api-gateway", "service-discovery", "load-balancing", "retry",
+    "circuit-breaker", "bulkhead", "database-per-service", "api-composition",
+    "cqrs", "saga", "transactional-outbox", "idempotent-consumer")})
 
 
 def f(path, size):

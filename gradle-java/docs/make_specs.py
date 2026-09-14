@@ -60,6 +60,20 @@ ORDER = [
     ("behavioural", "memento"),
     ("behavioural", "visitor"),
     ("behavioural", "interpreter"),
+    # The microservices category. Its directory name is the long one, and the
+    # group string is used verbatim as the directory, so it stays spelled out.
+    ("micro-services-design-patterns", "api-gateway"),
+    ("micro-services-design-patterns", "service-discovery"),
+    ("micro-services-design-patterns", "load-balancing"),
+    ("micro-services-design-patterns", "retry"),
+    ("micro-services-design-patterns", "circuit-breaker"),
+    ("micro-services-design-patterns", "bulkhead"),
+    ("micro-services-design-patterns", "database-per-service"),
+    ("micro-services-design-patterns", "api-composition"),
+    ("micro-services-design-patterns", "cqrs"),
+    ("micro-services-design-patterns", "saga"),
+    ("micro-services-design-patterns", "transactional-outbox"),
+    ("micro-services-design-patterns", "idempotent-consumer"),
 ]
 
 # Demos that mint an identifier per run, so their output is not byte-stable.
@@ -83,6 +97,18 @@ NAMES = {
     "memento": "Memento",
     "visitor": "Visitor",
     "interpreter": "Interpreter",
+    "api-gateway": "API Gateway",
+    "service-discovery": "Service Registry and Discovery",
+    "load-balancing": "Client-Side Load Balancing",
+    "retry": "Retry with Backoff",
+    "circuit-breaker": "Circuit Breaker",
+    "bulkhead": "Bulkhead",
+    "database-per-service": "Database per Service",
+    "api-composition": "API Composition",
+    "cqrs": "CQRS",
+    "saga": "Saga",
+    "transactional-outbox": "Transactional Outbox",
+    "idempotent-consumer": "Idempotent Consumer",
 }
 
 # ---------------------------------------------------------------------------
@@ -1807,6 +1833,748 @@ requirements=[
     "to the structure; a test pins the 7-offered-against-5-wanted numbers.",
 ],
 ),
+"api-gateway": dict(
+purpose="""
+Teach why a client that talks to many services should talk to one service
+instead, and what that one service is allowed to do -- route, join, check the
+token once -- as against what it must never start doing, which is thinking.
+""",
+nongoals=[
+    "Not an HTTP server. Nothing binds a port; a remote call is a "
+    "`RemoteCall` that advances a simulated clock and writes a line into a "
+    "timeline.",
+    "Not a proof that the page is correct. Both versions of the app return "
+    "the same product page, so any test asserting the page's contents would "
+    "pass on the naive version too and prove nothing.",
+    "Not business logic. The gateway must not price, discount or decide -- "
+    "the moment it does, it is a second copy of the shop, and a test pins the "
+    "price it publishes to Pricing's answer unmodified.",
+    "Not a distributed system. One JVM, no mesh, no partitions, no capacity "
+    "planning; what the project teaches is the pattern's shape.",
+],
+problem="""
+The shop's mobile app shows a product page, and that page is made of four
+services' worth of information: the name from Catalog, the price from Pricing,
+availability from Inventory, and "customers also bought" from
+Recommendations.
+
+The obvious app calls all four itself, and it works. It is also four network
+crossings from a phone on a train instead of one, four token checks instead of
+one, and -- the expensive part -- it loses the entire product page on the day
+Recommendations goes down, because a feature nobody would miss is wired into
+the page with the same importance as the price.
+
+**What the pattern must deliver:** the phone makes one call. Behind that call,
+the four services are asked in parallel, the token is checked once, and a
+failure in an optional service costs its own section of the page and nothing
+else.
+""",
+roles=[
+    ("Gateway", "`ProductPageGateway`"),
+    ("Naive client", "`NaiveMobileApp`"),
+    ("Client", "`MobileApp`"),
+    ("Downstream services", "`AuthService`, `CatalogService`, `PricingService`, `InventoryService`, `RecommendationsService`"),
+    ("Service registry for the demo", "`StoreServices`"),
+    ("Response", "`ProductPage`"),
+    ("Simulation harness", "`SimulatedClock`, `RemoteCall`, `CallLog`, `ServiceUnavailableException`"),
+    ("Entry point", "`ProductPageDemo`"),
+],
+requirements=[
+    "**One crossing from the client.** A test counts the calls the phone "
+    "makes and asserts one against the naive app's five.",
+    "**The token is checked once.** `CallLog.countFor(\"Auth\")` is 1 for the "
+    "gateway and 4 for the naive app.",
+    "**Parallel, and the clock proves it.** The gateway's page arrives in "
+    "240ms where the naive app's sequential calls take 800ms; both numbers "
+    "are asserted against `SimulatedClock`, not measured.",
+    "**An optional service failing degrades the page.** With "
+    "Recommendations down the page still carries name, price and stock, and "
+    "says it has no recommendations rather than pretending there are none.",
+    "**An essential service failing fails honestly.** With Catalog down the "
+    "gateway raises the failure rather than serving a page with a blank "
+    "name.",
+    "**The gateway adds no logic.** The published price equals Pricing's "
+    "answer; the test exists to stop a future feature being put in the "
+    "wrong place.",
+],
+),
+
+"service-discovery": dict(
+purpose="""
+Teach that the address of a service is a runtime fact rather than a
+configuration constant, and -- the half that matters -- that the list of
+addresses is always a little bit wrong, so a caller must be written to survive
+being handed a dead one.
+""",
+nongoals=[
+    "Not Eureka, Consul or DNS. `ServiceRegistry` is a map with leases; the "
+    "point is the contract those products implement, not their features.",
+    "Not load balancing. Choosing *which* healthy instance to call is the "
+    "next pattern; this one is about getting a list at all.",
+    "Not health checking as a subsystem. A lease that expires when "
+    "heartbeats stop is the whole health model here, deliberately.",
+    "Not an argument that discovery removes the outage. It bounds the window "
+    "and makes the bound a number you choose.",
+],
+problem="""
+The shop's Pricing service runs as three instances. One is restarted during
+every deployment, another is added on Black Friday morning, and one crashes at
+some point because processes do.
+
+A caller with `PRICING_URL` written into it has an outage every time that set
+changes, while healthy instances sit idle, paid for and unreachable. Worse, the
+failure is silent from the caller's side: it is holding an address that was
+true when somebody typed it.
+
+**What the pattern must deliver:** instances announce themselves on startup and
+keep announcing; callers ask for a list at call time; and when the list is
+wrong -- because a crashed instance never got to say goodbye -- the caller
+works down it instead of trusting the first entry.
+""",
+roles=[
+    ("Registry", "`ServiceRegistry`"),
+    ("Registration", "`ServiceInstance`"),
+    ("The instances", "`PricingCluster`"),
+    ("Discovering client", "`DiscoveringPricingClient`"),
+    ("Naive client", "`HardcodedPricingClient`"),
+    ("Simulation harness", "`SimulatedClock`, `RemoteCall`, `CallLog`"),
+    ("Entry point", "`ServiceDiscoveryDemo`"),
+],
+requirements=[
+    "**A new instance is used without anybody deploying a caller.** "
+    "Registering a fourth instance is visible to the very next lookup.",
+    "**The hardcoded client breaks on the same event**, and its test says so "
+    "by passing -- it fails when its one address is restarted.",
+    "**A crashed instance is still on the list.** A test asserts the registry "
+    "reports an instance that is not answering, because a crash cannot "
+    "deregister.",
+    "**The caller survives a stale address.** It tries the next instance and "
+    "gives up only when the list is exhausted, logging `STALE` for the dead "
+    "one.",
+    "**The lease expires on the clock.** With a 3000ms lease and heartbeats "
+    "stopped, the instance is listed at 2000ms and gone at 4000ms; the "
+    "simulated clock makes that assertion exact.",
+    "**The stale window is named as the cost**, in the demo output and the "
+    "notes, together with why a shorter lease only trades it for traffic.",
+],
+),
+
+"load-balancing": dict(
+purpose="""
+Teach that when a service runs as several identical copies, the decision of
+which copy to call is a strategy the caller holds -- and that the choice
+between those strategies is decided by what happens when one copy is sick, not
+by which one spreads calls most evenly.
+""",
+nongoals=[
+    "Not a load balancer appliance or an nginx configuration. The balancing "
+    "here is client-side, which is where the pattern lives in a service mesh "
+    "too.",
+    "Not service discovery. The list of instances is a given; this project "
+    "is about picking from it.",
+    "Not a benchmark. The cluster's latencies are fixed and deliberately "
+    "uneven so that the comparison is arithmetic rather than luck.",
+],
+problem="""
+Catalog runs as three instances, and they are not equal: one is fast, one is
+ordinary, one is on a bad host and answers slowly. A client that always calls
+the first entry on the list sends every request to one instance, and if that
+instance is the slow one, every customer sees the slow page while two healthy
+machines idle.
+
+**What the pattern must deliver:** an interface with one method -- choose an
+instance -- and several implementations behind it, so the caller's code does not
+change when the policy does. The demo must show what each policy actually
+costs in milliseconds, and it must show two clients taking turns without
+colliding.
+""",
+roles=[
+    ("Strategy interface", "`LoadBalancer`"),
+    ("Policies", "`RoundRobinBalancer`, `RandomBalancer`, `LeastLatencyBalancer`, `FirstInstanceBalancer`"),
+    ("The instances", "`CatalogCluster`, `ServiceInstance`"),
+    ("Client", "`CatalogClient`"),
+    ("Simulation harness", "`SimulatedClock`, `RemoteCall`, `CallLog`"),
+    ("Entry point", "`LoadBalancingDemo`"),
+],
+requirements=[
+    "**Round-robin is exactly fair.** Nine calls across three instances give "
+    "three each, asserted per instance rather than in aggregate.",
+    "**Always-first is measurably worse**, and its own test class passes: it "
+    "sends all nine calls to one instance and the total time says what that "
+    "costs.",
+    "**Least-latency tries everyone once.** No instance is written off "
+    "unmeasured, and after the measuring round the fast instances take the "
+    "majority of the traffic.",
+    "**Two clients do not collide.** Each client keeps its own cursor, so "
+    "two round-robin clients each take perfect turns -- which is also why "
+    "client-side balancing is not global balancing, and the notes say so.",
+    "**The pattern is named as Strategy.** The notes state that this is the "
+    "behavioural pattern from project 15 applied to a network, so the reader "
+    "meets one idea twice rather than two ideas once.",
+],
+),
+
+"retry": dict(
+purpose="""
+Teach the two halves of retrying -- deciding *whether* a failure is worth
+retrying, and waiting before the next attempt -- and the third thing nobody
+does, which is making the operation safe to attempt twice.
+""",
+nongoals=[
+    "Not Resilience4j. `Retrier` is about thirty lines; the value is in the "
+    "policy decisions, not the library.",
+    "Not a defence of retrying everything. Half the project is failures that "
+    "must not be retried.",
+    "Not idempotency in full -- the duplicate charge is shown here and "
+    "solved in projects 36 and 37.",
+],
+problem="""
+Checkout calls the payment gateway, and the gateway times out. Sometimes that
+is a blip: a dropped packet, a restarting instance, a moment of GC, and the
+same call a second later succeeds. Sometimes it is a declined card, which will
+be declined every time, for ever.
+
+A loop that retries both punishes the customer with three declines instead of
+one, and a loop with no wait between attempts arrives back at a struggling
+service at exactly the moment it is least able to answer.
+
+**What the pattern must deliver:** retry only failures that might not happen
+again, wait longer between each attempt, cap the attempts, and be honest about
+the case where the call succeeded and the *reply* was lost -- because retrying
+that one charges the card twice.
+""",
+roles=[
+    ("Retry mechanism", "`Retrier`"),
+    ("Policy", "`RetryPolicy`"),
+    ("Client with retries", "`CheckoutService`"),
+    ("Naive client", "`NaiveCheckoutService`"),
+    ("Remote service", "`PaymentGateway`"),
+    ("Failures", "`GatewayTimeoutException` (retryable), `CardDeclinedException` (not)"),
+    ("Value objects", "`PaymentRequest`, `Receipt`, `Money`"),
+    ("Entry point", "`RetryDemo`"),
+],
+requirements=[
+    "**A transient failure is absorbed.** Two timeouts followed by a success "
+    "produce one receipt and three attempts, and the caller sees no error.",
+    "**A permanent failure is not retried.** A declined card is attempted "
+    "exactly once; the test counts gateway calls, so a future change to the "
+    "policy cannot quietly retry it.",
+    "**The backoff is on the clock.** With a 100ms base and doubling, the "
+    "third attempt starts at 300ms of waiting, asserted against "
+    "`SimulatedClock` -- nothing sleeps.",
+    "**Attempts are capped**, and the last failure is what the caller "
+    "receives, not a wrapper that hides which call failed.",
+    "**The duplicate charge is demonstrated, not mentioned.** A call that "
+    "succeeds and loses its reply is retried and charges twice; the test "
+    "asserts two charges and the notes name idempotency as the fix.",
+],
+),
+
+"circuit-breaker": dict(
+purpose="""
+Teach a caller to stop calling a service that is already down -- and then teach
+the harder half, which is deciding what to do during the outage, dependency by
+dependency.
+""",
+nongoals=[
+    "Not a replacement for retry. The two answer different questions, and the "
+    "project states the question that separates them: is the next attempt "
+    "plausibly going to work?",
+    "Not a rate limiter or a timeout. The breaker's only input is the recent "
+    "failure history of one dependency.",
+    "Not an argument that every dependency deserves a fallback. One of this "
+    "project's classes exists to show a fallback that must never be written.",
+],
+problem="""
+The shop's Recommendations service stops answering, and each call sits for a
+three-second timeout before giving up. A caller with retries makes that nine
+seconds per shopper, and aims three times the traffic at a service that is
+already on its knees. Ten shoppers is ninety seconds of waiting and thirty
+calls into a hole.
+
+Payments failing is the same mechanism with a completely different answer: there
+is no substitute for taking the money, so nothing can be faked.
+
+**What the pattern must deliver:** after a threshold of consecutive failures,
+calls are refused without being made and cost nothing; after a cooling period
+one probe is allowed through, and the breaker closes if it works; and each
+dependency has an explicit answer to "what do we do while it is open?".
+""",
+roles=[
+    ("Breaker", "`CircuitBreaker`, `BreakerState`, `CircuitOpenException`"),
+    ("Degrading caller", "`ProductPageService`"),
+    ("Naive caller", "`RetryingProductPageService`"),
+    ("Refusing caller", "`CheckoutService`, `CheckoutUnavailableException`"),
+    ("The fallback that must never be written", "`PretendItWorkedCheckoutService`"),
+    ("Downstream services", "`RecommendationsService`, `PaymentsService`"),
+    ("Response", "`ProductPage`"),
+    ("Entry point", "`CircuitBreakerDemo`"),
+],
+requirements=[
+    "**Retrying an outage is shown to be worse**, with its own passing test: "
+    "ten shoppers cost 90,000ms of simulated time and thirty calls reach a "
+    "service that is down.",
+    "**The breaker opens on consecutive failures** -- three in a row -- and "
+    "one success resets the count, because a service that answers three times "
+    "and fails once is not down.",
+    "**An open breaker is free.** Twenty pages served after the trip advance "
+    "the simulated clock by zero milliseconds and make zero calls.",
+    "**Half-open lets exactly one call through** after the cooling period, "
+    "closes on success, and re-opens for a full wait on a single failed "
+    "probe.",
+    "**Both answers to the open state are implemented.** "
+    "Recommendations is hidden behind a `degraded` flag on the page; "
+    "Payments is refused honestly with zero cards charged.",
+    "**The dishonest fallback is demonstrated and condemned.** "
+    "`PretendItWorkedCheckoutService` returns a receipt while charging "
+    "nothing; the test asserts a thanked shopper and zero charges, and the "
+    "notes state that a fallback hiding a real failure is worse than the "
+    "error it replaced.",
+],
+),
+
+"bulkhead": dict(
+purpose="""
+Teach that two kinds of work drawing on one pool of threads means the slow kind
+can starve the important kind, and that the fix is not a faster pool but a
+refusal to share one.
+""",
+nongoals=[
+    "Not a thread-pool tutorial, and not a performance exercise -- the "
+    "partitioned version is deliberately slower overall.",
+    "Not a circuit breaker. Nothing here is broken; the resource is simply "
+    "taken.",
+    "Not a claim that bulkheads are free. Idle capacity is the price, and the "
+    "demo prints idle threads next to queued jobs.",
+],
+problem="""
+The shop imports a supplier feed and takes payments, and both use the same
+executor. The partner's API goes slow, four import batches take every thread,
+and checkout -- which needs a thread for a few milliseconds -- cannot get one.
+Nothing about checkout is broken. It simply never starts, and by then the
+shopper has gone.
+
+**What the pattern must deliver:** two named pools with bounded queues, so that
+checkout runs on threads the import could never have taken; a full pool must
+refuse immediately rather than queueing for ever; and the throughput lost by
+not sharing must be shown rather than glossed over.
+""",
+roles=[
+    ("Bulkhead", "`Bulkhead`"),
+    ("Test device for a slow dependency", "`Gate`"),
+    ("Timeline", "`JobLog`"),
+    ("Important work", "`Checkout`"),
+    ("Greedy work", "`SupplierFeed`"),
+    ("Rejection", "`BulkheadFullException`"),
+    ("Entry point", "`BulkheadDemo`"),
+],
+requirements=[
+    "**The shared pool starves checkout**, proven by a bounded "
+    "`Future.get` timing out after 250ms -- the shopper's patience -- while a "
+    "second test shows the same checkout succeeding the instant a thread "
+    "frees.",
+    "**The partition holds with the feed just as stuck.** A test asserts the "
+    "feed's threads are all busy, so isolation is demonstrably the reason "
+    "checkout completed and not luck; another puts twenty sales through "
+    "during the jam.",
+    "**The queue is bounded and a full bulkhead refuses at once**, in "
+    "single-digit milliseconds, so the caller can shed or degrade.",
+    "**The cost is asserted, not admitted.** A test shows the shared pool "
+    "running all four batches at once where the partitioned pools leave two "
+    "threads idle beside two queued jobs.",
+    "**No test sleeps.** This is the category's only real-threads project, "
+    "and it uses a closed `Gate` and bounded waits rather than "
+    "`Thread.sleep`, with `JobLog` on a `CopyOnWriteArrayList` because worker "
+    "threads write to it concurrently.",
+],
+),
+
+"database-per-service": dict(
+purpose="""
+Teach what is actually gained and actually lost when two services stop sharing
+a database -- and to be honest that the gain is organisational, not technical.
+""",
+nongoals=[
+    "Not a claim that splitting is faster. The split page in this project is "
+    "measurably slower than the join it replaces.",
+    "Not a recommendation to split. If the two teams are the same three "
+    "people, the shared schema wins, and the notes say so.",
+    "Not an ORM, a migration tool or a real permissions system. "
+    "`NotYourDataException` stands in for a database refusing credentials it "
+    "was never given.",
+],
+problem="""
+The order history page needs order rows from Orders and product names from
+Catalog. With one schema it is a single query with a join, every row has a name
+because a join cannot forget one, and a foreign key guarantees the product row
+is there.
+
+Then the catalog team renames a column in a table they own. Their migration is
+correct and their tests pass, and the order history page breaks -- because the
+query that named that column lives in somebody else's repository, absent from
+their code, their tests and their build.
+
+**What the pattern must deliver:** each service owns its tables and refuses
+everybody else; the same page is rebuilt from two service calls and an assembly
+step; the rename becomes a non-event; and the two things the split takes away --
+the join and the foreign key -- are shown costing something real.
+""",
+roles=[
+    ("Owned databases", "`OrderDatabase`, `CatalogDatabase`"),
+    ("The shared schema being replaced", "`SharedSchema`"),
+    ("Services", "`OrderService`, `CatalogService`"),
+    ("Assembly", "`OrderHistoryPage`, `OrderHistoryRow`"),
+    ("Refusals", "`NotYourDataException`, `ColumnNotFoundException`"),
+    ("Entry point", "`DatabasePerServiceDemo`"),
+],
+requirements=[
+    "**The shared schema is shown working first**, in one round trip, "
+    "because the rest of the category is the story of giving that up.",
+    "**The cross-team break is a passing test.** Every test in "
+    "`SharedSchemaTest` passes, including the one where a correct migration "
+    "breaks another team's page.",
+    "**Ownership is enforced.** Reading Catalog's data through Orders throws "
+    "`NotYourDataException`, and the notes explain that in production the "
+    "refusal comes from credentials rather than from Java.",
+    "**The rename is a non-event after the split**, asserted against an "
+    "unchanged page.",
+    "**The batch call is deliberate.** `CatalogService.namesFor` takes a "
+    "list, and the notes state that one call per sku turns a fifty-row page "
+    "into fifty calls.",
+    "**The lost foreign key is demonstrated.** Catalog deletes a product an "
+    "order refers to, nothing prevents it, and the page renders "
+    "`(no longer in the catalogue)` rather than crashing -- with the notes "
+    "saying that a rule which was impossible to break is now merely impolite "
+    "to break.",
+],
+),
+
+"api-composition": dict(
+purpose="""
+Teach how to build one page from several services: send the independent calls
+together, and decide *before* the outage which of them the page cannot do
+without.
+""",
+nongoals=[
+    "Not a threading exercise. `Fanout` is a loop over a simulated clock, "
+    "because the pattern's lesson is the dependency shape and the "
+    "classification, not `CompletableFuture` syntax.",
+    "Not a claim that parallelism fixes latency. It removes the addition and "
+    "leaves the maximum.",
+    "Not CQRS. Composition on demand is what CQRS replaces when these two "
+    "costs can no longer be lived with.",
+],
+problem="""
+The order details page needs the order from Orders, product names from Catalog,
+and the delivery status from Shipping. Written in the obvious way it is three
+lines of ordinary Java, every test passes, and a code review waves it through --
+while Shipping waits sixty milliseconds for Catalog's answer and then does not
+use it. The shopper pays 30 + 60 + 120 = 210ms for that.
+
+The second problem is worse than the latency. When Shipping is down, the
+sequential page throws away an order and a set of product names that had
+already arrived, and the shopper gets nothing.
+
+**What the pattern must deliver:** the calls that do not depend on each other
+leave together, so the page costs the slowest rather than the sum; every
+dependency is classified required or optional in advance; and a page missing an
+optional section says what it does not know instead of guessing.
+""",
+roles=[
+    ("Composer", "`OrderDetailsComposer`"),
+    ("Naive composer", "`SequentialOrderDetailsComposer`"),
+    ("Parallel calls", "`Fanout`, `Fanout.Branch`"),
+    ("Availability arithmetic", "`Availability`"),
+    ("Response", "`OrderDetailsPage`, `DeliveryStatus`"),
+    ("Services", "`OrderService`, `CatalogService`, `ShippingService`"),
+    ("Entry point", "`OrderDetailsDemo`"),
+],
+requirements=[
+    "**The sequential version works and is kept.** Its test class passes, "
+    "including `itBuildsTheRightPage`, so the comparison is about time and "
+    "availability rather than correctness.",
+    "**Parallel calls cost the maximum.** 210ms sequential against 150ms "
+    "composed, asserted on the simulated clock, with a test checking that "
+    "both parallel branches share a start time.",
+    "**The dependency shape is honest.** Catalog cannot start until Orders "
+    "has named the skus, so the fan-out is one call and then two together, "
+    "not a flat three.",
+    "**Required and optional are explicit.** Orders required, Catalog and "
+    "Shipping optional: `Branch.value()` rethrows and "
+    "`Branch.valueOr(fallback)` substitutes, and a required failure refuses "
+    "to build a page at all.",
+    "**The page names its gaps.** `DeliveryStatus.unknown()` says it cannot "
+    "check rather than guessing \"in transit\", and "
+    "`OrderDetailsPage.missingSections()` lists what is absent, because a "
+    "quietly dropped section is indistinguishable from an order that has not "
+    "shipped.",
+    "**Availability multiplies, in code.** Three 99.9% services give a "
+    "99.7% page -- 129.5 minutes a month against 43.2 -- computed by "
+    "`Availability` and pinned by `AvailabilityTest` so the prose cannot "
+    "drift from the arithmetic.",
+    "**The slowest dependency sets the pace.** With Shipping at 400ms the "
+    "page is 430ms, asserted, so the limit of the pattern is a test rather "
+    "than a caveat.",
+],
+),
+
+"cqrs": dict(
+purpose="""
+Teach keeping two shapes of the same data -- one for changing it safely, one
+already in the shape the page needs -- and the three things that costs:
+staleness, a second store, and one number you must never sell against.
+""",
+nongoals=[
+    "Not event sourcing. Events update a projection here; the write side is "
+    "still the system of record.",
+    "Not caching. A cache is implemented alongside so the difference can be "
+    "shown rather than asserted.",
+    "Not a recommendation. For a page nobody looks at, composing on demand is "
+    "the right answer and is always up to the second.",
+],
+problem="""
+The order history page is composed from Orders and Catalog on every view: three
+refreshes cost six service calls and produce three identical pages. Reads
+outnumber writes by orders of magnitude, and the shop pays the composition every
+single time.
+
+**What the pattern must deliver:** a read model updated when events arrive and
+read with one lookup; an honest account of the window in which it is wrong; a
+demonstration of why a cache with an expiry is not the same thing; and the rule
+that a decision about money or stock is made on the write side, never on the
+projection.
+""",
+roles=[
+    ("Write side", "`OrderWriteService`, `StockLedger`"),
+    ("Read side", "`OrderHistoryReadModel`, `OrderHistoryRow`, `OrdersQueryApi`"),
+    ("The version being replaced", "`ComposingOrderHistory`"),
+    ("The thing it is confused with", "`CachedOrderHistory`"),
+    ("Events", "`EventBus`, `ShopEvent`"),
+    ("Entry point", "`CqrsDemo`"),
+],
+requirements=[
+    "**The read is one lookup.** Three views cost 15ms and zero calls to "
+    "other services, against 270ms and six calls for composition.",
+    "**The work moved rather than vanished**, and the demo says so: Catalog "
+    "is called once, when the order is placed.",
+    "**The stale window is shown and it closes by itself.** "
+    "`EventBus.holdEvents()` lets a test assert a paid, final order that the "
+    "customer's own history page does not yet show -- with no polling, "
+    "retrying or timer involved in fixing it.",
+    "**The cache comparison is code.** `CachedOrderHistory` passes all its "
+    "tests, and `itServesAPageItKnowsNothingAbout` plus `thereIsNoFreeSetting` "
+    "pin the difference: a read model is corrected by the event that made it "
+    "wrong, a cache is wrong for however long its timer says.",
+    "**The write side decides the sale.** `StockLedger` checks and decrements "
+    "in one step, so two shoppers cannot both take the last kettle; a test "
+    "shows the read model still offering it and the ledger refusing.",
+    "**The projection can be rebuilt.** `rebuildFrom` discards and replays, "
+    "because a read model that cannot be rebuilt is a second copy of the "
+    "truth rather than a projection.",
+    "**Reads survive an outage.** `readsSurviveAnOutage` answers while "
+    "Catalog is down, since nobody is called at read time.",
+],
+),
+
+"saga": dict(
+purpose="""
+Teach how a job spanning five services is completed without a transaction: a
+sequence of small committed steps, each with an action that undoes it, walked
+backwards when one of them refuses.
+""",
+nongoals=[
+    "Not distributed two-phase commit. There is no point in the run where the "
+    "five services hold their breath, and the project says so rather than "
+    "pretending otherwise.",
+    "Not rollback. Compensation adds a new fact -- a refund, a cancellation -- "
+    "and never erases the old one.",
+    "Not choreography. This is an orchestrated saga; the alternative is "
+    "described, with the reason for the choice.",
+    "Not a message broker. The steps are method calls over a simulated "
+    "network so the ordering is exact.",
+],
+problem="""
+Placing an order reserves stock, takes payment, creates the order, schedules a
+shipment and emails the customer -- five services, five databases. There is no
+transaction that covers them, so by the time payment is taken the stock
+reservation is already committed and visible to everybody.
+
+The code everybody writes instead is four calls in a row inside a `try`, and its
+failure mode is the point: the card is charged, the kettle is off the shelf, the
+order says CONFIRMED, nothing will ever ship, and nothing threw.
+
+**What the pattern must deliver:** each step's undo is written down beside it;
+a failure unwinds the completed steps in reverse; the unwinding carries on when
+one undo itself fails and the outcome names the step it could not undo; and the
+step that cannot be compensated at all goes last.
+""",
+roles=[
+    ("Orchestrator", "`SagaOrchestrator`"),
+    ("Step", "`SagaStep`, `SagaContext`, `PlaceOrderSteps`"),
+    ("Outcome", "`SagaOutcome`"),
+    ("Naive alternative", "`NaiveCheckoutService`"),
+    ("Services", "`StockService`, `PaymentService`, `OrderService`, `ShippingService`, `EmailService`"),
+    ("Failures", "`OutOfStockException`, `CardDeclinedException`, `CannotDeliverException`, `ServiceUnavailableException`"),
+    ("Entry point", "`PlaceOrderSagaDemo`"),
+],
+requirements=[
+    "**Compensation runs in reverse**, asserted as an exact list -- create "
+    "order, take payment, reserve stock -- because later steps depend on "
+    "earlier ones and must come apart in the opposite order.",
+    "**A refund is a new fact.** The payment ledger holds two entries, "
+    "`CHARGE £70.95` and `REFUND -£70.95`, and nets to zero; the test asserts "
+    "two entries rather than an empty ledger.",
+    "**An early failure is cheap.** A declined card costs one released "
+    "reservation, which is why the steps most likely to fail go first.",
+    "**A failed compensation is a third outcome.** `SagaOutcome` has "
+    "`NEEDS_HUMAN_HELP`, the unwinding continues past the failure, and the "
+    "outcome names the step that could not be undone.",
+    "**The non-compensatable step is shown both ways.** The confirmation "
+    "email declares `canBeCompensated() == false` and goes last, and "
+    "`PlaceOrderSteps.withTheEmailInTheWrongPlace` exists so that a test can "
+    "show the promise the shop then has to take back.",
+    "**The naive version passes every test.** `NaiveCheckoutServiceTest` is "
+    "green while the money stays taken, the stock stays reserved and no "
+    "shipment exists -- and the notes state why `@Transactional` on that "
+    "method protects nothing outside its own database.",
+],
+),
+
+"transactional-outbox": dict(
+purpose="""
+Teach why "save it and tell somebody" cannot be two separate operations, and how
+one commit over two tables plus a background relay turns an impossible guarantee
+into an achievable one.
+""",
+nongoals=[
+    "Not Kafka or Debezium. `MessageBroker` is a map with subscribers, and the "
+    "relay is a method somebody calls.",
+    "Not exactly-once delivery. The relay can publish and die before marking "
+    "the message sent, so delivery is at-least-once -- which is why the next "
+    "project exists.",
+    "Not change-data-capture. The relay polls the outbox table, which is the "
+    "simpler of the two implementations and the one worth understanding "
+    "first.",
+],
+problem="""
+Placing an order writes a row and publishes an `OrderPlaced` event. Written the
+obvious way that is two lines: save, then publish. On a good day both happen.
+
+On a bad day the save commits and the process dies before the publish, and the
+order exists with nobody told: no confirmation email, no warehouse pick, no
+analytics. The failure is rare, silent, and invisible from the order itself --
+and swapping the two lines only trades a lost event for an event about an order
+that does not exist.
+
+**What the pattern must deliver:** the row and the message are written in one
+transaction, so both land or neither does; the broker is never called inside
+that transaction; a separate relay sends what the outbox holds and can be run
+again safely; and the one remaining gap -- a duplicate delivery -- is stated
+plainly rather than hidden.
+""",
+roles=[
+    ("The atomicity being borrowed", "`OrderDatabase`, `OrderDatabase.Transaction`"),
+    ("Writer", "`OrderService`"),
+    ("Naive writer", "`NaiveOrderService`"),
+    ("Relay", "`OutboxRelay`"),
+    ("Message", "`OutboxMessage`, `Order`"),
+    ("Broker and subscriber", "`MessageBroker`, `NotificationService`"),
+    ("The JVM disappearing", "`ProcessDiedException`"),
+    ("Entry point", "`OrderPlacedDemo`"),
+],
+requirements=[
+    "**Both or neither.** A crash before the commit leaves no order and no "
+    "message; the commit writes one order and one outbox message together, and "
+    "the log line says so.",
+    "**No broker call inside the transaction.** `OrderService.placeOrder` "
+    "touches the database only, so a slow or dead broker cannot lengthen or "
+    "fail the write.",
+    "**The message outlives the process.** With the broker down the relay "
+    "logs `LEFT-IN-TRAY` twice and delivers both messages when it returns; "
+    "nothing is lost and nobody minds.",
+    "**Delivery is at-least-once, demonstrated.** "
+    "`OutboxRelay.dieAfterPublishing()` opens the one gap the pattern cannot "
+    "close, and a test asserts the same message delivered twice and two "
+    "identical emails.",
+    "**The duplicate is recognisable.** The redelivered message carries the "
+    "same id, which is exactly what the next pattern needs.",
+    "**The naive version passes every test**, including the one where the "
+    "order exists and zero events and zero emails went out.",
+    "**The family resemblance is named.** The notes connect this to "
+    "double-checked locking's bug in a bigger coat: two operations that must "
+    "both happen, with no single mechanism covering them.",
+],
+),
+
+"idempotent-consumer": dict(
+purpose="""
+Teach how a consumer turns at-least-once delivery into exactly-once effect by
+recording the ids it has handled in the same transaction as the effect -- and
+teach the question to ask before building any of that.
+""",
+nongoals=[
+    "Not a claim that the duplicate is somebody's fault. A sender whose "
+    "acknowledgement is lost must choose between a duplicate and a lost "
+    "message, and every production system chooses the duplicate.",
+    "Not exactly-once delivery. The delivery is still at-least-once; only the "
+    "*effect* happens once.",
+    "Not a dedupe library. The pattern is a transaction, and the project's "
+    "point is that a `HashSet` is not one.",
+],
+problem="""
+Notifications receives `OrderPlaced` twice, because the previous project's relay
+guarantees at-least-once delivery. Two emails is embarrassing; had the consumer
+been Payments it would have been two charges.
+
+The obvious answer is a `HashSet` of ids seen, and it catches the duplicate in
+the happy case. It has two failures that only appear in production: the set
+lives in the heap, so a deploy empties it -- and a restart is often *why* the
+acknowledgement was lost -- and the id is written after the work, so a crash in
+between keeps the effect and loses the id. Both have one root: the id and the
+effect are stored in two different places, so nothing can make them land
+together.
+
+**What the pattern must deliver:** the id and the effect committed together; an
+honest account of what the store costs, including an expiry window that is
+chosen rather than derived; and the prior question -- can the handler be
+rewritten so that running it twice simply does not matter?
+""",
+roles=[
+    ("Idempotent consumer", "`IdempotentNotificationConsumer`"),
+    ("Naive consumer", "`NaiveNotificationConsumer`"),
+    ("The store and its transaction", "`NotificationsDatabase`, `NotificationsDatabase.Transaction`"),
+    ("Naturally idempotent consumer", "`ShipmentStatusConsumer`"),
+    ("The handler worth rewriting", "`LoyaltyPointsConsumer`"),
+    ("At-least-once delivery", "`MessageBroker`, `Message`, `MessageConsumer`"),
+    ("The JVM disappearing", "`ProcessDiedException`"),
+    ("Entry point", "`OrderPlacedTwiceDemo`"),
+],
+requirements=[
+    "**Exactly once out of at-least-once.** Two deliveries of the same "
+    "message produce one confirmation and one stored id.",
+    "**The id and the effect share one commit**, logged as one confirmation "
+    "and one handled id together, so a crash before the commit writes "
+    "neither and the redelivery handles the message properly.",
+    "**Both naive failures are shown, and both tests pass.** A restart empties "
+    "the in-memory set and produces two confirmations; a crash after the work "
+    "and before recording the id does the same.",
+    "**The constraint is stated out loud.** The effect is a database row, "
+    "which is the only reason it can share the transaction; an external "
+    "effect sends you back to the outbox, which is why these two patterns are "
+    "taught together.",
+    "**Natural idempotence comes first.** `ShipmentStatusConsumer` has no "
+    "store, no transaction and no expiry, because setting a status twice sets "
+    "the same status.",
+    "**Rewriting beats storing.** `LoyaltyPointsConsumer.handle` doubles a "
+    "running total to 140 points, and `awardForOrder` sets 70 per order and "
+    "stays at 70 when handled twice.",
+    "**The expiry window is a guess, and it costs.** With a thirty-second "
+    "memory, a duplicate a minute later is handled as new -- a passing test "
+    "and a demo line, not a caveat -- and the notes add that the message must "
+    "carry a stable id at all.",
+],
+),
+
 }
 
 
@@ -1858,9 +2626,17 @@ def facts(group, slug, measure=True):
             total += n
     f["tests"], f["test_classes"] = total, names
 
-    f["scenes"] = len(re.findall(r'title=', open(os.path.join(v, "scenes.py")).read()))
+    # A project's code and docs are written before its video pipeline is, and
+    # its spec is what the pipeline is then built against — so a missing
+    # scenes.py is a stage rather than an error, exactly as a missing MP4 is
+    # below. Everything the spec says about the video is stated as a
+    # requirement either way; only the measured numbers wait.
+    scenes = os.path.join(v, "scenes.py")
+    f["scenes"] = (len(re.findall(r'title=', open(scenes).read()))
+                   if os.path.exists(scenes) else 0)
 
-    srt = [x for x in os.listdir(v) if x.endswith(".srt")]
+    srt = ([x for x in os.listdir(v) if x.endswith(".srt")]
+           if os.path.isdir(v) else [])
     f["cues"] = (len(re.findall(r' --> ', open(os.path.join(v, srt[0])).read()))
                  if srt else 0)
 

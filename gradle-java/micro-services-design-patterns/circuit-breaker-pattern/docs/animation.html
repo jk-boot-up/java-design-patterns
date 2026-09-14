@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Circuit Breaker — an animated walkthrough</title>
+<style>
+  :root {
+    --bg: #0f172a;
+    --panel: #1e293b;
+    --panel-hi: #334155;
+    --line: #475569;
+    --text: #e2e8f0;
+    --muted: #94a3b8;
+    --client: #38bdf8;
+    --context: #34d399;
+    --strategy: #a78bfa;
+    --picked: #fbbf24;
+    --bad: #f87171;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 28px 20px 60px;
+    background: var(--bg);
+    color: var(--text);
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  h1 { text-align: center; font-size: 28px; margin: 0 0 4px; }
+  .sub { text-align: center; color: var(--muted); margin: 0 0 24px; font-size: 15px; }
+
+  .wrap { max-width: 1100px; margin: 0 auto; }
+
+  .controls { display: flex; gap: 10px; justify-content: center; margin-bottom: 26px; flex-wrap: wrap; }
+  button {
+    background: var(--panel-hi); color: var(--text); border: 1px solid var(--line);
+    padding: 9px 20px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer;
+    transition: background .15s, transform .1s;
+  }
+  button:hover:not(:disabled) { background: #475569; }
+  button:active:not(:disabled) { transform: translateY(1px); }
+  button:disabled { opacity: .4; cursor: not-allowed; }
+  button.primary { background: var(--strategy); color: #1e1b4b; border-color: var(--strategy); }
+  button.primary:hover:not(:disabled) { background: #b9a3ff; }
+  button.on { background: #0c2b3d; border-color: var(--client); color: var(--client); }
+  button.on:hover:not(:disabled) { background: #123a52; }
+
+  .audio-note {
+    text-align: center; color: var(--muted); font-size: 12.5px;
+    margin: -14px 0 22px; min-height: 17px;
+  }
+
+  .stage { display: grid; grid-template-columns: 240px 1fr; gap: 22px; align-items: start; }
+
+  .col-client { display: flex; flex-direction: column; align-items: center; gap: 12px; padding-top: 20px; }
+
+  .box {
+    background: var(--panel); border: 2px solid var(--line); border-radius: 12px;
+    padding: 14px 16px; text-align: center; width: 100%;
+    transition: border-color .3s, box-shadow .3s, transform .3s, background .3s;
+  }
+  .box .name { font-weight: 700; font-size: 14px; letter-spacing: .2px; }
+  .box .role { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-top: 3px; }
+  .box.active {
+    transform: translateY(-3px);
+    box-shadow: 0 0 0 3px rgba(255,255,255,.07), 0 10px 28px rgba(0,0,0,.45);
+    border-color: var(--client); background: #0c2b3d;
+  }
+  /* the approach being replaced glows red rather than blue when it is the
+     focus — no strikethrough, just a colour */
+  .box.naive.active { border-color: var(--bad); background: #2b0f12; box-shadow: 0 0 0 3px rgba(248,113,113,.15); }
+  .holding {
+    margin-top: 9px; padding-top: 8px; border-top: 1px dashed var(--line);
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px;
+    color: var(--muted); line-height: 1.5;
+  }
+  .holding b { color: var(--picked); font-weight: 700; }
+
+  .col-main { display: flex; flex-direction: column; gap: 18px; }
+
+  .family {
+    border: 2px dashed var(--strategy); border-radius: 14px; padding: 18px 20px;
+    background: rgba(167,139,250,.05);
+  }
+  /* the failure kinds get their own gold panel, so the thing being judged
+     of the design is never confused with the machines it chooses between */
+  .family.gate { border-color: var(--picked); background: rgba(251,191,36,.05); }
+  .family.gate .family-label { color: var(--picked); }
+
+  .family-label {
+    font-size: 11px; color: var(--strategy); text-transform: uppercase;
+    letter-spacing: 1.4px; font-weight: 700; margin-bottom: 14px; text-align: center;
+  }
+
+  .row {
+    display: flex; align-items: center; justify-content: space-between;
+    border: 2px solid var(--line); border-radius: 8px; background: var(--panel);
+    padding: 8px 14px; margin-bottom: 6px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 13px;
+    transition: border-color .3s, background .3s, transform .3s, opacity .3s;
+  }
+  .row .note { color: var(--muted); font-size: 11px; text-align: right; }
+  .row.dim { opacity: .38; }
+  /* a failure not yet introduced, or an attempt not yet part of the story */
+  .row.absent { opacity: .22; border-style: dashed; }
+  .row.active {
+    transform: translateX(4px);
+    border-color: var(--client);
+    box-shadow: 0 0 0 3px rgba(56,189,248,.15);
+  }
+  /* "wrong" marks a machine getting nothing while the shop pays for it */
+  .row.wrong { border-color: var(--bad); background: #2b0f12; }
+  .row.wrong .note { color: #fca5a5; }
+  /* "ok" marks a machine carrying a sensible share of the work */
+  .row.ok { border-color: var(--context); background: #06281f; }
+  .row.ok .note { color: #6ee7b7; }
+  /* "wait" is this project's special case: an attempt that has not been made
+     yet, or one the retrier is backing off before */
+  .row.wait { border-color: var(--picked); background: #2a1f05; }
+  .row.wait .note { color: var(--picked); }
+
+  .clock {
+    text-align: center; font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 13px; color: var(--muted); border: 1px solid var(--line);
+    border-radius: 8px; padding: 7px 12px; background: #020617;
+  }
+  .clock b { color: var(--picked); font-size: 15px; }
+
+  .bridge-rail { text-align: center; color: var(--muted); font-size: 12px; margin: -6px 0 2px; min-height: 16px; transition: color .3s; }
+  .bridge-rail.active { color: var(--client); font-weight: 700; }
+
+  .narration {
+    background: var(--panel); border-left: 4px solid var(--strategy);
+    border-radius: 0 10px 10px 0; padding: 16px 20px; min-height: 76px;
+    font-size: 15px; line-height: 1.6;
+  }
+  .narration .step-no { color: var(--muted); font-size: 12px; letter-spacing: 1px; text-transform: uppercase; }
+  .narration .text { margin-top: 5px; }
+
+  .console {
+    background: #020617; border: 1px solid var(--line); border-radius: 10px;
+    padding: 14px 16px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 12.5px; line-height: 1.7; min-height: 130px;
+  }
+  .console .ttl { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+  .console div.ln { opacity: 0; transition: opacity .35s; }
+  .console div.ln.show { opacity: 1; }
+  .c-context { color: var(--context); }
+  .c-strategy { color: var(--strategy); }
+  .c-out  { color: var(--client); }
+  .c-pick { color: var(--picked); }
+  .c-bad  { color: var(--bad); }
+
+  .progress { display: flex; gap: 5px; justify-content: center; margin-top: 22px; }
+  .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--line); transition: background .3s, transform .3s; }
+  .dot.on { background: var(--strategy); transform: scale(1.35); }
+
+  .legend { text-align: center; color: var(--muted); font-size: 13px; margin-top: 26px; line-height: 1.7; }
+  .legend b { color: var(--text); }
+
+  @media (max-width: 860px) {
+    .stage { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>Circuit Breaker</h1>
+  <p class="sub">One service that has stopped answering &mdash; and the difference between a nine-second page and a page that costs nothing</p>
+
+  <div class="controls">
+    <button id="play" class="primary">&#9654;&nbsp; Play</button>
+    <button id="step">Step &rarr;</button>
+    <button id="reset">Reset</button>
+    <button id="audio" aria-pressed="false" title="Narrate each step (N)">
+      <span id="audio-icon">&#128263;</span>&nbsp; Narration: off
+    </button>
+  </div>
+  <p class="audio-note" id="audio-note"></p>
+
+  <div class="stage">
+
+    <div class="col-client">
+      <div class="box naive" id="b-naive">
+        <div class="name">RetryingProductPage</div>
+        <div class="role">three attempts, no breaker</div>
+        <div class="holding" id="naive-state">cost: <b>9000ms every time</b></div>
+      </div>
+      <div style="font-size:22px;color:var(--line)">&#8595;</div>
+      <div class="box client" id="b-client">
+        <div class="name">ProductPageService</div>
+        <div class="role">Asks the breaker first</div>
+        <div class="holding" id="holding">failures in a row: <b>0</b></div>
+      </div>
+      <div style="font-size:11px;color:var(--muted);text-align:center;line-height:1.5">
+        one call to a dead service: 3000ms.<br>
+        threshold: 3 in a row. reset wait: 5000ms.<br>
+        a refusal costs nothing at all.
+      </div>
+    </div>
+
+    <div class="col-main">
+
+      <div class="family gate">
+        <div class="family-label" id="gate-label">The breaker &mdash; and the one word that reads backwards</div>
+        <div class="row absent" id="r-s1">
+          <span class="name">CLOSED</span>
+          <span class="note" id="n-s1">&mdash; healthy. current flows, calls go through</span>
+        </div>
+        <div class="row absent" id="r-s2">
+          <span class="name">OPEN</span>
+          <span class="note" id="n-s2">&mdash; tripped. no call is made at all</span>
+        </div>
+        <div class="row absent" id="r-s3">
+          <span class="name">HALF-OPEN</span>
+          <span class="note" id="n-s3">&mdash; exactly one call, to see</span>
+        </div>
+      </div>
+
+      <div class="family">
+        <div class="family-label" id="family-label">The callers &mdash; and what each one does when refused</div>
+        <div class="row" id="r-c1">
+          <span class="name">ProductPage &nbsp;(suggestions are optional)</span>
+          <span class="note" id="n-c1">not asked yet</span>
+        </div>
+        <div class="row" id="r-c2">
+          <span class="name">Checkout &nbsp;(payment is essential)</span>
+          <span class="note" id="n-c2">not asked yet</span>
+        </div>
+        <div class="row" id="r-c3">
+          <span class="name">PretendItWorked &nbsp;(invents a receipt)</span>
+          <span class="note" id="n-c3">not asked yet</span>
+        </div>
+      </div>
+
+      <div class="clock" id="clock">this page cost <b>&mdash;</b> &nbsp;&middot;&nbsp; nothing has been asked yet</div>
+
+      <div class="bridge-rail" id="bridge-rail"></div>
+
+      <div class="narration" id="narration">
+        <div class="step-no">Ready</div>
+        <div class="text">Press <b>Play</b> to watch one service stop answering &mdash; and to find out why the shopper who arrives fourth gets their page instantly, and why one of these three fallbacks ships an espresso machine nobody paid for.</div>
+      </div>
+
+      <div class="console">
+        <div class="ttl">Program output</div>
+        <div id="console-lines"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="progress" id="progress"></div>
+
+  <p class="legend">
+    <b>Watch one number only: what this page cost the shopper.</b><br>
+    The outage never goes away and the service never recovers on its own. What changes is how many people pay full price to find that out &mdash; and what each caller says instead.<br>
+    <span style="font-size:12px">
+      Keys: <b>Space</b> play/pause &nbsp;·&nbsp; <b>&rarr;</b> next step
+      &nbsp;·&nbsp; <b>N</b> narration &nbsp;·&nbsp; <b>R</b> reset
+    </span>
+  </p>
+
+</div>
+
+<script>
+// Each step may set any row's caption; captions persist until changed, so a
+// step only lists what it actually moves.
+const STEPS = [
+  {
+    title: "Step 1 — A service that has stopped answering",
+    text: "The product page shows an espresso machine, and underneath it a row of suggestions from a separate Recommendations service. This morning Recommendations has stopped answering. Not refusing — that would be easy. It accepts the connection, says nothing, and three seconds later the call gives up with a timeout. Every call, for as long as the outage lasts.",
+    active: ["b-client"], wait: ["r-c1", "r-c2", "r-c3"], stateOn: ["r-s1"],
+    holding: "0", clock: "&mdash;", clockNote: "one call to a dead service costs 3000ms",
+    bridge: "the suggestions are broken — and nobody would have missed them",
+    out: { cls: "c-strategy", txt: "// product page -> Recommendations.  optional feature, 3000ms timeout." }
+  },
+  {
+    title: "Step 2 — So try again? That is the wrong question",
+    text: "The instinct is to reach for the pattern that worked last time: the call failed, so try it again. Three attempts, three timeouts, nine seconds — and the page the shopper finally gets is identical to the page they would have had at zero seconds. Every one of those nine seconds bought nothing, and a service already on its knees has just received three times the traffic.",
+    active: ["b-naive"], wrong: ["r-c1"], wait: ["r-c2", "r-c3"], stateOn: ["r-s1"],
+    holding: "3", clock: "9000ms", clockNote: "and 3 more calls into something already down",
+    captions: { c1: "9000ms, 0 suggestions" },
+    bridge: "retry asks \"did that fail?\" — the useful question is different",
+    out: { cls: "c-bad", txt: "1. Retry, applied to an outage       shopper waited 9000ms for nothing" }
+  },
+  {
+    title: "Step 3 — And the third cost is the one that takes the shop down",
+    text: "For those nine seconds a request thread is sitting idle, waiting for an answer that is not coming. Threads are finite. A thousand shoppers browsing product pages during the outage are a thousand threads held open on a feature nobody needs — and when they run out, checkout stops working too. Say that plainly: the espresso machines stop selling because the suggestions are broken.",
+    active: ["b-naive"], wrong: ["r-c1"], wait: ["r-c2", "r-c3"], stateOn: ["r-s1"],
+    holding: "3", clock: "9000ms", clockNote: "a thousand shoppers is a thousand idle threads",
+    bridge: "an outage in an optional feature has become an outage in the shop",
+    out: { cls: "c-context", txt: "// is the next attempt PLAUSIBLY going to work?  that is the question." }
+  },
+  {
+    title: "Step 4 — The fuse box, and one word that reads backwards",
+    text: "When something goes badly wrong with the wiring, the fuse trips, and it stays tripped. It does not flick itself back on hopefully every few seconds. Later somebody flips the switch back on, once, to see. That is the whole pattern. One piece of vocabulary first, because it catches everybody: closed is the healthy state. A closed circuit is one where current flows, so calls go through. An open circuit is a broken one.",
+    active: ["b-client"], stateOn: ["r-s1", "r-s2", "r-s3"], wait: ["r-c1", "r-c2", "r-c3"],
+    holding: "0", clock: "&mdash;", clockNote: "three states, and one counter",
+    gateLabel: "The breaker — think of a wire, not a door",
+    bridge: "CLOSED = current flows = calls go through",
+    out: { cls: "c-pick", txt: "// CLOSED -> count failures.  OPEN -> refuse.  HALF-OPEN -> try one." }
+  },
+  {
+    title: "Step 5 — Count the failures, and only the consecutive ones",
+    text: "While the breaker is closed every call goes through, and failures in a row are counted. One, two, three. Note the word consecutive: a success does not merely stop the count, it resets it to zero. A service that answers three times and fails once is not down — it is a service having a bad moment, and that is the retry pattern's job, not this one's.",
+    active: ["b-client", "r-s1"], stateOn: ["r-s1", "r-s2", "r-s3"], wrong: ["r-c1"], wait: ["r-c2", "r-c3"],
+    holding: "2", clock: "3000ms", clockNote: "page served without suggestions, after a timeout",
+    captions: { c1: "3000ms — page served, no suggestions" },
+    bridge: "consecutiveFailures = 0;   // one success wipes the slate",
+    out: { cls: "c-out", txt: "2. Six product pages, with a breaker    FAILED  failure 2 of 3" }
+  },
+  {
+    title: "Step 6 — Three in a row, and it trips",
+    text: "The third consecutive failure opens the breaker. It notes the time and stops calling. From this moment nothing reaches Recommendations at all, for five seconds — and the point of tripping is not to punish Recommendations. It is to stop one broken feature consuming the threads that the rest of the shop needs.",
+    active: ["r-s2"], stateOn: ["r-s1", "r-s2", "r-s3"], wrong: ["r-c1"], wait: ["r-c2", "r-c3"],
+    holding: "3", clock: "9000ms", clockNote: "three shoppers paid full price to find this out",
+    bridge: "OPENED  3 failures in a row, not calling for 5000ms",
+    out: { cls: "c-bad", txt: "   9000ms  Recommendations  OPENED   not calling for 5000ms" }
+  },
+  {
+    title: "Step 7 — Now read the clock, and watch it stop",
+    text: "The fourth shopper arrives, the breaker refuses without making a call, and the page goes out without suggestions. Look at what stopped happening: the clock stopped moving. Nine thousand, nine thousand, nine thousand. Once the breaker is open a page costs nothing at all to serve. Six pages, three calls made, three refused, and every one of those pages is a page somebody can buy from.",
+    active: ["r-s2", "b-client"], stateOn: ["r-s1", "r-s2", "r-s3"], ok: ["r-c1"], wait: ["r-c2", "r-c3"],
+    holding: "3", clock: "0ms", clockNote: "REFUSED — no call was made, so nothing was waited for",
+    captions: { c1: "0ms — page served, no suggestions" },
+    bridge: "6 pages served, 3 calls made, 3 refused without a call",
+    out: { cls: "c-out", txt: "   9000ms  ProductPage  DEGRADED  served without suggestions, no call made" }
+  },
+  {
+    title: "Step 8 — It protects everybody except the people who find out",
+    text: "Be honest about the trade, because it is the thing most descriptions skip. The first three shoppers paid three seconds each. A breaker never protects the people who discover an outage; it protects everybody after them. What it prevents is the outage being rediscovered, at full price, by every single shopper for as long as it lasts.",
+    active: ["r-s2"], stateOn: ["r-s1", "r-s2", "r-s3"], ok: ["r-c1"], wait: ["r-c2", "r-c3"], dim: true,
+    holding: "3", clock: "0ms", clockNote: "three paid, and everybody after them got it free",
+    bridge: "a test does this with twenty more pages — the clock does not move at all",
+    out: { cls: "c-context", txt: "// the outage is paid for ONCE, not once per shopper" }
+  },
+  {
+    title: "Step 9 — Five seconds later, one call finds out",
+    text: "The wait is over, so the breaker moves to half-open and lets exactly one call through. It works, so the breaker closes and normal service resumes. Nobody was paged, nobody logged in, nobody deployed anything. And notice how cheap the probe is: one call. Had Recommendations still been down, that single shopper would have waited three seconds, the breaker would have reopened for another full five, and everybody else would have carried on being served instantly.",
+    active: ["r-s3"], stateOn: ["r-s1", "r-s2", "r-s3"], ok: ["r-c1"], wait: ["r-c2", "r-c3"],
+    holding: "0", clock: "20ms", clockNote: "CLOSED — the probe worked, calls resume",
+    captions: { c1: "20ms — 2 suggestions, back to normal" },
+    bridge: "there is no scheduler here — it just compares the clock on the next call",
+    out: { cls: "c-out", txt: "3. Recommendations comes back        state: CLOSED, nobody deployed anything" }
+  },
+  {
+    title: "Step 10 — Now the half that gets left out",
+    text: "Here is the sentence the rest depends on. A breaker does not make failures disappear. It makes them fail fast — and what that speed buys you depends entirely on what you were calling. On the product page, speed bought a fallback, because suggestions are optional and an empty row of them is a true statement. At checkout there is nothing to fall back to. There is no substitute for taking the money.",
+    active: ["b-client", "r-c2"], stateOn: ["r-s1", "r-s2", "r-s3"], ok: ["r-c1"], wrong: ["r-c2"], wait: ["r-c3"],
+    holding: "3", clock: "0ms", clockNote: "5 shoppers told honestly, 0 cards charged",
+    captions: { c2: "an honest no — basket saved, card untouched" },
+    label: "The callers — and whether there is anything TRUE to say instead",
+    bridge: "throw new CheckoutUnavailableException(\"...Your basket is saved.\");",
+    out: { cls: "c-out", txt: "4. Checkout: the same breaker, no fallback   0 cards charged" }
+  },
+  {
+    title: "Step 11 — So is the breaker worth having there at all?",
+    text: "Yes, and this is the part worth keeping. What it buys at checkout is a fast, honest no instead of a spinner. Both messages say exactly the same thing; one arrives after three seconds and the other in a hundredth of a second, and telling somebody their basket is safe straight away is a genuinely better product. It also stops a thousand shoppers each holding a thread open to discover the same outage.",
+    active: ["r-c2"], stateOn: ["r-s1", "r-s2", "r-s3"], ok: ["r-c1", "r-c2"], wait: ["r-c3"],
+    holding: "3", clock: "0ms", clockNote: "the same answer, arriving 3000ms sooner",
+    bridge: "a fast honest 'no' is a better product than three seconds of spinner",
+    out: { cls: "c-pick", txt: "// what the speed buys depends on what you were calling" }
+  },
+  {
+    title: "Step 12 — And the fallback that lies",
+    text: "This last class is wired identically to the honest one, and differs in one catch block: when payments cannot be reached it returns a made-up receipt. Nothing throws. No alert fires. Every dashboard is green, the shopper is thanked, and the warehouse ships an espresso machine that nobody paid for. The rule that tells the two fallbacks apart is one word. An empty list of suggestions is true. A receipt for money that never moved is not.",
+    active: ["r-c3"], stateOn: ["r-s1", "r-s2", "r-s3"], ok: ["r-c1", "r-c2"], wrong: ["r-c3"],
+    holding: "3", clock: "0ms", clockNote: "cards actually charged: 0 — and nobody found out",
+    captions: { c3: "chg-assumed-ok — a receipt for nothing" },
+    bridge: "a fallback that hides a real failure is worse than the error it replaced",
+    out: { cls: "c-bad", txt: "5. The same outage, with a fallback that lies    0 charged, 1 shipped" }
+  }
+];
+
+const BOXES = ["b-naive", "b-client"];
+const STATES = ["r-s1", "r-s2", "r-s3"];
+const CALLERS = ["r-c1", "r-c2", "r-c3"];
+const ROWS = STATES.concat(CALLERS);
+const ALL_BOXES = BOXES.concat(ROWS);
+
+const STEP_MS = 3800;      // pace when narration is off
+const GAP_MS = 700;        // breathing room after a clip finishes
+
+let idx = -1;
+let playing = false;
+let timer = null;
+
+// Narration is optional: if the audio clips are missing (or the browser
+// blocks playback) the animation still works exactly as before.
+let audioOn = false;
+let clips = [];
+let current = null;
+
+const $ = id => document.getElementById(id);
+const progressEl = $("progress");
+const linesEl = $("console-lines");
+const noteEl = $("audio-note");
+const bridgeEl = $("bridge-rail");
+const holdingEl = $("holding");
+const naiveEl = $("naive-state");
+const clockEl = $("clock");
+const labelEl = $("family-label");
+const gateLabelEl = $("gate-label");
+
+const DEFAULT_LABEL = "The callers — and what each one does when it is refused";
+const DEFAULT_GATE_LABEL = "The breaker — and the one word that reads backwards";
+const DEFAULT_CAPTIONS = {
+  s1: "— healthy. current flows, calls go through",
+  s2: "— tripped. no call is made at all",
+  s3: "— exactly one call, to see",
+  c1: "not asked yet",
+  c2: "not asked yet",
+  c3: "not asked yet"
+};
+
+STEPS.forEach(() => {
+  const d = document.createElement("div");
+  d.className = "dot";
+  progressEl.appendChild(d);
+});
+
+// ---- optional narration ------------------------------------------------
+
+clips = STEPS.map((_, i) => {
+  const a = new Audio("audio/step-" + (i + 1) + ".m4a");
+  a.preload = "none";
+  return a;
+});
+
+function stopAudio() {
+  if (!current) return;
+  current.pause();
+  current.currentTime = 0;
+  current.onended = null;
+  current = null;
+}
+
+/** Play the clip for step i. onDone fires when it finishes (or cannot play). */
+function playClip(i, onDone) {
+  stopAudio();
+  if (!audioOn) { if (onDone) onDone(); return; }
+
+  const a = clips[i];
+  current = a;
+  a.currentTime = 0;
+  a.onended = () => { current = null; if (onDone) onDone(); };
+
+  a.play().catch(() => {
+    // Missing file, or autoplay blocked -> fall back to timed pacing.
+    current = null;
+    noteEl.textContent =
+      "Narration audio could not be played — falling back to timed steps. " +
+      "Run docs/make_animation_audio.sh to generate the clips.";
+    if (onDone) onDone();
+  });
+}
+
+function setAudio(on) {
+  audioOn = on;
+  const btn = $("audio");
+  btn.classList.toggle("on", on);
+  btn.setAttribute("aria-pressed", String(on));
+  btn.innerHTML = '<span id="audio-icon">' + (on ? "&#128266;" : "&#128263;") +
+                  "</span>&nbsp; Narration: " + (on ? "on" : "off");
+  noteEl.textContent = on
+    ? "Each step is narrated, and the animation waits for the voice to finish."
+    : "";
+  if (!on) stopAudio();
+}
+
+// ------------------------------------------------------------------------
+
+function clearHighlights() {
+  ALL_BOXES.forEach(b => $(b).classList.remove("active"));
+  ROWS.forEach(r => $(r).classList.remove("dim", "wrong", "ok", "wait", "absent"));
+}
+
+function render(i) {
+  clearHighlights();
+  const s = STEPS[i];
+
+  s.active.forEach(b => $(b).classList.add("active"));
+
+  // Rows not involved in this step fade back, so the eye follows the one
+  // decision currently being made.
+  if (s.dim) ROWS.filter(r => !s.active.includes(r)).forEach(r => $(r).classList.add("dim"));
+
+  // A caller row: "ok" is a caller doing something defensible when refused,
+  // "wrong" is one paying full price or telling a lie, "wait" is a caller that
+  // has not been asked to do anything yet.
+  (s.ok || []).forEach(r => $(r).classList.add("ok"));
+  (s.wait || []).forEach(r => { $(r).classList.remove("ok"); $(r).classList.add("wait"); });
+  (s.wrong || []).forEach(r => { $(r).classList.remove("ok", "wait"); $(r).classList.add("wrong"); });
+  CALLERS.filter(r => !(s.ok || []).includes(r)
+                   && !(s.wait || []).includes(r)
+                   && !(s.wrong || []).includes(r))
+          .forEach(r => $(r).classList.add("absent"));
+
+  // A state row is lit once that state has been introduced, and faint before
+  // then — half-open does not arrive until the breaker has been open a while.
+  (s.stateOn || []).forEach(r => $(r).classList.add("wait"));
+  STATES.filter(r => !(s.stateOn || []).includes(r))
+        .forEach(r => $(r).classList.add("absent"));
+
+  // Captions are cumulative: replay every step up to this one so that
+  // stepping backwards or jumping about still shows a consistent picture.
+  const caps = Object.assign({}, DEFAULT_CAPTIONS);
+  let label = DEFAULT_LABEL;
+  let gateLabel = DEFAULT_GATE_LABEL;
+  for (let k = 0; k <= i; k++) {
+    Object.assign(caps, STEPS[k].captions || {});
+    if (STEPS[k].label) label = STEPS[k].label;
+    if (STEPS[k].gateLabel) gateLabel = STEPS[k].gateLabel;
+  }
+  Object.keys(caps).forEach(key => { $("n-" + key).textContent = caps[key]; });
+  labelEl.textContent = label;
+  gateLabelEl.textContent = gateLabel;
+
+  holdingEl.innerHTML = "failures in a row: <b>" + (s.holding || "0") + "</b>";
+  naiveEl.innerHTML = "cost: <b>9000ms every time</b>";
+  clockEl.innerHTML = "this page cost <b>" + (s.clock || "&mdash;") +
+                      "</b> &nbsp;&middot;&nbsp; " + (s.clockNote || "");
+
+  bridgeEl.textContent = s.bridge || "";
+  bridgeEl.classList.add("active");
+
+  $("narration").innerHTML =
+    '<div class="step-no">' + s.title + '</div><div class="text">' + s.text + '</div>';
+
+  // Rebuild console output up to this step
+  linesEl.innerHTML = "";
+  for (let k = 0; k <= i; k++) {
+    if (!STEPS[k].out) continue;
+    const div = document.createElement("div");
+    div.className = "ln " + STEPS[k].out.cls;
+    div.textContent = STEPS[k].out.txt;
+    linesEl.appendChild(div);
+    requestAnimationFrame(() => div.classList.add("show"));
+  }
+
+  [...progressEl.children].forEach((d, k) => d.classList.toggle("on", k <= i));
+}
+
+/** Advance one step. In play mode, schedule the following step afterwards. */
+function next() {
+  if (idx >= STEPS.length - 1) { stop(); return; }
+  idx++;
+  render(idx);
+
+  if (!playing) { playClip(idx); return; }
+
+  if (audioOn) {
+    // Wait for the voice to finish this step, then move on.
+    playClip(idx, () => {
+      if (!playing) return;
+      timer = setTimeout(next, GAP_MS);
+    });
+  } else {
+    timer = setTimeout(next, STEP_MS);
+  }
+}
+
+function stop() {
+  playing = false;
+  clearTimeout(timer);
+  stopAudio();
+  $("play").innerHTML = "&#9654;&nbsp; Play";
+  $("step").disabled = false;
+}
+
+function reset() {
+  stop();
+  idx = -1;
+  clearHighlights();
+  STATES.forEach(r => $(r).classList.add("absent"));
+  Object.keys(DEFAULT_CAPTIONS).forEach(k => { $("n-" + k).textContent = DEFAULT_CAPTIONS[k]; });
+  labelEl.textContent = DEFAULT_LABEL;
+  gateLabelEl.textContent = DEFAULT_GATE_LABEL;
+  holdingEl.innerHTML = "failures in a row: <b>0</b>";
+  naiveEl.innerHTML = "cost: <b>9000ms every time</b>";
+  clockEl.innerHTML = "this page cost <b>&mdash;</b> &nbsp;&middot;&nbsp; nothing has been asked yet";
+  linesEl.innerHTML = "";
+  bridgeEl.textContent = "";
+  bridgeEl.classList.remove("active");
+  [...progressEl.children].forEach(d => d.classList.remove("on"));
+  $("narration").innerHTML =
+    '<div class="step-no">Ready</div><div class="text">Press <b>Play</b> to watch one service stop answering &mdash; and to find out why the first three shoppers pay nine seconds each to discover it, why everybody after them pays nothing at all, and why one of the three callers below thanks a shopper for money that never moved.</div>';
+}
+
+$("play").addEventListener("click", () => {
+  if (playing) { stop(); return; }
+  if (idx >= STEPS.length - 1) reset();
+  playing = true;
+  $("play").innerHTML = "&#10074;&#10074;&nbsp; Pause";
+  $("step").disabled = true;
+  next();   // next() now schedules the rest of the run itself
+});
+
+$("step").addEventListener("click", () => { stop(); if (idx >= STEPS.length - 1) reset(); next(); });
+$("reset").addEventListener("click", reset);
+
+$("audio").addEventListener("click", () => {
+  setAudio(!audioOn);
+  // Turning narration on mid-run: speak the step already on screen.
+  if (audioOn && playing && idx >= 0) {
+    clearTimeout(timer);
+    playClip(idx, () => {
+      if (!playing) return;
+      timer = setTimeout(next, GAP_MS);
+    });
+  }
+});
+
+document.addEventListener("keydown", e => {
+  if (e.code === "Space") { e.preventDefault(); $("play").click(); }
+  if (e.code === "ArrowRight") { e.preventDefault(); $("step").click(); }
+  if (e.code === "KeyR") reset();
+  if (e.code === "KeyN") $("audio").click();
+});
+
+setAudio(false);
+reset();
+</script>
+</body>
+</html>

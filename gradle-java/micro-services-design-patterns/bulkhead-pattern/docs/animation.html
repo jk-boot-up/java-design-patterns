@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bulkhead — an animated walkthrough</title>
+<style>
+  :root {
+    --bg: #0f172a;
+    --panel: #1e293b;
+    --panel-hi: #334155;
+    --line: #475569;
+    --text: #e2e8f0;
+    --muted: #94a3b8;
+    --client: #38bdf8;
+    --context: #34d399;
+    --strategy: #a78bfa;
+    --picked: #fbbf24;
+    --bad: #f87171;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 28px 20px 60px;
+    background: var(--bg);
+    color: var(--text);
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  h1 { text-align: center; font-size: 28px; margin: 0 0 4px; }
+  .sub { text-align: center; color: var(--muted); margin: 0 0 24px; font-size: 15px; }
+
+  .wrap { max-width: 1100px; margin: 0 auto; }
+
+  .controls { display: flex; gap: 10px; justify-content: center; margin-bottom: 26px; flex-wrap: wrap; }
+  button {
+    background: var(--panel-hi); color: var(--text); border: 1px solid var(--line);
+    padding: 9px 20px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer;
+    transition: background .15s, transform .1s;
+  }
+  button:hover:not(:disabled) { background: #475569; }
+  button:active:not(:disabled) { transform: translateY(1px); }
+  button:disabled { opacity: .4; cursor: not-allowed; }
+  button.primary { background: var(--strategy); color: #1e1b4b; border-color: var(--strategy); }
+  button.primary:hover:not(:disabled) { background: #b9a3ff; }
+  button.on { background: #0c2b3d; border-color: var(--client); color: var(--client); }
+  button.on:hover:not(:disabled) { background: #123a52; }
+
+  .audio-note {
+    text-align: center; color: var(--muted); font-size: 12.5px;
+    margin: -14px 0 22px; min-height: 17px;
+  }
+
+  .stage { display: grid; grid-template-columns: 240px 1fr; gap: 22px; align-items: start; }
+
+  .col-client { display: flex; flex-direction: column; align-items: center; gap: 12px; padding-top: 20px; }
+
+  .box {
+    background: var(--panel); border: 2px solid var(--line); border-radius: 12px;
+    padding: 14px 16px; text-align: center; width: 100%;
+    transition: border-color .3s, box-shadow .3s, transform .3s, background .3s;
+  }
+  .box .name { font-weight: 700; font-size: 14px; letter-spacing: .2px; }
+  .box .role { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-top: 3px; }
+  .box.active {
+    transform: translateY(-3px);
+    box-shadow: 0 0 0 3px rgba(255,255,255,.07), 0 10px 28px rgba(0,0,0,.45);
+    border-color: var(--client); background: #0c2b3d;
+  }
+  /* the approach being replaced glows red rather than blue when it is the
+     focus — no strikethrough, just a colour */
+  .box.naive.active { border-color: var(--bad); background: #2b0f12; box-shadow: 0 0 0 3px rgba(248,113,113,.15); }
+  .holding {
+    margin-top: 9px; padding-top: 8px; border-top: 1px dashed var(--line);
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px;
+    color: var(--muted); line-height: 1.5;
+  }
+  .holding b { color: var(--picked); font-weight: 700; }
+
+  .col-main { display: flex; flex-direction: column; gap: 18px; }
+
+  .family {
+    border: 2px dashed var(--strategy); border-radius: 14px; padding: 18px 20px;
+    background: rgba(167,139,250,.05);
+  }
+  /* the failure kinds get their own gold panel, so the thing being judged
+     of the design is never confused with the machines it chooses between */
+  .family.gate { border-color: var(--picked); background: rgba(251,191,36,.05); }
+  .family.gate .family-label { color: var(--picked); }
+
+  .family-label {
+    font-size: 11px; color: var(--strategy); text-transform: uppercase;
+    letter-spacing: 1.4px; font-weight: 700; margin-bottom: 14px; text-align: center;
+  }
+
+  .row {
+    display: flex; align-items: center; justify-content: space-between;
+    border: 2px solid var(--line); border-radius: 8px; background: var(--panel);
+    padding: 8px 14px; margin-bottom: 6px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 13px;
+    transition: border-color .3s, background .3s, transform .3s, opacity .3s;
+  }
+  .row .note { color: var(--muted); font-size: 11px; text-align: right; }
+  .row.dim { opacity: .38; }
+  /* a failure not yet introduced, or an attempt not yet part of the story */
+  .row.absent { opacity: .22; border-style: dashed; }
+  .row.active {
+    transform: translateX(4px);
+    border-color: var(--client);
+    box-shadow: 0 0 0 3px rgba(56,189,248,.15);
+  }
+  /* "wrong" marks a machine getting nothing while the shop pays for it */
+  .row.wrong { border-color: var(--bad); background: #2b0f12; }
+  .row.wrong .note { color: #fca5a5; }
+  /* "ok" marks a machine carrying a sensible share of the work */
+  .row.ok { border-color: var(--context); background: #06281f; }
+  .row.ok .note { color: #6ee7b7; }
+  /* "wait" is this project's special case: an attempt that has not been made
+     yet, or one the retrier is backing off before */
+  .row.wait { border-color: var(--picked); background: #2a1f05; }
+  .row.wait .note { color: var(--picked); }
+
+  .clock {
+    text-align: center; font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 13px; color: var(--muted); border: 1px solid var(--line);
+    border-radius: 8px; padding: 7px 12px; background: #020617;
+  }
+  .clock b { color: var(--picked); font-size: 15px; }
+
+  .bridge-rail { text-align: center; color: var(--muted); font-size: 12px; margin: -6px 0 2px; min-height: 16px; transition: color .3s; }
+  .bridge-rail.active { color: var(--client); font-weight: 700; }
+
+  .narration {
+    background: var(--panel); border-left: 4px solid var(--strategy);
+    border-radius: 0 10px 10px 0; padding: 16px 20px; min-height: 76px;
+    font-size: 15px; line-height: 1.6;
+  }
+  .narration .step-no { color: var(--muted); font-size: 12px; letter-spacing: 1px; text-transform: uppercase; }
+  .narration .text { margin-top: 5px; }
+
+  .console {
+    background: #020617; border: 1px solid var(--line); border-radius: 10px;
+    padding: 14px 16px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 12.5px; line-height: 1.7; min-height: 130px;
+  }
+  .console .ttl { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+  .console div.ln { opacity: 0; transition: opacity .35s; }
+  .console div.ln.show { opacity: 1; }
+  .c-context { color: var(--context); }
+  .c-strategy { color: var(--strategy); }
+  .c-out  { color: var(--client); }
+  .c-pick { color: var(--picked); }
+  .c-bad  { color: var(--bad); }
+
+  .progress { display: flex; gap: 5px; justify-content: center; margin-top: 22px; }
+  .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--line); transition: background .3s, transform .3s; }
+  .dot.on { background: var(--strategy); transform: scale(1.35); }
+
+  .legend { text-align: center; color: var(--muted); font-size: 13px; margin-top: 26px; line-height: 1.7; }
+  .legend b { color: var(--text); }
+
+  @media (max-width: 860px) {
+    .stage { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>Bulkhead</h1>
+  <p class="sub">Four threads, two kinds of work &mdash; and how a background job nobody was waiting for stops the shop taking money</p>
+
+  <div class="controls">
+    <button id="play" class="primary">&#9654;&nbsp; Play</button>
+    <button id="step">Step &rarr;</button>
+    <button id="reset">Reset</button>
+    <button id="audio" aria-pressed="false" title="Narrate each step (N)">
+      <span id="audio-icon">&#128263;</span>&nbsp; Narration: off
+    </button>
+  </div>
+  <p class="audio-note" id="audio-note"></p>
+
+  <div class="stage">
+
+    <div class="col-client">
+      <div class="box naive" id="b-naive">
+        <div class="name">One shared pool</div>
+        <div class="role">every job draws from it</div>
+        <div class="holding" id="naive-state">threads: <b>4, shared by everything</b></div>
+      </div>
+      <div style="font-size:22px;color:var(--line)">&#8595;</div>
+      <div class="box client" id="b-client">
+        <div class="name">Two bulkheads</div>
+        <div class="role">feed 2 &middot; checkout 2</div>
+        <div class="holding" id="holding">starved: <b>nothing</b></div>
+      </div>
+      <div style="font-size:11px;color:var(--muted);text-align:center;line-height:1.5">
+        a waiting job still holds its thread.<br>
+        it uses no CPU and does nothing<br>
+        at all &mdash; and nobody else can have it.
+      </div>
+    </div>
+
+    <div class="col-main">
+
+      <div class="family gate">
+        <div class="family-label" id="gate-label">The four threads &mdash; and who is holding each one</div>
+        <div class="row absent" id="r-s1">
+          <span class="name">thread 1</span>
+          <span class="note" id="n-s1">&mdash; free</span>
+        </div>
+        <div class="row absent" id="r-s2">
+          <span class="name">thread 2</span>
+          <span class="note" id="n-s2">&mdash; free</span>
+        </div>
+        <div class="row absent" id="r-s3">
+          <span class="name">thread 3</span>
+          <span class="note" id="n-s3">&mdash; free</span>
+        </div>
+        <div class="row absent" id="r-s4">
+          <span class="name">thread 4</span>
+          <span class="note" id="n-s4">&mdash; free</span>
+        </div>
+      </div>
+
+      <div class="family">
+        <div class="family-label" id="family-label">The work asking for a thread</div>
+        <div class="row" id="r-c1">
+          <span class="name">feed.importBatch(1..4)</span>
+          <span class="note" id="n-c1">not submitted yet</span>
+        </div>
+        <div class="row" id="r-c2">
+          <span class="name">checkout.takePayment(ORD-5001)</span>
+          <span class="note" id="n-c2">not submitted yet</span>
+        </div>
+        <div class="row" id="r-c3">
+          <span class="name">feed.importBatch(5)</span>
+          <span class="note" id="n-c3">not submitted yet</span>
+        </div>
+      </div>
+
+      <div class="clock" id="clock">checkout: <b>&mdash;</b> &nbsp;&middot;&nbsp; nothing has asked for a thread yet</div>
+
+      <div class="bridge-rail" id="bridge-rail"></div>
+
+      <div class="narration" id="narration">
+        <div class="step-no">Ready</div>
+        <div class="text">Press <b>Play</b> to watch an overnight import that nobody is waiting for stop a shopper paying &mdash; without either piece of code mentioning the other &mdash; and then to watch one wall fix it, and to find out exactly what that wall costs.</div>
+      </div>
+
+      <div class="console">
+        <div class="ttl">Program output</div>
+        <div id="console-lines"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="progress" id="progress"></div>
+
+  <p class="legend">
+    <b>Watch the thread names, and watch what checkout is doing.</b><br>
+    The partner API never gets faster and the feed never stops being stuck. The only thing that changes is whether the two kinds of work draw from the same pot &mdash; and whether checkout can get a thread.<br>
+    <span style="font-size:12px">
+      Keys: <b>Space</b> play/pause &nbsp;·&nbsp; <b>&rarr;</b> next step
+      &nbsp;·&nbsp; <b>N</b> narration &nbsp;·&nbsp; <b>R</b> reset
+    </span>
+  </p>
+
+</div>
+
+<script>
+// Each step may set any row's caption; captions persist until changed, so a
+// step only lists what it actually moves.
+const STEPS = [
+  {
+    title: "Step 1 — Two jobs, one pot of threads",
+    text: "A shop runs on one application with one thread pool. Two of the jobs it does matter here. Checkout takes a shopper's money: it is fast, it is correct, and nobody has ever filed a bug against it. The supplier feed imports a catalogue overnight: nobody is waiting for it, and if it finished an hour late nothing bad would happen. Both of them ask the same pool for a thread. That is an entirely ordinary way to build a service, and for a long time it is the right one.",
+    active: ["b-naive"], stateOn: [], wait: ["r-c1", "r-c2"],
+    holding: "nothing", clock: "&mdash;", clockNote: "four threads, and both jobs share them",
+    bridge: "one pool, one number to tune — and nothing in either job mentions the other",
+    out: { cls: "c-strategy", txt: "// pool: 4 threads  ·  checkout and the supplier feed both draw from it" }
+  },
+  {
+    title: "Step 2 — The partner API goes slow, and a waiting job holds its thread",
+    text: "One night the partner API the feed calls stops answering promptly. Not failing — answering, but slowly. Here is the fact everything else follows from: a job that is waiting still holds its thread. It is using no processor time, it is doing nothing whatsoever, but that thread belongs to it until the call comes back. The first import batch starts, and takes one.",
+    active: ["r-s1"], stateOn: ["r-s1"], wait: ["r-c1"],
+    holding: "nothing", clock: "&mdash;", clockNote: "one thread gone, three left",
+    captions: { s1: "— feed-1, waiting on the partner API", c1: "batch 1 running on shared-worker" },
+    bridge: "waiting is not free — the thread is held, not shared",
+    out: { cls: "c-context", txt: "  ~  10ms  shared     feed-1         started on shared-worker" }
+  },
+  {
+    title: "Step 3 — And then there are none",
+    text: "Batch two, batch three, batch four. Each one makes its call, each one waits, each one holds a thread. Four batches, four threads, and the pool has four threads. Nothing here has failed. Nothing has thrown. Every one of these jobs is behaving exactly as designed, and the pool is behaving exactly as designed, and the shop is about to stop selling.",
+    active: ["r-s1", "r-s2", "r-s3", "r-s4"], stateOn: ["r-s1", "r-s2", "r-s3", "r-s4"], wait: ["r-c1"],
+    holding: "nothing", clock: "&mdash;", clockNote: "0 threads free, 0 errors so far",
+    captions: { s2: "— feed-2, waiting", s3: "— feed-3, waiting", s4: "— feed-4, waiting", c1: "all four batches running" },
+    bridge: "four batches, four threads, and the pool has four",
+    out: { cls: "c-context", txt: "  ~  10ms  shared     feed-4/3/2     started on shared-worker" }
+  },
+  {
+    title: "Step 4 — A shopper tries to pay",
+    text: "Now checkout needs a thread, and there is not one. So look at the program output and read what is missing rather than what is there. There is no line for checkout. Not a slow line, not an error line — no line at all, because it never started. Absence is the symptom, and that is precisely what makes this so hard to diagnose while it is happening: there is nothing in the log to read.",
+    active: ["r-c2"], stateOn: ["r-s1", "r-s2", "r-s3", "r-s4"], wait: ["r-c1"], wrong: ["r-c2"],
+    holding: "checkout", clock: "no thread", clockNote: "still waiting after 300ms — the sale is lost",
+    captions: { c2: "asked for a thread. there is not one." },
+    bridge: "checkout has NO line in the timeline. it never started.",
+    out: { cls: "c-bad", txt: "  checkout: still waiting for a thread after 300ms" }
+  },
+  {
+    title: "Step 5 — And checkout was never broken",
+    text: "It would honestly be easier if checkout were faulty. It is not. There is a test in this project that takes exactly the same checkout job, runs it the moment a thread is free, and watches it complete perfectly. It was starved, not broken — and from outside those two look identical. So the sentence that matters is this one: the shop stopped selling because of a background job that nobody was waiting for. And notice how invisible that is. Neither job mentions the other. No import, no call, no shared field. They are coupled only by a resource neither of them names.",
+    active: ["b-naive", "r-c2"], stateOn: ["r-s1", "r-s2", "r-s3", "r-s4"], wait: ["r-c1"], wrong: ["r-c2"], dim: true,
+    holding: "checkout", clock: "0 bugs", clockNote: "the same job runs perfectly the instant a thread is free",
+    captions: { c2: "nothing wrong with it. it just never ran." },
+    bridge: "theStarvedCheckoutWasNeverBroken",
+    out: { cls: "c-bad", txt: "  the sale is lost — and there is no bug to go and fix" }
+  },
+  {
+    title: "Step 6 — The first tempting fix: make the pool bigger",
+    text: "Four threads was too few, so use forty. That buys time and nothing else. Whenever the partner API is slow enough for long enough, the feed will take forty threads instead of four, and checkout will be starved at forty exactly as it was at four. The number changes; the failure does not. And it is worse than a draw, because the bigger the pool, the longer it takes anyone to notice, and the more memory the eventual pile-up consumes.",
+    active: ["b-naive"], stateOn: ["r-s1", "r-s2", "r-s3", "r-s4"], wait: ["r-c1"], wrong: ["r-c2"],
+    holding: "checkout", clock: "40 threads", clockNote: "starved at forty exactly as it was at four",
+    gateLabel: "The threads — however many there are, they are all one pot",
+    bridge: "a bigger pot is still one pot",
+    out: { cls: "c-bad", txt: "// pool: 40 threads   — the number moved. the failure did not." }
+  },
+  {
+    title: "Step 7 — The second tempting fix: never refuse anything",
+    text: "Then somebody suggests an unbounded queue. Never turn a job away — just let them all wait their turn. That sounds generous, and it is the more dangerous of the two. What it actually does is convert a fast, visible failure into a slow, invisible one: jobs pile up until the process runs out of memory, and every caller sits waiting for work that will not start for minutes. A queue that never says no is not generous. It is a slow leak with good manners.",
+    active: ["b-naive"], stateOn: ["r-s1", "r-s2", "r-s3", "r-s4"], wait: ["r-c1", "r-c3"], wrong: ["r-c2"],
+    holding: "checkout", clock: "unbounded", clockNote: "out of memory instead of out of threads",
+    captions: { c3: "queued. and so is everything after it." },
+    bridge: "the failure did not go away — it moved somewhere worse",
+    out: { cls: "c-bad", txt: "// queue: unbounded   — nobody is refused, and nobody is served" }
+  },
+  {
+    title: "Step 8 — The actual fix, and it is a let-down",
+    text: "The two jobs are connected only by the pool they share. So stop sharing it. Give the feed two threads of its own and checkout two threads of its own. That is the entire mechanism: a fixed pool, a bounded queue, and a name for the worker. There is no algorithm here, nothing adaptive, nothing to tune at runtime. Say it out loud, because it is the point — a bulkhead is not a clever piece of machinery. It is a decision to stop sharing, and the pattern lives in having two of them rather than in anything either one does.",
+    active: ["b-client"], stateOn: ["r-s1", "r-s2", "r-s3", "r-s4"], wait: ["r-c1", "r-c2"],
+    holding: "nothing", clock: "2 + 2", clockNote: "the same four threads, with a wall through them",
+    captions: { s1: "— feed-worker", s2: "— feed-worker", s3: "— checkout-worker", s4: "— checkout-worker", c2: "not submitted yet", c3: "not submitted yet" },
+    gateLabel: "The four threads — now with a wall through the middle",
+    label: "The work — and which pool each piece of it goes to",
+    bridge: "new ThreadPoolExecutor(2, 2, ..., new ArrayBlockingQueue<>(2), name + \"-worker\")",
+    out: { cls: "c-pick", txt: "// feed: 2 threads, queue 2    checkout: 2 threads, queue 2" }
+  },
+  {
+    title: "Step 9 — The same outage, and the shop keeps selling",
+    text: "Same slow partner, same four batches, same instant. Two batches run and two wait for a feed thread. And checkout asks for a thread and gets one immediately, and the shopper pays. Read the thread names, because they are the entire argument. Feed-worker and checkout-worker. Those are different threads, and no amount of demand on one side can produce a thread on the other.",
+    active: ["b-client", "r-c2"], stateOn: ["r-s1", "r-s2", "r-s3", "r-s4"], wrong: ["r-c1"], ok: ["r-c2"],
+    holding: "nothing", clock: "paid", clockNote: "ORD-5001, on checkout-worker, in milliseconds",
+    captions: { s1: "— feed-worker, stuck on the partner API", s2: "— feed-worker, stuck on the partner API", s3: "— checkout-worker, took the payment", s4: "— checkout-worker, free", c1: "2 running, 2 queued — still stuck", c2: "started and finished on checkout-worker" },
+    bridge: "feed-worker · checkout-worker — different threads, and neither pool will lend",
+    out: { cls: "c-out", txt: "  ~   0ms  checkout   checkout       started on checkout-worker / finished" }
+  },
+  {
+    title: "Step 10 — Do not celebrate yet: is the feed still stuck?",
+    text: "Here is the question worth asking before believing any of this. How do we know the partition did that, and not the partner API quietly recovering at the convenient moment? A lucky run would look exactly the same. So there is a test whose whole job is to assert that the feed is still jammed — two threads busy, two jobs queued — at the instant the sale goes through. Without it you have not shown isolation, you have shown a coincidence. Nothing about the partner API was fixed. That is the claim.",
+    active: ["r-c1"], stateOn: ["r-s1", "r-s2"], wrong: ["r-c1"], ok: ["r-c2"],
+    holding: "nothing", clock: "2 busy", clockNote: "the feed is exactly as stuck as it was before",
+    bridge: "theFeedIsGenuinelyStuck — a test that only checks the good thing has ruled nothing out",
+    out: { cls: "c-context", txt: "  the feed is jammed -- 2 threads busy, 2 jobs queued" }
+  },
+  {
+    title: "Step 11 — A fifth batch arrives with nowhere to go",
+    text: "Two threads busy and a queue that holds two: four batches fit. A fifth is refused, and the refusal comes back in zero milliseconds. That feels hostile and it is the opposite. The caller finds out instantly and still has time to do something useful — shed the batch, degrade, write it down for tonight. It is the circuit breaker's fast failure applied to a queue rather than to a broken service. Refusing is a feature.",
+    active: ["r-c3"], stateOn: ["r-s1", "r-s2"], wrong: ["r-c1", "r-c3"], ok: ["r-c2"],
+    holding: "batch 5", clock: "refused", clockNote: "4 accepted, 1 refused — in 0ms",
+    captions: { c3: "no thread and no room in the queue" },
+    bridge: "BulkheadFullException, thrown immediately — the caller still has time to act",
+    out: { cls: "c-pick", txt: "  feed is full: no thread and no room in the queue (in 0ms)" }
+  },
+  {
+    title: "Step 12 — And now the bill",
+    text: "One last picture, and it should be uncomfortable. On a quiet afternoon the feed has two threads busy with two jobs queued behind them, and checkout has two threads sitting completely idle. Two threads doing nothing, beside two jobs waiting for a thread, and they are not allowed to help. One shared pool of four would have run all four batches at once and finished the import sooner. So partitioned pools are idle capacity by design — not a bug, not a tuning problem. That is what you are buying with. Draw the walls along what must survive, keep it to two or three, and be able to say the price out loud.",
+    active: ["b-client"], stateOn: ["r-s1", "r-s2"], wrong: ["r-c1"], ok: ["r-c2"],
+    holding: "nothing", clock: "2 idle", clockNote: "beside 2 jobs that are waiting for a thread",
+    captions: { s3: "— checkout-worker, idle", s4: "— checkout-worker, idle" },
+    gateLabel: "The four threads — and the two that are not allowed to help",
+    bridge: "isolation is paid for in capacity you are not allowed to use",
+    out: { cls: "c-out", txt: "  feed: 2 busy, 2 queued    checkout: 0 busy, 2 idle" }
+  }
+];
+
+const BOXES = ["b-naive", "b-client"];
+const STATES = ["r-s1", "r-s2", "r-s3", "r-s4"];
+const CALLERS = ["r-c1", "r-c2", "r-c3"];
+const ROWS = STATES.concat(CALLERS);
+const ALL_BOXES = BOXES.concat(ROWS);
+
+const STEP_MS = 3800;      // pace when narration is off
+const GAP_MS = 700;        // breathing room after a clip finishes
+
+let idx = -1;
+let playing = false;
+let timer = null;
+
+// Narration is optional: if the audio clips are missing (or the browser
+// blocks playback) the animation still works exactly as before.
+let audioOn = false;
+let clips = [];
+let current = null;
+
+const $ = id => document.getElementById(id);
+const progressEl = $("progress");
+const linesEl = $("console-lines");
+const noteEl = $("audio-note");
+const bridgeEl = $("bridge-rail");
+const holdingEl = $("holding");
+const naiveEl = $("naive-state");
+const clockEl = $("clock");
+const labelEl = $("family-label");
+const gateLabelEl = $("gate-label");
+
+const DEFAULT_LABEL = "The work asking for a thread";
+const DEFAULT_GATE_LABEL = "The four threads — and who is holding each one";
+const DEFAULT_CAPTIONS = {
+  s1: "— free",
+  s2: "— free",
+  s3: "— free",
+  s4: "— free",
+  c1: "not submitted yet",
+  c2: "not submitted yet",
+  c3: "not submitted yet"
+};
+
+STEPS.forEach(() => {
+  const d = document.createElement("div");
+  d.className = "dot";
+  progressEl.appendChild(d);
+});
+
+// ---- optional narration ------------------------------------------------
+
+clips = STEPS.map((_, i) => {
+  const a = new Audio("audio/step-" + (i + 1) + ".m4a");
+  a.preload = "none";
+  return a;
+});
+
+function stopAudio() {
+  if (!current) return;
+  current.pause();
+  current.currentTime = 0;
+  current.onended = null;
+  current = null;
+}
+
+/** Play the clip for step i. onDone fires when it finishes (or cannot play). */
+function playClip(i, onDone) {
+  stopAudio();
+  if (!audioOn) { if (onDone) onDone(); return; }
+
+  const a = clips[i];
+  current = a;
+  a.currentTime = 0;
+  a.onended = () => { current = null; if (onDone) onDone(); };
+
+  a.play().catch(() => {
+    // Missing file, or autoplay blocked -> fall back to timed pacing.
+    current = null;
+    noteEl.textContent =
+      "Narration audio could not be played — falling back to timed steps. " +
+      "Run docs/make_animation_audio.sh to generate the clips.";
+    if (onDone) onDone();
+  });
+}
+
+function setAudio(on) {
+  audioOn = on;
+  const btn = $("audio");
+  btn.classList.toggle("on", on);
+  btn.setAttribute("aria-pressed", String(on));
+  btn.innerHTML = '<span id="audio-icon">' + (on ? "&#128266;" : "&#128263;") +
+                  "</span>&nbsp; Narration: " + (on ? "on" : "off");
+  noteEl.textContent = on
+    ? "Each step is narrated, and the animation waits for the voice to finish."
+    : "";
+  if (!on) stopAudio();
+}
+
+// ------------------------------------------------------------------------
+
+function clearHighlights() {
+  ALL_BOXES.forEach(b => $(b).classList.remove("active"));
+  ROWS.forEach(r => $(r).classList.remove("dim", "wrong", "ok", "wait", "absent"));
+}
+
+function render(i) {
+  clearHighlights();
+  const s = STEPS[i];
+
+  s.active.forEach(b => $(b).classList.add("active"));
+
+  // Rows not involved in this step fade back, so the eye follows the one
+  // decision currently being made.
+  if (s.dim) ROWS.filter(r => !s.active.includes(r)).forEach(r => $(r).classList.add("dim"));
+
+  // A work row: "ok" is work that got a thread and finished, "wrong" is work
+  // that was refused or is stuck holding threads, "wait" is work that has been
+  // submitted but has not finished.
+  (s.ok || []).forEach(r => $(r).classList.add("ok"));
+  (s.wait || []).forEach(r => { $(r).classList.remove("ok"); $(r).classList.add("wait"); });
+  (s.wrong || []).forEach(r => { $(r).classList.remove("ok", "wait"); $(r).classList.add("wrong"); });
+  CALLERS.filter(r => !(s.ok || []).includes(r)
+                   && !(s.wait || []).includes(r)
+                   && !(s.wrong || []).includes(r))
+          .forEach(r => $(r).classList.add("absent"));
+
+  // A thread row is lit while it is held by somebody, and faint while it is
+  // free — so the pool emptying out is visible before checkout ever arrives.
+  (s.stateOn || []).forEach(r => $(r).classList.add("wait"));
+  STATES.filter(r => !(s.stateOn || []).includes(r))
+        .forEach(r => $(r).classList.add("absent"));
+
+  // Captions are cumulative: replay every step up to this one so that
+  // stepping backwards or jumping about still shows a consistent picture.
+  const caps = Object.assign({}, DEFAULT_CAPTIONS);
+  let label = DEFAULT_LABEL;
+  let gateLabel = DEFAULT_GATE_LABEL;
+  for (let k = 0; k <= i; k++) {
+    Object.assign(caps, STEPS[k].captions || {});
+    if (STEPS[k].label) label = STEPS[k].label;
+    if (STEPS[k].gateLabel) gateLabel = STEPS[k].gateLabel;
+  }
+  Object.keys(caps).forEach(key => { $("n-" + key).textContent = caps[key]; });
+  labelEl.textContent = label;
+  gateLabelEl.textContent = gateLabel;
+
+  holdingEl.innerHTML = "starved: <b>" + (s.holding || "nothing") + "</b>";
+  naiveEl.innerHTML = "threads: <b>4, shared by everything</b>";
+  clockEl.innerHTML = "checkout: <b>" + (s.clock || "&mdash;") +
+                      "</b> &nbsp;&middot;&nbsp; " + (s.clockNote || "");
+
+  bridgeEl.textContent = s.bridge || "";
+  bridgeEl.classList.add("active");
+
+  $("narration").innerHTML =
+    '<div class="step-no">' + s.title + '</div><div class="text">' + s.text + '</div>';
+
+  // Rebuild console output up to this step
+  linesEl.innerHTML = "";
+  for (let k = 0; k <= i; k++) {
+    if (!STEPS[k].out) continue;
+    const div = document.createElement("div");
+    div.className = "ln " + STEPS[k].out.cls;
+    div.textContent = STEPS[k].out.txt;
+    linesEl.appendChild(div);
+    requestAnimationFrame(() => div.classList.add("show"));
+  }
+
+  [...progressEl.children].forEach((d, k) => d.classList.toggle("on", k <= i));
+}
+
+/** Advance one step. In play mode, schedule the following step afterwards. */
+function next() {
+  if (idx >= STEPS.length - 1) { stop(); return; }
+  idx++;
+  render(idx);
+
+  if (!playing) { playClip(idx); return; }
+
+  if (audioOn) {
+    // Wait for the voice to finish this step, then move on.
+    playClip(idx, () => {
+      if (!playing) return;
+      timer = setTimeout(next, GAP_MS);
+    });
+  } else {
+    timer = setTimeout(next, STEP_MS);
+  }
+}
+
+function stop() {
+  playing = false;
+  clearTimeout(timer);
+  stopAudio();
+  $("play").innerHTML = "&#9654;&nbsp; Play";
+  $("step").disabled = false;
+}
+
+function reset() {
+  stop();
+  idx = -1;
+  clearHighlights();
+  STATES.forEach(r => $(r).classList.add("absent"));
+  Object.keys(DEFAULT_CAPTIONS).forEach(k => { $("n-" + k).textContent = DEFAULT_CAPTIONS[k]; });
+  labelEl.textContent = DEFAULT_LABEL;
+  gateLabelEl.textContent = DEFAULT_GATE_LABEL;
+  holdingEl.innerHTML = "starved: <b>nothing</b>";
+  naiveEl.innerHTML = "threads: <b>4, shared by everything</b>";
+  clockEl.innerHTML = "checkout: <b>&mdash;</b> &nbsp;&middot;&nbsp; nothing has asked for a thread yet";
+  linesEl.innerHTML = "";
+  bridgeEl.textContent = "";
+  bridgeEl.classList.remove("active");
+  [...progressEl.children].forEach(d => d.classList.remove("on"));
+  $("narration").innerHTML =
+    '<div class="step-no">Ready</div><div class="text">Press <b>Play</b> to watch an overnight import that nobody is waiting for stop a shopper paying &mdash; without either piece of code mentioning the other &mdash; and then to watch one wall fix it, and to find out exactly what that wall costs.</div>';
+}
+
+$("play").addEventListener("click", () => {
+  if (playing) { stop(); return; }
+  if (idx >= STEPS.length - 1) reset();
+  playing = true;
+  $("play").innerHTML = "&#10074;&#10074;&nbsp; Pause";
+  $("step").disabled = true;
+  next();   // next() now schedules the rest of the run itself
+});
+
+$("step").addEventListener("click", () => { stop(); if (idx >= STEPS.length - 1) reset(); next(); });
+$("reset").addEventListener("click", reset);
+
+$("audio").addEventListener("click", () => {
+  setAudio(!audioOn);
+  // Turning narration on mid-run: speak the step already on screen.
+  if (audioOn && playing && idx >= 0) {
+    clearTimeout(timer);
+    playClip(idx, () => {
+      if (!playing) return;
+      timer = setTimeout(next, GAP_MS);
+    });
+  }
+});
+
+document.addEventListener("keydown", e => {
+  if (e.code === "Space") { e.preventDefault(); $("play").click(); }
+  if (e.code === "ArrowRight") { e.preventDefault(); $("step").click(); }
+  if (e.code === "KeyR") reset();
+  if (e.code === "KeyN") $("audio").click();
+});
+
+setAudio(false);
+reset();
+</script>
+</body>
+</html>
