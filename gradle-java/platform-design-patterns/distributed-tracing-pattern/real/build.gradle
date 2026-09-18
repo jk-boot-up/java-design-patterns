@@ -1,0 +1,70 @@
+// Settings shared by both Tier 2 services.
+//
+// Every version here comes from the category catalogue at
+// `platform-design-patterns/gradle/libs.versions.toml`. Nothing in this file
+// names a version directly, because eight projects each choosing their own
+// Spring Boot is exactly the drift the catalogue exists to stop.
+//
+// The plugins are declared here with `apply false` so the version is resolved
+// once, and then applied inside each subproject. A `plugins` block has to be
+// the first thing in the file, which is why the comment above it is the only
+// thing that comes before.
+
+plugins {
+    alias(libs.plugins.springBoot) apply false
+    alias(libs.plugins.springDependencyManagement) apply false
+}
+
+subprojects {
+    apply plugin: 'java'
+    apply plugin: 'org.springframework.boot'
+    apply plugin: 'io.spring.dependency-management'
+
+    group = 'com.jk.explore'
+    version = '1.0.0'
+
+    java {
+        toolchain {
+            languageVersion = JavaLanguageVersion.of(21)
+        }
+    }
+
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        implementation 'org.springframework.boot:spring-boot-starter-web'
+        implementation 'org.springframework.boot:spring-boot-starter-actuator'
+
+        // Tracing is three separate things, and Spring Boot 4 makes you say so
+        // in the build file, which is a good thing for a teaching project.
+        //
+        // First, the *facade*: Micrometer's `Observation`, plus the
+        // auto-instrumentation that opens a span around an incoming request and
+        // around an outgoing RestClient call. That arrives with the actuator
+        // starter above.
+        //
+        // Second, the *implementation*: OpenTelemetry, which owns the span
+        // model, the `traceparent` header format and the sampler, and which
+        // supplies the `Tracer` bean the two controllers inject. Third, and
+        // separate again, the *exporter* -- because without one the whole of the
+        // above still runs, still propagates and still costs, and every span is
+        // dropped on the floor at the end.
+        //
+        // This one starter brings both, along with the auto-configuration that
+        // wires them together, so there is one line here rather than three.
+        //
+        // Worth knowing if you are coming from Spring Boot 3, because it cost
+        // this project a wasted demo run. There, `micrometer-tracing-bridge-otel`
+        // plus `opentelemetry-exporter-otlp` was the recipe, and it worked
+        // because every scrap of the auto-configuration lived inside the
+        // actuator. Boot 4 split observability into modules. Those same two
+        // dependencies now resolve, compile, and start a context that dies with
+        // "required a bean of type io.micrometer.tracing.Tracer" -- the library
+        // is on the classpath and the auto-configuration for it is not. Swap
+        // this line for `spring-boot-starter-...-brave` to change the wire
+        // format and nothing else in this code.
+        implementation 'org.springframework.boot:spring-boot-starter-opentelemetry'
+    }
+}

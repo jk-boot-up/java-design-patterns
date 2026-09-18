@@ -69,6 +69,18 @@ ORDER = [
     ("micro-services-design-patterns", "saga"),
     ("micro-services-design-patterns", "transactional-outbox"),
     ("micro-services-design-patterns", "idempotent-consumer"),
+    # The platform category. Six patterns across eight projects: Sidecar is
+    # taught three times, once per deployment choice, and each version is a
+    # project of its own. Build order is not learning order -- event-sourcing
+    # goes first as the category's reference project.
+    ("platform-design-patterns", "externalised-configuration"),
+    ("platform-design-patterns", "distributed-tracing"),
+    ("platform-design-patterns", "backends-for-frontends"),
+    ("platform-design-patterns", "sidecar"),
+    ("platform-design-patterns", "sidecar-java-proxy"),
+    ("platform-design-patterns", "sidecar-on-kubernetes"),
+    ("platform-design-patterns", "event-sourcing"),
+    ("platform-design-patterns", "strangler-fig"),
 ]
 
 # Per-project title and tag material. The title is what gets pasted into
@@ -223,6 +235,38 @@ META = {
     "idempotent-consumer": {
         "title": "Idempotent Consumer in Java - The Duplicate Message",
         "tags": ["idempotent consumer", "exactly once java", "message deduplication"],
+    },
+    "externalised-configuration": {
+        "title": "Externalised Configuration in Java - No Deploy Needed",
+        "tags": ["externalised configuration", "feature flags java", "twelve factor app"],
+    },
+    "distributed-tracing": {
+        "title": "Distributed Tracing in Java - Which Service Is Slow?",
+        "tags": ["distributed tracing", "observability java", "trace id propagation"],
+    },
+    "backends-for-frontends": {
+        "title": "Backends for Frontends in Java - One Shape Won't Fit",
+        "tags": ["backends for frontends", "bff pattern", "api design java"],
+    },
+    "sidecar": {
+        "title": "Sidecar Pattern in Java - Retry Code Moves Out",
+        "tags": ["sidecar pattern", "service mesh java", "nginx proxy"],
+    },
+    "sidecar-java-proxy": {
+        "title": "Sidecar in Java - Swapping the Proxy, Not the Service",
+        "tags": ["sidecar pattern", "java proxy server", "polyglot microservices"],
+    },
+    "sidecar-on-kubernetes": {
+        "title": "Sidecar on Kubernetes - Two Containers, One Pod",
+        "tags": ["kubernetes sidecar", "kubernetes pod", "kind cluster"],
+    },
+    "event-sourcing": {
+        "title": "Event Sourcing in Java - Why Is This Balance 140?",
+        "tags": ["event sourcing", "append only log java", "loyalty points"],
+    },
+    "strangler-fig": {
+        "title": "Strangler Fig in Java - Replacing Legacy Safely",
+        "tags": ["strangler fig pattern", "legacy migration", "incremental rewrite"],
     },
 }
 

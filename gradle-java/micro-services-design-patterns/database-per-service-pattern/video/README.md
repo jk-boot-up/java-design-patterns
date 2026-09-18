@@ -86,3 +86,21 @@ service call, so act three prints 0, 10 and 20 milliseconds on any machine.
 On `bullets` and `quote` slides the body starts at y=260 and steps 60 pixels a
 line, with the footer at y≈1022 — so twelve body lines is the hard maximum, and
 nothing warns you if you exceed it.
+
+Suggested description:
+
+> Learn the database-per-service pattern in Java 21, starting with the
+> shared database at its best rather than at its worst: one round trip, a
+> join that cannot forget a name, and a foreign key doing real work. Then it
+> is Tuesday, another team ships a correct migration with a green build, and
+> a page in a different repository is dead — and nobody did anything wrong.
+> We use a shared filing cabinet for the analogy, including the part people
+> skip, which is that the second cabinet costs something, and we look
+> honestly at the tempting fixes: a test in whose repository, a rule nobody
+> writes down, and a view that does not change who decides. The page gets
+> rebuilt without a join: twenty milliseconds and two service calls instead
+> of one query, a request that takes a list so that a fifty-row page does
+> not become fifty network calls, and a refusal rather than a guess when a
+> service is down. Be precise about the payoff — no speed, no correctness,
+> only the right to change your mind — and then pay the bill, of which the
+> foreign key is the expensive half.

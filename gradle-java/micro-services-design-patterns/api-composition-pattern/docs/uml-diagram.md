@@ -41,6 +41,11 @@ Catalog anyway, because that is what a sequence of statements does.
 
 ## Act Two: The Same Calls, Sent Together
 
+![Act Two: The Same Calls, Sent Together](images/uml-diagram-2.png)
+
+<details>
+<summary>Mermaid source</summary>
+
 ```mermaid
 sequenceDiagram
     autonumber
@@ -69,6 +74,8 @@ sequenceDiagram
     C-->>S: the page, after 150ms
 ```
 
+</details>
+
 Thirty, then the slower of sixty and one hundred and twenty. The page costs the
 **maximum**.
 
@@ -82,6 +89,11 @@ be asked which skus to name before Orders has said what they are. One call, then
 together, is the real shape of most composed pages.
 
 ## Act Three: Shipping Is Down
+
+![Act Three: Shipping Is Down](images/uml-diagram-3.png)
+
+<details>
+<summary>Mermaid source</summary>
 
 ```mermaid
 sequenceDiagram
@@ -112,6 +124,8 @@ sequenceDiagram
     Note over S,Sh: the sequential version threw away the order<br/>and the names it had already received
 ```
 
+</details>
+
 The same outage, two completely different outcomes. The sequential composer throws,
 and with it goes the order and the product names that had already arrived —
 `itLosesWorkAlreadyDone` asserts that loss. The composed page shows what the shopper
@@ -121,6 +135,11 @@ The mechanism is one `catch` inside `Branch.run`, and one choice of accessor:
 `valueOr` rather than `value`.
 
 ## Act Four: Orders Is Down
+
+![Act Four: Orders Is Down](images/uml-diagram-4.png)
+
+<details>
+<summary>Mermaid source</summary>
 
 ```mermaid
 sequenceDiagram
@@ -139,6 +158,8 @@ sequenceDiagram
     Note over S,O: a page with no order on it is not a partial page,<br/>it is a blank one
 ```
 
+</details>
+
 This is the classification working in the other direction, and it is **correct
 behaviour rather than a gap in the pattern**. Orders is required. Without it there is
 no honest page to show, so the composer does not attempt one — and because the
@@ -150,6 +171,11 @@ being able to say "this one is optional". A composer that degrades everything is
 composer that will eventually show somebody a page about nothing.
 
 ## Act Five: What Three Dependencies Do To Availability
+
+![Act Five: What Three Dependencies Do To Availability](images/uml-diagram-5.png)
+
+<details>
+<summary>Mermaid source</summary>
 
 ```mermaid
 sequenceDiagram
@@ -169,6 +195,8 @@ sequenceDiagram
     Note over P,Sh: make Catalog and Shipping optional
     Note over P: 99.900% — 43.2 minutes down a month
 ```
+
+</details>
 
 Not a sequence so much as an argument drawn as one, because the shape is the point:
 three arrows out, and the page only works when every one of them comes back.

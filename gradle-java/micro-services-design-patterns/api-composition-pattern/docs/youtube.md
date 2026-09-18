@@ -17,6 +17,8 @@ API Composition in Java - The Order Details Page
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
+Learn API composition in Java 21: one ordinary order page, three services that own the parts of it, and no join available any more. The three-line version is presented fairly — no bug, right page, every test passing — and it takes two hundred and ten milliseconds, of which sixty were spent waiting for an answer nothing looked at. So we ask which call actually needed the one before it, and the shape turns out to be one call and then two together rather than one flat burst of three: both branches leave at thirty milliseconds, the page costs a hundred and fifty, and the sum becomes a maximum. The second half is about failure. A page may say it does not know; it may not make something up. So one outage produces a page with a named hole rather than an error page built from two good answers, and a different outage produces an honest refusal. We finish on the arithmetic that surprises people: three services at 99.9% make a page that is worse than any of them.
+
 CHAPTERS
 00:00 Introduction
 01:16 The Scenario

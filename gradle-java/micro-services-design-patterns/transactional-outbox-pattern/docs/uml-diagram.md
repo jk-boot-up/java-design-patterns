@@ -1,10 +1,14 @@
 # Transactional Outbox — Sequence Diagrams
 
-Five acts, five sequences. The third one is rendered; the rest are here to read.
+Five acts, five sequences. They are ordered here by argument rather than by number, so act
+three comes first: it is the one the others are all measured against.
+
+## Act Three — One Commit, Then A Sweep
 
 ![Transactional Outbox sequence diagram](images/uml-diagram.png)
 
-## Act Three — One Commit, Then A Sweep
+<details>
+<summary>Mermaid source</summary>
 
 ```mermaid
 sequenceDiagram
@@ -30,10 +34,17 @@ sequenceDiagram
     R->>D: markSent(msg-1)
 ```
 
+</details>
+
 The top half is the checkout and it ends at the commit. The bottom half happens later, in a
 different process, and the customer is long gone by then.
 
 ## Act Two — The Naive Version, And The Gap
+
+![Act Two — The Naive Version, And The Gap](images/uml-diagram-2.png)
+
+<details>
+<summary>Mermaid source</summary>
 
 ```mermaid
 sequenceDiagram
@@ -50,9 +61,16 @@ sequenceDiagram
     Note over O,B: the order is real and nothing knows a message was owed
 ```
 
+</details>
+
 There is no second half to this diagram, and that is the whole comparison.
 
 ## Act Four — The Broker Is Down
+
+![Act Four — The Broker Is Down](images/uml-diagram-3.png)
+
+<details>
+<summary>Mermaid source</summary>
 
 ```mermaid
 sequenceDiagram
@@ -76,10 +94,17 @@ sequenceDiagram
     R->>D: markSent(msg-2)
 ```
 
+</details>
+
 Nothing in this diagram is retry logic. The second sweep reads the same unsent rows because
 nobody marked them sent.
 
 ## Act Five — The Duplicate
+
+![Act Five — The Duplicate](images/uml-diagram-4.png)
+
+<details>
+<summary>Mermaid source</summary>
 
 ```mermaid
 sequenceDiagram
@@ -99,10 +124,17 @@ sequenceDiagram
     R->>D: markSent(msg-1)
 ```
 
+</details>
+
 Two emails, one order, and the same message id on both. That id is the only thing the
 receiving side has to work with, and it is enough.
 
 ## Act One — For Completeness
+
+![Act One — For Completeness](images/uml-diagram-5.png)
+
+<details>
+<summary>Mermaid source</summary>
 
 ```mermaid
 sequenceDiagram
@@ -117,6 +149,8 @@ sequenceDiagram
     B->>N: deliver
     B-->>O: accepted
 ```
+
+</details>
 
 The happy path, which is what every test written for the naive version will see.
 

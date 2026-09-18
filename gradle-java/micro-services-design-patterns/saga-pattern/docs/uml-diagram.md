@@ -1,10 +1,14 @@
 # Saga — Sequence Diagrams
 
-Five acts, five sequences. The first one is rendered; the rest are here to read.
+Five acts, five sequences. What makes them different is the words on the arrows rather than
+the shapes, so read the notes rather than the outlines.
+
+## Act One — Five Steps, No Transaction
 
 ![Saga sequence diagram](images/uml-diagram.png)
 
-## Act One — Five Steps, No Transaction
+<details>
+<summary>Mermaid source</summary>
 
 ```mermaid
 sequenceDiagram
@@ -28,10 +32,17 @@ sequenceDiagram
     Note over S: COMPLETED for £70.95
 ```
 
+</details>
+
 Every arrow back says committed, and that is the point of the diagram. By the time payment
 is called, the reservation is already final and nothing is holding it open.
 
 ## Act Two — The Courier Refuses, And Everything Unwinds
+
+![Act Two — The Courier Refuses, And Everything Unwinds](images/uml-diagram-2.png)
+
+<details>
+<summary>Mermaid source</summary>
 
 ```mermaid
 sequenceDiagram
@@ -59,11 +70,18 @@ sequenceDiagram
     Note over S: COMPENSATED, customer owes nothing
 ```
 
+</details>
+
 Read the bottom half in the order it happens: order, then payment, then stock — the exact
 reverse of the top half. The order is cancelled before the money is refunded so that finance
 is never looking at a confirmed order with no money against it.
 
 ## Act Three — The Refund Fails Too
+
+![Act Three — The Refund Fails Too](images/uml-diagram-3.png)
+
+<details>
+<summary>Mermaid source</summary>
 
 ```mermaid
 sequenceDiagram
@@ -85,10 +103,17 @@ sequenceDiagram
     Note over S: NEEDS_HUMAN_HELP - £70.95 still held
 ```
 
+</details>
+
 Two things to see. The refund failing does not stop the stock being released. And the saga
 still returns, with an outcome naming the step it could not undo.
 
 ## Act Four — The Email In The Wrong Place
+
+![Act Four — The Email In The Wrong Place](images/uml-diagram-4.png)
+
+<details>
+<summary>Mermaid source</summary>
 
 ```mermaid
 sequenceDiagram
@@ -109,10 +134,17 @@ sequenceDiagram
     Note over S: NEEDS_HUMAN_HELP - the email is still there
 ```
 
+</details>
+
 The order is cancelled, the money comes back, and the email stays in the inbox. Nothing in
 the code is broken; the sequence is.
 
 ## Act Five — The Same Failure, Without A Saga
+
+![Act Five — The Same Failure, Without A Saga](images/uml-diagram-5.png)
+
+<details>
+<summary>Mermaid source</summary>
 
 ```mermaid
 sequenceDiagram
@@ -133,6 +165,8 @@ sequenceDiagram
     Note over N: caught, logged, returns null
     Note over N,Sh: nothing is undone. Money taken, nothing shipped.
 ```
+
+</details>
 
 There is no second half to this diagram, and that is the whole comparison.
 

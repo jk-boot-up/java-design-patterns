@@ -1,0 +1,24 @@
+// Tier 2 is a build of its own.
+//
+// This is deliberate, and it is the convention every Tier 2 directory in the
+// category follows. The parent project's `settings.gradle` does not include
+// this build, so `./gradlew test` one directory up never sees it, never tries
+// to resolve Spring, and passes on a machine with no network. A reader who
+// wants Tier 2 runs Gradle from inside `real/` instead.
+rootProject.name = 'backends-for-frontends-real'
+
+// Three processes, because the pattern's argument needs all three to be
+// separate addresses. `shop` is the five existing services and the one shared
+// endpoint in front of them — everything that existed *before* anybody wrote a
+// backend for a frontend. The two bff modules are the pattern.
+include 'shop'
+include 'mobile-bff'
+include 'web-bff'
+
+dependencyResolutionManagement {
+    versionCatalogs {
+        libs {
+            from(files('../../gradle/libs.versions.toml'))
+        }
+    }
+}

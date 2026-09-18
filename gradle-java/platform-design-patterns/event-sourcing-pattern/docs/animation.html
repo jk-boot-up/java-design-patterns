@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Event Sourcing Pattern — Animated Walkthrough</title>
+<style>
+  :root {
+    --bg: #0f172a;
+    --panel: #1e293b;
+    --panel-hi: #334155;
+    --line: #475569;
+    --text: #e2e8f0;
+    --muted: #94a3b8;
+    --client: #38bdf8;
+    --context: #34d399;
+    --strategy: #a78bfa;
+    --picked: #fbbf24;
+    --bad: #f87171;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 28px 20px 60px;
+    background: var(--bg);
+    color: var(--text);
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  h1 { text-align: center; font-size: 28px; margin: 0 0 4px; }
+  .sub { text-align: center; color: var(--muted); margin: 0 0 24px; font-size: 15px; }
+
+  .wrap { max-width: 1100px; margin: 0 auto; }
+
+  .controls { display: flex; gap: 10px; justify-content: center; margin-bottom: 26px; flex-wrap: wrap; }
+  button {
+    background: var(--panel-hi); color: var(--text); border: 1px solid var(--line);
+    padding: 9px 20px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer;
+    transition: background .15s, transform .1s;
+  }
+  button:hover:not(:disabled) { background: #475569; }
+  button:active:not(:disabled) { transform: translateY(1px); }
+  button:disabled { opacity: .4; cursor: not-allowed; }
+  button.primary { background: var(--strategy); color: #1e1b4b; border-color: var(--strategy); }
+  button.primary:hover:not(:disabled) { background: #b9a3ff; }
+  button.on { background: #0c2b3d; border-color: var(--client); color: var(--client); }
+  button.on:hover:not(:disabled) { background: #123a52; }
+
+  .audio-note {
+    text-align: center; color: var(--muted); font-size: 12.5px;
+    margin: -14px 0 22px; min-height: 17px;
+  }
+
+  .stage { display: grid; grid-template-columns: 250px 1fr; gap: 22px; align-items: start; }
+
+  .col-side { display: flex; flex-direction: column; align-items: center; gap: 12px; padding-top: 20px; }
+
+  .box {
+    background: var(--panel); border: 2px solid var(--line); border-radius: 12px;
+    padding: 14px 16px; text-align: center; width: 100%;
+    transition: border-color .3s, box-shadow .3s, transform .3s, background .3s;
+  }
+  .box .name { font-weight: 700; font-size: 13.5px; letter-spacing: .2px; }
+  .box .role { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-top: 3px; }
+  .box.active {
+    transform: translateY(-3px);
+    box-shadow: 0 0 0 3px rgba(255,255,255,.07), 0 10px 28px rgba(0,0,0,.45);
+    border-color: var(--client); background: #0c2b3d;
+  }
+  /* the log is the truth, so it lights up green rather than blue */
+  .box.store.active { border-color: var(--context); background: #06281f; box-shadow: 0 0 0 3px rgba(52,211,153,.15); }
+  .holding {
+    margin-top: 9px; padding-top: 8px; border-top: 1px dashed var(--line);
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11.5px;
+    color: var(--muted); line-height: 1.6;
+  }
+  .holding b { color: var(--picked); font-weight: 700; }
+
+  .col-main { display: flex; flex-direction: column; gap: 18px; }
+
+  .family {
+    border: 2px dashed var(--context); border-radius: 14px; padding: 18px 20px;
+    background: rgba(52,211,153,.05);
+  }
+  .family-label {
+    font-size: 11px; color: var(--context); text-transform: uppercase;
+    letter-spacing: 1.4px; font-weight: 700; margin-bottom: 14px; text-align: center;
+  }
+
+  .row {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    border: 2px solid var(--line); border-radius: 8px; background: var(--panel);
+    padding: 8px 14px; margin-bottom: 6px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 13px;
+    transition: border-color .3s, background .3s, transform .3s, opacity .3s;
+  }
+  .row .note { color: var(--muted); font-size: 11px; text-align: right; white-space: nowrap; }
+  .row.hidden { display: none; }
+  .row.dim { opacity: .34; }
+  .row.active {
+    transform: translateX(4px);
+    border-color: var(--client);
+    box-shadow: 0 0 0 3px rgba(56,189,248,.15);
+  }
+  /* an event that the current fold has already added in */
+  .row.counted { border-color: var(--context); background: #06281f; }
+  .row.counted .note { color: #6ee7b7; }
+  /* an event the repaired reading code deliberately skips — note it is still
+     in the log, and still drawn. Nothing was deleted. */
+  .row.skipped { border-color: var(--bad); background: #2b0f12; }
+  .row.skipped .note { color: #fca5a5; }
+  /* an event written before the order id field existed */
+  .row.legacy .name::after {
+    content: "no order id";
+    margin-left: 10px; font-size: 10px; letter-spacing: 1px;
+    color: var(--picked); border: 1px solid var(--picked);
+    border-radius: 4px; padding: 1px 5px; vertical-align: 2px;
+  }
+
+  .derived {
+    border: 2px solid var(--strategy); border-radius: 10px; padding: 12px 16px;
+    background: rgba(167,139,250,.07); text-align: center;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 14px;
+  }
+  .derived b { color: var(--picked); font-size: 18px; }
+  .derived .cap { display: block; font-size: 11px; color: var(--muted);
+    text-transform: uppercase; letter-spacing: 1.2px; margin-bottom: 6px;
+    font-family: ui-sans-serif, system-ui, sans-serif; }
+
+  .bridge-rail {
+    min-height: 26px; text-align: center; color: var(--muted);
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12.5px;
+    opacity: 0; transition: opacity .3s;
+  }
+  .bridge-rail.active { opacity: 1; }
+
+  .narration {
+    background: var(--panel); border: 1px solid var(--line); border-radius: 12px;
+    padding: 16px 20px; min-height: 104px;
+  }
+  .narration .step-no {
+    font-size: 11px; color: var(--strategy); text-transform: uppercase;
+    letter-spacing: 1.4px; font-weight: 700; margin-bottom: 7px;
+  }
+  .narration .text { font-size: 14.5px; line-height: 1.65; }
+  .narration b { color: var(--picked); }
+
+  .console {
+    background: #0b1220; border: 1px solid var(--line); border-radius: 12px;
+    padding: 14px 18px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 12.5px; min-height: 96px;
+  }
+  .console .ttl {
+    font-size: 10.5px; color: var(--muted); text-transform: uppercase;
+    letter-spacing: 1.3px; margin-bottom: 9px; font-family: ui-sans-serif, system-ui, sans-serif;
+  }
+  .ln { opacity: 0; transform: translateY(4px); transition: opacity .3s, transform .3s; line-height: 1.75; }
+  .ln.show { opacity: 1; transform: none; }
+  .c-out { color: var(--text); }
+  .c-context { color: var(--context); }
+  .c-strategy { color: var(--strategy); }
+  .c-pick { color: var(--picked); }
+  .c-bad { color: var(--bad); }
+
+  .progress { display: flex; gap: 6px; justify-content: center; margin: 22px 0 8px; }
+  .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--line); transition: background .3s; }
+  .dot.on { background: var(--strategy); }
+
+  .legend {
+    max-width: 880px; margin: 14px auto 0; text-align: center;
+    color: var(--muted); font-size: 13px; line-height: 1.7;
+  }
+  .legend b { color: var(--text); }
+
+  @media (max-width: 860px) {
+    .stage { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>The Event Sourcing Pattern</h1>
+  <p class="sub">Store the facts, not the total &mdash; and then ask questions nobody planned for</p>
+
+  <div class="controls">
+    <button id="play" class="primary">&#9654;&nbsp; Play</button>
+    <button id="step">Step &rarr;</button>
+    <button id="reset">Reset</button>
+    <button id="audio" aria-pressed="false" title="Narrate each step (N)">
+      <span id="audio-icon">&#128263;</span>&nbsp; Narration: off
+    </button>
+  </div>
+  <p class="audio-note" id="audio-note"></p>
+
+  <div class="stage">
+
+    <div class="col-side">
+      <div class="box client" id="b-row">
+        <div class="name">CurrentStateLoyaltyAccounts</div>
+        <div class="role">Keeps the total</div>
+        <div class="holding" id="row-state">points: <b>0</b></div>
+      </div>
+      <div style="font-size:11px;color:var(--muted);text-align:center;line-height:1.5">
+        the same customer,<br>stored two ways
+      </div>
+      <div class="box store" id="b-store">
+        <div class="name">LoyaltyEventStore</div>
+        <div class="role">Keeps what happened</div>
+        <div class="holding" id="store-state">events: <b>0</b><br>reads: <b>0</b></div>
+      </div>
+      <div style="font-size:11px;color:var(--muted);text-align:center;line-height:1.5">
+        one way in: <b style="color:var(--context)">append</b>.<br>
+        no update. no delete.
+      </div>
+    </div>
+
+    <div class="col-main">
+
+      <div class="family">
+        <div class="family-label" id="family-label">The log for customer C-4417 &mdash; empty, so far</div>
+        <div class="row hidden" id="e-1">
+          <span class="name">PointsAwarded</span>
+          <span class="note" id="n-1">+60 &nbsp;·&nbsp; 1 Mar &nbsp;·&nbsp; ORD-8801</span>
+        </div>
+        <div class="row hidden" id="e-2">
+          <span class="name">PointsRedeemed</span>
+          <span class="note" id="n-2">&minus;25 &nbsp;·&nbsp; 3 Mar &nbsp;·&nbsp; ORD-8814</span>
+        </div>
+        <div class="row hidden" id="e-3">
+          <span class="name">PointsAwarded</span>
+          <span class="note" id="n-3">+120 &nbsp;·&nbsp; 8 Mar &nbsp;·&nbsp; ORD-8907</span>
+        </div>
+        <div class="row hidden" id="e-4">
+          <span class="name">PointsExpired</span>
+          <span class="note" id="n-4">&minus;15 &nbsp;·&nbsp; 14 Mar &nbsp;·&nbsp; twelve-month expiry</span>
+        </div>
+        <div class="row hidden" id="e-5">
+          <span class="name">PointsAwarded</span>
+          <span class="note" id="n-5">+45 &nbsp;·&nbsp; 20 Mar &nbsp;·&nbsp; ORD-9001</span>
+        </div>
+        <div class="row hidden" id="e-6">
+          <span class="name">PointsAwarded</span>
+          <span class="note" id="n-6">+45 &nbsp;·&nbsp; 20 Mar &nbsp;·&nbsp; ORD-9001 again</span>
+        </div>
+      </div>
+
+      <div class="derived" id="derived">
+        <span class="cap" id="derived-cap">Balance, worked out on demand</span>
+        <b id="derived-value">&mdash;</b>
+      </div>
+
+      <div class="bridge-rail" id="bridge-rail"></div>
+
+      <div class="narration" id="narration">
+        <div class="step-no">Ready</div>
+        <div class="text">Press <b>Play</b> to watch one loyalty balance stored two ways &mdash; as a number, and as the list of things that happened &mdash; and to see which of the two can still answer a question asked three weeks later.</div>
+      </div>
+
+      <div class="console">
+        <div class="ttl">Program output</div>
+        <div id="console-lines"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="progress" id="progress"></div>
+
+  <p class="legend">
+    <b>Both designs give the same balance. The difference is everything else.</b><br>
+    The log is the truth, and the balance is arithmetic over it. That is what makes &ldquo;why is it 140&rdquo;, &ldquo;what was it on the third&rdquo; and &ldquo;which customers did that bug touch&rdquo; answerable at all &mdash; and it is also what makes erasure, replay cost and event versioning genuinely hard.<br>
+    <span style="font-size:12px">
+      Keys: <b>Space</b> play/pause &nbsp;·&nbsp; <b>&rarr;</b> next step
+      &nbsp;·&nbsp; <b>N</b> narration &nbsp;·&nbsp; <b>R</b> reset
+    </span>
+  </p>
+
+</div>
+
+<script>
+// Each step lists only what it changes. Anything cumulative — which events
+// exist in the log, and what each row's caption says — is replayed from the
+// start on every render, so stepping backwards shows a consistent picture.
+const STEPS = [
+  {
+    title: "Step 1 — The same customer, stored two ways",
+    text: "One shopper, one loyalty scheme, one point per pound. On the left, the design nearly everybody writes: a row with a number in it. On the right, the same shop keeping the list of things that happened instead. Nothing has happened yet, so both are empty.",
+    active: ["b-row", "b-store"], show: [], row: "0", events: "0", reads: "0",
+    derived: "&mdash;", derivedCap: "Balance, worked out on demand",
+    bridge: "two designs, one customer, and the same arithmetic",
+    out: { cls: "c-strategy", txt: "// keep the total, or keep what happened?" }
+  },
+  {
+    title: "Step 2 — An order earns 60 points",
+    text: "The row adds sixty and is finished. The log appends a fact: sixty points were awarded on the first of March for order ORD-8801. Look at what the row did with that order number and that date. It was handed both, used neither, and they are gone.",
+    active: ["b-row", "e-1"], show: ["e-1"], row: "60", events: "1", reads: "0",
+    derived: "60", derivedCap: "Balance, worked out from 1 event",
+    label: "The log for customer C-4417 — append only",
+    bridge: "points.merge(id, 60, Integer::sum);     vs     store.append(new PointsAwarded(...))",
+    out: { cls: "c-out", txt: "row: 60      log: [ awarded 60, ORD-8801, 1 Mar ]" }
+  },
+  {
+    title: "Step 3 — Three more things happen in March",
+    text: "Twenty-five points spent on the third. A hundred and twenty earned on the eighth. Fifteen lost to the twelve-month expiry on the fourteenth. The row is now a hundred and forty. The log is four facts, and the balance is nowhere in it.",
+    active: ["e-2", "e-3", "e-4"], show: ["e-1", "e-2", "e-3", "e-4"],
+    row: "140", events: "4", reads: "0",
+    derived: "140", derivedCap: "Balance, worked out from 4 events",
+    bridge: "the log holds no balance anywhere — search it and there is none",
+    out: { cls: "c-out", txt: "row: 140     log: 4 events, and no total stored" }
+  },
+  {
+    title: "Step 4 — The customer asks why it is 140",
+    text: "This is the whole answer the row can give: the row says a hundred and forty points, and how it got there was never written down. The four things that happened were each added to a number and then forgotten. There is nobody left to ask.",
+    active: ["b-row"], dim: true, show: ["e-1", "e-2", "e-3", "e-4"],
+    row: "140", events: "4", reads: "0",
+    derived: "140", derivedCap: "and the row cannot say why",
+    bridge: "\"the row says 140 points. How it got there was never written down.\"",
+    out: { cls: "c-bad", txt: "support has nothing to read out. The number is the whole record." }
+  },
+  {
+    title: "Step 5 — The log answers by adding itself up",
+    text: "Start at zero and walk the events in order. Sixty, then thirty-five, then a hundred and fifty-five, then a hundred and forty. Each line says what happened and what the balance became, including the expiry, which is the call support dreads most. That is not a stored explanation. It is the sum, printed as it goes.",
+    active: ["b-store"], show: ["e-1", "e-2", "e-3", "e-4"],
+    counted: ["e-1", "e-2", "e-3", "e-4"],
+    row: "140", events: "4", reads: "4",
+    derived: "140", derivedCap: "0 + 60 − 25 + 120 − 15",
+    captions: { 1: "+60 → balance 60", 2: "−25 → balance 35", 3: "+120 → balance 155", 4: "−15 → balance 140" },
+    bridge: "for (LoyaltyEvent e : store.eventsFor(id))  running += e.effectOnBalance();",
+    out: { cls: "c-context", txt: "2025-03-01 earned 60 on ORD-8801    balance 60" }
+  },
+  {
+    title: "Step 6 — And what was it on the third of March?",
+    text: "Same walk, stopped earlier: skip anything dated after the day being asked about. Thirty-five points. Nobody planned for that question, nobody built a history table for it, and the answer was already lying in the data.",
+    active: ["b-store"], show: ["e-1", "e-2", "e-3", "e-4"],
+    counted: ["e-1", "e-2"], dim: true,
+    row: "140", events: "4", reads: "4",
+    derived: "35", derivedCap: "Balance as at 3 March",
+    bridge: "if (event.on().isAfter(day)) continue;      // the whole as-of query",
+    out: { cls: "c-context", txt: "on 3 March: 35 points     // the row could never answer this" }
+  },
+  {
+    title: "Step 7 — A release awards points twice",
+    text: "A bug goes out and one order earns its points twice. Nobody notices for three weeks. On the left the row simply becomes two hundred and thirty, and a doubled forty-five pound order now looks exactly like one honest ninety pound one. On the right there are two events, both true, and two events never look like one.",
+    active: ["e-5", "e-6"], show: ["e-1", "e-2", "e-3", "e-4", "e-5", "e-6"],
+    counted: ["e-1", "e-2", "e-3", "e-4"],
+    row: "230", events: "6", reads: "4",
+    derived: "230", derivedCap: "Balance, and 45 of it should not be there",
+    captions: { 5: "+45 · 20 Mar · ORD-9001", 6: "+45 · 20 Mar · ORD-9001 again" },
+    bridge: "the bug wrote 230 into the row, and overwrote the evidence of itself",
+    out: { cls: "c-bad", txt: "row: 230     // which part of that is wrong, and by how much?" }
+  },
+  {
+    title: "Step 8 — A query written three weeks after the bug",
+    text: "Nobody wrote this before the release. It is written now, against data that was already there: group the awards by order number and report any order that earned points more than once. Order O-R-D nine thousand and one, awarded twice. The row cannot be asked this, because there is nothing there to ask.",
+    active: ["e-5", "e-6"], show: ["e-1", "e-2", "e-3", "e-4", "e-5", "e-6"],
+    row: "230", events: "6", reads: "6",
+    derived: "ORD-9001 × 2", derivedCap: "Orders that earned points more than once",
+    bridge: "accounts.duplicateAwards(\"C-4417\")   →   [\"ORD-9001 awarded 2 times\"]",
+    out: { cls: "c-pick", txt: "ORD-9001 awarded 2 times     // found after the fact, from data already kept" }
+  },
+  {
+    title: "Step 9 — The repair changes the reading, not the log",
+    text: "Count each order's award once and the balance is a hundred and eighty-five again. Now look at the log: nothing was edited, nothing was deleted, and both events are still drawn there. The shop really did award twice, so the log was never wrong. What was wrong was the interpretation, and that is what got fixed.",
+    active: ["b-store"], show: ["e-1", "e-2", "e-3", "e-4", "e-5", "e-6"],
+    counted: ["e-1", "e-2", "e-3", "e-4", "e-5"], skipped: ["e-6"],
+    row: "230", events: "6", reads: "6",
+    derived: "185", derivedCap: "Balance with duplicate awards ignored",
+    captions: { 6: "still in the log · not counted twice" },
+    bridge: "store.size() before the repair == store.size() after it",
+    out: { cls: "c-context", txt: "185 points     // no event edited, none deleted, every balance right again" }
+  },
+  {
+    title: "Step 10 — The bill, part one: reading a long log costs",
+    text: "Four events is nothing. Five thousand is not. Folding from the beginning to answer one balance reads all five thousand, every single time somebody asks. The fix is a snapshot: save the balance as at event five thousand, and the next read walks one event instead.",
+    active: ["b-store"], dim: true, show: ["e-1", "e-2", "e-3", "e-4", "e-5", "e-6"],
+    row: "230", events: "5000", reads: "5000",
+    derived: "5000 reads → 1 read", derivedCap: "Same answer, with a snapshot",
+    bridge: "C-6000 = 500 points, as at event 5000, computed by \"fold v1\"",
+    out: { cls: "c-pick", txt: "502 points from 5001 reads, or 502 points from 1 read. Same number." }
+  },
+  {
+    title: "Step 11 — And a snapshot is a second place a balance lives",
+    text: "Which is the thing the pattern set out to avoid. A snapshot written by code that turned out to have a bug stays wrong forever, and nothing throws, because a wrong balance is just a number. That is why it records which code computed it. The cure is to throw every snapshot away and add the log up again, and that cure is cheap only because the log kept everything.",
+    active: ["b-store"], dim: true, show: ["e-1", "e-2", "e-3", "e-4", "e-5", "e-6"],
+    row: "230", events: "5000", reads: "1",
+    derived: "the log is the truth", derivedCap: "a snapshot is a cache you may throw away",
+    bridge: "snapshots.discardAll();   // and refold. Nothing is lost.",
+    out: { cls: "c-bad", txt: "stale snapshot: 90 points. Correct fold: 45. Nothing anywhere reports a problem." }
+  },
+  {
+    title: "Step 12 — The bill, part two: erasing, and old events",
+    text: "A customer with a legal right to be forgotten meets a log with no delete. Removing their events destroys the history that explained them, and a snapshot taken earlier still reports their balance, so the data is still in the building. And a field added in twenty twenty-three is missing from every event written before it, permanently, so the duplicate hunt finds nothing in a log that plainly contains two identical awards. Store the facts, derive the total — and know what it costs.",
+    active: ["b-store"], show: ["e-1", "e-2", "e-3", "e-4", "e-5", "e-6"],
+    legacy: ["e-1", "e-2"],
+    row: "230", events: "6", reads: "6",
+    derived: "0 duplicates found", derivedCap: "in a log with two identical awards in it",
+    captions: { 1: "+60 · 1 Mar · written before order ids", 2: "−25 · 3 Mar · written before order ids" },
+    bridge: "an event is a schema you version and never migrate",
+    out: { cls: "c-strategy", txt: "// most systems should not use this. The ones that should: money, loyalty, orders." }
+  }
+];
+
+const BOXES = ["b-row", "b-store"];
+const ROWS = ["e-1", "e-2", "e-3", "e-4", "e-5", "e-6"];
+const ALL_BOXES = BOXES.concat(ROWS);
+
+const STEP_MS = 4200;      // pace when narration is off
+const GAP_MS = 700;        // breathing room after a clip finishes
+
+let idx = -1;
+let playing = false;
+let timer = null;
+
+// Narration is optional: if the audio clips are missing (or the browser
+// blocks playback) the animation still works exactly as before.
+let audioOn = false;
+let clips = [];
+let current = null;
+
+const $ = id => document.getElementById(id);
+const progressEl = $("progress");
+const linesEl = $("console-lines");
+const noteEl = $("audio-note");
+const bridgeEl = $("bridge-rail");
+const rowEl = $("row-state");
+const storeEl = $("store-state");
+const labelEl = $("family-label");
+const derivedEl = $("derived-value");
+const derivedCapEl = $("derived-cap");
+
+const DEFAULT_LABEL = "The log for customer C-4417 — empty, so far";
+const DEFAULT_CAPTIONS = {
+  1: "+60 · 1 Mar · ORD-8801",
+  2: "−25 · 3 Mar · ORD-8814",
+  3: "+120 · 8 Mar · ORD-8907",
+  4: "−15 · 14 Mar · twelve-month expiry",
+  5: "+45 · 20 Mar · ORD-9001",
+  6: "+45 · 20 Mar · ORD-9001 again"
+};
+
+STEPS.forEach(() => {
+  const d = document.createElement("div");
+  d.className = "dot";
+  progressEl.appendChild(d);
+});
+
+// ---- optional narration ------------------------------------------------
+
+clips = STEPS.map((_, i) => {
+  const a = new Audio("audio/step-" + (i + 1) + ".m4a");
+  a.preload = "none";
+  return a;
+});
+
+function stopAudio() {
+  if (!current) return;
+  current.pause();
+  current.currentTime = 0;
+  current.onended = null;
+  current = null;
+}
+
+/** Play the clip for step i. onDone fires when it finishes (or cannot play). */
+function playClip(i, onDone) {
+  stopAudio();
+  if (!audioOn) { if (onDone) onDone(); return; }
+
+  const a = clips[i];
+  current = a;
+  a.currentTime = 0;
+  a.onended = () => { current = null; if (onDone) onDone(); };
+
+  a.play().catch(() => {
+    // Missing file, or autoplay blocked -> fall back to timed pacing.
+    current = null;
+    noteEl.textContent =
+      "Narration audio could not be played — falling back to timed steps. " +
+      "Run docs/make_animation_audio.sh to generate the clips.";
+    if (onDone) onDone();
+  });
+}
+
+function setAudio(on) {
+  audioOn = on;
+  const btn = $("audio");
+  btn.classList.toggle("on", on);
+  btn.setAttribute("aria-pressed", String(on));
+  btn.innerHTML = '<span id="audio-icon">' + (on ? "&#128266;" : "&#128263;") +
+                  "</span>&nbsp; Narration: " + (on ? "on" : "off");
+  noteEl.textContent = on
+    ? "Each step is narrated, and the animation waits for the voice to finish."
+    : "";
+  if (!on) stopAudio();
+}
+
+// ------------------------------------------------------------------------
+
+function clearHighlights() {
+  ALL_BOXES.forEach(b => $(b).classList.remove("active"));
+  ROWS.forEach(r => $(r).classList.remove("dim", "counted", "skipped", "legacy"));
+}
+
+function render(i) {
+  clearHighlights();
+  const s = STEPS[i];
+
+  // Which events exist by now. An event, once appended, is never removed —
+  // so this is the union of every step up to and including this one.
+  const shown = new Set();
+  for (let k = 0; k <= i; k++) (STEPS[k].show || []).forEach(r => shown.add(r));
+  ROWS.forEach(r => $(r).classList.toggle("hidden", !shown.has(r)));
+
+  s.active.forEach(b => $(b).classList.add("active"));
+
+  // Events not involved in this step fade back, so the eye follows the fold.
+  if (s.dim) ROWS.filter(r => shown.has(r) && !(s.counted || []).includes(r) && !s.active.includes(r))
+                 .forEach(r => $(r).classList.add("dim"));
+
+  (s.counted || []).forEach(r => $(r).classList.add("counted"));
+  (s.skipped || []).forEach(r => { $(r).classList.remove("counted"); $(r).classList.add("skipped"); });
+  (s.legacy || []).forEach(r => $(r).classList.add("legacy"));
+
+  // Captions and the panel label are cumulative for the same reason.
+  const caps = Object.assign({}, DEFAULT_CAPTIONS);
+  let label = DEFAULT_LABEL;
+  for (let k = 0; k <= i; k++) {
+    Object.assign(caps, STEPS[k].captions || {});
+    if (STEPS[k].label) label = STEPS[k].label;
+  }
+  Object.keys(caps).forEach(key => { $("n-" + key).textContent = caps[key]; });
+  labelEl.textContent = label;
+
+  rowEl.innerHTML = "points: <b>" + (s.row || "0") + "</b>";
+  storeEl.innerHTML = "events: <b>" + (s.events || "0") + "</b><br>reads: <b>" + (s.reads || "0") + "</b>";
+  derivedEl.innerHTML = s.derived || "&mdash;";
+  derivedCapEl.textContent = s.derivedCap || "Balance, worked out on demand";
+
+  bridgeEl.textContent = s.bridge || "";
+  bridgeEl.classList.add("active");
+
+  $("narration").innerHTML =
+    '<div class="step-no">' + s.title + '</div><div class="text">' + s.text + '</div>';
+
+  // Rebuild console output up to this step
+  linesEl.innerHTML = "";
+  for (let k = 0; k <= i; k++) {
+    if (!STEPS[k].out) continue;
+    const div = document.createElement("div");
+    div.className = "ln " + STEPS[k].out.cls;
+    div.textContent = STEPS[k].out.txt;
+    linesEl.appendChild(div);
+    requestAnimationFrame(() => div.classList.add("show"));
+  }
+
+  [...progressEl.children].forEach((d, k) => d.classList.toggle("on", k <= i));
+}
+
+/** Advance one step. In play mode, schedule the following step afterwards. */
+function next() {
+  if (idx >= STEPS.length - 1) { stop(); return; }
+  idx++;
+  render(idx);
+
+  if (!playing) { playClip(idx); return; }
+
+  if (audioOn) {
+    // Wait for the voice to finish this step, then move on.
+    playClip(idx, () => {
+      if (!playing) return;
+      timer = setTimeout(next, GAP_MS);
+    });
+  } else {
+    timer = setTimeout(next, STEP_MS);
+  }
+}
+
+function stop() {
+  playing = false;
+  clearTimeout(timer);
+  stopAudio();
+  $("play").innerHTML = "&#9654;&nbsp; Play";
+  $("step").disabled = false;
+}
+
+function reset() {
+  stop();
+  idx = -1;
+  clearHighlights();
+  ROWS.forEach(r => $(r).classList.add("hidden"));
+  Object.keys(DEFAULT_CAPTIONS).forEach(k => { $("n-" + k).textContent = DEFAULT_CAPTIONS[k]; });
+  labelEl.textContent = DEFAULT_LABEL;
+  rowEl.innerHTML = "points: <b>0</b>";
+  storeEl.innerHTML = "events: <b>0</b><br>reads: <b>0</b>";
+  derivedEl.innerHTML = "&mdash;";
+  derivedCapEl.textContent = "Balance, worked out on demand";
+  linesEl.innerHTML = "";
+  bridgeEl.textContent = "";
+  bridgeEl.classList.remove("active");
+  [...progressEl.children].forEach(d => d.classList.remove("on"));
+  $("narration").innerHTML =
+    '<div class="step-no">Ready</div><div class="text">Press <b>Play</b> to watch one loyalty balance stored two ways &mdash; as a number, and as the list of things that happened &mdash; and to see which of the two can still answer a question asked three weeks later.</div>';
+}
+
+$("play").addEventListener("click", () => {
+  if (playing) { stop(); return; }
+  if (idx >= STEPS.length - 1) reset();
+  playing = true;
+  $("play").innerHTML = "&#10074;&#10074;&nbsp; Pause";
+  $("step").disabled = true;
+  next();   // next() now schedules the rest of the run itself
+});
+
+$("step").addEventListener("click", () => { stop(); if (idx >= STEPS.length - 1) reset(); next(); });
+$("reset").addEventListener("click", reset);
+
+$("audio").addEventListener("click", () => {
+  setAudio(!audioOn);
+  // Turning narration on mid-run: speak the step already on screen.
+  if (audioOn && playing && idx >= 0) {
+    clearTimeout(timer);
+    playClip(idx, () => {
+      if (!playing) return;
+      timer = setTimeout(next, GAP_MS);
+    });
+  }
+});
+
+document.addEventListener("keydown", e => {
+  if (e.code === "Space") { e.preventDefault(); $("play").click(); }
+  if (e.code === "ArrowRight") { e.preventDefault(); $("step").click(); }
+  if (e.code === "KeyR") reset();
+  if (e.code === "KeyN") $("audio").click();
+});
+
+setAudio(false);
+reset();
+</script>
+</body>
+</html>

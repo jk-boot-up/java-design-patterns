@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sidecar Pattern — Animated Walkthrough</title>
+<style>
+  :root {
+    --bg: #0f172a;
+    --panel: #1e293b;
+    --panel-hi: #334155;
+    --line: #475569;
+    --text: #e2e8f0;
+    --muted: #94a3b8;
+    --client: #38bdf8;
+    --context: #34d399;
+    --strategy: #a78bfa;
+    --picked: #fbbf24;
+    --bad: #f87171;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 28px 20px 60px;
+    background: var(--bg);
+    color: var(--text);
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  h1 { text-align: center; font-size: 28px; margin: 0 0 4px; }
+  .sub { text-align: center; color: var(--muted); margin: 0 0 24px; font-size: 15px; }
+
+  .wrap { max-width: 1100px; margin: 0 auto; }
+
+  .controls { display: flex; gap: 10px; justify-content: center; margin-bottom: 26px; flex-wrap: wrap; }
+  button {
+    background: var(--panel-hi); color: var(--text); border: 1px solid var(--line);
+    padding: 9px 20px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer;
+    transition: background .15s, transform .1s;
+  }
+  button:hover:not(:disabled) { background: #475569; }
+  button:active:not(:disabled) { transform: translateY(1px); }
+  button:disabled { opacity: .4; cursor: not-allowed; }
+  button.primary { background: var(--strategy); color: #1e1b4b; border-color: var(--strategy); }
+  button.primary:hover:not(:disabled) { background: #b9a3ff; }
+  button.on { background: #0c2b3d; border-color: var(--client); color: var(--client); }
+  button.on:hover:not(:disabled) { background: #123a52; }
+
+  .audio-note {
+    text-align: center; color: var(--muted); font-size: 12.5px;
+    margin: -14px 0 22px; min-height: 17px;
+  }
+
+  .stage { display: grid; grid-template-columns: 250px 1fr; gap: 22px; align-items: start; }
+
+  .col-side { display: flex; flex-direction: column; align-items: center; gap: 12px; padding-top: 20px; }
+
+  .box {
+    background: var(--panel); border: 2px solid var(--line); border-radius: 12px;
+    padding: 14px 16px; text-align: center; width: 100%;
+    transition: border-color .3s, box-shadow .3s, transform .3s, background .3s;
+  }
+  .box .name { font-weight: 700; font-size: 13.5px; letter-spacing: .2px; }
+  .box .role { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-top: 3px; }
+  .box.active {
+    transform: translateY(-3px);
+    box-shadow: 0 0 0 3px rgba(255,255,255,.07), 0 10px 28px rgba(0,0,0,.45);
+    border-color: var(--client); background: #0c2b3d;
+  }
+  /* the proxy box lights green when it is carrying the policy, red when it is down */
+  .box.car.active { border-color: var(--context); background: #06281f; box-shadow: 0 0 0 3px rgba(52,211,153,.15); }
+  .box.car.broken, .box.svc.broken {
+    border-color: var(--bad); background: #2b0f12; box-shadow: 0 0 0 3px rgba(248,113,113,.15);
+  }
+  .holding {
+    margin-top: 9px; padding-top: 8px; border-top: 1px dashed var(--line);
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11.5px;
+    color: var(--muted); line-height: 1.6;
+  }
+  .holding b { color: var(--picked); font-weight: 700; }
+
+  .col-main { display: flex; flex-direction: column; gap: 18px; }
+
+  .family {
+    border: 2px dashed var(--client); border-radius: 14px; padding: 18px 20px;
+    background: rgba(56,189,248,.05);
+  }
+  .family.bars { border-color: var(--strategy); background: rgba(167,139,250,.05); }
+  .family-label {
+    font-size: 11px; color: var(--client); text-transform: uppercase;
+    letter-spacing: 1.4px; font-weight: 700; margin-bottom: 14px; text-align: center;
+  }
+  .family.bars .family-label { color: var(--strategy); }
+
+  /* ---- one row per service, decision, or attempt -------------------------- */
+
+  .field-row {
+    display: grid; grid-template-columns: 210px 1fr 130px; align-items: center; gap: 10px;
+    padding: 5px 8px; border-radius: 7px; margin-bottom: 4px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12.5px;
+    border: 1px solid transparent; color: var(--muted);
+    animation: appear .32s ease-out both;
+  }
+  @keyframes appear { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: none; } }
+  .field-row .nm { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .field-row .note { font-size: 11.5px; }
+  .field-row .tag { text-align: right; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; white-space: nowrap; }
+  .field-row.drawn { border-color: var(--picked); background: rgba(251,191,36,.10); color: var(--text); }
+  .field-row.drawn .nm { color: var(--picked); font-weight: 700; }
+  .field-row.waste { border-color: rgba(248,113,113,.4); background: rgba(248,113,113,.07); }
+  .field-row.waste .tag { color: #fca5a5; }
+  .field-row.call { border-color: var(--client); background: rgba(56,189,248,.08); color: var(--text); }
+  .field-row.call .nm { color: var(--client); }
+  .field-row.inner { border-color: rgba(52,211,153,.35); background: rgba(52,211,153,.06); }
+  .field-row.inner .tag { color: var(--context); }
+  .field-row.wrong { border-color: var(--bad); background: rgba(248,113,113,.13); color: var(--text); }
+  .field-row.wrong .nm { color: #fca5a5; font-weight: 700; }
+  .field-row.good { border-color: var(--context); background: rgba(52,211,153,.10); color: var(--text); }
+  .field-row.good .nm { color: var(--context); font-weight: 700; }
+
+  /* ---- the comparison bars ------------------------------------------------ */
+
+  .bar-row {
+    display: grid; grid-template-columns: 200px 1fr 118px; align-items: center; gap: 10px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12.5px;
+    padding: 4px 8px; margin-bottom: 3px; border-radius: 6px;
+    animation: appear .32s ease-out both;
+  }
+  .bar-row .val { text-align: right; color: var(--muted); font-size: 11.5px; white-space: nowrap; }
+  .bar-row .nm { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .bar { height: 13px; border-radius: 3px; background: var(--strategy); min-width: 3px; display: block;
+         transition: width .4s ease; }
+  .bar-row.best .nm { color: var(--picked); font-weight: 700; }
+  .bar-row.best .bar { background: var(--picked); }
+  .bar-row.worst .bar { background: var(--bad); }
+  .bar-row.device .bar { background: var(--bad); }
+  .bar-row.internal .bar { background: var(--context); }
+
+  .derived {
+    border: 2px solid var(--strategy); border-radius: 10px; padding: 12px 16px;
+    background: rgba(167,139,250,.07); text-align: center;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 14px;
+  }
+  .derived b { color: var(--picked); font-size: 18px; }
+  .derived .cap { display: block; font-size: 11px; color: var(--muted);
+    text-transform: uppercase; letter-spacing: 1.2px; margin-bottom: 6px;
+    font-family: ui-sans-serif, system-ui, sans-serif; }
+
+  .bridge-rail {
+    min-height: 26px; text-align: center; color: var(--muted);
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12.5px;
+    opacity: 0; transition: opacity .3s;
+  }
+  .bridge-rail.active { opacity: 1; }
+
+  .narration {
+    background: var(--panel); border: 1px solid var(--line); border-radius: 12px;
+    padding: 16px 20px; min-height: 104px;
+  }
+  .narration .step-no {
+    font-size: 11px; color: var(--strategy); text-transform: uppercase;
+    letter-spacing: 1.4px; font-weight: 700; margin-bottom: 7px;
+  }
+  .narration .text { font-size: 14.5px; line-height: 1.65; }
+  .narration b { color: var(--picked); }
+
+  .console {
+    background: #0b1220; border: 1px solid var(--line); border-radius: 12px;
+    padding: 14px 18px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 12.5px; min-height: 96px;
+  }
+  .console .ttl {
+    font-size: 10.5px; color: var(--muted); text-transform: uppercase;
+    letter-spacing: 1.3px; margin-bottom: 9px; font-family: ui-sans-serif, system-ui, sans-serif;
+  }
+  .ln { opacity: 0; transform: translateY(4px); transition: opacity .3s, transform .3s; line-height: 1.75; }
+  .ln.show { opacity: 1; transform: none; }
+  .c-out { color: var(--text); }
+  .c-context { color: var(--context); }
+  .c-strategy { color: var(--strategy); }
+  .c-pick { color: var(--picked); }
+  .c-bad { color: var(--bad); }
+
+  .progress { display: flex; gap: 6px; justify-content: center; margin: 22px 0 8px; }
+  .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--line); transition: background .3s; }
+  .dot.on { background: var(--strategy); }
+
+  .legend {
+    max-width: 880px; margin: 14px auto 0; text-align: center;
+    color: var(--muted); font-size: 13px; line-height: 1.7;
+  }
+  .legend b { color: var(--text); }
+
+  @media (max-width: 860px) {
+    .stage { grid-template-columns: 1fr; }
+    .field-row { grid-template-columns: 140px 1fr 96px; }
+    .bar-row { grid-template-columns: 130px 1fr 92px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>The Sidecar Pattern</h1>
+  <p class="sub">Four copies of one decision, the night three of them were updated, and what it costs to move them next door</p>
+
+  <div class="controls">
+    <button id="play" class="primary">&#9654;&nbsp; Play</button>
+    <button id="step">Step &rarr;</button>
+    <button id="reset">Reset</button>
+    <button id="audio" aria-pressed="false" title="Narrate each step (N)">
+      <span id="audio-icon">&#128263;</span>&nbsp; Narration: off
+    </button>
+  </div>
+  <p class="audio-note" id="audio-note"></p>
+
+  <div class="stage">
+
+    <div class="col-side">
+      <div class="box svc" id="b-svc">
+        <div class="name">A service</div>
+        <div class="role">Checkout, say</div>
+        <div class="holding" id="svc-state">holds: <b>4 decisions</b><br>talks to: <b>the internet</b></div>
+      </div>
+      <div style="font-size:11px;color:var(--muted);text-align:center;line-height:1.5">
+        the same machine,<br>two different processes
+      </div>
+      <div class="box car" id="b-car">
+        <div class="name">A proxy beside it</div>
+        <div class="role">Its own process</div>
+        <div class="holding" id="car-state">holds: <b>&mdash;</b><br>talks to: <b>&mdash;</b></div>
+      </div>
+      <div style="font-size:11px;color:var(--muted);text-align:center;line-height:1.5">
+        one payment provider<br>at the other end of it all:<br>
+        <b style="color:var(--context)">12 attempts per wobble</b>
+      </div>
+    </div>
+
+    <div class="col-main">
+
+      <div class="family">
+        <div class="family-label" id="family-label">Four services, and the four things each one had to decide</div>
+        <div id="fields"></div>
+      </div>
+
+      <div class="derived" id="derived">
+        <span class="cap" id="derived-cap">How many copies of one decision?</span>
+        <b id="derived-value">&mdash;</b>
+      </div>
+
+      <div class="family bars">
+        <div class="family-label" id="bars-label">Copies of a cross-cutting decision</div>
+        <div id="bars"></div>
+      </div>
+
+      <div class="bridge-rail" id="bridge-rail"></div>
+
+      <div class="narration" id="narration">
+        <div class="step-no">Ready</div>
+        <div class="text">Press <b>Play</b> to watch one policy change land in three services out of four &mdash; and then to watch what moving it out of all four really costs.</div>
+      </div>
+
+      <div class="console">
+        <div class="ttl">Program output</div>
+        <div id="console-lines"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="progress" id="progress"></div>
+
+  <p class="legend">
+    <b>The structure is Decorator. The decision is about deployment.</b><br>
+    Everything this pattern gives you &mdash; a policy changed without opening a service, in a language your library does not have to support &mdash; and everything it charges you &mdash; a second process per service, a second thing that can be down, a millisecond on every call &mdash; comes from one fact: the proxy runs beside the service rather than inside it.<br>
+    <span style="font-size:12px">
+      Keys: <b>Space</b> play/pause &nbsp;·&nbsp; <b>&rarr;</b> next step
+      &nbsp;·&nbsp; <b>N</b> narration &nbsp;·&nbsp; <b>R</b> reset
+    </span>
+  </p>
+
+</div>
+
+<script>
+// Every step declares the whole picture rather than a delta. The panels are small
+// enough that re-declaring them costs nothing, and it means stepping backwards
+// shows exactly what stepping forwards showed — which matters here, because
+// several steps redraw the same four services with one of them *wrong* on purpose.
+//
+// Field-row fields: nm, note, tag, cls.  Bar-row fields: nm, value, label, cls.
+// Every figure below is from `./gradlew run`, not from memory.
+
+const OLD_POLICY = [
+  { nm: "checkout",             note: "6 attempts · 10ms · 2000ms · TLS1.3", tag: "its own copy", cls: "call" },
+  { nm: "refunds",              note: "6 attempts · 10ms · 2000ms · TLS1.3", tag: "its own copy", cls: "call" },
+  { nm: "subscription-billing", note: "6 attempts · 10ms · 2000ms · TLS1.3", tag: "its own copy", cls: "call" },
+  { nm: "marketplace-payouts",  note: "6 attempts · 10ms · 2000ms · TLS1.3", tag: "its own copy", cls: "call" }
+];
+
+const AFTER_MARCH = [
+  { nm: "checkout",             note: "3 attempts · 200ms · 2000ms · TLS1.3", tag: "updated", cls: "good" },
+  { nm: "refunds",              note: "3 attempts · 200ms · 2000ms · TLS1.3", tag: "updated", cls: "good" },
+  { nm: "marketplace-payouts",  note: "3 attempts · 200ms · 2000ms · TLS1.3", tag: "updated", cls: "good" },
+  { nm: "subscription-billing", note: "6 attempts · 10ms · 2000ms · TLS1.3",  tag: "not opened", cls: "wrong" }
+];
+
+const STEPS = [
+  {
+    title: "Step 1 — Four services that charge a card, for four different reasons",
+    text: "The online store takes money in four places. Checkout charges while a customer watches a spinner. Refunds gives money back when the coffee maker comes back in the post. Subscription billing runs at two in the morning against thousands of saved cards. Marketplace payouts pays the independent sellers every Friday. Four teams, four repositories, four release days — and one payment provider at the other end of all four.",
+    active: ["b-svc"],
+    label: "Four parts of one shop, with almost nothing in common",
+    fields: [
+      { nm: "checkout",             note: "a customer is watching a spinner",      tag: "team A", cls: "call" },
+      { nm: "refunds",              note: "the coffee maker came back",            tag: "team B", cls: "call" },
+      { nm: "subscription-billing", note: "two in the morning, thousands of cards", tag: "team C", cls: "call" },
+      { nm: "marketplace-payouts",  note: "paying the sellers, every Friday",      tag: "team D", cls: "call" }
+    ],
+    bars: [], barsLabel: "Nothing counted yet — this is the shop, not the design",
+    derived: "4 services, 1 provider", derivedCap: "What we are starting with",
+    svcState: "holds: <b>its own code</b><br>talks to: <b>the provider</b>",
+    carState: "holds: <b>&mdash;</b><br>talks to: <b>&mdash;</b>",
+    bridge: "different teams · different repositories · different release days",
+    out: { cls: "c-out", txt: "Act 1 — four services that take money" }
+  },
+  {
+    title: "Step 2 — Sixteen copies of four decisions nobody wanted to make",
+    text: "None of those teams wanted to become an expert on a payment provider's network behaviour, but every one of them had to answer the same four questions before going live. How many times to retry. When to give up altogether. Which transport security profile to present. What to count and what to call the counters. Four questions, four services, sixteen answers — and not one of those sixteen is about checkout, refunds, subscriptions or payouts. They would be identical if the shop sold bicycles.",
+    active: ["b-svc"],
+    label: "The same four decisions, written down four times",
+    fields: OLD_POLICY,
+    bars: [
+      { nm: "copies of the decisions", value: 16, label: "16 values", cls: "worst" },
+      { nm: "places to edit one",      value: 4,  label: "4 repositories", cls: "device" }
+    ],
+    barsLabel: "Copies of a cross-cutting decision",
+    derived: "16", derivedCap: "Copies of a decision that is about the network, not the shop",
+    svcState: "holds: <b>4 decisions</b><br>talks to: <b>the internet</b>",
+    carState: "holds: <b>&mdash;</b><br>talks to: <b>&mdash;</b>",
+    bridge: "nobody copied anything dishonestly — two competent people write almost the same twenty lines",
+    out: { cls: "c-bad", txt: "  copies of a cross-cutting decision: 16   ·   places to edit: 4" }
+  },
+  {
+    title: "Step 3 — March: the provider writes to every merchant",
+    text: "Retrying ten milliseconds after a failure does not help anybody, the letter says. The failure has not had time to clear, and all you have done is spend capacity the provider then has to ration. From now on: at most three attempts per payment, and wait properly between them. The shop's platform engineer agrees, and does the obvious thing.",
+    active: ["b-svc"],
+    label: "One policy change, arriving from outside the shop",
+    fields: [
+      { nm: "attempts per payment", note: "six, dropping to three", tag: "changes", cls: "drawn" },
+      { nm: "wait between attempts", note: "ten milliseconds, rising to two hundred", tag: "changes", cls: "drawn" },
+      { nm: "deadline",  note: "two seconds — unchanged", tag: "stays", cls: "inner" },
+      { nm: "tls profile", note: "TLS1.3 — unchanged", tag: "stays", cls: "inner" }
+    ],
+    bars: [
+      { nm: "lines to change", value: 2, label: "2 per service", cls: "best" },
+      { nm: "services to open", value: 4, label: "4", cls: "worst" }
+    ],
+    barsLabel: "A small change, in four places",
+    derived: "2 lines × 4 services", derivedCap: "The afternoon's work, as the engineer sees it",
+    svcState: "holds: <b>4 decisions</b><br>needs: <b>2 lines changed</b>",
+    carState: "holds: <b>&mdash;</b><br>talks to: <b>&mdash;</b>",
+    bridge: "at most three attempts per payment, and wait properly between them",
+    out: { cls: "c-out", txt: "Act 2 — the provider asks for a change" }
+  },
+  {
+    title: "Step 4 — It lands three times out of four",
+    text: "Checkout, two lines, a pull request, a review, shipped. Then refunds. Then marketplace payouts. Three pull requests, three reviews, three releases, one afternoon, and everybody goes home. Now look at the fourth row. Subscription billing was not updated — not through carelessness and not through anybody being wrong. It runs overnight, so nobody was watching it that week. It is owned by a team who were not in the meeting. It lives in its own repository and had no open work that sprint. There was no fourth place to look unless you already knew there was a fourth place to look.",
+    active: ["b-svc"], broken: ["b-svc"],
+    label: "Three services updated, and one nobody opened",
+    fields: AFTER_MARCH,
+    bars: [
+      { nm: "services updated", value: 3, label: "3 of 4", cls: "best" },
+      { nm: "services missed",  value: 1, label: "1 of 4", cls: "worst" },
+      { nm: "errors raised anywhere", value: 0.001, label: "none", cls: "device" }
+    ],
+    barsLabel: "Nothing throws. Nothing is logged. Every test still passes.",
+    derived: "3 of 4", derivedCap: "Where the new policy actually landed",
+    svcState: "holds: <b>4 decisions</b><br>one copy: <b>stale</b>",
+    carState: "holds: <b>&mdash;</b><br>talks to: <b>&mdash;</b>",
+    bridge: "each service tests its own copy, and its own copy is internally consistent",
+    out: { cls: "c-bad", txt: "  subscription-billing         6     10ms    2000ms  TLS1.3" }
+  },
+  {
+    title: "Step 5 — Three weeks later, at two in the morning",
+    text: "The provider has one of its wobbles: three hundred milliseconds of declining everything, and then it is fine again. The contract allows the shop twelve attempts across the whole merchant account during an event like this — three per payment, four services that take payments. Subscription billing is already running, because it is always running at two in the morning, so it reaches the wobble first. On the old policy it makes six attempts. It succeeds. Its dashboards are green.",
+    active: ["b-svc"], broken: ["b-svc"],
+    label: "The gateway's own ledger, as the night unfolds",
+    fields: [
+      { nm: "subscription-billing", note: "6 attempts — succeeded, £12.99 taken", tag: "6 of 12", cls: "wrong" },
+      { nm: "checkout",             note: "3 attempts — succeeded, £47.99 taken", tag: "9 of 12", cls: "good" },
+      { nm: "refunds",              note: "3 attempts — succeeded, £22.50 taken", tag: "12 of 12", cls: "good" },
+      { nm: "marketplace-payouts",  note: "has not asked yet",                    tag: "next", cls: "inner" }
+    ],
+    bars: [
+      { nm: "allowance",                 value: 12, label: "12 attempts", cls: "internal" },
+      { nm: "spent by billing alone",    value: 6,  label: "6", cls: "worst" },
+      { nm: "left for the other three",  value: 6,  label: "6", cls: "device" }
+    ],
+    barsLabel: "One account's allowance, spent in the wrong place",
+    derived: "half the allowance", derivedCap: "Spent before checkout finished its first payment",
+    svcState: "holds: <b>a stale copy</b><br>result: <b>succeeded</b>",
+    carState: "holds: <b>&mdash;</b><br>talks to: <b>&mdash;</b>",
+    bridge: "the gateway wobbles for 300ms · the 13th attempt is not declined, it is refused",
+    out: { cls: "c-bad", txt: "Act 3 — subscription-billing  £12.99   6x, 310ms    pay_SUB-90118" }
+  },
+  {
+    title: "Step 6 — The sellers are not paid, and nothing is wrong with that service",
+    text: "Marketplace payouts arrives fourth. It makes one attempt, and the answer is not a decline — it is a refusal, because the account's twelve attempts are gone. The sellers do not get their money. There is nothing wrong with the marketplace payouts service. It was updated in March. It did exactly what the provider asked. It happened to arrive fourth. The code that misbehaved and the code that suffered are in different repositories, owned by different people, in different rooms — and on Monday morning somebody opens an incident about the service whose every line is correct.",
+    active: [], broken: ["b-svc"],
+    label: "What the gateway counted, from its own end",
+    fields: [
+      { nm: "subscription-billing", note: "the stale copy — and it succeeded", tag: "6 attempts", cls: "wrong" },
+      { nm: "checkout",             note: "correct", tag: "3 attempts", cls: "good" },
+      { nm: "refunds",              note: "correct", tag: "3 attempts", cls: "good" },
+      { nm: "marketplace-payouts",  note: "correct — and £186.40 NOT PAID", tag: "1 attempt", cls: "wrong" },
+      { nm: "total",                note: "429 refused — the account's allowance is spent", tag: "13 of 12", cls: "waste" }
+    ],
+    bars: [
+      { nm: "attempts allowed", value: 12, label: "12", cls: "internal" },
+      { nm: "attempts made",    value: 13, label: "13", cls: "worst" },
+      { nm: "payments refused", value: 1,  label: "1 — the innocent one", cls: "device" }
+    ],
+    barsLabel: "The failure and the cause are in different lanes",
+    derived: "13 of 12 allowed", derivedCap: "One refused, and not the one at fault",
+    svcState: "holds: <b>a stale copy</b><br>blamed: <b>somebody else</b>",
+    carState: "holds: <b>&mdash;</b><br>talks to: <b>&mdash;</b>",
+    bridge: "no test in any of the four repositories could have caught this — a test can only see its own service",
+    out: { cls: "c-bad", txt: "  marketplace-payouts   £186.40  —            NOT PAID" }
+  },
+  {
+    title: "Step 7 — The pattern: take it out of the service and stand it next door",
+    text: "The four decisions are not decisions about the shop's business. They are decisions about how anything on this network talks to that supplier, and they ended up inside four services only because that is where the code that makes the call lives. So move them out — not into a library compiled into the service, but into a separate process running beside it on the same machine. The service sends its payment to localhost and knows nothing else. The proxy is the only thing that leaves the machine.",
+    active: ["b-svc", "b-car"],
+    label: "What moves out, and what the service has left",
+    fields: [
+      { nm: "the retry loop",   note: "moves next door", tag: "to the proxy", cls: "good" },
+      { nm: "the deadline",     note: "moves next door", tag: "to the proxy", cls: "good" },
+      { nm: "the tls profile",  note: "moves next door", tag: "to the proxy", cls: "good" },
+      { nm: "the counters",     note: "move next door",  tag: "to the proxy", cls: "good" },
+      { nm: "the service",      note: "send the payment to localhost. That is all.", tag: "one line", cls: "drawn" }
+    ],
+    bars: [
+      { nm: "decisions in the service", value: 0.001, label: "none", cls: "best" },
+      { nm: "decisions in the proxy",   value: 4, label: "4", cls: "internal" }
+    ],
+    barsLabel: "Same machine. Different process. That is the whole of the difference.",
+    derived: "localhost", derivedCap: "The only address the service now knows",
+    svcState: "holds: <b>nothing</b><br>talks to: <b>localhost</b>",
+    carState: "holds: <b>4 decisions</b><br>talks to: <b>the internet</b>",
+    bridge: "not a library, not a base class — its own process, with its own lifecycle",
+    out: { cls: "c-context", txt: "Act 4 — each service talks to a proxy running beside it" }
+  },
+  {
+    title: "Step 8 — Four proxies, one configuration, and the same night again",
+    text: "All four proxies read the same configuration object — not four equal copies of it, the same one. The test says so with assertSame rather than assertEquals, because four equal copies would be March all over again with better manners. Now run the same night. The gateway still wobbles for three hundred milliseconds. Nothing about the network improved. But every service makes three attempts, twelve of twelve are spent, and nobody is refused. The policy was not applied four times and missed once. It was stated once.",
+    active: ["b-car"],
+    label: "The same four payments, on the same bad night",
+    fields: [
+      { nm: "subscription-billing", note: "3 attempts, 603ms — paid", tag: "3 of 12", cls: "good" },
+      { nm: "checkout",             note: "3 attempts, 603ms — paid", tag: "6 of 12", cls: "good" },
+      { nm: "refunds",              note: "3 attempts, 603ms — paid", tag: "9 of 12", cls: "good" },
+      { nm: "marketplace-payouts",  note: "3 attempts, 603ms — paid", tag: "12 of 12", cls: "good" },
+      { nm: "SidecarConfig",        note: "maxAttempts=3 firstBackoff=200ms deadline=2000ms tls=TLS1.3", tag: "read by all 4", cls: "drawn" }
+    ],
+    bars: [
+      { nm: "places the policy is written", value: 1, label: "1", cls: "best" },
+      { nm: "attempts spent",               value: 12, label: "12 of 12", cls: "internal" },
+      { nm: "payments refused",             value: 0.001, label: "none", cls: "device" }
+    ],
+    barsLabel: "Stated once, rather than applied four times and missed once",
+    derived: "12 of 12, 0 refused", derivedCap: "The same wobble, the same allowance",
+    svcState: "holds: <b>nothing</b><br>talks to: <b>localhost</b>",
+    carState: "holds: <b>one config</b><br>shared by: <b>all four</b>",
+    bridge: "assertSame(one, sidecar.config()) — identity, not equality",
+    out: { cls: "c-pick", txt: "  total                 12 of 12 allowed, 0 refused" }
+  },
+  {
+    title: "Step 9 — The bill, part one: twice as many things to run",
+    text: "Read all three rows of this table or none of them. The copies fall from sixteen to four, and the places to edit a policy fall from four to one — those are why you would do this. The third row is why it is not free. Four proxies is four more processes wanting memory, a version number, a restart when they are patched, and a line in somebody's runbook. The first row is the one that scales, though: add a fifth service that takes payments and the copies go from sixteen to twenty the old way. Beside the services, it is still four.",
+    active: [],
+    label: "What the pattern moved, and what it did not",
+    fields: [
+      { nm: "copies of a decision",     note: "sixteen, before → four, after", tag: "16 → 4", cls: "good" },
+      { nm: "places to edit a policy",  note: "four repositories → one statement", tag: "4 → 1", cls: "good" },
+      { nm: "processes to run and patch", note: "four services → four services and four proxies", tag: "4 → 8", cls: "wrong" },
+      { nm: "copiesBesideTheServices()", note: "takes no argument at all", tag: "the answer", cls: "drawn" }
+    ],
+    bars: [
+      { nm: "copies before",   value: 16, label: "16", cls: "worst" },
+      { nm: "copies after",    value: 4,  label: "4",  cls: "best" },
+      { nm: "processes before", value: 4, label: "4",  cls: "internal" },
+      { nm: "processes after",  value: 8, label: "8",  cls: "device" }
+    ],
+    barsLabel: "Two rows improved. One got worse. All three are real.",
+    derived: "4 → 8 processes", derivedCap: "What you now run, monitor and patch",
+    svcState: "holds: <b>nothing</b><br>costs: <b>1 process</b>",
+    carState: "holds: <b>4 decisions</b><br>costs: <b>1 more process</b>",
+    bridge: "retry counts and certificates are facts about the network — whether a refund is allowed after ninety days is not",
+    out: { cls: "c-bad", txt: "Act 5 — processes to run and patch                     4         8" }
+  },
+  {
+    title: "Step 10 — The bill, part two: a second thing that can be down",
+    text: "A healthy gateway, a healthy service, a healthy network — and the proxy beside checkout fails to start after a patch. Connection refused to localhost. The number to look at is the next one: attempts that reached the gateway, zero. The request never left the machine, and the service has no retry code left to fall back on, because we deleted it on purpose. You added a dependency to every single call in order to make those calls more reliable. That trade is usually worth it, because a proxy on the same machine with no business logic in it fails far less often than the internet does. But it is a trade, and when it goes wrong it goes wrong for every call the service makes rather than for one of them.",
+    active: [], broken: ["b-car"],
+    label: "Everything healthy except the thing next door",
+    fields: [
+      { nm: "the payment gateway", note: "perfectly fine", tag: "up", cls: "good" },
+      { nm: "the network",         note: "perfectly fine", tag: "up", cls: "good" },
+      { nm: "checkout itself",     note: "perfectly fine", tag: "up", cls: "good" },
+      { nm: "the proxy beside it", note: "failed to start after a patch", tag: "down", cls: "wrong" },
+      { nm: "result",              note: "connection refused to localhost — no sidecar beside checkout", tag: "every call", cls: "waste" }
+    ],
+    bars: [
+      { nm: "requests attempted",           value: 3, label: "3", cls: "internal" },
+      { nm: "attempts that reached the gateway", value: 0.001, label: "0", cls: "worst" }
+    ],
+    barsLabel: "When a sidecar goes, it takes every call that service makes",
+    derived: "0", derivedCap: "Attempts that reached the gateway",
+    svcState: "holds: <b>nothing</b><br>can do: <b>nothing</b>",
+    carState: "holds: <b>4 decisions</b><br>state: <b>not running</b>",
+    bridge: "rarer than the network's failures, and wider when it happens",
+    out: { cls: "c-bad", txt: "Act 6 — attempts that reached the gateway: 0" }
+  },
+  {
+    title: "Step 11 — The bill, part three: one millisecond, on every call, forever",
+    text: "The same payment, the same policy, the same wobble, measured both ways. Retry code inside the service: three attempts, six hundred milliseconds. Retry code in a proxy next door: three attempts, six hundred and three. Three milliseconds, which is one millisecond per attempt for crossing to a neighbouring process and back. On a payment that already takes six hundred, that is nothing. On an internal call that takes two milliseconds it is a fifty per cent increase — and in a system where every service talks through a proxy, every hop between two services is paid twice, once leaving one and once entering the next. That is the arithmetic that decides whether a service mesh belongs in your system, and it is arithmetic, not taste.",
+    active: ["b-svc", "b-car"],
+    label: "The same three attempts, timed both ways",
+    fields: [
+      { nm: "retry code inside the service", note: "3 attempts, 600ms", tag: "baseline", cls: "inner" },
+      { nm: "retry code in a proxy next door", note: "3 attempts, 603ms", tag: "+3ms", cls: "drawn" },
+      { nm: "per attempt",                    note: "one millisecond, each way, every time", tag: "the hop", cls: "wrong" }
+    ],
+    bars: [
+      { nm: "inside the service", value: 600, label: "600ms", cls: "internal" },
+      { nm: "through the proxy",  value: 603, label: "603ms", cls: "best" }
+    ],
+    barsLabel: "Small, real, and paid for as long as the service exists",
+    derived: "+1ms per attempt", derivedCap: "The hop, priced",
+    svcState: "holds: <b>nothing</b><br>pays: <b>1ms per attempt</b>",
+    carState: "holds: <b>4 decisions</b><br>adds: <b>a hop</b>",
+    bridge: "on a 600ms payment, nothing · on a 2ms internal call, fifty per cent",
+    out: { cls: "c-out", txt: "Act 7 — 3 milliseconds, which is 1ms per attempt" }
+  },
+  {
+    title: "Step 12 — The admission: this is Decorator, until you deploy it",
+    text: "Everything you have just watched happened inside one Java program, and in one program a proxy that a service talks through is an object wrapping another object — which is the Decorator pattern, from earlier in this course. The code is not new. What makes this a different pattern is not the code, it is where the code runs. A decorator is compiled into your jar, is written in your language, and changes when your service is rebuilt. A sidecar is its own process, may be written in a language nobody on your team knows, and changes when somebody restarts it. So the question is never wrapper or no wrapper. It is: does this concern need to change without rebuilding the service, or apply to a service written in a language your library does not support? Yes to either, and it goes next door. No to both, and a shared library in your own process is cheaper, faster, and has one fewer thing that can fail.",
+    active: ["b-car"],
+    label: "The two questions that decide it",
+    fields: [
+      { nm: "same structure",  note: "an object wrapping another object — §11, Decorator", tag: "true", cls: "inner" },
+      { nm: "different process", note: "own lifecycle, own language, own restart", tag: "the difference", cls: "drawn" },
+      { nm: "must change without a rebuild?", note: "yes → next door", tag: "question 1", cls: "good" },
+      { nm: "a language your library cannot support?", note: "yes → next door", tag: "question 2", cls: "good" },
+      { nm: "no to both",      note: "a shared library in your own process is cheaper and simpler", tag: "not this pattern", cls: "wrong" }
+    ],
+    bars: [
+      { nm: "difference in the class diagram", value: 0.001, label: "none", cls: "worst" },
+      { nm: "difference in the deployment",    value: 8, label: "everything", cls: "best" }
+    ],
+    barsLabel: "Nothing in the structure. Everything in the deployment.",
+    derived: "where it runs", derivedCap: "The whole of what makes this a sidecar",
+    svcState: "holds: <b>nothing</b><br>rebuilt: <b>never, for this</b>",
+    carState: "holds: <b>4 decisions</b><br>changed by: <b>a restart</b>",
+    bridge: "you have met this already: the log shipper, the metrics agent, the nginx in front of your app",
+    out: { cls: "c-pick", txt: "  It is where the code runs, not what the code is." }
+  }
+];
+
+const ALL_BOXES = ["b-svc", "b-car"];
+const STEP_MS = 9000;
+const GAP_MS = 700;
+
+const $ = id => document.getElementById(id);
+const fieldsEl = $("fields");
+const barsEl = $("bars");
+const labelEl = $("family-label");
+const barsLabelEl = $("bars-label");
+const derivedEl = $("derived-value");
+const derivedCapEl = $("derived-cap");
+const svcEl = $("svc-state");
+const carEl = $("car-state");
+const bridgeEl = $("bridge-rail");
+const linesEl = $("console-lines");
+const progressEl = $("progress");
+const noteEl = $("audio-note");
+
+let idx = -1, playing = false, timer = null, audioOn = false, current = null;
+
+STEPS.forEach(() => {
+  const d = document.createElement("div");
+  d.className = "dot";
+  progressEl.appendChild(d);
+});
+
+// ---- optional narration ---------------------------------------------------
+
+const clips = STEPS.map((_, i) => {
+  const a = new Audio("audio/step-" + (i + 1) + ".m4a");
+  a.preload = "none";
+  return a;
+});
+
+function stopAudio() {
+  if (current) { current.pause(); current.currentTime = 0; current = null; }
+}
+
+function playClip(i, onDone) {
+  stopAudio();
+  if (!audioOn) { if (onDone) onDone(); return; }
+
+  const a = clips[i];
+  current = a;
+  a.currentTime = 0;
+  a.onended = () => { current = null; if (onDone) onDone(); };
+
+  a.play().catch(() => {
+    // Missing file, or autoplay blocked -> fall back to timed pacing.
+    current = null;
+    noteEl.textContent =
+      "Narration audio could not be played — falling back to timed steps. " +
+      "Run docs/make_animation_audio.sh to generate the clips.";
+    if (onDone) onDone();
+  });
+}
+
+function setAudio(on) {
+  audioOn = on;
+  const btn = $("audio");
+  btn.classList.toggle("on", on);
+  btn.setAttribute("aria-pressed", String(on));
+  btn.innerHTML = '<span id="audio-icon">' + (on ? "&#128266;" : "&#128263;") +
+                  "</span>&nbsp; Narration: " + (on ? "on" : "off");
+  noteEl.textContent = on
+    ? "Each step is narrated, and the animation waits for the voice to finish."
+    : "";
+  if (!on) stopAudio();
+}
+
+// ---------------------------------------------------------------------------
+
+/** One line of the ledger, a decision, or a service: a name, a note, and a tag. */
+function fieldRow(row) {
+  const el = document.createElement("div");
+  el.className = "field-row" + (row.cls ? " " + row.cls : "");
+
+  const name = document.createElement("span");
+  name.className = "nm";
+  name.textContent = row.nm;
+
+  const note = document.createElement("span");
+  note.className = "note";
+  note.textContent = row.note || "";
+
+  const tag = document.createElement("span");
+  tag.className = "tag";
+  tag.textContent = row.tag || "";
+
+  el.append(name, note, tag);
+  return el;
+}
+
+/** One comparison bar, scaled against the largest value in the same panel. */
+function barRow(entry, top) {
+  const el = document.createElement("div");
+  el.className = "bar-row" + (entry.cls ? " " + entry.cls : "");
+
+  const name = document.createElement("span");
+  name.className = "nm";
+  name.textContent = entry.nm;
+
+  const track = document.createElement("span");
+  const bar = document.createElement("span");
+  bar.className = "bar";
+  bar.style.width = (entry.value * 100 / top) + "%";
+  track.appendChild(bar);
+
+  const val = document.createElement("span");
+  val.className = "val";
+  val.textContent = entry.label;
+
+  el.append(name, track, val);
+  return el;
+}
+
+function clearHighlights() {
+  ALL_BOXES.forEach(b => {
+    $(b).classList.remove("active");
+    $(b).classList.remove("broken");
+  });
+}
+
+function render(i) {
+  clearHighlights();
+  const s = STEPS[i];
+
+  (s.active || []).forEach(b => $(b).classList.add("active"));
+  (s.broken || []).forEach(b => $(b).classList.add("broken"));
+
+  fieldsEl.innerHTML = "";
+  (s.fields || []).forEach(r => fieldsEl.appendChild(fieldRow(r)));
+
+  barsEl.innerHTML = "";
+  if (s.bars && s.bars.length) {
+    const top = Math.max(...s.bars.map(b => b.value));
+    s.bars.forEach(b => barsEl.appendChild(barRow(b, top)));
+  }
+
+  labelEl.textContent = s.label;
+  barsLabelEl.textContent = s.barsLabel;
+  svcEl.innerHTML = s.svcState;
+  carEl.innerHTML = s.carState;
+  derivedEl.innerHTML = s.derived || "&mdash;";
+  derivedCapEl.textContent = s.derivedCap || "";
+
+  bridgeEl.textContent = s.bridge || "";
+  bridgeEl.classList.add("active");
+
+  $("narration").innerHTML =
+    '<div class="step-no">' + s.title + '</div><div class="text">' + s.text + '</div>';
+
+  // Rebuild console output up to this step
+  linesEl.innerHTML = "";
+  for (let k = 0; k <= i; k++) {
+    if (!STEPS[k].out) continue;
+    const div = document.createElement("div");
+    div.className = "ln " + STEPS[k].out.cls;
+    div.textContent = STEPS[k].out.txt;
+    linesEl.appendChild(div);
+    requestAnimationFrame(() => div.classList.add("show"));
+  }
+
+  [...progressEl.children].forEach((d, k) => d.classList.toggle("on", k <= i));
+}
+
+/** Advance one step. In play mode, schedule the following step afterwards. */
+function next() {
+  if (idx >= STEPS.length - 1) { stop(); return; }
+  idx++;
+  render(idx);
+
+  if (!playing) { playClip(idx); return; }
+
+  if (audioOn) {
+    // Wait for the voice to finish this step, then move on.
+    playClip(idx, () => {
+      if (!playing) return;
+      timer = setTimeout(next, GAP_MS);
+    });
+  } else {
+    timer = setTimeout(next, STEP_MS);
+  }
+}
+
+function stop() {
+  playing = false;
+  clearTimeout(timer);
+  stopAudio();
+  $("play").innerHTML = "&#9654;&nbsp; Play";
+  $("step").disabled = false;
+}
+
+function reset() {
+  stop();
+  idx = -1;
+  clearHighlights();
+  fieldsEl.innerHTML = "";
+  barsEl.innerHTML = "";
+  labelEl.textContent = "Four services, and the four things each one had to decide";
+  barsLabelEl.textContent = "Copies of a cross-cutting decision";
+  svcEl.innerHTML = "holds: <b>4 decisions</b><br>talks to: <b>the internet</b>";
+  carEl.innerHTML = "holds: <b>&mdash;</b><br>talks to: <b>&mdash;</b>";
+  derivedEl.innerHTML = "&mdash;";
+  derivedCapEl.textContent = "How many copies of one decision?";
+  linesEl.innerHTML = "";
+  bridgeEl.textContent = "";
+  bridgeEl.classList.remove("active");
+  [...progressEl.children].forEach(d => d.classList.remove("on"));
+  $("narration").innerHTML =
+    '<div class="step-no">Ready</div><div class="text">Press <b>Play</b> to watch one policy change land in three services out of four &mdash; and then to watch what moving it out of all four really costs.</div>';
+}
+
+$("play").addEventListener("click", () => {
+  if (playing) { stop(); return; }
+  if (idx >= STEPS.length - 1) reset();
+  playing = true;
+  $("play").innerHTML = "&#10074;&#10074;&nbsp; Pause";
+  $("step").disabled = true;
+  next();   // next() now schedules the rest of the run itself
+});
+
+$("step").addEventListener("click", () => { stop(); if (idx >= STEPS.length - 1) reset(); next(); });
+$("reset").addEventListener("click", reset);
+
+$("audio").addEventListener("click", () => {
+  setAudio(!audioOn);
+  // Turning narration on mid-run: speak the step already on screen.
+  if (audioOn && playing && idx >= 0) {
+    clearTimeout(timer);
+    playClip(idx, () => {
+      if (!playing) return;
+      timer = setTimeout(next, GAP_MS);
+    });
+  }
+});
+
+document.addEventListener("keydown", e => {
+  if (e.code === "Space") { e.preventDefault(); $("play").click(); }
+  if (e.code === "ArrowRight") { e.preventDefault(); $("step").click(); }
+  if (e.code === "KeyR") reset();
+  if (e.code === "KeyN") $("audio").click();
+});
+
+setAudio(false);
+reset();
+</script>
+</body>
+</html>

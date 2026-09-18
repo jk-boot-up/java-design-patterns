@@ -1,0 +1,26 @@
+// Tier 2 is a build of its own.
+//
+// This is deliberate, and it is the convention every Tier 2 directory in the
+// category follows. The parent project's `settings.gradle` does not include
+// this build, so `./gradlew test` one directory up never sees it, never tries
+// to resolve Spring, and passes on a machine with no network and no Docker. A
+// reader who wants Tier 2 runs `./demo.sh` from inside `real/` instead.
+rootProject.name = 'sidecar-java-proxy-real'
+
+include 'gateway'
+include 'payments'
+
+// The third subproject is the one this whole project exists for, and it is the
+// only Tier 2 module in the category that is not a Spring Boot application. It
+// is plain Java on the JDK's own HTTP server, because a forty-line proxy that
+// pulls in a web framework is not a forty-line proxy and the line count is part
+// of the argument.
+include 'javaproxy'
+
+dependencyResolutionManagement {
+    versionCatalogs {
+        libs {
+            from(files('../../gradle/libs.versions.toml'))
+        }
+    }
+}

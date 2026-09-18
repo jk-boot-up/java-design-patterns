@@ -84,3 +84,19 @@ never an exact duration, and the slides quote a representative run.
 On `bullets` and `quote` slides the body starts at y=260 and steps 60 pixels a
 line, with the footer at y≈1022 — so twelve body lines is the hard maximum, and
 nothing warns you if you exceed it.
+
+Suggested description:
+
+> Learn the bulkhead pattern in Java 21, starting from one thread pool doing
+> two jobs with nothing in common: taking a customer's order, and importing
+> an overnight supplier feed. The shared pool is presented fairly — no bug,
+> every test passing, nobody would object in review — and then four slow
+> batches take four threads and the shopper is still waiting. Notice what
+> the logs show: nothing. Starved and broken look identical from outside. We
+> use a ship's hull for the analogy, including the part people skip, which
+> is that the walls take up space. A bigger pool only moves the number and
+> an unbounded queue moves the failure somewhere worse. The mechanism itself
+> is deliberately an anticlimax: a fixed pool, a bounded queue, and a name.
+> The same bad night now sells the espresso machine while the feed jams, a
+> fifth batch is refused in zero milliseconds, and the bill is two idle
+> threads sitting beside two jobs waiting for a thread.

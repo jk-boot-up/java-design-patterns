@@ -17,6 +17,8 @@ Saga Pattern in Java - Placing an Order, Safely
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
+Learn the saga pattern in Java 21, starting from the sentence everything else follows from: across five services there is nothing to roll back. Four calls in a try block are taken seriously, and then the courier refuses — seventy pounds ninety-five taken, no parcel, and nothing threw. We say why a transaction annotation does not help and why nobody uses two- phase commit, then use a holiday booking for the analogy: flight, hotel, hire car, and the word approximately. The mechanism is a step that knows how to execute, how to compensate, and whether it can be compensated at all, plus an orchestrator that keeps a list going forward, undoes it going backwards, and never throws. Reverse order turns out to be the only safe order. The second half is what undoing costs you: the ledger shows a charge and a refund — two lines, not zero, because compensation is not rollback — the refund itself can fail and the unwinding carries on to a third outcome, and there is no unsend, which is why steps that cannot be undone go last.
+
 CHAPTERS
 00:00 Introduction
 01:06 One Checkout, Five Services

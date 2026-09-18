@@ -47,6 +47,11 @@ th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
          vertical-align: top; }
 th { background: var(--panel-hi); font-weight: 600; }
 tr:nth-child(even) td { background: rgba(30, 41, 59, 0.55); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
 ul, ol { margin: 14px 0; padding-left: 26px; }
 li { margin: 7px 0; }
 ul.task { list-style: none; padding-left: 4px; }
@@ -63,7 +68,7 @@ footer {
 <h1>Composite Pattern — Project Specification</h1>
 <p>The single reference document for this project: what it teaches, how it is built, and the quality bar its video and its YouTube publication have to meet.</p>
 <p>This is a <em>specification</em>, not a tutorial. It says what must be true and why. The teaching material itself lives in <a href="composite-pattern-explained.md"><code>composite-pattern-explained.md</code></a>; the problem it addresses is set out at length in <a href="problem-statement.md"><code>problem-statement.md</code></a>.</p>
-<p>Where this document repeats a rule from the repository-wide <a href="../../../docs/video-and-publishing-spec.html"><code>video-and-publishing-spec.md</code></a>, that document is the authority. This project&#x27;s <code>video/build_video.sh</code> is generated from <code>creational/abstract-factory-pattern</code>&#x27;s, differing only in the pattern name and the output filenames, so a change to the pipeline belongs there and in the repository-wide spec, not here.</p>
+<p>Where this document repeats a rule from the repository-wide <a href="../../../docs/video-and-publishing-spec.md"><code>video-and-publishing-spec.md</code></a>, that document is the authority. This project&#x27;s <code>video/build_video.sh</code> is generated from <code>creational/abstract-factory-pattern</code>&#x27;s, differing only in the pattern name and the output filenames, so a change to the pipeline belongs there and in the repository-wide spec, not here.</p>
 <hr>
 <h2>1. Purpose</h2>
 <p>Teach how to treat a single thing and a collection of things through the same interface, so that code walking a tree never has to ask which one it is holding.</p>
@@ -130,7 +135,7 @@ footer {
 <p>Subtitles are uploaded from the generated <code>.srt</code> rather than left to YouTube&#x27;s automatic captions, which mis-transcribe class names throughout.</p>
 <hr>
 <h2>8. Conformance</h2>
-<p>This project is compliant when all of the following hold. The full version, which governs all fourteen projects, is in <a href="../../../docs/video-and-publishing-spec.html"><code>video-and-publishing-spec.md</code></a> §9.</p>
+<p>This project is compliant when all of the following hold. The full version, which governs all fourteen projects, is in <a href="../../../docs/video-and-publishing-spec.md"><code>video-and-publishing-spec.md</code></a> §9.</p>
 <ul class="task"><li>The worked example is e-commerce.</li><li><code>./gradlew build</code> passes, and the README quotes the real <code>./gradlew run</code> output, which still matches.</li><li>Scene 1 follows the four-step opening of §5.1 — what the video is, the author credit, the pattern&#x27;s definition in general terms, and only then the e-commerce scenario.</li><li><code>RATE</code> is 145 and <code>VOICE</code> is Samantha.</li><li><code>CLEANUP</code> is exactly as §5.4 gives it — no <code>afftdn</code>, no <code>lowpass</code>.</li><li>Per-scene audio is PCM; exactly one AAC encode, at the mux.</li><li><code>loudnorm</code> is two-pass with <code>linear=true</code>.</li><li>The build prints <code>audio timeline continuous: N packets, no gaps</code>.</li><li><code>poster.png</code> shows the correct pattern name and contains no strikethrough, confirmed by looking at it.</li><li><code>docs/youtube.md</code> has all seven sections, and its chapter timings match the current <code>.srt</code>.</li><li><code>video/README.md</code> describes the pipeline as it actually is.</li></ul>
 <p>Last verified: all eleven items pass. The delivered MP4 measures -16.02 LUFS integrated, -3.59 dBTP true peak, and both streams start at 0.000.</p>
 <hr>

@@ -1,0 +1,46 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    # This name is the lookup key. The config server matches it to
+    # `config-repo/checkout-service.yml` and serves that file to this service
+    # and to nothing else.
+    name: checkout-service
+
+  # The one line that makes this service a config client.
+  #
+  # `optional:` is deliberately absent. Without it, a checkout service that
+  # cannot reach the config server refuses to start, which is the behaviour
+  # this pattern wants: there is no compiled-in fallback threshold, so a
+  # service that starts anyway would have to invent a number, and an invented
+  # price is worse than a service that is honestly down.
+  config:
+    import: "configserver:http://localhost:8888"
+
+  cloud:
+    config:
+      # Retry the config server rather than failing on the first refused
+      # connection. Six attempts over roughly ten seconds covers the ordinary
+      # case of the two services being started together, without turning a
+      # genuinely absent server into a two-minute hang.
+      fail-fast: true
+      retry:
+        initial-interval: 1000
+        max-attempts: 6
+        max-interval: 3000
+
+management:
+  endpoints:
+    web:
+      exposure:
+        # `refresh` is the endpoint the whole demo turns on: POST to it and
+        # every @RefreshScope bean is rebuilt from a freshly fetched
+        # configuration. `env` is exposed so a reader can see for themselves
+        # which property source supplied the threshold.
+        #
+        # In a real deployment both of these sit behind authentication, and
+        # `refresh` in particular is a write operation that changes prices.
+        # It is open here because a demo that begins with setting up OAuth is
+        # a demo nobody finishes.
+        include: health,refresh,env

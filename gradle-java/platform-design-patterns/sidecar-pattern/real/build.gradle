@@ -1,0 +1,55 @@
+// Settings shared by both Tier 2 services.
+//
+// Every version here comes from the category catalogue at
+// `platform-design-patterns/gradle/libs.versions.toml`. Nothing in this file
+// names a version directly, because eight projects each choosing their own
+// Spring Boot is exactly the drift the catalogue exists to stop.
+//
+// Both services are ordinary Spring Boot web applications and neither of them
+// has a dependency the other does not, which is the point worth noticing in a
+// project about sidecars: the payments service has no HTTP client library for
+// talking to a payment provider, no retry library, no TLS configuration and no
+// metrics client. It has a client for talking to localhost, and that is all.
+
+plugins {
+    alias(libs.plugins.springBoot) apply false
+    alias(libs.plugins.springDependencyManagement) apply false
+}
+
+subprojects {
+    apply plugin: 'java'
+    apply plugin: 'org.springframework.boot'
+    apply plugin: 'io.spring.dependency-management'
+
+    group = 'com.jk.explore'
+    version = '1.0.0'
+
+    java {
+        toolchain {
+            languageVersion = JavaLanguageVersion.of(21)
+        }
+    }
+
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        implementation 'org.springframework.boot:spring-boot-starter-web'
+
+        // Boot 4 split the HTTP client out of the web starter. The server side
+        // no longer brings the client side with it, so a service that makes an
+        // outgoing call has to ask for one by name or the context fails with
+        // "required a bean of type org.springframework.web.client.RestClient$Builder".
+        //
+        // Both services get it here rather than only `payments`, because the
+        // gateway's test endpoints are easier to read with the same client.
+        implementation 'org.springframework.boot:spring-boot-starter-restclient'
+    }
+
+    // A plain, predictable jar name, because the Dockerfiles copy it by name
+    // and a version number in the path is one more thing to keep in step.
+    tasks.named('bootJar') {
+        archiveFileName = "${project.name}.jar"
+    }
+}

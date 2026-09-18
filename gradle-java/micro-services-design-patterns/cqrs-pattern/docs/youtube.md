@@ -17,6 +17,8 @@ CQRS in Java - Order History Without the Joins
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
+Learn CQRS in Java 21 through one order history page: written once, read a thousand times. The composing version is read generously — the catalog call is batched, nobody would object to it — and it costs two hundred and seventy milliseconds, six service calls, and a quieter problem: the page needs other services to be up. So cache it. That is a good idea and it is taken seriously before it is taken apart, because a cache cannot answer one question: how would it ever find out it is wrong? A rename settles it — one copy still says the old name, and the other was corrected by the very event that made it wrong. That is the difference between a cache and a read model, and no expiry setting bridges it. Then the bill, honestly: the work moved to write time rather than vanishing, there is a second copy to keep, and there is a window where that copy is behind — shown rather than described. The rule to carry away is the last line: show a read model's number, never decide with it.
+
 CHAPTERS
 00:00 Introduction
 01:01 The Shop, And One Page

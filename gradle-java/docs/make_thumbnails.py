@@ -131,6 +131,29 @@ META = {
     "idempotent-consumer": (['IDEMPOTENT', 'CONSUMER'],
                         "Same message twice, one effect",
                         "seen(message.id())"),
+    "externalised-configuration": (['EXTERNALISED', 'CONFIGURATION'],
+                               "Change it without a deploy",
+                               "settings.money(setting)"),
+    "distributed-tracing": (['DISTRIBUTED', 'TRACING'],
+                        "See where the time went",
+                        "start(parent, \"pricing\")"),
+    "backends-for-frontends": (['BACKENDS FOR', 'FRONTENDS'],
+                           "One shape cannot serve two screens",
+                           "phone.productScreen(sku)"),
+    "sidecar": (['SIDECAR'], "Move it out, beside the service",
+            "sidecar.send(payment)"),
+    # The pair-mates carry the deployment in the promise line, because the
+    # pattern name alone would make three thumbnails look identical.
+    "sidecar-java-proxy": (['SIDECAR', 'JAVA PROXY'],
+                       "Swap the proxy, not the service",
+                       "forty lines of Java"),
+    "sidecar-on-kubernetes": (['SIDECAR ON', 'KUBERNETES'],
+                          "Two containers, one Pod",
+                          "kubectl: 2/2"),
+    "event-sourcing": (['EVENT', 'SOURCING'], "Store the facts, not the total",
+                   "events.foldTo(balance)"),
+    "strangler-fig": (['STRANGLER', 'FIG'], "One route at a time, no cutover",
+                  "router.moveToNew(PRICING)"),
 }
 
 GROUP = {
@@ -161,6 +184,13 @@ GROUP.update({slug: "micro-services-design-patterns" for slug in (
     "api-gateway", "service-discovery", "load-balancing", "retry",
     "circuit-breaker", "bulkhead", "database-per-service", "api-composition",
     "cqrs", "saga", "transactional-outbox", "idempotent-consumer")})
+
+# The platform projects likewise share one directory, and Sidecar accounts for
+# three of the eight slugs.
+GROUP.update({slug: "platform-design-patterns" for slug in (
+    "externalised-configuration", "distributed-tracing",
+    "backends-for-frontends", "sidecar", "sidecar-java-proxy",
+    "sidecar-on-kubernetes", "event-sourcing", "strangler-fig")})
 
 
 def f(path, size):

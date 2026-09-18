@@ -122,6 +122,24 @@ network partitions, no capacity planning. Finish this project and you will know
 what an API gateway is and could write one. You will not have run one in
 production.
 
+## Technologies and versions
+
+Nothing here is a range and nothing is `latest`: a course that worked last year and does
+not work today is worse than one that never took the dependency.
+
+| What | Version | Why it is here |
+| --- | --- | --- |
+| Java | 21 | The repository standard, requested through the Gradle toolchain block |
+| Gradle | 9.2.1 | The wrapper in this directory; no separate install needed |
+| JUnit 5 | 5.10.2 | The 25 tests, through `junit-bom` so the Jupiter artefacts cannot disagree |
+
+That is the entire list, and the short version of it is the point. **This project has no
+runtime dependency at all** — the `dependencies` block in `build.gradle` names nothing but
+JUnit, and JUnit is `testImplementation`. There is no Spring, no HTTP client, no JSON
+library and no container. Every one of the twelve projects in this category is built the
+same way, so a reader who can run one can run all of them, offline, with a JDK and nothing
+else.
+
 ## Learning Material
 
 | Document | What it covers |
@@ -129,6 +147,9 @@ production.
 | [`docs/problem-statement.md`](docs/problem-statement.md) | Four calls from a train, with the numbers, and the product page that gets lost |
 | [`docs/api-gateway-pattern-explained.md`](docs/api-gateway-pattern-explained.md) | The pattern from a hotel reception desk, the code, the costs, and gateway vs facade |
 | [`docs/class-diagram.md`](docs/class-diagram.md) | The types, and why `MobileApp` depends on exactly one thing |
+| [`docs/architecture-diagram.md`](docs/architecture-diagram.md) | What would be running, how far apart it would be, and the 200-against-10 that is the whole argument |
+| [`docs/data-flow-diagram.md`](docs/data-flow-diagram.md) | One page, hop by hop: what each service adds, and the one fork that is the pattern's only decision |
+| [`docs/sequence-diagram.md`](docs/sequence-diagram.md) | The healthy page in call order, with the clock running — and why four calls fit inside one |
 | [`docs/uml-diagram.md`](docs/uml-diagram.md) | Four sequences: the happy path, both failure paths, and no gateway at all |
 | [`docs/animation.html`](docs/animation.html) | The timeline, one call at a time, in a browser |
 | [`docs/prerequisites.md`](docs/prerequisites.md) | What you need to know, what you explicitly do not, and how to get a JDK |
@@ -138,7 +159,59 @@ production.
 
 ### The pattern in one picture
 
+The class diagram, and the thing to look for is the count of arrows leaving `MobileApp`.
+There is one. Everything it used to know — four addresses, four response shapes, which of
+the four it could afford to lose — now lives behind `ProductPageGateway`.
+
 ![Class diagram](docs/images/class-diagram.png)
+
+### What runs where
+
+The lower half is the literal truth: one JVM, no network. The upper half is what it models
+— a phone, a data centre, and a boundary that only the gateway crosses.
+
+![Architecture diagram](docs/images/architecture-diagram.png)
+
+### How the data moves
+
+One page, from the tap to the pixels. A token and a product code go out; four services'
+answers come back combined into one object, and exactly one of those four is allowed to be
+missing.
+
+![Data flow diagram](docs/images/data-flow-diagram.png)
+
+### Who calls whom, in order
+
+The same page in call order, with the clock down the side. The app's single call opens at
+0ms and closes at 240ms, and all four internal calls happen inside it.
+
+![Sequence diagram](docs/images/sequence-diagram.png)
+
+### All four sequences
+
+The full set from [`docs/uml-diagram.md`](docs/uml-diagram.md), in the order that document
+argues them.
+
+**One. The happy path, with a gateway.** One slow crossing, four fast ones inside it.
+
+![The happy path, with a gateway](docs/images/uml-diagram.png)
+
+**Two. An optional service is down.** Recommendations refuses to answer, the gateway
+substitutes an empty list, and the shopper gets a product page and is told nothing —
+because for them nothing is wrong.
+
+![The failure path: an optional service is down](docs/images/uml-diagram-2.png)
+
+**Three. An essential service is down.** Pricing fails and the gateway deliberately does
+not rescue it. Inventory is never called, because there is no point stocking a product
+whose price is unknown.
+
+![The failure path: an essential service is down](docs/images/uml-diagram-3.png)
+
+**Four. No gateway at all.** Four slow crossings, four token checks, and the name, the
+price and the stock all discarded when the last call fails.
+
+![The comparison: no gateway at all](docs/images/uml-diagram-4.png)
 
 ### Video
 

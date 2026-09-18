@@ -1,0 +1,4 @@
+# Tier 2 build output. The sources, the configuration and the demo script are
+# the deliverable; nothing Gradle or Spring produces from them is.
+build/
+.gradle/

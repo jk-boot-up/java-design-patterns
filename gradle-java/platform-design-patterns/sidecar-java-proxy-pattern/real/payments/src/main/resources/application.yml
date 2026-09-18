@@ -1,0 +1,25 @@
+# The whole configuration of a service that takes money.
+#
+# There is no provider address here, no retry count, no deadline, no TLS
+# profile and no metrics prefix. The one address it holds is on its own
+# machine, and the port belongs to the proxy sharing this container's network.
+server:
+  port: 8080
+
+spring:
+  application:
+    name: ${SHOP_SERVICE_NAME:payments}
+
+shop:
+  service-name: ${SHOP_SERVICE_NAME:payments}
+  # localhost, and nothing else. In Docker Compose the sidecar joins this
+  # container's network namespace, so "localhost" here really is the same
+  # network stack, exactly as it would be for two processes on one host or two
+  # containers in one Kubernetes Pod.
+  sidecar-address: ${SHOP_SIDECAR_ADDRESS:http://localhost:8081}
+
+logging:
+  pattern:
+    console: "%d{HH:mm:ss}  ${SHOP_SERVICE_NAME:payments}  %m%n"
+  level:
+    root: WARN

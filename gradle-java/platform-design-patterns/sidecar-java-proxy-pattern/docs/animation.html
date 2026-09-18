@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sidecar with a Java Proxy — Animated Walkthrough</title>
+<style>
+  :root {
+    --bg: #0f172a;
+    --panel: #1e293b;
+    --panel-hi: #334155;
+    --line: #475569;
+    --text: #e2e8f0;
+    --muted: #94a3b8;
+    --client: #38bdf8;
+    --context: #34d399;
+    --strategy: #a78bfa;
+    --picked: #fbbf24;
+    --bad: #f87171;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 28px 20px 60px;
+    background: var(--bg);
+    color: var(--text);
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  h1 { text-align: center; font-size: 28px; margin: 0 0 4px; }
+  .sub { text-align: center; color: var(--muted); margin: 0 0 24px; font-size: 15px; }
+
+  .wrap { max-width: 1100px; margin: 0 auto; }
+
+  .controls { display: flex; gap: 10px; justify-content: center; margin-bottom: 26px; flex-wrap: wrap; }
+  button {
+    background: var(--panel-hi); color: var(--text); border: 1px solid var(--line);
+    padding: 9px 20px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer;
+    transition: background .15s, transform .1s;
+  }
+  button:hover:not(:disabled) { background: #475569; }
+  button:active:not(:disabled) { transform: translateY(1px); }
+  button:disabled { opacity: .4; cursor: not-allowed; }
+  button.primary { background: var(--strategy); color: #1e1b4b; border-color: var(--strategy); }
+  button.primary:hover:not(:disabled) { background: #b9a3ff; }
+  button.on { background: #0c2b3d; border-color: var(--client); color: var(--client); }
+  button.on:hover:not(:disabled) { background: #123a52; }
+
+  .audio-note {
+    text-align: center; color: var(--muted); font-size: 12.5px;
+    margin: -14px 0 22px; min-height: 17px;
+  }
+
+  .stage { display: grid; grid-template-columns: 250px 1fr; gap: 22px; align-items: start; }
+
+  .col-side { display: flex; flex-direction: column; align-items: center; gap: 12px; padding-top: 20px; }
+
+  .box {
+    background: var(--panel); border: 2px solid var(--line); border-radius: 12px;
+    padding: 14px 16px; text-align: center; width: 100%;
+    transition: border-color .3s, box-shadow .3s, transform .3s, background .3s;
+  }
+  .box .name { font-weight: 700; font-size: 13.5px; letter-spacing: .2px; }
+  .box .role { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-top: 3px; }
+  .box.active {
+    transform: translateY(-3px);
+    box-shadow: 0 0 0 3px rgba(255,255,255,.07), 0 10px 28px rgba(0,0,0,.45);
+    border-color: var(--client); background: #0c2b3d;
+  }
+  /* the proxy box lights green when it is carrying the policy, red when it is down */
+  .box.car.active { border-color: var(--context); background: #06281f; box-shadow: 0 0 0 3px rgba(52,211,153,.15); }
+  .box.car.broken, .box.svc.broken {
+    border-color: var(--bad); background: #2b0f12; box-shadow: 0 0 0 3px rgba(248,113,113,.15);
+  }
+  .holding {
+    margin-top: 9px; padding-top: 8px; border-top: 1px dashed var(--line);
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11.5px;
+    color: var(--muted); line-height: 1.6;
+  }
+  .holding b { color: var(--picked); font-weight: 700; }
+
+  .col-main { display: flex; flex-direction: column; gap: 18px; }
+
+  .family {
+    border: 2px dashed var(--client); border-radius: 14px; padding: 18px 20px;
+    background: rgba(56,189,248,.05);
+  }
+  .family.bars { border-color: var(--strategy); background: rgba(167,139,250,.05); }
+  .family-label {
+    font-size: 11px; color: var(--client); text-transform: uppercase;
+    letter-spacing: 1.4px; font-weight: 700; margin-bottom: 14px; text-align: center;
+  }
+  .family.bars .family-label { color: var(--strategy); }
+
+  /* ---- one row per service, decision, or attempt -------------------------- */
+
+  .field-row {
+    display: grid; grid-template-columns: 210px 1fr 130px; align-items: center; gap: 10px;
+    padding: 5px 8px; border-radius: 7px; margin-bottom: 4px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12.5px;
+    border: 1px solid transparent; color: var(--muted);
+    animation: appear .32s ease-out both;
+  }
+  @keyframes appear { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: none; } }
+  .field-row .nm { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .field-row .note { font-size: 11.5px; }
+  .field-row .tag { text-align: right; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; white-space: nowrap; }
+  .field-row.drawn { border-color: var(--picked); background: rgba(251,191,36,.10); color: var(--text); }
+  .field-row.drawn .nm { color: var(--picked); font-weight: 700; }
+  .field-row.waste { border-color: rgba(248,113,113,.4); background: rgba(248,113,113,.07); }
+  .field-row.waste .tag { color: #fca5a5; }
+  .field-row.call { border-color: var(--client); background: rgba(56,189,248,.08); color: var(--text); }
+  .field-row.call .nm { color: var(--client); }
+  .field-row.inner { border-color: rgba(52,211,153,.35); background: rgba(52,211,153,.06); }
+  .field-row.inner .tag { color: var(--context); }
+  .field-row.wrong { border-color: var(--bad); background: rgba(248,113,113,.13); color: var(--text); }
+  .field-row.wrong .nm { color: #fca5a5; font-weight: 700; }
+  .field-row.good { border-color: var(--context); background: rgba(52,211,153,.10); color: var(--text); }
+  .field-row.good .nm { color: var(--context); font-weight: 700; }
+
+  /* ---- the comparison bars ------------------------------------------------ */
+
+  .bar-row {
+    display: grid; grid-template-columns: 200px 1fr 118px; align-items: center; gap: 10px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12.5px;
+    padding: 4px 8px; margin-bottom: 3px; border-radius: 6px;
+    animation: appear .32s ease-out both;
+  }
+  .bar-row .val { text-align: right; color: var(--muted); font-size: 11.5px; white-space: nowrap; }
+  .bar-row .nm { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .bar { height: 13px; border-radius: 3px; background: var(--strategy); min-width: 3px; display: block;
+         transition: width .4s ease; }
+  .bar-row.best .nm { color: var(--picked); font-weight: 700; }
+  .bar-row.best .bar { background: var(--picked); }
+  .bar-row.worst .bar { background: var(--bad); }
+  .bar-row.device .bar { background: var(--bad); }
+  .bar-row.internal .bar { background: var(--context); }
+
+  .derived {
+    border: 2px solid var(--strategy); border-radius: 10px; padding: 12px 16px;
+    background: rgba(167,139,250,.07); text-align: center;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 14px;
+  }
+  .derived b { color: var(--picked); font-size: 18px; }
+  .derived .cap { display: block; font-size: 11px; color: var(--muted);
+    text-transform: uppercase; letter-spacing: 1.2px; margin-bottom: 6px;
+    font-family: ui-sans-serif, system-ui, sans-serif; }
+
+  .bridge-rail {
+    min-height: 26px; text-align: center; color: var(--muted);
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12.5px;
+    opacity: 0; transition: opacity .3s;
+  }
+  .bridge-rail.active { opacity: 1; }
+
+  .narration {
+    background: var(--panel); border: 1px solid var(--line); border-radius: 12px;
+    padding: 16px 20px; min-height: 104px;
+  }
+  .narration .step-no {
+    font-size: 11px; color: var(--strategy); text-transform: uppercase;
+    letter-spacing: 1.4px; font-weight: 700; margin-bottom: 7px;
+  }
+  .narration .text { font-size: 14.5px; line-height: 1.65; }
+  .narration b { color: var(--picked); }
+
+  .console {
+    background: #0b1220; border: 1px solid var(--line); border-radius: 12px;
+    padding: 14px 18px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 12.5px; min-height: 96px;
+  }
+  .console .ttl {
+    font-size: 10.5px; color: var(--muted); text-transform: uppercase;
+    letter-spacing: 1.3px; margin-bottom: 9px; font-family: ui-sans-serif, system-ui, sans-serif;
+  }
+  .ln { opacity: 0; transform: translateY(4px); transition: opacity .3s, transform .3s; line-height: 1.75; }
+  .ln.show { opacity: 1; transform: none; }
+  .c-out { color: var(--text); }
+  .c-context { color: var(--context); }
+  .c-strategy { color: var(--strategy); }
+  .c-pick { color: var(--picked); }
+  .c-bad { color: var(--bad); }
+
+  .progress { display: flex; gap: 6px; justify-content: center; margin: 22px 0 8px; }
+  .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--line); transition: background .3s; }
+  .dot.on { background: var(--strategy); }
+
+  .legend {
+    max-width: 880px; margin: 14px auto 0; text-align: center;
+    color: var(--muted); font-size: 13px; line-height: 1.7;
+  }
+  .legend b { color: var(--text); }
+
+  @media (max-width: 860px) {
+    .stage { grid-template-columns: 1fr; }
+    .field-row { grid-template-columns: 140px 1fr 96px; }
+    .bar-row { grid-template-columns: 130px 1fr 92px; }
+  }
+</style></head>
+<body>
+<div class="wrap">
+
+  <h1>Sidecar, With the Proxy Written in Java</h1>
+  <p class="sub">A sentence the configuration language has no words for, a proxy replaced underneath a running service, and a bill longer than the benefit</p>
+
+  <div class="controls">
+    <button id="play" class="primary">&#9654;&nbsp; Play</button>
+    <button id="step">Step &rarr;</button>
+    <button id="reset">Reset</button>
+    <button id="audio" aria-pressed="false" title="Narrate each step (N)">
+      <span id="audio-icon">&#128263;</span>&nbsp; Narration: off
+    </button>
+  </div>
+  <p class="audio-note" id="audio-note"></p>
+
+  <div class="stage">
+
+    <div class="col-side">
+      <div class="box svc" id="b-svc">
+        <div class="name">checkout</div>
+        <div class="role">Never restarted</div>
+        <div class="holding" id="svc-state">sends to: <b>localhost:8081</b><br>knows: <b>nothing else</b></div>
+      </div>
+      <div style="font-size:11px;color:var(--muted);text-align:center;line-height:1.5">
+        one address between them,<br>and that is the whole contract
+      </div>
+      <div class="box car" id="b-car">
+        <div class="name">whatever is on the port</div>
+        <div class="role">Its own process</div>
+        <div class="holding" id="car-state">bound: <b>nginx</b><br>can wait between attempts: <b>no</b></div>
+      </div>
+      <div style="font-size:11px;color:var(--muted);text-align:center;line-height:1.5">
+        one payment provider<br>at the other end:<br>
+        <b style="color:var(--bad)">unwell for 300ms</b>
+      </div>
+    </div>
+
+    <div class="col-main">
+
+      <div class="family">
+        <div class="family-label" id="family-label">The service, the address, and whatever is bound to it</div>
+        <div id="fields"></div>
+      </div>
+
+      <div class="derived" id="derived">
+        <span class="cap" id="derived-cap">The whole contract between the two</span>
+        <b id="derived-value">&mdash;</b>
+      </div>
+
+      <div class="family bars">
+        <div class="family-label" id="bars-label">Nothing measured yet</div>
+        <div id="bars"></div>
+      </div>
+
+      <div class="bridge-rail" id="bridge-rail"></div>
+
+      <div class="narration" id="narration">
+        <div class="step-no">Ready</div>
+        <div class="text">Press <b>Play</b> to watch a proxy replaced underneath a running service &mdash; and then to watch what writing your own proxy really costs.</div>
+      </div>
+
+      <div class="console">
+        <div class="ttl">Program output</div>
+        <div id="console-lines"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="progress" id="progress"></div>
+
+  <p class="legend">
+    <b>Swap the proxy when the thing you need cannot be said in the configuration language at all.</b><br>
+    Not when it is awkward, and not when you would rather write Java. Here the missing sentence was the difference between a payment going through and a payment failing &mdash; and that is roughly the only thing that clears the bar, because a configuration language you cannot express everything in is also a fence that keeps the shop's business rules out of the proxy.<br>
+    <span style="font-size:12px">
+      Keys: <b>Space</b> play/pause &nbsp;·&nbsp; <b>&rarr;</b> next step
+      &nbsp;·&nbsp; <b>N</b> narration &nbsp;·&nbsp; <b>R</b> reset
+    </span>
+  </p>
+
+</div>
+
+<script>
+// Every step declares the whole picture rather than a delta, so stepping backwards
+// shows exactly what stepping forwards showed.
+//
+// Field-row fields: nm, note, tag, cls.  Bar-row fields: nm, value, label, cls.
+// Every figure below is from `./gradlew run`, not from memory.
+
+const STEPS = [
+  {
+    title: "Step 1 — Where the last project left off",
+    text: "Checkout takes payments, and the code that knows how to talk to the payment provider is not in it any more. It moved next door into a proxy — that is the Sidecar pattern, and that project is the one to read first. What matters here is the one line of configuration the service has left. An address on its own machine. Not a provider hostname, not a certificate, not a retry count. Whatever is listening there answers, and checkout has no way to find out what it is. Today it is nginx: about twenty-two lines of configuration in a container somebody else wrote, tested, hardened and has been patching for twenty years.",
+    active: ["b-svc", "b-car"],
+    label: "Everything the service knows about reaching the provider",
+    fields: [
+      { nm: "the endpoint",    note: "http://localhost:8081/pay", tag: "one line", cls: "drawn" },
+      { nm: "a retry count",   note: "not in the service", tag: "next door", cls: "inner" },
+      { nm: "a certificate",   note: "not in the service", tag: "next door", cls: "inner" },
+      { nm: "a deadline",      note: "not in the service", tag: "next door", cls: "inner" },
+      { nm: "what is on the port", note: "nginx — and the service cannot ask", tag: "unknown to it", cls: "call" }
+    ],
+    bars: [], barsLabel: "Nothing measured yet — this is where §41 finished",
+    derived: "an address", derivedCap: "The whole contract between the service and its proxy",
+    svcState: "sends to: <b>localhost:8081</b><br>knows: <b>nothing else</b>",
+    carState: "bound: <b>nginx</b><br>written in: <b>nginx config</b>",
+    bridge: "not a library · not a language · not a shared build — an address",
+    out: { cls: "c-out", txt: "Act 1 — the service's entire configuration: http://localhost:8081/pay" }
+  },
+  {
+    title: "Step 2 — The letter, and the half of it that cannot be kept",
+    text: "In March the payment provider wrote to every merchant asking for two things. At most three attempts per payment, and wait properly between them. The shop agreed to both. The configuration says three attempts, and everybody went home. Read the second half of that sentence again, because it is the whole problem. nginx can say the first. It cannot say the second.",
+    active: ["b-car"],
+    label: "Two things the provider asked for",
+    fields: [
+      { nm: "at most three attempts", note: "the configuration says three", tag: "kept", cls: "good" },
+      { nm: "wait properly between them", note: "there is no directive for this", tag: "not kept", cls: "wrong" },
+      { nm: "the agreed policy", note: "maxAttempts=3 firstBackoff=200ms deadline=2000ms tls=TLS1.3", tag: "on paper", cls: "drawn" }
+    ],
+    bars: [
+      { nm: "halves of the agreement kept", value: 1, label: "1 of 2", cls: "worst" }
+    ],
+    barsLabel: "The half that limits the shop was kept. The half that would have helped was not.",
+    derived: "1 of 2", derivedCap: "Halves of the agreement the shop can actually honour",
+    svcState: "sends to: <b>localhost:8081</b><br>told about this: <b>nothing</b>",
+    carState: "bound: <b>nginx</b><br>can wait between attempts: <b>no</b>",
+    bridge: "nobody noticed, because nothing failed on the day it was agreed",
+    out: { cls: "c-out", txt: "  at most three attempts per payment, and wait properly between them" }
+  },
+  {
+    title: "Step 3 — The wobble, and three attempts that bought nothing",
+    text: "The provider has a bad three hundred milliseconds. Nothing is broken and nobody needs paging — it declines everything, and then it is fine again. A customer buys a coffee maker for forty-seven pounds ninety-nine. The proxy makes its three allowed attempts, and here is what the provider itself recorded, with the times taken at its end rather than the shop's. One millisecond. Two milliseconds. Three milliseconds. Three attempts spanning two milliseconds, against a provider that did not recover until three hundred. Every one of them landed inside the bad window, because they were all made inside the bad window. The shop spent its entire allowance for that payment before the provider had time to get better, and the customer got nothing.",
+    active: ["b-car"], broken: ["b-car"],
+    label: "What the provider recorded, at its own end",
+    fields: [
+      { nm: "attempt at 1ms",  note: "declined — 503, temporarily unable to authorise", tag: "inside the window", cls: "wrong" },
+      { nm: "attempt at 2ms",  note: "declined", tag: "inside the window", cls: "wrong" },
+      { nm: "attempt at 3ms",  note: "declined", tag: "inside the window", cls: "wrong" },
+      { nm: "provider recovers at 300ms", note: "nobody is left to ask", tag: "too late", cls: "waste" },
+      { nm: "ORD-4418  £47.99", note: "NOT PAID", tag: "the customer leaves", cls: "waste" }
+    ],
+    bars: [
+      { nm: "first attempt to last", value: 2, label: "2ms", cls: "worst" },
+      { nm: "time until the provider is well", value: 300, label: "300ms", cls: "internal" }
+    ],
+    barsLabel: "The whole allowance, spent in two milliseconds",
+    derived: "2ms", derivedCap: "From the first attempt to the last",
+    svcState: "sends to: <b>localhost:8081</b><br>gets back: <b>NOT PAID</b>",
+    carState: "bound: <b>nginx</b><br>attempts made: <b>3, in 2ms</b>",
+    bridge: "the times are the provider's, not the proxy's — a proxy reporting on itself is a claim",
+    out: { cls: "c-bad", txt: "Act 2 — 3 attempts, first to last: 2ms   ·   ORD-4418  £47.99  NOT PAID" }
+  },
+  {
+    title: "Step 4 — Nobody wrote a bug",
+    text: "This is the part that makes it a design problem rather than a defect. nginx does not have a retry counter. What it has is an upstream group — a list of servers — and a rule that says if this one fails, try the next one in the list. The shop's configuration lists the provider's address three times, because three entries is how you spell up to three attempts when the upstream is a single address. Moving to the next entry happens immediately, and that was a good decision for the case nginx was built for: in a pool of machines the next machine is a different machine and is probably fine, so waiting first would only make every request slower for nothing. It stops being a good decision the moment every entry in the pool is the one address that is currently unwell. There is nothing to fix. The sentence does not exist in the language.",
+    active: ["b-car"],
+    label: "How nginx thinks it is retrying",
+    fields: [
+      { nm: "upstream entry 1", note: "the provider's address", tag: "attempt 1", cls: "call" },
+      { nm: "upstream entry 2", note: "the same address", tag: "attempt 2", cls: "call" },
+      { nm: "upstream entry 3", note: "the same address", tag: "attempt 3", cls: "call" },
+      { nm: "move to the next server", note: "immediately — the next one is a different machine, and is probably fine", tag: "the assumption", cls: "drawn" },
+      { nm: "a backoff directive",  note: "there is no such directive in the http proxy module", tag: "does not exist", cls: "wrong" }
+    ],
+    bars: [
+      { nm: "different machines nginx thinks it is trying", value: 3, label: "3", cls: "internal" },
+      { nm: "different machines it is actually trying",     value: 1, label: "1", cls: "worst" }
+    ],
+    barsLabel: "Correct almost everywhere. Wrong in front of a single supplier.",
+    derived: "no such directive", derivedCap: "What you would change to fix it",
+    svcState: "sends to: <b>localhost:8081</b><br>involved in this: <b>not at all</b>",
+    carState: "bound: <b>nginx</b><br>has no words for: <b>wait, then retry</b>",
+    bridge: "this is not a criticism of nginx — it is a criticism of using it for one thing it was not built for",
+    out: { cls: "c-out", txt: "Act 3 — what the installed proxy has no words for: wait 200ms, doubling" }
+  },
+  {
+    title: "Step 5 — Three ways out, and why two of them are bad",
+    text: "You could put the waiting back in the service — which undoes the entire previous project, because four services means four copies of the waiting and the next policy change lands in three of them. You could script the proxy: nginx will run Lua, and njs will run JavaScript, and either one can express a delay. But then you are writing code inside a proxy you chose because it was configured rather than programmed, in a language most of your team does not use, with worse tooling and nowhere obvious to put a test. Or you could put a different proxy on the port. That third option only exists because of a decision made in the last project: the contract between the service and its proxy is an address, not a library. Nothing about it is Java, and nothing about it is nginx.",
+    active: ["b-svc", "b-car"],
+    label: "Three responses to a missing sentence",
+    fields: [
+      { nm: "put the waiting back in the service", note: "four services, four copies, and the next change lands in three", tag: "undoes §41", cls: "wrong" },
+      { nm: "script the proxy in Lua or njs", note: "code in a proxy you chose for its config file", tag: "a worse language", cls: "wrong" },
+      { nm: "put a different proxy on the port", note: "the service is already talking to an address", tag: "this project", cls: "good" }
+    ],
+    bars: [
+      { nm: "service changes needed", value: 0.001, label: "none", cls: "best" },
+      { nm: "proxy changes needed",   value: 1, label: "replace it", cls: "internal" }
+    ],
+    barsLabel: "A far weaker promise than a library dependency, and exactly as sufficient",
+    derived: "an address", derivedCap: "Why the third option is available at all",
+    svcState: "sends to: <b>localhost:8081</b><br>needs changing: <b>no</b>",
+    carState: "bound: <b>nginx</b><br>replaceable: <b>yes</b>",
+    bridge: "§41 made that claim in one sentence and moved on — a claim is not a demonstration",
+    out: { cls: "c-out", txt: "  put a different proxy on the port     — this project" }
+  },
+  {
+    title: "Step 6 — The swap",
+    text: "Somebody writes a proxy. It is about forty lines of Java and the whole of it is one shape: read the policy, try, catch, wait, double the wait, try again. Compare it with the nginx proxy's loop and they are the same loop with one statement missing — and the statement is not missing because whoever wrote the nginx version forgot it. It is missing because there was nothing to write it with. Now put the new one on the port, with one line. Look at what that line does not take: no reference to the service, nothing it could use to notify one, and nothing it could use to restart one. The start number did not move, and that is not the demo being careful. There is exactly one place in the whole program where a payments service is constructed, and it runs before the first act.",
+    active: ["b-car"],
+    label: "Before and after one line of configuration",
+    fields: [
+      { nm: "before — listening", note: "nginx", tag: "22 lines", cls: "call" },
+      { nm: "after  — listening", note: "java-proxy", tag: "40 lines", cls: "good" },
+      { nm: "checkout's start number", note: "1, before and after", tag: "unchanged", cls: "drawn" },
+      { nm: "checkout's endpoint", note: "http://localhost:8081/pay, before and after", tag: "unchanged", cls: "drawn" },
+      { nm: "payments services ever started", note: "one, and the demo could not construct a second if it wanted to", tag: "1", cls: "good" }
+    ],
+    bars: [
+      { nm: "lines changed in the service", value: 0.001, label: "0", cls: "best" },
+      { nm: "restarts of the service",      value: 0.001, label: "0", cls: "best" },
+      { nm: "proxies replaced",             value: 1, label: "1", cls: "internal" }
+    ],
+    barsLabel: "Checkout was not told. There is no method on it to tell.",
+    derived: "port.install(java)", derivedCap: "The entire swap",
+    svcState: "start number: <b>1</b><br>rebuilt: <b>no</b>",
+    carState: "bound: <b>java-proxy</b><br>written in: <b>Java</b>",
+    bridge: "proved by identity, not by behaviour — a service that merely behaves the same is one somebody rebuilt",
+    out: { cls: "c-context", txt: "Act 4 — after the swap, listening: java-proxy   ·   start number: 1" }
+  },
+  {
+    title: "Step 7 — The same wobble, the same three attempts",
+    text: "Identical provider, identical bad three hundred milliseconds, identical payment, identical allowance of three attempts. One millisecond. Two hundred and two. Six hundred and three — and that one is charged. Read this against the earlier block and notice what is not different. Three attempts in both. The provider's allowance is untouched, the shop is not being greedier, and the change costs the provider nothing at all. The only thing that changed is when the third attempt arrives, and by six hundred milliseconds the provider is well again. The spacing was the difference between a customer walking away and a coffee maker being sold.",
+    active: ["b-car"],
+    label: "The same provider log, on the same bad night",
+    fields: [
+      { nm: "attempt at 1ms",   note: "declined", tag: "inside the window", cls: "wrong" },
+      { nm: "attempt at 202ms", note: "declined", tag: "inside the window", cls: "wrong" },
+      { nm: "attempt at 603ms", note: "charged", tag: "after it recovered", cls: "good" },
+      { nm: "ORD-4418  £47.99", note: "pay_ORD-4418 (3 attempts, 603ms waiting)", tag: "paid", cls: "good" }
+    ],
+    bars: [
+      { nm: "attempts, nginx",      value: 3, label: "3", cls: "internal" },
+      { nm: "attempts, java-proxy", value: 3, label: "3", cls: "internal" },
+      { nm: "first to last, nginx",      value: 2,   label: "2ms", cls: "worst" },
+      { nm: "first to last, java-proxy", value: 602, label: "602ms", cls: "best" }
+    ],
+    barsLabel: "Same allowance. Same provider. Different spacing.",
+    derived: "602ms", derivedCap: "From the first attempt to the last",
+    svcState: "sends to: <b>localhost:8081</b><br>gets back: <b>a receipt</b>",
+    carState: "bound: <b>java-proxy</b><br>waits: <b>200ms, then 400ms</b>",
+    bridge: "the doubling matters — a fixed wait brings the whole shop back at the same instant",
+    out: { cls: "c-pick", txt: "Act 5 — 3 attempts, first to last: 602ms   ·   pay_ORD-4418" }
+  },
+  {
+    title: "Step 8 — The gap in the middle of a swap",
+    text: "The last two steps skipped something, and it is the thing that will actually page somebody. A swap is not instant. The old proxy stops and the new one starts, and in between there is a moment when nothing is listening on the port at all. A payment that arrives then does not fail slowly, it fails immediately — and the service has nothing to fall back on, because its retry code was deleted in the last project, on purpose. A healthy provider, a healthy network, a healthy service, and zero attempts reached anybody. The request never left the machine. So a real swap is not one line; it is a rollout. Start the new proxy before stopping the old one, move one service at a time, and keep the old proxy installable — because the honest reason to be able to swap forwards is to be able to swap back.",
+    active: [], broken: ["b-car"],
+    label: "Everything healthy, and a payment that reaches nobody",
+    fields: [
+      { nm: "the payment provider", note: "perfectly fine", tag: "up", cls: "good" },
+      { nm: "the network",          note: "perfectly fine", tag: "up", cls: "good" },
+      { nm: "checkout itself",      note: "perfectly fine", tag: "up", cls: "good" },
+      { nm: "the port",             note: "nothing is bound to it", tag: "empty", cls: "wrong" },
+      { nm: "ORD-4419  £31.50",     note: "connection refused to localhost:8081 — nothing is listening", tag: "NOT PAID", cls: "waste" }
+    ],
+    bars: [
+      { nm: "payments attempted",             value: 1, label: "1", cls: "internal" },
+      { nm: "attempts that reached the provider", value: 0.001, label: "0", cls: "worst" }
+    ],
+    barsLabel: "Invisible at the provider's end — nothing in its dashboards will ever show this",
+    derived: "0", derivedCap: "Attempts that reached the provider",
+    svcState: "sends to: <b>localhost:8081</b><br>falls back on: <b>nothing</b>",
+    carState: "bound: <b>nothing</b><br>state: <b>mid-swap</b>",
+    bridge: "start the new proxy first, confirm it answers, and only then stop the old one",
+    out: { cls: "c-bad", txt: "Act 6 — attempts that reached the provider: 0" }
+  },
+  {
+    title: "Step 9 — What you just bought",
+    text: "Two proxies. One is configured in nginx's configuration language, the other is written in Java. They go on the same port, beside the same service, and they are handed the same policy object. The service's source file is byte-for-byte identical in both runs. The previous project claimed that a sidecar is language-independent — that the proxy may be written in a language nobody on your team knows, and the service will not care. That claim was true and it was unsupported, because every line of evidence in that project was Java talking to Java. This is not a claim about language independence. It is language independence, happening.",
+    active: ["b-svc", "b-car"],
+    label: "The demonstration this project exists for",
+    fields: [
+      { nm: "nginx",      note: "nginx configuration, 22 lines", tag: "was on the port", cls: "call" },
+      { nm: "java-proxy", note: "Java, 40 lines", tag: "is on the port", cls: "good" },
+      { nm: "the policy",  note: "the same object, read by both", tag: "identical", cls: "drawn" },
+      { nm: "the service", note: "byte-for-byte the same file in both runs", tag: "untouched", cls: "drawn" },
+      { nm: "what java-proxy has no words for", note: "nothing", tag: "the gap is closed", cls: "good" }
+    ],
+    bars: [
+      { nm: "languages on the port", value: 2, label: "2", cls: "best" },
+      { nm: "service rebuilds",      value: 0.001, label: "0", cls: "internal" },
+      { nm: "times the port was replaced", value: 2, label: "2", cls: "device" }
+    ],
+    barsLabel: "Two proxies, two languages, one port, one unchanged service",
+    derived: "2 languages, 1 port", derivedCap: "A demonstration rather than a claim",
+    svcState: "restarts: <b>0</b><br>source changes: <b>0</b>",
+    carState: "bound: <b>java-proxy</b><br>nginx: <b>still installable</b>",
+    bridge: "a claim is not a demonstration — this is the step that pays §41's debt",
+    out: { cls: "c-pick", txt: "Act 7 — nginx  22 lines   ·   java-proxy  40 lines" }
+  },
+  {
+    title: "Step 10 — And what you paid for it",
+    text: "A pattern taught without its costs is an advertisement, and the honest accounting here mostly argues against doing it. Twenty-two lines of somebody else's configuration became forty lines of your own code — yours to test, to review, to keep working on the next JDK, and to fix at three in the morning. Everything nginx brought for free is gone until you write it: TLS termination, a structured access log, connection pooling, and twenty years of somebody answering security advisories before you have heard of them. A JVM now sits beside every service where a few megabytes of nginx used to sit. And nothing stops the next person putting the shop's refund rules in the proxy, because a general-purpose language will happily let them. So the rule is narrow. Swap the proxy when the thing you need cannot be said in the configuration language at all. Not when it is awkward, and not when you would rather write Java. Here the missing sentence was the difference between a payment going through and a payment failing, and that clears the bar. Very little else does.",
+    active: [],
+    label: "The bill, which is longer than the benefit",
+    fields: [
+      { nm: "lines you now own",  note: "22 of somebody else's config became 40 of yours", tag: "22 → 40", cls: "wrong" },
+      { nm: "TLS termination",    note: "gone until you write it", tag: "lost", cls: "wrong" },
+      { nm: "structured access log", note: "gone until you write it", tag: "lost", cls: "wrong" },
+      { nm: "connection pooling", note: "gone until you write it", tag: "lost", cls: "wrong" },
+      { nm: "security advisories", note: "twenty years of somebody answering them before you heard of them", tag: "lost", cls: "wrong" },
+      { nm: "a JVM beside every service", note: "where a few megabytes of nginx used to sit", tag: "multiply it", cls: "wrong" },
+      { nm: "the fence",          note: "a config file could not express a refund rule. Java will let anybody put one in.", tag: "gone", cls: "waste" },
+      { nm: "the rule",           note: "swap it when the sentence cannot be said at all", tag: "narrow", cls: "drawn" }
+    ],
+    bars: [
+      { nm: "lines of nginx configuration", value: 22, label: "22", cls: "best" },
+      { nm: "lines of Java you maintain",   value: 40, label: "40", cls: "worst" }
+    ],
+    barsLabel: "Most of the time the right answer is to keep nginx and accept the gap",
+    derived: "the choice, not the code", derivedCap: "What §41 actually bought you",
+    svcState: "restarts: <b>0</b><br>still: <b>knows nothing</b>",
+    carState: "bound: <b>java-proxy</b><br>maintained by: <b>you, now</b>",
+    bridge: "swapping back is the same decision in the other order — that optionality is the real prize",
+    out: { cls: "c-out", txt: "  swap the proxy when the thing you need cannot be said at all" }
+  }
+];
+
+const ALL_BOXES = ["b-svc", "b-car"];
+const STEP_MS = 9000;
+const GAP_MS = 700;
+
+const $ = id => document.getElementById(id);
+const fieldsEl = $("fields");
+const barsEl = $("bars");
+const labelEl = $("family-label");
+const barsLabelEl = $("bars-label");
+const derivedEl = $("derived-value");
+const derivedCapEl = $("derived-cap");
+const svcEl = $("svc-state");
+const carEl = $("car-state");
+const bridgeEl = $("bridge-rail");
+const linesEl = $("console-lines");
+const progressEl = $("progress");
+const noteEl = $("audio-note");
+
+let idx = -1, playing = false, timer = null, audioOn = false, current = null;
+
+STEPS.forEach(() => {
+  const d = document.createElement("div");
+  d.className = "dot";
+  progressEl.appendChild(d);
+});
+
+// ---- optional narration ---------------------------------------------------
+
+const clips = STEPS.map((_, i) => {
+  const a = new Audio("audio/step-" + (i + 1) + ".m4a");
+  a.preload = "none";
+  return a;
+});
+
+function stopAudio() {
+  if (current) { current.pause(); current.currentTime = 0; current = null; }
+}
+
+function playClip(i, onDone) {
+  stopAudio();
+  if (!audioOn) { if (onDone) onDone(); return; }
+
+  const a = clips[i];
+  current = a;
+  a.currentTime = 0;
+  a.onended = () => { current = null; if (onDone) onDone(); };
+
+  a.play().catch(() => {
+    // Missing file, or autoplay blocked -> fall back to timed pacing.
+    current = null;
+    noteEl.textContent =
+      "Narration audio could not be played — falling back to timed steps. " +
+      "Run docs/make_animation_audio.sh to generate the clips.";
+    if (onDone) onDone();
+  });
+}
+
+function setAudio(on) {
+  audioOn = on;
+  const btn = $("audio");
+  btn.classList.toggle("on", on);
+  btn.setAttribute("aria-pressed", String(on));
+  btn.innerHTML = '<span id="audio-icon">' + (on ? "&#128266;" : "&#128263;") +
+                  "</span>&nbsp; Narration: " + (on ? "on" : "off");
+  noteEl.textContent = on
+    ? "Each step is narrated, and the animation waits for the voice to finish."
+    : "";
+  if (!on) stopAudio();
+}
+
+// ---------------------------------------------------------------------------
+
+/** One line of the ledger, a decision, or a service: a name, a note, and a tag. */
+function fieldRow(row) {
+  const el = document.createElement("div");
+  el.className = "field-row" + (row.cls ? " " + row.cls : "");
+
+  const name = document.createElement("span");
+  name.className = "nm";
+  name.textContent = row.nm;
+
+  const note = document.createElement("span");
+  note.className = "note";
+  note.textContent = row.note || "";
+
+  const tag = document.createElement("span");
+  tag.className = "tag";
+  tag.textContent = row.tag || "";
+
+  el.append(name, note, tag);
+  return el;
+}
+
+/** One comparison bar, scaled against the largest value in the same panel. */
+function barRow(entry, top) {
+  const el = document.createElement("div");
+  el.className = "bar-row" + (entry.cls ? " " + entry.cls : "");
+
+  const name = document.createElement("span");
+  name.className = "nm";
+  name.textContent = entry.nm;
+
+  const track = document.createElement("span");
+  const bar = document.createElement("span");
+  bar.className = "bar";
+  bar.style.width = (entry.value * 100 / top) + "%";
+  track.appendChild(bar);
+
+  const val = document.createElement("span");
+  val.className = "val";
+  val.textContent = entry.label;
+
+  el.append(name, track, val);
+  return el;
+}
+
+function clearHighlights() {
+  ALL_BOXES.forEach(b => {
+    $(b).classList.remove("active");
+    $(b).classList.remove("broken");
+  });
+}
+
+function render(i) {
+  clearHighlights();
+  const s = STEPS[i];
+
+  (s.active || []).forEach(b => $(b).classList.add("active"));
+  (s.broken || []).forEach(b => $(b).classList.add("broken"));
+
+  fieldsEl.innerHTML = "";
+  (s.fields || []).forEach(r => fieldsEl.appendChild(fieldRow(r)));
+
+  barsEl.innerHTML = "";
+  if (s.bars && s.bars.length) {
+    const top = Math.max(...s.bars.map(b => b.value));
+    s.bars.forEach(b => barsEl.appendChild(barRow(b, top)));
+  }
+
+  labelEl.textContent = s.label;
+  barsLabelEl.textContent = s.barsLabel;
+  svcEl.innerHTML = s.svcState;
+  carEl.innerHTML = s.carState;
+  derivedEl.innerHTML = s.derived || "&mdash;";
+  derivedCapEl.textContent = s.derivedCap || "";
+
+  bridgeEl.textContent = s.bridge || "";
+  bridgeEl.classList.add("active");
+
+  $("narration").innerHTML =
+    '<div class="step-no">' + s.title + '</div><div class="text">' + s.text + '</div>';
+
+  // Rebuild console output up to this step
+  linesEl.innerHTML = "";
+  for (let k = 0; k <= i; k++) {
+    if (!STEPS[k].out) continue;
+    const div = document.createElement("div");
+    div.className = "ln " + STEPS[k].out.cls;
+    div.textContent = STEPS[k].out.txt;
+    linesEl.appendChild(div);
+    requestAnimationFrame(() => div.classList.add("show"));
+  }
+
+  [...progressEl.children].forEach((d, k) => d.classList.toggle("on", k <= i));
+}
+
+/** Advance one step. In play mode, schedule the following step afterwards. */
+function next() {
+  if (idx >= STEPS.length - 1) { stop(); return; }
+  idx++;
+  render(idx);
+
+  if (!playing) { playClip(idx); return; }
+
+  if (audioOn) {
+    // Wait for the voice to finish this step, then move on.
+    playClip(idx, () => {
+      if (!playing) return;
+      timer = setTimeout(next, GAP_MS);
+    });
+  } else {
+    timer = setTimeout(next, STEP_MS);
+  }
+}
+
+function stop() {
+  playing = false;
+  clearTimeout(timer);
+  stopAudio();
+  $("play").innerHTML = "&#9654;&nbsp; Play";
+  $("step").disabled = false;
+}
+
+function reset() {
+  stop();
+  idx = -1;
+  clearHighlights();
+  fieldsEl.innerHTML = "";
+  barsEl.innerHTML = "";
+  labelEl.textContent = "The service, the address, and whatever is bound to it";
+  barsLabelEl.textContent = "Nothing measured yet";
+  svcEl.innerHTML = "sends to: <b>localhost:8081</b><br>knows: <b>nothing else</b>";
+  carEl.innerHTML = "bound: <b>nginx</b><br>can wait between attempts: <b>no</b>";
+  derivedEl.innerHTML = "&mdash;";
+  derivedCapEl.textContent = "The whole contract between the two";
+  linesEl.innerHTML = "";
+  bridgeEl.textContent = "";
+  bridgeEl.classList.remove("active");
+  [...progressEl.children].forEach(d => d.classList.remove("on"));
+  $("narration").innerHTML =
+    '<div class="step-no">Ready</div><div class="text">Press <b>Play</b> to watch a proxy replaced underneath a running service &mdash; and then to watch what writing your own proxy really costs.</div>';
+}
+
+$("play").addEventListener("click", () => {
+  if (playing) { stop(); return; }
+  if (idx >= STEPS.length - 1) reset();
+  playing = true;
+  $("play").innerHTML = "&#10074;&#10074;&nbsp; Pause";
+  $("step").disabled = true;
+  next();   // next() now schedules the rest of the run itself
+});
+
+$("step").addEventListener("click", () => { stop(); if (idx >= STEPS.length - 1) reset(); next(); });
+$("reset").addEventListener("click", reset);
+
+$("audio").addEventListener("click", () => {
+  setAudio(!audioOn);
+  // Turning narration on mid-run: speak the step already on screen.
+  if (audioOn && playing && idx >= 0) {
+    clearTimeout(timer);
+    playClip(idx, () => {
+      if (!playing) return;
+      timer = setTimeout(next, GAP_MS);
+    });
+  }
+});
+
+document.addEventListener("keydown", e => {
+  if (e.code === "Space") { e.preventDefault(); $("play").click(); }
+  if (e.code === "ArrowRight") { e.preventDefault(); $("step").click(); }
+  if (e.code === "KeyR") reset();
+  if (e.code === "KeyN") $("audio").click();
+});
+
+setAudio(false);
+reset();
+</script>
+</body>
+</html>

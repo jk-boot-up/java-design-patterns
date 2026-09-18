@@ -61,3 +61,21 @@ order, and the duplicate that gets through after a thirty-second memory expires.
 **The outro names no other pattern.** It closes on what the sending side owes
 the receiving side, without announcing what comes next, because the publishing
 order of these videos is not fixed.
+
+Suggested description:
+
+> Learn the idempotent consumer in Java 21, starting with why a broker sends
+> the same message twice — which is a contract rather than a bug. The
+> version everybody writes is a set of message ids held in a field. It
+> works, the duplicate is skipped, the test is green, and that is what
+> ships. Then a deploy lands between the two deliveries: the database
+> survived it and the set did not. And it is not bad luck, because a restart
+> is often the very reason the acknowledgement went missing, so the two
+> arrive together. A second failure needs no restart at all — just a crash
+> between doing the work and recording the id. One cause underneath both:
+> the effect and the record are being treated as two things. So the
+> mechanism is to put them in one transaction, and the two failures that
+> beat the in-memory set bounce off. That is exactly-once processing built
+> out of at-least-once delivery. We finish on the store's own cost — a table
+> to operate and an expiry window that is a guess — and on the cheaper
+> question to ask first, which is whether your handler needed any of this.

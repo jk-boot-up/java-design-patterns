@@ -3,8 +3,10 @@
 The fifth category. Six patterns, in eight projects, whose subject is the
 platform around a service, or the shape of a system as it changes over time.
 
-**Status: specified, not yet built.** The two documents below fix what the
-projects are before any of them is written.
+**Status: four of the eight are built** — Event Sourcing, Externalised
+Configuration, Distributed Tracing and Backends for Frontends. The two documents
+below fixed what all eight are before any of them was written, and the remaining
+four are built against them unchanged.
 
 - [`docs/spec.md`](docs/spec.md) — the scenario each pattern is taught through,
   the naive version it must show failing, the cost it must admit to, and what
@@ -17,13 +19,13 @@ projects are before any of them is written.
 
 | # | Pattern | Scenario |
 | --- | --- | --- |
-| 38 | Externalised Configuration | The free-delivery threshold that changes without a deploy |
-| 39 | Distributed Tracing | Which of four services made the product page slow |
-| 40 | Backends for Frontends | One response cannot serve a phone and a desktop |
-| 41 | Sidecar | The retry code that lives outside the service |
-| 42 | Sidecar with a Java proxy | The same service, with the proxy written in Java |
+| 38 | [Externalised Configuration](externalised-configuration-pattern) | The free-delivery threshold that changes without a deploy |
+| 39 | [Distributed Tracing](distributed-tracing-pattern) | Which of four services made the product page slow |
+| 40 | [Backends for Frontends](backends-for-frontends-pattern) | One response cannot serve a phone and a desktop |
+| 41 | [Sidecar](sidecar-pattern) | The retry code that lives outside the service |
+| 42 | [Sidecar with a Java proxy](sidecar-java-proxy-pattern) | The same service, with the proxy written in Java |
 | 43 | Sidecar on Kubernetes | Two containers in one Pod, which is where sidecars live |
-| 44 | Event Sourcing | Why is this customer's loyalty balance 140? |
+| 44 | [Event Sourcing](event-sourcing-pattern) | Why is this customer's loyalty balance 140? |
 | 45 | Strangler Fig | Replacing the checkout without a cutover weekend |
 
 Sidecar is taught three times because the deployment *is* the pattern, and

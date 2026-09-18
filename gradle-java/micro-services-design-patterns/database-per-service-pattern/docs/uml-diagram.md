@@ -1,12 +1,14 @@
 # Database per Service — Sequence Diagrams
 
-Five acts, as sequences. Only the first is rendered to an image; the rest are here as
-mermaid source, because the interesting differences between them are in the words on
-the arrows rather than in the shapes.
+Five acts, as sequences. The interesting differences between them are in the words on the
+arrows rather than in the shapes, so read the notes rather than the outlines.
+
+## Act One — One Database, One Query
 
 ![Database per Service sequence diagram](images/uml-diagram.png)
 
-## Act One — One Database, One Query
+<details>
+<summary>Mermaid source</summary>
 
 ```mermaid
 sequenceDiagram
@@ -21,7 +23,14 @@ sequenceDiagram
     Note over Page,Db: 1 round trip. A join cannot forget a name,<br/>and a foreign key guarantees the product row exists.
 ```
 
+</details>
+
 ## Act Two — The Catalog Team Renames A Column
+
+![Act Two — The Catalog Team Renames A Column](images/uml-diagram-2.png)
+
+<details>
+<summary>Mermaid source</summary>
 
 ```mermaid
 sequenceDiagram
@@ -40,7 +49,14 @@ sequenceDiagram
     Note over Cat,Page: Nobody did anything wrong. The column was theirs,<br/>and the query that names it is in another repository.
 ```
 
+</details>
+
 ## Act Three — Two Databases, Two Calls, One Assembly
+
+![Act Three — Two Databases, Two Calls, One Assembly](images/uml-diagram-3.png)
+
+<details>
+<summary>Mermaid source</summary>
 
 ```mermaid
 sequenceDiagram
@@ -67,7 +83,14 @@ sequenceDiagram
     Note over Page,CatDb: Same page. 20ms and 2 service calls,<br/>instead of 1 query.
 ```
 
+</details>
+
 ## Act Four — The Same Rename, Against A Database Catalog Owns
+
+![Act Four — The Same Rename, Against A Database Catalog Owns](images/uml-diagram-4.png)
+
+<details>
+<summary>Mermaid source</summary>
 
 ```mermaid
 sequenceDiagram
@@ -85,7 +108,14 @@ sequenceDiagram
     Note over Cat,Page: The page is unchanged. Nothing outside Catalog<br/>ever named that column.
 ```
 
+</details>
+
 ## Act Five — The Bill
+
+![Act Five — The Bill](images/uml-diagram-5.png)
+
+<details>
+<summary>Mermaid source</summary>
 
 ```mermaid
 sequenceDiagram
@@ -105,6 +135,8 @@ sequenceDiagram
     CatDb-->>Page: SKU-KETTLE -> (no longer in the catalogue)
     Note over Page,CatDb: the foreign key is gone. A rule that was impossible<br/>to break is now merely impolite to break.
 ```
+
+</details>
 
 ## Notes On Reading These
 

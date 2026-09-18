@@ -1,0 +1,24 @@
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+
+    // The client half of Config Server. This is what turns
+    // `spring.config.import: configserver:...` into an HTTP call at startup.
+    implementation 'org.springframework.cloud:spring-cloud-starter-config'
+
+    // Actuator is here for exactly one endpoint: POST /actuator/refresh. That
+    // is the thing that re-reads the config server and rebuilds every
+    // @RefreshScope bean, and it is what makes the change take effect without
+    // a restart.
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+
+    // The declared range. Tier 1 wrote this by hand in GuardedSettings; here
+    // it is @DecimalMin and @DecimalMax on the properties class, checked by
+    // the framework before the value is ever handed to the checkout code.
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}

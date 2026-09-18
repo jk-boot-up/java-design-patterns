@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tier 2 — the same pattern, with Spring Boot, OpenTelemetry and Jaeger</title>
+<style>
+:root {
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --ok: #34d399;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: #7dd3fc; }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: rgba(167, 139, 250, 0.08);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: rgba(30, 41, 59, 0.55); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+</style>
+</head>
+<body>
+<main>
+<h1>Tier 2 — the same pattern, with Spring Boot, OpenTelemetry and Jaeger</h1>
+<p>Tier 1, one directory up, is plain Java with no framework, no network and no clock you do not control. It is the lesson. This directory is the same pattern as a real deployment writes it: two Spring Boot services, a real tracing backend, and a waterfall that nobody in this repository drew.</p>
+<p><strong>Read Tier 1 first.</strong> Nothing here re-explains what a span is, why a parent id is the whole pattern, or why a waterfall is a property of the data rather than a picture. This directory answers a narrower question: what does the pattern look like when a framework already implements all of it, and — more usefully — <em>which part can still be wrong when it does?</em></p>
+<p>Everything below is captured output from <code>./demo.sh</code>. Nothing in this file is written from memory.</p>
+<h2>Run it</h2>
+<pre><code>./demo.sh</code></pre>
+<p>A JDK 21, Docker, and a network connection the first time, so Gradle can fetch Spring and Docker can pull Jaeger. The script starts Jaeger, starts both services, walks the whole sequence, and stops everything again. It takes about two minutes, most of which is the two five-second waits for spans to be exported.</p>
+<p>Tier 1 needs none of it. That asymmetry is why the two are separate Gradle builds: <code>real/settings.gradle</code> is a build of its own and the parent does not include it, so <code>../gradlew test</code> never tries to resolve Spring and passes with the network unplugged.</p>
+<h2>The two services</h2>
+<table><thead><tr><th>Service</th><th>Port</th><th>What it is</th></tr></thead><tbody><tr><td><code>product-page</code></td><td>8080</td><td>Tier 1&#x27;s <code>ProductPage</code>. Calls catalog and pricing in-process, then calls recommendations over HTTP</td></tr><tr><td><code>recommendations</code></td><td>8081</td><td>The downstream service. Runs a ranking model that is the slowest thing in the request</td></tr><tr><td>Jaeger</td><td>16686</td><td>The backend. Accepts OTLP directly on 4318, so there is no separate collector process</td></tr></tbody></table>
+<p>The delays are the same ones Tier 1 used, so the shape is comparable: catalog 120ms, pricing 180ms, the ranking model 340ms, and 60ms of the downstream service&#x27;s own work around it.</p>
+<h2>One page load, with the context forwarded</h2>
+<pre><code>{
+    &quot;sku&quot;: &quot;SKU-4417&quot;,
+    &quot;propagated&quot;: true,
+    &quot;pageTraceId&quot;: &quot;a05c5c929cc9639094af1e80905588ba&quot;,
+    &quot;recommendationsTraceId&quot;: &quot;a05c5c929cc9639094af1e80905588ba&quot;,
+    &quot;traceparentSeenDownstream&quot;: &quot;00-a05c5c929cc9639094af1e80905588ba-0daa3b625a20bbea-03&quot;,
+    &quot;sameTrace&quot;: true,
+    &quot;recommended&quot;: [&quot;SKU-4417&quot;, &quot;SKU-9002&quot;, &quot;SKU-1183&quot;]
+}</code></pre>
+<p>Two processes agree on a trace id that neither of them chose and neither of them sent. There is no line in either service that writes a <code>traceparent</code> header and no line that reads one. The instrumentation is on the <code>RestClient</code> builder at one end and on the servlet at the other.</p>
+<p>That header is worth reading field by field, because it is the entire wire protocol: <code>00</code> is the version, the long hex string is the trace id, the short one is the id of the span that will be the <em>parent</em> of whatever the downstream service opens, and <code>03</code> is the flags byte — bit one set, meaning sampled. The sampling decision travels with the request. The downstream service does not get a second vote, which is why one service quietly configured at 0.1 cannot punch holes in a trace that was already accepted at the front door.</p>
+<h2>What Jaeger holds for that trace</h2>
+<p>This is the only check in the demo that the services cannot fake. The ids above are the services&#x27; own account of themselves; this comes from a separate process that saw only what arrived on the wire.</p>
+<pre><code>  spans:    6
+  services: product-page, recommendations
+  roots:    1
+    http get /page                                  813ms   [product-page]
+      catalog                                       126ms   [product-page]
+      pricing                                       184ms   [product-page]
+      http get                                      484ms   [product-page]
+        http get /recommendations                   430ms   [recommendations]
+          ranking-model                             352ms   [recommendations]</code></pre>
+<p>Six spans, two processes, one root. The indentation is the parent reference and nothing else — the same rule Tier 1&#x27;s <code>Waterfall</code> applied with string concatenation, applied here to data that crossed a network, and drawn by <code>demo.sh</code> from Jaeger&#x27;s own API rather than taken as a screenshot of the UI.</p>
+<p>Two details in that tree are the whole argument for a real backend. The client-side span, <code>http get</code> at 484ms, is not the same span as the server-side <code>http get /recommendations</code> at 430ms; the gap between them is the network and the queueing, and it exists only because both ends were instrumented. And <code>ranking-model</code> at 352ms is nested under a span belonging to a <em>different process</em>, which is a sentence that only means anything once the parent id has crossed a wire.</p>
+<h2>The same page, through <code>RestClient.create()</code></h2>
+<pre><code>{
+    &quot;sku&quot;: &quot;SKU-4417&quot;,
+    &quot;propagated&quot;: false,
+    &quot;pageTraceId&quot;: &quot;2401370e6d1fe5037750acf7677f2f4a&quot;,
+    &quot;recommendationsTraceId&quot;: &quot;bfa6b40061bb480ef1671174a5280388&quot;,
+    &quot;traceparentSeenDownstream&quot;: &quot;none — the caller sent no traceparent header&quot;,
+    &quot;sameTrace&quot;: false,
+    &quot;recommended&quot;: [&quot;SKU-4417&quot;, &quot;SKU-9002&quot;, &quot;SKU-1183&quot;]
+}</code></pre>
+<p>Same URL, same response, same three recommendations, same latency. One line different, in <code>RecommendationsClients</code>:</p>
+<pre><code>@Bean RestClient propagatingClient(RestClient.Builder builder) {
+    return builder.baseUrl(&quot;http://localhost:8081&quot;).build();
+}
+
+@Bean RestClient nonPropagatingClient() {
+    return RestClient.create(&quot;http://localhost:8081&quot;);
+}</code></pre>
+<p>The injected builder arrives pre-loaded with the observation instrumentation that reads the current span and writes the header. The static factory is a plain constructor that owes Spring nothing and gets nothing. Both compile, both pass their tests, and one is an autocomplete away from the other.</p>
+<pre><code>  spans:    3
+  services: product-page
+  roots:    1
+    http get /page                                  768ms   [product-page]
+      catalog                                       127ms   [product-page]
+      pricing                                       191ms   [product-page]</code></pre>
+<p>This is Tier 1&#x27;s third lie, in a real system. The page still takes 768ms. The three spans account for about 320ms of it. The remaining 440ms is in the tree as nothing at all — not an error, not a gap, not a warning. The ranking model&#x27;s time is not missing from the world; it is in a second trace under a root of its own, and nothing anywhere says the two belong to the same customer.</p>
+<h2>Everything Jaeger holds, by service</h2>
+<pre><code>  product-page:
+  3 trace(s):
+    e5e21263a51851b93d25a3ec91075793  starts at http get /actuator/health    1 span(s) across product-page
+    a05c5c929cc9639094af1e80905588ba  starts at http get /page               6 span(s) across product-page, recommendations
+    2401370e6d1fe5037750acf7677f2f4a  starts at http get /page               3 span(s) across product-page
+  recommendations:
+  3 trace(s):
+    53d91777be0bf9625ad4a1483b3499e2  starts at http get /actuator/health    1 span(s) across recommendations
+    a05c5c929cc9639094af1e80905588ba  starts at http get /page               6 span(s) across product-page, recommendations
+    bfa6b40061bb480ef1671174a5280388  starts at http get /recommendations    2 span(s) across recommendations</code></pre>
+<p>Read that by what each trace <em>starts with</em>, not by how many there are. One starts at the page and reaches the ranking model. One starts at the page and stops inside it. One starts at <code>/recommendations</code>, which is not where any customer started — that is the orphan, and from the inside it looks like a perfectly healthy two-span trace of a service doing its job in 430ms.</p>
+<p>The single-span traces starting at <code>/actuator/health</code> are the script&#x27;s own readiness polling, and they are left in the output rather than filtered out because they make a point Tier 1 argued in the abstract: a sampler at 1.0 traces everything that arrives, including the traffic nobody meant to measure.</p>
+<h2>What the framework replaced, and what it did not</h2>
+<p>Tier 1 built nine classes. Here is where each one went.</p>
+<table><thead><tr><th>Tier 1</th><th>Here</th></tr></thead><tbody><tr><td><code>TraceContext</code>, <code>Span</code>, <code>Tracer</code></td><td>OpenTelemetry&#x27;s SDK, via <code>spring-boot-starter-opentelemetry</code></td></tr><tr><td>The <code>parentSpanId</code> field</td><td>The <code>traceparent</code> header, W3C Trace Context</td></tr><tr><td><code>Tracer.Scope</code>, and closing it</td><td><code>Observation.observe(...)</code>, which closes it in a <code>finally</code> you do not write</td></tr><tr><td><code>Waterfall</code></td><td>Jaeger&#x27;s UI — and, in this demo, thirty lines of Python in <code>demo.sh</code> reading Jaeger&#x27;s API, because a picture you can regenerate beats a screenshot</td></tr><tr><td><code>Sampler</code></td><td><code>management.tracing.sampling.probability</code>, default 0.1</td></tr><tr><td><code>InterleavedLog</code>, the rejected design</td><td>Nothing. It was never a thing you build; it is a thing you stop doing</td></tr><tr><td><code>AsyncHandoff</code>, the thread failure</td><td>Mostly handled, by context propagation on Spring&#x27;s executors — <strong>and not fully</strong>, see below</td></tr><tr><td><code>Clock.Scripted</code></td><td>Gone, and that is a real loss: these timings vary run to run, which is exactly why Tier 1&#x27;s numbers are the ones the videos quote</td></tr></tbody></table>
+<p>The pattern&#x27;s three failure modes survive the framework, in different states. The unclosed span is genuinely gone, because <code>observe</code> owns the lifetime. The lost thread is mostly gone, as long as the work runs on something Spring instrumented. The broken hop — the third, and the one everybody assumes a framework has solved — is one bean definition away in a file that compiles, and the demo above is what it produces.</p>
+<h2>What is not here</h2>
+<ul><li><strong>A collector.</strong> The services export straight to Jaeger on 4318. A deployment of any size puts an OpenTelemetry Collector in between, precisely so the endpoint can stay pointed at localhost while the backend behind it changes.</li><li><strong>Persistence.</strong> Jaeger is running with in-memory storage. Stop the container and every trace in this README is gone.</li><li><strong>Authentication, TLS, and head-based sampling policy.</strong> All three are deployment concerns with nothing to say about the pattern.</li><li><strong>Tier 1&#x27;s determinism.</strong> Every duration here is measured, so no two runs agree to the millisecond. Quote Tier 1&#x27;s numbers, not these.</li></ul>
+<p>Each is left out because it would cost a reader time without teaching the pattern, not because a real deployment can do without it.</p>
+<h2>Two traps Spring Boot 4 sets for anyone arriving from Boot 3</h2>
+<p>Both cost this project a wasted demo run, and both are recorded in the build files rather than only here.</p>
+<p><strong>Tracing is one starter now, not two dependencies.</strong> Under Boot 3, <code>micrometer-tracing-bridge-otel</code> plus <code>opentelemetry-exporter-otlp</code> was the recipe, and it worked because the whole of the auto-configuration lived inside the actuator. Boot 4 split observability into modules. Those same two dependencies still resolve and still compile, and the context dies at startup with <em>&quot;required a bean of type <code>io.micrometer.tracing.Tracer</code>&quot;</em> — the library is on the classpath and the auto-configuration for it is not. The answer is the single starter <code>spring-boot-starter-opentelemetry</code>.</p>
+<p><strong><code>spring-boot-starter-web</code> no longer brings an HTTP client.</strong> The same split separates the client side from the server side, so a service that calls another service needs <code>spring-boot-starter-restclient</code> by name or it fails with <em>&quot;required a bean of type <code>org.springframework.web.client.RestClient$Builder</code>&quot;</em>.</p>
+<p>Two smaller ones, for completeness. The OTLP endpoint property moved to <code>management.opentelemetry.tracing.export.otlp.endpoint</code>, with Boot 3&#x27;s <code>management.otlp.tracing.endpoint</code> kept as a deprecated alias. And the same starter exports <em>metrics</em> on its own timer to <code>/v1/metrics</code>, which Jaeger does not serve — so both services set <code>management.otlp.metrics.export.enabled: false</code> to stop a 404 stack trace once a minute that reads exactly like a tracing failure and is not one.</p>
+<h2>Versions</h2>
+<p>Everything is pinned in <a href="../../gradle/libs.versions.toml"><code>../../gradle/libs.versions.toml</code></a> and explained in <a href="../../docs/pinned-versions.md"><code>../../docs/pinned-versions.md</code></a>. Spring Boot 4.1.1, OpenTelemetry SDK 1.62.0, <code>jaegertracing/jaeger:2.20.0</code>. No ranges, no <code>latest</code>.</p>
+</main>
+<footer>
+Generated from <code>README.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

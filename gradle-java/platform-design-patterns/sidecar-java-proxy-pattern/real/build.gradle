@@ -1,0 +1,74 @@
+// Settings shared by the three Tier 2 modules.
+//
+// Every version here comes from the category catalogue at
+// `platform-design-patterns/gradle/libs.versions.toml`. Nothing in this file
+// names a version directly, because eight projects each choosing their own
+// Spring Boot is exactly the drift the catalogue exists to stop.
+//
+// Two of the three modules are ordinary Spring Boot web applications, copied
+// from §41 so that the only thing that differs between the two projects is the
+// proxy. The third, `javaproxy`, deliberately gets none of it: no Spring, no
+// starter, no dependencies at all. That asymmetry is visible in the block
+// below, and it is the point rather than an oversight.
+
+plugins {
+    alias(libs.plugins.springBoot) apply false
+    alias(libs.plugins.springDependencyManagement) apply false
+}
+
+subprojects {
+    apply plugin: 'java'
+
+    group = 'com.jk.explore'
+    version = '1.0.0'
+
+    java {
+        toolchain {
+            languageVersion = JavaLanguageVersion.of(21)
+        }
+    }
+
+    repositories {
+        mavenCentral()
+    }
+}
+
+// The two services. Both are Spring Boot, and neither has a dependency the
+// other does not -- which is the thing worth noticing in a project about
+// sidecars: the payments service has no retry library, no TLS configuration and
+// no address for the payment provider. It has a client for talking to
+// localhost, and that is all.
+configure([project(':gateway'), project(':payments')]) {
+    apply plugin: 'org.springframework.boot'
+    apply plugin: 'io.spring.dependency-management'
+
+    dependencies {
+        implementation 'org.springframework.boot:spring-boot-starter-web'
+
+        // Boot 4 split the HTTP client out of the web starter. The server side
+        // no longer brings the client side with it, so a service that makes an
+        // outgoing call has to ask for one by name or the context fails with
+        // "required a bean of type org.springframework.web.client.RestClient$Builder".
+        implementation 'org.springframework.boot:spring-boot-starter-restclient'
+    }
+
+    // A plain, predictable jar name, because the Dockerfiles copy it by name
+    // and a version number in the path is one more thing to keep in step.
+    tasks.named('bootJar') {
+        archiveFileName = "${project.name}.jar"
+    }
+}
+
+// The proxy. No dependencies block at all, and none is missing.
+//
+// It gets an executable jar the ordinary way -- a Main-Class in the manifest --
+// rather than through the Spring Boot plugin, because there is nothing to nest
+// inside a fat jar. The class file and the JDK are the entire program.
+project(':javaproxy') {
+    tasks.named('jar') {
+        archiveFileName = 'javaproxy.jar'
+        manifest {
+            attributes 'Main-Class': 'com.jk.explore.sidecarjavaproxy.real.javaproxy.JavaProxy'
+        }
+    }
+}

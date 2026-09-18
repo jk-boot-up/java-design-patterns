@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Microservices Patterns</title>
+<style>
+:root {
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --ok: #34d399;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: #7dd3fc; }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: rgba(167, 139, 250, 0.08);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: rgba(30, 41, 59, 0.55); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+</style>
+</head>
+<body>
+<main>
+<h1>Microservices Patterns</h1>
+<p>Twelve patterns for systems that are more than one program, taught the same way as the twenty-five Gang of Four patterns in this repository: one self-contained Gradle Java 21 project each, in the same online-store domain, with runnable code, tests, written notes, diagrams, an animated walkthrough and a narrated video.</p>
+<p><strong>Status: complete.</strong> All twelve projects are built, tested, documented and rendered. Each ships its source and tests, six documents, two rendered diagrams, an interactive animation and a narrated video.</p>
+<ul><li><a href="docs/spec.md"><code>docs/spec.md</code></a> — the scenario each pattern is taught through, why it fits, the naive alternative it must show failing, and the honest cost it must admit to.</li><li><a href="docs/implementation-plan.md"><code>docs/implementation-plan.md</code></a> — the order the twelve got built in, and the rules that kept the build from having to redo itself. Now a record of a finished build.</li><li><a href="docs/ai-session.md"><code>docs/ai-session.md</code></a> — a handover for resuming work later: the current state, how to verify it rather than trust it, and the standing instructions that govern the whole category.</li><li><a href="docs/ai-build-spec.md"><code>docs/ai-build-spec.md</code></a> — how the artefacts are actually made: the generators and their arguments, the shape each file has to have, the audio chain, and the traps that have cost real time.</li></ul>
+<h2>The twelve</h2>
+<table><thead><tr><th>#</th><th>Pattern</th><th>Scenario</th></tr></thead><tbody><tr><td>1</td><td>API Gateway</td><td>One front door for the storefront</td></tr><tr><td>2</td><td>Service Registry and Discovery</td><td>Finding a live Pricing instance</td></tr><tr><td>3</td><td>Client-Side Load Balancing</td><td>Spreading catalog reads across instances</td></tr><tr><td>4</td><td>Retry with Backoff</td><td>A flaky payment gateway</td></tr><tr><td>5</td><td>Circuit Breaker</td><td>When Recommendations stops answering</td></tr><tr><td>6</td><td>Bulkhead</td><td>A slow supplier feed starving checkout</td></tr><tr><td>7</td><td>Database per Service</td><td>Orders and Catalog stop sharing tables</td></tr><tr><td>8</td><td>API Composition</td><td>Assembling the order details page</td></tr><tr><td>9</td><td>CQRS</td><td>Order history without the joins</td></tr><tr><td>10</td><td>Saga</td><td>Placing an order across four services</td></tr><tr><td>11</td><td>Transactional Outbox</td><td>Never losing the order event</td></tr><tr><td>12</td><td>Idempotent Consumer</td><td>The duplicate <code>OrderPlaced</code></td></tr></tbody></table>
+<p>They are in learning order, and it runs in three movements: how a call reaches a service at all (1–3), what to do when that call fails (4–6), and the genuinely hard part — state split across services that cannot share a transaction (7–12).</p>
+<h2>One JVM, no infrastructure</h2>
+<p>Every project runs with <code>./gradlew run</code> on a machine with nothing installed but a JDK, offline. No Docker, no Spring, no Kafka, no database, no HTTP port. A service is a plain class behind an interface, and a remote call is a method call through a small harness that can be told to be slow, to fail, or to fail intermittently.</p>
+<p>That is a deliberate trade, and the projects say so rather than hiding it. What you learn is the pattern&#x27;s shape — what objects exist, what each decides, what the failure path looks like in code — which is the same whether the call underneath is a method call or an HTTP request. What you do not learn is operating a distributed system. A reader who finishes all twelve knows what a circuit breaker is and could write one; they have not run one in production.</p>
+<h2>Prerequisites</h2>
+<p>These are harder than the Gang of Four projects and assume them. Before starting here, be comfortable with <a href="../behavioural/strategy-pattern">Strategy</a>, <a href="../behavioural/observer-pattern">Observer</a>, <a href="../behavioural/command-pattern">Command</a>, <a href="../structural/decorator-pattern">Decorator</a>, <a href="../structural/proxy-pattern">Proxy</a> and <a href="../structural/facade-pattern">Facade</a> — each of the twelve leans on at least one of them, and several exist mainly to show a familiar pattern doing its work one process boundary further out.</p>
+</main>
+<footer>
+Generated from <code>README.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

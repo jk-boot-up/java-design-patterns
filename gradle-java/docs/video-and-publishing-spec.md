@@ -14,7 +14,7 @@ A project is compliant when every item in [Conformance](#conformance) holds.
 
 ## 1. Scope
 
-Thirty-seven projects across four categories, each a self-contained Gradle
+Forty-five projects across five categories, each a self-contained Gradle
 Java 21 project with sources, JUnit 5 tests, `docs/`, `video/`, and a top-level
 `README.md`:
 
@@ -24,16 +24,27 @@ Java 21 project with sources, JUnit 5 tests, `docs/`, `video/`, and a top-level
 | Structural | adapter, bridge, composite, decorator, facade, flyweight, proxy |
 | Behavioural | strategy, observer, command, template-method, state, chain-of-responsibility, iterator, mediator, memento, visitor, interpreter |
 | Microservices | api-gateway, service-discovery, load-balancing, retry, circuit-breaker, bulkhead, database-per-service, api-composition, cqrs, saga, transactional-outbox, idempotent-consumer |
+| Platform | externalised-configuration, distributed-tracing, backends-for-frontends, sidecar, sidecar-java-proxy, sidecar-on-kubernetes, event-sourcing, strangler-fig |
 
-Two categories have their own subsidiary specification, each fixing the
+Three categories have their own subsidiary specification, each fixing the
 e-commerce scenario its patterns are taught through and adding
-category-specific conformance items. Both inherit this document unchanged;
+category-specific conformance items. All inherit this document unchanged;
 where any of them appears to disagree with it, this one wins.
 
 | Specification | Covers |
 | --- | --- |
 | [`../behavioural/docs/spec.md`](../behavioural/docs/spec.md) | The eleven behavioural patterns, plus four extra conformance items |
 | [`../micro-services-design-patterns/docs/spec.md`](../micro-services-design-patterns/docs/spec.md) | The twelve microservices patterns, their one-JVM rule, and six extra conformance items |
+| [`../platform-design-patterns/docs/implementation-plan.md`](../platform-design-patterns/docs/implementation-plan.md) | The eight platform patterns, and the two-tier rule that lets them use real infrastructure |
+
+The platform category is the first to relax the "one JVM, nothing installed"
+rule, and it does so in a strictly bounded way. **Tier 1** of every platform
+project runs offline with only a JDK, and the video is built entirely from
+Tier 1. **Tier 2** is optional and additive: it lives in a `real/`
+subdirectory, is excluded from `./gradlew test`, and is where Spring Boot,
+Docker, Kubernetes or a real HTTP server may appear. Every such dependency is
+accounted for in the category's implementation plan. A viewer who installs
+nothing still gets the whole lesson.
 
 ---
 

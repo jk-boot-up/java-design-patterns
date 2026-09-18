@@ -45,6 +45,11 @@ down.
 
 ## Act One: Retry, Applied To An Outage
 
+![Act One: Retry, Applied To An Outage](images/uml-diagram-2.png)
+
+<details>
+<summary>Mermaid source</summary>
+
 ```mermaid
 sequenceDiagram
     autonumber
@@ -64,6 +69,8 @@ sequenceDiagram
     Note over P,R: 9 seconds waited, 3 calls aimed at a service already down
 ```
 
+</details>
+
 The page the shopper eventually receives is identical to the page they would have got
 at zero seconds. Every one of those nine seconds bought nothing, and a service on its
 knees received three times the traffic for the privilege.
@@ -71,6 +78,11 @@ knees received three times the traffic for the privilege.
 Ten shoppers make that ninety seconds and thirty calls. A test asserts both numbers.
 
 ## Act Two: Six Pages, With A Breaker
+
+![Act Two: Six Pages, With A Breaker](images/uml-diagram-3.png)
+
+<details>
+<summary>Mermaid source</summary>
 
 ```mermaid
 sequenceDiagram
@@ -101,6 +113,8 @@ sequenceDiagram
     Note over P,B: 6 pages, 3 calls made, 3 refused, total 9000ms
 ```
 
+</details>
+
 Read the clock rather than the arrows. The first three pages cost three seconds each;
 the last three cost nothing at all, because no call left the building.
 
@@ -108,6 +122,11 @@ That is the trade this pattern makes, stated honestly: it does not protect the p
 who discover the outage. It protects everybody after them.
 
 ## Act Three: It Lets Itself Back In
+
+![Act Three: It Lets Itself Back In](images/uml-diagram-4.png)
+
+<details>
+<summary>Mermaid source</summary>
 
 ```mermaid
 sequenceDiagram
@@ -136,6 +155,8 @@ sequenceDiagram
     Note over P,R: nobody deployed anything to make that happen
 ```
 
+</details>
+
 There is no scheduler here and no background thread. The breaker compares the clock
 against the moment it tripped, on whatever call happens to arrive next — which is why
 recovery costs nothing at all when there is no traffic.
@@ -146,6 +167,11 @@ for another full five, and everybody else would have carried on being served
 instantly.
 
 ## Act Four: Checkout, Where There Is No Fallback
+
+![Act Four: Checkout, Where There Is No Fallback](images/uml-diagram-5.png)
+
+<details>
+<summary>Mermaid source</summary>
 
 ```mermaid
 sequenceDiagram
@@ -172,6 +198,8 @@ sequenceDiagram
     Note over S,Pay: 5 shoppers told honestly, 0 cards charged
 ```
 
+</details>
+
 There is nothing a shop can substitute for taking the money, so the breaker buys no
 fallback here. What it buys instead is **a fast, honest "no" rather than a spinner** —
 and, less visibly but more importantly, it stops a thousand shoppers each holding a
@@ -182,6 +210,11 @@ the other in a hundredth of a second. That difference is the entire value of the
 pattern on a dependency that has no fallback.
 
 ## Act Five: The Fallback That Lies
+
+![Act Five: The Fallback That Lies](images/uml-diagram-6.png)
+
+<details>
+<summary>Mermaid source</summary>
 
 ```mermaid
 sequenceDiagram
@@ -205,6 +238,8 @@ sequenceDiagram
 
     Note over S,W: nothing threw, no alert fired, every dashboard is green
 ```
+
+</details>
 
 This class is wired identically to the honest one. The difference is a single `catch`
 block that returns a made-up receipt instead of throwing.

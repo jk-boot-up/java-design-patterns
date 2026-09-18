@@ -1,0 +1,54 @@
+spring:
+  application:
+    # Not cosmetic. This is the `service.name` resource attribute on every span
+    # this process exports, and it is what Jaeger lists in its service dropdown
+    # and what a query filters on. Leave it unset and the whole system traces
+    # perfectly and calls itself "unknown_service:java".
+    name: product-page
+
+server:
+  port: 8080
+
+management:
+  tracing:
+    sampling:
+      # Tier 1's Act 7 is the argument for sampling below one, and everything it
+      # says still applies here: a decision taken at the front door, at the only
+      # moment in the request when nothing is known about it. It is 1.0 in this
+      # demo because a demo that dropped its own trace would teach nothing. The
+      # default, worth knowing, is 0.1 -- and the decision propagates, as a flag
+      # on the end of the traceparent header, so the downstream service does not
+      # get a second vote.
+      probability: 1.0
+  opentelemetry:
+    tracing:
+      export:
+        otlp:
+          # Where the finished spans go. Jaeger 2.x accepts OTLP directly on
+          # 4318, so there is no separate collector process in this demo; in a
+          # deployment of any size there is one, precisely so that this endpoint
+          # can stay pointed at localhost while the backend behind it changes.
+          #
+          # This key moved in Spring Boot 4. `management.otlp.tracing.endpoint`
+          # is the Boot 3 spelling, still accepted and deprecated.
+          endpoint: http://localhost:4318/v1/traces
+        # Spans are batched and flushed on a timer rather than per span, and the
+        # default delay is five seconds. That is why demo.sh waits before asking
+        # Jaeger what it holds: a query that comes back empty one second after
+        # the request usually means the export has not run yet, not that the
+        # tracing is broken.
+        schedule-delay: 5s
+  otlp:
+    metrics:
+      export:
+        # Off, and the reason is worth a sentence because the default catches
+        # people out. The same starter that exports spans also exports metrics,
+        # on its own timer, to `/v1/metrics` on the same host and port. Jaeger
+        # is a tracing backend and answers that path with a 404, so leaving this
+        # on fills the log with a stack trace once a minute that has nothing to
+        # do with tracing and looks exactly like a tracing failure.
+        enabled: false
+  endpoints:
+    web:
+      exposure:
+        include: health

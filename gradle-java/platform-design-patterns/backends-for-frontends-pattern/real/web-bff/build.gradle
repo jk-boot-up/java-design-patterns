@@ -1,0 +1,16 @@
+// The one dependency the parent build file does not give every module.
+//
+// Only the two backends make outgoing calls, and in Spring Boot 4 an HTTP
+// client is something you ask for by name. Worth knowing if you are coming
+// from Spring Boot 3: there, `spring-boot-starter-web` brought an
+// auto-configured `RestClient.Builder` with it, because the web starter pulled
+// one large autoconfigure jar that held the lot. Boot 4 split that jar into
+// modules and the client side is no longer part of the server side — ask for
+// the web starter alone and the context fails to start with "required a bean
+// of type org.springframework.web.client.RestClient$Builder".
+//
+// The shop module does not get this line, and that absence is accurate rather
+// than an oversight: the shop calls nobody.
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-restclient'
+}

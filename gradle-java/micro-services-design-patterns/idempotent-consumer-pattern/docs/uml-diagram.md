@@ -1,10 +1,14 @@
 # Idempotent Consumer — Sequence Diagrams
 
-Five acts, five sequences. The fourth one is rendered; the rest are here to read.
+Five acts, five sequences. They are ordered here by argument rather than by number, so act
+four comes first: it is the one the others are all measured against.
+
+## Act Four — One Commit Covers Both
 
 ![Idempotent Consumer sequence diagram](images/uml-diagram.png)
 
-## Act Four — One Commit Covers Both
+<details>
+<summary>Mermaid source</summary>
 
 ```mermaid
 sequenceDiagram
@@ -27,9 +31,16 @@ sequenceDiagram
     C--)B: ignored, nothing written
 ```
 
+</details>
+
 The second delivery is a read and nothing else. `ignoringIsCheap` is the test that says so.
 
 ## Act One — A Set Of Ids, And It Works
+
+![Act One — A Set Of Ids, And It Works](images/uml-diagram-2.png)
+
+<details>
+<summary>Mermaid source</summary>
 
 ```mermaid
 sequenceDiagram
@@ -46,9 +57,16 @@ sequenceDiagram
     C--)B: skipped
 ```
 
+</details>
+
 Correct about what to do, wrong about where to keep the evidence.
 
 ## Act Two — The Deploy
+
+![Act Two — The Deploy](images/uml-diagram-3.png)
+
+<details>
+<summary>Mermaid source</summary>
 
 ```mermaid
 sequenceDiagram
@@ -66,9 +84,16 @@ sequenceDiagram
     Note over D: two confirmations for one order
 ```
 
+</details>
+
 The database survived the deploy and the set did not.
 
 ## Act Three — The Gap
+
+![Act Three — The Gap](images/uml-diagram-4.png)
+
+<details>
+<summary>Mermaid source</summary>
 
 ```mermaid
 sequenceDiagram
@@ -84,10 +109,17 @@ sequenceDiagram
     C->>D: queueConfirmationOnItsOwn(text)
 ```
 
+</details>
+
 No restart is needed to cause this, only a crash in the wrong instant. Two writes, two
 moments, one gap.
 
 ## Act Five — The Handler That Needed None Of It
+
+![Act Five — The Handler That Needed None Of It](images/uml-diagram-5.png)
+
+<details>
+<summary>Mermaid source</summary>
 
 ```mermaid
 sequenceDiagram
@@ -100,6 +132,8 @@ sequenceDiagram
     S->>S: status[ord-7006] = SHIPPED
     Note over S: same status, no store, no transaction
 ```
+
+</details>
 
 There is no database in this diagram at all, and that is the point of it.
 

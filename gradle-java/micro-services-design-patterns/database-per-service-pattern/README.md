@@ -128,6 +128,25 @@ store rows in maps, and a column is a map key so that a rename is a real rename 
 than a story about one. `SimulatedClock` makes the network latency in the timeline
 exact and free, so no test sleeps.
 
+## Technologies and versions
+
+Nothing here is a range and nothing is `latest`: a course that worked last year and does
+not work today is worse than one that never took the dependency.
+
+| What | Version | Why it is here |
+| --- | --- | --- |
+| Java | 21 | The repository standard, requested through the Gradle toolchain block |
+| Gradle | 9.2.1 | The wrapper in this directory; no separate install needed |
+| JUnit 5 | 5.10.2 | The 16 tests, through `junit-bom` so the Jupiter artefacts cannot disagree |
+
+That is the entire list, and the short version of it is the point. **This project has no
+runtime dependency at all** — the `dependencies` block in `build.gradle` names nothing but
+JUnit, and JUnit is `testImplementation`. There is no JDBC driver, no Postgres, no ORM and
+no container; a table is a map and a column is a map key, which is what makes a rename in
+act two a real rename rather than a story about one. Every one of the twelve projects in
+this category is built the same way, so a reader who can run one can run all of them,
+offline, with a JDK and nothing else.
+
 ## Where this sits
 
 The five projects before this one were about calls going wrong. This one is about who
@@ -143,6 +162,9 @@ tables.
 | [`docs/problem-statement.md`](docs/problem-statement.md) | Two teams share a schema, one of them renames a column correctly, and somebody else's page dies |
 | [`docs/database-per-service-pattern-explained.md`](docs/database-per-service-pattern-explained.md) | The shared filing cabinet, the five acts, and the part most treatments skip — what the split costs |
 | [`docs/class-diagram.md`](docs/class-diagram.md) | The structure, including the arrows that are missing on purpose between each service and the other's database |
+| [`docs/architecture-diagram.md`](docs/architecture-diagram.md) | Who may read what, both arrangements side by side, and the line that is deliberately not drawn |
+| [`docs/data-flow-diagram.md`](docs/data-flow-diagram.md) | One order history page both ways: what work moves out of the database and into your code |
+| [`docs/sequence-diagram.md`](docs/sequence-diagram.md) | Before and after in call order — one query and 10ms, against two calls, 20ms and an assembly step |
 | [`docs/uml-diagram.md`](docs/uml-diagram.md) | All five acts as sequences: one query, then a broken page, then two calls and an assembly |
 | [`docs/animation.html`](docs/animation.html) | The guarantees being handed back one at a time, step by step in a browser |
 | [`docs/prerequisites.md`](docs/prerequisites.md) | What you need to know, what you explicitly do not (SQL, any real database), and 60-second primers |
@@ -153,7 +175,63 @@ tables.
 
 ### The pattern in one picture
 
+The class diagram, and the thing to look for is what is missing: neither service has an
+arrow to the other's database. The pattern is that absence, and nothing else.
+
 ![Class diagram](docs/images/class-diagram.png)
+
+### What runs where
+
+The lower half is the literal truth: one JVM, rows in maps. The upper half is the shop
+drawn twice — one cabinet shared by two departments, then one cabinet each and a
+conversation between them.
+
+![Architecture diagram](docs/images/architecture-diagram.png)
+
+### How the data moves
+
+The same order history page along both routes. One is a query; the other is four steps,
+one of which exists only because a product can now be deleted while an order still names
+it.
+
+![Data flow diagram](docs/images/data-flow-diagram.png)
+
+### Who calls whom, in order
+
+Before and after in call order. Note which way the inequality goes: the split version is
+the slower one, and always will be.
+
+![Sequence diagram](docs/images/sequence-diagram.png)
+
+### All five acts
+
+The full set from [`docs/uml-diagram.md`](docs/uml-diagram.md), in the order that document
+argues them.
+
+**One. One database, one query.** Fast, correct, and the thing the rest of this category is
+about giving up.
+
+![Act one: one database, one query](docs/images/uml-diagram.png)
+
+**Two. The catalog team renames a column.** A correct migration, green tests, and a dead
+page belonging to somebody they have never met.
+
+![Act two: the catalog team renames a column](docs/images/uml-diagram-2.png)
+
+**Three. Two databases, two calls, one assembly.** The same page for more money, with the
+join now written in Java.
+
+![Act three: two databases, two calls, one assembly](docs/images/uml-diagram-3.png)
+
+**Four. The same rename, against a database Catalog owns.** A non-event, and the only thing
+the split actually bought.
+
+![Act four: the same rename, against a database Catalog owns](docs/images/uml-diagram-4.png)
+
+**Five. The bill.** A refused read, and a deleted product that an order still refers to —
+with nothing left to prevent it.
+
+![Act five: the bill](docs/images/uml-diagram-5.png)
 
 ### Video
 

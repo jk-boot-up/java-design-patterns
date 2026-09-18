@@ -158,6 +158,24 @@ No test sleeps. Three-second timeouts and five-second waits cost nothing, becaus
 No Resilience4j, no Hystrix, no network, no Docker. The breaker is about a hundred
 lines and you can read all of it. Everything you need is a JDK.
 
+## Technologies and versions
+
+Nothing here is a range and nothing is `latest`: a course that worked last year and does
+not work today is worse than one that never took the dependency.
+
+| What | Version | Why it is here |
+| --- | --- | --- |
+| Java | 21 | The repository standard, requested through the Gradle toolchain block |
+| Gradle | 9.2.1 | The wrapper in this directory; no separate install needed |
+| JUnit 5 | 5.10.2 | The 26 tests, through `junit-bom` so the Jupiter artefacts cannot disagree |
+
+That is the entire list, and the short version of it is the point. **This project has no
+runtime dependency at all** — the `dependencies` block in `build.gradle` names nothing but
+JUnit, and JUnit is `testImplementation`. There is no Resilience4j, no Hystrix, no metrics
+library and no container. Every one of the twelve projects in this category is built the
+same way, so a reader who can run one can run all of them, offline, with a JDK and nothing
+else.
+
 ## Where this sits
 
 Retry (the previous project) handles a blip; this handles an outage. They are
@@ -174,6 +192,9 @@ waiting on it were never the threads checkout needed.
 | [`docs/problem-statement.md`](docs/problem-statement.md) | A service that stopped answering, and the retry loop that turns a broken feature into a nine-second page |
 | [`docs/circuit-breaker-pattern-explained.md`](docs/circuit-breaker-pattern-explained.md) | The pattern from a fuse box, the vocabulary that reads backwards, and the half that gets left out |
 | [`docs/class-diagram.md`](docs/class-diagram.md) | The structure, and the arrows that are missing — the breaker has never heard of shopping |
+| [`docs/architecture-diagram.md`](docs/architecture-diagram.md) | Where the breakers sit, why there are two of them, and what each one is protecting |
+| [`docs/data-flow-diagram.md`](docs/data-flow-diagram.md) | One call end to end: the fork at the top, why a refusal is free, and the fallback that must never be written |
+| [`docs/sequence-diagram.md`](docs/sequence-diagram.md) | The trip and the recovery in call order, with the clock — nine seconds paid once, then nothing |
 | [`docs/uml-diagram.md`](docs/uml-diagram.md) | The state machine, then all five acts as sequences |
 | [`docs/animation.html`](docs/animation.html) | The three states, the refusals and the probe, one step at a time, in a browser |
 | [`docs/prerequisites.md`](docs/prerequisites.md) | What you need to know, what you explicitly do not, and 60-second primers on the states and on fallbacks |
@@ -184,7 +205,68 @@ waiting on it were never the threads checkout needed.
 
 ### The pattern in one picture
 
+The class diagram, and the thing to look for is what `CircuitBreaker` depends on. It
+depends on a clock and a count. It has never heard of shopping, which is why one class
+serves both the product page and checkout.
+
 ![Class diagram](docs/images/class-diagram.png)
+
+### What runs where
+
+The lower half is the literal truth: one JVM, about a hundred lines of breaker. The upper
+half is what it models — two unwell dependencies, **two** breakers, and two completely
+different answers to "what do we do while it is open?".
+
+![Architecture diagram](docs/images/architecture-diagram.png)
+
+### How the data moves
+
+One call end to end. The fork at the top decides whether anything leaves the building at
+all, and the fork at the bottom is the design work: what a fast failure should become.
+
+![Data flow diagram](docs/images/data-flow-diagram.png)
+
+### Who calls whom, in order
+
+The trip and the recovery as one story, with the clock down the side. Nine seconds paid
+once, then a run of refusals that cost nothing, then a single probe at 14000ms.
+
+![Sequence diagram](docs/images/sequence-diagram.png)
+
+### The state machine and all five acts
+
+The full set from [`docs/uml-diagram.md`](docs/uml-diagram.md), in the order that document
+argues them.
+
+**One. The state machine.** Three states and every transition between them — including the
+one people forget, where a single failed probe re-opens the breaker.
+
+![The state machine](docs/images/uml-diagram.png)
+
+**Two. Retry, applied to an outage.** Nine seconds for one page with nothing extra on it,
+and three more calls aimed at a service already on its knees.
+
+![Act one: retry, applied to an outage](docs/images/uml-diagram-2.png)
+
+**Three. Six pages, with a breaker.** Three shoppers pay for the outage. The timestamps
+then stop moving.
+
+![Act two: six pages, with a breaker](docs/images/uml-diagram-3.png)
+
+**Four. It lets itself back in.** One probe, five seconds after the trip, and normal service
+resumes with nobody deploying anything.
+
+![Act three: it lets itself back in](docs/images/uml-diagram-4.png)
+
+**Five. Checkout, where there is no fallback.** Nothing can stand in for taking the money,
+so the breaker buys an honest answer in a hundredth of a second instead.
+
+![Act four: checkout, where there is no fallback](docs/images/uml-diagram-5.png)
+
+**Six. The fallback that lies.** A receipt for money that never moved, green dashboards, a
+thanked shopper, and an espresso machine nobody paid for.
+
+![Act five: the fallback that lies](docs/images/uml-diagram-6.png)
 
 ### Video
 

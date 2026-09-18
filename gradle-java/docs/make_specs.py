@@ -25,6 +25,7 @@ Usage:
     python3 docs/make_specs.py --no-measure     # skip the ffmpeg loudness pass
 """
 
+import base64
 import html
 import os
 import re
@@ -74,6 +75,18 @@ ORDER = [
     ("micro-services-design-patterns", "saga"),
     ("micro-services-design-patterns", "transactional-outbox"),
     ("micro-services-design-patterns", "idempotent-consumer"),
+    # The platform category. Six patterns across eight projects: Sidecar is
+    # taught three times, once per deployment choice, and each version is a
+    # project of its own. Build order is not learning order -- event-sourcing
+    # goes first as the category's reference project.
+    ("platform-design-patterns", "externalised-configuration"),
+    ("platform-design-patterns", "distributed-tracing"),
+    ("platform-design-patterns", "backends-for-frontends"),
+    ("platform-design-patterns", "sidecar"),
+    ("platform-design-patterns", "sidecar-java-proxy"),
+    ("platform-design-patterns", "sidecar-on-kubernetes"),
+    ("platform-design-patterns", "event-sourcing"),
+    ("platform-design-patterns", "strangler-fig"),
 ]
 
 # Demos that mint an identifier per run, so their output is not byte-stable.
@@ -109,6 +122,14 @@ NAMES = {
     "saga": "Saga",
     "transactional-outbox": "Transactional Outbox",
     "idempotent-consumer": "Idempotent Consumer",
+    "externalised-configuration": "Externalised Configuration",
+    "distributed-tracing": "Distributed Tracing",
+    "backends-for-frontends": "Backends for Frontends",
+    "sidecar": "Sidecar",
+    "sidecar-java-proxy": "Sidecar with a Java Proxy",
+    "sidecar-on-kubernetes": "Sidecar on Kubernetes",
+    "event-sourcing": "Event Sourcing",
+    "strangler-fig": "Strangler Fig",
 }
 
 # ---------------------------------------------------------------------------
@@ -2575,6 +2596,678 @@ requirements=[
 ],
 ),
 
+"externalised-configuration": dict(
+purpose="""
+Teach the decision to move a value out of the compiled program and read it while
+the program runs -- and to teach the half of that decision most write-ups leave
+out, which is that four guards stayed behind in the source file and have to be
+rebuilt deliberately on the outside.
+""",
+nongoals=[
+    "Not a configuration server. `ConfigServer` is a `HashMap` in the same "
+    "JVM with a clock bolted on so a write can take four seconds; the "
+    "optional `real/` directory is where a live Spring Cloud Config Server "
+    "appears.",
+    "Not a network lesson. There is no HTTP, no YAML and no JSON. The file "
+    "format a source happens to use teaches nothing about the pattern.",
+    "Not caching or refresh. Every read reaches the source, because the "
+    "point being made is about *where* the read happens, not about how often "
+    "it is allowed to be slow.",
+    "Not layered sources or secrets. One source, one key. Environment "
+    "variables over a file over a server, and how a password differs from a "
+    "threshold, are named as omissions in the notes and left as an exercise.",
+    "Not a timing measurement. The four seconds a write takes is a modelled "
+    "constant, as are the pipeline's 135 minutes -- numbers a test can "
+    "assert exactly, where a measurement could not.",
+],
+problem="""
+The shop gives free delivery on baskets over £50, and the threshold is a
+`private static final` constant in the checkout class. That constant is not
+wrong. It is named, typed as money, in exactly one place, and a reviewer would
+approve it without a comment.
+
+Then marketing ask, at 16:30 on a Friday, for £35 from Saturday morning.
+`ReleasePipeline` prices that: a fifteen-minute edit, a code review, a build, an
+approval and a watched deploy -- 135 minutes of work, inside a weekday 09:00 to
+17:00 window, live on Monday at 10:45. The promotion was for the weekend and is
+late by two days and one hour forty-five.
+
+No step in that list is unreasonable. Review is how a typo does not reach a
+million customers; the window exists because the people who would notice a bad
+release are at their desks on weekdays. The problem is not code quality. It is
+that a business-policy value is sitting in a place with an engineering change
+speed.
+
+**What the pattern must deliver:** the same number, read from outside on every
+quote, live in four seconds -- and every guard that number lost on the way out,
+put back on purpose.
+""",
+roles=[
+    ("The caller", "`ConfiguredCheckout`"),
+    ("The rejected design", "`HardCodedCheckout`"),
+    ("The boundary", "`SettingsReader`, `TrustingSettings`, `GuardedSettings`"),
+    ("The schema", "`MoneySetting`, `InvalidSettingException`"),
+    ("The source", "`ConfigSource`, `ConfigServer`, `ConfigSourceUnavailableException`"),
+    ("The audit trail", "`ChangeLog`, `ConfigChange`"),
+    ("Provenance", "`SettingValue`, `DeliveryQuote`"),
+    ("The price of the alternative", "`ReleasePipeline`"),
+    ("Entry point", "`FreeDeliveryDemo`"),
+],
+requirements=[
+    "**The read is inside the method.** `ConfiguredCheckout.quote` fetches "
+    "the threshold on every call, and `theThresholdIsReadEveryTime` fails "
+    "the moment it is tidied into the constructor -- the difference between "
+    "a change landing on the next order and on the next restart.",
+    "**Adopting the pattern changes no behaviour.** With nothing configured, "
+    "the configured checkout and the hard-coded one quote all three baskets "
+    "identically; a test asserts it, so the comparison is fair rather than "
+    "rhetorical.",
+    "**The cost of the alternative is a number.** `ReleasePipelineTest` pins "
+    "135 minutes of work, live Monday 10:45, and late by two days one hour "
+    "forty-five -- the figures the README and the narration speak aloud.",
+    "**An unreachable source is not a missing key.** `ConfigSource.lookup` "
+    "returns `Optional.empty()` for the one and throws "
+    "`ConfigSourceUnavailableException` for the other, so an outage cannot "
+    "be mistaken for an ordinary default.",
+    "**The outage is survivable and silent, and both are shown.** The shop "
+    "keeps selling on the compiled-in default, and the demo states plainly "
+    "that the promotion is off with no error and no alarm.",
+    "**A well-formed wrong value is demonstrated, not warned about.** "
+    "`TheBillTest.minusOneGivesEverythingAway` **passes**: `-1` parses, "
+    "every basket ships free, and nothing throws or logs.",
+    "**A malformed value takes the shop down.** With a trusting reader the "
+    "word `fifty` escapes as an `InvalidSettingException` through checkout "
+    "and not one basket can be quoted.",
+    "**The guard is a declared range, not a type.** `MoneySetting` carries "
+    "key, default, lowest and highest; widening the range makes `-1` "
+    "acceptable again, which is the exercise the video closes on.",
+    "**A rejected value falls back to the last good one.** "
+    "`GuardedSettings` prefers the last value that passed validation over "
+    "the compiled default, so an unrelated typo cannot silently cancel a "
+    "promotion somebody set an hour earlier -- and every rejection is "
+    "recorded rather than swallowed.",
+    "**The trail is append-only and carries the displaced value.** "
+    "`ChangeLog` has no edit or delete, and `ConfigChange.was` is what makes "
+    "`ConfigServer.rollback` a lookup rather than an act of memory.",
+    "**Rollback is as fast as the change.** The demo rolls back four seconds "
+    "after the decision and prints what the same correction would have cost "
+    "through the release pipeline: live Monday at 11:15.",
+    "**Every quoted number is the program's.** `DemoRunsTest` captures the "
+    "demo's output, asserts the figures the README, the notes and the video "
+    "narration quote, and asserts that two runs are byte-identical.",
+],
+),
+
+"distributed-tracing": dict(
+purpose="""
+Teach the decision to give one customer request one identifier and to have every
+unit of work record how long it took *and what asked for it* -- and to teach the
+half most write-ups leave out, which is that the resulting picture can be
+confidently wrong in three ways, none of which raises an error.
+""",
+nongoals=[
+    "Not a tracing SDK. `Tracer`, `Span` and `Trace` are six small classes in "
+    "one JVM; OpenTelemetry, `traceparent` headers, a collector and a "
+    "backend belong to the optional `real/` directory.",
+    "Not a network lesson. There is no HTTP and no serialisation. A trace "
+    "context crossing a process boundary is the same string being passed "
+    "along, and the string is what is being taught.",
+    "Not a measurement. Every duration is a scripted constant from "
+    "`Clock.Scripted`, so the 900ms page and the 340ms model are figures a "
+    "test can assert exactly, where a real measurement could not.",
+    "Not storage, batching or back-pressure. The spans go into a list. What "
+    "the volume costs is made concrete in Act 7 as a count, not as an "
+    "architecture.",
+    "Not metrics or logs. Both appear, but only to be distinguished from a "
+    "trace: Act 2 exists to show what four correct logs cannot say.",
+],
+problem="""
+The shop's product page takes nine hundred milliseconds. Four services
+contributed to it -- catalog, pricing, inventory and recommendations -- and all
+four are healthy, all four are responding, and all four are writing correct
+logs. Nobody in the building can say which of them spent the time. There is
+exactly one measurement in the whole situation, and it is the complaint.
+
+Act 2 shows why more logging does not rescue this. Two customers are on the site
+at once, and the interleaved log gives `quote started` at 07.120, `quote
+started` at 07.160, `quote complete` at 07.300 and `quote complete` at 07.340.
+Subtract one way and pricing took 180ms; subtract the other and it took 220ms.
+Both look reasonable and one of them pairs one customer's start with another
+customer's finish.
+
+Then try to fix it by adding fields. The thread name works until the work
+crosses a thread, which it does in Act 6. The pod name is the same for both
+customers, and so is the product id. Every candidate fails the same test: **the
+same across one request, and different across the next.** What is missing is not
+detail. It is an identifier -- and, one level less obviously, a parent.
+
+**What the pattern must deliver:** the 900ms attributed to the service that
+actually spent it, drawn from the data rather than from a tool's cleverness --
+and each of the three ways that attribution can be wrong while looking right.
+""",
+roles=[
+    ("The caller", "`ProductPage`"),
+    ("The rejected design", "`InterleavedLog`"),
+    ("The identifier", "`TraceContext`"),
+    ("The unit of work", "`Span`, with its `parentSpanId`"),
+    ("The boundary", "`Tracer`, `Tracer.Scope`"),
+    ("The assembled request", "`Trace`"),
+    ("The drawing", "`Waterfall`"),
+    ("The price of volume", "`Sampler`"),
+    ("The thread failure", "`AsyncHandoff`"),
+    ("Determinism", "`Clock`, `Clock.Scripted`"),
+    ("Entry point", "`ProductPageDemo`"),
+],
+requirements=[
+    "**The pattern is one field.** `Span.parentSpanId` is a single string, "
+    "and `start(context, name)` is the one argument that makes a pile of "
+    "timings into a tree; the class diagram's arrow from `Span` to itself is "
+    "the whole structure.",
+    "**The drawing is derived, not invented.** `Waterfall` computes "
+    "indentation from the parent field and horizontal position from the "
+    "start time, and nothing else -- so the picture a hosted tool shows is "
+    "demonstrably a property of the data.",
+    "**Self time, not total time.** The page span lasts the full 900ms and "
+    "is charged 0ms of its own, recommendations lasts 400ms and is charged "
+    "60, and the six self times sum to exactly 900. The ranking model's "
+    "340ms is 37% of the page, and that is the finding.",
+    "**A span that is never closed is invisible.** "
+    "`TracerTest.anUnclosedSpanIsInvisible` passes, which is why real "
+    "instrumentation uses try-with-resources: an exception thrown past an "
+    "open span deletes the record of the call that failed.",
+    "**An uninstrumented service produces a consistent lie.** In Act 5 "
+    "recommendations forwards the context faithfully and opens no span. "
+    "`ProductPageTest` asserts the resulting trace has one root, no orphans "
+    "and 900ms fully accounted for *and* charges the page 60ms it never "
+    "spent -- that pair is the argument, not an oversight.",
+    "**The thread failure is one line in the wrong place.** `AsyncHandoff` "
+    "reads the context from a `ThreadLocal` on the worker and is handed "
+    "`null`, giving `2 separate roots -- this trace is broken`; reading it "
+    "on the thread that has it and passing it as a value gives the same two "
+    "spans, the same 400ms and one root.",
+    "**Sampling is a decision made too early, priced in units.** `Sampler` "
+    "keeps 10,000 of a million and discards 990,000, and the demo asks "
+    "whether request 862,144 was kept: `no -- it is gone, and it is not "
+    "recoverable`. Tail sampling is named as the way out and not "
+    "implemented.",
+    "**Nothing in the bill throws.** All three failures are the price of the "
+    "pattern rather than mistakes made while applying it, and each one is "
+    "asserted to produce output rather than an exception.",
+    "**The demo is deterministic.** The clock is scripted, span ids are "
+    "sequential and the sampler counts rather than randomises, so two runs "
+    "are byte-identical -- there is one background thread in the project, in "
+    "Act 6, and the demo waits for it.",
+    "**Every quoted number is the program's.** `DemoRunsTest` captures the "
+    "demo's output and asserts the figures the README, the notes and the "
+    "video narration speak aloud.",
+],
+),
+
+"backends-for-frontends": dict(
+purpose="""
+Teach the decision to give each kind of client its own small backend, owned by
+the team that owns the screen, holding the shape of one screen and nothing else
+-- and to teach it against the fix that looks like it makes the pattern
+unnecessary, because a `?fields=` query parameter reaches the same byte count
+with no new process to run, and a reader who is not shown that working will
+file this pattern under payload size and be wrong about it for years.
+""",
+nongoals=[
+    "Not a network lesson. There is no HTTP, no JSON library and no "
+    "serialisation. `Doc` is an ordered map that prints and measures itself, "
+    "and every claim about round trips is made by *counting* them in "
+    "`CallLog`, not by timing them.",
+    "Not a performance measurement. `Shop` returns fixed data in "
+    "microseconds, so the byte counts are identical on every machine and a "
+    "test can assert them exactly, where a measurement could not.",
+    "Not concurrency. The four internal calls are sequential where a real "
+    "backend would fan them out and wait once, which means the project "
+    "**understates** the pattern's benefit rather than overstating it.",
+    "Not an API gateway. The two are neighbouring patterns and are commonly "
+    "deployed together; Act 6 exists to separate them with a single "
+    "question, not to implement either as infrastructure.",
+    "Not deployment. Two independently deployable Spring Boot backends "
+    "serving the same product over the wire, in front of a third service "
+    "holding the shop, belong to the optional `real/` directory, which is a "
+    "separate Gradle build.",
+],
+problem="""
+The shop sells one copper coffee maker. On a phone the product screen draws six
+things -- title, price, one image, a rating, a rating count, and one line saying
+when the parcel arrives. On a desktop the same product fills a page with fifteen,
+including the description, a specification table, five images and three written
+reviews. Five services hold all of it: catalog, pricing, inventory, reviews and
+recommendations. Neither screen is wrong. Both teams are being reasonable. They
+disagree about what a product *is*, and everything here comes out of that.
+
+The first design is the one shops arrive at by accident, because it is nobody's
+decision: the phone calls all five services itself. Five sequential round trips
+before a pixel is drawn -- sequential because pricing cannot be asked about a
+product until the catalog has named it -- carrying 1767 bytes and 29 fields, of
+which 6 reach the screen.
+
+The second design is one shared endpoint in front of the five, and it genuinely
+helps: one round trip instead of five. But one endpoint publishes one document,
+and that document must satisfy every client, so it grows into the union of all
+of them. 1755 bytes arrive, 212 are drawn, 1543 -- 87% -- are thrown away on
+arrival.
+
+And then the obvious fix works. `GET /api/products/4417?fields=...` returns 212
+bytes, which is the same saving the finished pattern gets, from a query
+parameter, with nothing to deploy. **If this pattern were about payload size,
+the story would end there.** It ends instead at the next request: the phone team
+wants one line of text -- "Free delivery, arrives Friday" -- joined from stock,
+the delivery rules and the clock. Half an hour of work. But it is a new field on
+a document five other clients also receive, so it becomes a contract change in a
+queue behind work that has nothing to do with the phone. The phone team could
+have written it in an afternoon and waits five weeks.
+
+**What the pattern must deliver:** that five-week queue removed, the byte saving
+kept, the boundary against a gateway made decidable in one question -- and the
+three ways the pattern costs more than it saves, none of which throws.
+""",
+roles=[
+    ("The contract", "`ClientBackend`"),
+    ("The two live implementations", "`MobileBff`, `WebBff`"),
+    ("The services behind them", "`Shop`"),
+    ("The document", "`Doc`"),
+    ("The ruler", "`Screens`"),
+    ("The first rejected design", "`ChattyPhone`"),
+    ("The second rejected design", "`SharedApi`"),
+    ("The count that is the evidence", "`CallLog`, `CallLog.Origin`"),
+    ("The duplicated belief", "`SavingRules`"),
+    ("The gateway's question", "`CrossCutting`"),
+    ("How many is too many", "`ClientEstate`"),
+    ("Presentation, not policy", "`Money`"),
+    ("Entry point", "`ProductScreenDemo`"),
+],
+requirements=[
+    "**Two implementations, both live, on purpose.** `ClientBackend` has two "
+    "implementing classes and neither is a fallback: the phone always talks "
+    "to `MobileBff` and the desktop always to `WebBff`, at the same time, in "
+    "production. Two arrowheads into one interface is the pattern rather "
+    "than a detail of it.",
+    "**A backend is the size of its screen, and stays that size.** "
+    "`MobileBffTest.sendsOnlyWhatIsDrawn` asserts "
+    "`assertEquals(Screens.PHONE, screen.paths())` -- equality, not "
+    "containment -- so a seventh field fails the build. That assertion is "
+    "the only reason a backend does not drift back into a shared endpoint "
+    "over a year.",
+    "**The two backends must disagree.** "
+    "`WebBffTest.disagreesWithThePhonesBackend` asserts the two return "
+    "*different* field lists. If they ever converged the shop would be "
+    "paying twice for one job and the pattern should be withdrawn rather "
+    "than admired.",
+    "**The obvious fix is shown succeeding.** Act 2 runs the `?fields=` "
+    "query and prints 212 bytes before the pattern is introduced, so the "
+    "reader sees the payload argument settled and knows the pattern is not "
+    "resting on it.",
+    "**The saving that is not bytes.** Act 2 also prints the delivery "
+    "sentence as `not available -- a field like this belongs to one client, "
+    "and this endpoint belongs to all of them`. The five-week queue is the "
+    "problem the pattern removes, and it is organisational with a technical "
+    "cause.",
+    "**A backend omits calls, not just fields.** `MobileBff` never calls "
+    "recommendations, because the phone screen has no related-products "
+    "strip; internal calls go 5, 5, 4 across the three designs while device "
+    "calls go 5, 1, 1. **The work relocated onto a network that costs "
+    "nothing; it was not deleted.**",
+    "**Presentation belongs in the backend.** Pricing returns `4799`; the "
+    "phone is sent the string `\"£47.99\"`. The conversion happens in a "
+    "process that can be corrected this afternoon rather than in an app "
+    "customers will still be running in two years.",
+    "**Shape inside, belief behind.** Act 5 copies one discount rule into "
+    "`MobileBff`, and after the pricing team adds a minimum-duration "
+    "condition the desktop claims nothing while the phone advertises `Save "
+    "£12.00` for a price that rose 11 days ago. Nothing throws, nothing is "
+    "logged, both backends' tests pass, and no test writable inside either "
+    "one can notice -- the rule is that anything the shop would still "
+    "believe with every client switched off belongs behind the backend.",
+    "**The gateway boundary is one question, and the code answers it.** "
+    "`CrossCutting.copiesBehindAGateway()` takes no argument, and that "
+    "absence is the answer: 8 copies across 2 backends against 4 whatever "
+    "the number of backends. *What does this screen need?* is a backend for "
+    "a frontend; *is this request allowed in at all?* is a gateway.",
+    "**One per disagreement, not per device and not per team.** "
+    "`ClientEstate` scores six clients as three genuine disagreements -- the "
+    "tablet is the phone's fields in a wider column, the kiosk is the "
+    "desktop page with the basket hidden, the partner feed is not a screen. "
+    "**Two backends is a pattern. Nine is a department.**",
+    "**Every quoted number is the program's.** `DemoRunsTest` captures the "
+    "demo's output and asserts the figures the README, the notes and the "
+    "video narration speak aloud.",
+],
+),
+
+"sidecar": dict(
+purpose="""
+Teach the decision to take a concern that is not about the business out of the
+service and run it in a separate process beside it -- and to teach it with the
+bill attached, because in a single program a proxy in front of a service is
+just Decorator, and a reader who is not shown what the process boundary costs
+will either never reach for the pattern or reach for it everywhere.
+""",
+nongoals=[
+    "Not a network lesson. There is no HTTP, no socket and no serialisation. "
+    "The sidecar is an object the service calls, and the phrase *separate "
+    "process* is carried by the narration and by the optional `real/` "
+    "directory rather than by the Java.",
+    "Not a performance measurement. `Clock` counts milliseconds and never "
+    "sleeps, so the demo finishes instantly and every timing it prints is "
+    "identical on every machine and assertable by a test.",
+    "Not concurrency. The four services take payments one after another, "
+    "which is what makes the shared attempt allowance legible -- in "
+    "production they would contend for it, which only sharpens the point.",
+    "Not a service mesh. A mesh is this pattern applied to every service at "
+    "once with a control plane on top; Act 7 gives the arithmetic that "
+    "decides whether you want one, and stops there.",
+    "Not Decorator dressed up. Scene 14 of the video and the README both say "
+    "plainly that in one JVM this *is* Decorator, and name the two questions "
+    "-- redeploy independently, and cross-language -- that are the only "
+    "reasons to pay for a process.",
+],
+problem="""
+The shop takes money in four places. Checkout charges a card while a customer
+watches a spinner. Refunds gives money back when the coffee maker comes back in
+the post. Subscription billing runs at two in the morning against thousands of
+saved cards. Marketplace payouts pays the independent sellers on a Friday. Four
+teams, four repositories, four release days -- and one payment provider behind
+all four.
+
+None of those teams wanted to become an expert on that provider's network
+behaviour, and every one of them had to be. How many times to retry. When to
+give up. Which transport security profile to present. What to count and what to
+call the counters. Four questions, four services, **sixteen answers in four
+places** -- and not one of the sixteen is about checkout, or refunds, or
+subscriptions, or payouts. They would be identical if the shop sold bicycles.
+
+In March the provider changes the rule: at most three attempts, and wait
+properly between them. Three pull requests land in one afternoon. The fourth
+does not. Subscription billing runs overnight, its team was not in the meeting,
+and it had no open work that sprint; there was no fourth place to look unless
+you already knew there was one. **Nothing throws, nothing is logged, and every
+test in all four services still passes**, because each tests its own copy and
+each copy is internally consistent.
+
+Three weeks later the gateway wobbles for 300ms at two in the morning. The
+merchant account allows twelve attempts. Subscription billing is already
+running, reaches the wobble first on the old policy, and spends six. Marketplace
+payouts arrives fourth, makes one attempt, and is refused -- the sellers are not
+paid. Marketplace payouts was updated in March and did exactly what was asked.
+It arrived fourth. On Monday somebody opens an incident against the service
+whose every line is correct.
+
+**What the pattern must deliver:** those four decisions stated once rather than
+copied four times, the missed edit made structurally impossible -- and the three
+ways the pattern costs more than it saves, printed as numbers rather than
+described.
+""",
+roles=[
+    ("The contract", "`TakesPayments`"),
+    ("The four services that copy the concerns",
+     "`CheckoutService`, `RefundsService`, `SubscriptionBillingService`, `MarketplacePayoutsService`"),
+    ("The proxy that runs beside", "`Sidecar`"),
+    ("The service with the concerns removed", "`ServiceBehindASidecar`"),
+    ("The one configuration, shared", "`SidecarConfig`, `Settings`"),
+    ("The supplier at the other end", "`PaymentGateway`"),
+    ("The arithmetic that is the argument", "`Concerns`"),
+    ("The evidence", "`CallLog`, `Metrics`"),
+    ("Time, counted and never slept", "`Clock`"),
+    ("Presentation, not policy", "`Money`"),
+    ("The values", "`Payment`, `Receipt`, `PaymentFailed`"),
+    ("Entry point", "`PaymentsDemo`"),
+],
+requirements=[
+    "**The fault is an absence, not a mistake.** "
+    "`SubscriptionBillingService` has no `applyPolicyReview()` method at "
+    "all, and `CopiedConcernsTest.billingHasNoWayToApplyTheReview` asserts "
+    "that absence. A reader who goes looking for the bug finds nothing "
+    "wrong, which is the whole lesson: the copies did not diverge because "
+    "somebody was careless.",
+    "**One configuration, not four equal ones.** "
+    "`SidecarTest.oneConfigurationForAllOfThem` asserts `assertSame`, not "
+    "`assertEquals`. Four equal copies would be March again with better "
+    "manners, and only identity rules that out.",
+    "**The incident is run twice, both ways.** `TheIncidentTest` replays the "
+    "same 300ms wobble with copied concerns (13 attempts against an "
+    "allowance of 12, marketplace payouts refused, sellers unpaid) and with "
+    "a proxy beside each service (12 of 12, nobody refused) -- the same "
+    "network, the same gateway, a different place for the policy.",
+    "**The saving scales; the code says so without an argument.** "
+    "`Concerns.copiesBesideTheServices()` takes no parameter, while "
+    "`copiesInsideTheServices(int)` takes the service count: 16 becomes 20 "
+    "with a fifth service the old way and stays 4 beside them. "
+    "**The missing argument is the answer.**",
+    "**The bill is printed, not described.** Act 5 prints copies 16 to 4 and "
+    "places 4 to 1, and in the same table processes 4 to 8 -- twice as many "
+    "things to run, patch, version and put in a runbook.",
+    "**A proxy that will not start takes everything with it.** Act 6 stops "
+    "checkout's sidecar on a healthy network and prints `connection refused "
+    "to localhost` with `attempts that reached the gateway: 0`; "
+    "`SidecarTest.theServiceCannotFallBack` asserts the service has no retry "
+    "code left, because it was deleted on purpose.",
+    "**The hop is one millisecond, and it is stated in both currencies.** "
+    "Act 7 prints 600ms inside against 603ms beside for the same three "
+    "attempts -- nothing on a payment, fifty per cent on a two-millisecond "
+    "internal call, and paid twice on every hop in a mesh.",
+    "**Time is counted, never slept.** `Clock.waitFor(long)` adds to a total "
+    "and returns, so a run that narrates 600 milliseconds of backoff "
+    "finishes instantly and two runs are byte-identical.",
+    "**The admission is in the material, not just the code.** The project "
+    "states that inside one JVM this is Decorator, and reduces the choice to "
+    "two questions -- must the concern change without rebuilding the "
+    "service, and must it serve a language your library does not support. "
+    "No to both, and a shared library is cheaper and has one fewer thing "
+    "that can fail.",
+    "**Every quoted number is the program's.** `DemoRunsTest` captures the "
+    "demo's output and asserts the figures the README, the notes and the "
+    "video narration speak aloud, that every line fits on a slide, and that "
+    "every amount is in pounds.",
+],
+),
+
+"sidecar-java-proxy": dict(
+purpose="""
+Turn the previous project's biggest claim -- that a sidecar is
+language-independent, so the proxy can be replaced without touching the service
+-- from a sentence into something a reader watches happen. It has one job and
+it is not explaining what a sidecar is; §41 does that, and this project links
+to it and moves on.
+""",
+nongoals=[
+    "Not a second Sidecar lesson. The pattern belongs to §41. A draft that "
+    "spends more than one scene on what a sidecar is for has drifted, and "
+    "the README opens by naming §41 as the project to read first.",
+    "Not a criticism of nginx. nginx wins on almost every count in the "
+    "closing table and the project says so; the gap it has is narrow, "
+    "deliberate, and a consequence of the case it was designed for.",
+    "Not a network lesson. Tier 1 has no socket and no serialisation. The "
+    "port is an object with something bound to it, and the phrase *separate "
+    "process* is carried by the narration and by `real/`.",
+    "Not a performance measurement. `Clock` counts milliseconds and never "
+    "sleeps, so the arrival times are identical on every machine and "
+    "assertable by a test.",
+    "Not a recommendation to write your own proxy. Act 7 is longer than the "
+    "benefit, and the rule it lands on is narrow: swap only when the thing "
+    "you need cannot be said in the configuration language at all.",
+],
+problem="""
+§41 finished with checkout taking payments through an nginx proxy running
+beside it, and the service itself carrying no retry code, no deadline, no
+certificate and no counter. That was the right outcome and this project keeps
+all of it.
+
+It shipped with a gap, and the gap is not a bug in anybody's code. The payment
+provider asked every merchant for two things in writing: at most three attempts
+per payment, **and wait properly between them**. nginx can say the first. It
+cannot say the second -- retrying means moving to the next server in an
+upstream group, that move happens immediately, and there is no directive
+anywhere in the http proxy module that introduces a delay first. So the shop's
+configuration honours the half of the agreement that limits it and drops the
+half that would have helped.
+
+The consequence is exact and it is arithmetic. The provider wobbles for 300
+milliseconds. The proxy makes its three allowed attempts at 1ms, 2ms and 3ms,
+all of them inside the bad window, and the payment fails having spent the
+entire allowance before the provider had time to get better. Nothing in the
+service is wrong. Nothing in the configuration is wrong. The sentence that
+would have fixed it does not exist in the language the configuration is
+written in.
+
+**What this project must deliver:** the same three attempts, spaced out, with
+the service not rebuilt, not restarted and not told -- and an honest accounting
+of what writing your own proxy costs, because the answer is usually don't.
+""",
+roles=[
+    ("The address the service talks to, and the only thing a swap touches",
+     "`LocalPort`"),
+    ("What may be bound to it", "`Proxy`"),
+    ("The proxy §41 deployed, and its one gap", "`NginxProxy`"),
+    ("The forty lines that close the gap", "`JavaProxy`"),
+    ("The service, unchanged and never restarted", "`PaymentsService`"),
+    ("The one policy both proxies read", "`ProxyPolicy`"),
+    ("The supplier at the other end", "`PaymentGateway`"),
+    ("The evidence, taken at the far end", "`CallLog`"),
+    ("Time, counted and never slept", "`Clock`"),
+    ("Presentation, not policy", "`Money`"),
+    ("The values", "`Payment`, `Receipt`, `PaymentFailed`"),
+    ("Entry point", "`ProxySwapDemo`"),
+],
+requirements=[
+    "**The swap is proved by identity, not by behaviour.** "
+    "`TheSwapTest.theServiceIsUntouched` asserts `assertSame` on the "
+    "service's port and equality on its start number across the swap. A "
+    "service that merely behaved the same afterwards would be a service "
+    "somebody had carefully rebuilt.",
+    "**The demo could not restart the service if it wanted to.** There is "
+    "exactly one `new PaymentsService(...)` in the whole program, in "
+    "`main`, and `ServiceStaysEmptyTest` counts the constructions in the "
+    "source with comments stripped to prove it.",
+    "**The argument is the spacing, and it is measured at the far end.** "
+    "`TheSpacingTest` asserts nginx's three attempts arrive at 1ms, 2ms and "
+    "3ms and the Java proxy's at 1ms, 202ms and 603ms, using the provider's "
+    "own recorded arrival times rather than anything a proxy says about "
+    "itself.",
+    "**Neither proxy is greedier than the other.** Both spend exactly three "
+    "attempts on the same payment against the same allowance; only one of "
+    "them gets paid. The allowance is untouched, so the improvement costs "
+    "the provider nothing.",
+    "**The nginx tests all pass.** They pin a boundary rather than a defect: "
+    "the proxy does exactly what its configuration language can express, and "
+    "the payment still fails.",
+    "**The service source is checked, not just exercised.** "
+    "`ServiceStaysEmptyTest` opens `PaymentsService.java` with its comments "
+    "stripped and fails if the words retry, backoff, keystore, truststore, "
+    "timeout or tls appear in the code.",
+    "**The swap window is shown rather than skipped.** Act 6 vacates the "
+    "port on a healthy network and prints `attempts that reached the "
+    "provider: 0`, because the retry code that would have covered it was "
+    "deleted in §41 on purpose, and concludes that a real swap is a rollout "
+    "with the old proxy kept installable.",
+    "**The bill is longer than the benefit.** Act 7 prints the two proxies "
+    "side by side with their languages and line counts, then lists what the "
+    "22 lines of somebody else's configuration brought for free and the 40 "
+    "lines of your own do not: TLS termination, a structured access log, "
+    "connection pooling, and twenty years of answered advisories.",
+    "**The rule it lands on is narrow.** Swap when the thing you need cannot "
+    "be said in the configuration language at all -- not when it is awkward, "
+    "and not when you would rather write Java.",
+    "**Every quoted number is the program's.** `DemoRunsTest` captures the "
+    "demo's output and asserts the arrival times, the start numbers, the "
+    "zero-attempt window and the closing table.",
+],
+),
+
+"event-sourcing": dict(
+purpose="""
+Teach the decision to store the things that happened rather than the total they
+add up to, and to teach it with its bill attached -- because this is the most
+over-applied pattern in the course, and an introduction that only shows what it
+buys is a sales pitch.
+""",
+nongoals=[
+    "Not a database, and not durability. The event store is an `ArrayList`. "
+    "Ordering and durability are assumed, not demonstrated, and the README "
+    "says so.",
+    "Not a concurrency lesson. There is one thread and no optimistic "
+    "concurrency check, so the question of two writers appending to one "
+    "stream at once does not arise here.",
+    "Not a performance measurement. The cost figures in Act 6 are events "
+    "examined, not milliseconds -- a count the test can assert exactly, "
+    "where a timing could not.",
+    "Not CQRS. The two are separate decisions, and Act 9 exists to prove it "
+    "by building each one without the other.",
+    "Not a recommendation. The project argues that most systems should keep "
+    "the total, and the closing question is how to tell which kind you have.",
+],
+problem="""
+The shop runs a loyalty scheme: one point per pound, points spendable on later
+orders, and unused points expiring after twelve months. The obvious design
+keeps a row per customer with a number in it, and that row is correct. It is
+correct now and it will still be correct in five years.
+
+It also cannot say why it is 140. The `award` method is handed the customer,
+the points, the order id and the date; it uses the points and drops the other
+two on the floor. Nobody wrote a bug -- that is simply what keeping the answer
+and discarding the working means.
+
+The expensive version of the same problem is a release that awards points
+twice and is not noticed for three weeks. The fix is one line. Finding the
+damage is impossible, because a doubled £45 order on top of an earlier £10 one
+writes the number 100, and one honest £100 order also writes the number 100.
+The bug destroyed the evidence of itself every time it fired.
+
+**What the pattern must deliver:** the balance is derived, every answer
+explains itself, and a question invented weeks after the fact is answerable
+from data that was already lying in the log.
+""",
+roles=[
+    ("The log", "`LoyaltyEventStore`"),
+    ("The facts", "`LoyaltyEvent`, `PointsAwarded`, `PointsRedeemed`, `PointsExpired`"),
+    ("The fold", "`EventSourcedLoyaltyAccounts`"),
+    ("The rejected design", "`CurrentStateLoyaltyAccounts`"),
+    ("The cache, and its hazard", "`Snapshot`, `SnapshotStore`"),
+    ("Caller", "`Checkout`"),
+    ("CQRS, shown separately", "`OrderHistoryReadModel`"),
+    ("Entry point", "`LoyaltyBalanceDemo`"),
+],
+requirements=[
+    "**There is no balance field.** `EventSourcedLoyaltyAccounts` holds no "
+    "stored total; every number it returns is a fold over the customer's "
+    "events, worked out on the call.",
+    "**Every answer explains itself.** `explain` prints one line per event "
+    "with the running total, including the expiry -- the line support needs "
+    "when a customer asks where their points went.",
+    "**A past question needs no forethought.** `balanceOn` answers what the "
+    "balance was on an earlier date without any history table having been "
+    "designed in advance.",
+    "**The repair is a read, not a write.** The duplicate-award fix changes "
+    "how the log is interpreted; a test asserts the log is byte-identical "
+    "before and after, because the shop really did award twice and the log "
+    "was never wrong.",
+    "**Replay cost is stated as a number.** `SnapshotTest` asserts 5,000 "
+    "events examined for one balance, 5,001 after one more order, and 1 with "
+    "a snapshot -- the same answer either way.",
+    "**A stale snapshot is silently wrong.** A snapshot taken under the buggy "
+    "interpretation reports 90 where the repaired fold gives 45, with nothing "
+    "thrown and nothing logged; the cure asserted is to discard every "
+    "snapshot and refold.",
+    "**Erasure fights the pattern.** Deleting a customer's events destroys "
+    "the history that explained them *and* leaves a snapshot still answering "
+    "with their balance -- both asserted, so the difficulty is shown rather "
+    "than described.",
+    "**Old events never gain a field.** Awards written before order ids were "
+    "recorded make the duplicate hunt return an empty list on a stream that "
+    "plainly contains two identical awards.",
+    "**CQRS and event sourcing are separated.** `CqrsDistinctionTest` builds "
+    "each without the other, including a read model that falls behind its "
+    "row, so the two are shown to be independent decisions.",
+    "**Every quoted number is the program's.** `DemoRunsTest` captures the "
+    "demo's output and asserts the figures the README, the notes and the "
+    "video narration quote, and that two runs are byte-identical.",
+],
+),
+
 }
 
 
@@ -3089,6 +3782,11 @@ th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
          vertical-align: top; }
 th { background: var(--panel-hi); font-weight: 600; }
 tr:nth-child(even) td { background: rgba(30, 41, 59, 0.55); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
 ul, ol { margin: 14px 0; padding-left: 26px; }
 li { margin: 7px 0; }
 ul.task { list-style: none; padding-left: 4px; }
@@ -3101,8 +3799,73 @@ footer {
 """
 
 
+#: The Markdown files that are also published as HTML. A link to one of them
+#: from inside an HTML page should land on the HTML twin rather than offering
+#: the reader a Markdown file to download; every other `.md` link is left
+#: alone, because those files exist only as Markdown and are read on GitHub.
+HTML_TWINS = ("spec.md", "README.md")
+
+#: Directory the Markdown currently being converted lives in. Links are
+#: relative to it, so it is what a twin has to be looked for against. A
+#: generator sets this before calling to_html(); left unset, no link is
+#: rewritten, which is the safe answer rather than a guessed one.
+LINK_BASE = None
+
+#: Absolute paths of HTML pages that will exist by the end of the current run.
+#: A generator writing a whole category in one pass registers them all up
+#: front, so a link from the first page to the last is still rewritten even
+#: though the last file has not been written yet.
+PLANNED = set()
+
+
+def href(target):
+    """Point a link at its HTML twin, but only when that twin really exists.
+
+    Not every `README.md` and `spec.md` in this repository is published as
+    HTML — the category-level specs are read on GitHub and have no twin. A
+    blanket rewrite sends those readers to a page that is not there, which is
+    strictly worse than the Markdown file they asked for.
+    """
+    # Compare the file name, not the tail of the path: `video-and-publishing-
+    # spec.md` ends in "spec.md" without being one.
+    if LINK_BASE is None or os.path.basename(target) not in HTML_TWINS:
+        return target
+    twin = target[:-3] + ".html"
+    full = os.path.normpath(os.path.join(LINK_BASE, twin))
+    return twin if full in PLANNED or os.path.exists(full) else target
+
+
+#: File types that may be embedded in a page, and the media type to announce.
+EMBEDDABLE = {".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg",
+              ".gif": "image/gif", ".svg": "image/svg+xml"}
+
+
+def embed(src):
+    """Turn an image path into a `data:` URI so the page stands on its own.
+
+    Every HTML page this repository generates has to be self-contained: one
+    file that can be mailed, copied to another machine or opened from a
+    download folder and still be the whole document. The stylesheet is already
+    inlined; an image referenced as `docs/images/thing.png` would be the one
+    thing left that breaks the moment the page is moved away from its siblings.
+
+    Base64 costs about a third in size on top of each PNG, which is the price
+    of the guarantee. Anything remote, or missing, or not an image is left as
+    written rather than guessed at.
+    """
+    if LINK_BASE is None or "://" in src or src.startswith("data:"):
+        return src
+    kind = EMBEDDABLE.get(os.path.splitext(src)[1].lower())
+    path = os.path.normpath(os.path.join(LINK_BASE, src))
+    if kind is None or not os.path.exists(path):
+        return src
+    with open(path, "rb") as f:
+        return "data:%s;base64,%s" % (
+            kind, base64.b64encode(f.read()).decode("ascii"))
+
+
 def inline(s):
-    """Inline markup: code spans, links, bold, italic.
+    """Inline markup: images, code spans, links, bold, italic.
 
     Code spans are pulled into placeholders *before* anything else runs rather
     than being converted first. These specs are full of bold and links that
@@ -3118,11 +3881,15 @@ def inline(s):
 
     t = re.sub(r'`([^`]+)`', stash, s)
     t = html.escape(t)
+    # Images before links, because an image is a link with a bang in front of
+    # it and the link pattern would otherwise match the inside of one and
+    # leave the bang stranded in the page.
+    t = re.sub(r'!\[([^\]]*)\]\(([^)]+)\)',
+               lambda m: '<img src="%s" alt="%s">' % (embed(m.group(2)),
+                                                      m.group(1)),
+               t)
     t = re.sub(r'\[([^\]]+)\]\(([^)]+)\)',
-               lambda m: '<a href="%s">%s</a>'
-                         % (m.group(2)[:-3] + ".html"
-                            if m.group(2).endswith("spec.md") else m.group(2),
-                            m.group(1)),
+               lambda m: '<a href="%s">%s</a>' % (href(m.group(2)), m.group(1)),
                t)
     t = re.sub(r'\*\*([^*]+)\*\*', r'<strong>\1</strong>', t)
     t = re.sub(r'(?<![\w*])\*([^*]+)\*(?![\w*])', r'<em>\1</em>', t)
@@ -3267,6 +4034,11 @@ def main():
         d = os.path.join(f["dir"], "docs")
         open(os.path.join(d, "spec.md"), "w").write(md)
         title = re.match(r'# (.+)', md).group(1)
+        # The spec links back to its project's README and sideways to other
+        # documents; resolve those against the docs directory it is written to.
+        global LINK_BASE
+        LINK_BASE = d
+        PLANNED.add(os.path.join(d, "spec.html"))
         open(os.path.join(d, "spec.html"), "w").write(
             wrap_html(title, to_html(md)))
         print("%-17s spec.md + spec.html  (%d scenes, %s, %d tests%s)"

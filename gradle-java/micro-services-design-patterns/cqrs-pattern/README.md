@@ -142,6 +142,24 @@ the read model is two maps; `SimulatedClock` makes a five-minute cache expiry co
 nothing. Nothing sleeps. Swapping in a real broker would change none of the reasoning
 above, which is exactly why the pattern can be taught this way.
 
+## Technologies and versions
+
+Nothing here is a range and nothing is `latest`: a course that worked last year and does
+not work today is worse than one that never took the dependency.
+
+| What | Version | Why it is here |
+| --- | --- | --- |
+| Java | 21 | The repository standard, requested through the Gradle toolchain block |
+| Gradle | 9.2.1 | The wrapper in this directory; no separate install needed |
+| JUnit 5 | 5.10.2 | The 18 tests, through `junit-bom` so the Jupiter artefacts cannot disagree |
+
+That is the entire list, and the short version of it is the point. **This project has no
+runtime dependency at all** — the `dependencies` block in `build.gradle` names nothing but
+JUnit, and JUnit is `testImplementation`. There is no Kafka, no Redis, no second database
+and no container; the event bus is a list of subscribers and a loop, and the read model is
+two maps. Every one of the twelve projects in this category is built the same way, so a
+reader who can run one can run all of them, offline, with a JDK and nothing else.
+
 ## Learning Material
 
 | Document | What it covers |
@@ -149,6 +167,9 @@ above, which is exactly why the pattern can be taught this way.
 | [`docs/problem-statement.md`](docs/problem-statement.md) | A page composed correctly on every single view, and why a cache is the obvious answer and the wrong one |
 | [`docs/cqrs-pattern-explained.md`](docs/cqrs-pattern-explained.md) | The departures board, the five acts, and the part most treatments skip — what the split costs |
 | [`docs/class-diagram.md`](docs/class-diagram.md) | The two sides and the bus between them, including the arrow to the cache that is missing on purpose |
+| [`docs/architecture-diagram.md`](docs/architecture-diagram.md) | Which side of the split each box lives on, what crosses the line between them, and in which direction |
+| [`docs/data-flow-diagram.md`](docs/data-flow-diagram.md) | The same page along both routes: where the expensive work happens, and what a reader sees during the gap |
+| [`docs/sequence-diagram.md`](docs/sequence-diagram.md) | Three views, composed and then projected — 270ms and six calls against 15ms and none |
 | [`docs/uml-diagram.md`](docs/uml-diagram.md) | All five acts as sequences: composing, projecting, the staleness window, the rename, and the last kettle |
 | [`docs/animation.html`](docs/animation.html) | Two fast copies drifting apart in a browser, and only one of them finding out |
 | [`docs/prerequisites.md`](docs/prerequisites.md) | What you need to know, what you explicitly do not (event sourcing, any broker), and 60-second primers |
@@ -159,7 +180,62 @@ above, which is exactly why the pattern can be taught this way.
 
 ### The pattern in one picture
 
+The class diagram, the two sides and the bus between them — and the thing to look for is
+the arrow that is missing, from the bus to the cache. A cache cannot subscribe, and that
+is the whole difference between the two.
+
 ![Class diagram](docs/images/class-diagram.png)
+
+### What runs where
+
+The lower half is the literal truth: one JVM, a list and two maps. The upper half is the
+shop split in two, with events crossing the line in one direction only and a stock ledger
+that stays firmly on the deciding side.
+
+![Architecture diagram](docs/images/architecture-diagram.png)
+
+### How the data moves
+
+The same page along both routes, with the expensive box appearing once on one of them and
+once per view on the other. The gap in the middle is a real state, not an error.
+
+![Data flow diagram](docs/images/data-flow-diagram.png)
+
+### Who calls whom, in order
+
+Three views each way. Watch where Catalog is called: on every view above, and once before
+anybody looked at anything below.
+
+![Sequence diagram](docs/images/sequence-diagram.png)
+
+### All five acts
+
+The full set from [`docs/uml-diagram.md`](docs/uml-diagram.md), in the order that document
+argues them.
+
+**One. Composing the page on every view.** Correct, always current, and paid for three
+times over for a page that never changed.
+
+![Act one: composing the page on every view](docs/images/uml-diagram.png)
+
+**Two. The page kept ready by the events.** The work moved to write time, paid once per
+order instead of once per view.
+
+![Act two: the page kept ready by the events](docs/images/uml-diagram-2.png)
+
+**Three. Eventually consistent, shown honestly.** The order is final, the money has moved,
+and the customer's own page has nothing on it.
+
+![Act three: eventually consistent, shown honestly](docs/images/uml-diagram-3.png)
+
+**Four. The cache that cannot know it is wrong.** One copy is corrected by the event that
+made it wrong; the other waits out a timer.
+
+![Act four: the cache that cannot know it is wrong](docs/images/uml-diagram-4.png)
+
+**Five. The last kettle.** Show a read model's stock number. Never sell against it.
+
+![Act five: the last kettle](docs/images/uml-diagram-5.png)
 
 ### Video
 

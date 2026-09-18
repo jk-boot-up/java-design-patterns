@@ -140,6 +140,25 @@ a list behind a `RemoteCall`, so publishing costs simulated milliseconds and can
 to fail. `ProcessDiedException` stands in for the JVM disappearing — in real life the catch
 block never runs, and the tests say so in a comment where they catch it.
 
+## Technologies and versions
+
+Nothing here is a range and nothing is `latest`: a course that worked last year and does
+not work today is worse than one that never took the dependency.
+
+| What | Version | Why it is here |
+| --- | --- | --- |
+| Java | 21 | The repository standard, requested through the Gradle toolchain block |
+| Gradle | 9.2.1 | The wrapper in this directory; no separate install needed |
+| JUnit 5 | 5.10.2 | The 18 tests, through `junit-bom` so the Jupiter artefacts cannot disagree |
+
+That is the entire list, and the short version of it is the point. **This project has no
+runtime dependency at all** — the `dependencies` block in `build.gradle` names nothing but
+JUnit, and JUnit is `testImplementation`. There is no Kafka, no RabbitMQ, no Postgres, no
+JDBC driver and no container; the database is a map whose transaction holds its writes until
+commit, and the broker is a list. Every one of the twelve projects in this category is built
+the same way, so a reader who can run one can run all of them, offline, with a JDK and
+nothing else.
+
 ## Learning Material
 
 | File | What it is for |
@@ -147,6 +166,9 @@ block never runs, and the tests say so in a comment where they catch it.
 | [`docs/problem-statement.md`](docs/problem-statement.md) | The order that is real, and that nobody will ever be told about |
 | [`docs/transactional-outbox-pattern-explained.md`](docs/transactional-outbox-pattern-explained.md) | The full explanation, readable on its own |
 | [`docs/class-diagram.md`](docs/class-diagram.md) | Service, database, relay and broker — and the arrow that is missing |
+| [`docs/architecture-diagram.md`](docs/architecture-diagram.md) | Which boundaries the checkout crosses, and the one it deliberately no longer crosses at all |
+| [`docs/data-flow-diagram.md`](docs/data-flow-diagram.md) | Three places the process can die, and what each one leaves behind |
+| [`docs/sequence-diagram.md`](docs/sequence-diagram.md) | The same crash at the same instant, with and without an out-tray |
 | [`docs/uml-diagram.md`](docs/uml-diagram.md) | The five acts as sequences, including the crash in the gap |
 | [`docs/prerequisites.md`](docs/prerequisites.md) | What you need first, and what you explicitly do not |
 | [`docs/session.md`](docs/session.md) | A one-hour taught session, with the arguments to expect |
@@ -162,6 +184,58 @@ block never runs, and the tests say so in a comment where they catch it.
 `OrderService` writes two rows in one transaction and never calls the broker.
 `OutboxRelay` reads what has not been sent, publishes it, and marks it sent.
 That absent arrow between the service and the broker is the entire pattern.
+
+### What runs where
+
+The lower half is the literal truth: one JVM, a map and a list. The upper half is the shop,
+with one transaction covering the order and the out-tray row together, and a crossed-out
+line where the checkout is not allowed to touch the broker.
+
+![Architecture diagram](docs/images/architecture-diagram.png)
+
+### How the data moves
+
+One order from checkout to inbox, with three places marked where the process may die. Two
+of them are harmless. The third is the duplicate, and it is the bill.
+
+![Data flow diagram](docs/images/data-flow-diagram.png)
+
+### Who calls whom, in order
+
+The same crash at the same instant, twice. The upper half has no second act; the lower half
+has a sweep that runs later for an entirely different reason.
+
+![Sequence diagram](docs/images/sequence-diagram.png)
+
+### All five acts
+
+The full set from [`docs/uml-diagram.md`](docs/uml-diagram.md), in the order that document
+argues them — which is by argument rather than by number.
+
+**Three. One commit, then a sweep.** The checkout ends at the commit, and the broker is
+touched later, in another process, by a timer.
+
+![Act three: one commit, then a sweep](docs/images/uml-diagram.png)
+
+**Two. The naive version, and the gap.** There is no second half to this diagram, and that
+is the whole comparison.
+
+![Act two: the naive version, and the gap](docs/images/uml-diagram-2.png)
+
+**Four. The broker is down.** Nothing in this picture is retry logic. The second sweep reads
+the same rows because nobody marked them sent.
+
+![Act four: the broker is down](docs/images/uml-diagram-3.png)
+
+**Five. The duplicate.** Two emails, one order, and the same message id on both — which is
+the only thing the receiving side needs.
+
+![Act five: the duplicate](docs/images/uml-diagram-4.png)
+
+**One. For completeness.** The happy path, which is what every test written against the
+naive version will see.
+
+![Act one: for completeness](docs/images/uml-diagram-5.png)
 
 ### Video
 

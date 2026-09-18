@@ -47,6 +47,11 @@ only one of them can be fixed in the code.**
 
 ## Act Two: Two Bulkheads
 
+![Act Two: Two Bulkheads](images/uml-diagram-2.png)
+
+<details>
+<summary>Mermaid source</summary>
+
 ```mermaid
 sequenceDiagram
     autonumber
@@ -68,6 +73,8 @@ sequenceDiagram
     Note over FB,CB: different threads. no demand on one<br/>can produce a thread on the other.
 ```
 
+</details>
+
 Same slow partner, same four batches, same instant. Checkout completes in
 milliseconds.
 
@@ -81,6 +88,11 @@ feed runs on `feed-worker`, work submitted to checkout runs on `checkout-worker`
 neither pool will lend.
 
 ## Act Three: A Fifth Batch, With Nowhere To Go
+
+![Act Three: A Fifth Batch, With Nowhere To Go](images/uml-diagram-3.png)
+
+<details>
+<summary>Mermaid source</summary>
 
 ```mermaid
 sequenceDiagram
@@ -101,6 +113,8 @@ sequenceDiagram
     Note over F: an unbounded queue would have taken it,<br/>and every batch after it, until memory ran out
 ```
 
+</details>
+
 Two threads busy, two jobs queued, and the queue holds two. The fifth batch is
 refused, and `theRefusalIsFast` asserts it comes back immediately.
 
@@ -113,6 +127,11 @@ told nobody anything. The failure does not go away; it is converted from a fast,
 visible refusal into an out-of-memory error at an hour of its choosing.
 
 ## Act Four: The Bill, On A Quiet Afternoon
+
+![Act Four: The Bill, On A Quiet Afternoon](images/uml-diagram-4.png)
+
+<details>
+<summary>Mermaid source</summary>
 
 ```mermaid
 sequenceDiagram
@@ -128,6 +147,8 @@ sequenceDiagram
 
     Note over FB,CB: one shared pool of four would have run<br/>all four batches at once, and finished sooner
 ```
+
+</details>
 
 Not really a sequence — an argument drawn as one, because the shape is the point.
 Two threads are doing nothing beside two jobs that are waiting for a thread, and the

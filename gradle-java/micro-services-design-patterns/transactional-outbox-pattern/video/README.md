@@ -59,3 +59,21 @@ notification, seventy pounds ninety-five for the order, two emails in the inbox.
 **The outro names no other pattern.** It says what the outbox hands over to
 whoever receives the message, without announcing what comes next, because the
 publishing order of these videos is not fixed.
+
+Suggested description:
+
+> Learn the transactional outbox in Java 21, starting from two things that
+> must happen together across two systems with no shared transaction: save
+> the order, and tell everybody else. The version everybody writes first is
+> two lines, and it works — one order, one event, one email, and that is
+> what every test will see. Then a deploy lands between the two lines. The
+> order is real, and nobody will ever be told, and here is the hinge:
+> nothing recorded that a message was owed, so nothing can retry it.
+> Swapping the lines and wrapping them in a transaction are both taken
+> seriously and taken apart. The analogy is an out tray — the letter goes in
+> the tray at the same moment you file your copy — and the mechanism is two
+> rows in one commit with no broker anywhere in sight, plus a relay that
+> runs later for a different reason. The broker goes down and checkout does
+> not notice. Then the bill: the relay dies after publishing, the customer
+> gets two emails, and that duplicate cannot be removed, only pointed in a
+> direction. Never lost, sometimes twice.

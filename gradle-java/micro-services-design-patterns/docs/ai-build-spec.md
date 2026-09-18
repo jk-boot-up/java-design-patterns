@@ -20,7 +20,7 @@ state of the work.
 | Runtime dependencies | none, in any project |
 | Python | 3, standard library plus Pillow for the slide generators |
 | Audio and video | macOS `say`, and `ffmpeg` |
-| Diagrams | `mmdc`, the Mermaid CLI |
+| Diagrams | the Mermaid CLI, fetched on demand by `npx` — nothing to install |
 
 Everything runs offline once the Gradle wrapper has downloaded itself once. There is no
 broker, no database and no container anywhere in the category — that is a deliberate rule from
@@ -30,7 +30,7 @@ broker, no database and no container anywhere in the category — that is a deli
 
 ## 2. The shared generators
 
-The four generators live in `gradle-java/docs/` and are shared by all thirty-seven projects.
+The generators live in `gradle-java/docs/` and are shared by every project in the repository.
 
 > **They must be run from the `gradle-java` directory, and they take a slug with the
 > `-pattern` suffix removed.** `cqrs`, not `cqrs-pattern`.
@@ -46,6 +46,17 @@ python3 docs/make_narration.py --force <slug>   # video/narration.md
 
 With no arguments, each processes every project it knows about. `make_specs.py` also accepts
 `--no-measure` to skip the loudness measurement, which is the slow part.
+
+Two more take a **path** rather than a slug, so they can be pointed at one project or a whole
+category:
+
+```bash
+python3 docs/make_diagrams.py    <category-or-project>   # docs/images/*.png from docs/*-diagram.md
+python3 docs/make_readme_html.py <category-or-project>   # README.html beside every README.md
+```
+
+`make_diagrams.py` skips a PNG that is newer than its Markdown unless you pass `--force`,
+because each render starts a headless browser and takes a few seconds.
 
 ### Registration
 
@@ -347,23 +358,38 @@ The narration lives in a `cat <<'EOF'` heredoc, one line per step. To replace it
 
 ## 8. Rendering the Mermaid diagrams
 
-Extract the **first** Mermaid block from the markdown — that is the one the `![...]` image tag
-at the top of the file refers to — and render it:
+Use the generator. It renders the **first** Mermaid block of every `docs/*-diagram.md` it
+finds — that is the one the `![...]` image tag at the top of the file refers to — into
+`docs/images/<same-name>.png`:
 
 ```bash
-cat > /tmp/mmdc-config.json <<'EOF'
-{ "theme": "dark", "themeVariables": { "fontSize": "16px" } }
-EOF
-
-mmdc -i /tmp/x.mmd -o docs/images/class-diagram.png \
-     -b "#0f172a" -s 4 -c /tmp/mmdc-config.json
+cd gradle-java
+python3 docs/make_diagrams.py <category-or-project>
 ```
 
-`-s 4` is the scale factor that makes the PNG legible on a high-density display. The
-background matches the slide palette.
+It shells out to the Mermaid CLI through `npx`, so there is nothing to install and no
+`node_modules` in the repository, but the first run needs a network connection. The palette
+(`#0f172a`, matching the slides) and the scale factor are written down inside the script:
+`-s 4` is the smallest scale at which the text survives both a high-density display and a
+video frame.
 
-`uml-diagram.md` holds one sequence diagram per act, and the first block is rendered, so put
-the act you most want shown at the top rather than in chronological order.
+Two consequences of "the first block only" are worth knowing. `uml-diagram.md` holds one
+sequence diagram per act, so put the act you most want shown at the top rather than in
+chronological order. And **a file with two diagrams in it should be two files** — that is how
+`architecture-diagram.md`, `data-flow-diagram.md` and `sequence-diagram.md` came to be
+separate documents rather than three sections of one.
+
+`sequence-diagram.md` is the one a README embeds, and it is deliberately not a copy of
+`uml-diagram.md`: it is the single end-to-end run of the pattern working, written so that
+somebody only listening can follow it, and it ends by pointing at the UML document for the
+rejected designs and the failure modes.
+
+**Double quotes inside a `Note over` fail to parse.** The error names the line but calls the
+token `INVALID`, which is not a helpful clue. Write the quoted text without the quotation
+marks — `turns 4799 pence into the text £47.99` rather than `into "£47.99"`.
+
+**Check the rendered PNG before moving on.** Mermaid lays diagrams out itself, and a label
+long enough to shove two boxes apart is invisible in the source and obvious in the picture.
 
 ---
 

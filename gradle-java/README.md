@@ -1,9 +1,12 @@
 # Design Patterns in Java — A Worked Course
 
-Thirty-seven design patterns — the twenty-five object-oriented ones first, then
-twelve microservices patterns — each a self-contained Gradle Java 21 project
-with runnable code, JUnit 5 tests, written notes, diagrams, an animated
-walkthrough, and a narrated video.
+Design patterns in Java — the twenty-five object-oriented ones first, then
+twelve microservices patterns, then eight platform patterns — each a
+self-contained Gradle Java 21 project with runnable code, JUnit 5 tests, written
+notes, diagrams, an animated walkthrough, and a narrated video.
+
+The first four categories are complete. The platform category is being built
+now; see its section below.
 
 **Every pattern is taught through the same worked domain: an online store.**
 Not a photo gallery, not shapes on a canvas — checkout, catalog, orders,
@@ -95,6 +98,57 @@ timings exact and the failures repeatable.
 | 36 | [Transactional Outbox](micro-services-design-patterns/transactional-outbox-pattern) | Save it and announce it, or neither — the order event |
 | 37 | [Idempotent Consumer](micro-services-design-patterns/idempotent-consumer-pattern) | The same message, twice — one confirmation email |
 
+## Platform — what the system stores, and how it is run
+
+The same online store again, but the questions are now about the platform it
+runs on rather than the calls between services: where configuration comes from,
+how a request is followed across machines, what is actually kept in storage, and
+how a system too big to rewrite gets replaced anyway.
+
+This category is **under construction**. Its
+[implementation plan](platform-design-patterns/docs/implementation-plan.md) is
+the authority on what each project will contain; the table below links the ones
+that exist.
+
+It is also the first category to allow real infrastructure, under a rule worth
+knowing before you start. **Tier 1** of every project runs offline with only a
+JDK, and the teaching video is built entirely from Tier 1 — so a learner who
+installs nothing still gets the whole lesson. **Tier 2** is optional and
+additive: it lives in a `real/` subdirectory, is excluded from `./gradlew test`,
+and is where Spring Boot, Docker or Kubernetes may appear for anyone who wants
+to see the pattern against the real thing.
+
+| # | Pattern | Scenario |
+| --- | --- | --- |
+| 38 | [Externalised Configuration](platform-design-patterns/externalised-configuration-pattern) | The threshold you must not redeploy to change — free delivery |
+| 39 | [Distributed Tracing](platform-design-patterns/distributed-tracing-pattern) | Four healthy services, one slow page — which of them spent the time? |
+| 40 | [Backends for Frontends](platform-design-patterns/backends-for-frontends-pattern) | Six fields on a phone, fifteen on a desktop — one endpoint fits neither |
+| 41 | [Sidecar](platform-design-patterns/sidecar-pattern) | The concern that travels beside the service, not inside it |
+| 42 | [Sidecar (Java proxy)](platform-design-patterns/sidecar-java-proxy-pattern) | The same sidecar, written as a Java proxy |
+| 43 | Sidecar (on Kubernetes) | The same sidecar again, as a real second container |
+| 44 | [Event Sourcing](platform-design-patterns/event-sourcing-pattern) | Store the facts, not the total — why is this balance 140? |
+| 45 | Strangler Fig | Replacing a system you are not allowed to switch off |
+
+Event Sourcing is the category's reference project and is finished. It was built
+first because it is the most demanding of the eight and the one that most needs
+its costs shown honestly: three of its nine acts are spent on what the pattern
+costs rather than what it buys. Externalised Configuration is finished too, and
+is deliberately the gentlest of the eight — it depends on none of the others, so
+the listed order is a dependency order for the material rather than a difficulty
+order. Distributed Tracing is finished as well, and follows the same shape: the
+pattern is one string field naming a span's parent, and three of its seven acts
+are spent on the three ways the resulting picture can be wrong without anything
+throwing. Backends for Frontends is finished in both tiers. It spends its first five
+scenes on the problem for a reason: the obvious fix — asking a shared endpoint
+for only the fields you want — is shown *working*, and reaching the same byte
+count the pattern does, before the one request it cannot serve arrives. Sidecar
+is finished in Tier 1. Its incident is an absence rather than a mistake — a
+retry policy that four services each hold a copy of, changed in three of them
+and missed in the fourth because there was no fourth place to look — and its
+last four scenes are the bill: twice as many processes, a second thing that can
+be down, one millisecond on every call, and the admission that inside one JVM
+this structure is Decorator.
+
 ---
 
 ## What each project contains
@@ -132,6 +186,7 @@ Java 21 and no third-party runtime dependencies. JUnit 5 for tests only.
 | [`docs/implementation-plan.md`](docs/implementation-plan.md) | How the first fourteen were brought up to that standard |
 | [`behavioural/docs/spec.md`](behavioural/docs/spec.md) | The behavioural category's scenarios and extra conformance items |
 | [`micro-services-design-patterns/docs/spec.md`](micro-services-design-patterns/docs/spec.md) | The microservices category's scenarios, its one-JVM rule and its extra conformance items |
+| [`platform-design-patterns/docs/implementation-plan.md`](platform-design-patterns/docs/implementation-plan.md) | The platform category's eight projects, its two-tier rule, and the infrastructure each one is allowed to use |
 
 The generators in `docs/` — `make_specs.py`, `make_youtube_docs.py`,
 `make_thumbnails.py` — produce the per-project specification, publishing

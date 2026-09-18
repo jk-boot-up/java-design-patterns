@@ -51,6 +51,11 @@ instead of an error page. That trade is the whole reason the pattern exists.
 
 ## Act One: A Timeout That Recovers
 
+![Act One: A Timeout That Recovers](images/uml-diagram-2.png)
+
+<details>
+<summary>Mermaid source</summary>
+
 ```mermaid
 sequenceDiagram
     autonumber
@@ -67,6 +72,8 @@ sequenceDiagram
     Note over R,G: card charged 1 time — £449.99
 ```
 
+</details>
+
 The simple case, and the one everybody has in mind when they write a retry. The
 request never reached the gateway, so no money moved, so trying again is plainly
 safe.
@@ -75,6 +82,11 @@ Note the wait: 103 milliseconds, not 100. Those three extra milliseconds are the
 jitter, and with one caller they look like noise. They are not — see act five.
 
 ## Act Two: A Declined Card
+
+![Act Two: A Declined Card](images/uml-diagram-3.png)
+
+<details>
+<summary>Mermaid source</summary>
 
 ```mermaid
 sequenceDiagram
@@ -90,6 +102,8 @@ sequenceDiagram
     Note over R,G: the gateway was asked 1 time — answered in 50ms
 ```
 
+</details>
+
 A refused card is refused for a reason, and the reason is still true a hundred
 milliseconds later. The naive loop asks three times and takes three delays to
 arrive at the same "no".
@@ -98,6 +112,11 @@ Telling this diagram apart from the one above it is half of what the pattern is,
 and in the code it is one line: `failure instanceof GatewayTimeoutException`.
 
 ## Act Three: The Reply That Got Lost
+
+![Act Three: The Reply That Got Lost](images/uml-diagram-4.png)
+
+<details>
+<summary>Mermaid source</summary>
 
 ```mermaid
 sequenceDiagram
@@ -120,6 +139,8 @@ sequenceDiagram
     Note over R,G: card charged 1 time — £449.99
 ```
 
+</details>
+
 This is the realistic failure and the dangerous one, and the note in the middle is
 the sentence to take away: **from the caller's side this is identical to act one.**
 There is no flag to check and no clever code that can tell "the request was lost"
@@ -131,6 +152,11 @@ and the gateway — which checks its key map *before* it charges — recognises 
 repeat and hands back the charge it already made.
 
 ## Act Four: The Same Failure, With A Plain Loop
+
+![Act Four: The Same Failure, With A Plain Loop](images/uml-diagram-5.png)
+
+<details>
+<summary>Mermaid source</summary>
 
 ```mermaid
 sequenceDiagram
@@ -157,6 +183,8 @@ sequenceDiagram
     Note over N,G: card charged 2 times — £899.98
 ```
 
+</details>
+
 Read the diagram for what is *not* in it. No exception escapes. No error is logged.
 The checkout returns a valid receipt and the order looks perfect. The only evidence
 that anything went wrong is on a bank statement, and it surfaces as a phone call
@@ -167,6 +195,11 @@ by definition means a new job. Every double charge in this project is the caller
 doing.
 
 ## Act Five: Why Jitter Exists
+
+![Act Five: Why Jitter Exists](images/uml-diagram-6.png)
+
+<details>
+<summary>Mermaid source</summary>
 
 ```mermaid
 sequenceDiagram
@@ -187,6 +220,8 @@ sequenceDiagram
     B->>G: attempt 2 at 117ms
     Note over G: two requests spread out, not one wave
 ```
+
+</details>
 
 With two callers this is a curiosity. With a thousand callers who all failed at the
 same instant it is the difference between a trickle and a stampede that repeats

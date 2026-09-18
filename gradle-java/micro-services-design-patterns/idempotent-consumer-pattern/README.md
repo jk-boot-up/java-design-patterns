@@ -163,6 +163,24 @@ expiry window can be tested rather than described. `ProcessDiedException` stands
 disappearing — in real life there is no catch block, and the tests say so in a comment where
 they catch it.
 
+## Technologies and versions
+
+Nothing here is a range and nothing is `latest`: a course that worked last year and does
+not work today is worse than one that never took the dependency.
+
+| What | Version | Why it is here |
+| --- | --- | --- |
+| Java | 21 | The repository standard, requested through the Gradle toolchain block |
+| Gradle | 9.2.1 | The wrapper in this directory; no separate install needed |
+| JUnit 5 | 5.10.2 | The 19 tests, through `junit-bom` so the Jupiter artefacts cannot disagree |
+
+That is the entire list, and the short version of it is the point. **This project has no
+runtime dependency at all** — the `dependencies` block in `build.gradle` names nothing but
+JUnit, and JUnit is `testImplementation`. There is no Kafka, no RabbitMQ, no Redis, no
+database and no container; the dedupe store is a map behind a transaction, and the broker is
+two lines. Every one of the twelve projects in this category is built the same way, so a
+reader who can run one can run all of them, offline, with a JDK and nothing else.
+
 ## Learning Material
 
 | File | What it is for |
@@ -170,6 +188,9 @@ they catch it.
 | [`docs/problem-statement.md`](docs/problem-statement.md) | The same confirmation email, twice, and the green test that allowed it |
 | [`docs/idempotent-consumer-pattern-explained.md`](docs/idempotent-consumer-pattern-explained.md) | The full explanation, readable on its own |
 | [`docs/class-diagram.md`](docs/class-diagram.md) | Four consumers, and where each one keeps its memory |
+| [`docs/architecture-diagram.md`](docs/architecture-diagram.md) | Where each of the four consumers keeps its memory, and which of them needs no memory at all |
+| [`docs/data-flow-diagram.md`](docs/data-flow-diagram.md) | The question to ask before any of the machinery, and what happens on the second arrival |
+| [`docs/sequence-diagram.md`](docs/sequence-diagram.md) | The same crash at the same instant, with the id written after the work and then inside it |
 | [`docs/uml-diagram.md`](docs/uml-diagram.md) | The five acts as sequences, including the crash in the gap |
 | [`docs/prerequisites.md`](docs/prerequisites.md) | What you need first, and what you explicitly do not |
 | [`docs/session.md`](docs/session.md) | A one-hour taught session, with the arguments to expect |
@@ -186,6 +207,56 @@ they catch it.
 id in one transaction, so a redelivery is a lookup and nothing else.
 `ShipmentStatusConsumer` sits alongside it needing no store at all, as a
 reminder to ask that question first.
+
+### What runs where
+
+The lower half is the literal truth: one JVM, a map behind a transaction. The upper half is
+the broker and four consumers, arranged as an argument that runs from right to left — from
+the one that needs everything to the one that needs nothing.
+
+![Architecture diagram](docs/images/architecture-diagram.png)
+
+### How the data moves
+
+One message arriving twice. The top third of the chart is the part that saves the most work,
+and two of the four consumers never get past it.
+
+![Data flow diagram](docs/images/data-flow-diagram.png)
+
+### Who calls whom, in order
+
+The same crash at the same instant, twice. Watch when the id is written down: after the work
+above, inside the same commit below.
+
+![Sequence diagram](docs/images/sequence-diagram.png)
+
+### All five acts
+
+The full set from [`docs/uml-diagram.md`](docs/uml-diagram.md), in the order that document
+argues them — which is by argument rather than by number.
+
+**Four. One commit covers both.** The second delivery is a read and nothing else.
+
+![Act four: one commit covers both](docs/images/uml-diagram.png)
+
+**One. A set of ids, and it works.** The obvious implementation, catching the ordinary
+duplicate, with a green test — which is where most implementations stop.
+
+![Act one: a set of ids, and it works](docs/images/uml-diagram-2.png)
+
+**Two. The deploy.** The set lives in the heap, and the heap does not survive a restart.
+
+![Act two: the deploy](docs/images/uml-diagram-3.png)
+
+**Three. The gap.** The email is queued, the process dies, and the id was never written —
+the stamp on the hand with no name on the list.
+
+![Act three: the gap](docs/images/uml-diagram-4.png)
+
+**Five. The handler that needed none of it.** Setting a status to SHIPPED twice sets the
+same status, and no store was ever required.
+
+![Act five: the handler that needed none of it](docs/images/uml-diagram-5.png)
 
 ### Video
 

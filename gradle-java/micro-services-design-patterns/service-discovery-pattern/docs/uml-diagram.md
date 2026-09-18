@@ -36,6 +36,11 @@ sequenceDiagram
 `pricing-1` is taken out of service by a rolling deployment. It deregisters on the
 way out, so the list is true before the first call that would have hit it.
 
+![The deployment: an instance leaves politely](images/uml-diagram-2.png)
+
+<details>
+<summary>Mermaid source</summary>
+
 ```mermaid
 sequenceDiagram
     autonumber
@@ -56,10 +61,17 @@ sequenceDiagram
     Note over C,P2: the shopper never noticed a deployment happened
 ```
 
+</details>
+
 ## The Crash: A Stale Entry, And What Saves It
 
 `pricing-1` dies without deregistering. The registry does not know, and says so
 confidently. The client survives anyway.
+
+![The crash: a stale entry, and what saves it](images/uml-diagram-3.png)
+
+<details>
+<summary>Mermaid source</summary>
 
 ```mermaid
 sequenceDiagram
@@ -86,9 +98,16 @@ sequenceDiagram
     Note over C,P2: 15ms instead of 10ms.<br/>A stale entry cost five milliseconds,<br/>not an outage.
 ```
 
+</details>
+
 ## The Lease Expiring
 
 Nobody calls anything here. Time simply passes, and the registry stops lying.
+
+![The lease expiring](images/uml-diagram-4.png)
+
+<details>
+<summary>Mermaid source</summary>
 
 ```mermaid
 sequenceDiagram
@@ -117,7 +136,14 @@ sequenceDiagram
     R-->>R: → 1
 ```
 
+</details>
+
 ## The Comparison: No Registry At All
+
+![The comparison: no registry at all](images/uml-diagram-5.png)
+
+<details>
+<summary>Mermaid source</summary>
 
 ```mermaid
 sequenceDiagram
@@ -137,6 +163,8 @@ sequenceDiagram
     P1--xC: ServiceUnavailableException
     Note over C,P3: pricing-2 and pricing-3 are up.<br/>The client cannot reach either.<br/>It has no second name to try.
 ```
+
+</details>
 
 ## Notes
 

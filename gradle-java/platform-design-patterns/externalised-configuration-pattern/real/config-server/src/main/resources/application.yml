@@ -1,0 +1,36 @@
+server:
+  port: 8888
+
+spring:
+  application:
+    name: config-server
+
+  profiles:
+    # The "native" backend serves configuration from a directory instead of
+    # from a git repository.
+    #
+    # Git is what a real deployment uses, and it is what gives you the audit
+    # trail that Tier 1 had to build by hand as ChangeLog. It is not what this
+    # demo uses, because a git backend would mean a reader has to create a
+    # repository, commit to it, and understand which branch is being served
+    # before they can see the pattern at all. A directory they can open in an
+    # editor gets them to the lesson in one step.
+    #
+    # Swapping to git is two lines: delete this profile and set
+    # spring.cloud.config.server.git.uri instead. Everything downstream --
+    # the checkout service, the refresh, the validation -- is unchanged.
+    active: native
+
+  cloud:
+    config:
+      server:
+        native:
+          # Relative to the working directory the server is started from,
+          # which demo.sh makes sure is `real/`.
+          search-locations: file:./config-repo
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health

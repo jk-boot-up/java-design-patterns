@@ -1,0 +1,17 @@
+# The value that used to be a constant in the checkout code.
+#
+# This file is the whole point of the pattern. Change the number below, ask the
+# checkout service to refresh, and the next quote uses it. No recompile, no
+# artefact, no deployment, no restart.
+#
+# It is named after the service that reads it. Spring Cloud Config matches the
+# file name to the client's `spring.application.name`, so `checkout-service.yml`
+# is served to the application called `checkout-service` and to nothing else.
+
+delivery:
+  # Free delivery once the goods total reaches this. In Tier 1 this same number
+  # was `Money.pounds(50)` compiled into HardCodedCheckout.
+  freeOver: 50.00
+
+  # What delivery costs when the basket does not reach the threshold.
+  standard: 4.99

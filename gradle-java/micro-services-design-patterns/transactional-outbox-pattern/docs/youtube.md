@@ -17,6 +17,8 @@ Transactional Outbox in Java - Never Lose an Event
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
+Learn the transactional outbox in Java 21, starting from two things that must happen together across two systems with no shared transaction: save the order, and tell everybody else. The version everybody writes first is two lines, and it works — one order, one event, one email, and that is what every test will see. Then a deploy lands between the two lines. The order is real, and nobody will ever be told, and here is the hinge: nothing recorded that a message was owed, so nothing can retry it. Swapping the lines and wrapping them in a transaction are both taken seriously and taken apart. The analogy is an out tray — the letter goes in the tray at the same moment you file your copy — and the mechanism is two rows in one commit with no broker anywhere in sight, plus a relay that runs later for a different reason. The broker goes down and checkout does not notice. Then the bill: the relay dies after publishing, the customer gets two emails, and that duplicate cannot be removed, only pointed in a direction. Never lost, sometimes twice.
+
 CHAPTERS
 00:00 Introduction
 00:42 Two things that have to happen together

@@ -1,0 +1,35 @@
+spring:
+  application:
+    name: recommendations
+
+server:
+  port: 8081
+
+management:
+  tracing:
+    sampling:
+      # Deliberately the same as the caller's, and deliberately worth a note.
+      # This number is very nearly irrelevant on a downstream service: the
+      # sampling decision travels in the traceparent header and a service that is
+      # given one respects it. It matters only for a request that arrives with no
+      # context at all -- which is exactly what the broken client in
+      # `RecommendationsClients` produces, and why the orphan trace shows up in
+      # Jaeger rather than being quietly dropped.
+      probability: 1.0
+  opentelemetry:
+    tracing:
+      export:
+        otlp:
+          endpoint: http://localhost:4318/v1/traces
+        schedule-delay: 5s
+  otlp:
+    metrics:
+      export:
+        # See the note in the product page's configuration: metrics go to a path
+        # Jaeger does not serve, and a 404 stack trace once a minute reads like a
+        # tracing failure when it is not one.
+        enabled: false
+  endpoints:
+    web:
+      exposure:
+        include: health

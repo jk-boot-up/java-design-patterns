@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Backends for Frontends Pattern — Animated Walkthrough</title>
+<style>
+  :root {
+    --bg: #0f172a;
+    --panel: #1e293b;
+    --panel-hi: #334155;
+    --line: #475569;
+    --text: #e2e8f0;
+    --muted: #94a3b8;
+    --client: #38bdf8;
+    --context: #34d399;
+    --strategy: #a78bfa;
+    --picked: #fbbf24;
+    --bad: #f87171;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 28px 20px 60px;
+    background: var(--bg);
+    color: var(--text);
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  h1 { text-align: center; font-size: 28px; margin: 0 0 4px; }
+  .sub { text-align: center; color: var(--muted); margin: 0 0 24px; font-size: 15px; }
+
+  .wrap { max-width: 1100px; margin: 0 auto; }
+
+  .controls { display: flex; gap: 10px; justify-content: center; margin-bottom: 26px; flex-wrap: wrap; }
+  button {
+    background: var(--panel-hi); color: var(--text); border: 1px solid var(--line);
+    padding: 9px 20px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer;
+    transition: background .15s, transform .1s;
+  }
+  button:hover:not(:disabled) { background: #475569; }
+  button:active:not(:disabled) { transform: translateY(1px); }
+  button:disabled { opacity: .4; cursor: not-allowed; }
+  button.primary { background: var(--strategy); color: #1e1b4b; border-color: var(--strategy); }
+  button.primary:hover:not(:disabled) { background: #b9a3ff; }
+  button.on { background: #0c2b3d; border-color: var(--client); color: var(--client); }
+  button.on:hover:not(:disabled) { background: #123a52; }
+
+  .audio-note {
+    text-align: center; color: var(--muted); font-size: 12.5px;
+    margin: -14px 0 22px; min-height: 17px;
+  }
+
+  .stage { display: grid; grid-template-columns: 250px 1fr; gap: 22px; align-items: start; }
+
+  .col-side { display: flex; flex-direction: column; align-items: center; gap: 12px; padding-top: 20px; }
+
+  .box {
+    background: var(--panel); border: 2px solid var(--line); border-radius: 12px;
+    padding: 14px 16px; text-align: center; width: 100%;
+    transition: border-color .3s, box-shadow .3s, transform .3s, background .3s;
+  }
+  .box .name { font-weight: 700; font-size: 13.5px; letter-spacing: .2px; }
+  .box .role { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-top: 3px; }
+  .box.active {
+    transform: translateY(-3px);
+    box-shadow: 0 0 0 3px rgba(255,255,255,.07), 0 10px 28px rgba(0,0,0,.45);
+    border-color: var(--client); background: #0c2b3d;
+  }
+  /* the desktop box lights green when the two screens agree, red when they do not */
+  .box.desk.active { border-color: var(--context); background: #06281f; box-shadow: 0 0 0 3px rgba(52,211,153,.15); }
+  .box.desk.broken, .box.phone.broken {
+    border-color: var(--bad); background: #2b0f12; box-shadow: 0 0 0 3px rgba(248,113,113,.15);
+  }
+  .holding {
+    margin-top: 9px; padding-top: 8px; border-top: 1px dashed var(--line);
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11.5px;
+    color: var(--muted); line-height: 1.6;
+  }
+  .holding b { color: var(--picked); font-weight: 700; }
+
+  .col-main { display: flex; flex-direction: column; gap: 18px; }
+
+  .family {
+    border: 2px dashed var(--client); border-radius: 14px; padding: 18px 20px;
+    background: rgba(56,189,248,.05);
+  }
+  .family.bars { border-color: var(--strategy); background: rgba(167,139,250,.05); }
+  .family-label {
+    font-size: 11px; color: var(--client); text-transform: uppercase;
+    letter-spacing: 1.4px; font-weight: 700; margin-bottom: 14px; text-align: center;
+  }
+  .family.bars .family-label { color: var(--strategy); }
+
+  /* ---- the document, field by field -------------------------------------- */
+
+  .field-row {
+    display: grid; grid-template-columns: 210px 1fr 130px; align-items: center; gap: 10px;
+    padding: 5px 8px; border-radius: 7px; margin-bottom: 4px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12.5px;
+    border: 1px solid transparent; color: var(--muted);
+    animation: appear .32s ease-out both;
+  }
+  @keyframes appear { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: none; } }
+  .field-row .nm { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .field-row .note { font-size: 11.5px; }
+  .field-row .tag { text-align: right; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; white-space: nowrap; }
+  .field-row.drawn { border-color: var(--picked); background: rgba(251,191,36,.10); color: var(--text); }
+  .field-row.drawn .nm { color: var(--picked); font-weight: 700; }
+  .field-row.waste { border-color: rgba(248,113,113,.4); background: rgba(248,113,113,.07); }
+  .field-row.waste .tag { color: #fca5a5; }
+  .field-row.call { border-color: var(--client); background: rgba(56,189,248,.08); color: var(--text); }
+  .field-row.call .nm { color: var(--client); }
+  .field-row.inner { border-color: rgba(52,211,153,.35); background: rgba(52,211,153,.06); }
+  .field-row.inner .tag { color: var(--context); }
+  .field-row.wrong { border-color: var(--bad); background: rgba(248,113,113,.13); color: var(--text); }
+  .field-row.wrong .nm { color: #fca5a5; font-weight: 700; }
+  .field-row.good { border-color: var(--context); background: rgba(52,211,153,.10); color: var(--text); }
+  .field-row.good .nm { color: var(--context); font-weight: 700; }
+
+  /* ---- the comparison bars ------------------------------------------------ */
+
+  .bar-row {
+    display: grid; grid-template-columns: 200px 1fr 118px; align-items: center; gap: 10px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12.5px;
+    padding: 4px 8px; margin-bottom: 3px; border-radius: 6px;
+    animation: appear .32s ease-out both;
+  }
+  .bar-row .val { text-align: right; color: var(--muted); font-size: 11.5px; white-space: nowrap; }
+  .bar-row .nm { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .bar { height: 13px; border-radius: 3px; background: var(--strategy); min-width: 3px; display: block;
+         transition: width .4s ease; }
+  .bar-row.best .nm { color: var(--picked); font-weight: 700; }
+  .bar-row.best .bar { background: var(--picked); }
+  .bar-row.worst .bar { background: var(--bad); }
+  .bar-row.device .bar { background: var(--bad); }
+  .bar-row.internal .bar { background: var(--context); }
+
+  .derived {
+    border: 2px solid var(--strategy); border-radius: 10px; padding: 12px 16px;
+    background: rgba(167,139,250,.07); text-align: center;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 14px;
+  }
+  .derived b { color: var(--picked); font-size: 18px; }
+  .derived .cap { display: block; font-size: 11px; color: var(--muted);
+    text-transform: uppercase; letter-spacing: 1.2px; margin-bottom: 6px;
+    font-family: ui-sans-serif, system-ui, sans-serif; }
+
+  .bridge-rail {
+    min-height: 26px; text-align: center; color: var(--muted);
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12.5px;
+    opacity: 0; transition: opacity .3s;
+  }
+  .bridge-rail.active { opacity: 1; }
+
+  .narration {
+    background: var(--panel); border: 1px solid var(--line); border-radius: 12px;
+    padding: 16px 20px; min-height: 104px;
+  }
+  .narration .step-no {
+    font-size: 11px; color: var(--strategy); text-transform: uppercase;
+    letter-spacing: 1.4px; font-weight: 700; margin-bottom: 7px;
+  }
+  .narration .text { font-size: 14.5px; line-height: 1.65; }
+  .narration b { color: var(--picked); }
+
+  .console {
+    background: #0b1220; border: 1px solid var(--line); border-radius: 12px;
+    padding: 14px 18px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 12.5px; min-height: 96px;
+  }
+  .console .ttl {
+    font-size: 10.5px; color: var(--muted); text-transform: uppercase;
+    letter-spacing: 1.3px; margin-bottom: 9px; font-family: ui-sans-serif, system-ui, sans-serif;
+  }
+  .ln { opacity: 0; transform: translateY(4px); transition: opacity .3s, transform .3s; line-height: 1.75; }
+  .ln.show { opacity: 1; transform: none; }
+  .c-out { color: var(--text); }
+  .c-context { color: var(--context); }
+  .c-strategy { color: var(--strategy); }
+  .c-pick { color: var(--picked); }
+  .c-bad { color: var(--bad); }
+
+  .progress { display: flex; gap: 6px; justify-content: center; margin: 22px 0 8px; }
+  .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--line); transition: background .3s; }
+  .dot.on { background: var(--strategy); }
+
+  .legend {
+    max-width: 880px; margin: 14px auto 0; text-align: center;
+    color: var(--muted); font-size: 13px; line-height: 1.7;
+  }
+  .legend b { color: var(--text); }
+
+  @media (max-width: 860px) {
+    .stage { grid-template-columns: 1fr; }
+    .field-row { grid-template-columns: 140px 1fr 96px; }
+    .bar-row { grid-template-columns: 130px 1fr 92px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>The Backends for Frontends Pattern</h1>
+  <p class="sub">One product, two screens, and the reason a single endpoint cannot serve both</p>
+
+  <div class="controls">
+    <button id="play" class="primary">&#9654;&nbsp; Play</button>
+    <button id="step">Step &rarr;</button>
+    <button id="reset">Reset</button>
+    <button id="audio" aria-pressed="false" title="Narrate each step (N)">
+      <span id="audio-icon">&#128263;</span>&nbsp; Narration: off
+    </button>
+  </div>
+  <p class="audio-note" id="audio-note"></p>
+
+  <div class="stage">
+
+    <div class="col-side">
+      <div class="box phone" id="b-phone">
+        <div class="name">Phone app</div>
+        <div class="role">Four-inch screen</div>
+        <div class="holding" id="phone-state">draws: <b>6 fields</b><br>receives: <b>&mdash;</b></div>
+      </div>
+      <div style="font-size:11px;color:var(--muted);text-align:center;line-height:1.5">
+        one product,<br>two ideas of what it is
+      </div>
+      <div class="box desk" id="b-desk">
+        <div class="name">Desktop store</div>
+        <div class="role">A whole page</div>
+        <div class="holding" id="desk-state">draws: <b>15 fields</b><br>receives: <b>&mdash;</b></div>
+      </div>
+      <div style="font-size:11px;color:var(--muted);text-align:center;line-height:1.5">
+        same five services:<br>
+        <b style="color:var(--context)">catalog · pricing · inventory</b><br>
+        <b style="color:var(--context)">reviews · recommendations</b>
+      </div>
+    </div>
+
+    <div class="col-main">
+
+      <div class="family">
+        <div class="family-label" id="family-label">What the phone has to do to draw one screen</div>
+        <div id="fields"></div>
+      </div>
+
+      <div class="derived" id="derived">
+        <span class="cap" id="derived-cap">What does this cost the customer?</span>
+        <b id="derived-value">&mdash;</b>
+      </div>
+
+      <div class="family bars">
+        <div class="family-label" id="bars-label">Round trips, counted by which network they cross</div>
+        <div id="bars"></div>
+      </div>
+
+      <div class="bridge-rail" id="bridge-rail"></div>
+
+      <div class="narration" id="narration">
+        <div class="step-no">Ready</div>
+        <div class="text">Press <b>Play</b> to watch one shared endpoint fail two screens &mdash; and then to watch the three ways the fix costs more than bytes.</div>
+      </div>
+
+      <div class="console">
+        <div class="ttl">Program output</div>
+        <div id="console-lines"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="progress" id="progress"></div>
+
+  <p class="legend">
+    <b>Fewer bytes is the obvious win. Who is allowed to change the shape is the real one.</b><br>
+    A field selector fixes the size completely and fixes nothing that matters. And the three costs at the end &mdash; one business rule copied into two backends, the shared jobs done once per backend, and a backend per client until there is a department &mdash; are the price of the pattern, not mistakes made while applying it. None of the three raises an error.<br>
+    <span style="font-size:12px">
+      Keys: <b>Space</b> play/pause &nbsp;·&nbsp; <b>&rarr;</b> next step
+      &nbsp;·&nbsp; <b>N</b> narration &nbsp;·&nbsp; <b>R</b> reset
+    </span>
+  </p>
+
+</div>
+
+<script>
+// Every step declares the whole picture rather than a delta. The panels are small
+// enough that re-declaring them costs nothing, and it means stepping backwards
+// shows exactly what stepping forwards showed — which matters here, because
+// several steps redraw the same product *wrongly* on purpose.
+//
+// Field-row fields: nm, note, tag, cls.  Bar-row fields: nm, value, label, cls.
+// Every figure below is from `./gradlew run`, not from memory.
+
+const CHATTY_CALLS = [
+  { nm: "GET /catalog/SKU-4417",         note: "9 fields, 5 image URLs", tag: "device", cls: "call" },
+  { nm: "GET /pricing/SKU-4417",         note: "7 fields",               tag: "device", cls: "call" },
+  { nm: "GET /inventory/SKU-4417",       note: "5 fields",               tag: "device", cls: "call" },
+  { nm: "GET /reviews/SKU-4417",         note: "3 review bodies",        tag: "device", cls: "call" },
+  { nm: "GET /recommendations/SKU-4417", note: "3 fields",               tag: "device", cls: "call" }
+];
+
+const UNION = [
+  { nm: "title",           note: "Copper Filter Coffee Maker, 1 Litre", tag: "drawn", cls: "drawn" },
+  { nm: "pricing.nowPence", note: "4799 — the app must format it",      tag: "drawn", cls: "drawn" },
+  { nm: "thumbnail",       note: "hero-320.jpg",                        tag: "drawn", cls: "drawn" },
+  { nm: "reviews.average", note: "4.6",                                 tag: "drawn", cls: "drawn" },
+  { nm: "reviews.count",   note: "218",                                 tag: "drawn", cls: "drawn" },
+  { nm: "inventory.nextDelivery", note: "2026-09-18 — a date, not a sentence", tag: "drawn", cls: "drawn" },
+  { nm: "description",     note: "a paragraph the phone never shows",    tag: "thrown away", cls: "waste" },
+  { nm: "images",          note: "five 2000px URLs",                    tag: "thrown away", cls: "waste" },
+  { nm: "reviews.latest",  note: "three full review bodies",            tag: "thrown away", cls: "waste" },
+  { nm: "materials, dimensions, brand", note: "the specification table", tag: "thrown away", cls: "waste" },
+  { nm: "recommendations", note: "a strip this screen does not have",    tag: "thrown away", cls: "waste" },
+  { nm: "…and 13 more",    note: "vat rate, warehouse, promotion code…", tag: "thrown away", cls: "waste" }
+];
+
+const PHONE_DOC = [
+  { nm: "title",       note: "Copper Filter Coffee Maker, 1 Litre", tag: "drawn", cls: "drawn" },
+  { nm: "price",       note: "\"£47.99\" — already a string",       tag: "drawn", cls: "drawn" },
+  { nm: "image",       note: "hero-320.jpg, chosen here",           tag: "drawn", cls: "drawn" },
+  { nm: "rating",      note: "4.6",                                 tag: "drawn", cls: "drawn" },
+  { nm: "ratingCount", note: "218",                                 tag: "drawn", cls: "drawn" },
+  { nm: "delivery",    note: "\"Free delivery, arrives 2026-09-18\"", tag: "drawn", cls: "drawn" }
+];
+
+const STEPS = [
+  {
+    title: "Step 1 — One product, two screens that disagree about it",
+    text: "The shop sells one copper coffee maker. On a phone the product screen draws six things: a title, a price, one photograph, a star rating, the number of ratings, and one line saying when the parcel arrives. On a desktop the same product fills a page with fifteen, including the description, five photographs and three written reviews. Both are correct. They simply disagree about what a product is, and that disagreement is the whole of this pattern.",
+    active: ["b-phone", "b-desk"],
+    label: "What each screen puts in front of a human being",
+    fields: [
+      { nm: "phone app",     note: "title · price · image · rating · count · delivery", tag: "6 fields", cls: "drawn" },
+      { nm: "desktop store", note: "all of those, plus description, specification, five images, reviews, related", tag: "15 fields", cls: "good" }
+    ],
+    bars: [], barsLabel: "Nothing measured yet — this is the requirement, not the design",
+    derived: "one product, two shapes", derivedCap: "What the shop is actually being asked for",
+    phoneState: "draws: <b>6 fields</b><br>receives: <b>&mdash;</b>",
+    deskState: "draws: <b>15 fields</b><br>receives: <b>&mdash;</b>",
+    bridge: "five services hold all of it: catalog · pricing · inventory · reviews · recommendations",
+    out: { cls: "c-out", txt: "one product — SKU-4417 — and two screens that want different things" }
+  },
+  {
+    title: "Step 2 — Design one: let the phone call all five services",
+    text: "The obvious first design, and the one most shops arrive at by accident. Each service owns its data and exposes its endpoint, so the phone asks all five itself. Five requests and five answers, every one of them crossing the customer's own connection, and they happen one after another rather than all at once — because you cannot ask pricing about a product until the catalog has told you which product it is.",
+    active: ["b-phone"],
+    label: "What the phone has to do to draw one screen",
+    fields: CHATTY_CALLS,
+    bars: [
+      { nm: "calls from the phone", value: 5, label: "5 round trips", cls: "device" },
+      { nm: "calls inside the shop", value: 5, label: "5 round trips", cls: "internal" }
+    ],
+    barsLabel: "Round trips, counted by which network they cross",
+    derived: "5 waits before a pixel", derivedCap: "What this costs the customer",
+    phoneState: "draws: <b>6 fields</b><br>receives: <b>1767 bytes</b>",
+    deskState: "draws: <b>15 fields</b><br>receives: <b>&mdash;</b>",
+    bridge: "on office wifi nobody notices. On a train, each one is a wait of its own.",
+    out: { cls: "c-bad", txt: "Act 1 — calls from the phone:   5" }
+  },
+  {
+    title: "Step 3 — Twenty-nine fields arrive, and six are drawn",
+    text: "Every one of those five responses arrives whole, because a service that publishes one endpoint publishes one shape. Twenty-nine fields land on the phone and six of them reach the screen. That is wasteful, but the waste is not the serious problem here. The serious problem is still the five.",
+    active: ["b-phone"],
+    label: "The 1767 bytes that landed on the phone",
+    fields: UNION,
+    bars: [
+      { nm: "fields available", value: 29, label: "29", cls: "worst" },
+      { nm: "fields drawn",     value: 6,  label: "6",  cls: "best" }
+    ],
+    barsLabel: "What arrived against what a customer can see",
+    derived: "1767 bytes, 6 fields used", derivedCap: "What the customer downloaded",
+    phoneState: "draws: <b>6 fields</b><br>receives: <b>1767 bytes</b>",
+    deskState: "draws: <b>15 fields</b><br>receives: <b>&mdash;</b>",
+    bridge: "fields available: 29   ·   fields drawn on screen: 6",
+    out: { cls: "c-out", txt: "  downloaded: 1767 bytes   ·   fields drawn on screen: 6" }
+  },
+  {
+    title: "Step 4 — Design two: one shared endpoint for everybody",
+    text: "So the shop puts one endpoint in front of the five services, and every client calls it. One round trip instead of five, which is a real win and the pattern we end up with keeps it. But one endpoint publishes one document, and that document has to satisfy the fussiest client, so it becomes the union of everything anybody has ever needed. Seventeen hundred and fifty-five bytes arrive; two hundred and twelve are drawn. Eighty-seven per cent is discarded on arrival.",
+    active: ["b-phone", "b-desk"],
+    label: "One document, every client, 1755 bytes",
+    fields: UNION,
+    bars: [
+      { nm: "downloaded",  value: 1755, label: "1755 bytes", cls: "worst" },
+      { nm: "drawn",       value: 212,  label: "212 bytes",  cls: "best" },
+      { nm: "thrown away", value: 1543, label: "1543 bytes", cls: "device" }
+    ],
+    barsLabel: "One shared endpoint: what arrived against what was used",
+    derived: "87% thrown away", derivedCap: "Of the shared endpoint's document",
+    phoneState: "draws: <b>6 fields</b><br>receives: <b>1755 bytes</b>",
+    deskState: "draws: <b>15 fields</b><br>receives: <b>1755 bytes</b>",
+    bridge: "GET /api/products/4417  →  everything the shop knows",
+    out: { cls: "c-out", txt: "Act 2 — calls from the phone:   1   ·   thrown away: 1543 bytes (87%)" }
+  },
+  {
+    title: "Step 5 — The obvious fix works, and that is worth saying",
+    text: "Ask for only the fields you want. Add a fields parameter to the query string and the endpoint sends two hundred and twelve bytes instead of seventeen hundred and fifty-five. The size problem is solved, completely, by a query parameter. If this pattern were about payload size the story would end here, with no new services to run and nothing left to explain.",
+    active: ["b-phone"],
+    label: "GET /api/products/4417?fields=title,price,thumbnail,…",
+    fields: PHONE_DOC.map(f => ({ nm: f.nm, note: f.note, tag: "asked for", cls: "drawn" })),
+    bars: [
+      { nm: "union document", value: 1755, label: "1755 bytes", cls: "worst" },
+      { nm: "with ?fields=",  value: 212,  label: "212 bytes",  cls: "best" }
+    ],
+    barsLabel: "A field selector, doing exactly what it promises",
+    derived: "212 bytes", derivedCap: "The size problem, solved",
+    phoneState: "draws: <b>6 fields</b><br>receives: <b>212 bytes</b>",
+    deskState: "draws: <b>15 fields</b><br>receives: <b>1755 bytes</b>",
+    bridge: "plenty of shops run on exactly this, and they are not wrong to",
+    out: { cls: "c-context", txt: "  GET /api/products/4417?fields=… → 212 bytes" }
+  },
+  {
+    title: "Step 6 — And then the phone team asks for one line of text",
+    text: "The request is a sentence: free delivery, arrives Friday. It does not exist in any service. Making it means asking inventory whether the item is in stock, asking the delivery rules what that means for tomorrow, looking at the clock, and joining the three into a sentence the designer wrote. Half an hour of work. But a new field on a shared endpoint is a change to a document five other clients also receive, so it joins a queue behind work that has nothing to do with the phone. The phone team could have written it in an afternoon. They wait five weeks.",
+    active: ["b-phone"], broken: ["b-phone"],
+    label: "The field a selector cannot select",
+    fields: [
+      { nm: "inventory.inStock",      note: "true", tag: "exists", cls: "inner" },
+      { nm: "inventory.nextDelivery", note: "2026-09-18", tag: "exists", cls: "inner" },
+      { nm: "the clock",              note: "what today means for that date", tag: "exists", cls: "inner" },
+      { nm: "delivery",               note: "\"Free delivery, arrives 2026-09-18\"", tag: "does not exist", cls: "wrong" }
+    ],
+    bars: [
+      { nm: "work to write it",  value: 1,  label: "an afternoon", cls: "best" },
+      { nm: "time until it ships", value: 25, label: "five weeks", cls: "worst" }
+    ],
+    barsLabel: "The gap this pattern exists to close, and it is not a technical one",
+    derived: "not available", derivedCap: "A field belonging to one client on an endpoint belonging to all",
+    phoneState: "draws: <b>6 fields</b><br>waiting on: <b>one sentence</b>",
+    deskState: "draws: <b>15 fields</b><br>receives: <b>1755 bytes</b>",
+    bridge: "one endpoint owned by everybody is owned by nobody in particular",
+    out: { cls: "c-bad", txt: "  delivery sentence: not available — this endpoint belongs to all of them" }
+  },
+  {
+    title: "Step 7 — The pattern: a backend for the phone",
+    text: "Give the phone its own backend, owned by the phone team. One call comes in from the device. Four calls go out inside the data centre — catalog, pricing, inventory, reviews — and recommendations is not called at all, because this screen has no related-products strip. Then it builds six flat fields and sends a hundred and ninety-six bytes. The price arrives as a string with a pound sign in it. The delivery promise arrives as a whole sentence.",
+    active: ["b-phone"],
+    label: "MobileBff — six fields, already in the form the screen draws them",
+    fields: PHONE_DOC,
+    bars: [
+      { nm: "calls from the phone",  value: 1, label: "1 round trip",  cls: "best" },
+      { nm: "calls inside the shop", value: 4, label: "4 round trips", cls: "internal" }
+    ],
+    barsLabel: "Round trips, counted by which network they cross",
+    derived: "196 bytes, one round trip", derivedCap: "What the customer's connection now carries",
+    phoneState: "draws: <b>6 fields</b><br>receives: <b>196 bytes</b>",
+    deskState: "draws: <b>15 fields</b><br>receives: <b>1755 bytes</b>",
+    bridge: "4799 → \"£47.99\"   ·   hero-2000.jpg → hero-320.jpg   ·   stock + date → one sentence",
+    out: { cls: "c-context", txt: "Act 3 — phone app asks its own backend: 6 fields, 196 bytes" }
+  },
+  {
+    title: "Step 8 — And a different backend for the desktop",
+    text: "The desktop store gets its own, calling all five services and sending fifteen fields. Look at the delivery field on both sides. The phone was given a whole sentence; the desktop is given the bare date, because the desktop page has a delivery panel and wants the parts so it can lay them out itself. That is not an inconsistency waiting to be tidied up. Two backends over the same data, disagreeing about what a product is, is the pattern working.",
+    active: ["b-desk"],
+    label: "WebBff — fifteen fields from the same five services",
+    fields: [
+      { nm: "title, brand, description", note: "the page has room for all of it", tag: "drawn", cls: "good" },
+      { nm: "materials, dimensions",     note: "the specification table",          tag: "drawn", cls: "good" },
+      { nm: "images",                    note: "five 2000px URLs, not the thumbnail", tag: "drawn", cls: "good" },
+      { nm: "price, wasPrice, saving",   note: "\"£47.99\" · \"£59.99\" · …",      tag: "drawn", cls: "good" },
+      { nm: "rating, ratingCount, reviews", note: "three full review bodies",      tag: "drawn", cls: "good" },
+      { nm: "delivery",                  note: "the bare date — the page joins it itself", tag: "differs", cls: "drawn" },
+      { nm: "stock, related",            note: "41 in Rugby · four related products", tag: "drawn", cls: "good" }
+    ],
+    bars: [
+      { nm: "phone's document",   value: 196,  label: "196 bytes · 6 fields",  cls: "best" },
+      { nm: "desktop's document", value: 1391, label: "1391 bytes · 15 fields", cls: "internal" }
+    ],
+    barsLabel: "Same five services. Neither backend can reach data the other cannot.",
+    derived: "6 fields vs 15 fields", derivedCap: "Two legitimate answers to one question",
+    phoneState: "draws: <b>6 fields</b><br>receives: <b>196 bytes</b>",
+    deskState: "draws: <b>15 fields</b><br>receives: <b>its own shape</b>",
+    bridge: "what differs is the shape, and the shape is owned by the team that draws it",
+    out: { cls: "c-context", txt: "  desktop store asks its own backend: 15 fields" }
+  },
+  {
+    title: "Step 9 — The same product, three ways",
+    text: "Read the two right-hand columns together, because they are the point. The calls from the phone fall from five to one. The calls inside the shop barely move: five, five, four. The work did not go away — it moved off the customer's mobile connection and onto a data-centre network where a call costs almost nothing. And the phone's document is eighty-nine per cent smaller than the shared endpoint's.",
+    active: ["b-phone", "b-desk"],
+    label: "Three designs, measured",
+    fields: [
+      { nm: "five calls from the phone", note: "1767 bytes · 5 device · 5 internal", tag: "rejected", cls: "waste" },
+      { nm: "one shared endpoint",       note: "1755 bytes · 1 device · 5 internal", tag: "rejected", cls: "waste" },
+      { nm: "a backend for the phone",   note: "196 bytes · 1 device · 4 internal",  tag: "the pattern", cls: "drawn" }
+    ],
+    bars: [
+      { nm: "chatty phone",      value: 1767, label: "1767 bytes", cls: "worst" },
+      { nm: "shared endpoint",   value: 1755, label: "1755 bytes", cls: "worst" },
+      { nm: "backend for phone", value: 196,  label: "196 bytes",  cls: "best" }
+    ],
+    barsLabel: "Bytes over the customer's connection, same product, same second",
+    derived: "89% less, one round trip", derivedCap: "The phone's backend against the shared endpoint",
+    phoneState: "draws: <b>6 fields</b><br>receives: <b>196 bytes</b>",
+    deskState: "draws: <b>15 fields</b><br>receives: <b>its own shape</b>",
+    bridge: "delivery: Free delivery, arrives 2026-09-18   —   the field that started the argument",
+    out: { cls: "c-pick", txt: "Act 4 — 89% less than the shared endpoint, one round trip instead of five" }
+  },
+  {
+    title: "Step 10 — The bill, part one: one rule, two answers",
+    text: "The pricing team reviews the discount rule and adds a condition: a higher price may only be advertised as a saving if it was genuinely in force for long enough. For this product it went up eleven days ago, which does not qualify. Both backends are told this. The desktop reads the current rule and claims nothing. The phone runs a copy taken before the review, subtracts, and advertises twelve pounds off. Same product, same price, same second, and one of those screens is making a claim the shop is not allowed to make.",
+    active: ["b-desk"], broken: ["b-phone"],
+    label: "Two backends, one rule, two answers",
+    fields: [
+      { nm: "pricing says", note: "list 5999 · now 4799 · heldLongEnough = false", tag: "the same to both", cls: "inner" },
+      { nm: "desktop store", note: "(nothing — no saving may be claimed for this price)", tag: "correct", cls: "good" },
+      { nm: "phone app",     note: "Save £12.00", tag: "not permitted", cls: "wrong" },
+      { nm: "exceptions thrown", note: "none", tag: "silent", cls: "wrong" },
+      { nm: "log lines written", note: "none", tag: "silent", cls: "wrong" }
+    ],
+    bars: [
+      { nm: "screens agreeing",    value: 1, label: "1 of 2", cls: "worst" },
+      { nm: "people who can see it", value: 1, label: "a customer with both open", cls: "device" }
+    ],
+    barsLabel: "The failure, and who is in a position to notice it",
+    derived: "no error, two claims", derivedCap: "What divergence looks like from inside the system",
+    phoneState: "draws: <b>6 fields</b><br>claims: <b>Save £12.00</b>",
+    deskState: "draws: <b>15 fields</b><br>claims: <b>nothing</b>",
+    bridge: "the copy was right when it was written, is well named, and its tests pass",
+    out: { cls: "c-bad", txt: "Act 5 — desktop: nothing.   phone: Save £12.00." }
+  },
+  {
+    title: "Step 11 — The bill, part two: where the shared jobs go",
+    text: "Every request needs four things done to it whoever sent it: verify the token, refuse traffic over the rate limit, terminate TLS, write the access log. If each backend does them itself, that is four jobs times two backends, eight copies of work that is identical by definition. A gateway in front does them once, and the count does not depend on how many backends there are. The line is one question. Does the code answer what does this screen need — then it belongs in a backend for that frontend. Does it answer is this request allowed in at all — then it belongs in front of all of them.",
+    active: [],
+    label: "The four jobs every request needs, whoever sent it",
+    fields: [
+      { nm: "verify the customer's token",  note: "identical for every client", tag: "entry", cls: "inner" },
+      { nm: "refuse traffic over the limit", note: "identical for every client", tag: "entry", cls: "inner" },
+      { nm: "terminate TLS",                note: "identical for every client", tag: "entry", cls: "inner" },
+      { nm: "write the access log",         note: "identical for every client", tag: "entry", cls: "inner" }
+    ],
+    bars: [
+      { nm: "each backend does it", value: 8, label: "8 copies across 2 backends", cls: "worst" },
+      { nm: "a gateway in front",   value: 4, label: "4 copies, whatever the count", cls: "best" }
+    ],
+    barsLabel: "A gateway is about entry. A backend for a frontend is about shape.",
+    derived: "4, whatever the number of backends", derivedCap: "Behind a gateway",
+    phoneState: "draws: <b>6 fields</b><br>should hold: <b>shape only</b>",
+    deskState: "draws: <b>15 fields</b><br>should hold: <b>shape only</b>",
+    bridge: "copiesBehindAGateway() takes no argument, and that absence is the answer",
+    out: { cls: "c-bad", txt: "Act 6 — 8 copies across 2 backends   ·   4 behind a gateway" }
+  },
+  {
+    title: "Step 12 — The bill, part three: how many backends is too many",
+    text: "The shop has six clients. A phone, a desktop store, a tablet app, a smart TV app, an in-store kiosk, and a nightly partner feed. One backend each would be six. But the tablet shows the phone's six fields in a wider column, the kiosk is the desktop page with the basket hidden, and the feed is not a screen at all. Three of the six disagree about what a product is; three do not. The test is not the device and it is not the team. And every extra backend costs a pipeline, a place in the on-call rota, a dependency upgrade every time a shop service changes, and one more process to look at during an incident. Two backends is a pattern. Nine is a department.",
+    active: ["b-phone", "b-desk"],
+    label: "Six clients, and what each of them actually disagrees about",
+    fields: [
+      { nm: "phone app",      note: "six fields, one sentence, a four-inch screen", tag: "own backend", cls: "drawn" },
+      { nm: "desktop store",  note: "description, specification, five images, reviews", tag: "own backend", cls: "drawn" },
+      { nm: "smart TV app",   note: "no keyboard, so no search, and pictures do the work", tag: "own backend", cls: "drawn" },
+      { nm: "tablet app",     note: "the phone's fields in a wider column", tag: "shares one", cls: "inner" },
+      { nm: "in-store kiosk", note: "the desktop page with the basket hidden", tag: "shares one", cls: "inner" },
+      { nm: "partner feed",   note: "not a screen at all — a nightly file", tag: "shares one", cls: "inner" }
+    ],
+    bars: [
+      { nm: "one per client",              value: 6, label: "6 backends", cls: "worst" },
+      { nm: "one per real disagreement",   value: 3, label: "3 backends", cls: "best" }
+    ],
+    barsLabel: "A layout difference is a stylesheet, not a backend",
+    derived: "3, not 6", derivedCap: "How many backends this estate justifies",
+    phoneState: "draws: <b>6 fields</b><br>justified: <b>yes</b>",
+    deskState: "draws: <b>15 fields</b><br>justified: <b>yes</b>",
+    bridge: "a pipeline · an on-call rota · an upgrade every time a service changes · one more process in an incident",
+    out: { cls: "c-bad", txt: "Act 7 — one per client: 6.   one per genuine disagreement: 3." }
+  }
+];
+
+const ALL_BOXES = ["b-phone", "b-desk"];
+const STEP_MS = 9000;
+const GAP_MS = 700;
+
+const $ = id => document.getElementById(id);
+const fieldsEl = $("fields");
+const barsEl = $("bars");
+const labelEl = $("family-label");
+const barsLabelEl = $("bars-label");
+const derivedEl = $("derived-value");
+const derivedCapEl = $("derived-cap");
+const phoneEl = $("phone-state");
+const deskEl = $("desk-state");
+const bridgeEl = $("bridge-rail");
+const linesEl = $("console-lines");
+const progressEl = $("progress");
+const noteEl = $("audio-note");
+
+let idx = -1, playing = false, timer = null, audioOn = false, current = null;
+
+STEPS.forEach(() => {
+  const d = document.createElement("div");
+  d.className = "dot";
+  progressEl.appendChild(d);
+});
+
+// ---- optional narration ---------------------------------------------------
+
+const clips = STEPS.map((_, i) => {
+  const a = new Audio("audio/step-" + (i + 1) + ".m4a");
+  a.preload = "none";
+  return a;
+});
+
+function stopAudio() {
+  if (current) { current.pause(); current.currentTime = 0; current = null; }
+}
+
+function playClip(i, onDone) {
+  stopAudio();
+  if (!audioOn) { if (onDone) onDone(); return; }
+
+  const a = clips[i];
+  current = a;
+  a.currentTime = 0;
+  a.onended = () => { current = null; if (onDone) onDone(); };
+
+  a.play().catch(() => {
+    // Missing file, or autoplay blocked -> fall back to timed pacing.
+    current = null;
+    noteEl.textContent =
+      "Narration audio could not be played — falling back to timed steps. " +
+      "Run docs/make_animation_audio.sh to generate the clips.";
+    if (onDone) onDone();
+  });
+}
+
+function setAudio(on) {
+  audioOn = on;
+  const btn = $("audio");
+  btn.classList.toggle("on", on);
+  btn.setAttribute("aria-pressed", String(on));
+  btn.innerHTML = '<span id="audio-icon">' + (on ? "&#128266;" : "&#128263;") +
+                  "</span>&nbsp; Narration: " + (on ? "on" : "off");
+  noteEl.textContent = on
+    ? "Each step is narrated, and the animation waits for the voice to finish."
+    : "";
+  if (!on) stopAudio();
+}
+
+// ---------------------------------------------------------------------------
+
+/** One line of a document, a call, or a client: a name, a note, and a tag. */
+function fieldRow(row) {
+  const el = document.createElement("div");
+  el.className = "field-row" + (row.cls ? " " + row.cls : "");
+
+  const name = document.createElement("span");
+  name.className = "nm";
+  name.textContent = row.nm;
+
+  const note = document.createElement("span");
+  note.className = "note";
+  note.textContent = row.note || "";
+
+  const tag = document.createElement("span");
+  tag.className = "tag";
+  tag.textContent = row.tag || "";
+
+  el.append(name, note, tag);
+  return el;
+}
+
+/** One comparison bar, scaled against the largest value in the same panel. */
+function barRow(entry, top) {
+  const el = document.createElement("div");
+  el.className = "bar-row" + (entry.cls ? " " + entry.cls : "");
+
+  const name = document.createElement("span");
+  name.className = "nm";
+  name.textContent = entry.nm;
+
+  const track = document.createElement("span");
+  const bar = document.createElement("span");
+  bar.className = "bar";
+  bar.style.width = (entry.value * 100 / top) + "%";
+  track.appendChild(bar);
+
+  const val = document.createElement("span");
+  val.className = "val";
+  val.textContent = entry.label;
+
+  el.append(name, track, val);
+  return el;
+}
+
+function clearHighlights() {
+  ALL_BOXES.forEach(b => {
+    $(b).classList.remove("active");
+    $(b).classList.remove("broken");
+  });
+}
+
+function render(i) {
+  clearHighlights();
+  const s = STEPS[i];
+
+  (s.active || []).forEach(b => $(b).classList.add("active"));
+  (s.broken || []).forEach(b => $(b).classList.add("broken"));
+
+  fieldsEl.innerHTML = "";
+  (s.fields || []).forEach(r => fieldsEl.appendChild(fieldRow(r)));
+
+  barsEl.innerHTML = "";
+  if (s.bars && s.bars.length) {
+    const top = Math.max(...s.bars.map(b => b.value));
+    s.bars.forEach(b => barsEl.appendChild(barRow(b, top)));
+  }
+
+  labelEl.textContent = s.label;
+  barsLabelEl.textContent = s.barsLabel;
+  phoneEl.innerHTML = s.phoneState;
+  deskEl.innerHTML = s.deskState;
+  derivedEl.innerHTML = s.derived || "&mdash;";
+  derivedCapEl.textContent = s.derivedCap || "";
+
+  bridgeEl.textContent = s.bridge || "";
+  bridgeEl.classList.add("active");
+
+  $("narration").innerHTML =
+    '<div class="step-no">' + s.title + '</div><div class="text">' + s.text + '</div>';
+
+  // Rebuild console output up to this step
+  linesEl.innerHTML = "";
+  for (let k = 0; k <= i; k++) {
+    if (!STEPS[k].out) continue;
+    const div = document.createElement("div");
+    div.className = "ln " + STEPS[k].out.cls;
+    div.textContent = STEPS[k].out.txt;
+    linesEl.appendChild(div);
+    requestAnimationFrame(() => div.classList.add("show"));
+  }
+
+  [...progressEl.children].forEach((d, k) => d.classList.toggle("on", k <= i));
+}
+
+/** Advance one step. In play mode, schedule the following step afterwards. */
+function next() {
+  if (idx >= STEPS.length - 1) { stop(); return; }
+  idx++;
+  render(idx);
+
+  if (!playing) { playClip(idx); return; }
+
+  if (audioOn) {
+    // Wait for the voice to finish this step, then move on.
+    playClip(idx, () => {
+      if (!playing) return;
+      timer = setTimeout(next, GAP_MS);
+    });
+  } else {
+    timer = setTimeout(next, STEP_MS);
+  }
+}
+
+function stop() {
+  playing = false;
+  clearTimeout(timer);
+  stopAudio();
+  $("play").innerHTML = "&#9654;&nbsp; Play";
+  $("step").disabled = false;
+}
+
+function reset() {
+  stop();
+  idx = -1;
+  clearHighlights();
+  fieldsEl.innerHTML = "";
+  barsEl.innerHTML = "";
+  labelEl.textContent = "What the phone has to do to draw one screen";
+  barsLabelEl.textContent = "Round trips, counted by which network they cross";
+  phoneEl.innerHTML = "draws: <b>6 fields</b><br>receives: <b>&mdash;</b>";
+  deskEl.innerHTML = "draws: <b>15 fields</b><br>receives: <b>&mdash;</b>";
+  derivedEl.innerHTML = "&mdash;";
+  derivedCapEl.textContent = "What does this cost the customer?";
+  linesEl.innerHTML = "";
+  bridgeEl.textContent = "";
+  bridgeEl.classList.remove("active");
+  [...progressEl.children].forEach(d => d.classList.remove("on"));
+  $("narration").innerHTML =
+    '<div class="step-no">Ready</div><div class="text">Press <b>Play</b> to watch one shared endpoint fail two screens &mdash; and then to watch the three ways the fix costs more than bytes.</div>';
+}
+
+$("play").addEventListener("click", () => {
+  if (playing) { stop(); return; }
+  if (idx >= STEPS.length - 1) reset();
+  playing = true;
+  $("play").innerHTML = "&#10074;&#10074;&nbsp; Pause";
+  $("step").disabled = true;
+  next();   // next() now schedules the rest of the run itself
+});
+
+$("step").addEventListener("click", () => { stop(); if (idx >= STEPS.length - 1) reset(); next(); });
+$("reset").addEventListener("click", reset);
+
+$("audio").addEventListener("click", () => {
+  setAudio(!audioOn);
+  // Turning narration on mid-run: speak the step already on screen.
+  if (audioOn && playing && idx >= 0) {
+    clearTimeout(timer);
+    playClip(idx, () => {
+      if (!playing) return;
+      timer = setTimeout(next, GAP_MS);
+    });
+  }
+});
+
+document.addEventListener("keydown", e => {
+  if (e.code === "Space") { e.preventDefault(); $("play").click(); }
+  if (e.code === "ArrowRight") { e.preventDefault(); $("step").click(); }
+  if (e.code === "KeyR") reset();
+  if (e.code === "KeyN") $("audio").click();
+});
+
+setAudio(false);
+reset();
+</script>
+</body>
+</html>

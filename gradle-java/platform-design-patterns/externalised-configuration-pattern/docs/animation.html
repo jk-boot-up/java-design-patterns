@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Externalised Configuration Pattern — Animated Walkthrough</title>
+<style>
+  :root {
+    --bg: #0f172a;
+    --panel: #1e293b;
+    --panel-hi: #334155;
+    --line: #475569;
+    --text: #e2e8f0;
+    --muted: #94a3b8;
+    --client: #38bdf8;
+    --context: #34d399;
+    --strategy: #a78bfa;
+    --picked: #fbbf24;
+    --bad: #f87171;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 28px 20px 60px;
+    background: var(--bg);
+    color: var(--text);
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  h1 { text-align: center; font-size: 28px; margin: 0 0 4px; }
+  .sub { text-align: center; color: var(--muted); margin: 0 0 24px; font-size: 15px; }
+
+  .wrap { max-width: 1100px; margin: 0 auto; }
+
+  .controls { display: flex; gap: 10px; justify-content: center; margin-bottom: 26px; flex-wrap: wrap; }
+  button {
+    background: var(--panel-hi); color: var(--text); border: 1px solid var(--line);
+    padding: 9px 20px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer;
+    transition: background .15s, transform .1s;
+  }
+  button:hover:not(:disabled) { background: #475569; }
+  button:active:not(:disabled) { transform: translateY(1px); }
+  button:disabled { opacity: .4; cursor: not-allowed; }
+  button.primary { background: var(--strategy); color: #1e1b4b; border-color: var(--strategy); }
+  button.primary:hover:not(:disabled) { background: #b9a3ff; }
+  button.on { background: #0c2b3d; border-color: var(--client); color: var(--client); }
+  button.on:hover:not(:disabled) { background: #123a52; }
+
+  .audio-note {
+    text-align: center; color: var(--muted); font-size: 12.5px;
+    margin: -14px 0 22px; min-height: 17px;
+  }
+
+  .stage { display: grid; grid-template-columns: 260px 1fr; gap: 22px; align-items: start; }
+
+  .col-side { display: flex; flex-direction: column; align-items: center; gap: 12px; padding-top: 20px; }
+
+  .box {
+    background: var(--panel); border: 2px solid var(--line); border-radius: 12px;
+    padding: 14px 16px; text-align: center; width: 100%;
+    transition: border-color .3s, box-shadow .3s, transform .3s, background .3s;
+  }
+  .box .name { font-weight: 700; font-size: 13.5px; letter-spacing: .2px; }
+  .box .role { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-top: 3px; }
+  .box.active {
+    transform: translateY(-3px);
+    box-shadow: 0 0 0 3px rgba(255,255,255,.07), 0 10px 28px rgba(0,0,0,.45);
+    border-color: var(--client); background: #0c2b3d;
+  }
+  /* the configuration source lights green when it is answering */
+  .box.server.active { border-color: var(--context); background: #06281f; box-shadow: 0 0 0 3px rgba(52,211,153,.15); }
+  /* and red when it is not */
+  .box.server.down { border-color: var(--bad); background: #2b0f12; box-shadow: 0 0 0 3px rgba(248,113,113,.15); }
+  .holding {
+    margin-top: 9px; padding-top: 8px; border-top: 1px dashed var(--line);
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11.5px;
+    color: var(--muted); line-height: 1.6;
+  }
+  .holding b { color: var(--picked); font-weight: 700; }
+
+  .col-main { display: flex; flex-direction: column; gap: 18px; }
+
+  .family {
+    border: 2px dashed var(--client); border-radius: 14px; padding: 18px 20px;
+    background: rgba(56,189,248,.05);
+  }
+  .family.log { border-color: var(--context); background: rgba(52,211,153,.05); }
+  .family-label {
+    font-size: 11px; color: var(--client); text-transform: uppercase;
+    letter-spacing: 1.4px; font-weight: 700; margin-bottom: 14px; text-align: center;
+  }
+  .family.log .family-label { color: var(--context); }
+
+  .row {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    border: 2px solid var(--line); border-radius: 8px; background: var(--panel);
+    padding: 8px 14px; margin-bottom: 6px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 13px;
+    transition: border-color .3s, background .3s, transform .3s, opacity .3s;
+  }
+  .row .note { color: var(--muted); font-size: 11.5px; text-align: right; white-space: nowrap; }
+  .row.hidden { display: none; }
+  .row.dim { opacity: .34; }
+  .row.active {
+    transform: translateX(4px);
+    border-color: var(--client);
+    box-shadow: 0 0 0 3px rgba(56,189,248,.15);
+  }
+  /* a basket that qualified for free delivery */
+  .row.free { border-color: var(--context); background: #06281f; }
+  .row.free .note { color: #6ee7b7; }
+  /* a basket the shop could not quote at all */
+  .row.failed { border-color: var(--bad); background: #2b0f12; }
+  .row.failed .note { color: #fca5a5; }
+  /* a configuration change that should never have been accepted */
+  .row.wrong { border-color: var(--bad); background: #2b0f12; }
+  .row.wrong .note { color: #fca5a5; }
+  /* a change that was stopped at the boundary */
+  .row.rejected { border-color: var(--picked); background: #2a2008; }
+  .row.rejected .note { color: var(--picked); }
+  .row.rejected .name::after {
+    content: "rejected";
+    margin-left: 10px; font-size: 10px; letter-spacing: 1px;
+    color: var(--picked); border: 1px solid var(--picked);
+    border-radius: 4px; padding: 1px 5px; vertical-align: 2px;
+  }
+
+  .derived {
+    border: 2px solid var(--strategy); border-radius: 10px; padding: 12px 16px;
+    background: rgba(167,139,250,.07); text-align: center;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 14px;
+  }
+  .derived b { color: var(--picked); font-size: 18px; }
+  .derived .cap { display: block; font-size: 11px; color: var(--muted);
+    text-transform: uppercase; letter-spacing: 1.2px; margin-bottom: 6px;
+    font-family: ui-sans-serif, system-ui, sans-serif; }
+
+  .bridge-rail {
+    min-height: 26px; text-align: center; color: var(--muted);
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12.5px;
+    opacity: 0; transition: opacity .3s;
+  }
+  .bridge-rail.active { opacity: 1; }
+
+  .narration {
+    background: var(--panel); border: 1px solid var(--line); border-radius: 12px;
+    padding: 16px 20px; min-height: 104px;
+  }
+  .narration .step-no {
+    font-size: 11px; color: var(--strategy); text-transform: uppercase;
+    letter-spacing: 1.4px; font-weight: 700; margin-bottom: 7px;
+  }
+  .narration .text { font-size: 14.5px; line-height: 1.65; }
+  .narration b { color: var(--picked); }
+
+  .console {
+    background: #0b1220; border: 1px solid var(--line); border-radius: 12px;
+    padding: 14px 18px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 12.5px; min-height: 96px;
+  }
+  .console .ttl {
+    font-size: 10.5px; color: var(--muted); text-transform: uppercase;
+    letter-spacing: 1.3px; margin-bottom: 9px; font-family: ui-sans-serif, system-ui, sans-serif;
+  }
+  .ln { opacity: 0; transform: translateY(4px); transition: opacity .3s, transform .3s; line-height: 1.75; }
+  .ln.show { opacity: 1; transform: none; }
+  .c-out { color: var(--text); }
+  .c-context { color: var(--context); }
+  .c-strategy { color: var(--strategy); }
+  .c-pick { color: var(--picked); }
+  .c-bad { color: var(--bad); }
+
+  .progress { display: flex; gap: 6px; justify-content: center; margin: 22px 0 8px; }
+  .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--line); transition: background .3s; }
+  .dot.on { background: var(--strategy); }
+
+  .legend {
+    max-width: 880px; margin: 14px auto 0; text-align: center;
+    color: var(--muted); font-size: 13px; line-height: 1.7;
+  }
+  .legend b { color: var(--text); }
+
+  @media (max-width: 860px) {
+    .stage { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>The Externalised Configuration Pattern</h1>
+  <p class="sub">The threshold you must not redeploy to change &mdash; and what it costs to be able to change it</p>
+
+  <div class="controls">
+    <button id="play" class="primary">&#9654;&nbsp; Play</button>
+    <button id="step">Step &rarr;</button>
+    <button id="reset">Reset</button>
+    <button id="audio" aria-pressed="false" title="Narrate each step (N)">
+      <span id="audio-icon">&#128263;</span>&nbsp; Narration: off
+    </button>
+  </div>
+  <p class="audio-note" id="audio-note"></p>
+
+  <div class="stage">
+
+    <div class="col-side">
+      <div class="box client" id="b-code">
+        <div class="name">HardCodedCheckout</div>
+        <div class="role">The number is in the source</div>
+        <div class="holding" id="code-state">threshold: <b>£50.00</b><br>to change: <b>a release</b></div>
+      </div>
+      <div style="font-size:11px;color:var(--muted);text-align:center;line-height:1.5">
+        the same shop,<br>the same one number,<br>kept two ways
+      </div>
+      <div class="box server" id="b-server">
+        <div class="name">ConfigServer</div>
+        <div class="role">The number is outside</div>
+        <div class="holding" id="server-state">delivery.freeOver: <b>&mdash;</b><br>reachable: <b>yes</b></div>
+      </div>
+      <div style="font-size:11px;color:var(--muted);text-align:center;line-height:1.5">
+        it stores <b style="color:var(--context)">text</b>.<br>
+        it does not judge the text.
+      </div>
+    </div>
+
+    <div class="col-main">
+
+      <div class="family">
+        <div class="family-label" id="family-label">Three baskets at the delivery step</div>
+        <div class="row" id="q-1">
+          <span class="name">ORD-7101 &nbsp; goods £62.00</span>
+          <span class="note" id="n-1">delivery &mdash;</span>
+        </div>
+        <div class="row" id="q-2">
+          <span class="name">ORD-7102 &nbsp; goods £48.00</span>
+          <span class="note" id="n-2">delivery &mdash;</span>
+        </div>
+        <div class="row" id="q-3">
+          <span class="name">ORD-7103 &nbsp; goods £31.50</span>
+          <span class="note" id="n-3">delivery &mdash;</span>
+        </div>
+      </div>
+
+      <div class="derived" id="derived">
+        <span class="cap" id="derived-cap">Threshold in force</span>
+        <b id="derived-value">&mdash;</b>
+      </div>
+
+      <div class="family log">
+        <div class="family-label" id="log-label">The audit trail &mdash; nothing changed yet</div>
+        <div class="row hidden" id="c-1">
+          <span class="name">#1 &nbsp; Fri 16:30:04</span>
+          <span class="note" id="m-1">(not set) &rarr; 35 &nbsp;·&nbsp; by marketing</span>
+        </div>
+        <div class="row hidden" id="c-2">
+          <span class="name">#2 &nbsp; Sat 09:12:04</span>
+          <span class="note" id="m-2">35 &rarr; -1 &nbsp;·&nbsp; by marketing</span>
+        </div>
+        <div class="row hidden" id="c-3">
+          <span class="name">#3 &nbsp; Sat 09:20:04</span>
+          <span class="note" id="m-3">-1 &rarr; fifty &nbsp;·&nbsp; by marketing</span>
+        </div>
+        <div class="row hidden" id="c-4">
+          <span class="name">#4 &nbsp; Sat 10:05:04</span>
+          <span class="note" id="m-4">fifty &rarr; 35 &nbsp;·&nbsp; by marketing</span>
+        </div>
+        <div class="row hidden" id="c-5">
+          <span class="name">#5 &nbsp; Sat 11:40:04</span>
+          <span class="note" id="m-5">35 &rarr; -1 &nbsp;·&nbsp; by ops</span>
+        </div>
+        <div class="row hidden" id="c-6">
+          <span class="name">#6 &nbsp; Sat 11:40:08</span>
+          <span class="note" id="m-6">-1 &rarr; 35 &nbsp;·&nbsp; by on-call (rollback)</span>
+        </div>
+      </div>
+
+      <div class="bridge-rail" id="bridge-rail"></div>
+
+      <div class="narration" id="narration">
+        <div class="step-no">Ready</div>
+        <div class="text">Press <b>Play</b> to watch one number &mdash; the spend that earns free delivery &mdash; move out of the source code, and to see both what that buys and what it costs.</div>
+      </div>
+
+      <div class="console">
+        <div class="ttl">Program output</div>
+        <div id="console-lines"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="progress" id="progress"></div>
+
+  <p class="legend">
+    <b>Take the number out of the code, and take the compiler, the reviewer and the history out with it.</b><br>
+    A value read from outside changes in four seconds instead of two days &mdash; and arrives as text that nobody reviewed. The typed setting, the declared range, the audit trail and the fast rollback are not extras. They are the four guards the value left behind in the source file.<br>
+    <span style="font-size:12px">
+      Keys: <b>Space</b> play/pause &nbsp;·&nbsp; <b>&rarr;</b> next step
+      &nbsp;·&nbsp; <b>N</b> narration &nbsp;·&nbsp; <b>R</b> reset
+    </span>
+  </p>
+
+</div>
+
+<script>
+// Each step lists only what it changes. Anything cumulative — which audit
+// entries exist, and what each basket's caption says — is replayed from the
+// start on every render, so stepping backwards shows a consistent picture.
+const STEPS = [
+  {
+    title: "Step 1 — The threshold lives in the source code",
+    text: "Free delivery when you spend over fifty pounds. The number is a named constant in the checkout class, in one place, correctly typed, and a reviewer would approve it without a comment. The sixty-two pound basket ships free. The forty-eight pound one pays four ninety-nine, and so does the thirty-one fifty one. Nothing here is wrong.",
+    active: ["b-code"], show: [], free: ["q-1"],
+    code: "£50.00", codeChange: "a release", server: "&mdash;", reachable: "yes",
+    derived: "£50.00", derivedCap: "Threshold in force, from a constant in the program",
+    captions: { 1: "delivery FREE", 2: "delivery £4.99", 3: "delivery £4.99" },
+    bridge: "private static final Money FREE_DELIVERY_OVER = Money.pounds(50);",
+    out: { cls: "c-out", txt: "Act 1 - free delivery over £50.00, and the number lives in the source" }
+  },
+  {
+    title: "Step 2 — Marketing wants thirty-five, from Saturday morning",
+    text: "They ask on Friday at half past four. Editing the constant takes fifteen minutes. Then a code review, a build, an approval and a deploy: two hours and a quarter of work in total. But the release window closes at five and does not reopen until Monday, so the change goes live on Monday at a quarter to eleven. The promotion was for the weekend. It is late by two days and nearly two hours.",
+    active: ["b-code"], dim: true, show: [], free: ["q-1"],
+    code: "£50.00", codeChange: "a release", server: "&mdash;", reachable: "yes",
+    derived: "live Mon 10 Mar 10:45", derivedCap: "A fifteen-minute edit, requested Friday at 16:30",
+    bridge: "total work 2 hours 15 minutes  ·  late by 2 days 1 hour 45 minutes",
+    out: { cls: "c-bad", txt: "the promotion was for the weekend. It goes live after the weekend." }
+  },
+  {
+    title: "Step 3 — The number moves outside the program",
+    text: "Same arithmetic, one line different: instead of reading a constant, the checkout asks a settings reader for the threshold, and it asks inside the quote rather than once when it is built. Nothing is configured yet, so every quote falls back to the default compiled into the code. The shop behaves exactly as before.",
+    active: ["b-server"], show: [], free: ["q-1"],
+    code: "£50.00", codeChange: "a release", server: "(not set)", reachable: "yes",
+    derived: "£50.00", derivedCap: "Threshold in force, from the default in the code",
+    bridge: "SettingValue threshold = settings.money(FREE_DELIVERY_OVER);   // inside quote()",
+    out: { cls: "c-strategy", txt: "before the change, with nothing configured: no behaviour has changed" }
+  },
+  {
+    title: "Step 4 — Thirty-five pounds, live in four seconds",
+    text: "Somebody types thirty-five into a box. Four seconds later the very next basket is quoted against it, and order seven one zero two &mdash; forty-eight pounds &mdash; now ships free. No rebuild. No redeploy. No restart. Against two days and change, that is the whole reason anybody does this.",
+    active: ["b-server", "c-1"], show: ["c-1"], free: ["q-1", "q-2"],
+    code: "£50.00", codeChange: "a release", server: "35", reachable: "yes",
+    derived: "£35.00", derivedCap: "Threshold in force, from the config server",
+    captions: { 2: "delivery FREE" },
+    label: "The audit trail — one change",
+    bridge: "#1  Fri 07 Mar 16:30:04   delivery.freeOver  (not set) -> 35   by marketing",
+    out: { cls: "c-context", txt: "ORD-7102 goods £48.00 delivery FREE     // 4 seconds after the change" }
+  },
+  {
+    title: "Step 5 — The config server stops answering",
+    text: "The network link to it drops. Every setting now falls back to the default compiled into the code, and the shop starts, and keeps selling &mdash; which is the point of carrying a default at all. But read what it quietly lost. The threshold is back to fifty pounds, the promotion is off, and no exception, no log line and no alert says so anywhere.",
+    active: [], down: true, show: ["c-1"], free: ["q-1"],
+    code: "£50.00", codeChange: "a release", server: "35", reachable: "no",
+    derived: "£50.00", derivedCap: "from the default, because the server could not be reached",
+    captions: { 2: "delivery £4.99" },
+    bridge: "the shop survives the outage. The promotion does not.",
+    out: { cls: "c-pick", txt: "came from: the default compiled into the code, because the config server could not be reached" }
+  },
+  {
+    title: "Step 6 — The bill: somebody types minus one",
+    text: "Saturday morning, nine twelve. The server stores it happily, because storing text is all a config server does. Every basket in the shop is worth more than minus one pound, so every basket ships free &mdash; including the thirty-one fifty one. There is no exception. There is no log line. Nothing anywhere reports a problem, because as far as the program is concerned there is not one. The first symptom is the margin.",
+    active: ["b-server", "c-2"], show: ["c-1", "c-2"], wrong: ["c-2"],
+    free: ["q-1", "q-2", "q-3"],
+    code: "£50.00", codeChange: "a release", server: "-1", reachable: "yes",
+    derived: "-£1.00", derivedCap: "Threshold in force, and nothing complained",
+    captions: { 2: "delivery FREE", 3: "delivery FREE" },
+    bridge: "-1 is a perfectly well-formed number. That is exactly the problem.",
+    out: { cls: "c-bad", txt: "every basket in the shop now ships free, including the £31.50 one." }
+  },
+  {
+    title: "Step 7 — The bill: eight minutes later, the word fifty",
+    text: "Not a number at all. The read throws, nothing catches it, and the exception travels straight out through checkout. Not one basket can be quoted. The shop is down, and it was taken down by a text box, with nothing deployed. In one sense this is the better of the two failures, because you find out immediately.",
+    active: ["b-server", "c-3"], show: ["c-1", "c-2", "c-3"], wrong: ["c-2", "c-3"],
+    failed: ["q-1", "q-2", "q-3"],
+    code: "£50.00", codeChange: "a release", server: "fifty", reachable: "yes",
+    derived: "no quote at all", derivedCap: "setting 'delivery.freeOver' has value \"fifty\"",
+    captions: { 1: "checkout failed", 2: "checkout failed", 3: "checkout failed" },
+    bridge: "the compiler would have refused this. The compiler is no longer in the path.",
+    out: { cls: "c-bad", txt: "not one basket can be quoted. The shop is down." }
+  },
+  {
+    title: "Step 8 — Declare the setting, and validate at the boundary",
+    text: "A key, a default, a lowest value and a highest value. Five pounds to two hundred: below five you are giving delivery away on a packet of crisps, above two hundred nobody ever qualifies and the promotion is broken the other way. Both ends are business judgements, which is exactly why a program has to enforce them. This little record is the replacement for the compiler.",
+    active: [], show: ["c-1", "c-2", "c-3"], wrong: ["c-2", "c-3"],
+    failed: ["q-1", "q-2", "q-3"],
+    code: "£50.00", codeChange: "a release", server: "fifty", reachable: "yes",
+    derived: "money, £5.00 to £200.00", derivedCap: "delivery.freeOver — declared, with a default of £50.00",
+    bridge: "new MoneySetting(\"delivery.freeOver\", £50, £5, £200)",
+    out: { cls: "c-strategy", txt: "delivery.freeOver: money, £5.00 to £200.00, default £50.00" }
+  },
+  {
+    title: "Step 9 — The word fifty, with validation switched on",
+    text: "The same bad value is still configured, and now something reads it properly. It is refused at the edge, the rejection is recorded, and because this reader has never yet seen a good value there is nothing to keep, so the default in the code keeps the shop selling. Nobody sees an error page.",
+    active: [], show: ["c-1", "c-2", "c-3"], wrong: ["c-2"], rejected: ["c-3"],
+    free: ["q-1"],
+    code: "£50.00", codeChange: "a release", server: "fifty", reachable: "yes",
+    derived: "£50.00", derivedCap: "from the default, because the configured value was rejected",
+    captions: { 1: "delivery FREE", 2: "delivery £4.99", 3: "delivery £4.99" },
+    bridge: "REJECTED  expected an amount of money such as \"35\" or \"4.99\"",
+    out: { cls: "c-pick", txt: "the bad value was stopped at the edge. The shop kept trading." }
+  },
+  {
+    title: "Step 10 — A good value, remembered",
+    text: "Thirty-five pounds again, and this time it passes. The reader uses it, and it also files it away as the last value known to be good. That filing is about to matter more than it looks.",
+    active: ["b-server", "c-4"], show: ["c-1", "c-2", "c-3", "c-4"],
+    wrong: ["c-2"], rejected: ["c-3"], free: ["q-1", "q-2"],
+    code: "£50.00", codeChange: "a release", server: "35", reachable: "yes",
+    derived: "£35.00", derivedCap: "Threshold in force, from the config server",
+    captions: { 2: "delivery FREE" },
+    label: "The audit trail — four changes, two of them wrong",
+    bridge: "lastGood.put(\"delivery.freeOver\", £35.00);",
+    out: { cls: "c-context", txt: "ORD-7102 goods £48.00 delivery FREE     threshold £35.00, from the config server" }
+  },
+  {
+    title: "Step 11 — Minus one again, and this time it does not land",
+    text: "Eleven forty on Saturday, and somebody in operations types minus one. It is refused, and look carefully at what the shop falls back to: not fifty pounds from the code, but thirty-five &mdash; the last value that passed. Reverting a perfectly good promotion because of an unrelated typo would be its own kind of wrong. And the rejection is recorded, loudly, because a guard that swallows bad input in silence leaves the typo in place and nobody looking for it.",
+    active: ["c-5"], show: ["c-1", "c-2", "c-3", "c-4", "c-5"],
+    wrong: ["c-2"], rejected: ["c-3", "c-5"], free: ["q-1", "q-2"],
+    code: "£50.00", codeChange: "a release", server: "-1", reachable: "yes",
+    derived: "£35.00", derivedCap: "the last value that passed validation",
+    bridge: "REJECTED  expected between £5.00 and £200.00",
+    out: { cls: "c-context", txt: "both bad values were stopped at the edge, and the shop kept the last value that passed." }
+  },
+  {
+    title: "Step 12 — A rollback as fast as the change",
+    text: "Four seconds after the decision, the threshold is back to thirty-five &mdash; and nobody had to remember what it used to be, because every entry in the trail records the value it displaced. The same correction through the release pipeline would have been live on Monday at a quarter past eleven. That is the guard with no equivalent in the source-code world: a bad release takes a release to undo, and a bad value takes four seconds. Externalised configuration is not a way to avoid governing a change. It is a way to govern it in seconds instead of days.",
+    active: ["b-server", "c-6"], show: ["c-1", "c-2", "c-3", "c-4", "c-5", "c-6"],
+    wrong: ["c-2"], rejected: ["c-3", "c-5"], free: ["q-1", "q-2"],
+    code: "£50.00", codeChange: "a release", server: "35", reachable: "yes",
+    derived: "£35.00", derivedCap: "rolled back in 4 seconds, from the audit trail",
+    label: "The audit trail — six changes, and the version history is not involved",
+    bridge: "changeLog.valueBefore(\"delivery.freeOver\")   →   \"35\"",
+    out: { cls: "c-pick", txt: "the same correction through the release pipeline would be live Mon 10 Mar 11:15." }
+  }
+];
+
+const BOXES = ["b-code", "b-server"];
+const QUOTES = ["q-1", "q-2", "q-3"];
+const CHANGES = ["c-1", "c-2", "c-3", "c-4", "c-5", "c-6"];
+const ALL_BOXES = BOXES.concat(QUOTES, CHANGES);
+
+const STEP_MS = 4200;      // pace when narration is off
+const GAP_MS = 700;        // breathing room after a clip finishes
+
+let idx = -1;
+let playing = false;
+let timer = null;
+
+// Narration is optional: if the audio clips are missing (or the browser
+// blocks playback) the animation still works exactly as before.
+let audioOn = false;
+let clips = [];
+let current = null;
+
+const $ = id => document.getElementById(id);
+const progressEl = $("progress");
+const linesEl = $("console-lines");
+const noteEl = $("audio-note");
+const bridgeEl = $("bridge-rail");
+const codeEl = $("code-state");
+const serverEl = $("server-state");
+const labelEl = $("log-label");
+const derivedEl = $("derived-value");
+const derivedCapEl = $("derived-cap");
+
+const DEFAULT_LABEL = "The audit trail — nothing changed yet";
+const DEFAULT_CAPTIONS = {
+  1: "delivery —",
+  2: "delivery —",
+  3: "delivery —"
+};
+
+STEPS.forEach(() => {
+  const d = document.createElement("div");
+  d.className = "dot";
+  progressEl.appendChild(d);
+});
+
+// ---- optional narration ------------------------------------------------
+
+clips = STEPS.map((_, i) => {
+  const a = new Audio("audio/step-" + (i + 1) + ".m4a");
+  a.preload = "none";
+  return a;
+});
+
+function stopAudio() {
+  if (!current) return;
+  current.pause();
+  current.currentTime = 0;
+  current.onended = null;
+  current = null;
+}
+
+/** Play the clip for step i. onDone fires when it finishes (or cannot play). */
+function playClip(i, onDone) {
+  stopAudio();
+  if (!audioOn) { if (onDone) onDone(); return; }
+
+  const a = clips[i];
+  current = a;
+  a.currentTime = 0;
+  a.onended = () => { current = null; if (onDone) onDone(); };
+
+  a.play().catch(() => {
+    // Missing file, or autoplay blocked -> fall back to timed pacing.
+    current = null;
+    noteEl.textContent =
+      "Narration audio could not be played — falling back to timed steps. " +
+      "Run docs/make_animation_audio.sh to generate the clips.";
+    if (onDone) onDone();
+  });
+}
+
+function setAudio(on) {
+  audioOn = on;
+  const btn = $("audio");
+  btn.classList.toggle("on", on);
+  btn.setAttribute("aria-pressed", String(on));
+  btn.innerHTML = '<span id="audio-icon">' + (on ? "&#128266;" : "&#128263;") +
+                  "</span>&nbsp; Narration: " + (on ? "on" : "off");
+  noteEl.textContent = on
+    ? "Each step is narrated, and the animation waits for the voice to finish."
+    : "";
+  if (!on) stopAudio();
+}
+
+// ------------------------------------------------------------------------
+
+function clearHighlights() {
+  ALL_BOXES.forEach(b => $(b).classList.remove("active"));
+  QUOTES.forEach(r => $(r).classList.remove("dim", "free", "failed"));
+  CHANGES.forEach(r => $(r).classList.remove("dim", "wrong", "rejected"));
+  $("b-server").classList.remove("down");
+}
+
+function render(i) {
+  clearHighlights();
+  const s = STEPS[i];
+
+  // Which audit entries exist by now. The trail is append-only, so this is
+  // the union of every step up to and including this one.
+  const shown = new Set();
+  for (let k = 0; k <= i; k++) (STEPS[k].show || []).forEach(r => shown.add(r));
+  CHANGES.forEach(r => $(r).classList.toggle("hidden", !shown.has(r)));
+
+  (s.active || []).forEach(b => $(b).classList.add("active"));
+  if (s.down) $("b-server").classList.add("down");
+
+  (s.free || []).forEach(r => $(r).classList.add("free"));
+  (s.failed || []).forEach(r => { $(r).classList.remove("free"); $(r).classList.add("failed"); });
+  (s.wrong || []).forEach(r => $(r).classList.add("wrong"));
+  (s.rejected || []).forEach(r => { $(r).classList.remove("wrong"); $(r).classList.add("rejected"); });
+
+  // Entries not involved in this step fade back, so the eye follows the story.
+  if (s.dim) QUOTES.forEach(r => $(r).classList.add("dim"));
+
+  // Captions and the panel label are cumulative for the same reason.
+  const caps = Object.assign({}, DEFAULT_CAPTIONS);
+  let label = DEFAULT_LABEL;
+  for (let k = 0; k <= i; k++) {
+    Object.assign(caps, STEPS[k].captions || {});
+    if (STEPS[k].label) label = STEPS[k].label;
+  }
+  Object.keys(caps).forEach(key => { $("n-" + key).textContent = caps[key]; });
+  labelEl.textContent = label;
+
+  codeEl.innerHTML = "threshold: <b>" + (s.code || "£50.00") + "</b><br>to change: <b>"
+    + (s.codeChange || "a release") + "</b>";
+  serverEl.innerHTML = "delivery.freeOver: <b>" + (s.server || "&mdash;") + "</b><br>reachable: <b>"
+    + (s.reachable || "yes") + "</b>";
+  derivedEl.innerHTML = s.derived || "&mdash;";
+  derivedCapEl.textContent = s.derivedCap || "Threshold in force";
+
+  bridgeEl.textContent = s.bridge || "";
+  bridgeEl.classList.add("active");
+
+  $("narration").innerHTML =
+    '<div class="step-no">' + s.title + '</div><div class="text">' + s.text + '</div>';
+
+  // Rebuild console output up to this step
+  linesEl.innerHTML = "";
+  for (let k = 0; k <= i; k++) {
+    if (!STEPS[k].out) continue;
+    const div = document.createElement("div");
+    div.className = "ln " + STEPS[k].out.cls;
+    div.textContent = STEPS[k].out.txt;
+    linesEl.appendChild(div);
+    requestAnimationFrame(() => div.classList.add("show"));
+  }
+
+  [...progressEl.children].forEach((d, k) => d.classList.toggle("on", k <= i));
+}
+
+/** Advance one step. In play mode, schedule the following step afterwards. */
+function next() {
+  if (idx >= STEPS.length - 1) { stop(); return; }
+  idx++;
+  render(idx);
+
+  if (!playing) { playClip(idx); return; }
+
+  if (audioOn) {
+    // Wait for the voice to finish this step, then move on.
+    playClip(idx, () => {
+      if (!playing) return;
+      timer = setTimeout(next, GAP_MS);
+    });
+  } else {
+    timer = setTimeout(next, STEP_MS);
+  }
+}
+
+function stop() {
+  playing = false;
+  clearTimeout(timer);
+  stopAudio();
+  $("play").innerHTML = "&#9654;&nbsp; Play";
+  $("step").disabled = false;
+}
+
+function reset() {
+  stop();
+  idx = -1;
+  clearHighlights();
+  CHANGES.forEach(r => $(r).classList.add("hidden"));
+  Object.keys(DEFAULT_CAPTIONS).forEach(k => { $("n-" + k).textContent = DEFAULT_CAPTIONS[k]; });
+  labelEl.textContent = DEFAULT_LABEL;
+  codeEl.innerHTML = "threshold: <b>£50.00</b><br>to change: <b>a release</b>";
+  serverEl.innerHTML = "delivery.freeOver: <b>&mdash;</b><br>reachable: <b>yes</b>";
+  derivedEl.innerHTML = "&mdash;";
+  derivedCapEl.textContent = "Threshold in force";
+  linesEl.innerHTML = "";
+  bridgeEl.textContent = "";
+  bridgeEl.classList.remove("active");
+  [...progressEl.children].forEach(d => d.classList.remove("on"));
+  $("narration").innerHTML =
+    '<div class="step-no">Ready</div><div class="text">Press <b>Play</b> to watch one number &mdash; the spend that earns free delivery &mdash; move out of the source code, and to see both what that buys and what it costs.</div>';
+}
+
+$("play").addEventListener("click", () => {
+  if (playing) { stop(); return; }
+  if (idx >= STEPS.length - 1) reset();
+  playing = true;
+  $("play").innerHTML = "&#10074;&#10074;&nbsp; Pause";
+  $("step").disabled = true;
+  next();   // next() now schedules the rest of the run itself
+});
+
+$("step").addEventListener("click", () => { stop(); if (idx >= STEPS.length - 1) reset(); next(); });
+$("reset").addEventListener("click", reset);
+
+$("audio").addEventListener("click", () => {
+  setAudio(!audioOn);
+  // Turning narration on mid-run: speak the step already on screen.
+  if (audioOn && playing && idx >= 0) {
+    clearTimeout(timer);
+    playClip(idx, () => {
+      if (!playing) return;
+      timer = setTimeout(next, GAP_MS);
+    });
+  }
+});
+
+document.addEventListener("keydown", e => {
+  if (e.code === "Space") { e.preventDefault(); $("play").click(); }
+  if (e.code === "ArrowRight") { e.preventDefault(); $("step").click(); }
+  if (e.code === "KeyR") reset();
+  if (e.code === "KeyN") $("audio").click();
+});
+
+setAudio(false);
+reset();
+</script>
+</body>
+</html>

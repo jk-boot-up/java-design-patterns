@@ -144,6 +144,24 @@ There is no Docker here, no Spring, no service mesh and no network. The three
 in the latency they charge, and `SimulatedClock` only moves when something moves
 it. Everything you need is a JDK, and it runs on a plane.
 
+## Technologies and versions
+
+Nothing here is a range and nothing is `latest`: a course that worked last year and does
+not work today is worse than one that never took the dependency.
+
+| What | Version | Why it is here |
+| --- | --- | --- |
+| Java | 21 | The repository standard, requested through the Gradle toolchain block |
+| Gradle | 9.2.1 | The wrapper in this directory; no separate install needed |
+| JUnit 5 | 5.10.2 | The 21 tests, through `junit-bom` so the Jupiter artefacts cannot disagree |
+
+That is the entire list, and the short version of it is the point. **This project has no
+runtime dependency at all** — the `dependencies` block in `build.gradle` names nothing but
+JUnit, and JUnit is `testImplementation`. There is no Ribbon, no Spring Cloud LoadBalancer,
+no proxy and no container. Every one of the twelve projects in this category is built the
+same way, so a reader who can run one can run all of them, offline, with a JDK and nothing
+else.
+
 ## Where this sits
 
 Service discovery hands you a list; this pattern is the choice you make from it.
@@ -158,6 +176,9 @@ against a *different* instance.
 | [`docs/problem-statement.md`](docs/problem-statement.md) | Why `candidates.get(0)` is fast, correct, and still runs the shop on one machine out of three |
 | [`docs/load-balancing-pattern-explained.md`](docs/load-balancing-pattern-explained.md) | The pattern from a row of supermarket tills, the four strategies, herding, and why this is Strategy |
 | [`docs/class-diagram.md`](docs/class-diagram.md) | The types, and the arrow that is missing — no client can see another client |
+| [`docs/architecture-diagram.md`](docs/architecture-diagram.md) | Where the decision is taken, what the decider can see from there, and the uneven cluster |
+| [`docs/data-flow-diagram.md`](docs/data-flow-diagram.md) | One request end to end, and the feedback loop only one of the four strategies has |
+| [`docs/sequence-diagram.md`](docs/sequence-diagram.md) | The learning strategy in call order: 80ms of tuition, then nine well-aimed requests |
 | [`docs/uml-diagram.md`](docs/uml-diagram.md) | One request step by step, then all four acts as sequences |
 | [`docs/animation.html`](docs/animation.html) | The same twelve requests being shared out, one step at a time, in a browser |
 | [`docs/prerequisites.md`](docs/prerequisites.md) | What you need to know, what you explicitly do not, and how to get a JDK |
@@ -168,7 +189,63 @@ against a *different* instance.
 
 ### The pattern in one picture
 
+The class diagram, and the thing to look for is an arrow that does not exist: no client
+has a line to another client. Everything act four costs follows from that.
+
 ![Class diagram](docs/images/class-diagram.png)
+
+### What runs where
+
+The lower half is the literal truth: one JVM, four small classes behind one interface. The
+upper half is what it models — two callers choosing for themselves, and three instances
+that are not equally fast.
+
+![Architecture diagram](docs/images/architecture-diagram.png)
+
+### How the data moves
+
+One request end to end. The product code and the product name are the same whichever
+strategy runs; the interesting traffic is the choice, and the measurement that flows back
+into it afterwards.
+
+![Data flow diagram](docs/images/data-flow-diagram.png)
+
+### Who calls whom, in order
+
+The learning strategy in call order. The first three requests cost 80ms and buy the
+knowledge; the remaining nine spend it.
+
+![Sequence diagram](docs/images/sequence-diagram.png)
+
+### All five sequences
+
+The full set from [`docs/uml-diagram.md`](docs/uml-diagram.md), in the order that document
+argues them.
+
+**One. One request, step by step.** Ask who is available, choose one, report back how long
+it took. Every act is this, twelve times.
+
+![One request, step by step](docs/images/uml-diagram.png)
+
+**Two. Always the first on the list.** Twelve requests, one instance, 120ms — the fastest
+act in the demo, and the one to be suspicious of.
+
+![Act one: always the first on the list](docs/images/uml-diagram-2.png)
+
+**Three. Round-robin takes turns.** A perfect 4/4/4 split and 320ms, because a third of the
+shop's traffic went to the slowest machine the shop owns.
+
+![Act two: round-robin takes turns](docs/images/uml-diagram-3.png)
+
+**Four. Least latency measures, then prefers.** 170ms, the slow box asked exactly once, and
+a favourite found among two equally fast instances — which is how a thousand clients herd.
+
+![Act three: least latency measures, then prefers](docs/images/uml-diagram-4.png)
+
+**Five. Two well-behaved clients, one idle machine.** Neither client did anything wrong.
+Between them they left an instance with nothing to do.
+
+![Act four: two well-behaved clients, one idle machine](docs/images/uml-diagram-5.png)
 
 ### Video
 

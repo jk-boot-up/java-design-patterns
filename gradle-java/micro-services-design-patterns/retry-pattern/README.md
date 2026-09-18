@@ -130,6 +130,24 @@ No Docker, no Spring Retry, no Resilience4j, no network. `PaymentGateway` is an
 ordinary object that can be told to time out, to decline, or — the interesting one
 — to take the money and then lose the reply. A JDK is all you need.
 
+## Technologies and versions
+
+Nothing here is a range and nothing is `latest`: a course that worked last year and does
+not work today is worse than one that never took the dependency.
+
+| What | Version | Why it is here |
+| --- | --- | --- |
+| Java | 21 | The repository standard, requested through the Gradle toolchain block |
+| Gradle | 9.2.1 | The wrapper in this directory; no separate install needed |
+| JUnit 5 | 5.10.2 | The 21 tests, through `junit-bom` so the Jupiter artefacts cannot disagree |
+
+That is the entire list, and the short version of it is the point. **This project has no
+runtime dependency at all** — the `dependencies` block in `build.gradle` names nothing but
+JUnit, and JUnit is `testImplementation`. There is no Resilience4j, no Spring Retry, no
+HTTP client and no container. Every one of the twelve projects in this category is built
+the same way, so a reader who can run one can run all of them, offline, with a JDK and
+nothing else.
+
 ## Where this sits
 
 Retry is what you do when the instance you chose does not answer, so it follows
@@ -149,6 +167,9 @@ delivered twice.
 | [`docs/problem-statement.md`](docs/problem-statement.md) | One call in five failing, the three-line loop that fixes it, and the shopper it charges twice |
 | [`docs/retry-pattern-explained.md`](docs/retry-pattern-explained.md) | The pattern from an engaged tone, the two decisions, and the half that is usually skipped |
 | [`docs/class-diagram.md`](docs/class-diagram.md) | The types, and the arrow that is missing — the retrier has never heard of payments |
+| [`docs/architecture-diagram.md`](docs/architecture-diagram.md) | Who is responsible for what, which side of the network each part lives on, and where the key is made |
+| [`docs/data-flow-diagram.md`](docs/data-flow-diagram.md) | One checkout end to end: the two questions asked after a failure, and the loop that carries the same key |
+| [`docs/sequence-diagram.md`](docs/sequence-diagram.md) | The lost receipt in call order — and the second attempt that never reaches the bank |
 | [`docs/uml-diagram.md`](docs/uml-diagram.md) | One attempt step by step, then all four acts as sequences, plus why jitter exists |
 | [`docs/animation.html`](docs/animation.html) | The same checkout meeting three different failures, one step at a time, in a browser |
 | [`docs/prerequisites.md`](docs/prerequisites.md) | What you need to know, what you explicitly do not, and 60-second primers on idempotency and backoff |
@@ -159,7 +180,69 @@ delivered twice.
 
 ### The pattern in one picture
 
+The class diagram, and the thing to look for is an arrow that does not exist: `Retrier` has
+no line to `PaymentGateway`. It retries something that might work, and has never heard of
+payments.
+
 ![Class diagram](docs/images/class-diagram.png)
+
+### What runs where
+
+The lower half is the literal truth: one JVM, a loop and a clock. The upper half is what it
+models — a shop, somebody else's payment gateway, and a bank, with the idempotency key
+crossing the boundary unchanged on every attempt.
+
+![Architecture diagram](docs/images/architecture-diagram.png)
+
+### How the data moves
+
+One checkout end to end, including both questions asked after a failure: is this worth
+repeating, and have I any attempts left. The request is built above the loop, and every
+arrow back round carries the same key.
+
+![Data flow diagram](docs/images/data-flow-diagram.png)
+
+### Who calls whom, in order
+
+The dangerous failure in call order: the card is charged at 50ms, the receipt is lost, the
+shop retries at 153ms — and the bank is never asked a second time.
+
+![Sequence diagram](docs/images/sequence-diagram.png)
+
+### All six sequences
+
+The full set from [`docs/uml-diagram.md`](docs/uml-diagram.md), in the order that document
+argues them.
+
+**One. One attempt that recovers, step by step.** The three beats every act is built from:
+attempt, decide, wait.
+
+![One attempt that recovers, step by step](docs/images/uml-diagram.png)
+
+**Two. A timeout that recovers.** The case retrying is for. A checkout that would have
+failed goes through on attempt two.
+
+![Act one: a timeout that recovers](docs/images/uml-diagram-2.png)
+
+**Three. A declined card.** The case retrying is not for. One clear answer in 50ms instead
+of three delays and a vague one.
+
+![Act two: a declined card](docs/images/uml-diagram-3.png)
+
+**Four. The reply that got lost.** The realistic failure. The money is gone, the shop does
+not know it, and the key makes the retry safe anyway.
+
+![Act three: the reply that got lost](docs/images/uml-diagram-4.png)
+
+**Five. The same failure, with a plain loop.** A new key on the second attempt, a second
+charge, £899.98 — and no exception, no error log and no failing test.
+
+![Act four: the same failure, with a plain loop](docs/images/uml-diagram-5.png)
+
+**Six. Why jitter exists.** Two callers that failed at the same instant, and what happens
+if they both come back at the same instant.
+
+![Act five: why jitter exists](docs/images/uml-diagram-6.png)
 
 ### Video
 

@@ -1,0 +1,23 @@
+# The tracing backend, and the one piece of this demo that is not Java.
+#
+# Tier 1 makes the case that a waterfall is a property of the data rather than
+# something a tool invents. This file is where that claim gets tested: the same
+# parent-child relationships, exported to a backend nobody in this repository
+# wrote, drawn by code nobody in this repository wrote — and the picture is the
+# one Tier 1's `Waterfall` printed with string concatenation.
+#
+# Version pinned in ../../gradle/libs.versions.toml's register and explained in
+# ../../docs/pinned-versions.md. `latest` would make this demo's transcript
+# undatable.
+services:
+  jaeger:
+    image: jaegertracing/jaeger:2.20.0
+    container_name: tracing-demo-jaeger
+    ports:
+      # The UI, and the query API the demo script uses to assert what landed.
+      - "16686:16686"
+      # OTLP over HTTP. This is the port both services are configured to post
+      # their finished spans to. There is an OTLP gRPC port too, on 4317; HTTP
+      # is used here because `curl` can talk to it and a reader can therefore
+      # check what is being sent without extra tooling.
+      - "4318:4318"

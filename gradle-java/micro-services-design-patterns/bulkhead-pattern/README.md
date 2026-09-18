@@ -118,6 +118,25 @@ Note that this project deliberately has no `SimulatedClock`: everywhere else in 
 category time is something the test controls, and here it cannot be, because the
 subject *is* threads genuinely waiting for one another.
 
+## Technologies and versions
+
+Nothing here is a range and nothing is `latest`: a course that worked last year and does
+not work today is worse than one that never took the dependency.
+
+| What | Version | Why it is here |
+| --- | --- | --- |
+| Java | 21 | The repository standard, requested through the Gradle toolchain block |
+| Gradle | 9.2.1 | The wrapper in this directory; no separate install needed |
+| JUnit 5 | 5.10.2 | The 12 tests, through `junit-bom` so the Jupiter artefacts cannot disagree |
+
+That is the entire list, and the short version of it is the point. **This project has no
+runtime dependency at all** — the `dependencies` block in `build.gradle` names nothing but
+JUnit, and JUnit is `testImplementation`. The thread pools are
+`java.util.concurrent.ThreadPoolExecutor`, which has been in the JDK since Java 5; there is
+no Resilience4j, no broker and no container. Every one of the twelve projects in this
+category is built the same way, so a reader who can run one can run all of them, offline,
+with a JDK and nothing else.
+
 ## Where this sits
 
 The circuit breaker refuses to call the broken thing. The bulkhead attacks the same
@@ -136,6 +155,9 @@ how services own it, and how a page is assembled once they no longer share a dat
 | [`docs/problem-statement.md`](docs/problem-statement.md) | A background job nobody was waiting for stops the shop selling, and why a bigger pool is not the answer |
 | [`docs/bulkhead-pattern-explained.md`](docs/bulkhead-pattern-explained.md) | The ship's hull, the four acts, and the part most treatments skip — where the walls take up space |
 | [`docs/class-diagram.md`](docs/class-diagram.md) | The structure, and the arrow that is missing on purpose between `Checkout` and `SupplierFeed` |
+| [`docs/architecture-diagram.md`](docs/architecture-diagram.md) | One pool or two, the wall nothing crosses, and why this project uses real threads |
+| [`docs/data-flow-diagram.md`](docs/data-flow-diagram.md) | One job looking for a thread: run now, wait in a bounded queue, or be refused in a millisecond |
+| [`docs/sequence-diagram.md`](docs/sequence-diagram.md) | Both arrangements side by side — the missing checkout line, and the sale that happens anyway |
 | [`docs/uml-diagram.md`](docs/uml-diagram.md) | All four acts as sequences: which thread ran what, and which job never started at all |
 | [`docs/animation.html`](docs/animation.html) | The four threads being taken one at a time, and checkout arriving to find none left, step by step in a browser |
 | [`docs/prerequisites.md`](docs/prerequisites.md) | What you need to know, what you explicitly do not, and 60-second primers on thread starvation, bounded queues and the gate |
@@ -146,7 +168,58 @@ how services own it, and how a page is assembled once they no longer share a dat
 
 ### The pattern in one picture
 
+The class diagram, and the thing to look for is an arrow that was never there: `Checkout`
+has no reference to `SupplierFeed`. They were never related in code. They were related by
+a resource, which is the kind of coupling that appears in no import statement.
+
 ![Class diagram](docs/images/class-diagram.png)
+
+### What runs where
+
+The lower half is the literal truth, and unusually for this category most of it really is
+true: real threads, real waiting. The upper half is the shop, drawn twice — once sharing
+one pool, once partitioned.
+
+![Architecture diagram](docs/images/architecture-diagram.png)
+
+### How the data moves
+
+One job looking for a thread, and the only three things that can happen to it. The refusal
+path is the shortest and the one that makes the pattern useful.
+
+![Data flow diagram](docs/images/data-flow-diagram.png)
+
+### Who calls whom, in order
+
+Both arrangements in one picture. Count the lines in the top half: four batches, four
+threads, and no checkout line at all.
+
+![Sequence diagram](docs/images/sequence-diagram.png)
+
+### All four acts
+
+The full set from [`docs/uml-diagram.md`](docs/uml-diagram.md), in the order that document
+argues them.
+
+**One. One shared pool of four.** The feed takes every thread and the shop stops selling,
+with nothing in the log to say so.
+
+![Act one: one shared pool of four](docs/images/uml-diagram.png)
+
+**Two. Two bulkheads.** The feed is just as stuck, and checkout completes in milliseconds
+on threads the feed could never reach.
+
+![Act two: two bulkheads](docs/images/uml-diagram-2.png)
+
+**Three. A fifth batch, with nowhere to go.** No thread and no room in the queue, so the
+caller is told in about a millisecond and can do something about it.
+
+![Act three: a fifth batch, with nowhere to go](docs/images/uml-diagram-3.png)
+
+**Four. The bill, on a quiet afternoon.** Two threads idle while two jobs wait. Partitioned
+pools are idle capacity by design.
+
+![Act four: the bill, on a quiet afternoon](docs/images/uml-diagram-4.png)
 
 ### Video
 

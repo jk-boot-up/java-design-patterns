@@ -155,6 +155,25 @@ a different thing and must not be retried. The saga's state lives in `SagaContex
 real shop that would be a row written after every step, so the saga could be picked up again
 if the process running it died mid-way.
 
+## Technologies and versions
+
+Nothing here is a range and nothing is `latest`: a course that worked last year and does
+not work today is worse than one that never took the dependency.
+
+| What | Version | Why it is here |
+| --- | --- | --- |
+| Java | 21 | The repository standard, requested through the Gradle toolchain block |
+| Gradle | 9.2.1 | The wrapper in this directory; no separate install needed |
+| JUnit 5 | 5.10.2 | The 24 tests, through `junit-bom` so the Jupiter artefacts cannot disagree |
+
+That is the entire list, and the short version of it is the point. **This project has no
+runtime dependency at all** — the `dependencies` block in `build.gradle` names nothing but
+JUnit, and JUnit is `testImplementation`. There is no Spring, no broker, no database, no
+transaction manager and no container; the orchestrator is a loop over a list, and the five
+services each hold a map. Every one of the twelve projects in this category is built the
+same way, so a reader who can run one can run all of them, offline, with a JDK and nothing
+else.
+
 ## Learning Material
 
 | Document | What it covers |
@@ -162,6 +181,9 @@ if the process running it died mid-way.
 | [`docs/problem-statement.md`](docs/problem-statement.md) | Four calls in a `try` block, and the customer who paid for a parcel that will never be sent |
 | [`docs/saga-pattern-explained.md`](docs/saga-pattern-explained.md) | The holiday booking, the five acts, and the three costs of undoing that most treatments skip |
 | [`docs/class-diagram.md`](docs/class-diagram.md) | The step, the orchestrator, the outcome, and the one service with no compensation |
+| [`docs/architecture-diagram.md`](docs/architecture-diagram.md) | What each step commits to, what undoing it actually means, and why the email is last |
+| [`docs/data-flow-diagram.md`](docs/data-flow-diagram.md) | The list of successful steps, the three endings, and why a failed undo does not stop the unwinding |
+| [`docs/sequence-diagram.md`](docs/sequence-diagram.md) | The same failure at 180ms with and without a saga — identical first halves, and only one second half |
 | [`docs/uml-diagram.md`](docs/uml-diagram.md) | All five acts as sequences: the happy path, the unwinding, the failed undo, the email, and no saga at all |
 | [`docs/animation.html`](docs/animation.html) | Five steps committing one at a time in a browser, and then being walked backwards |
 | [`docs/prerequisites.md`](docs/prerequisites.md) | What you need to know, what you explicitly do not (two-phase commit, any broker), and 60-second primers |
@@ -172,7 +194,63 @@ if the process running it died mid-way.
 
 ### The pattern in one picture
 
+The class diagram — the step, the orchestrator, the outcome. The thing to look for is that
+`compensate` sits on the same interface as `execute`, which is the pattern's one real
+demand: you may not write a step without writing its undo at the same time.
+
 ![Class diagram](docs/images/class-diagram.png)
+
+### What runs where
+
+The lower half is the literal truth: one JVM, a list and a loop. The upper half is the
+checkout across five services, each step labelled with what undoing it actually means —
+including the one where the honest answer is that there is no undo.
+
+![Architecture diagram](docs/images/architecture-diagram.png)
+
+### How the data moves
+
+The list of steps that succeeded, walked forward and then backward, with the three endings
+it can reach. Note the branch where an undo fails and the unwinding carries on anyway.
+
+![Data flow diagram](docs/images/data-flow-diagram.png)
+
+### Who calls whom, in order
+
+The same checkout failing at the same step, with and without a saga. The first halves are
+identical; only one of them has a second half.
+
+![Sequence diagram](docs/images/sequence-diagram.png)
+
+### All five acts
+
+The full set from [`docs/uml-diagram.md`](docs/uml-diagram.md), in the order that document
+argues them.
+
+**One. Five steps, no transaction.** Every arrow back says committed, and nothing is being
+held open for anybody.
+
+![Act one: five steps, no transaction](docs/images/uml-diagram.png)
+
+**Two. The courier refuses, and everything unwinds.** The bottom half is the exact reverse
+of the top half, and the order matters.
+
+![Act two: the courier refuses, and everything unwinds](docs/images/uml-diagram-2.png)
+
+**Three. The refund fails too.** The stock is still released, and the outcome names the step
+it could not undo.
+
+![Act three: the refund fails too](docs/images/uml-diagram-3.png)
+
+**Four. The email in the wrong place.** The order is cancelled, the money comes back, and
+the confirmation stays in the inbox.
+
+![Act four: the email in the wrong place](docs/images/uml-diagram-4.png)
+
+**Five. The same failure, without a saga.** There is no second half to this diagram, and
+that is the whole comparison.
+
+![Act five: the same failure, without a saga](docs/images/uml-diagram-5.png)
 
 ### Video
 

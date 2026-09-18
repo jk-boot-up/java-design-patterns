@@ -48,6 +48,11 @@ sequenceDiagram
 The same sequence, with Recommendations refusing to answer. The gateway makes a
 decision and the shopper never finds out.
 
+![The failure path: an optional service is down](images/uml-diagram-2.png)
+
+<details>
+<summary>Mermaid source</summary>
+
 ```mermaid
 sequenceDiagram
     autonumber
@@ -76,9 +81,16 @@ sequenceDiagram
     Note over App: 240ms, and nothing to report to the shopper
 ```
 
+</details>
+
 ## The Failure Path: An Essential Service Is Down
 
 Pricing fails, and the gateway deliberately does *not* rescue it.
+
+![The failure path: an essential service is down](images/uml-diagram-3.png)
+
+<details>
+<summary>Mermaid source</summary>
 
 ```mermaid
 sequenceDiagram
@@ -99,7 +111,14 @@ sequenceDiagram
     Note over App: an honest error, because a page<br/>with no price is worse than no page
 ```
 
+</details>
+
 ## The Comparison: No Gateway At All
+
+![The comparison: no gateway at all](images/uml-diagram-4.png)
+
+<details>
+<summary>Mermaid source</summary>
 
 ```mermaid
 sequenceDiagram
@@ -131,6 +150,8 @@ sequenceDiagram
     Rec--xApp: ServiceUnavailableException
     Note over App,Rec: 200ms, and the name, price<br/>and stock are all discarded
 ```
+
+</details>
 
 ## Notes
 

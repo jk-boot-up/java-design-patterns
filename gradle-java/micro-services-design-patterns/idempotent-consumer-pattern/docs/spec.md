@@ -300,7 +300,7 @@ are required:
 6. **Upload checklist** — subtitles, language, thumbnail, HD processing,
    playlist.
 7. **Cards and end screen** — which video comes next in the learning
-   order. For this project: none; it is last, so the end screen links back to Simple Factory and to the playlist.
+   order. For this project: Externalised Configuration.
 
 > **Requirement.** Chapter timings are generated from the built `.srt`,
 > never written by hand, by

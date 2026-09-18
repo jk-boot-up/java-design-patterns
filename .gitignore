@@ -53,6 +53,11 @@ replay_pid*
 # and keyed on each MP4 the specs are generated from.
 gradle-java/docs/.loudness-cache.json
 
+# Scratch directory used by gradle-java/docs/make_diagrams.py while it hands a
+# single mermaid block to mermaid-cli. It holds one .mmd, one .png and the
+# renderer config, all overwritten on every diagram, and none of it is source.
+gradle-java/.tmp-diag/
+
 # --- Python ---
 __pycache__/
 *.py[cod]

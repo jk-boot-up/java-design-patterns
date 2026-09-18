@@ -1,12 +1,14 @@
 # CQRS — Sequence Diagrams
 
-Five acts, as sequences. Only the first is rendered to an image; the rest are here as
-mermaid source, because what makes them different is the words on the arrows rather
-than the shapes.
+Five acts, as sequences. What makes them different is the words on the arrows rather than
+the shapes, so read the notes rather than the outlines.
+
+## Act One — Composing The Page On Every View
 
 ![CQRS sequence diagram](images/uml-diagram.png)
 
-## Act One — Composing The Page On Every View
+<details>
+<summary>Mermaid source</summary>
 
 ```mermaid
 sequenceDiagram
@@ -26,7 +28,14 @@ sequenceDiagram
     Note over User,Cat: and again, and again. 3 views cost 270ms<br/>and 6 service calls, for a page that never changed.
 ```
 
+</details>
+
 ## Act Two — The Page Kept Ready By The Events
+
+![Act Two — The Page Kept Ready By The Events](images/uml-diagram-2.png)
+
+<details>
+<summary>Mermaid source</summary>
 
 ```mermaid
 sequenceDiagram
@@ -51,7 +60,14 @@ sequenceDiagram
     Note over Write,User: the work did not vanish — it moved to write time,<br/>paid once per order instead of once per view.
 ```
 
+</details>
+
 ## Act Three — Eventually Consistent, Shown Honestly
+
+![Act Three — Eventually Consistent, Shown Honestly](images/uml-diagram-3.png)
+
+<details>
+<summary>Mermaid source</summary>
 
 ```mermaid
 sequenceDiagram
@@ -78,7 +94,14 @@ sequenceDiagram
     Note over User,RM: the window is however long delivery takes,<br/>and it closes by itself.
 ```
 
+</details>
+
 ## Act Four — The Cache That Cannot Know It Is Wrong
+
+![Act Four — The Cache That Cannot Know It Is Wrong](images/uml-diagram-4.png)
+
+<details>
+<summary>Mermaid source</summary>
 
 ```mermaid
 sequenceDiagram
@@ -102,7 +125,14 @@ sequenceDiagram
     Note over Cat,Clock: a cache is a copy that cannot know it is wrong.<br/>Its only correction is a timer.
 ```
 
+</details>
+
 ## Act Five — The Last Kettle
+
+![Act Five — The Last Kettle](images/uml-diagram-5.png)
+
+<details>
+<summary>Mermaid source</summary>
 
 ```mermaid
 sequenceDiagram
@@ -123,6 +153,8 @@ sequenceDiagram
 
     Note over Shopper,Ledger: the write side saved the shop, because the sale<br/>was decided there. Show a read model's stock number.<br/>Never sell against it.
 ```
+
+</details>
 
 ## Notes On Reading These
 

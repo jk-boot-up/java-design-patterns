@@ -1,0 +1,46 @@
+# Platform patterns — the one place every version in this category is pinned.
+#
+# Eight projects, several of which stand up a Tier 2 deployment, and nothing
+# stops them drifting onto three different Spring Boot versions except this
+# file. The implementation plan's framework register says *why* each of these
+# is here; this file says *which*, exactly, and nothing here is a range.
+#
+# Tier 1 uses `junit` and nothing else. Everything below it is Tier 2 only,
+# lives under a project's `real/` directory, and is never on the path of
+# `./gradlew test`.
+#
+# Changing a version here is a category-wide decision. Change it here first,
+# then in the register, then run the affected projects' Tier 2 demos.
+
+[versions]
+# --- Tier 1, every project -------------------------------------------------
+junit = "5.10.2"
+
+# --- Tier 2 ----------------------------------------------------------------
+# Spring Boot 4.1.x, with the Spring Cloud 2025.1.x train that is built
+# against it.
+#
+# An earlier draft pinned Boot 3.5 on the argument that the older line had
+# more written about it. That argument does not survive the purpose of the
+# course: a reader is here to learn what they would start a project on today,
+# and the newest generally available release is the honest answer. 4.2.0-M1
+# exists, and a milestone is not a release.
+#
+# Worth recording, because it is the sort of thing that is assumed rather than
+# checked: moving §38 from 3.5 to 4.1 required no source change whatsoever.
+# Config Server, @RefreshScope, @ConfigurationProperties binding and jakarta
+# validation all behave identically, and the demo's six steps produce the same
+# output on both.
+springBoot = "4.1.1"
+springCloud = "2025.1.3"
+
+[libraries]
+junit-bom = { module = "org.junit:junit-bom", version.ref = "junit" }
+junit-jupiter = { module = "org.junit.jupiter:junit-jupiter" }
+junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher" }
+
+springCloud-bom = { module = "org.springframework.cloud:spring-cloud-dependencies", version.ref = "springCloud" }
+
+[plugins]
+springBoot = { id = "org.springframework.boot", version.ref = "springBoot" }
+springDependencyManagement = { id = "io.spring.dependency-management", version = "1.1.7" }

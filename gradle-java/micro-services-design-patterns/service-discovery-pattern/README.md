@@ -143,6 +143,24 @@ network partitions splitting the registry from the instances, no consensus, no
 registry that is itself down. Finish this and you will understand what a service
 registry does. You will not have run one.
 
+## Technologies and versions
+
+Nothing here is a range and nothing is `latest`: a course that worked last year and does
+not work today is worse than one that never took the dependency.
+
+| What | Version | Why it is here |
+| --- | --- | --- |
+| Java | 21 | The repository standard, requested through the Gradle toolchain block |
+| Gradle | 9.2.1 | The wrapper in this directory; no separate install needed |
+| JUnit 5 | 5.10.2 | The 19 tests, through `junit-bom` so the Jupiter artefacts cannot disagree |
+
+That is the entire list, and the short version of it is the point. **This project has no
+runtime dependency at all** — the `dependencies` block in `build.gradle` names nothing but
+JUnit, and JUnit is `testImplementation`. There is no Consul client, no Eureka, no HTTP
+library and no container. Every one of the twelve projects in this category is built the
+same way, so a reader who can run one can run all of them, offline, with a JDK and nothing
+else.
+
 ## Learning Material
 
 | Document | What it covers |
@@ -150,6 +168,9 @@ registry does. You will not have run one.
 | [`docs/problem-statement.md`](docs/problem-statement.md) | Why `PRICING_URL` is an outage waiting for a deployment |
 | [`docs/service-discovery-pattern-explained.md`](docs/service-discovery-pattern-explained.md) | The pattern from a taxi rank, the lease, stale reads, and registry vs Simple Factory |
 | [`docs/class-diagram.md`](docs/class-diagram.md) | The types, and why the client depends on the registry rather than an address |
+| [`docs/architecture-diagram.md`](docs/architecture-diagram.md) | What would be running, which of it can vanish without warning, and the dead instance still on the list |
+| [`docs/data-flow-diagram.md`](docs/data-flow-diagram.md) | One price lookup end to end: the expiry check, the loop down the list, and the two ways out |
+| [`docs/sequence-diagram.md`](docs/sequence-diagram.md) | The crash in call order, with the clock — five milliseconds is the whole cost of a wrong list |
 | [`docs/uml-diagram.md`](docs/uml-diagram.md) | Registration, lookup, the stale read, and lease expiry |
 | [`docs/animation.html`](docs/animation.html) | The registry, the leases and the clock, one step at a time, in a browser |
 | [`docs/prerequisites.md`](docs/prerequisites.md) | What you need to know, what you explicitly do not, and how to get a JDK |
@@ -160,7 +181,62 @@ registry does. You will not have run one.
 
 ### The pattern in one picture
 
+The class diagram, and the thing to look for is what the client holds. It holds a
+registry. It does not hold an address, and it has no field it could put one in.
+
 ![Class diagram](docs/images/class-diagram.png)
+
+### What runs where
+
+The lower half is the literal truth: one JVM, a map with timestamps, no network. The upper
+half is what it models — a registry, three or four copies of Pricing, and one of them dead
+and still on the list.
+
+![Architecture diagram](docs/images/architecture-diagram.png)
+
+### How the data moves
+
+One price lookup from beginning to end. A product code goes out and a price comes back;
+the interesting traffic is the address in the middle, which is a claim rather than a fact.
+
+![Data flow diagram](docs/images/data-flow-diagram.png)
+
+### Who calls whom, in order
+
+The crash, in call order, with the clock down the side. The registry offers a dead address
+at 0ms, the client discovers that at 5ms, and the shopper has a price at 15ms.
+
+![Sequence diagram](docs/images/sequence-diagram.png)
+
+### All five sequences
+
+The full set from [`docs/uml-diagram.md`](docs/uml-diagram.md), in the order that document
+argues them.
+
+**One. The happy path.** Ask, then call. Two steps where the hardcoded client had one, and
+the extra step is the entire pattern.
+
+![The happy path: ask, then call](docs/images/uml-diagram.png)
+
+**Two. A polite deployment.** `pricing-1` deregisters on its way out, so the list is true
+before the first call that would have hit it. Nobody notices a deployment happened.
+
+![The deployment: an instance leaves politely](docs/images/uml-diagram-2.png)
+
+**Three. A crash.** The same event with one message missing, because a dying process does
+not get a turn. The registry is confidently wrong and the client works past it.
+
+![The crash: a stale entry, and what saves it](docs/images/uml-diagram-3.png)
+
+**Four. The lease expiring.** No client in this one at all. Time passes, heartbeats do not
+arrive, and at 4000ms the registry stops lying.
+
+![The lease expiring](docs/images/uml-diagram-4.png)
+
+**Five. No registry at all.** One constant address, no second name to try, and two healthy
+instances the caller cannot reach.
+
+![The comparison: no registry at all](docs/images/uml-diagram-5.png)
 
 ### Video
 

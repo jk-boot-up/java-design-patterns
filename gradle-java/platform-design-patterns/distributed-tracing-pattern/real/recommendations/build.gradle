@@ -1,0 +1,2 @@
+// See the note in product-page/build.gradle: the tracing dependencies are
+// shared and live in the parent build file.

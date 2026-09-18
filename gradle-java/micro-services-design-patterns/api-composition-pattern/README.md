@@ -137,6 +137,25 @@ In a real service the fan-out would be a virtual thread per branch, or
 `CompletableFuture.allOf`, with a timeout on each. The reasoning above would be
 unchanged.
 
+## Technologies and versions
+
+Nothing here is a range and nothing is `latest`: a course that worked last year and does
+not work today is worse than one that never took the dependency.
+
+| What | Version | Why it is here |
+| --- | --- | --- |
+| Java | 21 | The repository standard, requested through the Gradle toolchain block |
+| Gradle | 9.2.1 | The wrapper in this directory; no separate install needed |
+| JUnit 5 | 5.10.2 | The 22 tests, through `junit-bom` so the Jupiter artefacts cannot disagree |
+
+That is the entire list, and the short version of it is the point. **This project has no
+runtime dependency at all** — the `dependencies` block in `build.gradle` names nothing but
+JUnit, and JUnit is `testImplementation`. There is no HTTP client, no thread pool, no
+`CompletableFuture` and no container; the fan-out is a loop over branches and the clock is
+wound back before each one, which is what makes a 400ms page cost a test nothing. Every one
+of the twelve projects in this category is built the same way, so a reader who can run one
+can run all of them, offline, with a JDK and nothing else.
+
 ## Learning Material
 
 | Document | What it covers |
@@ -144,6 +163,9 @@ unchanged.
 | [`docs/problem-statement.md`](docs/problem-statement.md) | One page, three services, and the three-line version that costs 210ms and throws away work already done |
 | [`docs/api-composition-pattern-explained.md`](docs/api-composition-pattern-explained.md) | The sandwich from three shops, sum versus maximum, and the half that is harder than the parallelism |
 | [`docs/class-diagram.md`](docs/class-diagram.md) | The structure, and the stereotype that matters most — required or optional — appearing nowhere in the type system |
+| [`docs/architecture-diagram.md`](docs/architecture-diagram.md) | What the page depends on, which dependencies it can survive without, and why the fan-out is not a flat three |
+| [`docs/data-flow-diagram.md`](docs/data-flow-diagram.md) | One page followed end to end: what each service contributes, and the substitute that stands in when it cannot |
+| [`docs/sequence-diagram.md`](docs/sequence-diagram.md) | The two composers side by side in call order — 210ms queued against 150ms sent together |
 | [`docs/uml-diagram.md`](docs/uml-diagram.md) | All five acts as sequences, including which call leaves when |
 | [`docs/animation.html`](docs/animation.html) | The calls leaving, the branch that fails, and the page with a named hole in it, one step at a time in a browser |
 | [`docs/prerequisites.md`](docs/prerequisites.md) | What you need to know, what you explicitly do not, and 60-second primers on required-versus-optional and on multiplying availabilities |
@@ -154,7 +176,63 @@ unchanged.
 
 ### The pattern in one picture
 
+The class diagram, and the thing to look for is what the type system does not say: nothing
+in these classes marks a dependency required or optional. That distinction lives in one
+call — `value()` or `valueOr()` — and it is the most important decision in the project.
+
 ![Class diagram](docs/images/class-diagram.png)
+
+### What runs where
+
+The lower half is the literal truth: one JVM, a loop and a clock. The upper half is the
+page and its three owners, each labelled with the only thing that matters about it —
+whether the page can be drawn without it.
+
+![Architecture diagram](docs/images/architecture-diagram.png)
+
+### How the data moves
+
+One page from the request to the rendered rows. One branch ends the page and two do not,
+and both optional branches land in the same place whether they succeeded or not.
+
+![Data flow diagram](docs/images/data-flow-diagram.png)
+
+### Who calls whom, in order
+
+The same three calls queued and then composed. The difference is not work, it is waiting:
+in the upper half Shipping sits for sixty milliseconds behind an answer it never needed.
+
+![Sequence diagram](docs/images/sequence-diagram.png)
+
+### All five acts
+
+The full set from [`docs/uml-diagram.md`](docs/uml-diagram.md), in the order that document
+argues them.
+
+**One. Three calls in a queue.** Three lines of ordinary Java with no bug in it, and 210ms
+of a shopper's time.
+
+![Act one: three calls in a queue](docs/images/uml-diagram.png)
+
+**Two. The same calls, sent together.** 30, then the slower of 60 and 120 — because sums
+become maxima.
+
+![Act two: the same calls, sent together](docs/images/uml-diagram-2.png)
+
+**Three. Shipping is down.** One version keeps what it already has and names the hole; the
+other throws the same data away.
+
+![Act three: Shipping is down](docs/images/uml-diagram-3.png)
+
+**Four. Orders is down.** The composer refuses to build anything, and that is the correct
+answer. Required means required.
+
+![Act four: Orders is down](docs/images/uml-diagram-4.png)
+
+**Five. What three dependencies do to availability.** Three services at 99.9% make a page
+at 99.7%, and the only lever is needing fewer of them.
+
+![Act five: what three dependencies do to availability](docs/images/uml-diagram-5.png)
 
 ### Video
 

@@ -17,6 +17,8 @@ Circuit Breaker in Java - When a Service Stops
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
+Learn the circuit breaker pattern in Java 21, starting from a service that has stopped answering — not refusing, which would be easy, but simply not replying. The retry loop is presented fairly: no bug, the right page, every test passing, and nine seconds spent producing a page you could have had immediately. The third cost is the one that actually breaks the shop: while those threads wait, checkout cannot get one. We use a fuse box as the analogy and then build the breaker as three questions inside one method, with the states named as a wire rather than a door — closed, open, half open — and a success that resets rather than decrements. Six pages, three calls, three refusals, and the clock stops moving. Then the hinge: a breaker makes failures fast, not invisible. Checkout has no fallback, so speed buys it a fast honest no, and the same wiring with one different catch block prints a receipt for money that never moved.
+
 CHAPTERS
 00:00 Introduction
 01:11 The Scenario

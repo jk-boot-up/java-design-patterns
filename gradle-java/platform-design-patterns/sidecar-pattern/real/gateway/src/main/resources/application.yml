@@ -1,0 +1,28 @@
+# The provider listens on HTTPS and on nothing else.
+#
+# That is the point of this file. The payments service in this project has no
+# TLS configuration of any kind -- no keystore, no trust store, no protocol
+# list -- because it never speaks to this address. It speaks to localhost in
+# plain HTTP, and the proxy beside it is what has to satisfy the rules below.
+server:
+  port: 9443
+  ssl:
+    enabled: true
+    key-store: file:/certs/gateway.p12
+    key-store-type: PKCS12
+    key-store-password: changeit
+    key-alias: gateway
+    # TLS 1.3 only. A caller that offers anything older is refused at the
+    # handshake, before any of the Java above runs.
+    enabled-protocols: TLSv1.3
+    protocol: TLS
+
+spring:
+  application:
+    name: payment-provider
+
+logging:
+  pattern:
+    console: "%d{HH:mm:ss}  provider  %m%n"
+  level:
+    root: WARN

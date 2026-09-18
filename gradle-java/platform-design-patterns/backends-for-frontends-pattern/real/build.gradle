@@ -1,0 +1,40 @@
+// Settings shared by all three Tier 2 services.
+//
+// Every version here comes from the category catalogue at
+// `platform-design-patterns/gradle/libs.versions.toml`. Nothing in this file
+// names a version directly, because eight projects each choosing their own
+// Spring Boot is exactly the drift the catalogue exists to stop.
+//
+// The plugins are declared here with `apply false` so the version is resolved
+// once, and then applied inside each subproject. A `plugins` block has to be
+// the first thing in the file, which is why the comment above it is the only
+// thing that comes before.
+
+plugins {
+    alias(libs.plugins.springBoot) apply false
+    alias(libs.plugins.springDependencyManagement) apply false
+}
+
+subprojects {
+    apply plugin: 'java'
+    apply plugin: 'org.springframework.boot'
+    apply plugin: 'io.spring.dependency-management'
+
+    group = 'com.jk.explore'
+    version = '1.0.0'
+
+    java {
+        toolchain {
+            languageVersion = JavaLanguageVersion.of(21)
+        }
+    }
+
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        implementation 'org.springframework.boot:spring-boot-starter-web'
+        implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    }
+}

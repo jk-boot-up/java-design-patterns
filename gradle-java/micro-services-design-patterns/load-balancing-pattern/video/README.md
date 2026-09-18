@@ -248,3 +248,19 @@ Two further things that affect how well it plays for viewers:
   `../docs/thumbnail.png` under **Details** → **Thumbnail** → **Upload
   file**. (A custom thumbnail needs a verified channel; if the option is
   missing, verify the account first.)
+
+Suggested description:
+
+> Learn load balancing in Java 21, starting from one line — take the first
+> instance — and a test suite written against it that passes. Catalog runs
+> as three copies, two answering in ten milliseconds and one in sixty, and
+> sending everything to the first one is the fastest number in the video
+> while two paid-for machines sit idle. We move the choosing behind an
+> interface, then compare strategies on their real numbers: round robin is
+> perfectly fair and slower, and least-latency learns which copies are quick
+> without anybody configuring it. The second half is the half that is
+> usually left out. A counter inside one client counts one client's
+> requests, so two perfectly written clients leave a machine idle between
+> them, and a thousand clients all preferring the same fast copy make the
+> cluster oscillate. We finish on when to stop doing this in the caller at
+> all.

@@ -45,6 +45,11 @@ sequenceDiagram
 
 Twelve requests, and the same instance every time.
 
+![Act One: Always The First On The List](images/uml-diagram-2.png)
+
+<details>
+<summary>Mermaid source</summary>
+
 ```mermaid
 sequenceDiagram
     autonumber
@@ -67,12 +72,19 @@ sequenceDiagram
     Note over C,C3: total 120ms — the fastest act in the whole demo
 ```
 
+</details>
+
 The thing to notice is the last note. This is not the slow one. Nothing here fails,
 nothing times out, and every request gets the right answer promptly. The cost is
 two machines being billed for doing nothing, and one machine whose death takes the
 entire shop with it.
 
 ## Act Two: Round-Robin Takes Turns
+
+![Act Two: Round-Robin Takes Turns](images/uml-diagram-3.png)
+
+<details>
+<summary>Mermaid source</summary>
 
 ```mermaid
 sequenceDiagram
@@ -102,12 +114,19 @@ sequenceDiagram
     Note over C1,C3: after twelve: 4 / 4 / 4 — total 320ms
 ```
 
+</details>
+
 A perfectly even split, and nearly three times act one's total. Round-robin sent a
 third of the shop's traffic to the slowest machine the shop owns, because
 round-robin does not know what "slow" means and was never told. **Fair is not the
 same as fast.**
 
 ## Act Three: Least Latency Measures, Then Prefers
+
+![Act Three: Least Latency Measures, Then Prefers](images/uml-diagram-4.png)
+
+<details>
+<summary>Mermaid source</summary>
 
 ```mermaid
 sequenceDiagram
@@ -149,6 +168,8 @@ sequenceDiagram
     Note over C1,C3: 10 / 1 / 1 — total 170ms
 ```
 
+</details>
+
 One hundred and seventy milliseconds instead of three hundred and twenty, and the
 slow box was asked exactly once: the once it took to find out it was slow.
 
@@ -164,6 +185,11 @@ clients they all pick the same favourite, crowd it until it is slow, and then al
 leave it together. A learning balancer needs a random tie-break or it will herd.
 
 ## Act Four: Two Well-Behaved Clients, One Idle Machine
+
+![Act Four: Two Well-Behaved Clients, One Idle Machine](images/uml-diagram-5.png)
+
+<details>
+<summary>Mermaid source</summary>
 
 ```mermaid
 sequenceDiagram
@@ -186,6 +212,8 @@ sequenceDiagram
     Note over C2: 2 requests
     Note over C3: 0 requests — nothing at all
 ```
+
+</details>
 
 There is no mistake in this diagram, and that is what makes it the important one.
 Each client took perfect turns. Each counter did exactly what a counter should.

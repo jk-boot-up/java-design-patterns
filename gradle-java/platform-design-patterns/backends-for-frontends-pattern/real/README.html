@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Backends for Frontends — the real version</title>
+<style>
+:root {
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --ok: #34d399;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: #7dd3fc; }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: rgba(167, 139, 250, 0.08);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: rgba(30, 41, 59, 0.55); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+</style>
+</head>
+<body>
+<main>
+<h1>Backends for Frontends — the real version</h1>
+<p>Tier 1 makes the pattern&#x27;s argument by counting calls inside one JVM. This is the same argument with the calls actually made: three Spring Boot services on three ports, two differently shaped JSON documents of visibly different sizes coming back from two addresses, and every byte count measured by the client rather than claimed by the server.</p>
+<p>Nothing here changes what Tier 1 teaches. It is here to check it.</p>
+<pre><code>./demo.sh</code></pre>
+<p>Needs a JDK 21 and, the first time, a network connection so Gradle can fetch Spring. <strong>No Docker.</strong> Tier 1 needs none of it, which is why the two are separate Gradle builds — <code>./gradlew test</code> one directory up does not know this directory exists.</p>
+<h2>What is running</h2>
+<table><thead><tr><th>Process</th><th>Port</th><th>What it is</th></tr></thead><tbody><tr><td><code>shop</code></td><td>8082</td><td>The five services — catalog, pricing, inventory, reviews, recommendations — plus the one shared endpoint in front of them. Everything that existed <em>before</em> anybody wrote a backend for a frontend.</td></tr><tr><td><code>mobile-bff</code></td><td>8080</td><td>The phone team&#x27;s backend. <code>GET /phone/product-screen/{sku}</code></td></tr><tr><td><code>web-bff</code></td><td>8081</td><td>The desktop team&#x27;s backend. <code>GET /desktop/product-page/{sku}</code></td></tr></tbody></table>
+<p>The five services share one process, and that is a simplification worth naming. What matters to this pattern is not that they are five deployments; it is that they are five separate <strong>calls</strong>, each on its own path, each returning its own whole document, and that a client wanting all five has to make all five. That part is real here.</p>
+<p>Two things about the two backends are real in a way Tier 1 could only assert. They are separate processes with separate addresses, which is the closest a repository can get to &quot;owned by the team that owns the screen&quot;. And they are both running at once, neither a fallback for the other, answering the same question differently on purpose.</p>
+<h2>The endpoints</h2>
+<table><thead><tr><th>Endpoint</th><th>Purpose</th></tr></thead><tbody><tr><td><code>GET /api/products/{sku}</code></td><td>The shared endpoint: the union of everything anybody needs</td></tr><tr><td><code>GET /api/products/{sku}?fields=a,b,c</code></td><td>The same, trimmed to named fields — including one level of nesting, so <code>pricing.nowPence</code> works</td></tr><tr><td><code>GET /phone/product-screen/{sku}</code></td><td>Six flat fields, in the form the phone screen draws them</td></tr><tr><td><code>GET /desktop/product-page/{sku}</code></td><td>Fifteen fields, including the description, five images and three reviews</td></tr><tr><td><code>GET /phone/saving/{sku}</code>, <code>GET /desktop/saving/{sku}</code></td><td>The discount label each backend would print — the last act</td></tr><tr><td><code>POST /pricing/review</code></td><td>The pricing team&#x27;s rule review, as something the demo can trigger</td></tr><tr><td><code>GET /calls</code>, <code>POST /calls/reset</code></td><td>The shop&#x27;s own tally of calls that arrived</td></tr></tbody></table>
+<p><code>/calls</code> is the one number in this walkthrough a backend cannot fake. Tier 1 counts calls in a <code>CallLog</code> the caller writes to, which is honest inside one process and would be worth nothing here. These counts are kept by the callee, so when the demo says the phone&#x27;s backend made four internal calls and not five, that four is the shop&#x27;s own record of requests that actually arrived.</p>
+<h2>The walkthrough</h2>
+<p>Everything below is captured output from <code>./demo.sh</code>, not written from memory.</p>
+<h3>One shared endpoint, for everybody</h3>
+<pre><code>  GET /api/products/SKU-4417
+    1754 bytes, 12 top-level fields
+    the phone draws six of them
+    catalog=1  pricing=1  inventory=1  reviews=1  recommendations=1
+    total internal calls: 5</code></pre>
+<p>One round trip from the device instead of five, which is the expensive part gone and which the finished pattern keeps rather than undoes. But one endpoint publishes one document, and that document has to satisfy every client, so it is the union of all of them.</p>
+<h3>And the obvious fix works</h3>
+<pre><code>{
+    &quot;title&quot;: &quot;Copper Filter Coffee Maker, 1 Litre&quot;,
+    &quot;pricing&quot;: {
+        &quot;nowPence&quot;: 4799
+    },
+    &quot;thumbnail&quot;: &quot;https://img.shop.example/4417/hero-320.jpg&quot;,
+    &quot;reviews&quot;: {
+        &quot;average&quot;: 4.6,
+        &quot;count&quot;: 218
+    },
+    &quot;inventory&quot;: {
+        &quot;nextDelivery&quot;: &quot;2026-09-18&quot;
+    }
+}
+  → 212 bytes on the wire
+
+  1754 bytes down to 212, from a query parameter.</code></pre>
+<p>Thirty lines of projection code in <code>SharedApiController</code>, no new process to run, nothing to deploy. <strong>If this pattern were about payload size, this directory would end here</strong>, and so would a lot of write-ups.</p>
+<h3>The request the shared endpoint cannot serve</h3>
+<p>The phone team want one line of text under the price — a delivery sentence, joined from stock, the delivery rules and the clock. Ask for it by name, exactly the way every other field was asked for:</p>
+<pre><code>  GET /api/products/SKU-4417?fields=delivery
+{}</code></pre>
+<p>Empty, and not because of a typo. No service owns that field, so the shared endpoint has no vocabulary for it. Adding it here would change a document five other clients also receive, which makes it a contract change, a review, and a place in a queue behind work that has nothing to do with the phone. Half an hour of work; five weeks of waiting. <strong>That is the saving, and it is not a number.</strong></p>
+<h3>A backend for the phone</h3>
+<pre><code>{
+    &quot;title&quot;: &quot;Copper Filter Coffee Maker, 1 Litre&quot;,
+    &quot;price&quot;: &quot;£47.99&quot;,
+    &quot;image&quot;: &quot;https://img.shop.example/4417/hero-320.jpg&quot;,
+    &quot;rating&quot;: 4.6,
+    &quot;ratingCount&quot;: 218,
+    &quot;delivery&quot;: &quot;Free delivery, arrives 2026-09-18&quot;
+}
+  → 196 bytes on the wire
+
+  what the shop was asked for, to serve that one request:
+    catalog=1  pricing=1  inventory=1  reviews=1  recommendations=0
+    total internal calls: 4</code></pre>
+<p>Four, not five — from the shop&#x27;s own tally. Recommendations is reachable and was not asked, because this screen has no related-products strip and the answer would have had nowhere to go. A shared endpoint cannot make that decision on behalf of one client.</p>
+<p>The price arrived as the string <code>&quot;£47.99&quot;</code>; pricing returned the integer <code>4799</code>. The delivery field arrived as a whole English sentence.</p>
+<h3>A backend for the desktop</h3>
+<p>Fifteen fields, 1409 bytes, five internal calls — and the field worth comparing is <code>delivery</code>, which is the bare date <code>&quot;2026-09-18&quot;</code> rather than a sentence, because the desktop page has a delivery panel with its own layout and wants the parts. Two backends over the same data, disagreeing about what a product is, is not an inconsistency waiting to be tidied up.</p>
+<h3>The same product, several ways</h3>
+<pre><code>  design                                bytes   fields  internal
+  one shared endpoint                    1754       12         5
+  shared endpoint, ?fields=               212        6         5
+  a backend for the phone                 196        6         4
+  a backend for the desktop              1409       15         5</code></pre>
+<p>The <code>?fields=</code> row is the one to sit with, and it is the row most write-ups of this pattern leave out. It lands in the same territory as the phone&#x27;s own backend, from one query parameter. The backend&#x27;s advantage over it is not in this table at all.</p>
+<h3>The bill — one rule, two answers</h3>
+<pre><code>  Before the pricing review, both backends claim a saving:
+    phone:   &#x27;Save £12.00&#x27;
+    desktop: &#x27;Save £12.00 (20%)&#x27;</code></pre>
+<p>Then the pricing team finish their review: a higher price may only be advertised as a saving if it was genuinely in force long enough, and this one went up eleven days ago. The shop is told, once, in one place. Both backends read pricing on every request, so <strong>both are told</strong>.</p>
+<pre><code>  POST /pricing/review
+{
+    &quot;note&quot;: &quot;the higher price no longer qualifies to be advertised against&quot;,
+    &quot;listPriceHeldLongEnough&quot;: false
+}
+
+  Same product, same price, same second, asked again:
+    phone:   &#x27;Save £12.00&#x27;
+    desktop: &#x27;&#x27;
+
+  Both services are healthy:
+    phone:   {&quot;groups&quot;:[&quot;liveness&quot;,&quot;readiness&quot;],&quot;status&quot;:&quot;UP&quot;}
+    desktop: {&quot;groups&quot;:[&quot;liveness&quot;,&quot;readiness&quot;],&quot;status&quot;:&quot;UP&quot;}</code></pre>
+<p>One of those two screens is now advertising a saving the shop is not allowed to claim. Nothing threw. Nothing was logged. Both processes report UP. <code>SavingRules</code> in <code>mobile-bff</code> does not even take the <code>listPriceHeldLongEnough</code> flag as an argument, so there is no branch to get wrong — and no test writable inside either process could notice, because from inside each backend, each backend is right.</p>
+<p><strong>A backend for a frontend may hold the shape. Anything the shop would still believe with every client switched off belongs behind it.</strong></p>
+<p>Note what the two backends duplicate, and which duplication is which. <code>Money</code> is copied into both and that is fine: formatting money for a screen is presentation, the one thing these backends are supposed to own. <code>SavingRules</code> is copied into both and that is the bug. The difference is not how much code there is.</p>
+<h2>What Tier 1 got right, and the one place the numbers differ</h2>
+<table><thead><tr><th></th><th>Tier 1</th><th>Tier 2</th></tr></thead><tbody><tr><td>shared endpoint</td><td>1755</td><td>1754</td></tr><tr><td><code>?fields=</code></td><td>212</td><td>212</td></tr><tr><td>phone&#x27;s backend</td><td>196</td><td>196</td></tr><tr><td>desktop&#x27;s backend</td><td>1391</td><td>1409</td></tr><tr><td>internal calls, phone</td><td>4</td><td>4</td></tr><tr><td>internal calls, desktop</td><td>5</td><td>5</td></tr></tbody></table>
+<p>Close enough to be worth explaining rather than glossed over. Tier 1&#x27;s <code>Doc</code> measures its own rendering; Tier 2&#x27;s numbers are Jackson&#x27;s serialisation measured by <code>curl</code> on the receiving end. The two differ by a byte here and eighteen there in whitespace and escaping conventions, and by nothing that matters.</p>
+<p>The two claims Tier 1 could have been wrong about, and was not: the phone&#x27;s document really is an order of magnitude smaller than the shared endpoint&#x27;s over a real connection, and the phone&#x27;s backend really does make one fewer internal call than the desktop&#x27;s — measured this time by the process on the other end.</p>
+<h2>What this tier still does not show</h2>
+<p>Being clear about this is the obligation every project in this category carries.</p>
+<ul><li><strong>Three processes is not a deployment.</strong> There is no container, no service discovery, no load balancer and no TLS. The addresses are localhost ports in a configuration file.</li><li><strong>The calls are still sequential.</strong> Both backends fan out to the shop one call at a time, exactly as Tier 1 does. A real backend would issue them together and wait once, which means both tiers <strong>understate</strong> the pattern&#x27;s benefit.</li><li><strong>No failure handling.</strong> If the shop is down, both backends return a 500. A real backend for a frontend has timeouts, partial responses and a decision about which fields a screen can be drawn without.</li><li><strong>No versioning, no schemas, no compression.</strong> Real clients ship for years and cannot all be upgraded at once, which is a large part of what makes these backends worth owning and none of which is here.</li><li><strong>The ownership claim is still a claim.</strong> Three processes in one Gradle build, written by one person, cannot demonstrate that the phone team ships on their own cadence. That is the part of this pattern a repository cannot prove.</li></ul>
+<h2>Files</h2>
+<table><thead><tr><th>Path</th><th>What it is</th></tr></thead><tbody><tr><td><code>settings.gradle</code></td><td>Three modules, and the note on why this is a separate build</td></tr><tr><td><code>build.gradle</code></td><td>Shared Spring Boot settings; every version comes from the category catalogue</td></tr><tr><td><code>shop/</code></td><td>The five services, the shared endpoint with <code>?fields=</code>, the call counter</td></tr><tr><td><code>mobile-bff/</code></td><td>The phone&#x27;s backend, and the stale copy of the saving rule</td></tr><tr><td><code>web-bff/</code></td><td>The desktop&#x27;s backend, and the current one</td></tr><tr><td><code>demo.sh</code></td><td>The seven-step walkthrough that produced every transcript above</td></tr></tbody></table>
+<p>Spring Boot <strong>4.1.1</strong>, pinned in <a href="../../gradle/libs.versions.toml"><code>../../gradle/libs.versions.toml</code></a> with the reasoning in the implementation plan&#x27;s framework register. Two Boot 4 traps are worth knowing if you are coming from Boot 3, and both are written up in the build files rather than here: <code>spring-boot-starter-web</code> no longer brings an auto-configured <code>RestClient.Builder</code>, so the two backends ask for <code>spring-boot-starter-restclient</code> by name, and the shop — which calls nobody — correctly does not.</p>
+</main>
+<footer>
+Generated from <code>README.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

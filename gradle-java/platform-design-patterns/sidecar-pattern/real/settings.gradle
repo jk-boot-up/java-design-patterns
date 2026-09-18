@@ -1,0 +1,19 @@
+// Tier 2 is a build of its own.
+//
+// This is deliberate, and it is the convention every Tier 2 directory in the
+// category follows. The parent project's `settings.gradle` does not include
+// this build, so `./gradlew test` one directory up never sees it, never tries
+// to resolve Spring, and passes on a machine with no network and no Docker. A
+// reader who wants Tier 2 runs `./demo.sh` from inside `real/` instead.
+rootProject.name = 'sidecar-real'
+
+include 'gateway'
+include 'payments'
+
+dependencyResolutionManagement {
+    versionCatalogs {
+        libs {
+            from(files('../../gradle/libs.versions.toml'))
+        }
+    }
+}

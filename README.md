@@ -1,14 +1,16 @@
 # java-design-patterns
 
-Learning material on design patterns in Java — the Gang of Four patterns, and
-then the microservices patterns that pick up where they stop. The substance of
-this repository is [`gradle-java/`](gradle-java) — a thirty-seven project worked
-course. Everything else is earlier scratch work, kept for reference.
+Learning material on design patterns in Java — the Gang of Four patterns, then
+the microservices patterns that pick up where they stop, and then the platform
+patterns that deal with what a running system stores and how it is configured,
+traced and replaced. The substance of this repository is
+[`gradle-java/`](gradle-java) — a worked course. Everything else is earlier
+scratch work, kept for reference.
 
 ## Start here
 
 **[`gradle-java/README.md`](gradle-java/README.md)** is the front door. It lists
-all thirty-seven patterns in learning order, across four categories:
+the patterns in learning order, across five categories:
 
 | Category | Patterns | Range |
 | --- | --- | --- |
@@ -16,6 +18,14 @@ all thirty-seven patterns in learning order, across four categories:
 | [Structural](gradle-java/structural) | 7 | Adapter → Proxy |
 | [Behavioural](gradle-java/behavioural) | 11 | Strategy → Interpreter |
 | [Microservices](gradle-java/micro-services-design-patterns) | 12 | API Gateway → Idempotent Consumer |
+| [Platform](gradle-java/platform-design-patterns) | 8 | Externalised Configuration → Strangler Fig |
+
+The first four categories are complete — thirty-seven projects. The platform
+category is under construction; its
+[implementation plan](gradle-java/platform-design-patterns/docs/implementation-plan.md)
+lists all eight. Six are finished: Event Sourcing, which is the category's
+reference project, Externalised Configuration, Distributed Tracing, Backends
+for Frontends, Sidecar, and Sidecar with a Java Proxy.
 
 Every pattern is taught through the same worked domain — an online store — so a
 learner moving from one project to the next carries the setting with them and
@@ -37,7 +47,7 @@ on the `PATH` is the only prerequisite, and every project's
 ## Repository layout
 
 ```
-gradle-java/                 the course — 37 projects in 4 categories
+gradle-java/                 the course — 5 categories
   docs/                      the repository-wide specs and the shared
                              generators for specs, thumbnails and
                              YouTube documents
@@ -46,6 +56,7 @@ gradle-java/                 the course — 37 projects in 4 categories
   behavioural/               11 projects
   micro-services-design-patterns/
                              12 projects
+  platform-design-patterns/  8 projects, under construction
 
 chain-of-reponsibility-example/    earlier Maven + Spring Boot sketches,
 factory-pattern-example/           predating the course and superseded by

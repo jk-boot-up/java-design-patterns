@@ -1,0 +1,26 @@
+// Almost every dependency both services need is in the parent build file,
+// because there is nothing asymmetric about tracing itself: both ends of the
+// hop need the same facade, the same bridge and the same exporter.
+//
+// One thing *is* asymmetric, and it is the whole subject of this tier. Only the
+// product page makes an outgoing call, so only the product page needs an HTTP
+// client, and in Spring Boot 4 that is a dependency you ask for by name.
+//
+// Worth knowing if you are coming from Spring Boot 3, because it cost this
+// project a second wasted demo run. There, `spring-boot-starter-web` brought
+// the auto-configured `RestClient.Builder` with it, because the web starter
+// pulled one large autoconfigure jar that held the lot. Boot 4 split that jar
+// into modules, and the client side is no longer part of the server side: ask
+// for the web starter alone and the context fails with "required a bean of type
+// org.springframework.web.client.RestClient$Builder".
+//
+// The distinction matters more than it looks, and it is the reason this file
+// has a comment rather than just a line. An *injected* `RestClient.Builder` is
+// pre-loaded with the observation instrumentation that reads the current span
+// and writes the `traceparent` header. `RestClient.create()` is a plain static
+// factory that owes nothing to Spring and gets none of it. Both compile. One
+// propagates. `RecommendationsClients` builds a bean each way so the demo can
+// show the difference in Jaeger rather than assert it.
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-restclient'
+}
