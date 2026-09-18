@@ -14,7 +14,7 @@ A project is compliant when every item in [Conformance](#conformance) holds.
 
 ## 1. Scope
 
-Forty-five projects across five categories, each a self-contained Gradle
+Fifty projects across six categories, each a self-contained Gradle
 Java 21 project with sources, JUnit 5 tests, `docs/`, `video/`, and a top-level
 `README.md`:
 
@@ -25,8 +25,9 @@ Java 21 project with sources, JUnit 5 tests, `docs/`, `video/`, and a top-level
 | Behavioural | strategy, observer, command, template-method, state, chain-of-responsibility, iterator, mediator, memento, visitor, interpreter |
 | Microservices | api-gateway, service-discovery, load-balancing, retry, circuit-breaker, bulkhead, database-per-service, api-composition, cqrs, saga, transactional-outbox, idempotent-consumer |
 | Platform | externalised-configuration, distributed-tracing, backends-for-frontends, sidecar, sidecar-java-proxy, sidecar-on-kubernetes, event-sourcing, strangler-fig |
+| Architectural | layered-architecture, mvc, hexagonal-architecture, clean-architecture, clean-architecture-with-spring |
 
-Three categories have their own subsidiary specification, each fixing the
+Four categories have their own subsidiary specification, each fixing the
 e-commerce scenario its patterns are taught through and adding
 category-specific conformance items. All inherit this document unchanged;
 where any of them appears to disagree with it, this one wins.
@@ -36,6 +37,7 @@ where any of them appears to disagree with it, this one wins.
 | [`../behavioural/docs/spec.md`](../behavioural/docs/spec.md) | The eleven behavioural patterns, plus four extra conformance items |
 | [`../micro-services-design-patterns/docs/spec.md`](../micro-services-design-patterns/docs/spec.md) | The twelve microservices patterns, their one-JVM rule, and six extra conformance items |
 | [`../platform-design-patterns/docs/implementation-plan.md`](../platform-design-patterns/docs/implementation-plan.md) | The eight platform patterns, and the two-tier rule that lets them use real infrastructure |
+| [`../architectural-design-patterns/docs/implementation-plan.md`](../architectural-design-patterns/docs/implementation-plan.md) | The five architectural patterns, the shared order-placing feature all five implement, and the ArchUnit dependency-rule test each one carries |
 
 The platform category is the first to relax the "one JVM, nothing installed"
 rule, and it does so in a strictly bounded way. **Tier 1** of every platform

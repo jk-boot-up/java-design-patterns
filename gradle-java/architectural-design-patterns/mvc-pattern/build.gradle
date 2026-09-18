@@ -1,0 +1,37 @@
+plugins {
+    id 'java'
+    id 'application'
+}
+
+group = 'com.jk.explore'
+version = '1.0-SNAPSHOT'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation platform('org.junit:junit-bom:5.10.2')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    // ArchUnit is the one library this category takes, and it is test-only.
+    // A dependency rule written as an ArchUnit test *is* the architecture,
+    // executably: it reads as English, runs in `./gradlew test`, and when it
+    // fails it names the offending class and the class it reached for.
+    testImplementation 'com.tngtech.archunit:archunit-junit5:1.5.0'
+}
+
+application {
+    mainClass = 'com.jk.explore.mvc.PlaceAnOrderDemo'
+}
+
+test {
+    useJUnitPlatform()
+}

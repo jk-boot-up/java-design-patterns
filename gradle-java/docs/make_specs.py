@@ -87,6 +87,15 @@ ORDER = [
     ("platform-design-patterns", "sidecar-on-kubernetes"),
     ("platform-design-patterns", "event-sourcing"),
     ("platform-design-patterns", "strangler-fig"),
+    # The architectural category. Four architectures across five projects:
+    # Clean Architecture is taught twice, once wired by hand and once wired by
+    # Spring, and each version is a project of its own. The order here is the
+    # learning order, because each project is one step from the one before it.
+    ("architectural-design-patterns", "layered-architecture"),
+    ("architectural-design-patterns", "mvc"),
+    ("architectural-design-patterns", "hexagonal-architecture"),
+    ("architectural-design-patterns", "clean-architecture"),
+    ("architectural-design-patterns", "clean-architecture-with-spring"),
 ]
 
 # Demos that mint an identifier per run, so their output is not byte-stable.
@@ -130,6 +139,11 @@ NAMES = {
     "sidecar-on-kubernetes": "Sidecar on Kubernetes",
     "event-sourcing": "Event Sourcing",
     "strangler-fig": "Strangler Fig",
+    "layered-architecture": "Layered Architecture",
+    "mvc": "Model View Controller",
+    "hexagonal-architecture": "Hexagonal Architecture",
+    "clean-architecture": "Clean Architecture",
+    "clean-architecture-with-spring": "Clean Architecture with Spring",
 }
 
 # ---------------------------------------------------------------------------
@@ -3265,6 +3279,319 @@ requirements=[
     "**Every quoted number is the program's.** `DemoRunsTest` captures the "
     "demo's output and asserts the figures the README, the notes and the "
     "video narration quote, and that two runs are byte-identical.",
+],
+),
+
+"layered-architecture": dict(
+purpose="""
+Teach a layered architecture as an enforced rule rather than a folder
+convention: four layers, each depending only on the one beneath it, with an
+ArchUnit test that fails -- naming the offending class -- the moment a
+shortcut crosses a boundary the diagram promised it would not.
+""",
+nongoals=[
+    "Not a claim that layering inverts a dependency. The application layer "
+    "still names the infrastructure package to compile, and the project "
+    "says so plainly -- that inversion is Hexagonal Architecture, the next "
+    "project in this category.",
+    "Not a web framework tutorial. `CheckoutScreen` has no HTTP anywhere in "
+    "it; a controller is, underneath every framework, a method that takes a "
+    "request, calls one thing, and formats the answer.",
+    "Not a database integration. `OrderTable` has two in-memory "
+    "implementations and no real store; the forced change is choosing "
+    "between them, not connecting to one.",
+],
+problem="""
+A customer places an order for three products from the shared feature's
+catalogue -- one espresso machine, one grinder, two bags of beans, £382.50 -- and
+the code that handles it starts as one class doing validation, pricing,
+storage and email together: correct, and untestable without constructing the
+whole thing at once.
+
+Splitting it into four layers -- presentation, application, domain,
+infrastructure -- fixes that, until a new screen needs data the application
+layer has no method for yet. Adding one properly costs three files; reaching
+past it into storage costs ten minutes and compiles cleanly. The layers still
+exist, the folder names are still correct, and nothing in the build objects
+to the shortcut.
+
+**What the pattern must deliver:** the same four layers, with the dependency
+rule written as a test that fails -- by name -- the moment a class reaches
+past its neighbour, and a forced change (replacing the entire storage layer)
+performed and counted to prove the other three layers really were
+independent of it.
+""",
+roles=[
+    ("Presentation", "`CheckoutScreen`"),
+    ("Application", "`PlaceOrderService`, `PlaceOrderRequest`, `PlaceOrderResult`"),
+    ("Domain", "`Order`, `OrderLine`, `OrderStatus`, `Product`, `Money`, `CheckoutRefusedException`"),
+    ("Infrastructure", "`OrderTable` (interface), `InMemoryOrderTable`, `AppendOnlyOrderTable`, `ProductTable`, `CardNetwork`, `EmailServer`, `PaymentDeclinedException`"),
+    ("Naive counterexamples", "`EverythingOrderService`, `OrderHistoryScreen`"),
+    ("Composition root / forced-change counter", "`PlaceAnOrderDemo`, `ForcedChange`"),
+    ("Entry point", "`PlaceAnOrderDemo`"),
+],
+requirements=[
+    "**An ArchUnit rule asserts the dependency direction, and a second test "
+    "proves it can fail.** `ArchitectureTest` checks the real four layers; "
+    "`ArchitectureRuleCatchesTheShortcutTest` widens the same rule to the "
+    "naive package and asserts the failure message names "
+    "`OrderHistoryScreen` and `InMemoryOrderTable` by name.",
+    "**The forced change is counted from real files on disk, not typed in.** "
+    "`ForcedChange.countClassesInLayers` walks the four layer packages at "
+    "the moment the demo runs, so the printed numbers cannot drift from the "
+    "source tree.",
+    "**The card is charged before anything is written down.** "
+    "`PlaceOrderService.place` orders its four steps so that a declined "
+    "card leaves no half-placed order and no reduced stock behind.",
+],
+),
+
+"mvc": dict(
+purpose="""
+Teach Model-View-Controller as an enforced guarantee rather than a folder
+convention: a Model that computes an order's total exactly once, a View
+interface too narrow to be handed anything else to compute from, and an
+ArchUnit test that fails -- naming the offending class -- the moment a view
+reaches around the model into storage.
+""",
+nongoals=[
+    "Not a UI toolkit tutorial. Every view produces a String; there is no "
+    "Swing, JavaFX or web framework anywhere in this project.",
+    "Not a claim that this project's controller matches classic Smalltalk "
+    "MVC's observation. The controller builds the model once and hands it "
+    "to the views asked for, rather than views subscribing and being "
+    "notified -- the written notes say so plainly, because a synchronous "
+    "console demo has no independent redraw to trigger.",
+    "Not MVP or MVVM. Both are named and distinguished in one scene each; "
+    "neither is built, because teaching either properly needs a UI toolkit "
+    "with real data binding.",
+],
+problem="""
+The same order-placing feature as the rest of this category -- Ada Okafor,
+three lines, £382.50 -- reaches the moment just after checkout: a screen
+summary, and a confirmation email a moment later. Both must show the same
+total.
+
+A real screen already exists, reading a computed model, and it works. A
+confirmation email is then added, and because the model has no convenient
+method yet for "unit prices rounded to the nearest pound, for a tidier
+line", the new email view reaches directly into the product catalogue and
+rounds each unit price itself before multiplying. It compiles; a reviewer
+would approve the diff. It prints £383.00 where the screen prints £382.50,
+because the burr grinder's £89.50 rounds up before it is multiplied.
+
+**What the pattern must deliver:** a Model computed once, a View interface
+narrow enough that no view can be handed anything to compute a total from,
+and a dependency rule -- no class in view may depend on infrastructure --
+enforced as a test that fails, naming the offending class, the moment a view
+reaches around the model.
+""",
+roles=[
+    ("Model", "`OrderSummaryModel`"),
+    ("View interface", "`OrderSummaryView`"),
+    ("Concrete views", "`ScreenSummaryView`, `EmailConfirmationView`, `CompositeOrderView`"),
+    ("Controller", "`OrderSummaryController`"),
+    ("Application", "`PlaceOrderService`, `PlaceOrderRequest`, `PlaceOrderResult`"),
+    ("Infrastructure", "`OrderTable`, `InMemoryOrderTable`, `ProductTable`, `CardNetwork`, `EmailServer`"),
+    ("Naive counterexamples", "`EverythingOrderScreen`, `RoundedEmailView`"),
+    ("Composition root / forced-change counter", "`PlaceAnOrderDemo`, `ForcedChange`"),
+    ("Entry point", "`PlaceAnOrderDemo`"),
+],
+requirements=[
+    "**An ArchUnit rule asserts no view depends on infrastructure, and a "
+    "second test proves it can fail.** `ArchitectureRuleCatchesTheShortcutTest` "
+    "widens the rule to `naive.view` and asserts the failure names "
+    "`RoundedEmailView` and `ProductTable` by name.",
+    "**Two real views are proven, by arithmetic, to always agree — and the "
+    "naive bug is proven, by arithmetic, to be real.** `ViewsAgreementTest` "
+    "asserts both: `twoRealViewsAlwaysAgree` and "
+    "`theNaiveShortcutReallyDoesDisagree`, the latter computing the actual "
+    "£383.00 rather than asserting it in prose.",
+    "**`OrderSummaryView` accepts exactly one parameter type.** No overload "
+    "anywhere in the interface accepts a `Product`, a price, or a quantity "
+    "a view could multiply for itself.",
+],
+),
+
+"hexagonal-architecture": dict(
+purpose="""
+Teach ports and adapters as an inversion enforced by a test: the core
+declares every interface it needs, in its own language, and no class in the
+core may depend on any adapter -- driven or driving -- with the inversion
+proved in both directions at once: a storage swap the core does not notice,
+and a new caller the core does not notice either.
+""",
+nongoals=[
+    "Not a claim that this project replaces Layered Architecture. It is one "
+    "deliberate move on top of it: the same interface, moved into the core, "
+    "so the direction of one import reverses.",
+    "Not a real HTTP server or a real database. `HttpCheckoutAdapter` "
+    "simulates a JSON body as a `Map`; every adapter in this project is "
+    "in-memory, because the lesson is the shape of the dependency, not the "
+    "infrastructure behind it.",
+    "Not a claim that every application needs this. The written notes name "
+    "the honest question directly: for a core that will only ever have one "
+    "database and one caller, is either swap ever going to happen?",
+],
+problem="""
+The same order-placing feature as the rest of this category reaches the
+point where Layered Architecture's own documents admitted a cost: its
+application layer named its storage, payment and notification classes by
+importing them directly, because the interfaces describing them lived in
+the bottom layer, not with the use case.
+
+Reproduced here as `NaivePlaceOrderService`, whose constructor takes three
+concrete adapter types. It works. Testing it means constructing all three
+first, and swapping any one of them means editing this class -- not because
+its logic changed, but because a type it named no longer exists.
+
+**What the pattern must deliver:** a core that declares its own ports and
+depends on nothing else, with the rule enforced as a test that fails,
+naming the offending class, the moment the core reaches into an adapter --
+proved by swapping a driven adapter (storage) and a driving adapter (who
+calls in) at the same time, with zero core classes touched by either.
+""",
+roles=[
+    ("Core", "`PlaceOrderService`, `PlaceOrderRequest`, `PlaceOrderResult`"),
+    ("Domain", "`Order`, `OrderLine`, `Money`, `Product`, `OrderStatus`, `CheckoutRefusedException`"),
+    ("Ports", "`OrderStore`, `PaymentGateway`, `ProductCatalog`, `Notifier`"),
+    ("Driven adapters", "`InMemoryOrderStore`, `AppendOnlyOrderStore`, `InMemoryPaymentGateway`, `InMemoryNotifier`, `InMemoryProductCatalog`"),
+    ("Driving adapters", "`HttpCheckoutAdapter`, `CliCheckoutAdapter`"),
+    ("Naive counterexample", "`NaivePlaceOrderService`"),
+    ("Composition root / forced-change counter", "`PlaceAnOrderDemo`, `ForcedChange`"),
+    ("Entry point", "`PlaceAnOrderDemo`"),
+],
+requirements=[
+    "**An ArchUnit rule asserts the core depends on no adapter, and a "
+    "second test proves it can fail.** `ArchitectureRuleCatchesTheShortcutTest` "
+    "widens the rule to `naive.core` and asserts the failure names "
+    "`NaivePlaceOrderService` and the adapter it reached for.",
+    "**Both directions of the forced change are proven, not merely "
+    "described.** `BothSidesAgreeTest` asserts the same core answers "
+    "identically through `HttpCheckoutAdapter` and `CliCheckoutAdapter`, "
+    "and that swapping `InMemoryOrderStore` for `AppendOnlyOrderStore` "
+    "changes no result.",
+    "**`PlaceOrderService` imports nothing from `adapter`.** Every "
+    "dependency it has is a type declared inside `core.port`.",
+],
+),
+
+"clean-architecture": dict(
+purpose="""
+Teach Clean Architecture as Hexagonal Architecture generalised into three
+named rings -- entities, use cases, interface adapters -- with the
+dependency-inversion moment shown in running code rather than a diagram, and
+proved under the category's largest forced change: an entirely new delivery
+mechanism and an entirely new data source, added at the same time, with the
+two inner circles measurably untouched.
+""",
+nongoals=[
+    "Not a claim that this project is unrelated to Hexagonal Architecture. "
+    "It is a close relative, named as one: the same inward-pointing rule, "
+    "generalised into three rings instead of one core/adapter split.",
+    "Not a dependency injection container. The whole object graph is "
+    "wired by hand in `main()`, deliberately, because watching that "
+    "wiring is where the inversion stops being a diagram -- the "
+    "container version is `clean-architecture-with-spring`, a separate "
+    "project.",
+    "Not a recommendation to build every feature this way. The written "
+    "notes name this as the most over-applied pattern in the category and "
+    "count the file cost of one feature to prove it.",
+],
+problem="""
+The previous project in this category, Hexagonal Architecture, already
+inverted the dependency between a use case and its storage. This project's
+naive version reproduces the shortcut that discipline slips into:
+`NaivePlaceOrderInteractor`, a class calling itself a use case with a
+constructor typed as three concrete gateway classes, reaching two circles
+further out than a use case should.
+
+**What the pattern must deliver:** concentric circles with one rule stated
+once -- source code dependencies point only inward -- and the
+dependency-inversion moment shown as two directions disagreeing in real
+code: control flowing outward to `orders.save(order)`, while the
+dependency, the interface `orders` is typed as, points inward at
+something the use case itself declared. Proved by the largest forced
+change in the category: a new delivery mechanism and a new data source,
+added simultaneously, with zero changes to entities or use cases.
+""",
+roles=[
+    ("Entities", "`Order`, `OrderLine`, `Money`, `Product`, `OrderStatus`, `CheckoutRefusedException`"),
+    ("Use cases", "`PlaceOrderInteractor`, `PlaceOrderInputBoundary`, `PlaceOrderInput`, `PlaceOrderOutput`"),
+    ("Boundaries", "`OrderRepository`, `ProductRepository`, `PaymentGateway`, `NotificationGateway`"),
+    ("Interface adapters — in", "`CheckoutController`, `BatchOrderController`"),
+    ("Interface adapters — out", "`InMemoryOrderRepository`, `FileBackedOrderRepository`, `InMemoryPaymentGateway`, `InMemoryNotificationGateway`"),
+    ("Naive counterexample", "`NaivePlaceOrderInteractor`"),
+    ("Composition root / forced-change counter", "`PlaceAnOrderDemo`, `ForcedChange`"),
+    ("Entry point", "`PlaceAnOrderDemo`"),
+],
+requirements=[
+    "**The concentric rule is checked with ArchUnit's own layered-architecture "
+    "API, not a hand-rolled rule.** `Architectures.layeredArchitecture()` "
+    "declares three named layers and one accessibility sentence per pair; "
+    "`ArchitectureRuleCatchesTheShortcutTest` widens an equivalent rule to "
+    "`naive.usecases` and asserts the failure names "
+    "`NaivePlaceOrderInteractor`.",
+    "**Both halves of the forced change are proven working at once, not "
+    "narrated.** `BothAddedAtOnceTest` exercises the original HTTP-and-map "
+    "path and the new batch-and-file path in the same test run.",
+    "**`PlaceOrderInteractor` imports nothing from `adapters`.** Every "
+    "dependency it has is a type declared inside its own package.",
+],
+),
+
+"clean-architecture-with-spring": dict(
+purpose="""
+Teach the one contrast a container adds to Clean Architecture's hand-wired
+graph -- compile-time wiring failure against startup wiring failure -- using
+the identical entities, use cases and adapters `clean-architecture-pattern`
+already built, copied unchanged, so the only variable is who assembles them.
+""",
+nongoals=[
+    "Not a re-teaching of Clean Architecture. Every entity, use case and "
+    "adapter is `clean-architecture-pattern`'s file, unchanged; that "
+    "project's own explained document is the authority on all of them.",
+    "Not a Spring tutorial. This project uses exactly one dependency, "
+    "`spring-boot-starter`, and answers exactly one question -- what "
+    "changes when a container does the wiring -- before it stops.",
+    "Not a web application. There is no web starter, no HTTP server, "
+    "anywhere in this project.",
+],
+problem="""
+`clean-architecture-pattern`'s composition root assembles its object graph
+by hand, in about twenty lines of `new SomeClass(...)`, in one method
+anyone can read top to bottom. That is also, honestly, not what most teams
+do the moment there is more than a handful of objects to wire -- most reach
+for a container.
+
+**What this project must deliver:** the identical graph, assembled by a
+Spring `ApplicationContext` reading one `@Configuration` class with a
+`@Bean` method per object the hand-wired project already constructed --
+and, from that one change, the contrast the whole project exists to show.
+Delete an argument from the hand-wired constructor call and the project
+does not compile. Delete the equivalent `@Bean` method and the project
+compiles cleanly, then fails only once the container actually tries to
+build the graph, with `UnsatisfiedDependencyException` naming the missing
+type.
+""",
+roles=[
+    ("Reused unchanged from §66", "every class in `entities`, `usecases` and `adapters`"),
+    ("The real wiring", "`AppConfig`"),
+    ("The forced-change demonstration", "`BrokenAppConfig`, missing one `@Bean`"),
+    ("Entry point", "`Application`"),
+],
+requirements=[
+    "**The contrast is proven, not narrated.** `WiringContrastTest` builds "
+    "a working context from `AppConfig` and asserts `BrokenAppConfig` "
+    "throws `UnsatisfiedDependencyException` naming the missing "
+    "`NotificationGateway` type.",
+    "**Spring appears in no file copied from §66.** A dedicated ArchUnit "
+    "test asserts no class in `entities`, `usecases` or `adapters` depends "
+    "on any `org.springframework` package.",
+    "**`docs/dependencies.md` answers the standing five questions** -- "
+    "what Spring is, why this project uses it, what to install with the "
+    "version pinned, what it costs, and that skipping this project loses "
+    "none of the architecture.",
 ],
 ),
 

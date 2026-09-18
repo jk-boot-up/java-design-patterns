@@ -1,12 +1,14 @@
 # Design Patterns in Java — A Worked Course
 
 Design patterns in Java — the twenty-five object-oriented ones first, then
-twelve microservices patterns, then eight platform patterns — each a
-self-contained Gradle Java 21 project with runnable code, JUnit 5 tests, written
-notes, diagrams, an animated walkthrough, and a narrated video.
+twelve microservices patterns, then eight platform patterns, then five
+architectural patterns — each a self-contained Gradle Java 21 project with
+runnable code, JUnit 5 tests, written notes, diagrams, an animated walkthrough,
+and a narrated video.
 
-The first four categories are complete. The platform category is being built
-now; see its section below.
+The first four categories — creational, structural, behavioural and
+microservices — are complete, and so is architectural, the fifth. Platform
+is the one category still being built; see its section below.
 
 **Every pattern is taught through the same worked domain: an online store.**
 Not a photo gallery, not shapes on a canvas — checkout, catalog, orders,
@@ -149,6 +151,57 @@ last four scenes are the bill: twice as many processes, a second thing that can
 be down, one millisecond on every call, and the admission that inside one JVM
 this structure is Decorator.
 
+## Architectural — where a dependency is allowed to point
+
+The same online store one more time, but the question is now the shape of the
+codebase itself: which layer is allowed to know about which, and what happens
+when someone takes a shortcut across that rule. All five projects implement
+**the same feature** — a customer places an order for three products, stock is
+checked, payment is taken, a confirmation is sent — so the only thing that
+differs between them is the arrangement, and a reader can compare projects
+directly instead of taking anyone's word for which one is cleaner.
+
+This category is **complete** — all five projects built. Its
+[implementation plan](architectural-design-patterns/docs/implementation-plan.md)
+is the authority on how it was built and in what order.
+
+| # | Pattern | Scenario |
+| --- | --- | --- |
+| 63 | [Layered Architecture](architectural-design-patterns/layered-architecture-pattern) | Folders are not a rule until a test enforces it |
+| 64 | [MVC](architectural-design-patterns/mvc-pattern) | Two views, one calculation |
+| 65 | [Hexagonal Architecture](architectural-design-patterns/hexagonal-architecture-pattern) | The core never learns it has a database |
+| 66 | [Clean Architecture](architectural-design-patterns/clean-architecture-pattern) | The call goes out, the arrow points in |
+| 67 | [Clean Architecture with Spring](architectural-design-patterns/clean-architecture-with-spring-pattern) | The same graph, wired by a container instead of by hand |
+
+Layered Architecture is the category's reference: it is the architecture
+most readers already have, and its failure mode — layers that exist as
+folders and are violated by one convenient call — is the one everyone has
+lived with. MVC is one step on from it: the same shared feature, with the
+presentation side split into a model and views so that a screen and a
+confirmation email cannot show a customer two different totals. Hexagonal
+Architecture inverts the one honest cost Layered Architecture's own
+documents admitted: the use case now declares its own ports, and an
+adapter reaches up to implement or call them — proved by swapping the
+storage adapter and the calling adapter at the same time, with zero
+changes to the core either way. Clean Architecture generalises that
+inversion into three named rings, with the dependency-inversion moment
+shown in running code and proved under the category's largest forced
+change — a new delivery mechanism and a new data source, added
+simultaneously, with zero changes to entities or use cases. Clean
+Architecture with Spring closes the category: the identical graph Clean
+Architecture built by hand, assembled instead by a Spring container, so
+the one contrast a container adds — hand-wiring fails at compile time,
+container wiring fails at startup — can be shown directly, with the
+missing-bean failure proved rather than narrated.
+
+The numbering above skips 46 to 62 and 68 to 72. Those are reserved for three
+more categories specified in the same planning pass — concurrency (46–51),
+enterprise (52–62) and foundational (68–72) — each with its own README, `spec.md`
+and `implementation-plan.md` already committed under `gradle-java/`. None of the
+three has a single project built yet, and none is wired into the shared
+generators; they are out of scope for the architectural category's build and are
+recorded here only so the gap in the numbers has an explanation.
+
 ---
 
 ## What each project contains
@@ -187,6 +240,7 @@ Java 21 and no third-party runtime dependencies. JUnit 5 for tests only.
 | [`behavioural/docs/spec.md`](behavioural/docs/spec.md) | The behavioural category's scenarios and extra conformance items |
 | [`micro-services-design-patterns/docs/spec.md`](micro-services-design-patterns/docs/spec.md) | The microservices category's scenarios, its one-JVM rule and its extra conformance items |
 | [`platform-design-patterns/docs/implementation-plan.md`](platform-design-patterns/docs/implementation-plan.md) | The platform category's eight projects, its two-tier rule, and the infrastructure each one is allowed to use |
+| [`architectural-design-patterns/docs/implementation-plan.md`](architectural-design-patterns/docs/implementation-plan.md) | The architectural category's five projects, the shared feature all five implement, and the ArchUnit dependency-rule test each one carries |
 
 The generators in `docs/` — `make_specs.py`, `make_youtube_docs.py`,
 `make_thumbnails.py` — produce the per-project specification, publishing

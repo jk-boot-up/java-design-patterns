@@ -14,9 +14,9 @@ whole category at the time of writing.
 | | |
 | --- | --- |
 | Projects specified | 5 (four architectures; Clean Architecture is two projects) |
-| Projects built | 0 |
-| Category registered with the shared generators | no |
-| Existing projects in the repository | 37 built; 25 more specified across the platform, concurrency and enterprise categories |
+| Projects built | **5 of 5 — the category is complete.** Layered Architecture (18 tests, 15:33), MVC (19 tests, 12:42), Hexagonal Architecture (17 tests, 10:11), Clean Architecture (16 tests, 10:19), Clean Architecture with Spring (11 tests, 9:09); all with full documents, diagrams, animation and a rendered video. |
+| Category registered with the shared generators | yes — `make_narration.py`, `make_specs.py`, `make_thumbnails.py`, `make_youtube_docs.py`, and the root `README.md`, `gradle-java/README.md` and `docs/video-and-publishing-spec.md` all list the category |
+| Existing projects in the repository | 37 built; 35 more specified across the platform, concurrency, enterprise, architectural and foundational categories |
 
 ---
 

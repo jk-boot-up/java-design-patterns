@@ -1,16 +1,17 @@
 # java-design-patterns
 
 Learning material on design patterns in Java — the Gang of Four patterns, then
-the microservices patterns that pick up where they stop, and then the platform
+the microservices patterns that pick up where they stop, then the platform
 patterns that deal with what a running system stores and how it is configured,
-traced and replaced. The substance of this repository is
-[`gradle-java/`](gradle-java) — a worked course. Everything else is earlier
+traced and replaced, and then the architectural patterns that fix which layer
+of a codebase is allowed to depend on which. The substance of this repository
+is [`gradle-java/`](gradle-java) — a worked course. Everything else is earlier
 scratch work, kept for reference.
 
 ## Start here
 
 **[`gradle-java/README.md`](gradle-java/README.md)** is the front door. It lists
-the patterns in learning order, across five categories:
+the patterns in learning order, across six categories:
 
 | Category | Patterns | Range |
 | --- | --- | --- |
@@ -19,13 +20,23 @@ the patterns in learning order, across five categories:
 | [Behavioural](gradle-java/behavioural) | 11 | Strategy → Interpreter |
 | [Microservices](gradle-java/micro-services-design-patterns) | 12 | API Gateway → Idempotent Consumer |
 | [Platform](gradle-java/platform-design-patterns) | 8 | Externalised Configuration → Strangler Fig |
+| [Architectural](gradle-java/architectural-design-patterns) | 5 | Layered Architecture → Clean Architecture with Spring |
 
-The first four categories are complete — thirty-seven projects. The platform
-category is under construction; its
+The first four categories, plus architectural, are complete — forty-two
+projects. Platform is the one category still under construction; its
 [implementation plan](gradle-java/platform-design-patterns/docs/implementation-plan.md)
-lists all eight. Six are finished: Event Sourcing, which is the category's
-reference project, Externalised Configuration, Distributed Tracing, Backends
-for Frontends, Sidecar, and Sidecar with a Java Proxy.
+lists all eight, and six are finished: Event Sourcing, which is the
+category's reference project, Externalised Configuration, Distributed
+Tracing, Backends for Frontends, Sidecar, and Sidecar with a Java Proxy.
+
+Architectural's own
+[implementation plan](gradle-java/architectural-design-patterns/docs/implementation-plan.md)
+records how its five went in: Layered Architecture, the category's
+reference project, then MVC, Hexagonal Architecture, Clean Architecture,
+and finally Clean Architecture with Spring — the only project in the whole
+course with a framework in its build file, because it exists to contrast
+compile-time wiring failure against startup wiring failure in the one
+place that comparison needs a real container.
 
 Every pattern is taught through the same worked domain — an online store — so a
 learner moving from one project to the next carries the setting with them and
@@ -47,7 +58,7 @@ on the `PATH` is the only prerequisite, and every project's
 ## Repository layout
 
 ```
-gradle-java/                 the course — 5 categories
+gradle-java/                 the course — 6 categories building, 3 more specified
   docs/                      the repository-wide specs and the shared
                              generators for specs, thumbnails and
                              YouTube documents
@@ -57,6 +68,14 @@ gradle-java/                 the course — 5 categories
   micro-services-design-patterns/
                              12 projects
   platform-design-patterns/  8 projects, under construction
+  architectural-design-patterns/
+                             5 projects, complete
+  concurrency-design-patterns/
+                             6 projects, specified only — no code yet
+  enterprise-design-patterns/
+                             11 projects, specified only — no code yet
+  foundational-design-patterns/
+                             5 projects, specified only — no code yet
 
 chain-of-reponsibility-example/    earlier Maven + Spring Boot sketches,
 factory-pattern-example/           predating the course and superseded by

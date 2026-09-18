@@ -25,7 +25,8 @@ import sys
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 CATEGORIES = ("creational", "structural", "behavioural",
-              "micro-services-design-patterns", "platform-design-patterns")
+              "micro-services-design-patterns", "platform-design-patterns",
+              "architectural-design-patterns")
 
 PAUSE = re.compile(r"\s*\[\[slnc \d+\]\]\s*")
 

@@ -81,6 +81,14 @@ ORDER = [
     ("platform-design-patterns", "sidecar-on-kubernetes"),
     ("platform-design-patterns", "event-sourcing"),
     ("platform-design-patterns", "strangler-fig"),
+    # The architectural category. Four architectures across five projects:
+    # Clean Architecture is taught twice, once wired by hand and once wired by
+    # Spring, and each version is a project of its own.
+    ("architectural-design-patterns", "layered-architecture"),
+    ("architectural-design-patterns", "mvc"),
+    ("architectural-design-patterns", "hexagonal-architecture"),
+    ("architectural-design-patterns", "clean-architecture"),
+    ("architectural-design-patterns", "clean-architecture-with-spring"),
 ]
 
 # Per-project title and tag material. The title is what gets pasted into
@@ -267,6 +275,26 @@ META = {
     "strangler-fig": {
         "title": "Strangler Fig in Java - Replacing Legacy Safely",
         "tags": ["strangler fig pattern", "legacy migration", "incremental rewrite"],
+    },
+    "layered-architecture": {
+        "title": "Layered Architecture in Java - The One Call That Ruins It",
+        "tags": ["layered architecture", "n tier architecture", "archunit"],
+    },
+    "mvc": {
+        "title": "MVC in Java - The View That Knew Too Much",
+        "tags": ["mvc pattern", "model view controller", "mvp and mvvm"],
+    },
+    "hexagonal-architecture": {
+        "title": "Hexagonal Architecture in Java - Ports and Adapters",
+        "tags": ["hexagonal architecture", "ports and adapters", "archunit"],
+    },
+    "clean-architecture": {
+        "title": "Clean Architecture in Java - Which Way Does It Point?",
+        "tags": ["clean architecture", "dependency inversion", "dependency rule"],
+    },
+    "clean-architecture-with-spring": {
+        "title": "Clean Architecture with Spring - Who Wires the Graph?",
+        "tags": ["clean architecture spring", "spring boot 4", "dependency injection"],
     },
 }
 

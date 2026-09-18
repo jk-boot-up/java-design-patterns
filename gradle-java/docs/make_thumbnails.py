@@ -154,6 +154,23 @@ META = {
                    "events.foldTo(balance)"),
     "strangler-fig": (['STRANGLER', 'FIG'], "One route at a time, no cutover",
                   "router.moveToNew(PRICING)"),
+    # The architectural slugs lead with the rule each architecture enforces,
+    # because four of the five share a domain and a feature, and only the rule
+    # tells them apart at thumbnail size.
+    "layered-architecture": (['LAYERED', 'ARCHITECTURE'],
+                         "Folders are not a rule. A test is.",
+                         "depend downward only"),
+    "mvc": (['MVC'], "Two screens, one calculation",
+        "model.total()"),
+    "hexagonal-architecture": (['HEXAGONAL', 'ARCHITECTURE'],
+                           "The core never learns it has a database",
+                           "core names the port"),
+    "clean-architecture": (['CLEAN', 'ARCHITECTURE'],
+                       "The call goes out, the arrow points in",
+                       "inward, always"),
+    "clean-architecture-with-spring": (['CLEAN ARCHITECTURE', 'WITH SPRING'],
+                                   "Same graph, wired by a container",
+                                   "who calls new?"),
 }
 
 GROUP = {
@@ -191,6 +208,12 @@ GROUP.update({slug: "platform-design-patterns" for slug in (
     "externalised-configuration", "distributed-tracing",
     "backends-for-frontends", "sidecar", "sidecar-java-proxy",
     "sidecar-on-kubernetes", "event-sourcing", "strangler-fig")})
+
+# The architectural projects share one directory too, and Clean Architecture
+# accounts for two of the five slugs.
+GROUP.update({slug: "architectural-design-patterns" for slug in (
+    "layered-architecture", "mvc", "hexagonal-architecture",
+    "clean-architecture", "clean-architecture-with-spring")})
 
 
 def f(path, size):

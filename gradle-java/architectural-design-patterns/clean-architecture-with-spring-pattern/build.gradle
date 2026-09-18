@@ -1,0 +1,49 @@
+plugins {
+    id 'java'
+    id 'application'
+    id 'org.springframework.boot' version '4.1.1'
+    id 'io.spring.dependency-management' version '1.1.7'
+}
+
+group = 'com.jk.explore'
+version = '1.0-SNAPSHOT'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // The whole subject of this project. Core Spring -- an ApplicationContext,
+    // component scanning, @Bean wiring -- and nothing else: no web starter, no
+    // database starter, because this project's one job is assembling §66's
+    // graph with a container, not building a web application.
+    implementation 'org.springframework.boot:spring-boot-starter'
+
+    testImplementation platform('org.junit:junit-bom:5.10.2')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    // Same architecture tests as every project in this category, run against
+    // the identical entities, use cases and adapters copied from
+    // clean-architecture-pattern.
+    testImplementation 'com.tngtech.archunit:archunit-junit5:1.5.0'
+}
+
+application {
+    mainClass = 'com.jk.explore.cleanspring.Application'
+}
+
+bootJar {
+    mainClass = 'com.jk.explore.cleanspring.Application'
+}
+
+test {
+    useJUnitPlatform()
+}

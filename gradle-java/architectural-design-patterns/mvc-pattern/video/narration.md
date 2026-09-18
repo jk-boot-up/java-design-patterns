@@ -1,0 +1,61 @@
+# MVC Pattern — Video Narration Script
+
+## 1. MVC
+
+Hello, and welcome. This video explains the Model View Controller pattern in Java, and it is written and presented by Jayasekhar Konduru. Let's start with the plain definition. MVC splits a screen into three roles. A model holds data and does the one calculation that matters. A view turns that data into text or pixels and does no calculation of its own. And a controller takes an input and turns it into a call on the model, then tells a view to render. Now, almost everyone who says those three words means something slightly different by them, and this video is going to be precise about that, because the version most of you have actually used at work is not quite the one taught in textbooks. So this video builds a real working online shop -- the same order this whole course's category places -- and shows what happens when a screen and a confirmation email both need to show a customer the same total, and one of them decides to work it out for itself. By the end you will know why that is not a typo or a rounding accident but a structural bug, what a model has to guarantee to make it impossible, and which flavour of MVC you have actually been using all along.
+
+## 2. The Scenario
+
+Same order as every project in this category. Ada Okafor buys an espresso machine, a burr grinder, and two bags of coffee beans, for three hundred and eighty-two pounds fifty. Stock is checked, the card is charged, the order is saved -- exactly the sequence the previous project in this series built and tested. This video picks up from the moment just after that. Ada is shown a summary on screen. Ada also gets a confirmation email a moment later. Both of them are supposed to say three hundred and eighty-two pounds fifty. Hold onto that number, because for most of this video, one of the two outputs is not going to agree with it.
+
+## 3. Version One — No Separation At All
+
+Before there is a model to separate from a view, there has to be no separation at all, so that is where the project starts. One class checks stock, takes payment, and formats the screen text, in the same method. It works, and it has exactly one property worth noticing: because there is only one method, the checkout and the screen text cannot possibly disagree with each other -- there is only one calculation, full stop. Its problem is a different one. Try to write a test that only checks 'does the summary read correctly' without running a full checkout alongside it. You cannot, because they are the same fourteen lines. That is the cost of no separation. The cost of the wrong kind of separation, which is what act three shows you, is worse.
+
+## 4. Three Roles
+
+So here are the three roles, and I want to name what each one is not allowed to know, because that is the actual architecture. The model holds the placed order's lines, and its one total. It does not know how it will be displayed -- on a screen, in an email, or in a format nobody has invented yet. The view turns that model into text. It computes nothing. Not a sum, not a rounding, not a percentage -- if a view contains an arithmetic operator applied to a price, something has already gone wrong. And the controller places the order, reads it back from storage, builds exactly one model from it, and hands that same model to whichever views were asked for. Here is the sentence I want you to leave this video with, stated early because everything else demonstrates it. Two views cannot disagree about a number neither of them is allowed to calculate.
+
+## 5. The Shortcut
+
+Now here is the moment this video is actually about. A real screen exists, reading a real model, and it works. Somebody is then asked for a confirmation email. The model does not have a convenient method yet for 'unit prices rounded to the nearest pound, for a tidier-looking line', so rather than ask for one, the new email view reaches straight into the product catalogue itself, and rounds each unit price before multiplying. It compiles. It is not a hack -- a reviewer would see a small, self-contained view doing its own formatting, and approve it. And it prints a different total. The burr grinder is eighty-nine pounds fifty. Rounded to the nearest pound before it is multiplied by one, it becomes ninety, and the fifty pence never comes back. The screen says three hundred and eighty-two fifty. The email says three hundred and eighty-three pounds. Nothing in the build objected. A customer sees one number at checkout and a different one in their inbox thirty seconds later, and there is no exception anywhere to explain why.
+
+## 6. The Whole Mechanism, In One Interface
+
+So how does the pattern actually prevent this? Not with a warning, and not with a convention -- with an interface that is simply too narrow to allow the mistake. Every view in this project implements one method, taking one parameter: a finished order summary model. That is it. There is no overload that accepts a product, or a price, or a quantity. Read that narrowness as the actual enforcement mechanism, more than any rule written elsewhere. A view that wanted to compute its own total the honest way simply has nothing in its hand to compute one from -- which is exactly why the naive email view had to go around this interface entirely and import the product catalogue directly. That is not a coincidence. Going around the model is the only way the bug was ever going to be possible.
+
+## 7. Classic MVC, And The MVC You Have Used
+
+I promised to be precise about which MVC we mean, so let's be precise. Classic Smalltalk MVC has the view observe the model directly -- the model changes, and every subscribed view redraws itself without being told to, by name. Web MVC -- the Spring, Rails or Django kind almost everyone meets first -- does not have this at all. A controller method assembles a model, often literally a map of key-value pairs, and hands it to a template engine, which renders once and is done. There is no ongoing subscription, because a web response is sent once and the page is gone. If you have ever written a controller method that returns a view name and adds attributes to a model parameter, you have already used this half of the idea. You were simply never shown the Smalltalk half it is named after. This project's controller builds the model once and hands it directly to the views asked for, which is closer to the second kind -- and the notes explain exactly where the simplification sits.
+
+## 8. MVP And MVVM, In One Scene
+
+Two more names get thrown around with MVC, and they deserve one scene each rather than being folded in as though they were the same thing. MVP -- Model, View, Presenter -- makes the view fully passive. It has no reference to the model at all, and a presenter pulls data out and pushes it into the view through a small interface, which makes the view trivial to fake in a test. MVVM -- Model, View, ViewModel -- goes one step further. The view binds to a view model's properties, so a property changing updates the screen with no explicit push at all. That is the mechanism most modern UI frameworks actually use under a different name -- data binding, reactive streams, whatever your framework calls it. Properly teaching either one needs a real user interface toolkit with actual data binding, which a console demo does not have, so this video stops here. The distinction worth keeping: MVC's view can read its model directly, MVP's cannot, and MVVM's binds to it automatically.
+
+## 9. The Rule, Written Where A Build Can Read It
+
+So the narrow interface is the main defence, and this project also backs it with the same device the rest of the category uses. No class in the view package may depend on classes in the infrastructure package. Read as English: a view is not allowed to reach into storage or the catalogue, which is precisely how the naive email view got the ingredients to compute a number of its own. It runs in 'gradlew test', alongside every other test, and it costs about thirty lines. And a second test widens that same rule to the naive package on purpose, and asserts that it fails, naming the rounded email view and the catalogue class it reached for.
+
+## 10. Watching It Go Red
+
+Here is what the build prints. Architecture violation. The rule was violated one time. And then the part that matters: it names the class -- rounded email view -- and it names exactly what that class reached for -- the product table. 'The email does not touch the catalogue' stopped being something a team promises at a whiteboard and forgets within a month, and became something that fails a build, by name, in under a second.
+
+## 11. The Forced Change
+
+So let's do it properly. The forced change this project performs: add a real second view, over the same model. Counted from the real files on disk: one file added, the new email view. One file modified -- the composition root, passing one extra argument. Two lines changed. Twenty-one classes make up the model, the controller and every view. Twenty of them were never opened. But the number a file count alone cannot show you is the important one. The new view's total is not merely observed to match the screen's -- it is guaranteed to, because 'EmailConfirmationView dot render' contains no arithmetic operator anywhere in it. It cannot compute a wrong answer. It cannot compute an answer at all.
+
+## 12. Both Views, Every Time
+
+Run it, and here is act five in full. The screen says three hundred and eighty-two pounds fifty. The email says three hundred and eighty-two pounds fifty. Not because somebody tested both and they happened to match today. Because there is exactly one place in this program that can produce an order total, and both renderers read it from there. Run it a thousand times with a thousand different orders, and the screen and the email will agree on every single one, for a reason stronger than testing can ever provide on its own: the email view is structurally incapable of disagreeing.
+
+## 13. The Bill
+
+Every project in this category has to pay a bill, honestly, and here is this one's. A narrow view interface is a real constraint, not a free lunch. A view that legitimately needs something the model does not expose has exactly one honest option: widen the model, for every view, rather than reach around it. The architecture test only catches a view importing infrastructure -- it cannot catch a model quietly growing fifteen getters nobody else uses because one view once needed a sixteenth. And the single most common failure of MVC in real production code: controllers grow. 'Just one more check' is always easier to add to the controller already handling the request than to find its proper home. This project's controller is three calls long, on purpose, and staying that short is a discipline the pattern does not enforce for you.
+
+## 14. When This Is Too Much
+
+So when is this not worth building? A model, view and controller split earns its keep the moment more than one output has to represent the same underlying state -- a screen and an email, a screen and a PDF receipt, a desktop app and a command line. It is not worth it for a program with exactly one output that is never going to grow a second. A single method that computes and prints in one pass, the way act one's naive screen did, is not a shortcut in that case. It is the whole of what is needed, and building three classes around it would be solving a problem that does not yet exist.
+
+## 15. Thanks for Watching
+
+That's MVC. If you take one sentence away, take this one: two views cannot disagree about a number neither of them is allowed to calculate. The full source, the written notes, the diagrams and an animated walkthrough are all in the repository, running offline with nothing installed but a Java development kit. If you try one exercise, try this. Add a method to the model that exposes prices rounded to the nearest pound, properly, and rewrite the naive email to use it instead of reaching into the catalogue. Watch both totals agree -- not because you fixed the arithmetic, but because there is no longer any arithmetic in the view to get wrong. If this helped, a like genuinely does help other people find it, and subscribe if you would like the rest of the series. Thanks for watching, and I'll see you in the next one.
