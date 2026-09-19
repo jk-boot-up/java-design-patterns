@@ -6828,6 +6828,34 @@ requirements=[
 ],
 ),
 
+"feature-toggle-with-flagd": dict(
+purpose="""
+Show a feature toggle with a real flagd in Docker: a flag that is off, the flags file edited and noticed with no restart, a ten percent rollout by flagd's own hash, named testers, a kill switch that stops a bug's failures, the fall back when flagd is stopped, and the cost of combinations and of a network call for every check.
+""",
+nongoals=[
+    'Not a re-teaching of Feature Toggle. The partner project owns the pattern; this one names it in its first paragraph.',
+    'Not a flagd and OpenFeature tutorial. Only what the pattern needs is introduced, as it appears.',
+],
+problem="""
+Feature Toggle simulated the table of switches. flagd is a real daemon that reads a real file and answers over the network.
+
+**What this project must deliver:** a dark deploy, a file edit noticed live, a rollout, named testers, a kill switch, a safe fall back, and the costs.
+""",
+roles=[
+    ('The demo', '`FlagdDemo`'),
+    ('The daemon', '`Flagd`, the container'),
+    ('The rules', '`Rule`'),
+    ('The consumer', '`Checkout`'),
+],
+requirements=[
+    '**flagd is real,** run in Docker and removed afterwards.',
+    '**Every file write carries a revision flag,** so the demo waits for the exact change and never sleeps.',
+    '**Rollout sizes are asserted in a range,** and named testers exactly.',
+    '**Tests are skipped when Docker is missing.**',
+    '**Dependencies are explained.** `docs/dependencies.md` says what to install, what it costs, and that skipping loses nothing.',
+],
+),
+
 }
 
 
