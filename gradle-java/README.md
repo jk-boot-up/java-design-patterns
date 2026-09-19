@@ -1,14 +1,15 @@
 # Design Patterns in Java — A Worked Course
 
 Design patterns in Java — the twenty-five object-oriented ones first, then
-twelve microservices patterns, then eight platform patterns, then five
-architectural patterns — each a self-contained Gradle Java 21 project with
-runnable code, JUnit 5 tests, written notes, diagrams, an animated walkthrough,
-and a narrated video.
+twelve microservices patterns, then eight platform patterns, then six
+concurrency patterns, then five architectural patterns — each a
+self-contained Gradle Java 21 project with runnable code, JUnit 5 tests,
+written notes, diagrams, an animated walkthrough, and a narrated video.
 
 The first four categories — creational, structural, behavioural and
 microservices — are complete, and so is architectural, the fifth. Platform
-is the one category still being built; see its section below.
+and concurrency are the two categories still being built; see their
+sections below.
 
 **Every pattern is taught through the same worked domain: an online store.**
 Not a photo gallery, not shapes on a canvas — checkout, catalog, orders,
@@ -151,6 +152,38 @@ last four scenes are the bill: twice as many processes, a second thing that can
 be down, one millisecond on every call, and the admission that inside one JVM
 this structure is Decorator.
 
+## Concurrency — more than one thing happening at once
+
+The same online store, but the question this time is what happens when two
+threads reach for the same shared state together: the stock count for one
+product, decremented by every checkout. This is where a beginner's mental
+model of Java breaks first, and it breaks quietly — the code looks right,
+the tests pass, and it is wrong only on a busier machine. The category's
+whole discipline is answering that: **every naive failure is forced to
+reproduce on every single run**, with a latch, a barrier or a planned
+interleaving — never a `Thread.sleep`, and never a bug that only shows up
+"sometimes".
+
+This category is **under construction** — three of six projects built. Its
+[implementation plan](concurrency-design-patterns/docs/implementation-plan.md)
+is the authority on what each remaining project will contain.
+
+| # | Pattern | Scenario |
+| --- | --- | --- |
+| 46 | [Producer–Consumer](concurrency-design-patterns/producer-consumer-pattern) | Orders arrive faster than they are packed |
+| 47 | [Thread Pool](concurrency-design-patterns/thread-pool-pattern) | A thread per order, until the server stops |
+| 48 | [Future/Promise](concurrency-design-patterns/future-promise-pattern) | A result you are promised but do not have yet |
+| 49 | Read–Write Lock | A thousand readers and one price change |
+| 50 | Monitor Object | The object that guards its own state |
+| 51 | Active Object | A method call that returns before the work does |
+
+The order is a dependency order: Producer–Consumer introduces the bounded
+queue; Thread Pool is what actually consumes it; Future/Promise is how a
+caller gets an answer back from either; Read–Write Lock and Monitor Object
+are the two ways the shared stock count gets protected; and Active Object
+is the capstone, assembling a queue, a thread, a future and an
+object that owns its own state into one idea, re-teaching none of them.
+
 ## Architectural — where a dependency is allowed to point
 
 The same online store one more time, but the question is now the shape of the
@@ -194,13 +227,15 @@ the one contrast a container adds — hand-wiring fails at compile time,
 container wiring fails at startup — can be shown directly, with the
 missing-bean failure proved rather than narrated.
 
-The numbering above skips 46 to 62 and 68 to 72. Those are reserved for three
-more categories specified in the same planning pass — concurrency (46–51),
-enterprise (52–62) and foundational (68–72) — each with its own README, `spec.md`
-and `implementation-plan.md` already committed under `gradle-java/`. None of the
-three has a single project built yet, and none is wired into the shared
-generators; they are out of scope for the architectural category's build and are
-recorded here only so the gap in the numbers has an explanation.
+The numbering above skips 52 to 62 and 68 to 72. Those are reserved for two
+more categories specified in the same planning pass — enterprise (52–62) and
+foundational (68–72) — each with its own README, `spec.md` and
+`implementation-plan.md` already committed under `gradle-java/`. Neither has a
+single project built yet, and neither is wired into the shared generators;
+they are out of scope for the architectural category's build and are recorded
+here only so the gap in the numbers has an explanation. Concurrency (46–51),
+the other category specified in that same pass, is covered in its own section
+above.
 
 ---
 
@@ -241,6 +276,7 @@ Java 21 and no third-party runtime dependencies. JUnit 5 for tests only.
 | [`micro-services-design-patterns/docs/spec.md`](micro-services-design-patterns/docs/spec.md) | The microservices category's scenarios, its one-JVM rule and its extra conformance items |
 | [`platform-design-patterns/docs/implementation-plan.md`](platform-design-patterns/docs/implementation-plan.md) | The platform category's eight projects, its two-tier rule, and the infrastructure each one is allowed to use |
 | [`architectural-design-patterns/docs/implementation-plan.md`](architectural-design-patterns/docs/implementation-plan.md) | The architectural category's five projects, the shared feature all five implement, and the ArchUnit dependency-rule test each one carries |
+| [`concurrency-design-patterns/docs/implementation-plan.md`](concurrency-design-patterns/docs/implementation-plan.md) | The concurrency category's six projects, the determinism harness they share, and the rule that every naive failure reproduces on every run |
 
 The generators in `docs/` — `make_specs.py`, `make_youtube_docs.py`,
 `make_thumbnails.py` — produce the per-project specification, publishing

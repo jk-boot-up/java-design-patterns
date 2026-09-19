@@ -171,6 +171,57 @@ META = {
     "clean-architecture-with-spring": (['CLEAN ARCHITECTURE', 'WITH SPRING'],
                                    "Same graph, wired by a container",
                                    "who calls new?"),
+    "producer-consumer": (['PRODUCER', 'CONSUMER'],
+                     "Orders arrive faster than they are packed",
+                     "queue.put(order)"),
+    "thread-pool": (['THREAD', 'POOL'],
+                "A thread per order, until the server stops",
+                "OutOfMemoryError"),
+    "future-promise": (['FUTURE', 'PROMISE'],
+                   "An answer you are promised but do not have yet",
+                   "future.get()"),
+    "read-write-lock": (['READ-WRITE', 'LOCK'],
+                    "A thousand readers, one price change",
+                    "readLock().lock()"),
+    "monitor-object": (['MONITOR', 'OBJECT'],
+                   "The object that guards its own state",
+                   "synchronized decrement()"),
+    "active-object": (['ACTIVE', 'OBJECT'],
+                  "A call that returns before the work does",
+                  "mailbox.offer(msg)"),
+    "data-mapper": (["DATA", "MAPPER"],
+                  "The object that does not know it is a row",
+                  "mapper.insert(customer)"),
+    "identity-map": (["IDENTITY", "MAP"],
+                  "The same customer, loaded twice",
+                  "map.get(customerId)"),
+    "unit-of-work": (["UNIT OF", "WORK"],
+                  "Save half an order and nothing else",
+                  "work.commit()"),
+    "lazy-load": (["LAZY", "LOAD"],
+                  "Loading one order, getting the catalogue",
+                  "order.lines()"),
+    "repository": (["REPOSITORY", "PATTERN"],
+                  "Query the collection, not the table",
+                  "customers.findById(id)"),
+    "service-layer": (["SERVICE", "LAYER"],
+                  "Where does placing an order live?",
+                  "orders.place(request)"),
+    "dto": (["DATA TRANSFER", "OBJECT"],
+                  "The object that crosses the boundary",
+                  "new CustomerDto(customer)"),
+    "identity-map-with-jpa": (["IDENTITY MAP", "WITH JPA"],
+                  "The persistence context is the map",
+                  "em.find(Customer.class, id)"),
+    "unit-of-work-with-spring": (["UNIT OF WORK", "WITH SPRING"],
+                  "The flush you did not write",
+                  "@Transactional"),
+    "lazy-load-with-hibernate": (["LAZY LOAD", "WITH HIBERNATE"],
+                  "The exception everybody has met",
+                  "LazyInitializationException"),
+    "repository-with-spring-data": (["REPOSITORY", "SPRING DATA"],
+                  "An interface with no implementation",
+                  "interface CustomerRepository"),
 }
 
 GROUP = {
@@ -214,6 +265,24 @@ GROUP.update({slug: "platform-design-patterns" for slug in (
 GROUP.update({slug: "architectural-design-patterns" for slug in (
     "layered-architecture", "mvc", "hexagonal-architecture",
     "clean-architecture", "clean-architecture-with-spring")})
+
+GROUP.update({slug: "concurrency-design-patterns" for slug in (
+    "producer-consumer", "thread-pool", "future-promise",
+    "read-write-lock", "monitor-object", "active-object")})
+
+GROUP.update({slug: "enterprise-design-patterns" for slug in (
+    "data-mapper",
+    "identity-map",
+    "unit-of-work",
+    "lazy-load",
+    "repository",
+    "service-layer",
+    "dto",
+    "identity-map-with-jpa",
+    "unit-of-work-with-spring",
+    "lazy-load-with-hibernate",
+    "repository-with-spring-data",
+    )})
 
 
 def f(path, size):

@@ -4,8 +4,12 @@ The seventh category. Seven patterns from Martin Fowler's *Patterns of
 Enterprise Application Architecture*, in eleven projects, covering the space
 between an application's objects and its database.
 
-**Status: specified, not yet built.** The two documents below fix what the
-projects are before any of them is written.
+**Status: all eleven built.** Each project has code, deterministic tests, a
+README, diagrams, an animation, a narrated video pipeline and a YouTube
+document, and the four framework projects add a `docs/dependencies.md`. The two
+documents below fixed what the projects are before any of them was written. One
+thing is not built: the optional one-scene `real/` demos for Data Mapper, Service
+Layer and DTO, which the specification describes.
 
 - [`docs/spec.md`](docs/spec.md) — the scenario each pattern is taught through,
   the naive version it must show failing, the cost it must admit to, and the

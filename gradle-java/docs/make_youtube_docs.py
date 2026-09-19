@@ -89,6 +89,26 @@ ORDER = [
     ("architectural-design-patterns", "hexagonal-architecture"),
     ("architectural-design-patterns", "clean-architecture"),
     ("architectural-design-patterns", "clean-architecture-with-spring"),
+    # The concurrency category. A dependency order: the queue, what consumes
+    # it, how a caller gets an answer back, the two ways shared state is
+    # protected, and the capstone that assembles all four.
+    ("concurrency-design-patterns", "producer-consumer"),
+    ("concurrency-design-patterns", "thread-pool"),
+    ("concurrency-design-patterns", "future-promise"),
+    ("concurrency-design-patterns", "read-write-lock"),
+    ("concurrency-design-patterns", "monitor-object"),
+    ("concurrency-design-patterns", "active-object"),
+    ("enterprise-design-patterns", "data-mapper"),
+    ("enterprise-design-patterns", "identity-map"),
+    ("enterprise-design-patterns", "unit-of-work"),
+    ("enterprise-design-patterns", "lazy-load"),
+    ("enterprise-design-patterns", "repository"),
+    ("enterprise-design-patterns", "service-layer"),
+    ("enterprise-design-patterns", "dto"),
+    ("enterprise-design-patterns", "identity-map-with-jpa"),
+    ("enterprise-design-patterns", "unit-of-work-with-spring"),
+    ("enterprise-design-patterns", "lazy-load-with-hibernate"),
+    ("enterprise-design-patterns", "repository-with-spring-data"),
 ]
 
 # Per-project title and tag material. The title is what gets pasted into
@@ -295,6 +315,74 @@ META = {
     "clean-architecture-with-spring": {
         "title": "Clean Architecture with Spring - Who Wires the Graph?",
         "tags": ["clean architecture spring", "spring boot 4", "dependency injection"],
+    },
+    "producer-consumer": {
+        "title": "Producer-Consumer in Java - The Bounded Queue",
+        "tags": ["producer consumer pattern", "java concurrency", "blockingqueue"],
+    },
+    "thread-pool": {
+        "title": "Thread Pool in Java - A Thread Per Order, Until It Isn't",
+        "tags": ["thread pool pattern", "java executor", "virtual threads"],
+    },
+    "future-promise": {
+        "title": "Future and Promise in Java - The Answer You Don't Have Yet",
+        "tags": ["future promise pattern", "completablefuture", "java async"],
+    },
+    "read-write-lock": {
+        "title": "Read-Write Lock in Java - A Thousand Readers, One Writer",
+        "tags": ["read write lock", "java concurrency", "reentrantreadwritelock"],
+    },
+    "monitor-object": {
+        "title": "Monitor Object in Java - The Object That Guards Itself",
+        "tags": ["monitor object pattern", "java synchronized", "wait notify"],
+    },
+    "active-object": {
+        "title": "Active Object in Java - A Call That Returns Before It's Done",
+        "tags": ["active object pattern", "java concurrency", "actor model"],
+    },
+    "data-mapper": {
+        "title": "Data Mapper in Java - The Object That Is Not A Row",
+        "tags": ["data mapper pattern", "active record", "java persistence"],
+    },
+    "identity-map": {
+        "title": "Identity Map in Java - One Row, One Object",
+        "tags": ["identity map pattern", "java persistence", "object identity"],
+    },
+    "unit-of-work": {
+        "title": "Unit of Work in Java - All Of The Order Or None",
+        "tags": ["unit of work pattern", "java transactions", "persistence"],
+    },
+    "lazy-load": {
+        "title": "Lazy Load in Java - One Order, Twenty-One Queries",
+        "tags": ["lazy load pattern", "n+1 query problem", "java persistence"],
+    },
+    "repository": {
+        "title": "Repository in Java - Query The Collection, Not The Table",
+        "tags": ["repository pattern", "java repository", "domain driven design"],
+    },
+    "service-layer": {
+        "title": "Service Layer in Java - Where Does Placing An Order Live?",
+        "tags": ["service layer pattern", "java service layer", "anemic domain model"],
+    },
+    "dto": {
+        "title": "DTO in Java - The Object That Crosses The Boundary",
+        "tags": ["dto pattern", "data transfer object", "java rest"],
+    },
+    "identity-map-with-jpa": {
+        "title": "Identity Map with JPA - Why == Is True",
+        "tags": ["identity map jpa", "persistence context", "hibernate"],
+    },
+    "unit-of-work-with-spring": {
+        "title": "Unit of Work with Spring - The Flush You Did Not Write",
+        "tags": ["transactional spring", "unit of work spring", "spring boot 4"],
+    },
+    "lazy-load-with-hibernate": {
+        "title": "LazyInitializationException Explained in Hibernate",
+        "tags": ["lazyinitializationexception", "hibernate lazy loading", "n+1"],
+    },
+    "repository-with-spring-data": {
+        "title": "Spring Data Repository - An Interface With No Implementation",
+        "tags": ["spring data jpa", "jparepository", "repository pattern spring"],
     },
 }
 

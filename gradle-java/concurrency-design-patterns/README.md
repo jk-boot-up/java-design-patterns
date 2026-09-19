@@ -3,8 +3,10 @@
 The sixth category. Six patterns that exist because more than one thing is
 happening at once.
 
-**Status: specified, not yet built.** The two documents below fix what the
-projects are before any of them is written.
+**Status: all six built.** Each project has code, deterministic tests, a
+README, diagrams, an animation, a narrated video pipeline and a YouTube
+document. The two documents below fixed what the projects are before any of
+them was written.
 
 - [`docs/spec.md`](docs/spec.md) — the scenario each pattern is taught through,
   the failure it must reproduce, the cost it must admit to, and what its harness

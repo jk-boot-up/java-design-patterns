@@ -96,6 +96,30 @@ ORDER = [
     ("architectural-design-patterns", "hexagonal-architecture"),
     ("architectural-design-patterns", "clean-architecture"),
     ("architectural-design-patterns", "clean-architecture-with-spring"),
+    # The concurrency category. Six patterns in a dependency order: the queue
+    # (producer-consumer), what consumes it (thread pool), how a caller gets
+    # an answer back (future/promise), the two ways shared state is protected
+    # (read-write lock, monitor object), and the capstone that assembles all
+    # four (active object).
+    ("concurrency-design-patterns", "producer-consumer"),
+    ("concurrency-design-patterns", "thread-pool"),
+    ("concurrency-design-patterns", "future-promise"),
+    ("concurrency-design-patterns", "read-write-lock"),
+    ("concurrency-design-patterns", "monitor-object"),
+    ("concurrency-design-patterns", "active-object"),
+    # The enterprise category. Fowler's dependency order: seven patterns by
+    # hand, and the four that get a framework project of their own.
+    ("enterprise-design-patterns", "data-mapper"),
+    ("enterprise-design-patterns", "identity-map"),
+    ("enterprise-design-patterns", "unit-of-work"),
+    ("enterprise-design-patterns", "lazy-load"),
+    ("enterprise-design-patterns", "repository"),
+    ("enterprise-design-patterns", "service-layer"),
+    ("enterprise-design-patterns", "dto"),
+    ("enterprise-design-patterns", "identity-map-with-jpa"),
+    ("enterprise-design-patterns", "unit-of-work-with-spring"),
+    ("enterprise-design-patterns", "lazy-load-with-hibernate"),
+    ("enterprise-design-patterns", "repository-with-spring-data"),
 ]
 
 # Demos that mint an identifier per run, so their output is not byte-stable.
@@ -144,6 +168,23 @@ NAMES = {
     "hexagonal-architecture": "Hexagonal Architecture",
     "clean-architecture": "Clean Architecture",
     "clean-architecture-with-spring": "Clean Architecture with Spring",
+    "producer-consumer": "Producer–Consumer",
+    "thread-pool": "Thread Pool",
+    "future-promise": "Future/Promise",
+    "read-write-lock": "Read–Write Lock",
+    "monitor-object": "Monitor Object",
+    "active-object": "Active Object",
+    "data-mapper": "Data Mapper",
+    "identity-map": "Identity Map",
+    "unit-of-work": "Unit of Work",
+    "lazy-load": "Lazy Load",
+    "repository": "Repository",
+    "service-layer": "Service Layer",
+    "dto": "DTO",
+    "identity-map-with-jpa": "Identity Map with JPA",
+    "unit-of-work-with-spring": "Unit of Work with Spring",
+    "lazy-load-with-hibernate": "Lazy Load with Hibernate",
+    "repository-with-spring-data": "Repository with Spring Data",
 }
 
 # ---------------------------------------------------------------------------
@@ -3592,6 +3633,733 @@ requirements=[
     "what Spring is, why this project uses it, what to install with the "
     "version pinned, what it costs, and that skipping this project loses "
     "none of the architecture.",
+],
+),
+
+"producer-consumer": dict(
+purpose="""
+Teach the gap between how fast orders arrive at checkout and how fast they
+can be packed, and the bounded queue that sits between the two so each side
+runs at its own pace without either unblocking a shopper for free or letting
+unbounded work pile up unseen. This project also builds the three
+determinism-forcing pieces -- a one-shot gate, a rendezvous, and a
+step-controlled executor -- that every later project in this category
+reuses to make a race reproduce on every single run rather than sometimes.
+""",
+nongoals=[
+    "Not a thread pool. The packer here is exactly one thread; what happens "
+    "with more than one consumer taking from the same queue is "
+    "`thread-pool-pattern`'s subject.",
+    "Not about getting a result back. This queue moves one-way, fire and "
+    "forget; a caller that needs the packed outcome back is "
+    "`future-promise-pattern`'s subject.",
+    "Not an argument against `java.util.concurrent.BlockingQueue`. "
+    "`BoundedOrderQueue` wraps `ArrayBlockingQueue` rather than "
+    "reimplementing it -- the lesson is the shape of the pattern, not "
+    "how to hand-roll a queue.",
+],
+problem="""
+Checkout accepts orders. A packing step -- wrapping and labelling the order
+for the courier -- handles each one, and packing is slower than orders
+arrive. That gap between arrival speed and processing speed is this
+project's entire subject.
+
+The naive fix in two parts, both real code in this project. First,
+`InlineCheckout`: checkout packs the order itself and does not return until
+packing finishes, so one slow pack blocks every checkout behind it.
+Second, `ThreadPerOrderCheckout`: hand each order to a brand new thread and
+return immediately -- the shopper is never held up, but thread creation has
+a real, measured cost, each thread holds a stack whether or not it is
+doing anything, and nothing anywhere applies a brake if arrivals ever
+outpace packing. The curve this project measures (safely capped, never
+triggering the real `OutOfMemoryError`) points straight at that cliff.
+
+**What the pattern must deliver:** a bounded queue between checkout and
+packing. Producers offer orders, one packer thread takes them, and each
+runs at its own pace up to the bound. The queue's fullness has to be shown
+actually full -- forced deterministically with a latch, not guessed at with
+a sleep -- and a producer offering into a full queue has to be shown
+rejected. Both ways a running system stops have to be shown too: a poison
+pill that drains everything queued ahead of it before the packer stops, and
+an interrupt that abandons whatever was still queued.
+""",
+roles=[
+    ("Producer", "`InlineCheckout`, `ThreadPerOrderCheckout` (the two naive versions being replaced)"),
+    ("Bounded buffer", "`BoundedOrderQueue`, wrapping `ArrayBlockingQueue<Order>`"),
+    ("Consumer", "`Packer`, implementing `Runnable`"),
+    ("Work item / shutdown signal", "`Order`; `Packer.POISON`, a sentinel `Order`"),
+    ("Entry point", "`PackingWarehouseDemo`, five acts"),
+    ("Determinism harness", "`Gate` (one-shot latch), `Rendezvous` (barrier-forced interleaving), `StepExecutor` (queues work without running it)"),
+],
+requirements=[
+    "**The queue's capacity is proven full, not asserted full.** Act "
+    "Three holds the packer parked mid-pack with a `Gate`, confirms via a "
+    "`CountDownLatch` that it has already taken one order before the "
+    "remaining orders are queued, fills the queue to its stated capacity, "
+    "then shows a further `offer(..., timeout, unit)` time out and return "
+    "`false` -- every run, not sometimes.",
+    "**Both shutdowns are shown, and neither is ambiguous.** The poison-pill "
+    "act asserts every order enqueued ahead of `Packer.POISON` reaches "
+    "`packed()`; the interrupt act asserts whatever was still queued behind "
+    "the order being packed when the interrupt landed never does.",
+    "**Nothing sleeps to wait for a race.** No test and no act of the demo "
+    "calls `Thread.sleep` to synchronise with another thread; `PACK_MILLIS` "
+    "is the one named, explicit delay this project measures against, never "
+    "a substitute for a `Gate`, a `Rendezvous`, or a latch.",
+    "**The harness pieces are proven against a real race, not merely "
+    "exercised.** `HarnessSelfTest` shows `Rendezvous` forcing the same "
+    "lost update on every one of twenty repeated runs, and shows `Gate` "
+    "provably still closed -- not just probably -- at the instant before "
+    "it opens.",
+],
+),
+
+"thread-pool": dict(
+purpose="""
+Teach that a fixed worker count is only half of what "bounded" means for a
+pool -- the queue those workers pull from needs its own explicit capacity,
+or the exact unbounded-growth failure Producer-Consumer's naive version
+has has simply moved one level over, hidden behind a factory method that
+looks correct. This project also demonstrates the deadlock a fixed pool
+can reach at any size, and states plainly what Java 21's virtual threads
+change and what they do not.
+""",
+nongoals=[
+    "Not a re-teaching of the bounded-queue idea. `BoundedPackingPool` "
+    "reuses §46's domain and harness unchanged; its own explainer covers "
+    "only what is new here -- a second bound, and a rejection with no "
+    "patience window.",
+    "Not an argument against `java.util.concurrent.ThreadPoolExecutor`. "
+    "The pattern class wraps one directly, built with explicit "
+    "arguments in place of a factory method's hidden defaults.",
+    "Not a virtual-threads tutorial. Act six measures one honest "
+    "comparison and states one honest limit, then stops.",
+],
+problem="""
+Producer-Consumer's naive thread-per-order failure returns unchanged in
+this project's first act, seen from the packing team's side. The obvious
+next step -- `Executors.newFixedThreadPool(2)` -- really does cap the
+worker count at two. What it hands those two workers to pull from is an
+unbounded queue, built in behind the factory method with no argument
+anywhere to change it: submitting never blocks and never rejects, and the
+backlog simply grows, silently, until it is a heap dump instead of a
+decision.
+
+**What this project must deliver:** a pool with two bounds, both explicit
+constructor arguments -- a fixed worker count and a fixed queue capacity
+-- built directly on `ThreadPoolExecutor` rather than a factory method's
+defaults. It also has to show, deterministically, the deadlock any fixed
+pool can reach regardless of either bound: a task that submits a second
+task to its own pool and waits for it, with no worker ever free to run
+the second one. And it has to say, honestly, what Java 21's virtual
+threads change about the cost measured in act one -- and what they do not
+change about the bound act three exists to enforce.
+""",
+roles=[
+    ("Reused unchanged from §46", "`Order`, `Packing`, `Gate`, `Rendezvous`, `StepExecutor`"),
+    ("Naive, no bound at all", "`ThreadPerOrderPacking`"),
+    ("Naive, one bound of two", "`UnboundedPoolPacking`, wrapping `Executors.newFixedThreadPool`"),
+    ("Pattern", "`BoundedPackingPool`, wrapping `ThreadPoolExecutor` with an `ArrayBlockingQueue`"),
+    ("The deadlock any fixed pool can reach", "`PoolStarvation`"),
+    ("Java's answer, measured honestly", "`VirtualThreadFlood`"),
+    ("Entry point", "`PackingTeamDemo`, six acts"),
+],
+requirements=[
+    "**Both bounds are proven full, not asserted full.** Act three parks "
+    "the pool's one worker on a `Gate`, confirms via a `CountDownLatch` "
+    "that it has already started before the queue is filled, fills the "
+    "queue to its stated capacity, then shows a further submission "
+    "rejected -- synchronously, with no patience window -- every run.",
+    "**The unbounded-queue trap is shown with a real number, not a "
+    "claim.** `UnboundedPoolPackingTest` parks both of a two-worker "
+    "pool's workers deterministically, submits a fixed burst, and "
+    "asserts the exact backlog that results -- proving the factory "
+    "method's queue accepted every one of them with nobody free to take "
+    "any.",
+    "**Pool starvation is proven to need no forcing at all.** "
+    "`PoolStarvationTest` shows a fixed pool of one worker, given a task "
+    "that submits and waits on a second task in the same pool, always "
+    "times out -- and a second test shows a pool with a free second "
+    "worker does not, proving the failure is about worker count, not "
+    "about nesting a submit call in general.",
+    "**Nothing sleeps to wait for a race.** No test calls `Thread.sleep`; "
+    "`PACK_MILLIS` is the one named, explicit delay this project reuses "
+    "from §46, and the pool-starvation rescue timeout is the wait's own "
+    "subject, not a substitute for a `Gate` or a latch.",
+],
+),
+
+"future-promise": dict(
+purpose="""
+Teach that each unit of independent work should be submitted and asked
+for its result later, not asked for immediately -- and that a
+`CompletableFuture` is two roles wearing one name, the reader's Future
+half and the writer's Promise half, easy to conflate precisely because
+one object plays both. This project also pays, honestly and with real
+code, the three costs beginners do not expect: a moved exception, a
+`get()` that can hang forever, and a cancellation a task is free to
+ignore.
+""",
+nongoals=[
+    "Not a `CompletableFuture` callback tutorial. `thenApply`, "
+    "`thenCompose` and `thenCombine` are discussed as a named cost -- "
+    "readability collapsing past a few chained steps -- not built up as "
+    "a technique this project teaches to use.",
+    "Not a re-teaching of the bounded queue or the worker pool. This "
+    "project reuses §46's harness unchanged and assumes the reader has "
+    "met either §46 or §47 already.",
+    "Not an argument against `Future.cancel`. It is a real, useful "
+    "signal -- the point is narrower: it is a request a task must "
+    "itself check for, never a guarantee.",
+],
+problem="""
+A product page needs three independent catalogue lookups -- price, stock,
+a review score -- each measured in this project at two hundred
+milliseconds. None depends on either of the other two. The naive version
+still calls them one after another, paying all three delays added
+together for no reason the data itself demands.
+
+**What this project must deliver:** each lookup submitted at once,
+returning a handle to a result that does not yet exist, so the total cost
+is roughly the slowest single lookup rather than the sum of all three. It
+also has to make the Future/Promise split concrete rather than merely
+described -- one object, a reader thread blocked on `get()`, a writer
+thread elsewhere calling `complete()` -- and it has to demonstrate,
+deterministically, the three costs a beginner reaches for a `Future` and
+does not expect: an exception that surfaces later and wrapped, with a
+stack trace containing none of the calling thread's frames; a `get()`
+with no timeout that is a hang rather than a wait; and a `cancel(true)`
+that a task ignoring interruption simply outlives.
+""",
+roles=[
+    ("Reused unchanged from §46", "`Gate`, `Rendezvous`, `StepExecutor`"),
+    ("Naive, no overlap", "`SequentialProductPage`"),
+    ("Pattern", "`ConcurrentProductPage`, submitting three `Future`s at once"),
+    ("The two halves, made explicit", "`FutureAndPromise`"),
+    ("The three honest costs", "`AsyncFailure`, `UnboundedWait`, `CooperativeCancellation`"),
+    ("Entry point", "`ProductPageDemo`, six acts"),
+],
+requirements=[
+    "**Concurrency is proven, not inferred from a short elapsed time.** "
+    "`ConcurrentProductPageTest` parks all three lookups on separate "
+    "gates, confirms via a shared `CountDownLatch` that all three have "
+    "started before any is released, and only then opens them -- proving "
+    "true overlap rather than merely a fast sequence.",
+    "**The reader/writer split is proven ordered, not merely fast.** "
+    "`FutureAndPromiseTest` parks the writer's own work behind a `Gate` "
+    "a second thread opens, so the writer's side effect can only be "
+    "observed true after the gate opens -- proving the reader's result "
+    "cannot have arrived before the writer's work actually ran.",
+    "**The hang is proven to need no forcing at all.** "
+    "`UnboundedWaitTest` parks a task on a `Gate` the test never opens; "
+    "timing out is not a probability, it is the only possible outcome, "
+    "on every run.",
+    "**Cancellation ignoring interruption is proven against a real "
+    "race, not merely exercised.** `CooperativeCancellationTest` waits "
+    "on a `CountDownLatch` confirming the task has actually started "
+    "before calling `cancel(true)` -- cancelling before the task starts "
+    "would let the executor skip it entirely, proving nothing about a "
+    "running task ignoring interruption.",
+    "**Nothing sleeps to wait for a race.** No test calls `Thread.sleep`; "
+    "`LOOKUP_MILLIS` is the one named, measured subject reused from "
+    "§46's convention, `CooperativeCancellation`'s three short sleeps are "
+    "the anti-pattern being demonstrated, and the rescue timeout in act "
+    "five ends a genuine hang rather than substituting for a `Gate`.",
+],
+),
+
+"read-write-lock": dict(
+purpose="""
+Teach that many readers may safely share a lock while a writer needs it
+alone, because two reads can never conflict and only a write can -- and
+then pay, honestly and with real code, what the pattern does not tell
+you: a queued writer can be overtaken, a read lock can never be
+upgraded, and for a read as cheap as returning one price the lock can
+lose to a plain mutex and to an immutable snapshot.
+""",
+nongoals=[
+    "Not a tour of every `java.util.concurrent.locks` class. "
+    "`StampedLock` and optimistic reads are outside this project.",
+    "Not a re-teaching of the harness. `Gate`, `Rendezvous` and "
+    "`StepExecutor` are reused unchanged from §46.",
+    "Not an argument against `ReentrantReadWriteLock`. Act six says "
+    "when it loses; it does not say it never wins.",
+],
+problem="""
+A product's price is an amount and a currency kept together, read by a
+thousand shoppers and changed now and then by a merchandiser. With no
+lock, a reader can land between the writer's two steps and see the new
+amount with the old currency -- a price that never existed. One plain
+lock fixes that, but makes every reader queue behind every other reader,
+though two readers can never conflict.
+
+**What this project must deliver:** a catalogue whose readers share a
+read lock while a writer takes the write lock alone. It also has to
+demonstrate, deterministically, the torn read it prevents; a queued
+writer overtaken by a later reader; a thread that requests the write
+lock while holding the read lock and waits on itself; and a measured
+comparison in which the lock loses to a plain mutex and to an immutable
+snapshot for a read this cheap.
+""",
+roles=[
+    ("Reused unchanged from §46", "`Gate`, `Rendezvous`, `StepExecutor`"),
+    ("Domain", "`Price`, an immutable record of amount and currency"),
+    ("Naive", "`UnsynchronizedCatalogue`, `SingleLockCatalogue`"),
+    ("Pattern", "`ReadWriteCatalogue`, wrapping `ReentrantReadWriteLock`"),
+    ("The honest costs", "`WriterBarging`, `UpgradeDeadlock`"),
+    ("The honest alternative", "`SnapshotCatalogue`, an `AtomicReference` to an immutable `Price`"),
+    ("Entry point", "`CatalogueDemo`, six acts"),
+],
+requirements=[
+    "**The torn read is forced, not hoped for.** The writer signals a "
+    "`CountDownLatch` after setting the amount and then parks on a "
+    "`Gate` before setting the currency, so the reader is proven to land "
+    "in the gap on every run.",
+    "**Writer barging is proven from a genuinely queued writer.** "
+    "`WriterBargingTest` confirms the writer is waiting on the lock "
+    "before the second reader's `tryLock()` is attempted.",
+    "**The upgrade deadlock is rescued by a timeout the test owns.** "
+    "`UpgradeDeadlockTest` requests the write lock while holding the "
+    "read lock and asserts the request never completes on its own.",
+    "**Nothing sleeps to wait for a race.** No test calls `Thread.sleep`; "
+    "the throughput figures in acts two, three and six are real "
+    "measurements and are never asserted as exact numbers.",
+],
+),
+
+"monitor-object": dict(
+purpose="""
+Teach that an object which owns its lock and its waiting cannot be used
+unsafely, and that a lock left to the caller, a `volatile` field, or a
+plain count are each weaker. It also pays the honest costs: a lock that
+is a bottleneck by design, a `wait` that must sit in a loop, and two ways
+a correct monitor still deadlocks.
+""",
+nongoals=[
+    "Not a tour of `java.util.concurrent`. `AtomicInteger` is named as the "
+    "simpler answer for one counter and not built up.",
+    "Not a re-teaching of the harness. `Gate`, `Rendezvous` and "
+    "`StepExecutor` are reused unchanged from §46.",
+    "Not an argument against locks. The point is who should own them.",
+],
+problem="""
+One stock count per product, reduced by many checkout threads and
+increased by a delivery thread. A plain count loses updates; `volatile`
+does not help; a lock held by the caller is only as good as the least
+careful caller.
+
+**What this project must deliver:** a `StockMonitor` whose lock and
+condition are private, so callers cannot forget them, and in which a
+thread needing stock waits and is signalled. It has to demonstrate,
+deterministically, the lost update, the `volatile` half-fix, the
+forgetful caller, `if` instead of `while`, nested monitors in opposite
+orders, and a callout made while holding the lock.
+""",
+roles=[
+    ("Reused unchanged from §46", "`Gate`, `Rendezvous`, `StepExecutor`"),
+    ("Naive", "`PlainStock`, `VolatileStock`, `CallerLockedStock`"),
+    ("Pattern", "`StockMonitor`, a `ReentrantLock` and a `Condition`"),
+    ("The honest costs", "`IfInsteadOfWhile`, `MonitorHazards`"),
+    ("Entry point", "`StockDemo`, six acts"),
+],
+requirements=[
+    "**The lost update is forced, not hoped for.** A two-party "
+    "`Rendezvous` runs between the read and the write, so both threads "
+    "have read before either writes.",
+    "**`if` instead of `while` is proven from the wait queue.** The demo "
+    "waits until the condition reports two waiters before adding the item.",
+    "**The nested-monitor deadlock is detected by the JVM.** "
+    "`ThreadMXBean.findDeadlockedThreads()` reports it, and interrupting "
+    "both threads breaks it.",
+    "**Nothing sleeps to wait for a race.** No test calls `Thread.sleep`.",
+],
+),
+
+"active-object": dict(
+purpose="""
+Teach the capstone of the category: an object with its own thread, whose
+calls become messages that return a future at once, and which needs no
+lock because exactly one thread owns its state. It is an assembly of the
+queue from §46, a thread from §47, a future from §48 and state ownership
+from §50, and it says so. It also pays the honest costs: a mailbox that
+can back up, errors that arrive later with the worker's stack, and a
+single-worker throughput ceiling.
+""",
+nongoals=[
+    "Not a re-teaching of the four projects it is made of. It links to each "
+    "and covers only what the assembly adds.",
+    "Not an actor framework. Actors and event loops are named as where the "
+    "idea went and taught no further.",
+    "Not a bounded mailbox. Adding one is the exercise the video ends on.",
+],
+problem="""
+Inventory updates arrive from checkout, returns and a slow back-office
+import. A monitor is correct, but a checkout thread waits behind a slow
+import while it holds the lock.
+
+**What this project must deliver:** an `InventoryActiveObject` whose calls
+return a `CompletableFuture` at once and whose only lock-free state is
+owned by one worker thread. It has to demonstrate, deterministically, the
+blocked caller under a monitor, the call that returns first, a mailbox
+that backs up, an error whose stack is the worker's, and a throughput
+ceiling that more callers do not raise.
+""",
+roles=[
+    ("Reused unchanged from §46", "`Gate`, `Rendezvous`, `StepExecutor`"),
+    ("Naive", "`MonitorInventory`, the monitor from §50"),
+    ("Pattern", "`InventoryActiveObject`, a mailbox, a worker and futures"),
+    ("The measured costs", "`Mailbox`, backlog and throughput"),
+    ("Entry point", "`InventoryDemo`, six acts"),
+],
+requirements=[
+    "**The call is proven to return first.** The worker is parked on a "
+    "`Gate`, confirmed by a `CountDownLatch`, before `reserve` is called.",
+    "**No lock is credited for correctness.** Four callers are released "
+    "together and the total must be exact with no lock in the class.",
+    "**The error's stack is the worker's.** The exception is created "
+    "inside the message and the test checks the calling class is absent.",
+    "**The ceiling is measured with real work, not sleeping.** Each "
+    "message spins for 50 microseconds, and more callers must not double "
+    "the rate.",
+],
+),
+
+"data-mapper": dict(
+purpose="""
+Teach that a domain object need not know how it is stored: a mapper class
+moves data between the object and its rows. The project treats Active Record
+fairly first, and shows it working, then pays the honest costs of the
+mapper: a second class per entity, a hand-written mapping that can lose a
+field without any error, and an indirection to understand before debugging.
+""",
+nongoals=[
+    "Not an argument against Active Record. It is shown working and named as "
+    "the right answer for a simple application.",
+    "Not object-graph loading. How far a mapper should load belongs to the "
+    "Lazy Load project.",
+    "Not a framework tutorial. The build files hold no framework; JPA is "
+    "named as where you have already met the pattern.",
+],
+problem="""
+The store's customers have a name, an email, a postal address and loyalty
+points. Active Record, an object that saves itself, works well. Its cost is
+that the customer class then knows tables, columns and the database, so a
+domain rule needs a database to test, and one class per table cannot
+describe a customer stored across two tables or a table that feeds two
+objects.
+
+**What this project must deliver:** a `CustomerMapper` that reads and writes
+both tables and builds a `Customer` with no persistence code in it. It has
+to show Active Record working, the cost, both awkward shapes, and a mapping
+that silently loses a field.
+""",
+roles=[
+    ("The shared fixture", "`Database`, `Table`, `Row`, the toy database"),
+    ("Domain", "`Customer`, `Address`, `CustomerSummary`"),
+    ("Naive", "`ActiveRecordCustomer`"),
+    ("Pattern", "`CustomerMapper`"),
+    ("The bill", "`CarelessCustomerMapper`"),
+    ("Entry point", "`CustomerDemo`, six acts"),
+],
+requirements=[
+    "**Active Record is shown working first.** `ActiveRecordCustomerTest` "
+    "proves save, find and update in three counted operations.",
+    "**The customer holds no persistence state.** `CustomerTest` inspects the "
+    "class by reflection and constructs one with no database.",
+    "**Every count comes from the counter.** The demo prints the toy "
+    "database's own operation log.",
+    "**The silent field is proven.** `CustomerMapperTest` shows a careless "
+    "mapper succeeds and loses the postcode.",
+],
+),
+
+"identity-map": dict(
+purpose="""
+Teach that one row should be one object per session: a map from id to the loaded object. The project shows the lost-change bug that two objects for one row cause, why `equals()` does not prevent it, and then pays the costs: a stale cache, held references, and a scope that must be chosen.
+""",
+nongoals=[
+    'Not a caching tutorial. The map is a session-scoped identity guarantee, not a performance cache.',
+    'Not JPA. The persistence context is named as where the pattern has been met.',
+    'Not concurrency. The toy database is single-threaded throughout.',
+],
+problem="""
+An order is loaded, with its customer, and the same customer is loaded again by id. With a new object per load there are two objects for one row, and saving both loses one change.
+
+**What this project must deliver:** a `CustomerSession` whose `find` returns the same object for the same id, with the costs shown: staleness, memory and scope.
+""",
+roles=[
+    ('The shared fixture', '`Database`, `Table`, `Row`'),
+    ('Domain', '`Customer`, `Order`'),
+    ('Naive', '`PlainCustomerMapper`'),
+    ('Pattern', '`IdentityMap`, `CustomerSession`'),
+    ('Entry point', '`CustomerSessionDemo`, six acts'),
+],
+requirements=[
+    '**Identity is proven with `==`, not `equals`.** `CustomerSessionTest` uses `assertSame`.',
+    '**The lost change is proven.** `PlainCustomerMapperTest` saves two objects for one row and reads the table.',
+    "**The saving is counted.** A second find costs zero operations, read from the toy database's own counter.",
+    '**Staleness is proven.** The table is written directly and the session still returns the old value.',
+],
+),
+
+"unit-of-work": dict(
+purpose="""
+Teach that a business action which writes several rows should register its changes and write them together, in one short transaction, in an order the database accepts, or not at all. It shows the wreckage of objects that save themselves, fairly treats the transaction-wrapper, and pays the costs of ordering, dirty tracking and memory that disagrees with the database.
+""",
+nongoals=[
+    'Not a transaction manager. The toy database has begin and rollback only.',
+    'Not Spring. `@Transactional` is named as where the pattern has been met.',
+    'Not concurrency. There is one thread, so lock time is a model in ticks.',
+],
+problem="""
+Placing an order writes seven rows and the third stock update is rejected. Objects that save themselves leave half an order, and a wrapping transaction fixes that but stays open for the whole computation.
+
+**What this project must deliver:** a `UnitOfWork` that registers changes, writes nothing until commit, sorts parents before children, and rolls back completely on failure.
+""",
+roles=[
+    ('The shared fixture', '`Database` with transactions and a foreign key, `Table`, `Row`'),
+    ('Domain', '`Product`, `Order`, `OrderLine`, `Shop`'),
+    ('Naive', '`SelfSavingPlacement`, `TransactionalPlacement`'),
+    ('Pattern', '`UnitOfWork`, `UnitOfWorkPlacement`'),
+    ('Entry point', '`OrderDemo`, six acts'),
+],
+requirements=[
+    '**The wreckage is real.** `PlacementTest` fails the sixth write and reads the tables.',
+    '**Nothing touches the database until commit.** `UnitOfWorkTest` asserts zero operations after registration.',
+    '**Failure rolls back completely.** The seventh write is rejected and every table is read back.',
+    '**The ordering cost is real.** Committing in registration order breaks the foreign key.',
+],
+),
+
+"lazy-load": dict(
+purpose="""
+Teach that related data should be loaded when asked for, not all at once, and pay the heavy bill honestly: N+1 queries, a field access that is now I/O and can fail, and a load that fails at the point of use after its session has gone. It shows four variants because a reader will meet all four.
+""",
+nongoals=[
+    'Not Hibernate. `LazyInitializationException` is named as where the failure has been met; the Hibernate project reproduces it.',
+    'Not a query-tuning guide. Batching is shown as one fix, not built up.',
+    'Not concurrency. The toy database is single-threaded.',
+],
+problem="""
+Loading one order eagerly creates thirty-seven objects with twenty-six operations. Loading lazily fixes that and introduces N+1 and a failure that surfaces where the object is used.
+
+**What this project must deliver:** the four lazy variants, N+1 counted as twenty-one queries against two, a failing read, and a closed session that fails at the point of use.
+""",
+roles=[
+    ('The shared fixture', '`Database` with a failing read, `Table`, `Row`'),
+    ('Domain', '`Shop`, a seeded store'),
+    ('Naive', '`EagerOrderLoader`'),
+    ('Pattern', '`LazyInitOrder`, `CustomerProxy`, `ValueHolder`, `GhostCustomer`, `Session`'),
+    ('The bill', '`OrderList`, `SessionClosedException`'),
+    ('Entry point', '`LazyLoadDemo`, six acts'),
+],
+requirements=[
+    '**The eager count is exact.** `LazyLoadTest` asserts 37 objects and 26 operations.',
+    "**N+1 is counted.** Twenty-one queries lazily and two batched, from the toy database's counter.",
+    '**A lazy failure is at the point of use.** The proxy is created, the session closed, and the exception thrown only on access.',
+    '**Each variant loads once.** Zero before use, one after the first, one after the second.',
+],
+),
+
+"repository": dict(
+purpose="""
+Teach that a caller should ask an interface that looks like a collection of domain objects, not a table. It shows the same query drifting across three services, a silent schema-change failure, and then swaps the backing store with no change to the caller, and pays the costs: a method per question, a leak when performance matters, and a swap that is claimed more than it is used.
+""",
+nongoals=[
+    'Not CQRS. The read and write split belongs to the microservices category.',
+    'Not Spring Data. It is named as where the pattern has been met.',
+    'Not a specification framework. One small specification interface is shown as the fix for method growth.',
+],
+problem="""
+London customers who ordered in the last month are wanted by three teams. Written as a query in each service, the answers differ and a column rename empties all of them silently.
+
+**What this project must deliver:** a `CustomerRepository` interface with two stores behind it, a service that knows only the interface, the swap shown, and the costs shown.
+""",
+roles=[
+    ('The shared fixture', '`Database`, `Table`, `Row`'),
+    ('Domain', '`Customer`, `Order`, `Shop`'),
+    ('Naive', '`SqlInTheService`'),
+    ('Pattern', '`CustomerRepository`, `InMemoryCustomerRepository`, `ToyDatabaseCustomerRepository`, `MarketingService`'),
+    ('The bill', '`Specification`, `QueryMethodGrowth`'),
+    ('Entry point', '`CustomerDemo`, six acts'),
+],
+requirements=[
+    '**The drift is real.** `SqlInTheServiceTest` shows three answers to one question.',
+    '**The swap is proven.** The same service gives the same answer on both stores, and reflection shows it names only the interface.',
+    "**The leak is counted.** Seven operations for six customers, from the toy database's counter.",
+    '**The rename is silent.** Every list is empty and nothing throws.',
+],
+),
+
+"service-layer": dict(
+purpose="""
+Teach that the operations an application offers belong in one layer that every entry point calls, with the rules in the domain and the orchestration and transaction in the service. It anchors on a second entry point whose copied logic drifts, treats putting everything in the domain object fairly, and names the anemic domain model with an honest dividing line.
+""",
+nongoals=[
+    'Not Spring. `@Service` and `@Transactional` are named as where the pattern has been met.',
+    'Not a domain-modelling course. Transaction Script and Table Module are named only.',
+    'Not concurrency. There is one thread.',
+],
+problem="""
+Placing an order is written into the web controller. When support gets a command line the logic is copied, and later fixes reach one copy only, so a customer is charged or not depending on the door.
+
+**What this project must deliver:** one `OrderService.placeOrder` that both doors call, with the transaction at the service and the rules in the domain, plus the anemic-model cost and the honest line.
+""",
+roles=[
+    ('The shared fixture', '`Database` with transactions, `Table`, `Row`'),
+    ('Domain', '`Order`, `Product`, `OrderRequest`, `CartLine`, `Shop`, and the fakes `PaymentGateway`, `EmailService`'),
+    ('Naive', '`ControllerLogic`, `CopiedInTheCli`, `SelfPlacingOrder`'),
+    ('Pattern', '`OrderService`, `WebController`, `SupportCli`'),
+    ('The bill', '`AnemicOrder`'),
+    ('Entry point', '`PlaceOrderDemo`, six acts'),
+],
+requirements=[
+    '**The drift is real.** `ServiceLayerTest` shows the copied door charging 6000 pence for a refused order.',
+    '**Both doors agree.** With one `placeOrder` the two doors give the same answer.',
+    '**A refusal rolls back.** Nothing is written or emailed.',
+    '**The rules live in the domain.** Tests call `Order.from` and `Product.reserve` directly.',
+],
+),
+
+"dto": dict(
+purpose="""
+Teach that what crosses a boundary should be a separate object shaped for it, not the domain object. It shows the leak, the private-field-name coupling and the lazy history loaded by serialisation, then the DTO record, and pays the costs: mapping code, DTOs that multiply, and a mapping that decides what loads. It shows one DTO and one domain object to keep them from being conflated.
+""",
+nongoals=[
+    'Not Jackson or Spring. They are named as where the pattern has been met; a tiny serialiser is built by hand.',
+    'Not MapStruct. It is named as what to take after the tedium has been felt.',
+    'Not a REST tutorial. There is no server.',
+],
+problem="""
+An endpoint returns a customer. Returning the domain object leaks the password hash, loads and sends the whole order history, and turns private field names into a public contract.
+
+**What this project must deliver:** a flat `CustomerDto` record, a mapper, and the costs: mapping code, DTOs that multiply, and what the mapping loads.
+""",
+roles=[
+    ('The serialiser', '`MiniJson`, which walks every field'),
+    ('Domain', '`Customer`, `LazyOrders`, `Order`, `OrderLine`'),
+    ('Naive', '`CustomerEndpointReturningTheDomainObject`, `CustomerAfterRename`'),
+    ('Pattern', '`CustomerDto` and its siblings, `CustomerMapper`'),
+    ('Entry point', '`CustomerEndpointDemo`, six acts'),
+],
+requirements=[
+    '**The leak is measured.** `DtoTest` asserts the password hash is in the JSON and that the payload exceeds 5000 characters.',
+    "**The coupling is shown.** Renaming a private field turns the client's key lookup into null.",
+    '**The DTO is measured.** Its JSON is exactly the three fields and loads nothing.',
+    '**A DTO is not a model.** The domain object refuses a bad email and the DTO carries it.',
+],
+),
+
+"identity-map-with-jpa": dict(
+purpose="""
+Show the Identity Map pattern inside JPA, over the partner project's own customer and order: the persistence context is the map, so two finds in one context give the same object. It then shows the failure of its own, that a second context gives a second object and a change to a detached object is silently not saved, plus staleness and growth.
+""",
+nongoals=[
+    'Not a re-teaching of Identity Map. The partner project owns the pattern; this one names it in its first paragraph.',
+    'Not a JPA tutorial. Two annotations are introduced and nothing more.',
+    'Not Spring. Hibernate is used directly; Spring Boot supplies only version numbers.',
+],
+problem="""
+Identity Map built the pattern by hand. In JPA the `EntityManager` already has one, called the persistence context. This project shows the same customer 7 and order 100 through it, and the failures that are JPA's own.
+
+**What this project must deliver:** `first == second` being true in one context, both changes kept, two contexts giving two objects, a detached change not saved, and a `docs/dependencies.md` saying what Hibernate and H2 are.
+""",
+roles=[
+    ('Reused from the partner', '`Customer` and `CustomerOrder`, with `@Entity`, `@Id` and `@ManyToOne` added'),
+    ('Framework setup', '`JpaSetup`, an `EntityManagerFactory` over in-memory H2'),
+    ('Entry point', '`CustomerJpaDemo`, six acts'),
+],
+requirements=[
+    '**Identity is proven with `assertSame`.** `PersistenceContextTest`.',
+    "**SQL counts come from Hibernate's statistics.** One statement for two finds.",
+    '**The detached failure is real.** A change made after the context closed is absent from a new context.',
+    '**Dependencies are explained.** `docs/dependencies.md` says what to install, what it costs, and that skipping loses nothing.',
+],
+),
+
+"lazy-load-with-hibernate": dict(
+purpose="""
+Explain LazyInitializationException from its mechanism: a lazy field holds a generated proxy that needs its session to load. It produces the real exception on purpose over the partner project's own store, then shows the three usual fixes and what each honestly costs: an open session with hidden N+1, a join fetch that sends eighty rows for twenty orders, and a projection that needs a class per query.
+""",
+nongoals=[
+    'Not a re-teaching of Lazy Load. The partner project owns the pattern; this one names it in its first paragraph.',
+    'Not a Hibernate tutorial. Two annotations and a few queries are introduced as they appear.',
+    'Not Spring. Hibernate is used directly; Spring Boot supplies only version numbers.',
+],
+problem="""
+Lazy Load built a session-closed failure by hand. Hibernate's version has a name, `LazyInitializationException`, and is among the most searched Java errors.
+
+**What this project must deliver:** the real exception raised on purpose, the proxy shown, and the three usual fixes each with its measured cost, plus a `docs/dependencies.md` saying what Hibernate and H2 are.
+""",
+roles=[
+    ('Reused from the partner', 'The store: customers, orders, lines, products and categories, as entities'),
+    ('Framework setup', '`HibernateSetup`, a `SessionFactory` over in-memory H2'),
+    ('The failure and the fixes', '`OrderPage`'),
+    ('Entry point', '`LazyHibernateDemo`, six acts'),
+],
+requirements=[
+    "**The exception is real.** `LazyLoadHibernateTest` asserts `LazyInitializationException` with 'no session'.",
+    '**The proxy is shown.** It is not a `Customer`, is uninitialised, and knows its id without loading.',
+    "**Every count is Hibernate's.** Six, twenty-one, one, and eighty rows.",
+    '**Dependencies are explained.** `docs/dependencies.md` says what to install, what it costs, and that skipping loses nothing.',
+],
+),
+
+"unit-of-work-with-spring": dict(
+purpose="""
+Show that `@Transactional` is a unit of work: changes held and written at commit, or not at all. It runs the partner project's three-line order through Spring and shows the failures that are Spring's own: a checked exception that commits anyway, a flush written at a line that says nothing about writing, and an annotation ignored by a call on `this`.
+""",
+nongoals=[
+    'Not a re-teaching of Unit of Work. The partner project owns the pattern; this one names it in its first paragraph.',
+    'Not a Spring tutorial. `@Service` and `@Transactional` are introduced as they appear.',
+    'Not a web project. There is no controller and no web starter.',
+],
+problem="""
+Unit of Work built the mechanism by hand. In Spring it is one annotation, whose surprises are its own.
+
+**What this project must deliver:** the writes shown arriving at commit, the same three-line failure rolled back, a checked exception committing half an order, `rollbackFor` as the fix, a query-triggered flush, a `this` call ignoring the annotation, and a `docs/dependencies.md`.
+""",
+roles=[
+    ('Reused from the partner', 'The three-line order and the failing third stock update, as entities'),
+    ('Framework setup', '`OrderApplication`, a Spring Boot application over in-memory H2'),
+    ('The pattern and its failures', '`TransactionalPlacement`, `CheckedFailurePlacement`, `FlushNobodyWrote`, `SelfInvocation`'),
+    ('The comparison', '`SelfSavingPlacement`, `Shelf`'),
+    ('Entry point', '`OrderApplication`, six acts'),
+],
+requirements=[
+    "**What is committed is read back.** `TransactionalTest` reads the tables, not the code's intent.",
+    '**The checked exception is real.** Half an order is asserted committed under `@Transactional`.',
+    "**The flush is counted.** Hibernate's statistics show zero, zero, then one.",
+    '**Dependencies are explained.** `docs/dependencies.md` says what to install, what it costs, and that skipping loses nothing.',
+],
+),
+
+"repository-with-spring-data": dict(
+purpose="""
+Show the Repository pattern as Spring Data supplies it: an interface with no implementation that works, and a query generated from a method's own name, run against the partner project's own customers and question. It pays the costs: a name that can be wrong and is unchecked by the compiler, an abstraction that leaks on speed, and the failure of its own, a managed entity that is written with no save inside a transaction and silently lost outside one.
+""",
+nongoals=[
+    'Not a re-teaching of Repository. The partner project owns the pattern; this one names it in its first paragraph.',
+    'Not a Spring Data tutorial. `JpaRepository` and a few finders are introduced as they appear.',
+    'Not a web project. There is no controller and no web starter.',
+],
+problem="""
+Repository built one interface and two implementations by hand. Spring Data needs none.
+
+**What this project must deliver:** an interface with no implementing class, a query generated from a name giving the partner's answer, the name-growth and typo cost, the N+1 and entity-graph counts, the managed-entity leak in both directions, and a `docs/dependencies.md`.
+""",
+roles=[
+    ('Reused from the partner', 'The customers, the orders, and `MarketingService` with its body unchanged'),
+    ('Framework setup', '`CustomerApplication`, a Spring Boot application over in-memory H2'),
+    ('The pattern', '`CustomerRepository`, an interface with no implementation'),
+    ('The failure', '`LeakDemo`'),
+    ('Entry point', '`CustomerApplication`, six acts'),
+],
+requirements=[
+    '**There is no implementing class.** `SpringDataRepositoryTest` asserts the injected object is a generated proxy.',
+    "**The generated query is counted.** One statement, from Hibernate's statistics.",
+    '**The leak is real in both directions.** A change is written with no save inside a transaction, and lost outside one.',
+    '**Dependencies are explained.** `docs/dependencies.md` says what to install, what it costs, and that skipping loses nothing.',
 ],
 ),
 

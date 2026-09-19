@@ -11,7 +11,7 @@ scratch work, kept for reference.
 ## Start here
 
 **[`gradle-java/README.md`](gradle-java/README.md)** is the front door. It lists
-the patterns in learning order, across six categories:
+the patterns in learning order, across seven categories:
 
 | Category | Patterns | Range |
 | --- | --- | --- |
@@ -20,14 +20,24 @@ the patterns in learning order, across six categories:
 | [Behavioural](gradle-java/behavioural) | 11 | Strategy → Interpreter |
 | [Microservices](gradle-java/micro-services-design-patterns) | 12 | API Gateway → Idempotent Consumer |
 | [Platform](gradle-java/platform-design-patterns) | 8 | Externalised Configuration → Strangler Fig |
+| [Concurrency](gradle-java/concurrency-design-patterns) | 6 | Producer–Consumer → Active Object |
 | [Architectural](gradle-java/architectural-design-patterns) | 5 | Layered Architecture → Clean Architecture with Spring |
 
-The first four categories, plus architectural, are complete — forty-two
-projects. Platform is the one category still under construction; its
+The first four categories, plus architectural, are complete — forty-five
+projects. Platform and concurrency are the two categories still under
+construction. Platform's
 [implementation plan](gradle-java/platform-design-patterns/docs/implementation-plan.md)
 lists all eight, and six are finished: Event Sourcing, which is the
 category's reference project, Externalised Configuration, Distributed
 Tracing, Backends for Frontends, Sidecar, and Sidecar with a Java Proxy.
+Concurrency's
+[implementation plan](gradle-java/concurrency-design-patterns/docs/implementation-plan.md)
+lists all six, built around a shared determinism harness — every naive
+concurrency failure this category demonstrates is forced to reproduce on
+every single run, with a latch or a planned interleaving, never a
+`Thread.sleep`. Producer–Consumer, the category's reference project,
+Thread Pool and Future/Promise are finished; the other three are still to
+come.
 
 Architectural's own
 [implementation plan](gradle-java/architectural-design-patterns/docs/implementation-plan.md)
@@ -71,7 +81,7 @@ gradle-java/                 the course — 6 categories building, 3 more specif
   architectural-design-patterns/
                              5 projects, complete
   concurrency-design-patterns/
-                             6 projects, specified only — no code yet
+                             6 projects, 3 built
   enterprise-design-patterns/
                              11 projects, specified only — no code yet
   foundational-design-patterns/

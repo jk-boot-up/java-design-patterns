@@ -4,8 +4,8 @@ How the eleven projects in this category get built. [`spec.md`](spec.md) fixes
 what they are; this fixes the order, the rules that keep the build from redoing
 itself, and what "finished" means.
 
-**Nothing here is built yet.** This document and [`spec.md`](spec.md) are the
-whole category at the time of writing.
+**All eleven projects are built.** The one gap against this plan is the three
+optional `real/` demos (Data Mapper, Service Layer, DTO), which are not built.
 
 ---
 
@@ -14,8 +14,8 @@ whole category at the time of writing.
 | | |
 | --- | --- |
 | Projects specified | 11 (seven patterns by hand; four of them again in the framework) |
-| Projects built | 0 |
-| Category registered with the shared generators | no |
+| Projects built | 11 (seven by hand, four with a framework) |
+| Category registered with the shared generators | yes |
 | Existing projects in the repository | 37 built; 14 more specified across the platform and concurrency categories |
 
 ---

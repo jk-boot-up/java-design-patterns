@@ -14,9 +14,9 @@ whole category at the time of writing.
 | | |
 | --- | --- |
 | Projects specified | 6 |
-| Projects built | 0 |
-| Category registered with the shared generators | no |
-| Existing projects in the repository | 37 built, 8 more specified in `platform-design-patterns` |
+| Projects built | 6 (Producer–Consumer 88 executions, Thread Pool 125, Future/Promise 124, Read–Write Lock 162, Monitor Object 184, Active Object 125; every test run passing, no `Thread.sleep` in any) |
+| Category registered with the shared generators | yes |
+| Existing projects in the repository | 48 built (37, plus the 5 architectural-design-patterns projects, plus these 6) |
 
 ---
 
