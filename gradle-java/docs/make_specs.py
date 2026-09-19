@@ -5710,6 +5710,62 @@ requirements=[
 ],
 ),
 
+"cache-aside": dict(
+purpose="""
+Teach Cache-Aside with product page views: a thousand views costing a thousand database reads and then ten, a write that forgets the cache and serves the old price against one that invalidates, an expiry on a controlled clock that bounds staleness, fifty simultaneous misses on one expired key costing fifty reads against one shared read, and the bill of a cold cache and a second copy to keep right.
+""",
+nongoals=[
+    'Not a distributed cache. There is one in-memory cache in one process.',
+    'Not a survey of eviction policies. Expiry is the only one shown.',
+    'Not write-through or write-behind. Cache-aside only.',
+],
+problem="""
+Reading the same few rows from a database on every request wastes it, and a cache in front brings stale data and stampedes.
+
+**What this project must deliver:** a read count with and without the cache, a stale read and its fix, an expiry on a controlled clock, a deterministic stampede and its single-flight fix, and the cold start cost.
+""",
+roles=[
+    ('The pattern', '`ProductService`, `Cache`'),
+    ('Source', '`Database`'),
+    ('Support', '`Clock`, `Product`'),
+    ('Entry point', '`CacheAsideDemo`, six acts'),
+],
+requirements=[
+    '**Reads are counted,** never timed.',
+    '**Expiry uses a clock the demo controls.**',
+    '**The stampede is deterministic:** every caller has missed before any read completes, and the counts are 50 and 1.',
+    '**A forgotten invalidation is asserted to serve stale data.**',
+],
+),
+
+"rate-limiter": dict(
+purpose="""
+Teach Rate Limiter with a product search: a thousand requests to a service that can serve a hundred, a token bucket on a controlled clock that allows a burst of ten then refills at five a second, a steady rate that is never refused, a bucket per caller against one shared bucket, a refusal that says exactly when to retry to the millisecond, and the bills of per-server buckets, memory for ten thousand callers, and a page that looks like a script.
+""",
+nongoals=[
+    'Not a distributed limiter. Sharing the count between servers is named, not built.',
+    'Not the leaky bucket or sliding window. The token bucket is the one shown.',
+    'Not an API gateway. The limiter is a class, not a proxy.',
+],
+problem="""
+A shared service can be used up by one caller, and a limit brings its own costs.
+
+**What this project must deliver:** a token bucket with exact integer arithmetic, a burst allowed and refused, a steady rate that always passes, per-caller fairness, an exact retry-after, and the three bills shown with counts.
+""",
+roles=[
+    ('The pattern', '`TokenBucket`, `RateLimiter`'),
+    ('The service', '`SearchService`'),
+    ('Support', '`Clock`'),
+    ('Entry point', '`RateLimiterDemo`, six acts'),
+],
+requirements=[
+    '**Time is a clock the demo controls,** never a real wait.',
+    '**Arithmetic is exact:** milli-tokens, no floating point.',
+    '**A steady rate at the refill rate is never refused,** asserted over 300 requests.',
+    '**Retry-after is exact:** early is refused, on time is allowed.',
+],
+),
+
 }
 
 
