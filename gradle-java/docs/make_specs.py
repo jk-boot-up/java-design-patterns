@@ -6421,6 +6421,38 @@ requirements=[
 ],
 ),
 
+"onion-architecture": dict(
+purpose="""
+Teach Onion Architecture with an online store's order: a core order that runs its own SQL, four rings with the rules at the centre, a reflective dependency checker that reports a class referring outward, two storages behind one repository interface owned by the centre, the pricing rules checked with no storage, and the cost in conversions and classes.
+""",
+nongoals=[
+    'Not a framework or a real database. Storage is a map, a text record and a counter.',
+    'Not a full domain model. It has one entity and one rule.',
+    'Not the difference between onion, hexagonal and clean, which are three names for one rule.',
+],
+problem="""
+A core that calls storage cannot change or be checked without the storage.
+
+**What this project must deliver:** a naive core that reaches outward, rings and the rule, a checker that finds a violation, two storages, the rules checked alone, and the costs.
+""",
+roles=[
+    ('Ring 0', '`Order`, `OrderLine`, `OrderRepository`'),
+    ('Ring 1', '`PricingService`'),
+    ('Ring 2', '`PlaceOrderService`'),
+    ('Ring 3', '`InMemoryOrderRepository`, `RecordOrderRepository`, `ConsoleApi`'),
+    ('Checker', '`DependencyRule`'),
+    ('Naive', '`NaiveOrder`'),
+    ('Entry point', '`OnionDemo`, six acts'),
+],
+requirements=[
+    '**Money is integer cents.**',
+    '**The checker reads real classes,** not a list written by hand.',
+    '**The onion classes have no outward reference.**',
+    '**Both storages give the same total and round-trip an order.**',
+    '**The pricing rule is checked with no storage.**',
+],
+),
+
 }
 
 
