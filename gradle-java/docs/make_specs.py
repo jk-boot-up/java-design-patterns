@@ -5874,6 +5874,34 @@ requirements=[
 ],
 ),
 
+"leader-election": dict(
+purpose="""
+Teach Leader Election with a nightly report: three copies each sending it, a lease that gives the job to one, the delay before a dead leader's lease expires and another takes over, a paused leader that wakes still believing it leads so that two send, fencing tokens that make the report sink refuse the replaced leader, and the bill of a lease that is too short for the renewal interval.
+""",
+nongoals=[
+    'Not consensus. The lease store is one record, standing in for ZooKeeper or etcd.',
+    "Not clock synchronisation. Every node reads the store's clock.",
+    'Not a full scheduler. The job is one write to a sink.',
+],
+problem="""
+Identical copies of a service all run the same job unless something makes exactly one responsible.
+
+**What this project must deliver:** the duplicate report, a lease with a token, the takeover delay, the two-leaders problem, fencing, the lease-versus-renewal bill, and a plain verdict.
+""",
+roles=[
+    ('The pattern', '`LeaseStore`, `Lease`, `Node`'),
+    ("The job's target", '`ReportSink`'),
+    ('Support', '`Clock`'),
+    ('Entry point', '`LeaderElectionDemo`, six acts'),
+],
+requirements=[
+    '**Time is a clock the demo controls,** never a real wait.',
+    '**The token goes up at every change of holder.**',
+    "**A replaced leader's write is refused with fencing and accepted without.**",
+    '**A lease shorter than the renewal interval loses a healthy leader,** at an exact second.',
+],
+),
+
 }
 
 
