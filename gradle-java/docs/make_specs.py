@@ -5820,6 +5820,33 @@ requirements=[
 ],
 ),
 
+"competing-consumers": dict(
+purpose="""
+Teach Competing Consumers with a queue of orders: one consumer against three with six held jobs, a thousand orders handled exactly once by four consumers, ordering lost when the first message's consumer is held, a failed message given back and handled by another attempt, the duplicate charge that at-least-once delivery causes against a consumer that remembers, and six consumers sharing a database that admits two.
+""",
+nongoals=[
+    'Not a message broker. The broker is a small in-memory queue with acknowledge and give-back.',
+    'Not exactly-once delivery. It is at-least-once, and the fix is in the consumer.',
+    'Not partitioning. It is named as the way to keep order.',
+],
+problem="""
+One worker cannot keep up, and several workers on one queue give up ordering and risk duplicates.
+
+**What this project must deliver:** a broker that hands each message to one consumer and takes it back on failure, exactly-once handling in the normal case, ordering lost, a failed message taken over, the duplicate and its fix, a shared downstream cap, and every count exact.
+""",
+roles=[
+    ('The pattern', '`Broker`, `ConsumerPool`, `Delivery`'),
+    ('Support', '`Gate`'),
+    ('Entry point', '`CompetingConsumersDemo`, six acts'),
+],
+requirements=[
+    '**Every count is exact,** held by gates, and asserted over repeated runs.',
+    '**Each message is handled once in the normal case:** 500 and 1000 messages, distinct ids equal total.',
+    '**Ordering loss is exact:** [2, 3, 1].',
+    '**A crash after the effect produces a duplicate,** and a remembering consumer does not.',
+],
+),
+
 }
 
 
