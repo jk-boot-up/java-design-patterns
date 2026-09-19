@@ -5766,6 +5766,60 @@ requirements=[
 ],
 ),
 
+"timeout": dict(
+purpose="""
+Teach Timeout with a supplier's stock API: a call with no limit whose thread is WAITING with nothing to end it, a call with a limit that shows a plain answer instead, the supplier finishing the work after the caller gave up, the effect of the limit on a typical hundred calls, one time budget shared by three calls, and a payment that times out and still happens.
+""",
+nongoals=[
+    'Not a full resilience story. Retry, breaker and bulkhead are separate projects.',
+    'Not real network timeouts. The silence is a gate, so it is exact.',
+    'Not measuring real latency. The typical hundred calls are numbers.',
+],
+problem="""
+A call with no limit lets a slow or silent service hold a thread forever, and a limit brings its own uncertainty.
+
+**What this project must deliver:** a thread shown waiting with nothing to end it, a limit that produces an answer, work that continues after giving up, the effect of the number on a typical hundred calls, a shared budget, and a timed-out payment that still happens.
+""",
+roles=[
+    ('The pattern', '`Callers`, `Budget`'),
+    ('The supplier', '`SupplierApi`, `Gate`'),
+    ('Data', '`Latency`'),
+    ('Entry point', '`TimeoutDemo`, six acts'),
+],
+requirements=[
+    '**Silence is exact:** the supplier is held at a gate.',
+    '**Waits are polled, never slept.**',
+    '**The abandoned work is asserted to finish anyway.**',
+    '**A budget never spends more than it has,** checked over a range.',
+],
+),
+
+"queue-based-load-leveling": dict(
+purpose="""
+Teach Queue-Based Load Leveling with a sale that starts with a hundred orders at once: a worker of ten a tick refusing ninety when the burst goes straight to it, a queue that spreads the same burst with nothing lost, the wait the queue costs, an unbounded queue growing to five hundred against a bounded one refusing four hundred and sixty, the effect of a faster worker, and seventy orders lost when an in-memory queue stops.
+""",
+nongoals=[
+    'Not a message broker. The queue is a model in ticks.',
+    'Not throughput tuning. It is a picture of what the queue does, with exact counts.',
+    'Not a durable queue. Durability is named as the requirement, not built.',
+],
+problem="""
+A burst that arrives faster than a service can work is refused if it goes straight through.
+
+**What this project must deliver:** a burst refused and the same burst queued with exact counts, the waiting cost, an unbounded queue against a bounded one, the effect of worker speed, orders lost when an in-memory queue stops, and a plain verdict.
+""",
+roles=[
+    ('The model', '`Sim`, `Result`'),
+    ('Entry point', '`LoadLevelingDemo`, six acts'),
+],
+requirements=[
+    '**Every run is exact:** ticks and integer arithmetic, no clocks or threads.',
+    '**Every order is accounted for:** arrived = processed + refused + lost + waiting, over a range of limits and crash points.',
+    '**The wait is exact:** first 0, last 9, average 4.5.',
+    "**An in-memory queue's loss is asserted.**",
+],
+),
+
 }
 
 

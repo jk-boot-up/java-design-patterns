@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Future/Promise Pattern — Animated Walkthrough</title>
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 24px;
+    background: #0f172a; color: #e2e8f0;
+    font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
+    padding-top: calc(24px + env(safe-area-inset-top, 0px));
+    padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+  }
+  h1 { font-size: 1.4rem; margin: 0 0 4px; }
+  p.sub { color: #94a3b8; margin: 0 0 20px; max-width: 70ch; }
+  .wrap { max-width: 1100px; margin: 0 auto; }
+  .stage {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+    margin-bottom: 16px;
+  }
+  @media (max-width: 760px) { .stage { grid-template-columns: 1fr; } }
+  .boxes { display: flex; flex-direction: column; gap: 10px; }
+  .row {
+    border: 2px solid #334155; border-radius: 10px; padding: 12px 16px;
+    background: #1e293b; transition: all .25s ease; opacity: .55;
+  }
+  .row .name { font-weight: 700; font-size: 1rem; }
+  .row .job { color: #94a3b8; font-size: .82rem; margin-top: 2px; }
+  .row.active { opacity: 1; box-shadow: 0 0 0 2px currentColor inset; }
+  .row.wrong { border-color: #f87171; color: #f87171; }
+  .row.wrong.active { background: #3f1d24; }
+  .row.ok { border-color: #34d399; color: #34d399; }
+  .row.ok.active { background: #10261f; }
+  .row.amber { border-color: #fbbf24; color: #fbbf24; }
+  .row.amber.active { background: #2a2110; }
+  .row.dim { opacity: .22; }
+  .console {
+    background: #020617; border: 1px solid #334155; border-radius: 10px;
+    padding: 16px; font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    font-size: .86rem; line-height: 1.55; overflow-y: auto; min-height: 320px;
+    white-space: pre-wrap;
+  }
+  #console-lines span.ok { color: #34d399; }
+  #console-lines span.bad { color: #f87171; }
+  #console-lines span.amber { color: #fbbf24; }
+  #console-lines span.muted { color: #94a3b8; }
+  .narration {
+    background: #1e293b; border: 1px solid #334155; border-radius: 10px;
+    padding: 14px 18px; margin-bottom: 16px; min-height: 3.2em;
+  }
+  .controls { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  button {
+    background: #334155; color: #e2e8f0; border: 1px solid #475569;
+    border-radius: 8px; padding: 10px 18px; font-size: .92rem; cursor: pointer;
+  }
+  button:hover { background: #475569; }
+  button#play { background: #7c3aed; border-color: #7c3aed; }
+  button#play:hover { background: #8b5cf6; }
+  #progress { color: #94a3b8; font-size: .85rem; margin-left: auto; }
+  .step-label {
+    font-size: .78rem; text-transform: uppercase; letter-spacing: .04em;
+    color: #a78bfa; font-weight: 700; margin-bottom: 4px;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Future/Promise — Step by Step</h1>
+  <p class="sub">
+    Six acts, the same ones the demo prints. A red queue is one that is growing.
+  </p>
+
+  <div class="narration">
+    <div class="step-label" id="step-label">Ready</div>
+    <div id="narration">Press Step or Play to begin.</div>
+  </div>
+
+  <div class="stage">
+    <div class="boxes" id="boxes">
+      <div class="row" id="row-src">
+        <div class="name">the burst</div>
+        <div class="job">100 at once</div>
+      </div>
+      <div class="row" id="row-que">
+        <div class="name">the queue</div>
+        <div class="job">absorbs it</div>
+      </div>
+      <div class="row" id="row-wrk">
+        <div class="name">the worker</div>
+        <div class="job">10 a tick</div>
+      </div>
+    </div>
+    <div class="console"><div id="console-lines"></div></div>
+  </div>
+
+  <div class="controls">
+    <button id="step">Step ▸</button>
+    <button id="play">Play ▶</button>
+    <button id="reset">Reset ↺</button>
+    <span id="progress">0 / 0</span>
+  </div>
+</div>
+
+<script>
+const STEPS = [
+  {
+    label: "Act 1 — a burst, straight to the worker",
+    narration: "A hundred orders arrive at once and the service takes ten. Ninety are refused, on the busiest moment of the shop's day.",
+    rows: { src: "active wrong", wrk: "active wrong" },
+    console: [
+      ["processed 10", "ok"],
+      ["refused 90", "bad"],
+    ],
+  },
+  {
+    label: "Act 2 — a queue in between",
+    narration: "The same hundred orders, through a queue: all hundred are processed, none refused, and the worker never did more than ten a tick. The burst was spread over ten ticks.",
+    rows: { src: "active ok", que: "active amber", wrk: "active ok" },
+    console: [
+      ["processed 100", "ok"],
+      ["refused 0", "ok"],
+    ],
+  },
+  {
+    label: "Act 3 — what the queue costs: waiting",
+    narration: "The first order waited nothing. The last waited nine ticks. On average an order waited four and a half.",
+    rows: { que: "active amber", wrk: "active ok" },
+    console: [
+      ["first 0, last 9", "amber"],
+      ["average 4.5", "amber"],
+    ],
+  },
+  {
+    label: "Act 4 — a queue with no end, and one with a limit",
+    narration: "Fifteen arrive a tick and the worker does ten. An unbounded queue reaches five hundred waiting and keeps growing. A queue limited to fifty refuses four hundred and sixty, and no wait is longer than four ticks.",
+    rows: { que: "active wrong", wrk: "active wrong" },
+    console: [
+      ["unbounded: 500 and growing", "bad"],
+      ["limit 50: 460 refused", "amber"],
+    ],
+  },
+  {
+    label: "Act 5 — size the worker for the average",
+    narration: "A worker of ten clears the burst with a longest wait of nine. A worker of twenty halves it to four. Serving the peak with no queue would need a worker of a hundred, idle almost all day.",
+    rows: { que: "active ok", wrk: "active ok" },
+    console: [
+      ["10 a tick: wait 9", "amber"],
+      ["20 a tick: wait 4", "ok"],
+    ],
+  },
+  {
+    label: "Act 6 — the bill: an in-memory queue forgets",
+    narration: "The process holding an in-memory queue stops at tick three. Thirty orders were processed and seventy were waiting, and are lost, though the customers were told they were accepted.",
+    rows: { que: "active wrong", src: "active amber" },
+    console: [
+      ["processed 30", "ok"],
+      ["lost 70", "bad"],
+    ],
+  },
+];
+
+const rowIds = ["src", "que", "wrk"];
+const stepLabel = document.getElementById("step-label");
+const narrationEl = document.getElementById("narration");
+const consoleEl = document.getElementById("console-lines");
+const progressEl = document.getElementById("progress");
+const stepBtn = document.getElementById("step");
+const playBtn = document.getElementById("play");
+const resetBtn = document.getElementById("reset");
+
+let i = -1;
+let timer = null;
+
+function clearRows() {
+  for (const id of rowIds) {
+    document.getElementById("row-" + id).className = "row";
+  }
+}
+
+function render() {
+  clearRows();
+  if (i < 0) {
+    stepLabel.textContent = "Ready";
+    narrationEl.textContent = "Press Step or Play to begin.";
+    consoleEl.innerHTML = "";
+    progressEl.textContent = "0 / " + STEPS.length;
+    return;
+  }
+  const s = STEPS[i];
+  stepLabel.textContent = s.label;
+  narrationEl.textContent = s.narration;
+  for (const id of rowIds) {
+    const el = document.getElementById("row-" + id);
+    const cls = s.rows[id];
+    el.className = "row " + (cls ? cls : "dim");
+  }
+  consoleEl.innerHTML = s.console
+    .map(([text, cls]) => '<span class="' + cls + '">' + text + "</span>")
+    .join("\n");
+  progressEl.textContent = (i + 1) + " / " + STEPS.length;
+}
+
+function step() {
+  if (i >= STEPS.length - 1) { stopPlay(); return; }
+  i += 1;
+  render();
+}
+
+function reset() {
+  stopPlay();
+  i = -1;
+  render();
+}
+
+function startPlay() {
+  if (timer) return;
+  playBtn.textContent = "Pause ❚❚";
+  timer = setInterval(() => {
+    if (i >= STEPS.length - 1) { stopPlay(); return; }
+    step();
+  }, 2600);
+}
+
+function stopPlay() {
+  if (timer) clearInterval(timer);
+  timer = null;
+  playBtn.textContent = "Play ▶";
+}
+
+stepBtn.addEventListener("click", () => { stopPlay(); step(); });
+resetBtn.addEventListener("click", reset);
+playBtn.addEventListener("click", () => { if (timer) stopPlay(); else startPlay(); });
+
+render();
+</script>
+</body>
+</html>
