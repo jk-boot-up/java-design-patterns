@@ -12,7 +12,7 @@ src/main/java/com/jk/explore/callback/
 
 **Callback: hand over code to run when the answer is ready, and get on with other work.**
 
-This project is in [foundational-design-patterns](..). It is [Observer](../../behavioural/observer-pattern) with one listener and one event, and it is the base of [Guarded Suspension](../../concurrency-design-patterns/guarded-suspension-pattern)'s opposite: there you wait, here you are called.
+This project is in [foundational-design-patterns](..). It is [Observer](../../behavioural/observer-pattern) with one listener and one event, and it is the counterpart of [Guarded Suspension](../../concurrency-design-patterns/guarded-suspension-pattern): there you wait until the answer is ready, and here you are called when it is.
 
 ## Run
 

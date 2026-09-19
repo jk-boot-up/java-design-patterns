@@ -1,4 +1,4 @@
-# Callback Pattern — Project Specification
+# Delegation Pattern — Project Specification
 
 The single reference document for this project: what it teaches, how it
 is built, and the quality bar its video and its YouTube publication have
@@ -6,7 +6,7 @@ to meet.
 
 This is a *specification*, not a tutorial. It says what must be true and
 why. The teaching material itself lives in
-[`callback-pattern-explained.md`](callback-pattern-explained.md); the problem it
+[`delegation-pattern-explained.md`](delegation-pattern-explained.md); the problem it
 addresses is set out at length in
 [`problem-statement.md`](problem-statement.md).
 
@@ -18,7 +18,7 @@ that document is the authority. This project's `video/build_video.sh` is generat
 
 ## 1. Purpose
 
-Teach Callback with an online store's payment gateway: a caller polling for an answer and finding nothing four times in five, a callback handed over so the caller goes on, a callback told the result, a callback that throws contained by the gateway and recorded, answers delivered out of order where a shared field mixes orders up and a captured id does not, and three nested callbacks that run out of written order.
+Teach Delegation with an online store's order pricing: four subclasses for two pricing features and eight for three, one Order class holding a PricingRule and handing its total to it, the rule swapped on a live order, two rules combined in order with no new class, a rule that reads the order it was called for, and the costs of one extra call for each helper and one forwarding method for each method of a helper.
 
 The three formats are not alternatives. A learner is expected to read the
 problem statement, run the code, then watch the video — or watch first and
@@ -29,9 +29,9 @@ only has to absorb the new structure.
 
 ### Non-goals
 
-- Not real asynchrony or threads. Delivery is a method the demo calls, so the order is chosen.
-- Not futures or reactive streams, which are the way out.
-- Not a real payment API.
+- Not the full Strategy or Decorator patterns, which have their own projects.
+- Not language-level delegation such as Kotlin's by.
+- Not a pricing engine.
 
 ---
 
@@ -40,9 +40,9 @@ only has to absorb the new structure.
 The full treatment is in [`problem-statement.md`](problem-statement.md).
 In brief:
 
-Waiting for a slow answer by asking again and again stops the caller from doing anything else.
+A subclass for each way of doing a job multiplies with each feature and cannot change after an object is made.
 
-**What this project must deliver:** a polling cost, a callback that lets the caller go on, results, contained failures, out-of-order answers, and the cost of nesting.
+**What this project must deliver:** the growth of subclasses, one class with a helper, a swap, a combination, a helper that reads its owner, and the costs.
 
 ---
 
@@ -50,30 +50,32 @@ Waiting for a slow answer by asking again and again stops the caller from doing 
 
 ### Structure
 
-5 production classes under `com.jk.explore.callback`:
+5 production classes under `com.jk.explore.delegation`:
 
 | Role | Types |
 | --- | --- |
-| The pattern | `Gateway`, `Result` |
-| Naive | `WaitingGateway`, `SharedFieldShop` |
-| Entry point | `CallbackDemo`, six acts |
+| The pattern | `Order`, `PricingRule` |
+| Forwarding | `Shipping`, `OrderWithShipping` |
+| Naive | `PlainOrder`, `PremiumOrder`, `GiftOrder`, `PremiumGiftOrder` |
+| Entry point | `DelegationDemo`, six acts |
 
 ### Requirements
 
-1. **Answers are delivered by a call,** so every order is chosen.
-2. **A callback that throws does not stop the gateway,** and is recorded.
-3. **A shared field is shown to mix orders up.**
-4. **Each callback carries its own order id.**
-5. **Java 21, no third-party runtime dependencies.** JUnit 5 for tests
+1. **Money is integer cents.**
+2. **The delegated and inherited orders agree on totals.**
+3. **A rule can be swapped on a live order.**
+4. **A rule is given the order it is called for.**
+5. **Extra calls and forwarding methods are counted.**
+6. **Java 21, no third-party runtime dependencies.** JUnit 5 for tests
    only, so the project is readable by someone who does not know a DI
    framework.
-6. **Every class fits on a slide.** This is teaching code; a class that
+7. **Every class fits on a slide.** This is teaching code; a class that
    needs scrolling to read has failed its purpose regardless of its
    design.
 
 ### Verification
 
-- `./gradlew build` passes. 7 test methods across `CallbackTest`, `DemoRunsTest`.
+- `./gradlew build` passes. 7 test methods across `DelegationTest`, `DemoRunsTest`.
 - `./gradlew run` output is quoted verbatim in the top-level `README.md`,
   and must still match.
 
@@ -89,7 +91,7 @@ never need to jump forward.
 | --- | --- |
 | `prerequisites.md` | What to know and install first |
 | `problem-statement.md` | The problem and why the naive approach hurts |
-| `callback-pattern-explained.md` | The pattern, the code, pitfalls, comparisons |
+| `delegation-pattern-explained.md` | The pattern, the code, pitfalls, comparisons |
 | `class-diagram.md` + PNG | Static structure |
 | `uml-diagram.md` + PNG | Runtime call flow |
 | `animation.html` | Step-by-step walkthrough, optionally narrated |
@@ -108,7 +110,7 @@ the code is worse than no diagram.
 
 ## 5. Video quality specification
 
-The finished video is `video/callback-pattern-explained.mp4`, with an
+The finished video is `video/delegation-pattern-explained.mp4`, with an
 audio-only `.m4a` and a `.srt` subtitle track alongside it. It is built by
 `video/build_video.sh`, from scenes declared in `video/scenes.py` and
 slides rendered by `video/make_slides.py`.
@@ -119,7 +121,7 @@ Scene 1 is the only scene whose narration has a required structure, and
 it is required because it is the scene that decides whether anybody
 watches the second one. It must run in this order:
 
-1. **What the video is** — "This video explains the Callback pattern in
+1. **What the video is** — "This video explains the Delegation pattern in
    Java", plainly, before anything else.
 2. **The author credit** — "and it is written and presented by
    Jayasekhar Konduru".
@@ -150,7 +152,7 @@ watches the second one. It must run in this order:
 | Stream start | Both streams at exactly 0.000 s | Otherwise the video track starts 21 ms late and players show black at 0:00 |
 | Narration | macOS `say`, voice Samantha, 145 wpm | The pace educational YouTube converges on for technical material |
 | Inter-scene pause | 0.9 s of appended silence | So slides do not snap past the moment a sentence ends |
-| Runtime | ~4:33 over 14 scenes, 65 subtitle cues |  |
+| Runtime | ~4:37 over 14 scenes, 70 subtitle cues |  |
 
 ### 5.3 The two defects this pipeline exists to prevent
 
@@ -263,8 +265,8 @@ uploading is copy-and-paste rather than reconstruction. Seven sections
 are required:
 
 1. **Title** — the exact string, ≤ 60 characters so search does not
-   truncate it, leading with the pattern name. Currently *"Callback"*,
-   8 characters. The suffix after the dash names the worked e-commerce scenario, so the title says what the viewer will actually watch rather than only which pattern it is about.
+   truncate it, leading with the pattern name. Currently *"not yet generated"*,
+   17 characters. The suffix after the dash names the worked e-commerce scenario, so the title says what the viewer will actually watch rather than only which pattern it is about.
 2. **Description** — first two lines carry the hook, because that is what
    shows above the fold; then what the video covers, the chapters, the
    repository link, the prerequisites.
@@ -277,11 +279,11 @@ are required:
 6. **Upload checklist** — subtitles, language, thumbnail, HD processing,
    playlist.
 7. **Cards and end screen** — which video comes next in the learning
-   order. For this project: Delegation.
+   order. For this project: none; it is last, so the end screen links back to Simple Factory and to the playlist.
 
 > **Requirement.** Chapter timings are generated from the built `.srt`,
 > never written by hand, by
-> `python3 ../../docs/make_youtube_docs.py callback`. They are the one part of
+> `python3 ../../docs/make_youtube_docs.py delegation`. They are the one part of
 > the file that goes stale silently: any change to the narration text or
 > the speaking rate invalidates every timestamp, and a chapter list that
 > is thirty seconds out is worse than none. Regenerate after any
@@ -312,8 +314,8 @@ version, which governs all fourteen projects, is in
 - [ ] `docs/youtube.md` has all seven sections, and its chapter timings match the current `.srt`.
 - [ ] `video/README.md` describes the pipeline as it actually is.
 
-Last verified: all eleven items pass. The delivered MP4 measures -16.02 LUFS
-integrated, -3.87 dBTP true peak, and both streams start at 0.000.
+Last verified: all eleven items pass. The delivered MP4 measures -16.01 LUFS
+integrated, -3.75 dBTP true peak, and both streams start at 0.000.
 
 ---
 
@@ -328,8 +330,8 @@ From the project root:
 Then, because the narration timings will have moved:
 
 ```bash
-python3 ../../docs/make_youtube_docs.py callback
-python3 ../../docs/make_specs.py callback
+python3 ../../docs/make_youtube_docs.py delegation
+python3 ../../docs/make_specs.py delegation
 ```
 
 Changing the voice or the filter chain means listening to the result.

@@ -6732,6 +6732,35 @@ requirements=[
 ],
 ),
 
+"delegation": dict(
+purpose="""
+Teach Delegation with an online store's order pricing: four subclasses for two pricing features and eight for three, one Order class holding a PricingRule and handing its total to it, the rule swapped on a live order, two rules combined in order with no new class, a rule that reads the order it was called for, and the costs of one extra call for each helper and one forwarding method for each method of a helper.
+""",
+nongoals=[
+    'Not the full Strategy or Decorator patterns, which have their own projects.',
+    "Not language-level delegation such as Kotlin's by.",
+    'Not a pricing engine.',
+],
+problem="""
+A subclass for each way of doing a job multiplies with each feature and cannot change after an object is made.
+
+**What this project must deliver:** the growth of subclasses, one class with a helper, a swap, a combination, a helper that reads its owner, and the costs.
+""",
+roles=[
+    ('The pattern', '`Order`, `PricingRule`'),
+    ('Forwarding', '`Shipping`, `OrderWithShipping`'),
+    ('Naive', '`PlainOrder`, `PremiumOrder`, `GiftOrder`, `PremiumGiftOrder`'),
+    ('Entry point', '`DelegationDemo`, six acts'),
+],
+requirements=[
+    '**Money is integer cents.**',
+    '**The delegated and inherited orders agree on totals.**',
+    '**A rule can be swapped on a live order.**',
+    '**A rule is given the order it is called for.**',
+    '**Extra calls and forwarding methods are counted.**',
+],
+),
+
 }
 
 
