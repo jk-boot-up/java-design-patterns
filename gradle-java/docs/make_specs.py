@@ -6856,6 +6856,34 @@ requirements=[
 ],
 ),
 
+"consumer-driven-contract-with-pact": dict(
+purpose="""
+Show consumer-driven contracts with real Pact JVM: a rename that breaks checkout at run time, two consumers writing pact files with Pact's DSL after running their own clients against Pact's mock, the provider replaying both files against a real HTTP catalog, a rename caught with the consumer and the field named, an added field that passes, and a change of meaning that also passes.
+""",
+nongoals=[
+    'Not a re-teaching of Consumer-Driven Contract. The partner project owns the pattern; this one names it in its first paragraph.',
+    'Not a Pact tutorial. Only what the pattern needs is introduced, as it appears.',
+],
+problem="""
+Consumer-Driven Contract built contracts and a verifier by hand. Pact is the real library, with real pact files and a real replay over HTTP.
+
+**What this project must deliver:** a break in production, pact files from two consumers, a passing verification, a caught rename, an added field that passes, and a change of meaning that passes.
+""",
+roles=[
+    ('The demo', '`PactDemo`'),
+    ('The consumers', '`Pacts`, `CheckoutClient`, `ReportsClient`'),
+    ('The provider', '`Catalog`, `Release`'),
+    ('The verification', '`Verifier`, `CatalogVerification`'),
+],
+requirements=[
+    '**Pact is real:** pact files are written, and verified over HTTP.',
+    "**Consumers run their own clients against Pact's mock** before a pact is written.",
+    '**A failure names the consumer and the field.**',
+    '**No usage statistics are sent:** `pact_do_not_track` is set.',
+    '**Dependencies are explained.** `docs/dependencies.md` says what to install, what it costs, and that skipping loses nothing.',
+],
+),
+
 }
 
 

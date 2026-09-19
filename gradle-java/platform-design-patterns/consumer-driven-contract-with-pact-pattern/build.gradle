@@ -1,0 +1,40 @@
+plugins {
+    id 'java'
+    id 'application'
+}
+
+group = 'com.jk.explore'
+version = '1.0-SNAPSHOT'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // Pact JVM 4.7.5: the consumer DSL writes the pact, the provider module verifies it.
+    implementation 'au.com.dius.pact.consumer:junit5:4.7.5'
+    implementation 'au.com.dius.pact.provider:junit5:4.7.5'
+    // The demo runs the provider verification through the JUnit Platform, the way a build would.
+    implementation platform('org.junit:junit-bom:5.10.2')
+    implementation 'org.junit.jupiter:junit-jupiter'
+    implementation 'org.junit.platform:junit-platform-launcher'
+    runtimeOnly 'org.slf4j:slf4j-simple:2.0.16'
+
+    testImplementation platform('org.junit:junit-bom:5.10.2')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+application {
+    mainClass = 'com.jk.explore.pactcdc.PactDemo'
+}
+
+test {
+    useJUnitPlatform()
+}
