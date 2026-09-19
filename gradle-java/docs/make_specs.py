@@ -6280,6 +6280,34 @@ requirements=[
 ],
 ),
 
+"two-phase-termination": dict(
+purpose="""
+Teach Two-Phase Termination with an order worker: closing the ledger under a worker leaves an order half written, asking it to stop lets it finish the order in progress and start nothing else, a flag alone leaving a waiting worker asleep while an interrupt ends it, cleanup that runs in a finally block, a worker that ignores the request and is still alive after the time limit on the second phase, and five accepted orders left pending.
+""",
+nongoals=[
+    'Not forcing a thread to stop. Java has no safe way, and the project says so.',
+    'Not an executor. The worker is one thread with one queue.',
+    'Not signal handling or shutdown hooks.',
+],
+problem="""
+Stopping a worker abruptly can leave its work half done, and waiting for it forever can hang a shutdown.
+
+**What this project must deliver:** an abrupt stop shown to leave an order half written, a stop request that lets the order finish, a flag shown not to wake a sleeper, cleanup in a finally block, a stuck worker met by a time limit, and the pending orders bill.
+""",
+roles=[
+    ('The pattern', '`Worker` with `requestStop` and `awaitStop`'),
+    ('Support', '`Ledger`, `Gate`'),
+    ('Entry point', '`TwoPhaseDemo`, six acts'),
+],
+requirements=[
+    '**The half-written order is real:** the ledger records it.',
+    '**A requested stop finishes the order in progress and starts no other.**',
+    '**A flag alone leaves a waiting worker WAITING,** and an interrupt ends it.',
+    '**A worker that ignores the request is alive after the limit.**',
+    '**Pending orders are counted.**',
+],
+),
+
 }
 
 
