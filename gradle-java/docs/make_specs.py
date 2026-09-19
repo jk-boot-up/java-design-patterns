@@ -6365,6 +6365,33 @@ requirements=[
 ],
 ),
 
+"pipe-and-filter-architecture": dict(
+purpose="""
+Teach Pipe and Filter Architecture with an online store's order processing, in whole simulated ticks: one big step against three overlapping stages, the slowest stage setting the pace and its line piling up, widening only that stage, a limit on each waiting line pushing back to the door, and the orders lost when a stage crashes.
+""",
+nongoals=[
+    'Not threads or real time. It is a tick simulation, so every run is the same.',
+    'Not the individual filters of the micro-services project; here the stage is only a cost.',
+    'Not a message broker.',
+],
+problem="""
+Work done one order at a time in one step is slow, and stages that run together bring queues and bottlenecks.
+
+**What this project must deliver:** a comparison of one step with three stages, the bottleneck found from queue sizes, a widened slow stage, a limit and its backpressure, and the loss on a crash.
+""",
+roles=[
+    ('The pattern', '`Line`, `Stage`'),
+    ('Entry point', '`PipeFilterArchDemo`, six acts'),
+],
+requirements=[
+    '**Time is counted in ticks,** so every number is exact.',
+    '**Stages overlap,** so more orders finish than with one step.',
+    '**The longest line is in front of the slowest stage.**',
+    '**A limit keeps a line short and gives the same output.**',
+    '**A crash loses the orders in flight, and they are counted.**',
+],
+),
+
 }
 
 
