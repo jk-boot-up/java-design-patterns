@@ -5541,6 +5541,116 @@ requirements=[
 ],
 ),
 
+"transaction-script": dict(
+purpose="""
+Teach Transaction Script with placing an order: the whole action as one procedure, one transaction that undoes the stock change when the card is declined, a second script that copied the pricing and drifted, a shared helper, the growth of a script from three decisions to seven and from eight paths to a hundred and twenty eight, and a month-end job where a script is exactly right.
+""",
+nongoals=[
+    'Not an argument against scripts. The verdict names where they are best.',
+    'Not a real database. Db is a small in-memory store with a rollback.',
+    'Not the domain model. It is named as the next step, not built.',
+],
+problem="""
+The simplest way to write business logic works until the same rules appear in several scripts, and one script's decisions outgrow its tests.
+
+**What this project must deliver:** a script that does the whole action, a transaction that rolls back, drift between copies, a shared helper, growth shown by counting decisions in the real source, a case where a script is right, and a plain verdict.
+""",
+roles=[
+    ('Scripts', '`PlaceOrderScript`, `AmendOrderScript`, `PlaceOrderScriptGrown`, `MonthEndScript`'),
+    ('Shared', '`Pricing`, `Payment`'),
+    ('Storage', '`Db`'),
+    ('Entry point', '`TransactionScriptDemo`, six acts'),
+],
+requirements=[
+    '**The rollback is asserted:** stock and orders return to what they were.',
+    '**The drift is asserted:** 50.40 against 56.00.',
+    '**Decisions are counted from the real source:** 3 and 7.',
+    "**The grown script's rules all apply.**",
+],
+),
+
+"active-record": dict(
+purpose="""
+Teach Active Record with orders: a record that finds and saves itself in three lines, finders on the class, rules on the record, and three bills shown for real: a delivery rule that needs the table to be tested while the same rule on two numbers needs nothing, a renamed column that breaks loading, and five orders that cause five hidden table operations.
+""",
+nongoals=[
+    'Not a comparison with every ORM. Data Mapper is named as the alternative.',
+    'Not real SQL. The table is an in-memory store that counts every operation.',
+    'Not an argument against the pattern. The verdict names where it is right.',
+],
+problem="""
+Letting an object save itself is quick, and couples the class to the table, the tests to the table, and hides queries in innocent calls.
+
+**What this project must deliver:** a record that finds and saves itself, finders and rules on the class, each of the three bills shown with counted table operations, and a plain verdict.
+""",
+roles=[
+    ('Records', '`Order`, `Customer`'),
+    ('Storage', '`Table`, counting every operation'),
+    ('Contrast', '`PureDiscount`'),
+    ('Entry point', '`ActiveRecordDemo`, six acts'),
+],
+requirements=[
+    '**Table operations are counted,** never timed.',
+    '**The renamed column is asserted to break loading.**',
+    '**Five orders cause five operations,** and the pure rule causes none.',
+    '**Saving twice updates one row.**',
+],
+),
+
+"optimistic-offline-lock": dict(
+purpose="""
+Teach Optimistic Offline Lock with two clerks editing one product: a store with no lock that silently loses the price change, a version per row that refuses the stale save, a retry that reloads and reapplies so both changes survive, a conflict on different fields that was not really one, ten writers on a busy row where nine of ten saves are repeated, and a long edit of five changes discarded when it is finally saved.
+""",
+nongoals=[
+    'Not a database. The store is in memory, and its synchronised save stands in for a conditional update.',
+    'Not field-level merging. It is named as the alternative, not built.',
+    'Not the pessimistic lock. That is the next project.',
+],
+problem="""
+Two people edit the same row and the last save silently wins.
+
+**What this project must deliver:** a lost update shown for real, a version that refuses the stale save, a retry that keeps both changes, and the three costs of the pattern shown with counted saves.
+""",
+roles=[
+    ('Stores', '`OptimisticStore`, `LastWriteWinsStore`'),
+    ('Values', '`Product`, `Versioned`, `StaleWrite`'),
+    ('Entry point', '`OptimisticLockDemo`, six acts'),
+],
+requirements=[
+    '**The lost update is real:** the last-write-wins row loses the price.',
+    '**A stale save is refused and the first write survives.**',
+    '**Ten writers on one row lose nothing and attempt nineteen saves.**',
+    '**Different fields still conflict,** because the version is per row.',
+],
+),
+
+"pessimistic-offline-lock": dict(
+purpose="""
+Teach Pessimistic Offline Lock with two clerks editing a product: a lock that refuses the second clerk and names the holder, edits that overwrite nothing, the cost of waiting, a forgotten lock that expires on a clock the demo controls and stops the old owner writing, a deadlock between two clerks and its fix by taking locks in a fixed order, and the difference between locking a whole catalogue and a single product.
+""",
+nongoals=[
+    "Not a database lock. It is an application-level lock manager, which is what 'offline' means here.",
+    'Not a distributed lock. There is one process.',
+    'Not a fairness or queueing scheme. Waiting is by retrying.',
+],
+problem="""
+Where a clash would cost a lot, detecting it at save time is too late.
+
+**What this project must deliver:** a lock that prevents the clash and names its holder, edits that overwrite nothing, the cost of waiting, an expiring lock on a controlled clock, a deadlock and its fix, the granularity choice, and a plain verdict.
+""",
+roles=[
+    ('Locking', '`LockManager`, `LockedBy`, `Clock`'),
+    ('Data', '`ProductStore`'),
+    ('Entry point', '`PessimisticLockDemo`, six acts'),
+],
+requirements=[
+    '**Expiry uses a clock the demo controls,** never a real wait.',
+    "**A write without the lock is refused,** including the old owner's after expiry.",
+    '**A deadlock is shown, and fixed-order locking avoids it.**',
+    '**Only the holder can release.**',
+],
+),
+
 }
 
 
