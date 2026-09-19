@@ -120,6 +120,17 @@ ORDER = [
     ("enterprise-design-patterns", "unit-of-work-with-spring"),
     ("enterprise-design-patterns", "lazy-load-with-hibernate"),
     ("enterprise-design-patterns", "repository-with-spring-data"),
+    # The foundational category: how an object gets hold of another, and what
+    # happens when there is not one. The last three are one argument in three moves.
+    ("foundational-design-patterns", "null-object"),
+    ("foundational-design-patterns", "object-pool"),
+    ("foundational-design-patterns", "registry"),
+    ("foundational-design-patterns", "service-locator"),
+    ("foundational-design-patterns", "dependency-injection"),
+    ("foundational-design-patterns", "dependency-injection-with-spring"),
+    ("foundational-design-patterns", "registry-with-spring"),
+    ("foundational-design-patterns", "object-pool-with-hikaricp"),
+    ("foundational-design-patterns", "service-locator-with-consul"),
 ]
 
 # Demos that mint an identifier per run, so their output is not byte-stable.
@@ -185,6 +196,15 @@ NAMES = {
     "unit-of-work-with-spring": "Unit of Work with Spring",
     "lazy-load-with-hibernate": "Lazy Load with Hibernate",
     "repository-with-spring-data": "Repository with Spring Data",
+    "null-object": "Null Object",
+    "object-pool": "Object Pool",
+    "registry": "Registry",
+    "service-locator": "Service Locator",
+    "dependency-injection": "Dependency Injection",
+    "dependency-injection-with-spring": "Dependency Injection with Spring",
+    "registry-with-spring": "Registry with Spring",
+    "object-pool-with-hikaricp": "Object Pool with HikariCP",
+    "service-locator-with-consul": "Service Locator with Consul",
 }
 
 # ---------------------------------------------------------------------------
@@ -4360,6 +4380,262 @@ requirements=[
     "**The generated query is counted.** One statement, from Hibernate's statistics.",
     '**The leak is real in both directions.** A change is written with no save inside a transaction, and lost outside one.',
     '**Dependencies are explained.** `docs/dependencies.md` says what to install, what it costs, and that skipping loses nothing.',
+],
+),
+
+"null-object": dict(
+purpose="""
+Teach Null Object, and when not to use it. It shows null checks spreading across eight call sites until one is forgotten and throws a real NullPointerException, then a null object that removes every check with identical behaviour, and pays the bill most treatments omit: a null object hides errors, turning a failed lookup into a silent full-price order. It ends with a plain verdict and the two honest alternatives, Optional and an explicit failure.
+""",
+nongoals=[
+    'Not an argument that null objects are wrong. The verdict is that legitimate absence is the right use.',
+    "Not a tour of Optional's API. It is shown as the alternative that keeps absence and failure apart.",
+    'Not concurrency. There is one thread.',
+],
+problem="""
+Most customers have no discount. Returning null makes every caller check, and one of eight forgot.
+
+**What this project must deliver:** a `NoDiscount` that removes every check with identical behaviour, the silent-failure cost demonstrated, `Optional` and explicit failure shown fairly, and a plain verdict.
+""",
+roles=[
+    ('Domain', '`Discount`, `LoyaltyDiscount`, `StaffDiscount`, `DiscountDirectory`, `DiscountServiceDown`'),
+    ('Naive', '`NaiveCheckout`, eight methods, seven with a null check'),
+    ('Pattern', '`NoDiscount`, `NullObjectDirectory`, `NullObjectCheckout`'),
+    ('The bill and the alternative', '`ForgivingDirectory`, `OptionalDirectory`'),
+    ('Entry point', '`DiscountDemo`, six acts'),
+],
+requirements=[
+    '**The forgotten check is a real `NullPointerException`.** `NullObjectTest` asserts it.',
+    '**The behaviour is identical.** The naive and null-object checkouts give the same total for every customer.',
+    '**The bill is demonstrated.** A forgiving directory charges 10000 pence instead of 9000 on an outage.',
+    '**The verdict is stated aloud.** The video and the explainer end with it.',
+],
+),
+
+"object-pool": dict(
+purpose="""
+Teach Object Pool, and when it makes things worse. It shows the pattern earning its keep on an expensive payment connection, then pays the four costs with evidence: pooling a small object measured about three times slower than allocating it with the method documented, a returned connection leaking one customer's data to the next, an exhausted pool that hangs, and a size that is wrong in both directions. It ends with a plain verdict.
+""",
+nongoals=[
+    'Not JMH. The benchmark is hand-rolled with warm-up, medians and a documented method, and claims a direction, not an absolute number.',
+    'Not a connection-pool library tutorial. The pool is a small class built here.',
+    "Not a re-teaching of Thread Pool. It is linked as the pattern's other correct use.",
+],
+problem="""
+The payment gateway connection takes 200 milliseconds to make. A connection per payment is slow.
+
+**What this project must deliver:** a pool that fixes it, and then honest evidence for the four costs: a small pooled object slower than allocation, a dirty return, a leak, and mis-sizing, ending with a plain verdict.
+""",
+roles=[
+    ('Domain', '`PaymentConnection`, expensive to make and stateful'),
+    ('Naive', '`ConnectionPerPayment`'),
+    ('Pattern', '`ConnectionPool`'),
+    ('The evidence', '`Receipt`, `SmallObjectBenchmark`'),
+    ('Entry point', '`PaymentDemo`, six acts'),
+],
+requirements=[
+    '**No test asserts a timing.** `ObjectPoolTest` asserts connection counts, dirty state and timeouts.',
+    "**The benchmark's method is written down.** Warm-up, median, and allocation measured with and without escape.",
+    '**The dirty return is real.** The next borrower reads the previous card holder.',
+    '**The verdict is stated aloud.** Pool what is expensive outside the JVM, and nothing else.',
+],
+),
+
+"registry": dict(
+purpose="""
+Teach Registry honestly: a well-known place to find things, which removes the friction of passing a dependency through six constructors and pays for it with global state. It shows the naive version fairly, the registry removing the friction, and then four costs with runnable evidence: dependencies invisible in the signature, a test failing because of the order the tests ran in, contents unanswerable from any one file, and thread safety. It ends with a plain verdict and states the progression to Service Locator and Dependency Injection.
+""",
+nongoals=[
+    'Not an argument that every static lookup is wrong. The verdict names the narrow place a registry is best.',
+    'Not a re-teaching of Service Locator or Dependency Injection. They are the next two projects and are linked.',
+    'Not a thread-safety tutorial. The map is concurrent, and the point is that the question now exists.',
+],
+problem="""
+The payment gateway is needed six classes down. Passing it through six constructors is friction, and every class but the last only forwards it.
+
+**What this project must deliver:** a registry that removes the friction, and evidence for its costs, ending with a plain verdict.
+""",
+roles=[
+    ('The shared collaborators', '`DiscountPolicy`, `PaymentGateway`, `Notifier`, and `ForwardChain`'),
+    ('Naive', '`PassedDownCheckout`'),
+    ('Pattern', '`Registry`, `RegistryCheckout`'),
+    ('The evidence', '`OrderDependence`'),
+    ('Entry point', '`CheckoutDemo`, six acts'),
+],
+requirements=[
+    '**The naive version is treated fairly.** The friction is shown and said to be real, and honest.',
+    '**Order dependence is runnable.** `RegistryTest` runs the same two tests in both orders and asserts different outcomes.',
+    '**Invisible dependencies are proven.** `new RegistryCheckout()` has a zero-argument constructor and fails on first use.',
+    '**The verdict is stated aloud.** Narrowly, and never for what tests must replace.',
+],
+),
+
+"service-locator": dict(
+purpose="""
+Teach Service Locator by making the case against it honestly, with runnable evidence, while being fair that it was a reasonable answer to a real problem. It shows the genuine advances over a registry (lazy creation, lifetimes, swapping for a test), then the failures: the compiler silent while a dependency is missing so that a customer is charged before the failure, every class coupled to the locator, and tests that need it configured. It shows where the pattern is still right, java.util.ServiceLoader and plug-in systems, and ends with a plain verdict.
+""",
+nongoals=[
+    'Not a sneer. The project argues, and says the pattern was reasonable and is still right for plug-ins.',
+    'Not a re-teaching of Registry or Dependency Injection. They are the neighbouring projects and are linked.',
+    'Not a plug-in framework. One `ServiceLoader` demonstration is enough to show the legitimate case.',
+],
+problem="""
+The registry left dependencies invisible and state shared. A locator that can find or create things adds lazy creation, lifetimes and test swapping, and still hides what each class needs.
+
+**What this project must deliver:** the advances shown, the failures shown as evidence, the legitimate use shown with `ServiceLoader`, and a plain verdict.
+""",
+roles=[
+    ('The shared collaborators', '`DiscountPolicy`, `PaymentGateway`, `Notifier`'),
+    ('Pattern', '`ServiceLocator`, `LocatorCheckout`, `ReceiptPrinter`, `Auditor`'),
+    ('The legitimate case', '`PaymentMethod`, `CardPayment`, `BankTransferPayment`, and `META-INF/services`'),
+    ('Entry point', '`LocatorDemo`, six acts'),
+],
+requirements=[
+    '**The compiler-silence failure is runnable.** `ServiceLocatorTest` builds a checkout with a missing notifier, charges the customer, and asserts the failure came after the charge.',
+    '**The advances are real.** Lazy singleton, prototype, and a test swap are each asserted.',
+    '**The legitimate case is real.** `ServiceLoader` finds two providers listed in `META-INF/services`.',
+    '**The verdict is stated aloud.** Prefer the alternative for business logic.',
+],
+),
+
+"dependency-injection": dict(
+purpose="""
+Close the Registry, Service Locator, Dependency Injection argument: a class declares what it needs in its constructor and is given it, so the signature is the dependency list, complete and checked by the compiler. The wiring is shown by hand first with its line count, the three forms are given a clear recommendation (constructor, setter for optional, field discouraged with the reason shown), and a container is written from scratch so it is demystified. It pays the costs: wiring that grows, start-up failures for a missing bean or a circular dependency, and the seven-collaborator constructor as a design smell.
+""",
+nongoals=[
+    'Not a Spring tutorial. No framework appears in the build files, and the project says so.',
+    'Not a survey of containers. Spring, Guice and Dagger are named and not built.',
+    'Not a re-teaching of Registry or Service Locator. They are linked, and the progression is stated.',
+],
+problem="""
+The same checkout, with the same three collaborators. Registry and Service Locator both leave the class asking, so nobody outside it knows what it needs.
+
+**What this project must deliver:** constructor injection with the wiring done by hand and its line count stated, the three forms compared with a recommendation, a container written here, its start-up failures produced on purpose, and the three-part progression stated explicitly.
+""",
+roles=[
+    ('The shared collaborators', '`DiscountPolicy`, `PaymentGateway`, `Notifier`'),
+    ('The application', '`CheckoutService`, `ReceiptPrinter`, `Auditor`, `Storefront`'),
+    ('Wiring by hand', '`Wiring`'),
+    ('The three forms', '`CheckoutService`, `SetterInjectedCheckout`, `FieldInjectedCheckout`'),
+    ('A container', '`MiniContainer`, `Injector`, `ContainerFailure`'),
+    ('Entry point', '`WiringDemo`, six acts'),
+],
+requirements=[
+    '**The wiring is by hand first, and its length is stated.** `DependencyInjectionTest` counts the lines between the markers.',
+    '**A container is built here.** `MiniContainer` builds the same graph, and fails at start on a missing bean and on a cycle.',
+    "**Field injection's cost is real.** A `new` object throws `NullPointerException` until reflection fills it.",
+    '**The progression is stated explicitly.** In the explainer and aloud in the video.',
+],
+),
+
+"dependency-injection-with-spring": dict(
+purpose="""
+Show what Spring's container replaces from the partner Dependency Injection project: the same classes with one @Component each, the wiring code gone, Spring's real start-up failures for a missing bean and a circular dependency, field injection's cost, and what the magic costs. It keeps the verdict unchanged: constructor injection, by hand until the wiring hurts, then a container.
+""",
+nongoals=[
+    'Not a re-teaching of Dependency Injection. The partner project owns the pattern; this one names it in its first paragraph.',
+    'Not a Spring tutorial. `@Component` and `@Autowired` are introduced as they appear.',
+    'Not a web project. There is no controller and no web starter.',
+],
+problem="""
+Dependency Injection wired the application by hand and wrote a container. Spring's container does the same, from annotations.
+
+**What this project must deliver:** the same graph built by Spring, what each annotation replaced, Spring's real missing-bean and circular-dependency failures, field injection's cost, and a `docs/dependencies.md`.
+""",
+roles=[
+    ('Reused from the partner', 'The collaborators and application classes, with `@Component` added and constructors untouched'),
+    ('Framework setup', '`SpringDiApplication`, a Spring Boot application'),
+    ('The failures', '`Chicken`, `Egg`, `FieldInjectedCheckout`'),
+    ('Entry point', '`SpringDiApplication`, six acts'),
+],
+requirements=[
+    "**The partner's constructors are untouched.** `SpringDiTest` asserts the constructor's parameter types.",
+    '**Spring builds the same graph.** The same charge and three messages as the hand wiring.',
+    "**The failures are Spring's own.** `UnsatisfiedDependencyException` and `BeanCurrentlyInCreationException`.",
+    '**Dependencies are explained.** `docs/dependencies.md` says what to install, what it costs, and that skipping loses nothing.',
+],
+),
+
+"registry-with-spring": dict(
+purpose="""
+Show Spring's ApplicationContext as a registry: it fixes the hand-built registry's declared-registration and start-up-checking problems, and the best use is never to call it. It shows getBean inside a business class as a service locator, and the failure that is Spring's own: the test context cache leaking singleton state between tests, proven with real Spring tests, plus an untyped Environment lookup that is silently null and by-type ambiguity at run time.
+""",
+nongoals=[
+    'Not a re-teaching of Registry. The partner project owns the pattern; this one names it in its first paragraph.',
+    'Not a Spring tutorial. `@Component`, `getBean` and `@DirtiesContext` are introduced as they appear.',
+    'Not a web project. There is no controller and no web starter.',
+],
+problem="""
+Registry built a static registry and listed its costs. Spring's context is a registry with those costs mostly fixed, and one of its own.
+
+**What this project must deliver:** the context shown as the registry, injected versus asked, the cache leak proven with real Spring tests and fixed with `@DirtiesContext`, the property-typo and ambiguity failures, and a `docs/dependencies.md`.
+""",
+roles=[
+    ('Reused from the partner', 'The three collaborators, with `@Component` added'),
+    ('Framework setup', '`RegistrySpringApplication`, a Spring Boot application'),
+    ('Used well and badly', '`InjectedCheckout`, `LocatorStyleCheckout`'),
+    ('The failures', '`SharedContextLeakTest`, `Settings`, `SmsNotifier`'),
+    ('Entry point', '`RegistrySpringApplication`, six acts'),
+],
+requirements=[
+    '**The cache leak is proven with real Spring.** `SharedContextLeakTest` has a second test that passes only after the first.',
+    '**The fix is proven.** `DirtiesContextFixTest` sees a clean gateway after `@DirtiesContext`.',
+    "**Each test class has its own context.** So the project's own tests do not depend on class order.",
+    '**Dependencies are explained.** `docs/dependencies.md` says what to install, what it costs, and that skipping loses nothing.',
+],
+),
+
+"object-pool-with-hikaricp": dict(
+purpose="""
+Show HikariCP as the mature answer to the hand-built Object Pool's costs over real JDBC connections: it opens what demand needs, resets the JDBC state it knows about on return, and has a configurable timeout with a readable exhaustion message. It also shows what a library cannot fix: state inside the database session is invisible to the pool and leaks to the next borrower, and sizing is still a guess. It states the verdict: use a library, never write your own.
+""",
+nongoals=[
+    'Not a re-teaching of Object Pool. The partner project owns the pattern; this one names it in its first paragraph.',
+    'Not a HikariCP tuning guide. A few settings are introduced as they appear.',
+    'Not Spring. HikariCP is used directly; Spring Boot supplies only version numbers.',
+],
+problem="""
+Object Pool built a pool by hand and found four costs. HikariCP is the mature answer to several.
+
+**What this project must deliver:** the pool shown opening what demand needs, the reset on return, the session-variable leak it cannot fix, exhaustion with a readable timeout, sizing, and a `docs/dependencies.md`. No test asserts a timing.
+""",
+roles=[
+    ('Framework setup', '`Payments`, a payments table over in-memory H2 behind HikariCP'),
+    ('Entry point', '`HikariDemo`, six acts'),
+],
+requirements=[
+    '**No test asserts a timing.** `HikariPoolTest` asserts counts, states and exception messages.',
+    '**The reset is real.** autoCommit and readOnly return to their defaults for the next borrower.',
+    '**The remaining leak is real.** A session variable set by one borrower is read by the next.',
+    '**Dependencies are explained.** `docs/dependencies.md` says what to install, what it costs, and that skipping loses nothing.',
+],
+),
+
+"service-locator-with-consul": dict(
+purpose="""
+Show Service Locator as real service discovery, against a real Consul agent and real HTTP service instances: the locator asks for a service by name and is answered with what is healthy, and instances come and go without the caller's code changing. It shows the partner project's costs returning over a network (string names, a silent compiler, a charge that goes through before the failure), a new cost (a cached answer going stale), and the alternative: server-side discovery, with nginx in a Docker container, where the caller is given one address and never asks.
+""",
+nongoals=[
+    'Not a re-teaching of Service Locator. The partner project owns the pattern; this one names it in its first paragraph.',
+    'Not a Consul tutorial. Registration, TTL checks and a health query are shown, and nothing else.',
+    'Not a service-mesh or Kubernetes project. Their DNS and proxies are named as the given form.',
+],
+problem="""
+Service Locator argued against the pattern and said it is still right where what is available is a run-time fact. Service discovery is that case over a network.
+
+**What this project must deliver:** a real Consul agent and real instances, the advance shown, the old costs shown, a stale cache, nginx in Docker as the alternative, and a `docs/dependencies.md` saying what to install and that skipping loses nothing.
+""",
+roles=[
+    ('Real infrastructure', '`ConsulAgent`, `ServiceInstance`, `NginxFront`'),
+    ("Consul's API", '`ConsulClient`, `Address`'),
+    ('Pattern', '`Locator`, `ConsulLocator`, `CachingLocator`, `Discovery`, `LocatorCheckout`'),
+    ('Entry point', '`ConsulDemo`, six acts'),
+],
+requirements=[
+    '**Nothing is simulated.** The tests run a real Consul agent and real HTTP servers, and a real nginx container when Docker is available.',
+    '**Tests skip, not fail, without the infrastructure.** `consul` on the PATH, and Docker with the nginx image.',
+    '**The stale cache is real.** A cached address is still returned after the instance stopped, and the call fails.',
+    '**Nothing is left running.** The agent is stopped and the container removed when a run ends.',
 ],
 ),
 

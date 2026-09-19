@@ -3,8 +3,12 @@
 The ninth category. Five patterns taught alongside the Gang of Four without
 being in it, and used by every Java codebase daily.
 
-**Status: specified, not yet built.** The two documents below fix what the
-projects are before any of them is written.
+**Status: all five built, and four framework versions.** Each project has code, deterministic tests, a README,
+diagrams, an animation, a narrated video pipeline and a YouTube document. The two
+documents below fixed what the projects are before any of them was written. One
+thing differs from the plan: Dependency Injection writes a small container in plain
+Java instead of running Spring, so its container scene shows the mechanism and does
+not run a framework.
 
 - [`docs/spec.md`](docs/spec.md) — the scenario each pattern is taught through,
   the naive version it must show failing, the bill it must present, and the
@@ -61,6 +65,20 @@ Dependency Injection closes the argument, and it is the most useful project
 here. The wiring is shown by hand first — about twenty lines in a `main`
 method — so a reader sees that **a container is an optimisation of something they
 could write themselves**, before any annotation appears.
+
+## The four framework versions
+
+Each of these is its own project, with its own README, video and lesson. It opens by naming its
+hand-built partner, reuses the partner's collaborators, does not re-teach the pattern, and carries a
+`docs/dependencies.md` saying what to install, what it costs, and that skipping it loses none of the
+pattern. The hand-built projects keep no framework in their build files.
+
+| Project | Pairs with | Uses | What only it can show |
+| --- | --- | --- | --- |
+| Dependency Injection with Spring | Dependency Injection | Spring Boot 4.1.1 | What `@Component` replaced, and Spring's real start-up failures |
+| Registry with Spring | Registry | Spring Boot 4.1.1 | The context as a registry, and the test-cache leak that brings back order-dependent tests |
+| Object Pool with HikariCP | Object Pool | HikariCP, H2 | What a mature pool solves, and the session state it cannot reset |
+| Service Locator with Consul | Service Locator | A real Consul agent, real HTTP services, nginx in Docker | Real service discovery, a stale cache, and being given an address instead of asking |
 
 ## Where this sits
 

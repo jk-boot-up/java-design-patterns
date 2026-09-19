@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Future/Promise Pattern — Animated Walkthrough</title>
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 24px;
+    background: #0f172a; color: #e2e8f0;
+    font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
+    padding-top: calc(24px + env(safe-area-inset-top, 0px));
+    padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+  }
+  h1 { font-size: 1.4rem; margin: 0 0 4px; }
+  p.sub { color: #94a3b8; margin: 0 0 20px; max-width: 70ch; }
+  .wrap { max-width: 1100px; margin: 0 auto; }
+  .stage {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+    margin-bottom: 16px;
+  }
+  @media (max-width: 760px) { .stage { grid-template-columns: 1fr; } }
+  .boxes { display: flex; flex-direction: column; gap: 10px; }
+  .row {
+    border: 2px solid #334155; border-radius: 10px; padding: 12px 16px;
+    background: #1e293b; transition: all .25s ease; opacity: .55;
+  }
+  .row .name { font-weight: 700; font-size: 1rem; }
+  .row .job { color: #94a3b8; font-size: .82rem; margin-top: 2px; }
+  .row.active { opacity: 1; box-shadow: 0 0 0 2px currentColor inset; }
+  .row.wrong { border-color: #f87171; color: #f87171; }
+  .row.wrong.active { background: #3f1d24; }
+  .row.ok { border-color: #34d399; color: #34d399; }
+  .row.ok.active { background: #10261f; }
+  .row.amber { border-color: #fbbf24; color: #fbbf24; }
+  .row.amber.active { background: #2a2110; }
+  .row.dim { opacity: .22; }
+  .console {
+    background: #020617; border: 1px solid #334155; border-radius: 10px;
+    padding: 16px; font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    font-size: .86rem; line-height: 1.55; overflow-y: auto; min-height: 320px;
+    white-space: pre-wrap;
+  }
+  #console-lines span.ok { color: #34d399; }
+  #console-lines span.bad { color: #f87171; }
+  #console-lines span.amber { color: #fbbf24; }
+  #console-lines span.muted { color: #94a3b8; }
+  .narration {
+    background: #1e293b; border: 1px solid #334155; border-radius: 10px;
+    padding: 14px 18px; margin-bottom: 16px; min-height: 3.2em;
+  }
+  .controls { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  button {
+    background: #334155; color: #e2e8f0; border: 1px solid #475569;
+    border-radius: 8px; padding: 10px 18px; font-size: .92rem; cursor: pointer;
+  }
+  button:hover { background: #475569; }
+  button#play { background: #7c3aed; border-color: #7c3aed; }
+  button#play:hover { background: #8b5cf6; }
+  #progress { color: #94a3b8; font-size: .85rem; margin-left: auto; }
+  .step-label {
+    font-size: .78rem; text-transform: uppercase; letter-spacing: .04em;
+    color: #a78bfa; font-weight: 700; margin-bottom: 4px;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Future/Promise — Step by Step</h1>
+  <p class="sub">
+    Six acts, the same ones the demo prints. The locator box turns red when it returns nothing, or an address that has gone.
+  </p>
+
+  <div class="narration">
+    <div class="step-label" id="step-label">Ready</div>
+    <div id="narration">Press Step or Play to begin.</div>
+  </div>
+
+  <div class="stage">
+    <div class="boxes" id="boxes">
+      <div class="row" id="row-caller">
+        <div class="name">the caller</div>
+        <div class="job">asks by name, or is given an address</div>
+      </div>
+      <div class="row" id="row-locator">
+        <div class="name">the locator</div>
+        <div class="job">asks Consul, or remembers</div>
+      </div>
+      <div class="row" id="row-instances">
+        <div class="name">the instances</div>
+        <div class="job">real HTTP servers, coming and going</div>
+      </div>
+    </div>
+    <div class="console"><div id="console-lines"></div></div>
+  </div>
+
+  <div class="controls">
+    <button id="step">Step ▸</button>
+    <button id="play">Play ▶</button>
+    <button id="reset">Reset ↺</button>
+    <span id="progress">0 / 0</span>
+  </div>
+</div>
+
+<script>
+const STEPS = [
+  {
+    label: "Act 1 — Consul answers",
+    narration: "The locator asks Consul for the healthy payment gateways and gets two. Four orders are shared two and two. The checkout never knew an address.",
+    rows: { caller: "active ok", locator: "active ok", instances: "active ok" },
+    console: [
+      ["healthy instances: 2", "ok"],
+      ["gateway-1: 2, gateway-2: 2", "ok"],
+    ],
+  },
+  {
+    label: "Act 2 — instances change",
+    narration: "Gateway-1's check fails, and all four orders go to gateway-2. It recovers and is used again. The checkout's code did not change.",
+    rows: { locator: "active ok", instances: "active amber" },
+    console: [
+      ["gateway-1 served 0, gateway-2 served 4", "ok"],
+      ["recovered: 2 healthy", "ok"],
+    ],
+  },
+  {
+    label: "Act 3 — strings, and silence",
+    narration: "A typo compiles and fails at run time. A lost notifier registration is found only after the customer was charged.",
+    rows: { caller: "active wrong", locator: "active wrong" },
+    console: [
+      ["no healthy instance of notifier", "bad"],
+      ["1 charge went through", "bad"],
+    ],
+  },
+  {
+    label: "Act 4 — a stale cache",
+    narration: "A caching locator remembers an address. The instance dies, and the cache still hands it out. The call fails. Consul was asked once. Faster, and wrong.",
+    rows: { locator: "active wrong", instances: "active wrong" },
+    console: [
+      ["ConnectException", "bad"],
+      ["Consul asked 1 time", "amber"],
+    ],
+  },
+  {
+    label: "Act 5 — be given",
+    narration: "nginx in a Docker container is given the healthy instances once. The caller asks nothing. When an instance dies, nginx retries the next. Four of four still succeed.",
+    rows: { caller: "active ok", instances: "active ok" },
+    console: [
+      ["4 of 4 requests succeeded", "ok"],
+      ["after a failure: 4 of 4 still", "ok"],
+    ],
+  },
+  {
+    label: "Act 6 — the verdict",
+    narration: "Discovery is the strongest case for a locator. Even so, prefer to be given an address by the platform than to have every class ask.",
+    rows: { locator: "active amber", caller: "active ok" },
+    console: [
+      ["be given, do not ask", "ok"],
+    ],
+  },
+];
+
+const rowIds = ["caller", "locator", "instances"];
+const stepLabel = document.getElementById("step-label");
+const narrationEl = document.getElementById("narration");
+const consoleEl = document.getElementById("console-lines");
+const progressEl = document.getElementById("progress");
+const stepBtn = document.getElementById("step");
+const playBtn = document.getElementById("play");
+const resetBtn = document.getElementById("reset");
+
+let i = -1;
+let timer = null;
+
+function clearRows() {
+  for (const id of rowIds) {
+    document.getElementById("row-" + id).className = "row";
+  }
+}
+
+function render() {
+  clearRows();
+  if (i < 0) {
+    stepLabel.textContent = "Ready";
+    narrationEl.textContent = "Press Step or Play to begin.";
+    consoleEl.innerHTML = "";
+    progressEl.textContent = "0 / " + STEPS.length;
+    return;
+  }
+  const s = STEPS[i];
+  stepLabel.textContent = s.label;
+  narrationEl.textContent = s.narration;
+  for (const id of rowIds) {
+    const el = document.getElementById("row-" + id);
+    const cls = s.rows[id];
+    el.className = "row " + (cls ? cls : "dim");
+  }
+  consoleEl.innerHTML = s.console
+    .map(([text, cls]) => '<span class="' + cls + '">' + text + "</span>")
+    .join("\n");
+  progressEl.textContent = (i + 1) + " / " + STEPS.length;
+}
+
+function step() {
+  if (i >= STEPS.length - 1) { stopPlay(); return; }
+  i += 1;
+  render();
+}
+
+function reset() {
+  stopPlay();
+  i = -1;
+  render();
+}
+
+function startPlay() {
+  if (timer) return;
+  playBtn.textContent = "Pause ❚❚";
+  timer = setInterval(() => {
+    if (i >= STEPS.length - 1) { stopPlay(); return; }
+    step();
+  }, 2600);
+}
+
+function stopPlay() {
+  if (timer) clearInterval(timer);
+  timer = null;
+  playBtn.textContent = "Play ▶";
+}
+
+stepBtn.addEventListener("click", () => { stopPlay(); step(); });
+resetBtn.addEventListener("click", reset);
+playBtn.addEventListener("click", () => { if (timer) stopPlay(); else startPlay(); });
+
+render();
+</script>
+</body>
+</html>

@@ -222,6 +222,33 @@ META = {
     "repository-with-spring-data": (["REPOSITORY", "SPRING DATA"],
                   "An interface with no implementation",
                   "interface CustomerRepository"),
+    "null-object": (["NULL", "OBJECT"],
+                  "The discount that is not there",
+                  "NoDiscount.apply(price)"),
+    "object-pool": (["OBJECT", "POOL"],
+                  "Expensive to make, cheap to borrow",
+                  "pool.borrow()"),
+    "registry": (["REGISTRY", "PATTERN"],
+                  "The well-known place everything is kept",
+                  "Registry.get(PaymentGateway.class)"),
+    "service-locator": (["SERVICE", "LOCATOR"],
+                  "Ask a middleman for what you need",
+                  "locator.find(Notifier.class)"),
+    "dependency-injection": (["DEPENDENCY", "INJECTION"],
+                  "Stop asking; be given",
+                  "new CheckoutService(policy, gateway)"),
+    "dependency-injection-with-spring": (["DEPENDENCY INJECTION", "WITH SPRING"],
+                  "The same graph, wired by a container",
+                  "@Component"),
+    "registry-with-spring": (["REGISTRY", "WITH SPRING"],
+                  "The context is a registry you did not write",
+                  "ctx.getBean(Gateway.class)"),
+    "object-pool-with-hikaricp": (["OBJECT POOL", "WITH HIKARICP"],
+                  "The mature answer to leaks and dirty state",
+                  "dataSource.getConnection()"),
+    "service-locator-with-consul": (["SERVICE LOCATOR", "WITH CONSUL"],
+                  "Real service discovery, and its stale cache",
+                  "consul.find(\"payment-gateway\")"),
 }
 
 GROUP = {
@@ -269,6 +296,19 @@ GROUP.update({slug: "architectural-design-patterns" for slug in (
 GROUP.update({slug: "concurrency-design-patterns" for slug in (
     "producer-consumer", "thread-pool", "future-promise",
     "read-write-lock", "monitor-object", "active-object")})
+
+GROUP.update({slug: "foundational-design-patterns" for slug in (
+    "dependency-injection-with-spring",
+    "registry-with-spring",
+    "object-pool-with-hikaricp",
+    "service-locator-with-consul",
+
+    "null-object",
+    "object-pool",
+    "registry",
+    "service-locator",
+    "dependency-injection",
+    )})
 
 GROUP.update({slug: "enterprise-design-patterns" for slug in (
     "data-mapper",

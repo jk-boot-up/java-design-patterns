@@ -4,8 +4,8 @@ How the five projects in this category get built. [`spec.md`](spec.md) fixes wha
 they are; this fixes the order, the rules that keep the build from redoing
 itself, and what "finished" means.
 
-**Nothing here is built yet.** This document and [`spec.md`](spec.md) are the
-whole category at the time of writing.
+**All five projects are built.** One deliberate difference from this plan: Dependency
+Injection writes a small container in plain Java rather than running Spring Boot.
 
 ---
 
@@ -14,9 +14,9 @@ whole category at the time of writing.
 | | |
 | --- | --- |
 | Projects specified | 5 |
-| Projects built | 0 |
-| Category registered with the shared generators | no |
-| Existing projects in the repository | 37 built; 30 more specified across the platform, concurrency, enterprise and architectural categories |
+| Projects built | 9 (five by hand, four with a framework or infrastructure) |
+| Category registered with the shared generators | yes |
+| Existing projects in the repository | 68 built (37, plus 5 architectural, 6 concurrency, 11 enterprise and these 9) |
 
 ---
 
@@ -152,6 +152,17 @@ use is accounted for here before it reaches a build file.
 | `null-object`, `registry`, `service-locator` | 1 | **nothing else** | Each pattern is a dozen lines. A library would be larger than the subject. |
 | `object-pool` | 1 | **nothing else**, with a caveat | See below. |
 | `dependency-injection` | 2 | Spring Boot (`3.3.x`) | The container is how every reader has met this pattern. Recognition is the scene's whole job. |
+| `dependency-injection-with-spring` | own project | Spring Boot (`4.1.1`), the container only | Built as a project of its own, after its hand-built partner. |
+| `registry-with-spring` | own project | Spring Boot (`4.1.1`), its test support | The test-context cache is Spring's own version of the registry's order dependence. |
+| `object-pool-with-hikaricp` | own project | HikariCP, H2, `slf4j-nop`, versions from Spring Boot 4.1.1's bill of materials | The mature answer to the hand-built pool's costs, over real JDBC. |
+| `service-locator-with-consul` | own project | **A real Consul agent, run as a local process**; **Docker, running `nginx:1.31.5-alpine`**; no Java library beyond the JDK | Real service discovery needs a real agent, and server-side discovery needs a real proxy. |
+
+**Infrastructure used by `service-locator-with-consul`.** Consul runs in development mode as a child process on
+ports chosen at run time and is stopped when the run ends. nginx runs in a container named
+`locator-demo-nginx`, started and removed by the project, which touches no other container. Both are optional
+for anyone reading: the tests are skipped, not failed, when `consul` is not on the PATH or Docker and the image
+are unavailable, and `docs/dependencies.md` says so. Act five relies on Docker Desktop providing
+`host.docker.internal`.
 
 **The Object Pool caveat.** JMH is the correct tool for the benchmark in §69 and
 is available if needed. It is not the first choice only because it changes the

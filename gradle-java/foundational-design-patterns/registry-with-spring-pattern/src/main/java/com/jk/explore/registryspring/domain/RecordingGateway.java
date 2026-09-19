@@ -1,0 +1,23 @@
+package com.jk.explore.registryspring.domain;
+
+import org.springframework.stereotype.Component;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/** A gateway that remembers every charge, so a demo or test can say what was taken. */
+@Component
+public final class RecordingGateway implements PaymentGateway {
+
+    private final List<Long> charges = new ArrayList<>();
+
+    @Override
+    public String charge(long pence) {
+        charges.add(pence);
+        return "receipt-" + charges.size();
+    }
+
+    public List<Long> charges() {
+        return List.copyOf(charges);
+    }
+}

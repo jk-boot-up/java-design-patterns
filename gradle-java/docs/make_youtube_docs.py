@@ -109,6 +109,15 @@ ORDER = [
     ("enterprise-design-patterns", "unit-of-work-with-spring"),
     ("enterprise-design-patterns", "lazy-load-with-hibernate"),
     ("enterprise-design-patterns", "repository-with-spring-data"),
+    ("foundational-design-patterns", "null-object"),
+    ("foundational-design-patterns", "object-pool"),
+    ("foundational-design-patterns", "registry"),
+    ("foundational-design-patterns", "service-locator"),
+    ("foundational-design-patterns", "dependency-injection"),
+    ("foundational-design-patterns", "dependency-injection-with-spring"),
+    ("foundational-design-patterns", "registry-with-spring"),
+    ("foundational-design-patterns", "object-pool-with-hikaricp"),
+    ("foundational-design-patterns", "service-locator-with-consul"),
 ]
 
 # Per-project title and tag material. The title is what gets pasted into
@@ -383,6 +392,42 @@ META = {
     "repository-with-spring-data": {
         "title": "Spring Data Repository - An Interface With No Implementation",
         "tags": ["spring data jpa", "jparepository", "repository pattern spring"],
+    },
+    "null-object": {
+        "title": "Null Object in Java - The Discount That Is Not There",
+        "tags": ["null object pattern", "java optional", "nullpointerexception"],
+    },
+    "object-pool": {
+        "title": "Object Pool in Java - When Pooling Makes It Slower",
+        "tags": ["object pool pattern", "connection pool", "java performance"],
+    },
+    "registry": {
+        "title": "Registry in Java - A Global Variable With Better Manners",
+        "tags": ["registry pattern", "global state", "java singleton"],
+    },
+    "service-locator": {
+        "title": "Service Locator in Java - Why It Is Called An Anti-Pattern",
+        "tags": ["service locator pattern", "anti-pattern", "serviceloader"],
+    },
+    "dependency-injection": {
+        "title": "Dependency Injection in Java - Without Spring, First",
+        "tags": ["dependency injection", "constructor injection", "java di"],
+    },
+    "dependency-injection-with-spring": {
+        "title": "Dependency Injection with Spring - Recognise The Wiring",
+        "tags": ["spring dependency injection", "spring boot", "constructor injection"],
+    },
+    "registry-with-spring": {
+        "title": "Spring's Registry - The Context And Its Shared State",
+        "tags": ["spring applicationcontext", "beanfactory", "spring test context caching"],
+    },
+    "object-pool-with-hikaricp": {
+        "title": "Object Pool with HikariCP - The Mature Answer",
+        "tags": ["hikaricp", "connection pool", "java database"],
+    },
+    "service-locator-with-consul": {
+        "title": "Service Locator with Consul - Real Service Discovery",
+        "tags": ["consul service discovery", "service locator", "microservices"],
     },
 }
 
