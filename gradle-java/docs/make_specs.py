@@ -6337,6 +6337,34 @@ requirements=[
 ],
 ),
 
+"microkernel": dict(
+purpose="""
+Teach Microkernel with an online store's checkout: a checkout with every feature inside that cannot add gift wrap without an edit, a kernel that knows one Plugin interface and runs plugins in order, plugins added and removed while running with start and stop, a broken plugin recorded and skipped, the order of plugins changing the price, and an interface too narrow for what plugins want.
+""",
+nongoals=[
+    'Not class loading or OSGi. Plugins are objects registered by hand.',
+    'Not a plugin marketplace or versioning.',
+    'Not sandboxing. A plugin runs in the same process.',
+],
+problem="""
+A checkout with every feature inside must be edited and released whole for each new feature.
+
+**What this project must deliver:** a monolith that cannot add a feature without an edit, a kernel with one plugin interface, plugins added and removed at run time, a broken plugin contained, order shown to matter, and the narrow interface.
+""",
+roles=[
+    ('The pattern', '`Kernel`, `Plugin`'),
+    ('Plugins', '`PercentOff`, `Fee`, `BrokenPlugin`'),
+    ('Naive', '`MonolithCheckout`'),
+    ('Entry point', '`MicrokernelDemo`, six acts'),
+],
+requirements=[
+    '**Totals are integers in cents,** so results are exact.',
+    '**Register starts and unregister stops.**',
+    '**A throwing plugin is recorded and the rest run.**',
+    '**Plugin order is shown to change the total.**',
+],
+),
+
 }
 
 
