@@ -5651,6 +5651,65 @@ requirements=[
 ],
 ),
 
+"front-controller": dict(
+purpose="""
+Teach Front Controller with a web store: three handlers that each look after their own sign-in and logging and one that forgets both, one entry point with filters and a routing table that checks the sign-in once for every route, answers unknown pages and wrong methods uniformly, logs even refused requests, and hides a failure's detail from the customer, and the outage that one buggy filter causes across every page.
+""",
+nongoals=[
+    'Not a web framework. Requests and responses are plain records.',
+    'Not a security tutorial. The token check is deliberately trivial.',
+    'Not an API gateway. That is a separate pattern in the microservices category.',
+],
+problem="""
+Shared work written into every handler gets forgotten by one of them.
+
+**What this project must deliver:** a naive set of handlers with a real unauthenticated hole, one controller with filters and routes that closes it, central 404, 405 and 500 answers, a log that includes refused requests, and the single point of failure shown honestly.
+""",
+roles=[
+    ('The door', '`FrontController`, `Filters`, `Filter`'),
+    ('Handlers', '`Handlers`, `Handler`'),
+    ('Values', '`Request`, `Response`, `Journal`'),
+    ('Naive', '`NaiveHandlers`'),
+    ('Entry point', '`FrontControllerDemo`, six acts'),
+],
+requirements=[
+    '**The forgotten check is a real hole:** the naive orders handler serves an unsigned visitor.',
+    '**Refused requests are logged.**',
+    "**A failure's message never reaches the customer.**",
+    '**A buggy filter brings every route down,** and a test says so.',
+],
+),
+
+"gateway": dict(
+purpose="""
+Teach Gateway with a payment provider: three features that call the provider's client directly and build its fields and read its codes themselves, one of which forgot the currency; one gateway in the shop's words that alone knows Acme's fields and codes; tests with a fake that never touches the network; a timeout retried once in one place; a second provider behind the same door with the shop unchanged; and the limit that a common interface can only say what every provider can say.
+""",
+nongoals=[
+    'Not a payment integration. The provider clients are small simulations with scripted answers.',
+    'Not a full resilience story. There is one retry, and the other patterns are in the microservices category.',
+    'Not the Adapter pattern by name, though the shape is the same.',
+],
+problem="""
+Calling an outside system's client from many places spreads its fields and codes, and makes every test a network test.
+
+**What this project must deliver:** a gateway in the shop's words, one class that knows the provider, a fake that makes no network calls, a retry in one place, a second provider behind the same door, the naive callers' real bug, and the limit of a common interface.
+""",
+roles=[
+    ('The door', '`PaymentGateway`, `PaymentResult`, `PaymentStatus`'),
+    ('Implementations', '`AcmeGateway`, `BetaGateway`, `FakeGateway`'),
+    ('The shop', '`Checkout`'),
+    ('Providers', '`vendor.AcmeClient`, `vendor.BetaPayClient`'),
+    ('Naive', '`NaiveCheckout`'),
+    ('Entry point', '`GatewayDemo`, six acts'),
+],
+requirements=[
+    '**Network calls are counted:** the fake makes none.',
+    '**Every Acme code is translated,** and an unknown code is not swallowed.',
+    '**One timeout is retried once,** two are reported as unavailable.',
+    '**The naive gift card really omits the currency.**',
+],
+),
+
 }
 
 
