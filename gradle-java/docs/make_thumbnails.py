@@ -249,6 +249,63 @@ META = {
     "service-locator-with-consul": (["SERVICE LOCATOR", "WITH CONSUL"],
                   "Real service discovery, and its stale cache",
                   "consul.find(\"payment-gateway\")"),
+    "thread-pool-with-spring": (["THREAD POOL", "WITH SPRING"],
+                  "@Async, and the pool behind it",
+                  "@Async"),
+    "future-promise-with-spring": (["FUTURE PROMISE", "WITH SPRING"],
+                  "CompletableFuture through @Async",
+                  "@Async CompletableFuture"),
+    "active-object-with-spring": (["ACTIVE OBJECT", "WITH SPRING"],
+                  "A single-thread executor as a mailbox",
+                  "@Async single thread"),
+    "singleton-with-spring": (["SINGLETON", "WITH SPRING"],
+                  "A singleton the container owns",
+                  "@Scope singleton"),
+    "prototype-with-spring": (["PROTOTYPE", "WITH SPRING"],
+                  "A prototype bean inside a singleton",
+                  "@Scope prototype"),
+    "proxy-with-spring": (["PROXY", "WITH SPRING"],
+                  "Spring AOP and the call that bypasses it",
+                  "@Transactional proxy"),
+    "observer-with-spring": (["OBSERVER", "WITH SPRING"],
+                  "ApplicationEvent and @EventListener",
+                  "@EventListener"),
+    "strategy-with-spring": (["STRATEGY", "WITH SPRING"],
+                  "Strategies as beans, chosen by name",
+                  "Map<String, Strategy>"),
+    "template-method-with-spring": (["TEMPLATE METHOD", "WITH SPRING"],
+                  "JdbcTemplate is the pattern",
+                  "jdbcTemplate.query"),
+    "chain-of-responsibility-with-spring": (["CHAIN OF", "RESPONSIBILITY"],
+                  "Servlet filters, in order",
+                  "OncePerRequestFilter"),
+    "interpreter-with-spel": (["INTERPRETER", "WITH SPEL"],
+                  "An expression language you did not write",
+                  "parser.parseExpression"),
+    "circuit-breaker-with-resilience4j": (["CIRCUIT BREAKER", "RESILIENCE4J"],
+                  "The real library, and its defaults",
+                  "@CircuitBreaker"),
+    "retry-with-resilience4j": (["RETRY", "RESILIENCE4J"],
+                  "Backoff, jitter, and annotation order",
+                  "@Retry"),
+    "bulkhead-with-resilience4j": (["BULKHEAD", "RESILIENCE4J"],
+                  "Semaphore and thread-pool bulkheads",
+                  "@Bulkhead"),
+    "api-gateway-with-spring-cloud-gateway": (["API GATEWAY", "SPRING CLOUD"],
+                  "A real gateway, routes and filters",
+                  "RouteLocator"),
+    "load-balancing-with-spring-cloud-loadbalancer": (["LOAD BALANCING", "SPRING CLOUD"],
+                  "Client-side balancing, and its cache",
+                  "@LoadBalanced"),
+    "layered-architecture-with-spring-boot": (["LAYERED", "WITH SPRING BOOT"],
+                  "Real layers, enforced by a test",
+                  "@RestController"),
+    "mvc-with-spring-mvc": (["MVC", "WITH SPRING MVC"],
+                  "A controller, a model, a view",
+                  "@Controller"),
+    "hexagonal-architecture-with-spring-boot": (["HEXAGONAL", "WITH SPRING BOOT"],
+                  "Ports, adapters and the wiring",
+                  "@Configuration"),
 }
 
 GROUP = {
@@ -322,6 +379,44 @@ GROUP.update({slug: "enterprise-design-patterns" for slug in (
     "unit-of-work-with-spring",
     "lazy-load-with-hibernate",
     "repository-with-spring-data",
+    )})
+
+
+GROUP.update({slug: "concurrency-design-patterns" for slug in (
+    "thread-pool-with-spring",
+    "future-promise-with-spring",
+    "active-object-with-spring",
+    )})
+
+GROUP.update({slug: "creational" for slug in (
+    "singleton-with-spring",
+    "prototype-with-spring",
+    )})
+
+GROUP.update({slug: "structural" for slug in (
+    "proxy-with-spring",
+    )})
+
+GROUP.update({slug: "behavioural" for slug in (
+    "observer-with-spring",
+    "strategy-with-spring",
+    "template-method-with-spring",
+    "chain-of-responsibility-with-spring",
+    "interpreter-with-spel",
+    )})
+
+GROUP.update({slug: "micro-services-design-patterns" for slug in (
+    "circuit-breaker-with-resilience4j",
+    "retry-with-resilience4j",
+    "bulkhead-with-resilience4j",
+    "api-gateway-with-spring-cloud-gateway",
+    "load-balancing-with-spring-cloud-loadbalancer",
+    )})
+
+GROUP.update({slug: "architectural-design-patterns" for slug in (
+    "layered-architecture-with-spring-boot",
+    "mvc-with-spring-mvc",
+    "hexagonal-architecture-with-spring-boot",
     )})
 
 

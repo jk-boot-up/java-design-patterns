@@ -1,0 +1,7 @@
+# One node: a control plane that also runs Pods. That is all a laptop needs, and
+# it is the honest edge of what this project shows: a real cluster has many.
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+name: sidecar-demo
+nodes:
+  - role: control-plane

@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tier 2 — the router as a real nginx, in front of two real services</title>
+<style>
+:root {
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --ok: #34d399;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: #7dd3fc; }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: rgba(167, 139, 250, 0.08);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: rgba(30, 41, 59, 0.55); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+</style>
+</head>
+<body>
+<main>
+<h1>Tier 2 — the router as a real nginx, in front of two real services</h1>
+<p>Tier 1 makes the argument in one JVM. This directory runs the router as <strong>nginx</strong>, the thing a real migration would use, in front of <strong>two real HTTP services</strong>. Both services are Tier 1&#x27;s own classes: <code>legacy</code> runs the legacy checkout&#x27;s pricing and <code>fresh</code> runs the rewrite&#x27;s, so whatever the router does is done to code Tier 1 already tested.</p>
+<p><strong>Tier 2 is optional.</strong> Skipping it loses none of the pattern.</p>
+<pre><code>./demo.sh          # compiles Tier 1, starts three containers, runs four acts, stops them</code></pre>
+<p>Requires a JDK 21, Docker, and a network the first time (Docker pulls a JRE and nginx). It starts three containers and <code>demo.sh</code> removes them when it finishes or fails. To stop them by hand: <code>docker compose down</code>.</p>
+<p>The parent&#x27;s <code>settings.gradle</code> does not include this directory, so <code>./gradlew test</code> one level up never starts Docker.</p>
+<h2>What is running</h2>
+<table><thead><tr><th>Container</th><th>Image</th><th>What it is</th></tr></thead><tbody><tr><td><code>strangler-demo-legacy</code></td><td>built from <code>Dockerfile</code></td><td>Tier 1&#x27;s legacy pricing, behind <code>/api/orders/price</code>.</td></tr><tr><td><code>strangler-demo-fresh</code></td><td>the same image</td><td>Tier 1&#x27;s rewritten pricing. The same endpoint, a different answer at exactly fifty pounds.</td></tr><tr><td><code>strangler-demo-router</code></td><td><code>nginx:1.31.5-alpine</code></td><td>The strangler. One file, <code>routes.conf</code>, decides where pricing goes.</td></tr></tbody></table>
+<h3>The one file that moves a capability</h3>
+<p><code>nginx/routes-legacy.conf</code>, <code>routes-shadow.conf</code> and <code>routes-fresh.conf</code> are the three states of <code>routes.conf</code>. The demo copies one into place and runs <code>nginx -s reload</code>, which swaps the configuration in without dropping a connection.</p>
+<pre><code># shadow: legacy answers, and the new service receives a duplicate whose answer is discarded
+location /api/orders/price {
+    proxy_pass http://legacy;
+    mirror /internal-shadow;
+    mirror_request_body off;
+}</code></pre>
+<p><code>/api/orders/stock</code> is not in that file at all. It is legacy&#x27;s in every state, which is why moving pricing cannot move stock.</p>
+<h2>The transcript</h2>
+<p>Captured from a real run. Never edit it by hand.</p>
+<pre><code>Compiling Tier 1 and starting three containers
+========================================================================
+
+Act 1 — every route starts on legacy
+========================================================================
+  a price for an order of exactly fifty pounds, and one of forty:
+    total=6495 delivery=495 servedBy=legacy   (X-Served-By: legacy)
+    total=5295 delivery=495 servedBy=legacy   (X-Served-By: legacy)
+  stock, which will never move in this demo:
+    served by legacy
+========================================================================
+
+Act 2 — shadow: legacy serves, and the new service receives a copy
+========================================================================
+  the new service before: requests=0 servedBy=fresh
+    total=6495 delivery=495 servedBy=legacy   (X-Served-By: legacy)
+  the new service after:  requests=1 servedBy=fresh
+  what each service computed for order 3, from its own log:
+    legacy: price id=3 -&gt; total=6495 delivery=495 servedBy=legacy
+    fresh:  price id=3 -&gt; total=6000 delivery=0 servedBy=fresh
+
+  The customer got legacy&#x27;s answer. The new service was called as well, and the two
+  disagree: at exactly fifty pounds legacy charges delivery and the rewrite does not.
+  That is the difference Tier 1&#x27;s shadow reads found, found here on real requests.
+========================================================================
+
+Act 3 — move pricing: a config edit and a reload, with no restart
+========================================================================
+    total=6000 delivery=0 servedBy=fresh   (X-Served-By: fresh)
+  the same order, now served by the new service.
+  did anything restart?
+    router:  no, started 2026-09-19T10:03:08.903930503Z
+    legacy:  no, started 2026-09-19T10:03:08.657223295Z
+    fresh:   no, started 2026-09-19T10:03:08.656076045Z
+========================================================================
+
+Act 4 — roll pricing back, and nothing else moves
+========================================================================
+    total=6495 delivery=495 servedBy=legacy   (X-Served-By: legacy)
+  stock was on legacy the whole time:
+    served by legacy
+
+  One file, one reload. Pricing came back, stock never moved, and no service was
+  restarted. That is what a switch per capability is worth.</code></pre>
+<h2>What this shows that Tier 1 cannot</h2>
+<ul><li><strong>Moving a route needs no restart.</strong> Act 3&#x27;s start times show that the router and both services kept running through a route move. In Tier 1 a route is a field.</li><li><strong>A shadow request is a real duplicate over a real network.</strong> The new service&#x27;s own counter went from 0 to 1.</li><li><strong>The two answers disagree on real requests</strong>, in the same way Tier 1&#x27;s shadow reads found.</li></ul>
+<h2>What this still does not show</h2>
+<ul><li><strong>Comparison is by eye.</strong> nginx&#x27;s <code>mirror</code> sends the copy and discards the answer, so the two results are compared here by reading both services&#x27; logs. A real migration needs a component that compares them and reports differences, which is more than nginx does.</li><li><strong>Two containers on a laptop are not two deployments</strong> owned by two teams with two release calendars.</li><li><strong>No data moves.</strong> Pricing is stateless. Stock is where two sources of truth appear, and this demo never moves it.</li><li><strong>The organisational part</strong>, where migrations actually stall, is not something a container can show.</li></ul>
+</main>
+<footer>
+Generated from <code>README.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

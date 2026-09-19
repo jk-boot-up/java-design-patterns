@@ -118,6 +118,25 @@ ORDER = [
     ("foundational-design-patterns", "registry-with-spring"),
     ("foundational-design-patterns", "object-pool-with-hikaricp"),
     ("foundational-design-patterns", "service-locator-with-consul"),
+    ("concurrency-design-patterns", "thread-pool-with-spring"),
+    ("concurrency-design-patterns", "future-promise-with-spring"),
+    ("concurrency-design-patterns", "active-object-with-spring"),
+    ("creational", "singleton-with-spring"),
+    ("creational", "prototype-with-spring"),
+    ("structural", "proxy-with-spring"),
+    ("behavioural", "observer-with-spring"),
+    ("behavioural", "strategy-with-spring"),
+    ("behavioural", "template-method-with-spring"),
+    ("behavioural", "chain-of-responsibility-with-spring"),
+    ("behavioural", "interpreter-with-spel"),
+    ("micro-services-design-patterns", "circuit-breaker-with-resilience4j"),
+    ("micro-services-design-patterns", "retry-with-resilience4j"),
+    ("micro-services-design-patterns", "bulkhead-with-resilience4j"),
+    ("micro-services-design-patterns", "api-gateway-with-spring-cloud-gateway"),
+    ("micro-services-design-patterns", "load-balancing-with-spring-cloud-loadbalancer"),
+    ("architectural-design-patterns", "layered-architecture-with-spring-boot"),
+    ("architectural-design-patterns", "mvc-with-spring-mvc"),
+    ("architectural-design-patterns", "hexagonal-architecture-with-spring-boot"),
 ]
 
 # Per-project title and tag material. The title is what gets pasted into
@@ -428,6 +447,82 @@ META = {
     "service-locator-with-consul": {
         "title": "Service Locator with Consul - Real Service Discovery",
         "tags": ["consul service discovery", "service locator", "microservices"],
+    },
+    "thread-pool-with-spring": {
+        "title": "Thread Pool with Spring - The Executor Behind @Async",
+        "tags": ["spring async", "threadpooltaskexecutor", "java thread pool"],
+    },
+    "future-promise-with-spring": {
+        "title": "Future and Promise with Spring - What @Async Loses",
+        "tags": ["spring completablefuture", "async exception", "spring async"],
+    },
+    "active-object-with-spring": {
+        "title": "Active Object with Spring - One Thread, One Mailbox",
+        "tags": ["active object spring", "actor model java", "spring async"],
+    },
+    "singleton-with-spring": {
+        "title": "Singleton with Spring - One Per Container, Not Per JVM",
+        "tags": ["spring singleton scope", "spring beans", "singleton pattern"],
+    },
+    "prototype-with-spring": {
+        "title": "Prototype with Spring - The Prototype That Is Not New",
+        "tags": ["spring prototype scope", "objectprovider", "prototype pattern"],
+    },
+    "proxy-with-spring": {
+        "title": "Proxy with Spring - The Call That Skips The Proxy",
+        "tags": ["spring aop", "spring proxy", "cglib proxy"],
+    },
+    "observer-with-spring": {
+        "title": "Observer with Spring - Events, And Who Runs Them",
+        "tags": ["spring events", "eventlistener", "observer pattern"],
+    },
+    "strategy-with-spring": {
+        "title": "Strategy with Spring - Let The Container Hold Them",
+        "tags": ["spring strategy pattern", "dependency injection", "strategy pattern"],
+    },
+    "template-method-with-spring": {
+        "title": "Template Method with Spring - Inside JdbcTemplate",
+        "tags": ["jdbctemplate", "template method pattern", "spring jdbc"],
+    },
+    "chain-of-responsibility-with-spring": {
+        "title": "Chain of Responsibility with Spring - Filters In Order",
+        "tags": ["spring filter chain", "oncepertequestfilter", "chain of responsibility"],
+    },
+    "interpreter-with-spel": {
+        "title": "Interpreter with SpEL - Expressions You Did Not Write",
+        "tags": ["spring expression language", "spel", "interpreter pattern"],
+    },
+    "circuit-breaker-with-resilience4j": {
+        "title": "Circuit Breaker with Resilience4j - Real Defaults",
+        "tags": ["resilience4j circuit breaker", "spring boot resilience", "circuit breaker"],
+    },
+    "retry-with-resilience4j": {
+        "title": "Retry with Resilience4j - Backoff, Jitter And Order",
+        "tags": ["resilience4j retry", "exponential backoff", "spring retry"],
+    },
+    "bulkhead-with-resilience4j": {
+        "title": "Bulkhead with Resilience4j - Two Kinds Of Wall",
+        "tags": ["resilience4j bulkhead", "spring boot", "bulkhead pattern"],
+    },
+    "api-gateway-with-spring-cloud-gateway": {
+        "title": "API Gateway with Spring Cloud Gateway - Real Routes",
+        "tags": ["spring cloud gateway", "api gateway", "reactive gateway"],
+    },
+    "load-balancing-with-spring-cloud-loadbalancer": {
+        "title": "Load Balancing with Spring Cloud LoadBalancer",
+        "tags": ["spring cloud loadbalancer", "client side load balancing", "load balancer"],
+    },
+    "layered-architecture-with-spring-boot": {
+        "title": "Layered Architecture with Spring Boot - Layers That Hold",
+        "tags": ["spring boot layered architecture", "layered architecture", "archunit"],
+    },
+    "mvc-with-spring-mvc": {
+        "title": "MVC with Spring MVC - What The Framework Adds",
+        "tags": ["spring mvc", "model view controller", "thymeleaf"],
+    },
+    "hexagonal-architecture-with-spring-boot": {
+        "title": "Hexagonal Architecture with Spring Boot",
+        "tags": ["hexagonal architecture", "ports and adapters", "spring boot"],
     },
 }
 

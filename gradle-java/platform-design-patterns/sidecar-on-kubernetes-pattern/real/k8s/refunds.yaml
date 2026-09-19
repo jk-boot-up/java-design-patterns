@@ -1,0 +1,23 @@
+# Refunds, exactly as the refunds team wrote it. One container. It never mentions a sidecar,
+# and demo.sh never edits this file. The proxy is added to the running Deployment from outside.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: refunds
+spec:
+  replicas: 1
+  selector:
+    matchLabels: {app: refunds}
+  template:
+    metadata:
+      labels: {app: refunds}
+    spec:
+      containers:
+        - name: refunds
+          image: sidecar-k8s-payments:demo
+          imagePullPolicy: Never
+          env:
+            - {name: SHOP_SERVICE_NAME, value: refunds}
+          readinessProbe:
+            httpGet: {path: /about, port: 8080}
+            periodSeconds: 1

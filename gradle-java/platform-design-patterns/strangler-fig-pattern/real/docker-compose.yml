@@ -1,0 +1,22 @@
+# Three containers. The router is nginx, the two services are Tier 1's classes behind HTTP.
+services:
+  legacy:
+    build: .
+    command: ["legacy"]
+    container_name: strangler-demo-legacy
+  fresh:
+    build: .
+    command: ["fresh"]
+    container_name: strangler-demo-fresh
+  router:
+    image: nginx:1.31.5-alpine
+    container_name: strangler-demo-router
+    ports:
+      - "18082:8082"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      # A directory, not a file, so that replacing routes.conf is seen by the container.
+      - ./nginx/live:/etc/nginx/routes:ro
+    depends_on:
+      - legacy
+      - fresh

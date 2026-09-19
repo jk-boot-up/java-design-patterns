@@ -33,7 +33,7 @@ network and no Docker, and it passes.
 | `nginx` | `1.31.5-alpine` | `sidecar` (§41), `sidecar-java-proxy` (§42), `sidecar-on-kubernetes` (§43), `strangler-fig` (§45) |
 | `eclipse-temurin` | `21-jre-alpine` | every Tier 2 service image in the category |
 | `jaegertracing/jaeger` | `2.20.0` | `distributed-tracing` (§39) — collector and trace UI in one image |
-| `kindest/node` | pinned by the `kind` release below | `sidecar-on-kubernetes` (§43) |
+| `kindest/node` | `v1.37.0`, the default of `kind` 0.33.0, exercised | `sidecar-on-kubernetes` (§43) |
 
 The alpine variants are chosen for size rather than for preference: a reader on
 a slow connection pulling four images notices the difference, and none of these
@@ -47,7 +47,7 @@ projects needs anything the slim image leaves out.
 | Spring Cloud | 2025.1.3 | `externalised-configuration` (§38) — Config Server and `@RefreshScope` |
 | Spring dependency-management plugin | 1.1.7 | the Tier 2 builds that use Spring Boot |
 | OpenTelemetry SDK | 1.62.0 | `distributed-tracing` (§39). Not pinned directly — it arrives with `spring-boot-starter-opentelemetry` and the version is whatever the Boot BOM says, which is the right way round for a library this closely tied to its auto-configuration |
-| `kind` | 0.33.0 | `sidecar-on-kubernetes` (§43) |
+| `kind` | 0.33.0, exercised: the demo refuses any other version | `sidecar-on-kubernetes` (§43) |
 | Docker Compose | v2, any | Tier 2 generally. The compose file uses no feature newer than v2, so this one is deliberately not pinned tighter |
 
 **Why Spring Boot 4.1 rather than 3.5.** An earlier version of this file pinned
@@ -88,7 +88,7 @@ things that have been run.
 | JDK, Gradle, JUnit | **Exercised.** Every built project in this category runs on them |
 | Spring Boot, Spring Cloud | **Exercised.** §38's Tier 2 builds and runs on them: Config Server serves the threshold, the client binds and validates it, and `POST /actuator/refresh` puts a new value in force without a restart |
 | `jaegertracing/jaeger` 2.20.0 | **Exercised.** §39's Tier 2 exports to it over OTLP on 4318 and queries it back on 16686, and the waterfall in that project's `real/README.md` is drawn from what the image returned. Note that 2.21.0 has since been released; the pin stays at 2.20.0 because it is a category-wide choice that also binds the unbuilt sidecar projects, and moving it is a decision rather than a tidy-up |
-| nginx, Temurin, `kind` | Pinned from the current upstream releases, not yet run. Each becomes exercised when its project's Tier 2 is built, and a tag that turns out not to work gets corrected **here first** |
+| Temurin | Pinned from the current upstream release, not yet run. (nginx `1.31.5-alpine`, `kind` 0.33.0 and its node image `v1.37.0` have now been run, in §41 to §43.) Each becomes exercised when its project's Tier 2 is built, and a tag that turns out not to work gets corrected **here first** |
 
 Pinning a version before running it is deliberate: the alternative is eight
 projects each choosing their own, which is the drift this file exists to stop.

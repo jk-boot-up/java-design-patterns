@@ -1,0 +1,33 @@
+# The payment provider, from sidecar-pattern's real/, unchanged. HTTPS only, TLS 1.3 only.
+# A Service named `gateway` is what makes the name in the sidecar's config resolve.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gateway
+spec:
+  replicas: 1
+  selector:
+    matchLabels: {app: gateway}
+  template:
+    metadata:
+      labels: {app: gateway}
+    spec:
+      containers:
+        - name: gateway
+          image: sidecar-k8s-gateway:demo
+          imagePullPolicy: Never          # the image was loaded into the node by demo.sh
+          volumeMounts:
+            - {name: certs, mountPath: /certs, readOnly: true}
+      volumes:
+        - name: certs
+          secret:
+            secretName: gateway-cert
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: gateway
+spec:
+  selector: {app: gateway}
+  ports:
+    - {port: 9443, targetPort: 9443}

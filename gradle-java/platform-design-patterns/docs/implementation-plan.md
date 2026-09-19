@@ -16,9 +16,9 @@ plan for the remaining three.
 | | |
 | --- | --- |
 | Projects specified | 8 (six patterns; Sidecar is three projects) |
-| Projects built | 5 (`event-sourcing`, the category reference; `externalised-configuration`, `distributed-tracing`, `backends-for-frontends` and `sidecar`, all four complete in both tiers) |
+| Projects built | 8 (all eight; Tier 2 exists for the three Sidecar projects, `sidecar-on-kubernetes` on a real `kind` cluster, and for `strangler-fig` as nginx in Docker) |
 | Category registered with the shared generators | yes — Phase 0 complete |
-| Existing projects in the repository | 37, across four categories |
+| Existing projects in the repository | 76 built (37, plus 5 architectural, 6 concurrency, 11 enterprise, 9 foundational and these 8 platform) |
 
 ---
 

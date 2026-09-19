@@ -131,6 +131,26 @@ ORDER = [
     ("foundational-design-patterns", "registry-with-spring"),
     ("foundational-design-patterns", "object-pool-with-hikaricp"),
     ("foundational-design-patterns", "service-locator-with-consul"),
+    # Framework versions of patterns from the earlier categories, each its own project.
+    ("concurrency-design-patterns", "thread-pool-with-spring"),
+    ("concurrency-design-patterns", "future-promise-with-spring"),
+    ("concurrency-design-patterns", "active-object-with-spring"),
+    ("creational", "singleton-with-spring"),
+    ("creational", "prototype-with-spring"),
+    ("structural", "proxy-with-spring"),
+    ("behavioural", "observer-with-spring"),
+    ("behavioural", "strategy-with-spring"),
+    ("behavioural", "template-method-with-spring"),
+    ("behavioural", "chain-of-responsibility-with-spring"),
+    ("behavioural", "interpreter-with-spel"),
+    ("micro-services-design-patterns", "circuit-breaker-with-resilience4j"),
+    ("micro-services-design-patterns", "retry-with-resilience4j"),
+    ("micro-services-design-patterns", "bulkhead-with-resilience4j"),
+    ("micro-services-design-patterns", "api-gateway-with-spring-cloud-gateway"),
+    ("micro-services-design-patterns", "load-balancing-with-spring-cloud-loadbalancer"),
+    ("architectural-design-patterns", "layered-architecture-with-spring-boot"),
+    ("architectural-design-patterns", "mvc-with-spring-mvc"),
+    ("architectural-design-patterns", "hexagonal-architecture-with-spring-boot"),
 ]
 
 # Demos that mint an identifier per run, so their output is not byte-stable.
@@ -205,6 +225,25 @@ NAMES = {
     "registry-with-spring": "Registry with Spring",
     "object-pool-with-hikaricp": "Object Pool with HikariCP",
     "service-locator-with-consul": "Service Locator with Consul",
+    "thread-pool-with-spring": "Thread Pool with Spring",
+    "future-promise-with-spring": "Future/Promise with Spring",
+    "active-object-with-spring": "Active Object with Spring",
+    "singleton-with-spring": "Singleton with Spring",
+    "prototype-with-spring": "Prototype with Spring",
+    "proxy-with-spring": "Proxy with Spring",
+    "observer-with-spring": "Observer with Spring",
+    "strategy-with-spring": "Strategy with Spring",
+    "template-method-with-spring": "Template Method with Spring",
+    "chain-of-responsibility-with-spring": "Chain of Responsibility with Spring",
+    "interpreter-with-spel": "Interpreter with SpEL",
+    "circuit-breaker-with-resilience4j": "Circuit Breaker with Resilience4j",
+    "retry-with-resilience4j": "Retry with Resilience4j",
+    "bulkhead-with-resilience4j": "Bulkhead with Resilience4j",
+    "api-gateway-with-spring-cloud-gateway": "API Gateway with Spring Cloud Gateway",
+    "load-balancing-with-spring-cloud-loadbalancer": "Load Balancing with Spring Cloud LoadBalancer",
+    "layered-architecture-with-spring-boot": "Layered Architecture with Spring Boot",
+    "mvc-with-spring-mvc": "MVC with Spring MVC",
+    "hexagonal-architecture-with-spring-boot": "Hexagonal Architecture with Spring Boot",
 }
 
 # ---------------------------------------------------------------------------
@@ -4636,6 +4675,492 @@ requirements=[
     '**Tests skip, not fail, without the infrastructure.** `consul` on the PATH, and Docker with the nginx image.',
     '**The stale cache is real.** A cached address is still returned after the instance stopped, and the call fails.',
     '**Nothing is left running.** The agent is stopped and the container removed when a run ends.',
+],
+),
+
+"sidecar-on-kubernetes": dict(
+purpose="""
+Show what changes when Kubernetes runs a service and its sidecar: a Pod shares a network namespace by definition rather than by a configuration line that can be forgotten, is scheduled and deleted as one unit, and receives its sidecar by injection into a manifest that never mentions it. It corrects a common claim: a crashing container does not take its neighbour with it, because the kubelet restarts each container alone. It is honest that a cluster is a large cost, and answers whether a small shop needs one yet.
+""",
+nongoals=[
+    'Not a re-teaching of Sidecar. The first project owns the pattern; this one names it in its first paragraph.',
+    'Not a Kubernetes tutorial. The model has a Pod, a Cluster and a kubelet loop, and nothing else.',
+    'Not a service mesh. A mutating admission webhook is named and not built.',
+],
+problem="""
+The same checkout and proxy as the first Sidecar project, now run by Kubernetes instead of Docker Compose.
+
+**What this project must deliver:** a shared network by definition, one lifecycle, per-container restarts stated correctly, injection, `READY 2/2` and the start-up race, an honest answer to whether a small shop needs a cluster, and a `docs/dependencies.md` that explains Kubernetes first.
+""",
+roles=[
+    ('A manifest', '`PodSpec`, `ContainerSpec`'),
+    ('A control plane in a model', '`Cluster`, `Pod`, `Container`, `NetworkNamespace`'),
+    ('The comparison', '`Compose`'),
+    ('Injection', '`Injector`'),
+    ('Entry point', '`PodDemo`, six acts'),
+],
+requirements=[
+    "**A crash does not take a neighbour with it.** `PodTest` asserts the checkout is untouched and only the proxy's restart count rises.",
+    '**Sharing by definition is proven.** The Compose model loses the line and the Pod cannot.',
+    '**Injection leaves the authored manifest unchanged.** And injecting twice adds nothing.',
+    '**Kubernetes is explained first.** `docs/dependencies.md` says what it is, what it costs, and that skipping loses nothing.',
+],
+),
+
+"strangler-fig": dict(
+purpose="""
+Teach the Strangler Fig pattern by replacing a checkout without a cutover weekend: a router with a switch per capability, shadow reads that compare old and new on real-shaped orders before anything moves, and a rollback of one capability rather than the whole system. It pays the bill honestly: two systems live at once, two versions of the truth, and the failure that actually happens, a migration that stalls half-finished, shown with a stated cost model where two checkouts forever costs more than either endpoint.
+""",
+nongoals=[
+    'Not a data-migration tool. Two maps are compared; moving rows is named and not built.',
+    'Not an API gateway tutorial. The router is a Java class, and gateways are named as where it lives.',
+    'Not a measurement of migration cost. The figures are a stated model that shows a shape.',
+],
+problem="""
+The legacy checkout is one large class that must keep taking orders while it is replaced. A big-bang rewrite has one switch and an all-or-nothing rollback.
+
+**What this project must deliver:** a router with a switch per capability, shadow reads that find differences before customers do, a one-capability rollback, the two-systems bill, and the stalled migration named as the likely outcome.
+""",
+roles=[
+    ('The legacy system', '`LegacyCheckout`, one class that does four things'),
+    ('The rewrite', '`NewPricing`, `NewStock`, `NewPayment`, `NewMailer`'),
+    ('The pattern', '`Router`, `Route`'),
+    ('The naive version and the failure', '`BigBang`, `StallModel`'),
+    ('Entry point', '`MigrationDemo`, six acts'),
+],
+requirements=[
+    '**Shadow reads catch real differences.** `StranglerFigTest` finds the VAT rounding and the exactly-fifty-pounds delivery difference on a fixed-seed stream.',
+    '**Rollback is per capability.** One switch flips and pricing stays moved.',
+    '**The stall is named and modelled.** The cost figures are labelled as assumptions.',
+    '**The verdict is stated aloud.** Finish it, or do not start.',
+],
+),
+
+"thread-pool-with-spring": dict(
+purpose="""
+Show what Spring Boot's @Async gives you: a real thread pool the container owns, whose default is eight core threads and an unbounded queue, the partner project's trap as a default. It shows the queue growing to a thousand with no refusal, a bounded pool refusing with a real TaskRejectedException, an annotation silently skipped by a call on this, and a pool that starves itself, ending with a verdict to configure the pool explicitly.
+""",
+nongoals=[
+    'Not a re-teaching of Thread Pool. The partner project owns the pattern; this one names it in its first paragraph.',
+    'Not a Spring Boot tutorial. Only what the pattern needs is introduced, as it appears.',
+],
+problem="""
+The Thread Pool project built a bounded pool by hand. `@Async` gives the same thing as one annotation whose defaults are the trap.
+
+**What this project must deliver:** the default executor's numbers, the unbounded backlog, a bounded pool's real refusal, the `this` call that skips the proxy, pool starvation, and a `docs/dependencies.md`.
+""",
+roles=[
+    ('Framework setup', '`PackingApplication`, a Spring Boot application with `@EnableAsync`'),
+    ('The service', '`PackingService`, with `@Async` methods'),
+    ('Reused from the partner', "`Gate`, and the six acts' scenario"),
+    ('Entry point', '`PackingApplication`, six acts'),
+],
+requirements=[
+    '**The defaults are asserted.** `AsyncPoolTest` reads core 8, max and queue `Integer.MAX_VALUE`.',
+    '**The backlog is counted.** A thousand orders wait behind eight stuck workers, none refused.',
+    '**Every wait is a latch or a gate.** No test sleeps.',
+    "**The failures are real.** `TaskRejectedException`, a `this` call on the caller's thread, and starvation.",
+    '**Dependencies are explained.** `docs/dependencies.md` says what to install, what it costs, and that skipping loses nothing.',
+],
+),
+
+"future-promise-with-spring": dict(
+purpose="""
+Show what @Async does and does not do for a CompletableFuture: it runs the lookups on the container's pool and completes the future, but the pool, not the annotation, decides how concurrent they are; a void method's exception is lost unless a handler is registered; a thread-local does not cross the thread boundary unless a TaskDecorator copies it; and neither orTimeout nor cancel(true) stops a running task. It ends with a verdict: return a future, never void.
+""",
+nongoals=[
+    'Not a re-teaching of Future/Promise. The partner project owns the pattern; this one names it in its first paragraph.',
+    'Not a Spring Boot tutorial. Only what the pattern needs is introduced, as it appears.',
+],
+problem="""
+Future/Promise built the handoff by hand. `@Async` gives it as one annotation, and loses four things a caller assumes it keeps.
+
+**What this project must deliver:** concurrency shown as a pool decision, an exception carried by a future and lost by a void method, a thread-local lost and restored, a timeout and a cancel that leave the work running, and composition with a fallback.
+""",
+roles=[
+    ('Framework setup', '`ProductPageApplication`, a Spring Boot application'),
+    ('The lookups', '`CatalogueLookups`, with `@Async` methods'),
+    ('The failures', '`Flight`, `CustomerContext`, `UncaughtHandler`, `AsyncSettings`'),
+    ('Entry point', '`ProductPageApplication`, six acts'),
+],
+requirements=[
+    '**Concurrency is counted, not inferred.** `AsyncFutureTest` gates three lookups and reads the peak in flight: 3, and 1 on a pool of one.',
+    '**Every wait is a latch, a gate or a bounded spin.** No test sleeps.',
+    '**The losses are proven.** A void exception, a null thread-local, a timeout and a cancel that leave the task running.',
+    '**The fixes are proven.** A registered handler, a `TaskDecorator`, and a fallback at the failing step.',
+    '**Dependencies are explained.** `docs/dependencies.md` says what to install, what it costs, and that skipping loses nothing.',
+],
+),
+
+"active-object-with-spring": dict(
+purpose="""
+Show an active object built from an @Async bean on a one-thread executor: the executor's queue is the mailbox, the future is the reply, and the state is a plain field with no lock. It shows the mailbox backing up and being bounded with a real TaskRejectedException, then the failures that are Spring's own: a call on this that skips the proxy and loses an update on a forced interleaving, and a direct read that sees the past. It ends with a throughput ceiling and a verdict.
+""",
+nongoals=[
+    'Not a re-teaching of Active Object. The partner project owns the pattern; this one names it in its first paragraph.',
+    'Not a Spring Boot tutorial. Only what the pattern needs is introduced, as it appears.',
+],
+problem="""
+Active Object built the mailbox by hand. An `@Async` bean on a one-thread executor gives the same thing, and its guarantee holds only for calls that go through the proxy.
+
+**What this project must deliver:** a lock-free plain field made safe by one thread, a counted and bounded mailbox, a lost update from a call on `this`, a stale direct read against a message read, errors from the worker, and a throughput ceiling.
+""",
+roles=[
+    ('Framework setup', '`InventoryApplication`, `InventoryConfig`'),
+    ('The active object', '`InventoryService`, a plain `int` and `@Async` methods'),
+    ('Reused from the partner', '`Gate`, and the scenario'),
+    ('Entry point', '`InventoryApplication`, six acts'),
+],
+requirements=[
+    '**No lock is credited.** `ActiveObjectBeanTest` restocks a plain field from four threads and loses nothing.',
+    '**The lost update is forced.** A gate holds the worker mid-change while a call on `this` changes the field.',
+    '**The stale read is forced.** A gate holds the worker, and a direct read says 0 while a message read says 5.',
+    '**Only the throughput ratio depends on timing,** and its bound is generous.',
+    '**Dependencies are explained.** `docs/dependencies.md` says what to install, what it costs, and that skipping loses nothing.',
+],
+),
+
+"singleton-with-spring": dict(
+purpose="""
+Show the order-number sequencer as a Spring bean shared by three callers, then the ways the guarantee weakens: a public constructor that anyone can call, a second container, a changed scope, when the bean is built, and a counter that is shared by threads but not safe.
+""",
+nongoals=[
+    'Not a re-teaching of Singleton. The partner project owns the pattern; this one names it in its first paragraph.',
+    'Not a Spring Boot tutorial. Only what the pattern needs is introduced, as it appears.',
+],
+problem="""
+Singleton guaranteed one instance with the language. Spring guarantees one per container, which is weaker in some ways and easier in others.
+
+**What this project must deliver:** one bean shared by three callers, a plain new that forges another, two containers issuing the same number, a scope change that flips the answer, eager against lazy construction, and a forced duplicate on a plain long.
+""",
+roles=[
+    ('Framework setup', '`ShopApplication`'),
+    ('The bean', '`OrderSequenceGenerator`, public constructor and an `AtomicLong`'),
+    ('The callers', '`Checkout`, `AdminConsole`, `RetryJob`'),
+    ('Unsafe contrast', '`UnsafeOrderSequence`'),
+],
+requirements=[
+    '**Sharing is asserted by identity,** not by matching numbers.',
+    '**The duplicate is forced** with a gate between read and write.',
+    '**Construction is counted** with a static counter, never timed.',
+    '**Dependencies are explained.** `docs/dependencies.md` says what to install, what it costs, and that skipping loses nothing.',
+],
+),
+
+"prototype-with-spring": dict(
+purpose="""
+Show the product listing as a prototype-scoped Spring bean, and the three ways the scope surprises people who know the pattern: it builds from the definition and not from an edited draft, it is built only once when injected into a singleton, and Spring never destroys it.
+""",
+nongoals=[
+    'Not a re-teaching of Prototype. The partner project owns the pattern; this one names it in its first paragraph.',
+    'Not a Spring Boot tutorial. Only what the pattern needs is introduced, as it appears.',
+],
+problem="""
+Prototype copied a finished object. Spring's prototype scope builds a new one from the definition, which is a different thing.
+
+**What this project must deliver:** a fresh bean per request, independence between them, the difference between asking the container and calling copy, a prototype trapped in a singleton, an ObjectProvider that fixes it, and the missing destroy call.
+""",
+roles=[
+    ('Framework setup', '`ListingApplication`'),
+    ('The prototype', '`Listing`, prototype scope, with `copy()`'),
+    ('The singleton', '`Storefront`, injected once and through a provider'),
+],
+requirements=[
+    '**Identity is asserted with assertSame/assertNotSame.**',
+    '**Destruction is counted,** never timed.',
+    '**Nothing depends on timing.**',
+    '**Dependencies are explained.** `docs/dependencies.md` says what to install, what it costs, and that skipping loses nothing.',
+],
+),
+
+"proxy-with-spring": dict(
+purpose="""
+Show the protection proxy and the lazy proxy as Spring produces them: a generated subclass, one aspect that protects three beans, and a lazy injection that loads the image on first use. It then shows the two ways a call slips past a generated proxy: a call on this, and a final method.
+""",
+nongoals=[
+    'Not a re-teaching of Proxy. The partner project owns the pattern; this one names it in its first paragraph.',
+    'Not a Spring Boot tutorial. Only what the pattern needs is introduced, as it appears.',
+],
+problem="""
+Proxy was written by hand. Spring generates it, and the generation has rules that surprise people.
+
+**What this project must deliver:** a generated proxy, one aspect on three beans, lazy loading by count, a call on this that skips the rule, and a final method that skips it and sees no fields.
+""",
+roles=[
+    ('Framework setup', '`ImageApplication`'),
+    ('The aspect', '`RoleAspect`, `RequiresRole`'),
+    ('The beans', '`ImageCatalogue`, `OrderExport`, `RefundDesk`'),
+    ('The costly subject', '`HighResolutionImage`, `@Lazy`, counted'),
+],
+requirements=[
+    '**Loads are counted,** never timed.',
+    '**The refusal is asserted** with `assertThrows` on the proxy.',
+    '**The skipped checks are asserted,** so a Spring change that fixes them fails the test.',
+    '**Dependencies are explained.** `docs/dependencies.md` says what to install, what it costs, and that skipping loses nothing.',
+],
+),
+
+"observer-with-spring": dict(
+purpose="""
+Show the order status announcement as Spring events: a publisher that holds no listeners, ordered listeners on the caller's thread, a failing listener that stops the rest and reaches the caller, an asynchronous listener held at a gate, a condition that filters events, and an event nobody hears.
+""",
+nongoals=[
+    'Not a re-teaching of Observer. The partner project owns the pattern; this one names it in its first paragraph.',
+    'Not a Spring Boot tutorial. Only what the pattern needs is introduced, as it appears.',
+],
+problem="""
+Observer was hand-built. Spring provides it, with synchronous delivery and no registry the publisher can see.
+
+**What this project must deliver:** a publisher-only subject, ordered listeners, a failure that stops the others, an async listener proved by a gate, a filter condition, and a silent drop.
+""",
+roles=[
+    ('Framework setup', '`OrderEventsApplication`'),
+    ('The subject', '`OrderService`'),
+    ('Events', '`OrderStatusChanged`, `OrderRefunded`'),
+    ('Observers', '`InventoryListener`, `EmailListener`, `AnalyticsListener`, `ShippedOnlyListener`, `AuditListener`'),
+],
+requirements=[
+    '**Order is asserted** with `@Order` and a journal.',
+    '**The other thread is held at a gate,** never slept on.',
+    '**A missing listener is asserted** as a silent no-op.',
+    '**Dependencies are explained.** `docs/dependencies.md` says what to install, what it costs, and that skipping loses nothing.',
+],
+),
+
+"strategy-with-spring": dict(
+purpose="""
+Show the four delivery rules as Spring beans collected into a map, chosen by a configured name that is checked at startup, extended by a fifth rule without touching the checkout, and the failure that comes from asking for the interface alone, fixed with a primary bean.
+""",
+nongoals=[
+    'Not a re-teaching of Strategy. The partner project owns the pattern; this one names it in its first paragraph.',
+    'Not a Spring Boot tutorial. Only what the pattern needs is introduced, as it appears.',
+],
+problem="""
+Strategy chose a rule from a hand-written table. Spring builds the table from the beans.
+
+**What this project must deliver:** a map of rules keyed by bean name, the same prices as the partner, a startup check on the configured name, an ambiguous injection that fails, a fifth rule added without a change to the checkout, and a primary bean.
+""",
+roles=[
+    ('Framework setup', '`ShippingApplication`'),
+    ('The strategies', '`FlatRateRule`, `WeightBandedRule`, `DistanceBasedRule`, `FreeOverThresholdRule`'),
+    ('The context', '`CheckoutService`, `SelectedShipping`'),
+    ('Demo-only', '`ExpressRule`, `NeedsOneRule`, registered by the demo'),
+],
+requirements=[
+    '**Prices are asserted in pence.**',
+    "**Startup failures are asserted** by the exception's root cause.",
+    '**The fifth rule and the ambiguous class are registered by the demo,** so the default run has four rules.',
+    '**Dependencies are explained.** `docs/dependencies.md` says what to install, what it costs, and that skipping loses nothing.',
+],
+),
+
+"template-method-with-spring": dict(
+purpose="""
+Show Template Method in Spring's own library: JdbcTemplate owning the fixed steps of a query, against a plain JDBC version that leaks a connection on the error path, with translated exceptions, the decisions the template makes for you, and a transaction template that rolls back a half-finished checkout.
+""",
+nongoals=[
+    'Not a re-teaching of Template Method. The partner project owns the pattern; this one names it in its first paragraph.',
+    'Not a Spring Boot tutorial. Only what the pattern needs is introduced, as it appears.',
+],
+problem="""
+Template Method was built by inheritance around fulfilment steps. Spring's templates do the same with callbacks, around database calls.
+
+**What this project must deliver:** a plain JDBC method that leaks on the error path, the same query through JdbcTemplate that does not, a row mapper, translated exceptions, a missing-row error, and a rollback.
+""",
+roles=[
+    ('Framework setup', '`FulfilmentApplication`, `schema.sql`'),
+    ('The repository', '`OrderRepository`, by hand and by template'),
+    ('The transaction', '`Checkout`, `TransactionTemplate`'),
+],
+requirements=[
+    "**Connections are counted** through Hikari's pool MXBean.",
+    '**The leak is asserted** so a fix to the by-hand method fails the test.',
+    '**Rollback is asserted** by counting rows and stock.',
+    '**Dependencies are explained.** `docs/dependencies.md` says what to install, what it costs, and that skipping loses nothing.',
+],
+),
+
+"chain-of-responsibility-with-spring": dict(
+purpose="""
+Show the screening chain built by Spring from ordered beans, the cost of its order counted in paid calls, a link that throws turned into a referral, a link removed by a property, and a fallback that is a named setting.
+""",
+nongoals=[
+    'Not a re-teaching of Chain of Responsibility. The partner project owns the pattern; this one names it in its first paragraph.',
+    'Not a Spring Boot tutorial. Only what the pattern needs is introduced, as it appears.',
+],
+problem="""
+Chain of Responsibility linked successors by hand. Spring injects the links as an ordered list.
+
+**What this project must deliver:** a chain built from beans, the never-run links reported, the cost of order counted, a throwing link handled, a property that removes a link, and a named fallback.
+""",
+roles=[
+    ('Framework setup', '`ScreeningApplication`'),
+    ('The links', '`AddressCheck`, `StockCheck`, `FraudScoreCheck`, `PaymentLimitCheck`'),
+    ('The walker', '`ScreeningChain`'),
+],
+requirements=[
+    '**Order is asserted** as a list of names.',
+    '**Cost is counted** as paid calls, never timed.',
+    '**A throwing link is asserted** as a referral.',
+    '**Dependencies are explained.** `docs/dependencies.md` says what to install, what it costs, and that skipping loses nothing.',
+],
+),
+
+"interpreter-with-spel": dict(
+purpose="""
+Show the promotion rules run by Spring's expression language in place of a hand-written parser and rule classes: text rules parsed once, the language features that came free, a syntax error caught at build time and a misspelled name caught late, a rule that reaches the whole program in the full context and is refused in the read-only one, and missing values.
+""",
+nongoals=[
+    'Not a re-teaching of Interpreter. The partner project owns the pattern; this one names it in its first paragraph.',
+    'Not a Spring Expression Language tutorial. Only what the pattern needs is introduced, as it appears.',
+],
+problem="""
+Interpreter built the parser and the rule tree by hand. SpEL is a ready-made interpreter with a bigger language than the shop needs.
+
+**What this project must deliver:** the partner's rules as text, free language features, a build-time and a run-time error, the two evaluation contexts, safe navigation, and a parse-once run.
+""",
+roles=[
+    ('Entry point', '`SpelPromotionsApplication`'),
+    ("The interpreter's user", '`PromotionBook`, parse once, evaluate many'),
+    ('The context', '`Order`, with getters'),
+],
+requirements=[
+    '**Rules are asserted against three known orders.**',
+    '**Both failure times are asserted** with the exact exception type.',
+    '**The read-only context is asserted to refuse** static calls and method calls.',
+    '**Dependencies are explained.** `docs/dependencies.md` says what to install, what it costs, and that skipping loses nothing.',
+],
+),
+
+"circuit-breaker-with-resilience4j": dict(
+purpose="""
+Show the circuit breaker from the hand-built project as a Resilience4j annotation with settings in application.properties: a healthy call, a service that goes down and opens the breaker after four calls, fast failure with no calls reaching the service, a half-open probe that fails and one that succeeds, the ignore list for client errors, and a call on this that bypasses the breaker.
+""",
+nongoals=[
+    'Not a re-teaching of Circuit Breaker. The partner project owns the pattern; this one names it in its first paragraph.',
+    'Not a Resilience4j tutorial. Only what the pattern needs is introduced, as it appears.',
+],
+problem="""
+Circuit Breaker was built by hand with a simulated clock. Resilience4j provides it as an annotation, and its own failure modes are proxy bypass, hidden failures and miscounted exceptions.
+
+**What this project must deliver:** a breaker driven by settings, a fallback that keeps the page up, an open breaker that protects the backend, a half-open probe, an ignore list, and a bypass by a call on this.
+""",
+roles=[
+    ('Framework setup', '`RecommendationsApplication`, `application.properties`'),
+    ('The protected call', '`RecommendationsClient`'),
+    ('The remote service', '`RecommendationsBackend`, in memory and counted'),
+],
+requirements=[
+    '**Calls that reach the backend are counted,** never timed.',
+    '**The half-open probe is started by the test,** not by a wait duration.',
+    '**The bypass is asserted,** so a fix fails the test.',
+    '**Dependencies are explained.** `docs/dependencies.md` says what to install, what it costs, and that skipping loses nothing.',
+],
+),
+
+"retry-with-resilience4j": dict(
+purpose="""
+Show the retry with backoff from the hand-built project as a Resilience4j annotation with settings in application.properties: a flaky gateway retried until it answers, the doubling waits, giving up after three attempts, a declined card that must not be retried, a lost answer that charges twice without an idempotency key, and two layers of retries that multiply.
+""",
+nongoals=[
+    'Not a re-teaching of Retry with Backoff. The partner project owns the pattern; this one names it in its first paragraph.',
+    'Not a Resilience4j tutorial. Only what the pattern needs is introduced, as it appears.',
+],
+problem="""
+Retry with Backoff was built by hand. Resilience4j provides it as an annotation, and its own failure modes are a wide exception list, a repeated charge, and stacked layers.
+
+**What this project must deliver:** a retry driven by settings, recorded waits, a give-up, an exception list, an idempotency key, and multiplication across layers.
+""",
+roles=[
+    ('Framework setup', '`PaymentsApplication`, `application.properties`'),
+    ('The retried calls', '`PaymentsClient`, `CheckoutService`'),
+    ('The remote gateway', '`PaymentGateway`, in memory and counted'),
+],
+requirements=[
+    '**Calls and charges are counted,** never timed.',
+    '**Waits are the values Resilience4j chose,** read from its events.',
+    '**The double charge is asserted,** and so is its fix.',
+    '**Dependencies are explained.** `docs/dependencies.md` says what to install, what it costs, and that skipping loses nothing.',
+],
+),
+
+"bulkhead-with-resilience4j": dict(
+purpose="""
+Show the bulkhead from the hand-built project as Resilience4j annotations: one shared compartment that lets slow feed jobs starve checkout, a compartment each that keeps checkout selling, a fallback for a full compartment, the wasted capacity behind the wall, a call on this that bypasses the limit, and the thread-pool kind that never blocks its caller.
+""",
+nongoals=[
+    'Not a re-teaching of Bulkhead. The partner project owns the pattern; this one names it in its first paragraph.',
+    'Not a Resilience4j tutorial. Only what the pattern needs is introduced, as it appears.',
+],
+problem="""
+Bulkhead was built by hand with pools. Resilience4j provides two kinds as annotations, and their own costs are the wall, the bypass, and the choice of kind.
+
+**What this project must deliver:** a starved checkout, a protected checkout, a fallback, the free-permit cost, a bypass, and a thread-pool compartment.
+""",
+roles=[
+    ('Framework setup', '`SupplierApplication`, `application.properties`'),
+    ('The compartments', '`SupplierService`'),
+    ('The slow partner', '`Gate`, holds calls in flight'),
+],
+requirements=[
+    '**Slow calls are held at a gate,** never slept.',
+    '**Permits are read from the registry.**',
+    '**The bypass is asserted,** so a fix fails the test.',
+    '**Dependencies are explained.** `docs/dependencies.md` says what to install, what it costs, and that skipping loses nothing.',
+],
+),
+
+"api-gateway-with-spring-cloud-gateway": dict(
+purpose="""
+Show a real Spring Cloud Gateway in front of four real HTTP services: one address, prefixes stripped and a header added, one token check for every route, a dead service failing only its own route, a page that still needs three calls because a gateway does not compose, and a slow service answered for with a 504.
+""",
+nongoals=[
+    'Not a re-teaching of API Gateway. The partner project owns the pattern; this one names it in its first paragraph.',
+    'Not a Spring Cloud Gateway tutorial. Only what the pattern needs is introduced, as it appears.',
+],
+problem="""
+API Gateway was built as a class that called four services and merged the answers. Spring Cloud Gateway is a real router with filters, and it does not merge.
+
+**What this project must deliver:** real routing over HTTP, stripped prefixes, one token filter, isolation of a dead route, the honest limit of a gateway, and a timeout.
+""",
+roles=[
+    ('Framework setup', '`GatewayApplication`, `application.properties`'),
+    ('The routing table', '`GatewayRoutes`'),
+    ('The shared filter', '`TokenCheck`'),
+    ('Stand-in services', '`Backend`, JDK HTTP servers'),
+],
+requirements=[
+    '**All traffic is real HTTP** over local sockets.',
+    '**A rejected request is asserted** to have reached no service.',
+    '**The slow service is held at a gate,** and only the 504 is asserted.',
+    '**Dependencies are explained.** `docs/dependencies.md` says what to install, what it costs, and that skipping loses nothing.',
+],
+),
+
+"load-balancing-with-spring-cloud-loadbalancer": dict(
+purpose="""
+Show a real Spring Cloud LoadBalancer choosing among three real HTTP copies of the catalogue: round robin spreading twelve requests evenly, the slow copy doing most of the work, a least-work strategy plugged in for one service name, a stopped copy still receiving a third of the requests, a retry landing elsewhere, and a real address refused by a balanced client.
+""",
+nongoals=[
+    'Not a re-teaching of Client-Side Load Balancing. The partner project owns the pattern; this one names it in its first paragraph.',
+    'Not a Spring Cloud LoadBalancer tutorial. Only what the pattern needs is introduced, as it appears.',
+],
+problem="""
+Client-Side Load Balancing wrote four strategies by hand. Spring Cloud LoadBalancer supplies round robin and lets you replace it.
+
+**What this project must deliver:** an even spread, uneven work, a custom strategy for one name, a stopped copy, a retry, and the names-only rule.
+""",
+roles=[
+    ('Framework setup', '`CatalogueApplication`'),
+    ('The client', '`CatalogueClient`'),
+    ('The custom strategy', '`LeastWorkBalancer`, `LeastWorkConfiguration`'),
+    ('The copies', '`Backend`'),
+],
+requirements=[
+    '**Work is counted as cost units,** never timed.',
+    "**Round robin's random start is respected:** nothing asserts which copy is first.",
+    '**Every demo line is the same on every run.**',
+    '**Dependencies are explained.** `docs/dependencies.md` says what to install, what it costs, and that skipping loses nothing.',
 ],
 ),
 

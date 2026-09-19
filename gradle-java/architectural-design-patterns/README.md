@@ -3,8 +3,8 @@
 The eighth category. Four patterns, in five projects, that decide the shape of a
 whole application rather than the shape of a few classes.
 
-**Status: specified, not yet built.** The two documents below fix what the
-projects are before any of them is written.
+**Status: all five built.** Each has code, tests, a README, diagrams, an animation, a narrated video pipeline
+and a YouTube document. The two documents below fixed what the projects are before any of them was written.
 
 - [`docs/spec.md`](docs/spec.md) — the feature all four implement, the forced
   change each is judged by, the architecture test each must ship, and the scale
