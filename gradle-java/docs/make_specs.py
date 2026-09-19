@@ -5984,6 +5984,60 @@ requirements=[
 ],
 ),
 
+"message-channel": dict(
+purpose="""
+Teach Message Channel with checkout and a warehouse: three checkouts failing while the warehouse is down when they call it directly, a channel that lets checkout carry on and delivers the messages in order when the warehouse returns, an envelope of headers and a body, a channel that carries one type of message, and the bill of a full channel and a sender that no longer hears the answer.
+""",
+nongoals=[
+    'Not a message broker product. The channel is a small in-memory queue.',
+    'Not publish-subscribe. That is Event Bus, later in this category.',
+    'Not delivery guarantees. Persistence is named as the requirement.',
+],
+problem="""
+A direct call ties the sender to the receiver being up.
+
+**What this project must deliver:** a direct call that fails, a channel that decouples them in time with messages in order, an envelope, a typed and bounded channel, and the loss of the sender's answer.
+""",
+roles=[
+    ('The pattern', '`Channel`, `Message`, `WrongType`, `ChannelFull`'),
+    ('The receiver', '`Warehouse`'),
+    ('Entry point', '`MessageChannelDemo`, six acts'),
+],
+requirements=[
+    '**No threads or clocks:** every run is the same.',
+    '**Messages arrive in the order sent.**',
+    '**A wrong-type message is refused and nothing is queued.**',
+    '**A full channel refuses and loses nothing already accepted.**',
+],
+),
+
+"content-based-router": dict(
+purpose="""
+Teach Content-Based Router with orders of different kinds: one channel that forces the warehouse to sort, a router with ordered rules that sends six orders to four channels, two rule orders giving two answers for one gift card, a message no rule covers that is caught by a fallback or dropped and counted, a rule added with no other change, and the bill of a renamed value that makes a rule miss.
+""",
+nongoals=[
+    'Not a message broker. Channels are lists of ids.',
+    'Not header-based routing in full. It is named as the alternative.',
+    'Not dynamic rules loaded from configuration.',
+],
+problem="""
+Messages of several kinds on one channel make the receiver sort them, and every new kind changes the receiver.
+
+**What this project must deliver:** ordered rules, a fallback, a count of dropped messages, the effect of rule order, an added rule with no other change, and the coupling to content shown.
+""",
+roles=[
+    ('The pattern', '`Router`, `Route`'),
+    ('Values', '`Order`'),
+    ('Entry point', '`ContentRouterDemo`, six acts'),
+],
+requirements=[
+    '**Every order goes to exactly one channel** when there is a fallback.',
+    '**Rule order changes the answer,** asserted.',
+    '**Without a fallback, an unmatched order is dropped and counted.**',
+    '**A renamed field value makes a rule miss,** asserted.',
+],
+),
+
 }
 
 
