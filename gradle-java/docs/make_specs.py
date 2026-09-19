@@ -6392,6 +6392,35 @@ requirements=[
 ],
 ),
 
+"mvp-and-mvvm": dict(
+purpose="""
+Teach MVP and MVVM with an online store's cart screen: a screen with the rules inside that needs a window to check, a presenter telling a passive view that a recording view can stand in for, a view model of observable state with no reference to a view, a screen that binds once, two screens sharing one view model, and the costs of each approach.
+""",
+nongoals=[
+    'Not a real GUI. A Window is a counter that stands for one.',
+    'Not a real binding framework. Observable is a few lines.',
+    'Not MVC, which has its own project.',
+],
+problem="""
+Rules inside a screen cannot be checked without the screen.
+
+**What this project must deliver:** a screen that needs a window, a presenter with a passive view, a view model with bindings, two screens on one view model, and the costs of each.
+""",
+roles=[
+    ('MVP', '`CartPresenter`, `CartView`, `RecordingView`'),
+    ('MVVM', '`CartViewModel`, `Observable`, `BoundScreen`'),
+    ('Model', '`Cart`'),
+    ('Naive', '`FatCartScreen`, `Window`'),
+    ('Entry point', '`MvpMvvmDemo`, six acts'),
+],
+requirements=[
+    '**Money is integer cents,** formatted in one place.',
+    '**No test for the presenter or view model opens a window.**',
+    '**The view model holds no reference to any view.**',
+    '**A forgotten binding is shown to be silently wrong.**',
+],
+),
+
 }
 
 

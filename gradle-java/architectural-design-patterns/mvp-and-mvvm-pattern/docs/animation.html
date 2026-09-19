@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Future/Promise Pattern — Animated Walkthrough</title>
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 24px;
+    background: #0f172a; color: #e2e8f0;
+    font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
+    padding-top: calc(24px + env(safe-area-inset-top, 0px));
+    padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+  }
+  h1 { font-size: 1.4rem; margin: 0 0 4px; }
+  p.sub { color: #94a3b8; margin: 0 0 20px; max-width: 70ch; }
+  .wrap { max-width: 1100px; margin: 0 auto; }
+  .stage {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+    margin-bottom: 16px;
+  }
+  @media (max-width: 760px) { .stage { grid-template-columns: 1fr; } }
+  .boxes { display: flex; flex-direction: column; gap: 10px; }
+  .row {
+    border: 2px solid #334155; border-radius: 10px; padding: 12px 16px;
+    background: #1e293b; transition: all .25s ease; opacity: .55;
+  }
+  .row .name { font-weight: 700; font-size: 1rem; }
+  .row .job { color: #94a3b8; font-size: .82rem; margin-top: 2px; }
+  .row.active { opacity: 1; box-shadow: 0 0 0 2px currentColor inset; }
+  .row.wrong { border-color: #f87171; color: #f87171; }
+  .row.wrong.active { background: #3f1d24; }
+  .row.ok { border-color: #34d399; color: #34d399; }
+  .row.ok.active { background: #10261f; }
+  .row.amber { border-color: #fbbf24; color: #fbbf24; }
+  .row.amber.active { background: #2a2110; }
+  .row.dim { opacity: .22; }
+  .console {
+    background: #020617; border: 1px solid #334155; border-radius: 10px;
+    padding: 16px; font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    font-size: .86rem; line-height: 1.55; overflow-y: auto; min-height: 320px;
+    white-space: pre-wrap;
+  }
+  #console-lines span.ok { color: #34d399; }
+  #console-lines span.bad { color: #f87171; }
+  #console-lines span.amber { color: #fbbf24; }
+  #console-lines span.muted { color: #94a3b8; }
+  .narration {
+    background: #1e293b; border: 1px solid #334155; border-radius: 10px;
+    padding: 14px 18px; margin-bottom: 16px; min-height: 3.2em;
+  }
+  .controls { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  button {
+    background: #334155; color: #e2e8f0; border: 1px solid #475569;
+    border-radius: 8px; padding: 10px 18px; font-size: .92rem; cursor: pointer;
+  }
+  button:hover { background: #475569; }
+  button#play { background: #7c3aed; border-color: #7c3aed; }
+  button#play:hover { background: #8b5cf6; }
+  #progress { color: #94a3b8; font-size: .85rem; margin-left: auto; }
+  .step-label {
+    font-size: .78rem; text-transform: uppercase; letter-spacing: .04em;
+    color: #a78bfa; font-weight: 700; margin-bottom: 4px;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Future/Promise — Step by Step</h1>
+  <p class="sub">
+    Six acts, the same ones the demo prints. A red box is where it goes wrong.
+  </p>
+
+  <div class="narration">
+    <div class="step-label" id="step-label">Ready</div>
+    <div id="narration">Press Step or Play to begin.</div>
+  </div>
+
+  <div class="stage">
+    <div class="boxes" id="boxes">
+      <div class="row" id="row-fs">
+        <div class="name">the fat screen</div>
+        <div class="job">rules inside</div>
+      </div>
+      <div class="row" id="row-pr">
+        <div class="name">presenter</div>
+        <div class="job">tells the view</div>
+      </div>
+      <div class="row" id="row-vw">
+        <div class="name">passive view</div>
+        <div class="job">obeys</div>
+      </div>
+      <div class="row" id="row-vm">
+        <div class="name">view model</div>
+        <div class="job">state to bind to</div>
+      </div>
+      <div class="row" id="row-bs">
+        <div class="name">bound screen</div>
+        <div class="job">binds once</div>
+      </div>
+    </div>
+    <div class="console"><div id="console-lines"></div></div>
+  </div>
+
+  <div class="controls">
+    <button id="step">Step ▸</button>
+    <button id="play">Play ▶</button>
+    <button id="reset">Reset ↺</button>
+    <span id="progress">0 / 0</span>
+  </div>
+</div>
+
+<script>
+const STEPS = [
+  {
+    label: "Act 1 — the screen decides",
+    narration: "To check the total and the checkout rule, a screen was needed. One window was opened. The rules are welded to the widgets.",
+    rows: { fs: "active wrong" },
+    console: [
+      ["windows opened: 1", "bad"],
+    ],
+  },
+  {
+    label: "Act 2 — a presenter tells a passive view",
+    narration: "After two adds, the view was told: show the total, twenty five pounds fifty; show the count, two; enable checkout. Windows opened: none. The rules were checked with no screen.",
+    rows: { pr: "active ok", vw: "active ok" },
+    console: [
+      ["windows opened: 0", "ok"],
+      ["view told: total, count, checkout", "ok"],
+    ],
+  },
+  {
+    label: "Act 3 — the view makes no decisions",
+    narration: "An empty cart: total zero, count zero, checkout off. Add one item and remove it, and the last three calls are the same. The presenter decides that checkout is off again. The view just obeys.",
+    rows: { pr: "active ok", vw: "active ok" },
+    console: [
+      ["add then remove", "amber"],
+      ["checkout off again", "ok"],
+    ],
+  },
+  {
+    label: "Act 4 — the view binds to state",
+    narration: "The screen starts as zero, no items, checkout off. After two adds it shows twenty five pounds fifty, two items, checkout on. Nobody told the screen. It bound once. The view model holds no reference to any view.",
+    rows: { vm: "active ok", bs: "active ok" },
+    console: [
+      ["start: 0.00, 0, off", "ok"],
+      ["after 2 adds: 25.50, 2, on", "ok"],
+    ],
+  },
+  {
+    label: "Act 5 — many views, one view model",
+    narration: "A phone screen and a watch screen bind to the same view model. Both show sixteen pounds, one item, checkout on. A second screen cost no change to the view model.",
+    rows: { vm: "active ok", bs: "active ok" },
+    console: [
+      ["phone: 16.00", "ok"],
+      ["watch: 16.00", "ok"],
+    ],
+  },
+  {
+    label: "Act 6 — the bill",
+    narration: "In M V V M, a screen that forgot to bind the total draws a question mark. Nothing failed. It is just wrong. In M V P, the view interface has three methods, and each new thing on the screen adds one to the interface, the presenter and every view. M V V M hides the wiring in the binding. M V P spells it out, and gets long.",
+    rows: { bs: "active wrong", pr: "active amber" },
+    console: [
+      ["MVVM: forgot to bind: ?", "bad"],
+      ["MVP: 3 methods, and growing", "amber"],
+    ],
+  },
+];
+
+const rowIds = ["fs", "pr", "vw", "vm", "bs"];
+const stepLabel = document.getElementById("step-label");
+const narrationEl = document.getElementById("narration");
+const consoleEl = document.getElementById("console-lines");
+const progressEl = document.getElementById("progress");
+const stepBtn = document.getElementById("step");
+const playBtn = document.getElementById("play");
+const resetBtn = document.getElementById("reset");
+
+let i = -1;
+let timer = null;
+
+function clearRows() {
+  for (const id of rowIds) {
+    document.getElementById("row-" + id).className = "row";
+  }
+}
+
+function render() {
+  clearRows();
+  if (i < 0) {
+    stepLabel.textContent = "Ready";
+    narrationEl.textContent = "Press Step or Play to begin.";
+    consoleEl.innerHTML = "";
+    progressEl.textContent = "0 / " + STEPS.length;
+    return;
+  }
+  const s = STEPS[i];
+  stepLabel.textContent = s.label;
+  narrationEl.textContent = s.narration;
+  for (const id of rowIds) {
+    const el = document.getElementById("row-" + id);
+    const cls = s.rows[id];
+    el.className = "row " + (cls ? cls : "dim");
+  }
+  consoleEl.innerHTML = s.console
+    .map(([text, cls]) => '<span class="' + cls + '">' + text + "</span>")
+    .join("\n");
+  progressEl.textContent = (i + 1) + " / " + STEPS.length;
+}
+
+function step() {
+  if (i >= STEPS.length - 1) { stopPlay(); return; }
+  i += 1;
+  render();
+}
+
+function reset() {
+  stopPlay();
+  i = -1;
+  render();
+}
+
+function startPlay() {
+  if (timer) return;
+  playBtn.textContent = "Pause ❚❚";
+  timer = setInterval(() => {
+    if (i >= STEPS.length - 1) { stopPlay(); return; }
+    step();
+  }, 2600);
+}
+
+function stopPlay() {
+  if (timer) clearInterval(timer);
+  timer = null;
+  playBtn.textContent = "Play ▶";
+}
+
+stepBtn.addEventListener("click", () => { stopPlay(); step(); });
+resetBtn.addEventListener("click", reset);
+playBtn.addEventListener("click", () => { if (timer) stopPlay(); else startPlay(); });
+
+render();
+</script>
+</body>
+</html>
