@@ -6481,6 +6481,33 @@ requirements=[
 ],
 ),
 
+"blue-green-and-canary": dict(
+purpose="""
+Teach Blue-Green and Canary with an online store's checkout release: an in-place upgrade that fails requests, a switch to a good release with none failed, a switch to a buggy release and back by one setting, a five percent canary that meets a few failures, a gated step-by-step rollout that halts a bad release and promotes a good one, and the costs of double capacity and a shared database.
+""",
+nongoals=[
+    'Not a real router or deployment tool. The router is a rule on the request number.',
+    'Not database migrations, though act six says why they matter.',
+    'Not monitoring. The gate reads a failure count.',
+],
+problem="""
+Replacing a release in place means a gap, and all customers meet a bad release at once.
+
+**What this project must deliver:** an in-place gap, a switch with none failed, a switch back, a canary with few failures, a gate that halts and promotes, and the two costs.
+""",
+roles=[
+    ('The pattern', '`Router`, `CanaryRollout`, `Version`'),
+    ('Naive', '`InPlaceUpgrade`'),
+    ('Entry point', '`BlueGreenDemo`, six acts'),
+],
+requirements=[
+    '**Routing is a fixed rule on the request number,** so every run is the same.',
+    '**A buggy release fails on big orders, one in ten.**',
+    '**Going back needs only a setting.**',
+    '**The gate halts a bad release after one step, and promotes a good one.**',
+],
+),
+
 }
 
 
