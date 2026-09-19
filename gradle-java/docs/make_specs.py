@@ -6118,6 +6118,33 @@ requirements=[
 ],
 ),
 
+"double-checked-locking": dict(
+purpose="""
+Teach Double-Checked Locking with a shared price list: two threads both building it when they race, forced every time by a rendezvous, the lock-on-every-call fix that takes the lock a thousand times in a thousand calls, the double check that builds one and takes the lock once, the volatile field guarded by a test because its failure cannot be produced on demand, the class holder idiom that builds nothing until asked and needs no lock, and the bill that double-checking is more ceremony with one way to be subtly wrong.
+""",
+nongoals=[
+    'Not a demonstration of the missing-volatile failure. It cannot be reproduced on demand, and the project says so.',
+    'Not a performance benchmark. Locks are counted, not timed.',
+    'Not the general theory of the Java memory model.',
+],
+problem="""
+Building a shared object lazily from several threads can build it twice, and the lock that prevents that can be taken for ever.
+
+**What this project must deliver:** the unprotected race forced every time, the lock-every-call version with its counted takings, the double check with one taking, a guard on the volatile, the holder idiom, and the ceremony bill.
+""",
+roles=[
+    ('The four accessors', '`NaiveLazy`, `SynchronisedLazy`, `DoubleCheckedLazy`, `HolderLazy`'),
+    ('Support', '`PriceList`, `Rendezvous`'),
+    ('Entry point', '`DoubleCheckedDemo`, six acts'),
+],
+requirements=[
+    '**The race is forced every time by a rendezvous,** and asserted over repeated runs.',
+    '**Locks are counted,** never timed.',
+    '**The field must be volatile,** asserted by reflection.',
+    '**The holder builds nothing until first use.**',
+],
+),
+
 }
 
 
