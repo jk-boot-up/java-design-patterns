@@ -6172,6 +6172,32 @@ requirements=[
 ],
 ),
 
+"guarded-suspension": dict(
+purpose="""
+Teach Guarded Suspension with pickers waiting for orders: a picker that asks again and again and has asked over a million times before any order arrives, a picker that sleeps and is woken, two pickers and one order where an if guard sends one away with nothing and a while guard sends it back to waiting, a picker that waits without looking first and sleeps though an order is there, a wait with a limit, and the bill that notify-all wakes twenty for one order.
+""",
+nongoals=[
+    'Not a replacement for BlockingQueue. It is the mechanism inside one.',
+    'Not fairness or ordering between waiting threads.',
+    'Not interruption handling in depth.',
+],
+problem="""
+A thread that cannot go on until a condition holds can waste a processor asking, or wake and act on a condition that is no longer true.
+
+**What this project must deliver:** a spinning picker with a counted number of checks, a sleeping picker observed in the waiting state, the if-guard bug and the while fix, a notification that came too early, a limited wait, and the wake-up count for notify-all.
+""",
+roles=[
+    ('The inboxes', '`WaitingInbox`, `SpinningInbox`, `IfGuardInbox`, `NoCheckInbox`, `Inbox`'),
+    ('Entry point', '`GuardedSuspensionDemo`, six acts'),
+],
+requirements=[
+    '**Every result is exact:** thread states are polled to WAITING, and repeated runs are identical.',
+    '**The if guard hands one picker nothing;** the while guard does not.',
+    '**A picker that waits without looking first sleeps though an order is there.**',
+    '**notifyAll wakes every waiter,** counted.',
+],
+),
+
 }
 
 
