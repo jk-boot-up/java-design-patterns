@@ -6800,6 +6800,34 @@ requirements=[
 ],
 ),
 
+"service-mesh-with-envoy": dict(
+purpose="""
+Show a service mesh's data plane with a real Envoy in Docker: three callers with different retry code against a real HTTP payment service that refuses its first calls, Envoy retrying for a caller that has none, the retry count changed in one configuration file, an unknown caller refused with a 403 before it reaches payments, counters read from Envoy's admin page, and the multiplied load.
+""",
+nongoals=[
+    'Not a re-teaching of Service Mesh. The partner project owns the pattern; this one names it in its first paragraph.',
+    'Not a Envoy tutorial. Only what the pattern needs is introduced, as it appears.',
+],
+problem="""
+Service Mesh simulated the proxies. Envoy is a real one, with a real configuration and real counters.
+
+**What this project must deliver:** three retry behaviours, Envoy retrying, a policy changed in one file, a refused caller, counters from the proxy, and the cost of retries.
+""",
+roles=[
+    ('The demo', '`MeshEnvoyDemo`'),
+    ('The proxy', '`Envoy`, the container'),
+    ('The service', '`Payments`'),
+    ('The callers', '`Caller`'),
+],
+requirements=[
+    '**Envoy is real,** run in Docker and removed afterwards.',
+    '**Payments is a real HTTP server** that refuses a set number of calls.',
+    "**Counts asserted are those that cannot vary:** the calls payments received and Envoy's own counters.",
+    '**Tests are skipped when Docker is missing.**',
+    '**Dependencies are explained.** `docs/dependencies.md` says what to install, what it costs, and that skipping loses nothing.',
+],
+),
+
 }
 
 
