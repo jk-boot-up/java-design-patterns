@@ -6535,6 +6535,34 @@ requirements=[
 ],
 ),
 
+"service-mesh": dict(
+purpose="""
+Teach Service Mesh with an online store's payment service on a bad day: three services with their own retry code and three different results, a mesh of proxies applying one retry policy, the policy changed with a single setting, an identity rule that turns an unknown caller away before the payment service, counts per caller and callee with no service code, and the costs of multiplied load, extra ticks and extra processes.
+""",
+nongoals=[
+    'Not Envoy, Istio or Kubernetes. The mesh is a class that applies a policy at each call.',
+    'Not real encryption. Identity is a name the proxy presents.',
+    'Not traffic splitting, which the blue-green project covers.',
+],
+problem="""
+Each service carrying its own retry, identity and counting code means many copies that behave differently.
+
+**What this project must deliver:** three different library behaviours, one mesh policy, the policy changed once, an identity rule, counts kept without services, and the costs of retries, delay and processes.
+""",
+roles=[
+    ('The pattern', '`Mesh`'),
+    ('Support', '`Backend`, `Flaky`'),
+    ('Naive', '`LibraryClient`'),
+    ('Entry point', '`ServiceMeshDemo`, six acts'),
+],
+requirements=[
+    '**The payment service refuses a set number of calls,** so every run is the same.',
+    '**One mesh policy gives every caller the same behaviour.**',
+    '**A denied caller never reaches the payment service.**',
+    '**Retries multiply the calls the payment service receives, and this is counted.**',
+],
+),
+
 }
 
 
