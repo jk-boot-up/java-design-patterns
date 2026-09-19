@@ -6620,6 +6620,34 @@ requirements=[
 ],
 ),
 
+"type-object": dict(
+purpose="""
+Teach Type Object with an online store's product kinds: three subclasses that differ only in three numbers, one Product class pointing at a ProductType holding tax, return days and shipping, a gift card type added while running with no new class, a change to a type reaching every product of it, a derived type that inherits what it does not state, and the costs of errors found late and of a field for every difference.
+""",
+nongoals=[
+    'Not a database or a configuration file. Types are made in code.',
+    'Not behaviour by type. The serial-number check is named as a limit, not solved.',
+    'Not Flyweight, though a type is shared by many products.',
+],
+problem="""
+A subclass for each kind is a build and a release for each new kind, even when kinds differ only in numbers.
+
+**What this project must deliver:** the subclass version, one class with a type, a kind added at run time, one change reaching all products, inheritance between types, and the costs.
+""",
+roles=[
+    ('The pattern', '`ProductType`, `TypeRegistry`, `Product`'),
+    ('Naive', '`KindProduct`, `Book`, `Laptop`, `Grocery`'),
+    ('Entry point', '`TypeObjectDemo`, six acts'),
+],
+requirements=[
+    '**Money and tax are integers,** so results are exact.',
+    '**The subclass and the type object give the same total.**',
+    '**A new type adds no class.**',
+    '**A changed type changes every product of it.**',
+    '**A missing field is taken from the parent type.**',
+],
+),
+
 }
 
 
