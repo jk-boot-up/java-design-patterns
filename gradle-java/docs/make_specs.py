@@ -6884,6 +6884,35 @@ requirements=[
 ],
 ),
 
+"event-driven-architecture-with-kafka": dict(
+purpose="""
+Show event-driven architecture with a real Kafka broker in Docker: a direct call that loses an order, an order service that only sends to a topic, a consumer group that is down and catches up from its committed offset with a lag counted by the broker, a new group that reads history, briefly wrong stock, and a redelivered event that double counts without a duplicate check.
+""",
+nongoals=[
+    'Not a re-teaching of Event-Driven Architecture. The partner project owns the pattern; this one names it in its first paragraph.',
+    'Not a Apache Kafka tutorial. Only what the pattern needs is introduced, as it appears.',
+],
+problem="""
+Event-Driven Architecture built the log by hand. Kafka is a real broker, with real offsets, groups and lag.
+
+**What this project must deliver:** an order lost by a direct call, an order sent to a broker, a reader that catches up, a new reader that replays, stock that is briefly wrong, and a duplicate absorbed by a check.
+""",
+roles=[
+    ('The demo', '`KafkaEdaDemo`'),
+    ('The broker', '`Broker`, the container'),
+    ('The writer', '`OrderService`'),
+    ('The readers', '`Reader`'),
+    ('Naive', '`DirectShop`'),
+],
+requirements=[
+    '**Kafka is real,** run in Docker and removed afterwards.',
+    '**Each act has a topic of its own with one partition,** so offsets and lag are exact.',
+    '**Reads wait for a number of events,** never for a fixed time.',
+    '**Tests are skipped when Docker is missing.**',
+    '**Dependencies are explained.** `docs/dependencies.md` says what to install, what it costs, and that skipping loses nothing.',
+],
+),
+
 }
 
 
