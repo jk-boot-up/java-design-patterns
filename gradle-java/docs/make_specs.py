@@ -6677,6 +6677,34 @@ requirements=[
 ],
 ),
 
+"execute-around": dict(
+purpose="""
+Teach Execute Around with an online store's order database: a hand-over pool whose connection leaks when a query fails, an around method that opens, runs the caller's work and closes in a finally block, results returned through generics, a ledger transaction that undoes every step on failure, a timer that measures even a failing job using a fake clock, and a connection that escapes the block and is found closed.
+""",
+nongoals=[
+    'Not a real connection pool or database.',
+    "Not try-with-resources in depth, though it is named as the language's form.",
+    'Not checked-exception handling in lambdas.',
+],
+problem="""
+Every caller that opens and closes a resource by hand can forget the close on some path.
+
+**What this project must deliver:** a leak on failure, one place that closes, results out, an undone transaction, a timer, and a resource that escapes.
+""",
+roles=[
+    ('The pattern', '`Pool.withConnection`, `Ledger.inTransaction`, `Timed.around`'),
+    ('Support', '`Connection`, `FakeClock`'),
+    ('Entry point', '`ExecuteAroundDemo`, six acts'),
+],
+requirements=[
+    '**The pool counts what is still open.**',
+    '**The around method closes on success and on failure.**',
+    '**A failed transaction leaves the balance as it was.**',
+    '**Time is a fake clock,** so every number is exact.',
+    '**A connection used after the block fails.**',
+],
+),
+
 }
 
 
