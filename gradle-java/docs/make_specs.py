@@ -6705,6 +6705,33 @@ requirements=[
 ],
 ),
 
+"callback": dict(
+purpose="""
+Teach Callback with an online store's payment gateway: a caller polling for an answer and finding nothing four times in five, a callback handed over so the caller goes on, a callback told the result, a callback that throws contained by the gateway and recorded, answers delivered out of order where a shared field mixes orders up and a captured id does not, and three nested callbacks that run out of written order.
+""",
+nongoals=[
+    'Not real asynchrony or threads. Delivery is a method the demo calls, so the order is chosen.',
+    'Not futures or reactive streams, which are the way out.',
+    'Not a real payment API.',
+],
+problem="""
+Waiting for a slow answer by asking again and again stops the caller from doing anything else.
+
+**What this project must deliver:** a polling cost, a callback that lets the caller go on, results, contained failures, out-of-order answers, and the cost of nesting.
+""",
+roles=[
+    ('The pattern', '`Gateway`, `Result`'),
+    ('Naive', '`WaitingGateway`, `SharedFieldShop`'),
+    ('Entry point', '`CallbackDemo`, six acts'),
+],
+requirements=[
+    '**Answers are delivered by a call,** so every order is chosen.',
+    '**A callback that throws does not stop the gateway,** and is recorded.',
+    '**A shared field is shown to mix orders up.**',
+    '**Each callback carries its own order id.**',
+],
+),
+
 }
 
 
