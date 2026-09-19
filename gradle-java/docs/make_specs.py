@@ -6563,6 +6563,35 @@ requirements=[
 ],
 ),
 
+"consumer-driven-contract": dict(
+purpose="""
+Teach Consumer-Driven Contract with an online store's catalog: a renamed field that breaks checkout in production, contracts written as data by each consumer listing only the fields and types it reads, a verifier that runs the provider's real answer against all contracts and names the consumer and field, an added field that is safe, per-consumer effects of a rename, and a change of meaning that a contract cannot catch.
+""",
+nongoals=[
+    'Not Pact or Spring Cloud Contract. The contract is a map and the verifier is a loop.',
+    'Not HTTP. The provider is a function returning a map.',
+    'Not versioning or a contract broker.',
+],
+problem="""
+A provider that changes its answer cannot know which consumers will break.
+
+**What this project must deliver:** a break found in production, contracts as data, a verifier that names consumer and field, an added field shown safe, and a change of meaning that passes.
+""",
+roles=[
+    ('The pattern', '`Contract`, `Verifier`, `Type`'),
+    ('Provider', '`PriceProvider`'),
+    ('Consumers', '`Checkout`, `Reports`'),
+    ('Entry point', '`ContractDemo`, six acts'),
+],
+requirements=[
+    '**A contract lists only the fields a consumer reads.**',
+    "**The verifier checks the provider's real answer.**",
+    '**A problem names the consumer and the field.**',
+    '**An added field passes.**',
+    '**A change of meaning passes, and the demo says so.**',
+],
+),
+
 }
 
 
