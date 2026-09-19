@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Foundational Patterns</title>
+<style>
+:root {
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --ok: #34d399;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: #7dd3fc; }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: rgba(167, 139, 250, 0.08);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: rgba(30, 41, 59, 0.55); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+</style>
+</head>
+<body>
+<main>
+<h1>Foundational Patterns</h1>
+<p>The ninth category. Five patterns taught alongside the Gang of Four without being in it, and used by every Java codebase daily.</p>
+<p><strong>Status: all five built, and four framework versions.</strong> Each project has code, deterministic tests, a README, diagrams, an animation, a narrated video pipeline and a YouTube document. The two documents below fixed what the projects are before any of them was written. One thing differs from the plan: Dependency Injection writes a small container in plain Java instead of running Spring, so its container scene shows the mechanism and does not run a framework.</p>
+<ul><li><a href="docs/spec.md"><code>docs/spec.md</code></a> — the scenario each pattern is taught through, the naive version it must show failing, the bill it must present, and the verdict it must reach.</li><li><a href="docs/implementation-plan.md"><code>docs/implementation-plan.md</code></a> — the order the five get built in, the shared collaborators the last three all use, the framework register, and the rules that keep the build from having to redo itself.</li></ul>
+<h2>The five</h2>
+<table><thead><tr><th>#</th><th>Pattern</th><th>Scenario</th></tr></thead><tbody><tr><td>68</td><td>Null Object</td><td>The discount that is not there</td></tr><tr><td>69</td><td>Object Pool</td><td>Expensive to make, cheap to borrow</td></tr><tr><td>70</td><td>Registry</td><td>The well-known place everything is kept</td></tr><tr><td>71</td><td>Service Locator</td><td>Ask a middleman for what you need</td></tr><tr><td>72</td><td>Dependency Injection</td><td>Stop asking; be given</td></tr></tbody></table>
+<h2>Not loose ends</h2>
+<p>These are usually presented as leftovers. They are not — they share a subject:</p>
+<blockquote><p><strong>How does an object get hold of another object, and what happens when there isn&#x27;t one?</strong></p></blockquote>
+<p>Null Object answers the second question. Object Pool answers it when creating one is expensive. The last three are one argument in three moves: Registry is a well-known place to put things, Service Locator is a middleman you ask, and Dependency Injection is what happens when you stop asking altogether. All three solve the same problem with the same three collaborators — a discount policy, a payment gateway and a notifier — so they can be compared directly rather than described separately.</p>
+<h2>Contested patterns, taught honestly</h2>
+<p>Three of the five exist largely to be argued about. Service Locator is widely considered an anti-pattern. Registry is a global variable with better manners. Object Pool is usually the wrong answer on a modern JVM, where allocation is cheap.</p>
+<p>Teaching them as straightforwardly good would be false; skipping them would leave a reader unable to recognise them in the code they maintain. So each project shows what the pattern is, why it was reasonable, what replaced it, and <strong>how to recognise it in code you did not write</strong> — then ends with a plain verdict rather than a hedge.</p>
+<p>The arguments are made with runnable evidence, not assertion: pooling a small object measured slower than allocating one, a test that fails because of the order the tests ran in, and a compiler that says nothing while a required dependency is missing.</p>
+<p>Dependency Injection closes the argument, and it is the most useful project here. The wiring is shown by hand first — about twenty lines in a <code>main</code> method — so a reader sees that <strong>a container is an optimisation of something they could write themselves</strong>, before any annotation appears.</p>
+<h2>The four framework versions</h2>
+<p>Each of these is its own project, with its own README, video and lesson. It opens by naming its hand-built partner, reuses the partner&#x27;s collaborators, does not re-teach the pattern, and carries a <code>docs/dependencies.md</code> saying what to install, what it costs, and that skipping it loses none of the pattern. The hand-built projects keep no framework in their build files.</p>
+<table><thead><tr><th>Project</th><th>Pairs with</th><th>Uses</th><th>What only it can show</th></tr></thead><tbody><tr><td>Dependency Injection with Spring</td><td>Dependency Injection</td><td>Spring Boot 4.1.1</td><td>What <code>@Component</code> replaced, and Spring&#x27;s real start-up failures</td></tr><tr><td>Registry with Spring</td><td>Registry</td><td>Spring Boot 4.1.1</td><td>The context as a registry, and the test-cache leak that brings back order-dependent tests</td></tr><tr><td>Object Pool with HikariCP</td><td>Object Pool</td><td>HikariCP, H2</td><td>What a mature pool solves, and the session state it cannot reset</td></tr><tr><td>Service Locator with Consul</td><td>Service Locator</td><td>A real Consul agent, real HTTP services, nginx in Docker</td><td>Real service discovery, a stale cache, and being given an address instead of asking</td></tr></tbody></table>
+<h2>Where this sits</h2>
+<p>Projects 68 to 72. See <a href="../README.md"><code>../README.md</code></a> for the full course.</p>
+<h2>More foundational patterns</h2>
+<ul><li><a href="multiton-pattern">Multiton</a></li><li><a href="type-object-pattern">Type Object</a></li><li><a href="fluent-interface-pattern">Fluent Interface</a></li><li><a href="execute-around-pattern">Execute Around</a></li><li><a href="callback-pattern">Callback</a></li><li><a href="delegation-pattern">Delegation</a></li></ul>
+</main>
+<footer>
+Generated from <code>README.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>

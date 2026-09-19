@@ -83,3 +83,12 @@ pattern. The hand-built projects keep no framework in their build files.
 ## Where this sits
 
 Projects 68 to 72. See [`../README.md`](../README.md) for the full course.
+
+## More foundational patterns
+
+- [Multiton](multiton-pattern)
+- [Type Object](type-object-pattern)
+- [Fluent Interface](fluent-interface-pattern)
+- [Execute Around](execute-around-pattern)
+- [Callback](callback-pattern)
+- [Delegation](delegation-pattern)

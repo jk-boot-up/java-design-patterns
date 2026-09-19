@@ -77,3 +77,12 @@ Each of these reruns a pattern above on a real framework. They sit beside their 
 - [MVC with Spring MVC](mvc-with-spring-mvc-pattern)
 - [Hexagonal Architecture with Spring Boot](hexagonal-architecture-with-spring-boot-pattern)
 - [Clean Architecture with Spring](clean-architecture-with-spring-pattern)
+
+## More architectural patterns
+
+- [Event-Driven Architecture](event-driven-architecture-pattern)
+- [Microkernel](microkernel-pattern)
+- [Pipe and Filter Architecture](pipe-and-filter-architecture-pattern)
+- [MVP and MVVM](mvp-and-mvvm-pattern)
+- [Onion Architecture](onion-architecture-pattern)
+- [Serverless](serverless-pattern)

@@ -108,3 +108,10 @@ full reasoning and rank all six honestly.
 
 Projects 38 to 45, after the twenty-five object-oriented patterns and the twelve
 microservices ones. See [`../README.md`](../README.md) for the full course.
+
+## More platform patterns
+
+- [Blue-Green and Canary](blue-green-and-canary-pattern)
+- [Feature Toggle](feature-toggle-pattern)
+- [Service Mesh](service-mesh-pattern)
+- [Consumer-Driven Contract](consumer-driven-contract-pattern)

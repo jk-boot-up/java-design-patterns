@@ -10,43 +10,28 @@ scratch work, kept for reference.
 
 ## Start here
 
-**[`gradle-java/README.md`](gradle-java/README.md)** is the front door. It lists
-the patterns in learning order, across seven categories:
+**[`gradle-java/README.md`](gradle-java/README.md)** is the front door. The
+patterns are grouped in eleven categories, and every category has its own
+README with the order to read it in:
 
-| Category | Patterns | Range |
+| Category | Projects | Covers |
 | --- | --- | --- |
-| [Creational](gradle-java/creational) | 7 | Simple Factory → Singleton |
-| [Structural](gradle-java/structural) | 7 | Adapter → Proxy |
-| [Behavioural](gradle-java/behavioural) | 11 | Strategy → Interpreter |
-| [Microservices](gradle-java/micro-services-design-patterns) | 12 | API Gateway → Idempotent Consumer |
-| [Platform](gradle-java/platform-design-patterns) | 8 | Externalised Configuration → Strangler Fig |
-| [Concurrency](gradle-java/concurrency-design-patterns) | 6 | Producer–Consumer → Active Object |
-| [Architectural](gradle-java/architectural-design-patterns) | 5 | Layered Architecture → Clean Architecture with Spring |
+| [Creational](gradle-java/creational) | 9 | Simple Factory → Singleton, and the framework versions |
+| [Structural](gradle-java/structural) | 8 | Adapter → Proxy |
+| [Behavioural](gradle-java/behavioural) | 16 | Strategy → Interpreter |
+| [Microservices](gradle-java/micro-services-design-patterns) | 28 | API Gateway → Scatter-Gather, and Service Discovery with Consul |
+| [Platform](gradle-java/platform-design-patterns) | 12 | Externalised Configuration → Consumer-Driven Contract |
+| [Architectural](gradle-java/architectural-design-patterns) | 14 | Layered → Serverless, with Spring Boot versions |
+| [Concurrency](gradle-java/concurrency-design-patterns) | 16 | Producer–Consumer → Two-Phase Termination |
+| [Enterprise](gradle-java/enterprise-design-patterns) | 17 | Data Mapper, Unit of Work, Gateway and the offline locks |
+| [Foundational](gradle-java/foundational-design-patterns) | 15 | Null Object → Delegation, with Spring and HikariCP versions |
+| [Messaging and integration](gradle-java/messaging-integration-patterns) | 5 | Message Channel → Event Bus |
+| [Domain-driven design](gradle-java/domain-driven-design-patterns) | 6 | Value Object → Bounded Context |
 
-The first four categories, plus architectural, are complete — forty-five
-projects. Platform and concurrency are the two categories still under
-construction. Platform's
-[implementation plan](gradle-java/platform-design-patterns/docs/implementation-plan.md)
-lists all eight, and six are finished: Event Sourcing, which is the
-category's reference project, Externalised Configuration, Distributed
-Tracing, Backends for Frontends, Sidecar, and Sidecar with a Java Proxy.
-Concurrency's
-[implementation plan](gradle-java/concurrency-design-patterns/docs/implementation-plan.md)
-lists all six, built around a shared determinism harness — every naive
-concurrency failure this category demonstrates is forced to reproduce on
-every single run, with a latch or a planned interleaving, never a
-`Thread.sleep`. Producer–Consumer, the category's reference project,
-Thread Pool and Future/Promise are finished; the other three are still to
-come.
-
-Architectural's own
-[implementation plan](gradle-java/architectural-design-patterns/docs/implementation-plan.md)
-records how its five went in: Layered Architecture, the category's
-reference project, then MVC, Hexagonal Architecture, Clean Architecture,
-and finally Clean Architecture with Spring — the only project in the whole
-course with a framework in its build file, because it exists to contrast
-compile-time wiring failure against startup wiring failure in the one
-place that comparison needs a real container.
+That is 146 projects. Each has runnable code with deterministic tests, a README
+with diagrams, an animation, a session plan and a narrated video pipeline, and
+each is taught through an online store unless the pattern is clearer in another
+setting. Every project ends with a bill: what the pattern costs.
 
 Every pattern is taught through the same worked domain — an online store — so a
 learner moving from one project to the next carries the setting with them and
@@ -68,7 +53,7 @@ on the `PATH` is the only prerequisite, and every project's
 ## Repository layout
 
 ```
-gradle-java/                 the course — 11 categories, 123 projects
+gradle-java/                 the course — 11 categories, 146 projects
   docs/                      the repository-wide specs and the shared
                              generators for specs, thumbnails and
                              YouTube documents
@@ -77,15 +62,15 @@ gradle-java/                 the course — 11 categories, 123 projects
   behavioural/               16 projects
   micro-services-design-patterns/
                              28 projects
-  platform-design-patterns/  8 projects
+  platform-design-patterns/  12 projects
   architectural-design-patterns/
-                             8 projects
+                             14 projects
   concurrency-design-patterns/
-                             9 projects
+                             16 projects
   enterprise-design-patterns/
                              17 projects
   foundational-design-patterns/
-                             9 projects
+                             15 projects
   messaging-integration-patterns/
                              5 projects
   domain-driven-design-patterns/

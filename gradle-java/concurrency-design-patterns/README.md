@@ -54,3 +54,13 @@ been taught something false, and this is the category where that belief forms.
 Projects 46 to 51, after the twenty-five object-oriented patterns, the twelve
 microservices ones and the eight platform ones. See [`../README.md`](../README.md)
 for the full course.
+
+## More concurrency patterns
+
+- [Double-Checked Locking](double-checked-locking-pattern)
+- [Balking](balking-pattern)
+- [Guarded Suspension](guarded-suspension-pattern)
+- [Thread-Local Storage](thread-local-storage-pattern)
+- [Fork/Join](fork-join-pattern)
+- [Actor](actor-pattern)
+- [Two-Phase Termination](two-phase-termination-pattern)
