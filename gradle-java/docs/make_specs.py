@@ -5847,6 +5847,33 @@ requirements=[
 ],
 ),
 
+"claim-check": dict(
+purpose="""
+Teach Claim Check with an invoice PDF: a broker that refuses a five thousand byte message, a claim of an id, a size and a checksum that carries it instead, five hundred thousand bytes against five thousand nine hundred for a hundred invoices, blobs nobody collected swept after their time limit and a late claim refused, a changed byte caught by the checksum, and the bills of extra steps, guessable claims and the gap between storing and sending.
+""",
+nongoals=[
+    'Not a real broker or object store. Both are small in-memory classes.',
+    'Not access control beyond unguessable ids. Signing and time-limited claims are named.',
+    'Not the outbox pattern, though it faces the same gap.',
+],
+problem="""
+A message too big for the broker cannot be sent whole.
+
+**What this project must deliver:** a broker with a size limit, a claim with a checksum, a sender and receiver that use it, bytes carried with and without, uncollected blobs swept, a tampered blob refused, and the bills shown.
+""",
+roles=[
+    ('The pattern', '`Sender`, `Receiver`, `Claim`'),
+    ('Infrastructure', '`Broker`, `BlobStore`, `Clock`'),
+    ('Entry point', '`ClaimCheckDemo`, six acts'),
+],
+requirements=[
+    '**Bytes are counted,** never timed.',
+    '**Expiry uses a clock the demo controls.**',
+    '**A tampered payload is refused by its checksum.**',
+    '**Sequential claims are shown to be guessable,** and random claims are not.',
+],
+),
+
 }
 
 
