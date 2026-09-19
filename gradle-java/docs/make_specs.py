@@ -6648,6 +6648,35 @@ requirements=[
 ],
 ),
 
+"fluent-interface": dict(
+purpose="""
+Teach Fluent Interface with an online store's catalog search: a positional call whose swapped booleans compile and change the answer, the same search as a chain that reads as a sentence, optional parts left out or reordered, a query that never changes against one that changes itself and spoils a shared base, guided steps whose available methods are shown by reflection, and a bad value accepted and found late.
+""",
+nongoals=[
+    'Not a real search engine. The catalog is six products.',
+    'Not the Builder pattern in full, which has its own project.',
+    'Not a domain-specific language toolkit.',
+],
+problem="""
+Long argument lists with several booleans are hard to read and easy to swap.
+
+**What this project must deliver:** a swapped-argument problem, a fluent equivalent with the same answers, a query that never changes against one that does, guided steps, and the costs.
+""",
+roles=[
+    ('The pattern', '`Query`, `Steps`'),
+    ('Contrast', '`MutableQuery`, `Catalog.find`'),
+    ('Support', '`Catalog`, `Product`'),
+    ('Entry point', '`FluentDemo`, six acts'),
+],
+requirements=[
+    '**The fluent and positional calls give the same answer.**',
+    '**Swapped booleans are shown to compile and change the answer.**',
+    '**A never-changing query can be reused.**',
+    '**Guided steps offer only what may come next,** shown by reflection.',
+    '**A bad value is shown to be found late.**',
+],
+),
+
 }
 
 
