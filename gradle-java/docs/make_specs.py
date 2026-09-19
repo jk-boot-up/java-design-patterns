@@ -5957,6 +5957,33 @@ requirements=[
 ],
 ),
 
+"scatter-gather": dict(
+purpose="""
+Teach Scatter-Gather with a product page's best price from four suppliers: asking them in turn for thirteen hundred milliseconds and all at once for nine hundred, four suppliers held at a gate to show they are being asked at the same moment, a deadline that leaves the slow one out and names it, a partial answer reported honestly, a failing supplier that does not fail the page, and the bills of fan-out and of the slowest of many setting the pace.
+""",
+nongoals=[
+    'Not a search engine. There are four stand-in suppliers.',
+    'Not streaming results. The gatherer waits for the deadline or for all.',
+    'Not caching. It is named as the way to cut the calls.',
+],
+problem="""
+Asking several sources one after another is slow, and asking them together means the slowest sets the pace.
+
+**What this project must deliver:** the latency arithmetic, a real parallel ask shown by a gate, a deadline that leaves out a slow supplier and names it, a failure treated as lateness, a partial result reported honestly, and the fan-out bill.
+""",
+roles=[
+    ('The pattern', '`ScatterGather`, `Supplier`, `Quote`'),
+    ('Support', '`Gate`, `Latencies`'),
+    ('Entry point', '`ScatterGatherDemo`, six acts'),
+],
+requirements=[
+    '**Latency is arithmetic,** never a sleep.',
+    '**Four suppliers are asked at the same moment,** asserted by holding them at a gate, over repeated runs.',
+    '**A slow supplier is left out and named,** and a failing one is named with its reason.',
+    '**When nobody answers there is no best price,** not an error.',
+],
+),
+
 }
 
 
