@@ -5902,6 +5902,61 @@ requirements=[
 ],
 ),
 
+"publisher-subscriber": dict(
+purpose="""
+Teach Publisher-Subscriber with an order being placed: an order service that calls inventory, email and analytics by name, a topic that is an append-only log with a reader position per subscriber so the same order service only publishes, a fourth subscriber added with no change, a slow subscriber with its own backlog, filters by kind, a live subscriber and a replaying one, and an absent subscriber that catches up while the publisher learns nothing.
+""",
+nongoals=[
+    'Not a real broker. The topic is an in-memory log.',
+    'Not delivery guarantees across machines. Delivery is a method call, made by hand.',
+    'Not the Observer pattern by name, though it is the same idea.',
+],
+problem="""
+A service that calls every interested party by name must change whenever a new one appears.
+
+**What this project must deliver:** a publisher that only appends, subscribers that read at their own position and pace with their own filter, a late subscriber shown live and replaying, an absent subscriber that catches up, and the publisher's ignorance of delivery shown honestly.
+""",
+roles=[
+    ('The pattern', '`Topic`, `Event`'),
+    ('Naive', '`DirectOrderService`'),
+    ('Entry point', '`PublisherSubscriberDemo`, six acts'),
+],
+requirements=[
+    '**Delivery is a method call,** so every run is the same.',
+    "**A subscriber's backlog is asserted exactly.**",
+    '**A live subscriber misses history and a replaying one does not.**',
+    "**A disconnected subscriber's position is kept.**",
+],
+),
+
+"pipes-and-filters": dict(
+purpose="""
+Teach Pipes and Filters with an order import: one loop that does five jobs and drops bad lines with no trace, the same job as five typed filters joined into a pipeline, a swapped tax step and an added step with no change to any other, bad lines rejected with the step and the reason while the rest continue, streaming holding one item against twenty thousand for a stage at a time, and the shape problem of steps passing loose maps.
+""",
+nongoals=[
+    'Not a batch framework. The pipeline is a small class.',
+    'Not concurrency. Items go through one at a time, in order.',
+    'Not the Java Streams API, though it is the same idea.',
+],
+problem="""
+One method that does every step of a job cannot be tested, changed or explained a step at a time.
+
+**What this project must deliver:** filters that pass or reject with a reason, a pipeline that joins them, the same results as the big method, a swapped and an added step, rejects reported, streaming against stage-by-stage memory, and the shape problem shown.
+""",
+roles=[
+    ('The pattern', '`Filter`, `Pipeline`'),
+    ('The import', '`Shop`, its filters and types'),
+    ('Naive', '`BigImport`'),
+    ('Entry point', '`PipesAndFiltersDemo`, six acts'),
+],
+requirements=[
+    '**The pipeline and the big method agree** on the good lines.',
+    '**Each filter is tested alone.**',
+    '**Rejects carry the step and the reason,** in order.',
+    '**Streaming holds 1 item and stage-by-stage holds 2000 for 1000 lines,** with identical output.',
+],
+),
+
 }
 
 
