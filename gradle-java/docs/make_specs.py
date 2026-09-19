@@ -6308,6 +6308,35 @@ requirements=[
 ],
 ),
 
+"event-driven-architecture": dict(
+purpose="""
+Teach Event-Driven Architecture with an online store: a direct call that loses an order when shipping is down, an order service that only appends to a log, readers that keep their own position, a down reader that catches up, a new reader that reads history without a change to the writer, briefly wrong stock, and a duplicate delivery absorbed by a check.
+""",
+nongoals=[
+    'Not a real broker. The log is an in-memory list.',
+    'Not event sourcing, though the log is the same idea.',
+    'Not ordering or delivery guarantees across machines.',
+],
+problem="""
+Services that call each other must all be up at once, and must change when a new one arrives.
+
+**What this project must deliver:** an order lost by a direct call, an order service that only appends, a down reader that catches up, a new reader that replays history, stock that is briefly wrong, and a duplicate absorbed by a check.
+""",
+roles=[
+    ('The pattern', '`EventLog`, `Reactor`, `OrderService`'),
+    ('Support', '`Event`, `Warehouse`'),
+    ('Naive', '`DirectShop`'),
+    ('Entry point', '`EdaDemo`, six acts'),
+],
+requirements=[
+    '**Delivery is a method call,** so every run is the same.',
+    "**A down reader's lag is asserted exactly.**",
+    '**A new reader replays the whole log.**',
+    '**Stock is wrong before the reader polls, and right after.**',
+    '**A duplicate is shown to double-count without a check.**',
+],
+),
+
 }
 
 
