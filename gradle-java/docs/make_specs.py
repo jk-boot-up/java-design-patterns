@@ -6225,6 +6225,33 @@ requirements=[
 ],
 ),
 
+"fork-join": dict(
+purpose="""
+Teach Fork-Join with a day's order totals: one loop adding a hundred thousand numbers, a recursive task that splits until a piece is ten thousand and gives sixteen leaves and thirty one tasks with the same total, a pool of four workers holding sixteen pieces at a gate until four run at the same moment, four thresholds from one piece to a hundred thousand, the ceiling one large piece puts on the speedup, and the bills of work that waits and of splitting tiny jobs.
+""",
+nongoals=[
+    'Not a benchmark. Nothing is timed; pieces and tasks are counted.',
+    'Not parallel streams, though it is what they use.',
+    'Not work-stealing internals.',
+],
+problem="""
+One loop over a big job leaves processors idle, and splitting it brings choices that can lose the gain.
+
+**What this project must deliver:** a recursive sum equal to the loop for any threshold, leaves and tasks matching a shape worked out without threads, four pieces shown running at once, the threshold effect, the skew ceiling, and work that waits shown to gain nothing.
+""",
+roles=[
+    ('The pattern', '`SumTask`'),
+    ('Support', '`Splitting`, `OrderTotals`, `Gate`'),
+    ('Entry point', '`ForkJoinDemo`, six acts'),
+],
+requirements=[
+    '**The recursive sum equals the loop for every threshold.**',
+    '**Leaves and tasks match the shape worked out with no threads.**',
+    '**Concurrency is exact:** pieces held at a gate, 4 with four workers and 2 with two, over repeated runs.',
+    '**Nothing is timed.**',
+],
+),
+
 }
 
 
