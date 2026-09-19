@@ -6453,6 +6453,34 @@ requirements=[
 ],
 ),
 
+"serverless": dict(
+purpose="""
+Teach Serverless with an online store's receipts, on a counted clock: an always-on server paid for while idle, a function per event paid per call, instances started for concurrent calls and dropped to zero after an idle timeout, the cold start, instance memory lost while an outside store lasts, the busy load that costs more than the server, and a time limit that stops long work.
+""",
+nongoals=[
+    'Not a real cloud. Platform is a simulation with a counted clock.',
+    'Not deployment, permissions or triggers of any real provider.',
+    'Not exact prices. The numbers are units to show where the balance tips.',
+],
+problem="""
+A machine that runs all the time is paid for while idle, and cannot grow for a burst without planning.
+
+**What this project must deliver:** an idle server's bill, a function per event, scale out and to zero, a cold start, lost instance memory, and the busy-load and time-limit costs.
+""",
+roles=[
+    ('The pattern', '`Platform`'),
+    ('Naive', '`AlwaysOnServer`'),
+    ('Entry point', '`ServerlessDemo`, six acts'),
+],
+requirements=[
+    '**The clock is counted,** so every number is exact.',
+    '**Concurrent calls each need an instance.**',
+    '**An idle instance is dropped after the timeout.**',
+    '**Instance memory resets, and the outside store does not.**',
+    '**Work over the limit is reported as stopped.**',
+],
+),
+
 }
 
 
