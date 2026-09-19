@@ -6038,6 +6038,59 @@ requirements=[
 ],
 ),
 
+"splitter-aggregator": dict(
+purpose="""
+Teach Splitter and Aggregator with an order of three lines: one picker doing three steps in a row, a splitter that numbers each part and carries the order id, parts finishing out of order and being put back in line order by the aggregator, an order with a missing part emitted as partial at a timeout on a controlled clock and not before, and the bills of a thousand incomplete orders in memory, duplicates and non-unique ids.
+""",
+nongoals=[
+    'Not real parallelism. The finish order is stated, and the aggregator is a plain class.',
+    'Not a full aggregation framework. Completion is by count or by timeout.',
+    'Not persistence. Open aggregations are in memory.',
+],
+problem="""
+One message with independent parts is slow to work on as a whole, and its parts come back in any order.
+
+**What this project must deliver:** a splitter with ids and places, an aggregator that restores line order, interleaved orders that do not mix, duplicates counted once, a timeout with a partial result on a controlled clock, and the open-order bill.
+""",
+roles=[
+    ('The pattern', '`Splitter`, `Aggregator`, `Part`'),
+    ('Support', '`Clock`'),
+    ('Entry point', '`SplitterAggregatorDemo`, six acts'),
+],
+requirements=[
+    '**Parts in any order come back in line order.**',
+    '**Two orders interleaved do not mix.**',
+    '**A duplicate part is counted once.**',
+    '**A partial result appears exactly at the timeout,** not a minute before.',
+],
+),
+
+"dead-letter-channel": dict(
+purpose="""
+Teach Dead Letter Channel with orders: a garbled order that blocks the two behind it after eleven attempts, a worker that moves it aside after three with its attempts and reason so the others go through, a transient timeout that recovers and is not dead-lettered, a replay after a fix that handles the message but not in its original place, and forty orders half of which pile up in the dead letter channel while the main channel looks healthy.
+""",
+nongoals=[
+    "Not a broker's dead letter feature. The worker and channel are small classes.",
+    'Not backoff. Retries are immediate; a delay is named as an exercise.',
+    'Not an alerting system. The alert is named as the requirement.',
+],
+problem="""
+A message that can never succeed blocks a channel or is retried for ever.
+
+**What this project must deliver:** a poison message that blocks with counted attempts, a dead letter channel that unblocks it and records why, a transient failure that is not dead-lettered, a replay after a fix, the loss of order on replay, and a quiet build-up of dead letters.
+""",
+roles=[
+    ('The pattern', '`Worker`, `DeadLetter`, `Message`'),
+    ('Entry point', '`DeadLetterDemo`, six acts'),
+],
+requirements=[
+    '**Attempts are counted:** 11 for a blocked line, and 3 per dead letter.',
+    '**A transient failure that recovers is not a dead letter.**',
+    '**Replay after a fix handles the message, last.**',
+    '**Replay before the fix returns it to the dead letters.**',
+],
+),
+
 }
 
 
