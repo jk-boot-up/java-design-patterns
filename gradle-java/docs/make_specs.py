@@ -6252,6 +6252,34 @@ requirements=[
 ],
 ),
 
+"actor": dict(
+purpose="""
+Teach Actor with a product's stock: shared state that loses one of two reservations when two threads read together, an actor with a mailbox that loses none of four thousand reservations from four threads with no lock, answers that come back as messages including a refusal, no way to read the stock but to ask for a copy, a bad message that fails, restarts the actor and lets the next message through, and the bills of two actors waiting for each other and of a restart that forgets its state.
+""",
+nongoals=[
+    'Not Akka. The actor base class is a small mailbox and a thread.',
+    'Not distributed actors. Everything is in one process.',
+    'Not persistence. A restart resets the state, and the project says so.',
+],
+problem="""
+Shared mutable state loses updates under concurrency, and locks bring their own problems.
+
+**What this project must deliver:** a lost update in shared state forced every time, an actor that loses nothing under four senders, replies as messages, state no one can read directly, a supervised restart, and the deadlock two waiting actors make.
+""",
+roles=[
+    ('The pattern', '`Actor`, `InventoryActor`, `Messages`'),
+    ('Contrast', '`SharedStock`'),
+    ('Entry point', '`ActorDemo`, six acts'),
+],
+requirements=[
+    '**The lost update is forced** by a rendezvous, and asserted.',
+    '**Four thousand reservations from four threads lose nothing.**',
+    '**The actor exposes no public read of its stock.**',
+    '**A bad message restarts the actor, and the next one is handled.**',
+    '**Two actors that wait on each other never answer.**',
+],
+),
+
 }
 
 
