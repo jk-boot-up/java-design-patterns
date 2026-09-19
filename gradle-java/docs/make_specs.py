@@ -6198,6 +6198,33 @@ requirements=[
 ],
 ),
 
+"thread-local-storage": dict(
+purpose="""
+Teach Thread-Local Storage with a checkout request's customer: three methods handing a customer down that they never use, a thread-local context set once at the door and read in the audit log with no parameters, two simultaneous requests that each see their own value, a single-thread pool that logs an anonymous request as ada because the previous request did not clear its context, a pool thread that does not see the submitter's context while a newly created thread inherits a copy, and the bill of a hidden dependency.
+""",
+nongoals=[
+    'Not scoped values. They are named as the newer alternative, not built.',
+    "Not Spring's context holders, though it is how they work.",
+    'Not virtual threads.',
+],
+problem="""
+A per-request value needed deep in the code is either passed through every method or held in the thread, and the second brings leaks.
+
+**What this project must deliver:** the parameter-passing version, a thread-local context, per-thread isolation shown by holding two contexts at once, a leak through a reused thread and its fix, a context that does not cross threads, and the hidden dependency.
+""",
+roles=[
+    ('The pattern', '`RequestContext`, `InheritedContext`'),
+    ('The consumer', '`Audit`'),
+    ('Entry point', '`ThreadLocalDemo`, six acts'),
+],
+requirements=[
+    '**Two threads are held with both contexts set** before either reads, so isolation is exact.',
+    '**A reused thread leaks unless the context is cleared,** asserted both ways.',
+    '**The clear happens even when the work throws.**',
+    "**A pool thread does not see the submitter's context.**",
+],
+),
+
 }
 
 
