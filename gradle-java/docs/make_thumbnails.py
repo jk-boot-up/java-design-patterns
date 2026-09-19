@@ -309,6 +309,12 @@ META = {
     "domain-event": (['DOMAIN EVENT'],
                   'Something happened, said in the past tense',
                   'OrderPlaced'),
+    "specification": (['SPECIFICATION'],
+                  'A business rule with a name',
+                  'inStock.and(under10)'),
+    "anti-corruption-layer": (['ANTI-CORRUPTION', 'LAYER'],
+                  'Keep their model out of yours',
+                  'translate(theirs)'),
     "layered-architecture-with-spring-boot": (["LAYERED", "WITH SPRING BOOT"],
                   "Real layers, enforced by a test",
                   "@RestController"),
@@ -318,6 +324,141 @@ META = {
     "hexagonal-architecture-with-spring-boot": (["HEXAGONAL", "WITH SPRING BOOT"],
                   "Ports, adapters and the wiring",
                   "@Configuration"),
+    "bounded-context": (['BOUNDED CONTEXT'],
+                  'The same word, two meanings',
+                  'Customer means two things'),
+    "transaction-script": (['TRANSACTION', 'SCRIPT'],
+                  'One procedure per business action',
+                  'placeOrder()'),
+    "active-record": (['ACTIVE RECORD'],
+                  'The object saves itself',
+                  'order.save()'),
+    "optimistic-offline-lock": (['OPTIMISTIC', 'LOCK'],
+                  'Detect the clash at save time',
+                  'WHERE version = ?'),
+    "pessimistic-offline-lock": (['PESSIMISTIC', 'LOCK'],
+                  'Take the lock before you edit',
+                  'lock(orderId)'),
+    "front-controller": (['FRONT', 'CONTROLLER'],
+                  'One entry point for every request',
+                  'dispatch(request)'),
+    "gateway": (['GATEWAY'],
+                  'One class between you and the outside',
+                  'payments.charge()'),
+    "cache-aside": (['CACHE-ASIDE'],
+                  'Look in the cache, then the source',
+                  'cache.get(key)'),
+    "rate-limiter": (['RATE LIMITER'],
+                  'Say no before you are overwhelmed',
+                  'tryAcquire()'),
+    "timeout": (['TIMEOUT'],
+                  'Never wait forever',
+                  'future.get(200ms)'),
+    "queue-based-load-leveling": (['LOAD', 'LEVELING'],
+                  'A queue between the burst and the worker',
+                  'queue.offer(job)'),
+    "competing-consumers": (['COMPETING', 'CONSUMERS'],
+                  'Many workers, one queue',
+                  'queue.take()'),
+    "claim-check": (['CLAIM CHECK'],
+                  'Send the ticket, not the luggage',
+                  'store.put(payload)'),
+    "leader-election": (['LEADER', 'ELECTION'],
+                  'Exactly one of them is in charge',
+                  'tryBecomeLeader()'),
+    "publisher-subscriber": (['PUBLISHER', 'SUBSCRIBER'],
+                  'Publish once, many listen',
+                  'topic.publish(event)'),
+    "pipes-and-filters": (['PIPES', 'AND FILTERS'],
+                  'Small steps joined end to end',
+                  'filter.then(filter)'),
+    "scatter-gather": (['SCATTER-GATHER'],
+                  'Ask many, combine the answers',
+                  'scatter().gather()'),
+    "double-checked-locking": (['DOUBLE-CHECKED', 'LOCKING'],
+                  'Lock only when you must',
+                  'if (x == null) synchronized'),
+    "balking": (['BALKING'],
+                  'If it is not the time, walk away',
+                  'if (busy) return'),
+    "guarded-suspension": (['GUARDED', 'SUSPENSION'],
+                  'Wait until it is safe to go',
+                  'while (!ready) wait()'),
+    "thread-local-storage": (['THREAD-LOCAL', 'STORAGE'],
+                  'A private copy per thread',
+                  'ThreadLocal.get()'),
+    "fork-join": (['FORK-JOIN'],
+                  'Split it, run it, join it',
+                  'invokeAll(left, right)'),
+    "actor": (['ACTOR'],
+                  'State that only its mailbox may touch',
+                  'actor.tell(message)'),
+    "two-phase-termination": (['TWO-PHASE', 'TERMINATION'],
+                  'Ask it to stop, then wait',
+                  'stop(); join()'),
+    "message-channel": (['MESSAGE', 'CHANNEL'],
+                  'How two systems talk',
+                  'channel.send(message)'),
+    "content-based-router": (['CONTENT-BASED', 'ROUTER'],
+                  'Send it where its content says',
+                  'route(message)'),
+    "splitter-aggregator": (['SPLITTER', 'AGGREGATOR'],
+                  'Break it up, put it back',
+                  'split().aggregate()'),
+    "dead-letter-channel": (['DEAD LETTER', 'CHANNEL'],
+                  'Where the poison messages go',
+                  'deadLetters.add(msg)'),
+    "event-bus": (['EVENT BUS'],
+                  'Everyone listens to one bus',
+                  'bus.post(event)'),
+    "event-driven-architecture": (['EVENT-DRIVEN', 'ARCHITECTURE'],
+                  'Systems that react, not call',
+                  'on(OrderPlaced)'),
+    "microkernel": (['MICROKERNEL'],
+                  'A small core, and plug-ins',
+                  'kernel.register(plugin)'),
+    "pipe-and-filter-architecture": (['PIPE-AND-FILTER', 'ARCHITECTURE'],
+                  'Data flows through stages',
+                  'source | filter | sink'),
+    "mvp-and-mvvm": (['MVP', 'AND MVVM'],
+                  "Two answers to MVC's weak spot",
+                  'presenter.show()'),
+    "onion-architecture": (['ONION', 'ARCHITECTURE'],
+                  'Dependencies point inward',
+                  'core <- infrastructure'),
+    "serverless": (['SERVERLESS'],
+                  'Functions, not servers',
+                  'handler(event)'),
+    "blue-green-and-canary": (['BLUE-GREEN', 'AND CANARY'],
+                  'Release without a big bang',
+                  'router.shift(5%)'),
+    "feature-toggle": (['FEATURE TOGGLE'],
+                  'Ship it dark, turn it on later',
+                  'if (flags.on(x))'),
+    "service-mesh": (['SERVICE MESH'],
+                  'The network handles the plumbing',
+                  'proxy.retry().mtls()'),
+    "consumer-driven-contract": (['CONSUMER-DRIVEN', 'CONTRACT'],
+                  'The caller writes the promise',
+                  'contract.verify(provider)'),
+    "multiton": (['MULTITON'],
+                  'One instance per key',
+                  'Registry.of(key)'),
+    "type-object": (['TYPE OBJECT'],
+                  'Kinds as data, not subclasses',
+                  'ProductType.of(x)'),
+    "fluent-interface": (['FLUENT', 'INTERFACE'],
+                  'Code that reads like a sentence',
+                  'order.add().add().place()'),
+    "execute-around": (['EXECUTE', 'AROUND'],
+                  'Setup and cleanup, written once',
+                  'withTransaction(work)'),
+    "callback": (['CALLBACK'],
+                  'Pass in what happens next',
+                  'onDone(result)'),
+    "delegation": (['DELEGATION'],
+                  'Hand the work to a helper',
+                  'helper.do()'),
 }
 
 GROUP = {
@@ -404,7 +545,99 @@ GROUP.update({slug: "domain-driven-design-patterns" for slug in (
     "value-object",
     "aggregate",
     "domain-event",
+    "specification",
+    "anti-corruption-layer",
     )})
+
+GROUP["bounded-context"] = "domain-driven-design-patterns"
+
+GROUP["transaction-script"] = "enterprise-design-patterns"
+
+GROUP["active-record"] = "enterprise-design-patterns"
+
+GROUP["optimistic-offline-lock"] = "enterprise-design-patterns"
+
+GROUP["pessimistic-offline-lock"] = "enterprise-design-patterns"
+
+GROUP["front-controller"] = "enterprise-design-patterns"
+
+GROUP["gateway"] = "enterprise-design-patterns"
+
+GROUP["cache-aside"] = "micro-services-design-patterns"
+
+GROUP["rate-limiter"] = "micro-services-design-patterns"
+
+GROUP["timeout"] = "micro-services-design-patterns"
+
+GROUP["queue-based-load-leveling"] = "micro-services-design-patterns"
+
+GROUP["competing-consumers"] = "micro-services-design-patterns"
+
+GROUP["claim-check"] = "micro-services-design-patterns"
+
+GROUP["leader-election"] = "micro-services-design-patterns"
+
+GROUP["publisher-subscriber"] = "micro-services-design-patterns"
+
+GROUP["pipes-and-filters"] = "micro-services-design-patterns"
+
+GROUP["scatter-gather"] = "micro-services-design-patterns"
+
+GROUP["double-checked-locking"] = "concurrency-design-patterns"
+
+GROUP["balking"] = "concurrency-design-patterns"
+
+GROUP["guarded-suspension"] = "concurrency-design-patterns"
+
+GROUP["thread-local-storage"] = "concurrency-design-patterns"
+
+GROUP["fork-join"] = "concurrency-design-patterns"
+
+GROUP["actor"] = "concurrency-design-patterns"
+
+GROUP["two-phase-termination"] = "concurrency-design-patterns"
+
+GROUP["message-channel"] = "messaging-integration-patterns"
+
+GROUP["content-based-router"] = "messaging-integration-patterns"
+
+GROUP["splitter-aggregator"] = "messaging-integration-patterns"
+
+GROUP["dead-letter-channel"] = "messaging-integration-patterns"
+
+GROUP["event-bus"] = "messaging-integration-patterns"
+
+GROUP["event-driven-architecture"] = "architectural-design-patterns"
+
+GROUP["microkernel"] = "architectural-design-patterns"
+
+GROUP["pipe-and-filter-architecture"] = "architectural-design-patterns"
+
+GROUP["mvp-and-mvvm"] = "architectural-design-patterns"
+
+GROUP["onion-architecture"] = "architectural-design-patterns"
+
+GROUP["serverless"] = "architectural-design-patterns"
+
+GROUP["blue-green-and-canary"] = "platform-design-patterns"
+
+GROUP["feature-toggle"] = "platform-design-patterns"
+
+GROUP["service-mesh"] = "platform-design-patterns"
+
+GROUP["consumer-driven-contract"] = "platform-design-patterns"
+
+GROUP["multiton"] = "foundational-design-patterns"
+
+GROUP["type-object"] = "foundational-design-patterns"
+
+GROUP["fluent-interface"] = "foundational-design-patterns"
+
+GROUP["execute-around"] = "foundational-design-patterns"
+
+GROUP["callback"] = "foundational-design-patterns"
+
+GROUP["delegation"] = "foundational-design-patterns"
 
 GROUP.update({slug: "creational" for slug in (
     "singleton-with-spring",

@@ -67,11 +67,10 @@ footer {
 <main>
 <h1>Domain-Driven Design Patterns</h1>
 <p>The tenth category. The patterns of domain-driven design that a Java developer meets first: small building blocks for writing code that says what the business says.</p>
-<p><strong>Status: three built.</strong> Each project has code, deterministic tests, a README, diagrams, an animation, a narrated video pipeline and a YouTube document. Every one is plain Java with no framework, and each shows the bill as well as the benefit.</p>
+<p><strong>Status: all six built.</strong> Each project has code, deterministic tests, a README, diagrams, an animation, a narrated video pipeline and a YouTube document. Every one is plain Java with no framework, and each shows the bill as well as the benefit.</p>
 <ol><li><a href="value-object-pattern">Value Object</a> — money and an email address that are equal by value, never change, and cannot be built wrong.</li><li><a href="aggregate-pattern">Aggregate</a> — an order and its lines as one unit, with one root that enforces every rule, and the cost of drawing the boundary too wide.</li><li><a href="domain-event-pattern">Domain Event</a> — an order that says what happened instead of calling everyone, and the gap between saving and telling that leads to the transactional outbox.</li></ol>
-<p>They are meant to be watched in that order: an aggregate is made of value objects, and an event is what an aggregate says.</p>
-<h2>Still to build</h2>
-<p>Specification, Anti-Corruption Layer, and Bounded Context with a context map.</p>
+<ol><li><a href="specification-pattern">Specification</a> — a business rule with a name, that combines with others and can say why a product fails it.</li><li><a href="anti-corruption-layer-pattern">Anti-Corruption Layer</a> — a translator that keeps an old system&#x27;s codes out of the shop&#x27;s own model.</li><li><a href="bounded-context-pattern">Bounded Context</a> — why one word needs more than one model, and how the models stay linked by ids and events.</li></ol>
+<p>They are meant to be watched in that order: an aggregate is made of value objects, an event is what an aggregate says, and a bounded context is where they all live.</p>
 </main>
 <footer>
 Generated from <code>README.md</code> by <code>docs/make_readme_html.py</code> &mdash;

@@ -138,9 +138,56 @@ ORDER = [
     ("domain-driven-design-patterns", "value-object"),
     ("domain-driven-design-patterns", "aggregate"),
     ("domain-driven-design-patterns", "domain-event"),
+    ("domain-driven-design-patterns", "specification"),
+    ("domain-driven-design-patterns", "anti-corruption-layer"),
     ("architectural-design-patterns", "layered-architecture-with-spring-boot"),
     ("architectural-design-patterns", "mvc-with-spring-mvc"),
     ("architectural-design-patterns", "hexagonal-architecture-with-spring-boot"),
+    ("domain-driven-design-patterns", "bounded-context"),
+    ("enterprise-design-patterns", "transaction-script"),
+    ("enterprise-design-patterns", "active-record"),
+    ("enterprise-design-patterns", "optimistic-offline-lock"),
+    ("enterprise-design-patterns", "pessimistic-offline-lock"),
+    ("enterprise-design-patterns", "front-controller"),
+    ("enterprise-design-patterns", "gateway"),
+    ("micro-services-design-patterns", "cache-aside"),
+    ("micro-services-design-patterns", "rate-limiter"),
+    ("micro-services-design-patterns", "timeout"),
+    ("micro-services-design-patterns", "queue-based-load-leveling"),
+    ("micro-services-design-patterns", "competing-consumers"),
+    ("micro-services-design-patterns", "claim-check"),
+    ("micro-services-design-patterns", "leader-election"),
+    ("micro-services-design-patterns", "publisher-subscriber"),
+    ("micro-services-design-patterns", "pipes-and-filters"),
+    ("micro-services-design-patterns", "scatter-gather"),
+    ("concurrency-design-patterns", "double-checked-locking"),
+    ("concurrency-design-patterns", "balking"),
+    ("concurrency-design-patterns", "guarded-suspension"),
+    ("concurrency-design-patterns", "thread-local-storage"),
+    ("concurrency-design-patterns", "fork-join"),
+    ("concurrency-design-patterns", "actor"),
+    ("concurrency-design-patterns", "two-phase-termination"),
+    ("messaging-integration-patterns", "message-channel"),
+    ("messaging-integration-patterns", "content-based-router"),
+    ("messaging-integration-patterns", "splitter-aggregator"),
+    ("messaging-integration-patterns", "dead-letter-channel"),
+    ("messaging-integration-patterns", "event-bus"),
+    ("architectural-design-patterns", "event-driven-architecture"),
+    ("architectural-design-patterns", "microkernel"),
+    ("architectural-design-patterns", "pipe-and-filter-architecture"),
+    ("architectural-design-patterns", "mvp-and-mvvm"),
+    ("architectural-design-patterns", "onion-architecture"),
+    ("architectural-design-patterns", "serverless"),
+    ("platform-design-patterns", "blue-green-and-canary"),
+    ("platform-design-patterns", "feature-toggle"),
+    ("platform-design-patterns", "service-mesh"),
+    ("platform-design-patterns", "consumer-driven-contract"),
+    ("foundational-design-patterns", "multiton"),
+    ("foundational-design-patterns", "type-object"),
+    ("foundational-design-patterns", "fluent-interface"),
+    ("foundational-design-patterns", "execute-around"),
+    ("foundational-design-patterns", "callback"),
+    ("foundational-design-patterns", "delegation"),
 ]
 
 # Per-project title and tag material. The title is what gets pasted into
@@ -532,6 +579,14 @@ META = {
         "title": "Domain Event",
         "tags": ['domain event', 'ddd domain event', 'event driven', 'domain driven design'],
     },
+    "specification": {
+        "title": "Specification",
+        "tags": ['specification pattern', 'ddd specification', 'business rules', 'domain driven design'],
+    },
+    "anti-corruption-layer": {
+        "title": "Anti-Corruption Layer",
+        "tags": ['anti corruption layer', 'ddd acl', 'legacy integration', 'domain driven design'],
+    },
     "layered-architecture-with-spring-boot": {
         "title": "Layered Architecture with Spring Boot - Layers That Hold",
         "tags": ["spring boot layered architecture", "layered architecture", "archunit"],
@@ -543,6 +598,186 @@ META = {
     "hexagonal-architecture-with-spring-boot": {
         "title": "Hexagonal Architecture with Spring Boot",
         "tags": ["hexagonal architecture", "ports and adapters", "spring boot"],
+    },
+    "bounded-context": {
+        "title": 'Bounded Context',
+        "tags": ['bounded context', 'context map', 'domain driven design'],
+    },
+    "transaction-script": {
+        "title": 'Transaction Script',
+        "tags": ['transaction script', 'enterprise patterns', 'fowler'],
+    },
+    "active-record": {
+        "title": 'Active Record',
+        "tags": ['active record', 'enterprise patterns', 'orm'],
+    },
+    "optimistic-offline-lock": {
+        "title": 'Optimistic Offline Lock',
+        "tags": ['optimistic locking', 'offline lock', 'version column'],
+    },
+    "pessimistic-offline-lock": {
+        "title": 'Pessimistic Offline Lock',
+        "tags": ['pessimistic locking', 'offline lock', 'enterprise patterns'],
+    },
+    "front-controller": {
+        "title": 'Front Controller',
+        "tags": ['front controller', 'dispatcher', 'enterprise patterns'],
+    },
+    "gateway": {
+        "title": 'Gateway',
+        "tags": ['gateway pattern', 'enterprise patterns', 'integration'],
+    },
+    "cache-aside": {
+        "title": 'Cache-Aside',
+        "tags": ['cache aside', 'caching pattern', 'cloud patterns'],
+    },
+    "rate-limiter": {
+        "title": 'Rate Limiter',
+        "tags": ['rate limiter', 'token bucket', 'throttling'],
+    },
+    "timeout": {
+        "title": 'Timeout',
+        "tags": ['timeout pattern', 'resilience', 'cloud patterns'],
+    },
+    "queue-based-load-leveling": {
+        "title": 'Queue-Based Load Leveling',
+        "tags": ['queue based load leveling', 'message queue', 'cloud patterns'],
+    },
+    "competing-consumers": {
+        "title": 'Competing Consumers',
+        "tags": ['competing consumers', 'message queue', 'cloud patterns'],
+    },
+    "claim-check": {
+        "title": 'Claim Check',
+        "tags": ['claim check', 'messaging pattern', 'cloud patterns'],
+    },
+    "leader-election": {
+        "title": 'Leader Election',
+        "tags": ['leader election', 'distributed systems', 'cloud patterns'],
+    },
+    "publisher-subscriber": {
+        "title": 'Publisher-Subscriber',
+        "tags": ['publisher subscriber', 'pub sub', 'messaging'],
+    },
+    "pipes-and-filters": {
+        "title": 'Pipes and Filters',
+        "tags": ['pipes and filters', 'pipeline pattern', 'cloud patterns'],
+    },
+    "scatter-gather": {
+        "title": 'Scatter-Gather',
+        "tags": ['scatter gather', 'messaging pattern', 'cloud patterns'],
+    },
+    "double-checked-locking": {
+        "title": 'Double-Checked Locking',
+        "tags": ['double checked locking', 'java concurrency', 'volatile'],
+    },
+    "balking": {
+        "title": 'Balking',
+        "tags": ['balking pattern', 'java concurrency'],
+    },
+    "guarded-suspension": {
+        "title": 'Guarded Suspension',
+        "tags": ['guarded suspension', 'wait notify', 'java concurrency'],
+    },
+    "thread-local-storage": {
+        "title": 'Thread-Local Storage',
+        "tags": ['thread local', 'java concurrency'],
+    },
+    "fork-join": {
+        "title": 'Fork-Join',
+        "tags": ['fork join', 'divide and conquer', 'java concurrency'],
+    },
+    "actor": {
+        "title": 'Actor',
+        "tags": ['actor model', 'java concurrency'],
+    },
+    "two-phase-termination": {
+        "title": 'Two-Phase Termination',
+        "tags": ['two phase termination', 'graceful shutdown', 'java concurrency'],
+    },
+    "message-channel": {
+        "title": 'Message Channel',
+        "tags": ['message channel', 'enterprise integration patterns'],
+    },
+    "content-based-router": {
+        "title": 'Content-Based Router',
+        "tags": ['content based router', 'enterprise integration patterns'],
+    },
+    "splitter-aggregator": {
+        "title": 'Splitter and Aggregator',
+        "tags": ['splitter', 'aggregator', 'enterprise integration patterns'],
+    },
+    "dead-letter-channel": {
+        "title": 'Dead Letter Channel',
+        "tags": ['dead letter queue', 'dead letter channel', 'messaging'],
+    },
+    "event-bus": {
+        "title": 'Event Bus',
+        "tags": ['event bus', 'messaging', 'publish subscribe'],
+    },
+    "event-driven-architecture": {
+        "title": 'Event-Driven Architecture',
+        "tags": ['event driven architecture', 'architecture patterns'],
+    },
+    "microkernel": {
+        "title": 'Microkernel',
+        "tags": ['microkernel architecture', 'plugin architecture'],
+    },
+    "pipe-and-filter-architecture": {
+        "title": 'Pipe-and-Filter Architecture',
+        "tags": ['pipe and filter architecture', 'architecture patterns'],
+    },
+    "mvp-and-mvvm": {
+        "title": 'MVP and MVVM',
+        "tags": ['mvp', 'mvvm', 'architecture patterns'],
+    },
+    "onion-architecture": {
+        "title": 'Onion Architecture',
+        "tags": ['onion architecture', 'architecture patterns'],
+    },
+    "serverless": {
+        "title": 'Serverless Functions',
+        "tags": ['serverless', 'functions as a service', 'architecture patterns'],
+    },
+    "blue-green-and-canary": {
+        "title": 'Blue-Green and Canary',
+        "tags": ['blue green deployment', 'canary release', 'deployment patterns'],
+    },
+    "feature-toggle": {
+        "title": 'Feature Toggle',
+        "tags": ['feature toggle', 'feature flags', 'deployment patterns'],
+    },
+    "service-mesh": {
+        "title": 'Service Mesh',
+        "tags": ['service mesh', 'sidecar proxy', 'platform patterns'],
+    },
+    "consumer-driven-contract": {
+        "title": 'Consumer-Driven Contract',
+        "tags": ['consumer driven contract', 'contract testing', 'microservices'],
+    },
+    "multiton": {
+        "title": 'Multiton',
+        "tags": ['multiton', 'creational patterns'],
+    },
+    "type-object": {
+        "title": 'Type Object',
+        "tags": ['type object pattern', 'java'],
+    },
+    "fluent-interface": {
+        "title": 'Fluent Interface',
+        "tags": ['fluent interface', 'method chaining', 'java'],
+    },
+    "execute-around": {
+        "title": 'Execute Around',
+        "tags": ['execute around', 'java idiom'],
+    },
+    "callback": {
+        "title": 'Callback',
+        "tags": ['callback pattern', 'java'],
+    },
+    "delegation": {
+        "title": 'Delegation',
+        "tags": ['delegation pattern', 'java'],
     },
 }
 

@@ -152,9 +152,56 @@ ORDER = [
     ("domain-driven-design-patterns", "value-object"),
     ("domain-driven-design-patterns", "aggregate"),
     ("domain-driven-design-patterns", "domain-event"),
+    ("domain-driven-design-patterns", "specification"),
+    ("domain-driven-design-patterns", "anti-corruption-layer"),
     ("architectural-design-patterns", "layered-architecture-with-spring-boot"),
     ("architectural-design-patterns", "mvc-with-spring-mvc"),
     ("architectural-design-patterns", "hexagonal-architecture-with-spring-boot"),
+    ("domain-driven-design-patterns", "bounded-context"),
+    ("enterprise-design-patterns", "transaction-script"),
+    ("enterprise-design-patterns", "active-record"),
+    ("enterprise-design-patterns", "optimistic-offline-lock"),
+    ("enterprise-design-patterns", "pessimistic-offline-lock"),
+    ("enterprise-design-patterns", "front-controller"),
+    ("enterprise-design-patterns", "gateway"),
+    ("micro-services-design-patterns", "cache-aside"),
+    ("micro-services-design-patterns", "rate-limiter"),
+    ("micro-services-design-patterns", "timeout"),
+    ("micro-services-design-patterns", "queue-based-load-leveling"),
+    ("micro-services-design-patterns", "competing-consumers"),
+    ("micro-services-design-patterns", "claim-check"),
+    ("micro-services-design-patterns", "leader-election"),
+    ("micro-services-design-patterns", "publisher-subscriber"),
+    ("micro-services-design-patterns", "pipes-and-filters"),
+    ("micro-services-design-patterns", "scatter-gather"),
+    ("concurrency-design-patterns", "double-checked-locking"),
+    ("concurrency-design-patterns", "balking"),
+    ("concurrency-design-patterns", "guarded-suspension"),
+    ("concurrency-design-patterns", "thread-local-storage"),
+    ("concurrency-design-patterns", "fork-join"),
+    ("concurrency-design-patterns", "actor"),
+    ("concurrency-design-patterns", "two-phase-termination"),
+    ("messaging-integration-patterns", "message-channel"),
+    ("messaging-integration-patterns", "content-based-router"),
+    ("messaging-integration-patterns", "splitter-aggregator"),
+    ("messaging-integration-patterns", "dead-letter-channel"),
+    ("messaging-integration-patterns", "event-bus"),
+    ("architectural-design-patterns", "event-driven-architecture"),
+    ("architectural-design-patterns", "microkernel"),
+    ("architectural-design-patterns", "pipe-and-filter-architecture"),
+    ("architectural-design-patterns", "mvp-and-mvvm"),
+    ("architectural-design-patterns", "onion-architecture"),
+    ("architectural-design-patterns", "serverless"),
+    ("platform-design-patterns", "blue-green-and-canary"),
+    ("platform-design-patterns", "feature-toggle"),
+    ("platform-design-patterns", "service-mesh"),
+    ("platform-design-patterns", "consumer-driven-contract"),
+    ("foundational-design-patterns", "multiton"),
+    ("foundational-design-patterns", "type-object"),
+    ("foundational-design-patterns", "fluent-interface"),
+    ("foundational-design-patterns", "execute-around"),
+    ("foundational-design-patterns", "callback"),
+    ("foundational-design-patterns", "delegation"),
 ]
 
 # Demos that mint an identifier per run, so their output is not byte-stable.
@@ -249,9 +296,56 @@ NAMES = {
     "value-object": "Value Object",
     "aggregate": "Aggregate",
     "domain-event": "Domain Event",
+    "specification": "Specification",
+    "anti-corruption-layer": "Anti-Corruption Layer",
     "layered-architecture-with-spring-boot": "Layered Architecture with Spring Boot",
     "mvc-with-spring-mvc": "MVC with Spring MVC",
     "hexagonal-architecture-with-spring-boot": "Hexagonal Architecture with Spring Boot",
+    "bounded-context": "Bounded Context",
+    "transaction-script": "Transaction Script",
+    "active-record": "Active Record",
+    "optimistic-offline-lock": "Optimistic Offline Lock",
+    "pessimistic-offline-lock": "Pessimistic Offline Lock",
+    "front-controller": "Front Controller",
+    "gateway": "Gateway",
+    "cache-aside": "Cache-Aside",
+    "rate-limiter": "Rate Limiter",
+    "timeout": "Timeout",
+    "queue-based-load-leveling": "Queue-Based Load Leveling",
+    "competing-consumers": "Competing Consumers",
+    "claim-check": "Claim Check",
+    "leader-election": "Leader Election",
+    "publisher-subscriber": "Publisher-Subscriber",
+    "pipes-and-filters": "Pipes and Filters",
+    "scatter-gather": "Scatter-Gather",
+    "double-checked-locking": "Double-Checked Locking",
+    "balking": "Balking",
+    "guarded-suspension": "Guarded Suspension",
+    "thread-local-storage": "Thread-Local Storage",
+    "fork-join": "Fork-Join",
+    "actor": "Actor",
+    "two-phase-termination": "Two-Phase Termination",
+    "message-channel": "Message Channel",
+    "content-based-router": "Content-Based Router",
+    "splitter-aggregator": "Splitter and Aggregator",
+    "dead-letter-channel": "Dead Letter Channel",
+    "event-bus": "Event Bus",
+    "event-driven-architecture": "Event-Driven Architecture",
+    "microkernel": "Microkernel",
+    "pipe-and-filter-architecture": "Pipe-and-Filter Architecture",
+    "mvp-and-mvvm": "MVP and MVVM",
+    "onion-architecture": "Onion Architecture",
+    "serverless": "Serverless Functions",
+    "blue-green-and-canary": "Blue-Green and Canary",
+    "feature-toggle": "Feature Toggle",
+    "service-mesh": "Service Mesh",
+    "consumer-driven-contract": "Consumer-Driven Contract",
+    "multiton": "Multiton",
+    "type-object": "Type Object",
+    "fluent-interface": "Fluent Interface",
+    "execute-around": "Execute Around",
+    "callback": "Callback",
+    "delegation": "Delegation",
 }
 
 # ---------------------------------------------------------------------------
@@ -5361,6 +5455,89 @@ requirements=[
     '**A failing handler does not stop the others and is retried alone,** and nothing is delivered twice.',
     '**Events keep the order they were raised in.**',
     '**A missed relay loses nothing.**',
+],
+),
+
+"specification": dict(
+purpose="""
+Teach Specification with the idea of cheap and available: the same condition written three times that drifts, one rule named once and used by all three, rules combined with and, or and not, a rule that says which part a product fails, one rule used to select and to validate, and the bill that an in-memory specification looks at every product.
+""",
+nongoals=[
+    'Not a query builder. Turning a specification into SQL is described, not built.',
+    'Not the whole of domain-driven design. It is one pattern for one kind of rule.',
+    'Not a comparison with every rule engine. It stays with small rules combined in code.',
+],
+problem="""
+One business rule copied into three features drifts, so features disagree.
+
+**What this project must deliver:** a `Specification` with and, or and not, one named rule used by three features, the drift of the plain version shown for real, self-description and explanation of a failure, one rule for selecting and validating, and the cost of filtering in memory.
+""",
+roles=[
+    ('Domain', '`Specification`, `Products`, `Product`, `Catalogue`'),
+    ('Naive', '`NaiveShop`, the same rule three times'),
+    ('Entry point', '`SpecificationDemo`, six acts'),
+],
+requirements=[
+    '**The drift is real:** the three naive copies return different lists.',
+    "**And, or and not agree with their logic** for every product on the shelf, and De Morgan's law holds.",
+    '**The explanation names only the failing parts.**',
+    '**The in-memory cost is counted:** every product is examined.',
+],
+),
+
+"anti-corruption-layer": dict(
+purpose="""
+Teach Anti-Corruption Layer with an old inventory system: four features that each learnt its one-letter codes, one adapter that translates them into the shop's own model, bad data refused with the sku named, a new status handled in one decision instead of four guesses, and the cost of the fields the layer drops.
+""",
+nongoals=[
+    'Not a framework tutorial. It is plain Java.',
+    'Not a survey of every variant. It shows one honest version and its bill.',
+],
+problem="""
+A legacy system's codes spread through the shop, and its changes break features silently.
+
+**What this project must deliver:** a shop model in its own words, one adapter that alone knows the old codes, refusal of bad data, a new status decided in one place, the dropped fields listed, and a plain verdict.
+""",
+roles=[
+    ("The shop's model", '`StockLevel`, `Availability`, `InventoryGateway`'),
+    ('The layer', '`LegacyInventoryAdapter`, `UntranslatableLegacyData`'),
+    ('The system we do not own', '`LegacyStockRecord`, `LegacyInventorySystem`'),
+    ('Naive', '`NaiveShop`'),
+    ('Entry point', '`AclDemo`, six acts'),
+],
+requirements=[
+    '**Only the adapter imports the legacy package.** A test scans the source.',
+    '**Bad data is refused with the sku named.**',
+    "**A new status is one decision.** The shortcut's four guesses are asserted.",
+    '**The dropped fields are listed.**',
+],
+),
+
+"bounded-context": dict(
+purpose="""
+Teach Bounded Context with the word customer: a company-wide class of twelve fields that every department depends on, the same customer being active in Sales and Shipping and not in Support, three small models that share only an id, a rename crossing contexts as an event that Shipping translates for itself, a boundary checked by scanning imports, and the bill of duplicated data and eventual consistency.
+""",
+nongoals=[
+    'Not a full context map with every relationship type. It shows events and shared ids.',
+    'Not microservices. The three contexts are packages in one program.',
+    'Not a data consistency tutorial. The event bus is delivered by hand, so the gap can be seen.',
+],
+problem="""
+One word means three things across departments, and a single class forces all of them to depend on each other.
+
+**What this project must deliver:** three models with three correct answers to one question, a shared id and events, a boundary a test checks, the lag between contexts shown, and a plain verdict.
+""",
+roles=[
+    ('Contexts', '`sales`, `shipping`, `support`'),
+    ('Shared', '`CustomerId`, `CustomerRenamed`, `EventBus`'),
+    ('Naive', '`GodCustomer`'),
+    ('Entry point', '`BoundedContextDemo`, six acts'),
+],
+requirements=[
+    '**Three correct answers to one question** are asserted, including the ninety-day boundary.',
+    "**No context imports another's types.** A test scans the source.",
+    '**A rename reaches Shipping only when delivered.**',
+    '**An event for an unknown customer is ignored.**',
 ],
 ),
 

@@ -29,7 +29,8 @@ CATEGORIES = ("creational", "structural", "behavioural",
               "architectural-design-patterns", "concurrency-design-patterns",
               "enterprise-design-patterns",
               "foundational-design-patterns",
-              "domain-driven-design-patterns")
+              "domain-driven-design-patterns",
+              "messaging-integration-patterns")
 
 PAUSE = re.compile(r"\s*\[\[slnc \d+\]\]\s*")
 
