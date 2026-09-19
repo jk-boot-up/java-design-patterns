@@ -148,6 +148,7 @@ ORDER = [
     ("micro-services-design-patterns", "bulkhead-with-resilience4j"),
     ("micro-services-design-patterns", "api-gateway-with-spring-cloud-gateway"),
     ("micro-services-design-patterns", "load-balancing-with-spring-cloud-loadbalancer"),
+    ("micro-services-design-patterns", "service-discovery-with-spring-cloud-consul"),
     ("architectural-design-patterns", "layered-architecture-with-spring-boot"),
     ("architectural-design-patterns", "mvc-with-spring-mvc"),
     ("architectural-design-patterns", "hexagonal-architecture-with-spring-boot"),
@@ -241,6 +242,7 @@ NAMES = {
     "bulkhead-with-resilience4j": "Bulkhead with Resilience4j",
     "api-gateway-with-spring-cloud-gateway": "API Gateway with Spring Cloud Gateway",
     "load-balancing-with-spring-cloud-loadbalancer": "Load Balancing with Spring Cloud LoadBalancer",
+    "service-discovery-with-spring-cloud-consul": "Service Discovery with Spring Cloud Consul",
     "layered-architecture-with-spring-boot": "Layered Architecture with Spring Boot",
     "mvc-with-spring-mvc": "MVC with Spring MVC",
     "hexagonal-architecture-with-spring-boot": "Hexagonal Architecture with Spring Boot",
@@ -5242,6 +5244,33 @@ requirements=[
     '**The core is asserted to be a plain class,** not a proxy.',
     '**The rule is asserted to fail only on the shortcut.**',
     '**Both storage adapters are asserted to give the same receipt.**',
+    '**Dependencies are explained.** `docs/dependencies.md` says what to install, what it costs, and that skipping loses nothing.',
+],
+),
+
+"service-discovery-with-spring-cloud-consul": dict(
+purpose="""
+Show service discovery with a real Consul agent and Spring Cloud Consul: three copies of Pricing registering themselves, requests found by service name, a deployment that breaks a hardcoded address but not a name, a graceful stop noticed at once, a crash that stays listed until its health check fails, and a registry that goes away.
+""",
+nongoals=[
+    'Not a re-teaching of Service Registry and Discovery. The partner project owns the pattern; this one names it in its first paragraph.',
+    'Not a Spring Cloud Consul tutorial. Only what the pattern needs is introduced, as it appears.',
+],
+problem="""
+Service Registry and Discovery built the registry by hand. Spring Cloud Consul registers with a real one, and the real one has real delays.
+
+**What this project must deliver:** self-registration, discovery by name, a moved copy, a graceful stop, a stale entry after a crash, and a client with no registry.
+""",
+roles=[
+    ('The demo', '`DiscoveryApplication`, `Cluster`'),
+    ('The registry', '`ConsulAgent`, the real consul program'),
+    ('The service', '`instance.PricingInstance`'),
+    ('The client', '`client.ClientApplication`, `PricingClient`'),
+],
+requirements=[
+    '**Consul is real,** started on free ports and stopped afterwards.',
+    '**Waits are bounded polls,** never fixed sleeps; only counts are asserted.',
+    '**Tests are skipped when the `consul` program is missing.**',
     '**Dependencies are explained.** `docs/dependencies.md` says what to install, what it costs, and that skipping loses nothing.',
 ],
 ),

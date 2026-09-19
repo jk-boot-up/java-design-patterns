@@ -168,6 +168,8 @@ footer {
 <p>Second of twelve in <a href=".."><code>micro-services-design-patterns</code></a>. It follows <a href="../api-gateway-pattern">API Gateway</a>, which assumed it could reach the services it needed; this project is how that assumption is met.</p>
 <p>It also invites a comparison with two creational patterns. <a href="../../creational/simple-factory-pattern">Simple Factory</a> and <a href="../../creational/singleton-pattern">Singleton</a> both answer &quot;give me an instance&quot;, and so does a registry. The difference is that a factory&#x27;s answer is decided by code and cannot be wrong, while a registry&#x27;s answer changes minute to minute without a code change <strong>and can be out of date</strong>. That last clause is why a registry needs a lease, a heartbeat and a caller prepared to try the next name on the list, and a factory needs none of those things.</p>
 <p>Next in the learning order, <a href="../load-balancing-pattern">Load Balancing</a> takes the list this project produces and asks a question this one dodged: given three live instances, which one should you actually call?</p>
+<h2>Also available with a framework</h2>
+<p><a href="../service-discovery-with-spring-cloud-consul-pattern">Service Discovery with Spring Cloud Consul Pattern</a> reruns this idea on a real registry, and shows what a real one adds and where its list can be wrong. Watch this project first.</p>
 </main>
 <footer>
 Generated from <code>README.md</code> by <code>docs/make_readme_html.py</code> &mdash;

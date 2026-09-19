@@ -263,3 +263,7 @@ the list, and a factory needs none of those things.
 Next in the learning order, [Load Balancing](../load-balancing-pattern) takes the
 list this project produces and asks a question this one dodged: given three live
 instances, which one should you actually call?
+
+## Also available with a framework
+
+[Service Discovery with Spring Cloud Consul Pattern](../service-discovery-with-spring-cloud-consul-pattern) reruns this idea on a real registry, and shows what a real one adds and where its list can be wrong. Watch this project first.

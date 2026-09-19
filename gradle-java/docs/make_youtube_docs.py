@@ -134,6 +134,7 @@ ORDER = [
     ("micro-services-design-patterns", "bulkhead-with-resilience4j"),
     ("micro-services-design-patterns", "api-gateway-with-spring-cloud-gateway"),
     ("micro-services-design-patterns", "load-balancing-with-spring-cloud-loadbalancer"),
+    ("micro-services-design-patterns", "service-discovery-with-spring-cloud-consul"),
     ("architectural-design-patterns", "layered-architecture-with-spring-boot"),
     ("architectural-design-patterns", "mvc-with-spring-mvc"),
     ("architectural-design-patterns", "hexagonal-architecture-with-spring-boot"),
@@ -511,6 +512,10 @@ META = {
     "load-balancing-with-spring-cloud-loadbalancer": {
         "title": "Load Balancing with Spring Cloud LoadBalancer",
         "tags": ["spring cloud loadbalancer", "client side load balancing", "load balancer"],
+    },
+    "service-discovery-with-spring-cloud-consul": {
+        "title": "Service Discovery with Spring Cloud Consul",
+        "tags": ["spring cloud consul", "service discovery", "consul health checks"],
     },
     "layered-architecture-with-spring-boot": {
         "title": "Layered Architecture with Spring Boot - Layers That Hold",

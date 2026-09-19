@@ -297,6 +297,9 @@ META = {
     "load-balancing-with-spring-cloud-loadbalancer": (["LOAD BALANCING", "SPRING CLOUD"],
                   "Client-side balancing, and its cache",
                   "@LoadBalanced"),
+    "service-discovery-with-spring-cloud-consul": (["SERVICE DISCOVERY", "SPRING CLOUD CONSUL"],
+                  "Real registry, real health checks",
+                  "getInstances(\"pricing\")"),
     "layered-architecture-with-spring-boot": (["LAYERED", "WITH SPRING BOOT"],
                   "Real layers, enforced by a test",
                   "@RestController"),
@@ -411,6 +414,7 @@ GROUP.update({slug: "micro-services-design-patterns" for slug in (
     "bulkhead-with-resilience4j",
     "api-gateway-with-spring-cloud-gateway",
     "load-balancing-with-spring-cloud-loadbalancer",
+    "service-discovery-with-spring-cloud-consul",
     )})
 
 GROUP.update({slug: "architectural-design-patterns" for slug in (

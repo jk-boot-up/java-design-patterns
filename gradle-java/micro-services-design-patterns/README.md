@@ -80,4 +80,4 @@ Each of these reruns a pattern above on a real framework. They sit beside their 
 - [Retry with Resilience4j](retry-with-resilience4j-pattern)
 - [Bulkhead with Resilience4j](bulkhead-with-resilience4j-pattern)
 - [API Gateway with Spring Cloud Gateway](api-gateway-with-spring-cloud-gateway-pattern)
-- [Load Balancing with Spring Cloud LoadBalancer](load-balancing-with-spring-cloud-loadbalancer-pattern)
+- [Load Balancing with Spring Cloud LoadBalancer](load-balancing-with-spring-cloud-loadbalancer-pattern)- [Service Discovery with Spring Cloud Consul Pattern](service-discovery-with-spring-cloud-consul-pattern)
