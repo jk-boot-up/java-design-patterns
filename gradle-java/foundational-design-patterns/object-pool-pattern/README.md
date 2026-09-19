@@ -162,3 +162,7 @@ For anything cheap to create, which is nearly everything.
 ## Where this sits
 
 This is the second of five projects in [`foundational-design-patterns`](..). Its one unambiguously correct application beyond connections is the [Thread Pool](../../concurrency-design-patterns/thread-pool-pattern).
+
+## Also available with a framework
+
+[Object Pool with HikariCP Pattern](../object-pool-with-hikaricp-pattern) reruns this idea on a real framework, and shows what the framework adds and where it can undo the pattern. Watch this project first.

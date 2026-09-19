@@ -221,3 +221,7 @@ assuming a reader has met either §46 or §47 already.
 The next project, **Read–Write Lock**, moves from getting an answer back
 to protecting the shared state an answer is often read from: the
 category's stock count, this time under a read-heavy load.
+
+## Also available with a framework
+
+[Future/Promise with Spring Pattern](../future-promise-with-spring-pattern) reruns this idea on a real framework, and shows what the framework adds and where it can undo the pattern. Watch this project first.

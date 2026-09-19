@@ -146,3 +146,7 @@ If you almost always need the related data, lazy loading only adds queries. It e
 ## Where this sits
 
 This is the fourth project in [`enterprise-design-patterns`](..). The Hibernate version is a later project in the same category.
+
+## Also available with a framework
+
+[Lazy Load with Hibernate Pattern](../lazy-load-with-hibernate-pattern) reruns this idea on a real framework, and shows what the framework adds and where it can undo the pattern. Watch this project first.

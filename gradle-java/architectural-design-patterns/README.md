@@ -68,3 +68,12 @@ four videos in a row argue for more structure, which is bad advice.
 ## Where this sits
 
 Projects 63 to 67. See [`../README.md`](../README.md) for the full course.
+
+## Framework versions
+
+Each of these reruns a pattern above on a real framework. They sit beside their partners and replace nothing; watch the partner first.
+
+- [Layered Architecture with Spring Boot](layered-architecture-with-spring-boot-pattern)
+- [MVC with Spring MVC](mvc-with-spring-mvc-pattern)
+- [Hexagonal Architecture with Spring Boot](hexagonal-architecture-with-spring-boot-pattern)
+- [Clean Architecture with Spring](clean-architecture-with-spring-pattern)

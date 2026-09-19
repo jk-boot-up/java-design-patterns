@@ -151,3 +151,7 @@ For a single write, a unit of work is ceremony. It earns its place when one busi
 ## Where this sits
 
 This is the third project in [`enterprise-design-patterns`](..). It uses [Identity Map](../identity-map-pattern)'s idea that objects are tracked, and Spring's version of it is a later project.
+
+## Also available with a framework
+
+[Unit of Work with Spring Pattern](../unit-of-work-with-spring-pattern) reruns this idea on a real framework, and shows what the framework adds and where it can undo the pattern. Watch this project first.

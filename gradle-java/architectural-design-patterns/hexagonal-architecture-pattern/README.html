@@ -166,6 +166,8 @@ FOUR. The driving side swapped — a CLI calls in.
 <p>Worth it when a core genuinely needs to be called from more than one place, persisted in more than one way, or tested without any real infrastructure existing yet. Not worth it for an application that will only ever have one database and one caller — four interfaces that will never have a second implementation are indirection with nothing behind them but the diagram.</p>
 <h2>Where this sits</h2>
 <p>Project 65 of <a href=".."><code>architectural-design-patterns</code></a>, one step from <a href="../layered-architecture-pattern">Layered Architecture</a>. The next project, <strong>Clean Architecture</strong>, generalises exactly this inversion — concentric layers instead of one core-versus-adapters boundary, with the dependency rule stated once: source code dependencies point only inward.</p>
+<h2>Also available with a framework</h2>
+<p><a href="../hexagonal-architecture-with-spring-boot-pattern">Hexagonal Architecture with Spring Boot Pattern</a> reruns this idea on a real framework, and shows what the framework adds and where it can undo the pattern. Watch this project first.</p>
 </main>
 <footer>
 Generated from <code>README.md</code> by <code>docs/make_readme_html.py</code> &mdash;

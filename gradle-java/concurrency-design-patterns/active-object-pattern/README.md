@@ -152,3 +152,7 @@ its place when callers must not wait, or when the work is slow.
 ## Where this sits
 
 This is the last of six projects in [`concurrency-design-patterns`](..).
+
+## Also available with a framework
+
+[Active Object with Spring Pattern](../active-object-with-spring-pattern) reruns this idea on a real framework, and shows what the framework adds and where it can undo the pattern. Watch this project first.

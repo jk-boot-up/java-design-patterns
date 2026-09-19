@@ -274,3 +274,7 @@ The narrated walkthrough is built from [`video/scenes.py`](video/scenes.py) by
 [`video/build_video.sh`](video/build_video.sh). It runs about eighteen minutes
 across sixteen scenes, and the rendered file is not committed — see the
 repository README for why — so producing it takes about ten minutes on macOS.
+
+## Also available with a framework
+
+[Circuit Breaker with Resilience4j Pattern](../circuit-breaker-with-resilience4j-pattern) reruns this idea on a real framework, and shows what the framework adds and where it can undo the pattern. Watch this project first.

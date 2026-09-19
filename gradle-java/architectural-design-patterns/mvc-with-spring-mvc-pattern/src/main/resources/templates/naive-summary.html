@@ -1,0 +1,9 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><title>Order</title></head>
+<body>
+<h1 th:text="'Order ' + ${order.id()}">Order</h1>
+<!-- The shortcut: the sum is done here, in the view, for exactly two lines. -->
+<p>Total: <span th:text="${order.lines()[0].quantity() * order.lines()[0].pricePence() + order.lines()[1].quantity() * order.lines()[1].pricePence()}">0</span> pence</p>
+</body>
+</html>

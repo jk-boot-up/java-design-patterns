@@ -71,3 +71,13 @@ here, be comfortable with
 [Facade](../structural/facade-pattern) — each of the twelve leans on at least
 one of them, and several exist mainly to show a familiar pattern doing its work
 one process boundary further out.
+
+## Framework versions
+
+Each of these reruns a pattern above on a real framework. They sit beside their partners and replace nothing; watch the partner first.
+
+- [Circuit Breaker with Resilience4j](circuit-breaker-with-resilience4j-pattern)
+- [Retry with Resilience4j](retry-with-resilience4j-pattern)
+- [Bulkhead with Resilience4j](bulkhead-with-resilience4j-pattern)
+- [API Gateway with Spring Cloud Gateway](api-gateway-with-spring-cloud-gateway-pattern)
+- [Load Balancing with Spring Cloud LoadBalancer](load-balancing-with-spring-cloud-loadbalancer-pattern)

@@ -231,3 +231,7 @@ this category.
 The distinguishing question, if you only remember one thing: **does the thing I am
 hiding sit on the other side of a network and a trust boundary?** If not, you want
 a facade, and you should not pay for a gateway.
+
+## Also available with a framework
+
+[API Gateway with Spring Cloud Gateway Pattern](../api-gateway-with-spring-cloud-gateway-pattern) reruns this idea on a real framework, and shows what the framework adds and where it can undo the pattern. Watch this project first.

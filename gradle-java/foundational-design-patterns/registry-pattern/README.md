@@ -145,3 +145,7 @@ For nearly everything that is not truly application-wide.
 ## Where this sits
 
 This is the third of five projects in [`foundational-design-patterns`](..). It leads to [Service Locator](../service-locator-pattern) and then [Dependency Injection](../dependency-injection-pattern).
+
+## Also available with a framework
+
+[Registry with Spring Pattern](../registry-with-spring-pattern) reruns this idea on a real framework, and shows what the framework adds and where it can undo the pattern. Watch this project first.

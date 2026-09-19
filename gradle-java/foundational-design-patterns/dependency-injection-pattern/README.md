@@ -155,3 +155,7 @@ Never for the idea. A container is too much for a small application that fits in
 ## Where this sits
 
 This is the last of five projects in [`foundational-design-patterns`](..). It closes the argument begun in [Registry](../registry-pattern) and continued in [Service Locator](../service-locator-pattern).
+
+## Also available with a framework
+
+[Dependency Injection with Spring Pattern](../dependency-injection-with-spring-pattern) reruns this idea on a real framework, and shows what the framework adds and where it can undo the pattern. Watch this project first.

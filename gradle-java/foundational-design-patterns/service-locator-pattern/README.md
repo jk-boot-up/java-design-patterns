@@ -144,3 +144,7 @@ For business logic. It is right for plug-ins, and for the composition root of a 
 ## Where this sits
 
 This is the fourth of five projects in [`foundational-design-patterns`](..). It follows [Registry](../registry-pattern) and leads to [Dependency Injection](../dependency-injection-pattern).
+
+## Also available with a framework
+
+[Service Locator with Consul Pattern](../service-locator-with-consul-pattern) reruns this idea on a real framework, and shows what the framework adds and where it can undo the pattern. Watch this project first.

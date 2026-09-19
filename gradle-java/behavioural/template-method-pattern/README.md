@@ -184,3 +184,7 @@ learning path.
 `video/template-method-pattern-explained.mp4` — 1080p, narrated. An
 audio-only version is alongside it. See [`video/README.md`](video/README.md)
 to rebuild or re-record it.
+
+## Also available with a framework
+
+[Template Method with Spring Pattern](../template-method-with-spring-pattern) reruns this idea on a real framework, and shows what the framework adds and where it can undo the pattern. Watch this project first.

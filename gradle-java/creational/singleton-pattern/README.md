@@ -122,3 +122,7 @@ entirely: "how many of this should ever exist?" — and is also the pattern
 most often reached for to solve a different problem, "I don't want to pass
 this object around", which dependency injection solves without the
 global-state cost.
+
+## Also available with a framework
+
+[Singleton with Spring Pattern](../singleton-with-spring-pattern) reruns this idea on a real framework, and shows what the framework adds and where it can undo the pattern. Watch this project first.

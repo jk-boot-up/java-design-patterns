@@ -5164,6 +5164,88 @@ requirements=[
 ],
 ),
 
+"layered-architecture-with-spring-boot": dict(
+purpose="""
+Show placing an order through four layers in a real Spring Boot application over real HTTP: a service transaction that rolls back a reservation, failures mapped to statuses in one place, a shortcut controller that Spring accepts and that leaks the cost price, and an ArchUnit rule that finds it.
+""",
+nongoals=[
+    'Not a re-teaching of Layered Architecture. The partner project owns the pattern; this one names it in its first paragraph.',
+    'Not a Spring Boot tutorial. Only what the pattern needs is introduced, as it appears.',
+],
+problem="""
+Layered Architecture was built with plain classes. Spring Boot supplies the layers' machinery and does not enforce the rule between them.
+
+**What this project must deliver:** a real request through four layers, a rollback, one status mapping, a shortcut that runs and leaks, and a rule that catches it.
+""",
+roles=[
+    ('Framework setup', '`ShopApplication`, `schema.sql`'),
+    ('The layers', '`presentation`, `application`, `domain`, `infrastructure`'),
+    ('The rule', '`LayerRules`'),
+    ('The shortcut', '`naive.ShortcutController`'),
+],
+requirements=[
+    '**All traffic is real HTTP.**',
+    '**The rollback is asserted** by reading the stock.',
+    '**The rule is asserted to fail only on the shortcut.**',
+    '**Dependencies are explained.** `docs/dependencies.md` says what to install, what it costs, and that skipping loses nothing.',
+],
+),
+
+"mvc-with-spring-mvc": dict(
+purpose="""
+Show an order summary served by Spring MVC over real HTTP as an HTML page and as JSON from one model, the total computed once per request and testable without a server, a template that does its own sums and disagrees with the model then breaks on a one-line order, and the post, redirect, get pattern.
+""",
+nongoals=[
+    'Not a re-teaching of MVC. The partner project owns the pattern; this one names it in its first paragraph.',
+    'Not a Spring MVC tutorial. Only what the pattern needs is introduced, as it appears.',
+],
+problem="""
+MVC was built with hand-written views. Spring MVC renders templates and JSON for you, and its main risk is logic creeping into the template.
+
+**What this project must deliver:** an HTML view, a JSON view from one model, a single computation per request, a template that diverges, and a redirect after a post.
+""",
+roles=[
+    ('Framework setup', '`SummaryApplication`'),
+    ('The controller', '`SummaryController`'),
+    ('The model', '`OrderSummary`'),
+    ('The views', '`summary.html`, `naive-summary.html`'),
+],
+requirements=[
+    '**All traffic is real HTTP,** and redirects are not followed so they can be seen.',
+    '**The model is tested without a server.**',
+    '**The divergent template is asserted,** so a fix fails the test.',
+    '**Dependencies are explained.** `docs/dependencies.md` says what to install, what it costs, and that skipping loses nothing.',
+],
+),
+
+"hexagonal-architecture-with-spring-boot": dict(
+purpose="""
+Show the hexagonal order use case in Spring Boot: a core of plain Java handed its adapters by one configuration class, two storage adapters chosen by a property with the same answer, two driving adapters on one port, the core run ten thousand times with no container, an ArchUnit rule that finds a use case reaching for Spring, and a missing adapter found at startup.
+""",
+nongoals=[
+    'Not a re-teaching of Hexagonal Architecture. The partner project owns the pattern; this one names it in its first paragraph.',
+    'Not a Spring Boot tutorial. Only what the pattern needs is introduced, as it appears.',
+],
+problem="""
+Hexagonal Architecture was wired by hand. Spring Boot chooses and wires the adapters, and can also undo the hexagon by letting the core reach for the framework.
+
+**What this project must deliver:** a plain core, adapters chosen by property, two driving adapters, a container-free run, a rule, and a startup failure for a missing adapter.
+""",
+roles=[
+    ('Framework setup', '`ShopApplication`, `ShopConfig`'),
+    ('The core', '`PlaceOrderService`, the ports, `domain`'),
+    ('The adapters', '`memory`, `jdbc`, `CardNetwork`, `ConsoleCheckout`, `CsvBatch`'),
+    ('The rule', '`HexagonRules`'),
+    ('The shortcut', '`naive.SpringyPlaceOrder`'),
+],
+requirements=[
+    '**The core is asserted to be a plain class,** not a proxy.',
+    '**The rule is asserted to fail only on the shortcut.**',
+    '**Both storage adapters are asserted to give the same receipt.**',
+    '**Dependencies are explained.** `docs/dependencies.md` says what to install, what it costs, and that skipping loses nothing.',
+],
+),
+
 }
 
 

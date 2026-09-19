@@ -205,3 +205,7 @@ Project 65 of [`architectural-design-patterns`](..), one step from
 **Clean Architecture**, generalises exactly this inversion — concentric
 layers instead of one core-versus-adapters boundary, with the dependency
 rule stated once: source code dependencies point only inward.
+
+## Also available with a framework
+
+[Hexagonal Architecture with Spring Boot Pattern](../hexagonal-architecture-with-spring-boot-pattern) reruns this idea on a real framework, and shows what the framework adds and where it can undo the pattern. Watch this project first.

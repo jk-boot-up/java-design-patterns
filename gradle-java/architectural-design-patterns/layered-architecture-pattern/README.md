@@ -268,3 +268,7 @@ infrastructure by package, because the storage interface is defined down
 there rather than up here. Moving that interface into the core, so storage
 implements it instead of defining it, is the entire difference between this
 project and the next one — and it is only one move.
+
+## Also available with a framework
+
+[Layered Architecture with Spring Boot Pattern](../layered-architecture-with-spring-boot-pattern) reruns this idea on a real framework, and shows what the framework adds and where it can undo the pattern. Watch this project first.

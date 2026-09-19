@@ -145,3 +145,7 @@ A request that loads a customer once gains nothing from a map. It earns its plac
 ## Where this sits
 
 This is the second project in [`enterprise-design-patterns`](..), after [Data Mapper](../data-mapper-pattern).
+
+## Also available with a framework
+
+[Identity Map with JPA Pattern](../identity-map-with-jpa-pattern) reruns this idea on a real framework, and shows what the framework adds and where it can undo the pattern. Watch this project first.

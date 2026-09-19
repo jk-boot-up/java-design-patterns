@@ -224,3 +224,7 @@ harness directly rather than re-deriving them.
 The next project, **Future/Promise**, answers a question this project
 leaves open on purpose: once a worker has taken an order, how does the
 caller ever find out the result.
+
+## Also available with a framework
+
+[Thread Pool with Spring Pattern](../thread-pool-with-spring-pattern) reruns this idea on a real framework, and shows what the framework adds and where it can undo the pattern. Watch this project first.

@@ -224,3 +224,7 @@ category's first project admitted it had not fixed: the application layer
 still names the infrastructure package to compile. This project does not
 touch that; its whole subject is what happens once an order has already
 been placed.
+
+## Also available with a framework
+
+[MVC with Spring MVC Pattern](../mvc-with-spring-mvc-pattern) reruns this idea on a real framework, and shows what the framework adds and where it can undo the pattern. Watch this project first.

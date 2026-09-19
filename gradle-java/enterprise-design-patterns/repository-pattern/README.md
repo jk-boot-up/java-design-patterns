@@ -155,3 +155,7 @@ For a handful of queries in one place, a repository is an extra layer. It earns 
 ## Where this sits
 
 This is the fifth project in [`enterprise-design-patterns`](..). Its Spring Data version is a later project, and the read and write split is CQRS in the microservices category.
+
+## Also available with a framework
+
+[Repository with Spring Data Pattern](../repository-with-spring-data-pattern) reruns this idea on a real framework, and shows what the framework adds and where it can undo the pattern. Watch this project first.

@@ -111,3 +111,7 @@ Static Factory asks "give me one that…". Builder asks "which pieces,
 assembled in what order, for one object?". Abstract Factory asks "which
 whole set?". Prototype asks a question none of the others do: "I already
 have one of these — how do I get another that's almost the same?"
+
+## Also available with a framework
+
+[Prototype with Spring Pattern](../prototype-with-spring-pattern) reruns this idea on a real framework, and shows what the framework adds and where it can undo the pattern. Watch this project first.

@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><title>Order</title></head>
+<body>
+<h1 th:text="'Order ' + ${summary.orderId()}">Order</h1>
+<ul>
+  <li th:each="line : ${summary.lines()}" th:text="${line.quantity()} + ' x ' + ${line.sku()}">line</li>
+</ul>
+<p>Discount: <span th:text="${summary.discountDisplay()}">0</span></p>
+<p>Total: <span th:text="${summary.totalDisplay()}">0</span></p>
+</body>
+</html>

@@ -77,6 +77,9 @@ footer {
 <p>That is a deliberate trade, and the projects say so rather than hiding it. What you learn is the pattern&#x27;s shape — what objects exist, what each decides, what the failure path looks like in code — which is the same whether the call underneath is a method call or an HTTP request. What you do not learn is operating a distributed system. A reader who finishes all twelve knows what a circuit breaker is and could write one; they have not run one in production.</p>
 <h2>Prerequisites</h2>
 <p>These are harder than the Gang of Four projects and assume them. Before starting here, be comfortable with <a href="../behavioural/strategy-pattern">Strategy</a>, <a href="../behavioural/observer-pattern">Observer</a>, <a href="../behavioural/command-pattern">Command</a>, <a href="../structural/decorator-pattern">Decorator</a>, <a href="../structural/proxy-pattern">Proxy</a> and <a href="../structural/facade-pattern">Facade</a> — each of the twelve leans on at least one of them, and several exist mainly to show a familiar pattern doing its work one process boundary further out.</p>
+<h2>Framework versions</h2>
+<p>Each of these reruns a pattern above on a real framework. They sit beside their partners and replace nothing; watch the partner first.</p>
+<ul><li><a href="circuit-breaker-with-resilience4j-pattern">Circuit Breaker with Resilience4j</a></li><li><a href="retry-with-resilience4j-pattern">Retry with Resilience4j</a></li><li><a href="bulkhead-with-resilience4j-pattern">Bulkhead with Resilience4j</a></li><li><a href="api-gateway-with-spring-cloud-gateway-pattern">API Gateway with Spring Cloud Gateway</a></li><li><a href="load-balancing-with-spring-cloud-loadbalancer-pattern">Load Balancing with Spring Cloud LoadBalancer</a></li></ul>
 </main>
 <footer>
 Generated from <code>README.md</code> by <code>docs/make_readme_html.py</code> &mdash;

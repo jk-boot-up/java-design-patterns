@@ -128,3 +128,7 @@ learning path.
 `video/proxy-pattern-explained.mp4` — 1080p, ~7.5 minutes, narrated.
 An audio-only version is alongside it. See
 [`video/README.md`](video/README.md) to rebuild or re-record it.
+
+## Also available with a framework
+
+[Proxy with Spring Pattern](../proxy-with-spring-pattern) reruns this idea on a real framework, and shows what the framework adds and where it can undo the pattern. Watch this project first.

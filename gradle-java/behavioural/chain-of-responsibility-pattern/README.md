@@ -184,3 +184,7 @@ learning path.
 `video/chain-of-responsibility-pattern-explained.mp4` — 1080p, narrated. An
 audio-only version is alongside it. See [`video/README.md`](video/README.md) to
 rebuild or re-record it.
+
+## Also available with a framework
+
+[Chain of Responsibility with Spring Pattern](../chain-of-responsibility-with-spring-pattern) reruns this idea on a real framework, and shows what the framework adds and where it can undo the pattern. Watch this project first.
