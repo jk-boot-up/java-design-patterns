@@ -6091,6 +6091,33 @@ requirements=[
 ],
 ),
 
+"event-bus": dict(
+purpose="""
+Teach Event Bus with the parts of a shop: five components that hold twenty references to each other against five to one bus, subscribers picking events by type and by supertype, a failing subscriber that does not stop the others or the poster, an event nobody hears caught as a dead event, and the bills of a flow that cannot be read where an event is posted and of subscriptions that are never cancelled.
+""",
+nongoals=[
+    'Not a distributed bus. Delivery is a method call in one process.',
+    'Not ordering or priority between subscribers.',
+    'Not asynchronous delivery. It is named as an exercise.',
+],
+problem="""
+Components that each know the others form a web of references that grows faster than the components.
+
+**What this project must deliver:** a bus with typed and supertyped subscriptions, failure isolation, dead events that do not loop, cancellable subscriptions, a way to ask who listens, and the leak and visibility bills shown.
+""",
+roles=[
+    ('The pattern', '`EventBus`, `DeadEvent`'),
+    ('Events', '`OrderEvent`, `OrderPlaced`, `OrderCancelled`'),
+    ('Entry point', '`EventBusDemo`, six acts'),
+],
+requirements=[
+    '**A supertype subscriber hears every subtype.**',
+    '**A failing subscriber does not stop the others or the poster.**',
+    '**A dead event is posted once and never loops.**',
+    '**An uncancelled subscription is held, and a cancelled one is not.**',
+],
+),
+
 }
 
 

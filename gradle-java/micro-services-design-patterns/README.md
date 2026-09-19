@@ -81,3 +81,16 @@ Each of these reruns a pattern above on a real framework. They sit beside their 
 - [Bulkhead with Resilience4j](bulkhead-with-resilience4j-pattern)
 - [API Gateway with Spring Cloud Gateway](api-gateway-with-spring-cloud-gateway-pattern)
 - [Load Balancing with Spring Cloud LoadBalancer](load-balancing-with-spring-cloud-loadbalancer-pattern)- [Service Discovery with Spring Cloud Consul Pattern](service-discovery-with-spring-cloud-consul-pattern)
+
+## More cloud and resilience patterns
+
+- [Cache-Aside](cache-aside-pattern)
+- [Rate Limiter](rate-limiter-pattern)
+- [Timeout](timeout-pattern)
+- [Queue-Based Load Leveling](queue-based-load-leveling-pattern)
+- [Competing Consumers](competing-consumers-pattern)
+- [Claim Check](claim-check-pattern)
+- [Leader Election](leader-election-pattern)
+- [Publisher-Subscriber](publisher-subscriber-pattern)
+- [Pipes and Filters](pipes-and-filters-pattern)
+- [Scatter-Gather](scatter-gather-pattern)

@@ -92,3 +92,12 @@ to ship these as projects rather than as optional extras.
 Projects 52 to 62, after the twenty-five object-oriented patterns, the twelve
 microservices ones, the eight platform ones and the six concurrency ones. See
 [`../README.md`](../README.md) for the full course.
+
+## More enterprise patterns
+
+- [Transaction Script](transaction-script-pattern)
+- [Active Record](active-record-pattern)
+- [Optimistic Offline Lock](optimistic-offline-lock-pattern)
+- [Pessimistic Offline Lock](pessimistic-offline-lock-pattern)
+- [Front Controller](front-controller-pattern)
+- [Gateway](gateway-pattern)

@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Enterprise Application Patterns</title>
+<style>
+:root {
+  --bg: #0f172a; --panel: #1e293b; --panel-hi: #334155; --line: #475569;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #a78bfa; --link: #38bdf8;
+  --ok: #34d399;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 20px 80px; background: var(--bg); color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.65;
+}
+main { max-width: 860px; margin: 0 auto; }
+h1, h2, h3 { line-height: 1.25; }
+h1 { font-size: 34px; margin: 48px 0 8px; padding-bottom: 18px;
+     border-bottom: 3px solid var(--accent); }
+h2 { font-size: 25px; margin: 52px 0 4px; color: var(--accent); }
+h3 { font-size: 19px; margin: 32px 0 4px; }
+p { margin: 14px 0; }
+a { color: var(--link); }
+a:hover { color: #7dd3fc; }
+hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.88em; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 5px;
+}
+pre {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 4px solid var(--accent); border-radius: 8px;
+  padding: 16px 18px; overflow-x: auto;
+}
+pre code { background: none; border: 0; padding: 0; font-size: 14px; }
+blockquote {
+  margin: 20px 0; padding: 4px 20px;
+  background: rgba(167, 139, 250, 0.08);
+  border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0;
+}
+table { border-collapse: collapse; width: 100%; margin: 22px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left;
+         vertical-align: top; }
+th { background: var(--panel-hi); font-weight: 600; }
+tr:nth-child(even) td { background: rgba(30, 41, 59, 0.55); }
+img {
+  display: block; max-width: 100%; height: auto; margin: 24px auto;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px;
+}
+ul, ol { margin: 14px 0; padding-left: 26px; }
+li { margin: 7px 0; }
+ul.task { list-style: none; padding-left: 4px; }
+ul.task li::before { content: "\2610"; color: var(--ok); font-size: 18px;
+                     margin-right: 10px; }
+footer {
+  max-width: 860px; margin: 60px auto 0; padding-top: 20px;
+  border-top: 1px solid var(--line); color: var(--muted); font-size: 14px;
+}
+</style>
+</head>
+<body>
+<main>
+<h1>Enterprise Application Patterns</h1>
+<p>The seventh category. Seven patterns from Martin Fowler&#x27;s <em>Patterns of Enterprise Application Architecture</em>, in eleven projects, covering the space between an application&#x27;s objects and its database.</p>
+<p><strong>Status: all eleven built.</strong> Each project has code, deterministic tests, a README, diagrams, an animation, a narrated video pipeline and a YouTube document, and the four framework projects add a <code>docs/dependencies.md</code>. The two documents below fixed what the projects are before any of them was written. One thing is not built: the optional one-scene <code>real/</code> demos for Data Mapper, Service Layer and DTO, which the specification describes.</p>
+<ul><li><a href="docs/spec.md"><code>docs/spec.md</code></a> — the scenario each pattern is taught through, the naive version it must show failing, the cost it must admit to, and the framework feature it lives inside.</li><li><a href="docs/implementation-plan.md"><code>docs/implementation-plan.md</code></a> — the order the eleven get built in, the shared toy database they all use, the framework register, and the rules that keep the build from having to redo itself.</li></ul>
+<h2>The seven patterns, built by hand</h2>
+<table><thead><tr><th>#</th><th>Pattern</th><th>Scenario</th></tr></thead><tbody><tr><td>52</td><td>Data Mapper</td><td>The object that does not know it is a row</td></tr><tr><td>53</td><td>Identity Map</td><td>The same customer, loaded twice, in two states</td></tr><tr><td>54</td><td>Unit of Work</td><td>Save half an order and nothing else</td></tr><tr><td>55</td><td>Lazy Load</td><td>Loading one order, and getting the whole catalogue</td></tr><tr><td>56</td><td>Repository</td><td>Query the collection, not the table</td></tr><tr><td>57</td><td>Service Layer</td><td>Where does &quot;place an order&quot; actually live?</td></tr><tr><td>58</td><td>DTO</td><td>The object that crosses the boundary</td></tr></tbody></table>
+<p>The order is Fowler&#x27;s own dependency order. Identity Map solves a problem Data Mapper creates; Unit of Work needs the Identity Map to know what changed; Lazy Load is the escape hatch all three make possible; Repository hides the four of them; Service Layer sits above it; DTO is last because you must know what is inside before deciding what leaves.</p>
+<h2>The four framework projects</h2>
+<table><thead><tr><th>#</th><th>Project</th><th>Pairs with</th><th>What only it can show</th></tr></thead><tbody><tr><td>59</td><td>Identity Map with JPA</td><td>53</td><td>The same customer twice and <code>==</code> true — then two persistence contexts making it false</td></tr><tr><td>60</td><td>Unit of Work with Spring</td><td>54</td><td><code>@Transactional</code>, the checked exception that commits anyway, and a flush nobody wrote</td></tr><tr><td>61</td><td>Lazy Load with Hibernate</td><td>55</td><td>A real <code>LazyInitializationException</code>, and what each of the three usual fixes costs</td></tr><tr><td>62</td><td>Repository with Spring Data</td><td>56</td><td>Deleting the implementation and the application still running — then the managed entity that leaks</td></tr></tbody></table>
+<p><strong>Each version is its own project.</strong> The hand-built one and the framework one are not two halves of one directory: each has its own README, its own video and its own lesson, because a framework demo buried inside another project is a lesson nobody is taught. Projects 52 to 58 have no framework in any build file, so a reader who wants the mechanism alone gets it; projects 59 to 62 each open by naming their partner, reuse its domain unchanged, and explain Hibernate or Spring from scratch in their own <code>docs/dependencies.md</code>.</p>
+<p>Only four of the seven get a framework project, and the test is whether the framework version has <strong>a failure of its own</strong> — a detached entity, a swallowed rollback, a closed session, a leaked managed entity. For Data Mapper, Service Layer and DTO the framework adds recognition rather than a new lesson, so it stays one scene inside the hand-built project.</p>
+<h2>Why this is the most directly useful category in the course</h2>
+<p>Every Java developer using Spring, JPA or Hibernate is already using all seven of these, and most do not know it. The persistence context <strong>is</strong> an Identity Map. <code>@Transactional</code> <strong>is</strong> a Unit of Work. <code>save()</code> on a Spring Data interface <strong>is</strong> a Repository over a Data Mapper. <code>LazyInitializationException</code> is what a Lazy Load does when its session has gone.</p>
+<blockquote><p><strong>A framework you cannot explain is a framework you cannot debug.</strong></p></blockquote>
+<p>So each project builds the mechanism by hand first — plain Java, an in-memory table, small enough to read in one sitting — and then shows the same thing happening inside the real framework, so the reader recognises it. The hand-built version is not a toy standing in for the real thing; it is the real thing with the volume turned down.</p>
+<h2>By hand first, then in the framework</h2>
+<p><strong>The hand-built project comes first, always.</strong> Offline, no database, no network, deterministic tests under two seconds, and its video is built entirely from it. A reader who installs nothing gets the whole pattern.</p>
+<p><strong>The framework project comes after it</strong>, never before, and its job is recognition plus one failure. It uses the real thing a reader meets at work — Hibernate, Spring, Spring Data — over an in-memory H2, so it still needs nothing installed beyond a JDK and a warm Gradle cache. That is what makes it reasonable to ship these as projects rather than as optional extras.</p>
+<h2>Where this sits</h2>
+<p>Projects 52 to 62, after the twenty-five object-oriented patterns, the twelve microservices ones, the eight platform ones and the six concurrency ones. See <a href="../README.md"><code>../README.md</code></a> for the full course.</p>
+<h2>More enterprise patterns</h2>
+<ul><li><a href="transaction-script-pattern">Transaction Script</a></li><li><a href="active-record-pattern">Active Record</a></li><li><a href="optimistic-offline-lock-pattern">Optimistic Offline Lock</a></li><li><a href="pessimistic-offline-lock-pattern">Pessimistic Offline Lock</a></li><li><a href="front-controller-pattern">Front Controller</a></li><li><a href="gateway-pattern">Gateway</a></li></ul>
+</main>
+<footer>
+Generated from <code>README.md</code> by <code>docs/make_readme_html.py</code> &mdash;
+edit the Markdown, not this file.
+</footer>
+</body>
+</html>
