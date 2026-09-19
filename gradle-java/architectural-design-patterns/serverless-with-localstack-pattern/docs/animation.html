@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Future/Promise Pattern — Animated Walkthrough</title>
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 24px;
+    background: #0f172a; color: #e2e8f0;
+    font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
+    padding-top: calc(24px + env(safe-area-inset-top, 0px));
+    padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+  }
+  h1 { font-size: 1.4rem; margin: 0 0 4px; }
+  p.sub { color: #94a3b8; margin: 0 0 20px; max-width: 70ch; }
+  .wrap { max-width: 1100px; margin: 0 auto; }
+  .stage {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+    margin-bottom: 16px;
+  }
+  @media (max-width: 760px) { .stage { grid-template-columns: 1fr; } }
+  .boxes { display: flex; flex-direction: column; gap: 10px; }
+  .row {
+    border: 2px solid #334155; border-radius: 10px; padding: 12px 16px;
+    background: #1e293b; transition: all .25s ease; opacity: .55;
+  }
+  .row .name { font-weight: 700; font-size: 1rem; }
+  .row .job { color: #94a3b8; font-size: .82rem; margin-top: 2px; }
+  .row.active { opacity: 1; box-shadow: 0 0 0 2px currentColor inset; }
+  .row.wrong { border-color: #f87171; color: #f87171; }
+  .row.wrong.active { background: #3f1d24; }
+  .row.ok { border-color: #34d399; color: #34d399; }
+  .row.ok.active { background: #10261f; }
+  .row.amber { border-color: #fbbf24; color: #fbbf24; }
+  .row.amber.active { background: #2a2110; }
+  .row.dim { opacity: .22; }
+  .console {
+    background: #020617; border: 1px solid #334155; border-radius: 10px;
+    padding: 16px; font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    font-size: .86rem; line-height: 1.55; overflow-y: auto; min-height: 320px;
+    white-space: pre-wrap;
+  }
+  #console-lines span.ok { color: #34d399; }
+  #console-lines span.bad { color: #f87171; }
+  #console-lines span.amber { color: #fbbf24; }
+  #console-lines span.muted { color: #94a3b8; }
+  .narration {
+    background: #1e293b; border: 1px solid #334155; border-radius: 10px;
+    padding: 14px 18px; margin-bottom: 16px; min-height: 3.2em;
+  }
+  .controls { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  button {
+    background: #334155; color: #e2e8f0; border: 1px solid #475569;
+    border-radius: 8px; padding: 10px 18px; font-size: .92rem; cursor: pointer;
+  }
+  button:hover { background: #475569; }
+  button#play { background: #7c3aed; border-color: #7c3aed; }
+  button#play:hover { background: #8b5cf6; }
+  #progress { color: #94a3b8; font-size: .85rem; margin-left: auto; }
+  .step-label {
+    font-size: .78rem; text-transform: uppercase; letter-spacing: .04em;
+    color: #a78bfa; font-weight: 700; margin-bottom: 4px;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Future/Promise — Step by Step</h1>
+  <p class="sub">
+    Six acts, the same ones the demo prints. Amber is a copy that is starting.
+  </p>
+
+  <div class="narration">
+    <div class="step-label" id="step-label">Ready</div>
+    <div id="narration">Press Step or Play to begin.</div>
+  </div>
+
+  <div class="stage">
+    <div class="boxes" id="boxes">
+      <div class="row" id="row-dm">
+        <div class="name">the demo</div>
+        <div class="job">sends orders</div>
+      </div>
+      <div class="row" id="row-pf">
+        <div class="name">Lambda API</div>
+        <div class="job">starts and drops copies</div>
+      </div>
+      <div class="row" id="row-cp">
+        <div class="name">copies</div>
+        <div class="job">real containers</div>
+      </div>
+    </div>
+    <div class="console"><div id="console-lines"></div></div>
+  </div>
+
+  <div class="controls">
+    <button id="step">Step ▸</button>
+    <button id="play">Play ▶</button>
+    <button id="reset">Reset ↺</button>
+    <span id="progress">0 / 0</span>
+  </div>
+</div>
+
+<script>
+const STEPS = [
+  {
+    label: "Act 1 — a machine that is always on",
+    narration: "In the earlier project's price units, a server costs two a tick. A hundred ticks with three orders costs two hundred. It was paid for a hundred ticks, and used for three orders.",
+    rows: { sv: "active wrong" },
+    console: [
+      ["bill: 200", "bad"],
+      ["used for 3 orders", "bad"],
+    ],
+  },
+  {
+    label: "Act 2 — a function per event",
+    narration: "The function is uploaded to a real Lambda API, and run for each of three orders. Three receipts are sent, and the bill at one per call is three. Between orders nothing has to be running, and nothing is paid for.",
+    rows: { dm: "active ok", pf: "active ok" },
+    console: [
+      ["3 receipts sent", "ok"],
+      ["bill: 3", "ok"],
+    ],
+  },
+  {
+    label: "Act 3 — scale out, and back to zero",
+    narration: "Before any order, no copies are running. Five orders at the same moment: five distinct copies answered, and five containers are running. Five quiet seconds later, with no orders: none are running.",
+    rows: { pf: "active ok", cp: "active ok" },
+    console: [
+      ["before: 0 copies", "ok"],
+      ["5 orders at once: 5 copies", "ok"],
+      ["5 quiet seconds: 0", "ok"],
+    ],
+  },
+  {
+    label: "Act 4 — the cold start",
+    narration: "The first call after a quiet time took several hundred milliseconds, and the call right after it, a few. The cold call was slower. The first call had to start a container for the function, and the second found it running.",
+    rows: { pf: "active amber", cp: "active amber" },
+    console: [
+      ["first call: hundreds of ms", "amber"],
+      ["call right after: a few ms", "ok"],
+    ],
+  },
+  {
+    label: "Act 5 — no memory between calls",
+    narration: "A call to the copy that is running: it has handled three calls. After the quiet time, a different copy answers, and it has handled one. What the first copy kept in its variables went with it. Anything that must last goes in a store outside.",
+    rows: { cp: "active amber" },
+    console: [
+      ["running copy: 3 calls", "ok"],
+      ["new copy: 1 call", "bad"],
+    ],
+  },
+  {
+    label: "Act 6 — the bill",
+    narration: "In the earlier project's price units, in a hundred ticks, with three calls, functions cost three and the server two hundred. With three hundred calls, functions cost three hundred, and the server two hundred. Paying per call is cheap when quiet, and dear when busy all the time. And a job that needs six seconds, with a limit of three, fails: the platform says the task timed out.",
+    rows: { pf: "active amber", sv: "active amber" },
+    console: [
+      ["quiet: 3 against 200", "ok"],
+      ["busy: 300 against 200", "bad"],
+      ["6 s job, limit 3: timed out", "bad"],
+    ],
+  },
+];
+
+const rowIds = ["dm", "pf", "cp"];
+const stepLabel = document.getElementById("step-label");
+const narrationEl = document.getElementById("narration");
+const consoleEl = document.getElementById("console-lines");
+const progressEl = document.getElementById("progress");
+const stepBtn = document.getElementById("step");
+const playBtn = document.getElementById("play");
+const resetBtn = document.getElementById("reset");
+
+let i = -1;
+let timer = null;
+
+function clearRows() {
+  for (const id of rowIds) {
+    document.getElementById("row-" + id).className = "row";
+  }
+}
+
+function render() {
+  clearRows();
+  if (i < 0) {
+    stepLabel.textContent = "Ready";
+    narrationEl.textContent = "Press Step or Play to begin.";
+    consoleEl.innerHTML = "";
+    progressEl.textContent = "0 / " + STEPS.length;
+    return;
+  }
+  const s = STEPS[i];
+  stepLabel.textContent = s.label;
+  narrationEl.textContent = s.narration;
+  for (const id of rowIds) {
+    const el = document.getElementById("row-" + id);
+    const cls = s.rows[id];
+    el.className = "row " + (cls ? cls : "dim");
+  }
+  consoleEl.innerHTML = s.console
+    .map(([text, cls]) => '<span class="' + cls + '">' + text + "</span>")
+    .join("\n");
+  progressEl.textContent = (i + 1) + " / " + STEPS.length;
+}
+
+function step() {
+  if (i >= STEPS.length - 1) { stopPlay(); return; }
+  i += 1;
+  render();
+}
+
+function reset() {
+  stopPlay();
+  i = -1;
+  render();
+}
+
+function startPlay() {
+  if (timer) return;
+  playBtn.textContent = "Pause ❚❚";
+  timer = setInterval(() => {
+    if (i >= STEPS.length - 1) { stopPlay(); return; }
+    step();
+  }, 2600);
+}
+
+function stopPlay() {
+  if (timer) clearInterval(timer);
+  timer = null;
+  playBtn.textContent = "Play ▶";
+}
+
+stepBtn.addEventListener("click", () => { stopPlay(); step(); });
+resetBtn.addEventListener("click", reset);
+playBtn.addEventListener("click", () => { if (timer) stopPlay(); else startPlay(); });
+
+render();
+</script>
+</body>
+</html>

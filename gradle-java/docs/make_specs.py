@@ -6913,6 +6913,33 @@ requirements=[
 ],
 ),
 
+"serverless-with-localstack": dict(
+purpose="""
+Show serverless with real AWS Lambda behaviour through LocalStack in Docker: a function uploaded through the SDK, three orders answered, five concurrent orders starting five real containers with five distinct instance ids, idle copies removed, a real cold start measured against a warm call, a function's variables lost with its container, and a job stopped at its time limit.
+""",
+nongoals=[
+    'Not a re-teaching of Serverless. The partner project owns the pattern; this one names it in its first paragraph.',
+    'Not a LocalStack and AWS Lambda tutorial. Only what the pattern needs is introduced, as it appears.',
+],
+problem="""
+Serverless counted instances on a clock. LocalStack runs real containers behind the real Lambda API.
+
+**What this project must deliver:** an uploaded function, per-call bills, five containers for five concurrent calls, removal when idle, a measured cold start, lost memory, and a time limit.
+""",
+roles=[
+    ('The demo', '`ServerlessLsDemo`'),
+    ('The platform', '`Platform`, LocalStack and its function containers'),
+    ('The function', '`handler.py`'),
+],
+requirements=[
+    '**LocalStack and the copies are real,** run in Docker and removed afterwards, including the function containers.',
+    '**Copies are counted from Docker,** and identified by an instance id the function makes when it starts.',
+    '**Waits are bounded polls.** Only outcomes that cannot vary are asserted; milliseconds are compared, never fixed.',
+    '**Tests are skipped when Docker is missing.**',
+    '**Dependencies are explained.** `docs/dependencies.md` says what to install, what it costs, and that skipping loses nothing.',
+],
+),
+
 }
 
 
