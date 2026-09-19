@@ -68,24 +68,26 @@ on the `PATH` is the only prerequisite, and every project's
 ## Repository layout
 
 ```
-gradle-java/                 the course — 6 categories building, 3 more specified
+gradle-java/                 the course — 10 categories, 99 projects
   docs/                      the repository-wide specs and the shared
                              generators for specs, thumbnails and
                              YouTube documents
-  creational/                7 projects
-  structural/                7 projects
-  behavioural/               11 projects
+  creational/                9 projects
+  structural/                8 projects
+  behavioural/               16 projects
   micro-services-design-patterns/
-                             12 projects
-  platform-design-patterns/  8 projects, under construction
+                             18 projects
+  platform-design-patterns/  8 projects
   architectural-design-patterns/
-                             5 projects, complete
+                             8 projects
   concurrency-design-patterns/
-                             6 projects, 3 built
+                             9 projects
   enterprise-design-patterns/
-                             11 projects, specified only — no code yet
+                             11 projects
   foundational-design-patterns/
-                             5 projects, specified only — no code yet
+                             9 projects
+  domain-driven-design-patterns/
+                             3 projects, growing
 
 chain-of-reponsibility-example/    earlier Maven + Spring Boot sketches,
 factory-pattern-example/           predating the course and superseded by

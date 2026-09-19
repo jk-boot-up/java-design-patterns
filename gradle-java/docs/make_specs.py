@@ -149,6 +149,9 @@ ORDER = [
     ("micro-services-design-patterns", "api-gateway-with-spring-cloud-gateway"),
     ("micro-services-design-patterns", "load-balancing-with-spring-cloud-loadbalancer"),
     ("micro-services-design-patterns", "service-discovery-with-spring-cloud-consul"),
+    ("domain-driven-design-patterns", "value-object"),
+    ("domain-driven-design-patterns", "aggregate"),
+    ("domain-driven-design-patterns", "domain-event"),
     ("architectural-design-patterns", "layered-architecture-with-spring-boot"),
     ("architectural-design-patterns", "mvc-with-spring-mvc"),
     ("architectural-design-patterns", "hexagonal-architecture-with-spring-boot"),
@@ -243,6 +246,9 @@ NAMES = {
     "api-gateway-with-spring-cloud-gateway": "API Gateway with Spring Cloud Gateway",
     "load-balancing-with-spring-cloud-loadbalancer": "Load Balancing with Spring Cloud LoadBalancer",
     "service-discovery-with-spring-cloud-consul": "Service Discovery with Spring Cloud Consul",
+    "value-object": "Value Object",
+    "aggregate": "Aggregate",
+    "domain-event": "Domain Event",
     "layered-architecture-with-spring-boot": "Layered Architecture with Spring Boot",
     "mvc-with-spring-mvc": "MVC with Spring MVC",
     "hexagonal-architecture-with-spring-boot": "Hexagonal Architecture with Spring Boot",
@@ -5272,6 +5278,89 @@ requirements=[
     '**Waits are bounded polls,** never fixed sleeps; only counts are asserted.',
     '**Tests are skipped when the `consul` program is missing.**',
     '**Dependencies are explained.** `docs/dependencies.md` says what to install, what it costs, and that skipping loses nothing.',
+],
+),
+
+"value-object": dict(
+purpose="""
+Teach Value Object with money and an email address: a double that drifts and adds pounds to dollars, a value that refuses a mixed currency, equality by value against identity, a mutable price shared by two orders against an immutable one, a string email checked in two of three places against a type that cannot be built wrong, and a bill split that loses a penny against an allocation that does not.
+""",
+nongoals=[
+    'Not a full money library. There is no exchange rate and no rounding mode.',
+    'Not a tour of Java records. They are used, and their `equals` is relied on.',
+    'Not concurrency. There is one thread, and immutability is shown through sharing.',
+],
+problem="""
+Prices as doubles drift and add across currencies, and a shared mutable price changes silently.
+
+**What this project must deliver:** a `Money` and an `EmailAddress` that are equal by value, never changed and impossible to build wrong, each bug of the plain version shown for real, allocation that loses no penny, and a plain verdict.
+""",
+roles=[
+    ('Domain', '`Money`, `EmailAddress`, `CurrencyMismatch`'),
+    ('Naive', '`NaivePricing`, `MutableMoney`, `IdentityMoney`, `BareEmailSignup`'),
+    ('Entry point', '`ValueObjectDemo`, six acts'),
+],
+requirements=[
+    '**The floating point error is real output.** `NaiveVersionTest` asserts it.',
+    '**Allocation is exact for every amount from -50 to 200 pence into up to nine parts.**',
+    '**Shares differ by at most one penny.**',
+    '**The verdict is stated aloud.**',
+],
+),
+
+"aggregate": dict(
+purpose="""
+Teach Aggregate with an order and its lines: a loose order that breaks every rule, a root that enforces six of them, lines that cannot be reached or built outside it, another aggregate held by id, whole-aggregate saves with a version check that refuses the second of two clerks, and an aggregate drawn too big that makes two clerks collide over different orders.
+""",
+nongoals=[
+    'Not a persistence tutorial. The store is in memory, and versions are the whole story.',
+    'Not a full domain model. There is no customer aggregate, only its id.',
+    'Not concurrency. The two clerks are two sequential loads, and the conflict is deterministic.',
+],
+problem="""
+An order's rules span its lines, and a public list lets any caller break them.
+
+**What this project must deliver:** a root that enforces every rule, lines that cannot be built outside it, a reference by id, whole saves with a version check, the cost of an aggregate that is too big, and a plain verdict.
+""",
+roles=[
+    ('Domain', '`Order`, `OrderLine`, `Money`, `OrderId`, `CustomerId`, `InvariantViolated`'),
+    ('Infrastructure', '`VersionedStore`, `Loaded`, `ConcurrentModification`'),
+    ('Naive', '`LooseOrder`, `EagerOrder`, `CustomerRecord`, `CustomerWithOrders`'),
+    ('Entry point', '`AggregateDemo`, six acts'),
+],
+requirements=[
+    '**Every rule is asserted,** including the merged-line and total limits.',
+    '**The line list is read-only and lines have no public constructor.**',
+    '**The second save of a stale load is refused.**',
+    '**A boundary drawn too wide is shown to conflict,** and one per order is shown not to.',
+],
+),
+
+"domain-event": dict(
+purpose="""
+Teach Domain Event with an order being placed: an order that calls stock, email and analytics and is left half done when the mail server fails, an order that records an OrderPlaced event and calls nobody, a repository that keeps the events with the order and a relay that delivers them, a failing handler that neither undoes the order nor stops the others and is retried alone, events as data-carrying records in order, and the gap between saving and telling closed by keeping the events with the order.
+""",
+nongoals=[
+    'Not a message broker. Delivery is an in-process relay called by hand.',
+    'Not exactly-once delivery. A handler must be safe to run twice, and the verdict says so.',
+    'Not event sourcing. The order is stored as itself; the events are a record of what happened, not the store.',
+],
+problem="""
+An order that calls the systems that care about it is left half done when one of them fails, and knows all of them.
+
+**What this project must deliver:** an order that records events and calls nobody, a relay that delivers them after the save, a failing handler that is retried alone, events as facts, the crash gap closed by keeping events with the order, and a plain verdict.
+""",
+roles=[
+    ('Domain', '`Order`, `DomainEvent`, `OrderPlaced`, `OrderCancelled`'),
+    ('Infrastructure', '`OrderRepository` and its relay, `EventHandler`, `Handlers`, `Journal`'),
+    ('Naive', '`NaivePlaceOrder`'),
+    ('Entry point', '`DomainEventDemo`, six acts'),
+],
+requirements=[
+    '**The half-done state is real:** the naive order is saved and stock reserved when email fails.',
+    '**A failing handler does not stop the others and is retried alone,** and nothing is delivered twice.',
+    '**Events keep the order they were raised in.**',
+    '**A missed relay loses nothing.**',
 ],
 ),
 

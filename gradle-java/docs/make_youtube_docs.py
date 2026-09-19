@@ -135,6 +135,9 @@ ORDER = [
     ("micro-services-design-patterns", "api-gateway-with-spring-cloud-gateway"),
     ("micro-services-design-patterns", "load-balancing-with-spring-cloud-loadbalancer"),
     ("micro-services-design-patterns", "service-discovery-with-spring-cloud-consul"),
+    ("domain-driven-design-patterns", "value-object"),
+    ("domain-driven-design-patterns", "aggregate"),
+    ("domain-driven-design-patterns", "domain-event"),
     ("architectural-design-patterns", "layered-architecture-with-spring-boot"),
     ("architectural-design-patterns", "mvc-with-spring-mvc"),
     ("architectural-design-patterns", "hexagonal-architecture-with-spring-boot"),
@@ -516,6 +519,18 @@ META = {
     "service-discovery-with-spring-cloud-consul": {
         "title": "Service Discovery with Spring Cloud Consul",
         "tags": ["spring cloud consul", "service discovery", "consul health checks"],
+    },
+    "value-object": {
+        "title": "Value Object",
+        "tags": ['value object', 'ddd value object', 'java record', 'immutable object'],
+    },
+    "aggregate": {
+        "title": "Aggregate",
+        "tags": ['aggregate', 'ddd aggregate', 'aggregate root', 'domain driven design'],
+    },
+    "domain-event": {
+        "title": "Domain Event",
+        "tags": ['domain event', 'ddd domain event', 'event driven', 'domain driven design'],
     },
     "layered-architecture-with-spring-boot": {
         "title": "Layered Architecture with Spring Boot - Layers That Hold",

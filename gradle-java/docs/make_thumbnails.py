@@ -300,6 +300,15 @@ META = {
     "service-discovery-with-spring-cloud-consul": (["SERVICE DISCOVERY", "SPRING CLOUD CONSUL"],
                   "Real registry, real health checks",
                   "getInstances(\"pricing\")"),
+    "value-object": (['VALUE OBJECT'],
+                  'Equal by value, never changed',
+                  'Money(1000, GBP)'),
+    "aggregate": (['AGGREGATE'],
+                  'One door to the invariants',
+                  'order.addLine(...)'),
+    "domain-event": (['DOMAIN EVENT'],
+                  'Something happened, said in the past tense',
+                  'OrderPlaced'),
     "layered-architecture-with-spring-boot": (["LAYERED", "WITH SPRING BOOT"],
                   "Real layers, enforced by a test",
                   "@RestController"),
@@ -389,6 +398,12 @@ GROUP.update({slug: "concurrency-design-patterns" for slug in (
     "thread-pool-with-spring",
     "future-promise-with-spring",
     "active-object-with-spring",
+    )})
+
+GROUP.update({slug: "domain-driven-design-patterns" for slug in (
+    "value-object",
+    "aggregate",
+    "domain-event",
     )})
 
 GROUP.update({slug: "creational" for slug in (
