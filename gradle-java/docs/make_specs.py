@@ -6145,6 +6145,33 @@ requirements=[
 ],
 ),
 
+"balking": dict(
+purpose="""
+Teach Balking with a basket draft's autosave: five writes for one edit when it saves every time, one write and four balks when it saves only if changed, a second call told already saving at once while a write is held at a gate, an edit made during a save that a careless draft marks clean and loses and a version counter keeps, a save result that tells the caller what happened, and the bill that a click during a save simply did nothing.
+""",
+nongoals=[
+    'Not a real editor. The draft is a string and a version.',
+    'Not scheduling. The timer is simulated by calling save.',
+    'Not guarded suspension, which waits instead of returning.',
+],
+problem="""
+A save that writes every time wastes work, and one that skips carelessly loses an edit.
+
+**What this project must deliver:** a draft that balks when clean or busy, an edit during a save shown lost by the careless version and kept by the version counter, the result told to the caller, the held save exact by a gate, and the cost of a click that does nothing.
+""",
+roles=[
+    ('The drafts', '`BalkingDraft`, `CarelessBalkingDraft`, `AlwaysSavingDraft`'),
+    ('Support', '`Storage`, `Gate`, `SaveResult`'),
+    ('Entry point', '`BalkingDemo`, six acts'),
+],
+requirements=[
+    '**A save in progress is exact,** held at a gate inside the write.',
+    '**A second call balks at once,** asserted over repeated runs.',
+    '**The careless draft loses an edit and the versioned one keeps it,** both asserted.',
+    '**A balked request is not queued.**',
+],
+),
+
 }
 
 
