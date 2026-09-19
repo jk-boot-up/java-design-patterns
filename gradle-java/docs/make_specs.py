@@ -6592,6 +6592,34 @@ requirements=[
 ],
 ),
 
+"multiton": dict(
+purpose="""
+Teach Multiton with an online store's regional warehouses: two private copies that disagree, one instance per region kept in a map, shared stock seen from every part of the shop, unknown regions refused, a look-then-create that makes two under a forced race and an atomic create-if-absent that makes one under eight threads, and the leaked state and lifetime of global instances.
+""",
+nongoals=[
+    'Not dependency injection, which is the usual better answer and has its own project.',
+    'Not lazy loading or weak references.',
+    'Not a cache. Instances are never evicted.',
+],
+problem="""
+Creating an object wherever it is needed gives several copies that disagree.
+
+**What this project must deliver:** copies that disagree, one instance per key, a fixed key set, a race that makes two and an atomic create that makes one, and the leak between tests.
+""",
+roles=[
+    ('The pattern', '`Warehouse`'),
+    ('Naive', '`NaiveWarehouses`'),
+    ('Entry point', '`MultitonDemo`, six acts'),
+],
+requirements=[
+    '**The constructor is private.**',
+    '**The same key always returns the same object.**',
+    '**Unknown keys are refused.**',
+    '**A forced race is deterministic,** by a barrier.',
+    '**Tests can reset the instances.**',
+],
+),
+
 }
 
 
