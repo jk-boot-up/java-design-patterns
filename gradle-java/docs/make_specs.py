@@ -6508,6 +6508,33 @@ requirements=[
 ],
 ),
 
+"feature-toggle": dict(
+purpose="""
+Teach Feature Toggle with an online store's gift wrap: releasing by deploying, a table of switches read at run time with off, on, percentage and named-customer rules, gift wrap deployed dark and switched on without a deploy, a rollout to ten percent and to two testers, a kill switch that stops a bug's failures, the safe default when the table is unreachable, and the cost of combinations and stale toggles.
+""",
+nongoals=[
+    'Not a real toggle service. The table is a map.',
+    'Not user targeting by attribute. Rules are off, on, percentage and a list.',
+    'Not the experiments and statistics of A/B testing.',
+],
+problem="""
+A feature released by deploying cannot be tried on a few customers or undone quickly.
+
+**What this project must deliver:** a dark deploy, four rules, a kill switch, a safe default, and a count of combinations and stale toggles.
+""",
+roles=[
+    ('The pattern', '`Toggles`, `Rule`'),
+    ('Consumer', '`Checkout`'),
+    ('Entry point', '`FeatureToggleDemo`, six acts'),
+],
+requirements=[
+    '**Rollout is by customer number modulo 100,** so counts are exact.',
+    '**A switch takes effect with no new checkout.**',
+    '**Unknown toggles and an unreachable table mean off.**',
+    '**Stale toggles are found by age and settled state.**',
+],
+),
+
 }
 
 

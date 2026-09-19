@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Future/Promise Pattern — Animated Walkthrough</title>
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 24px;
+    background: #0f172a; color: #e2e8f0;
+    font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
+    padding-top: calc(24px + env(safe-area-inset-top, 0px));
+    padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+  }
+  h1 { font-size: 1.4rem; margin: 0 0 4px; }
+  p.sub { color: #94a3b8; margin: 0 0 20px; max-width: 70ch; }
+  .wrap { max-width: 1100px; margin: 0 auto; }
+  .stage {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+    margin-bottom: 16px;
+  }
+  @media (max-width: 760px) { .stage { grid-template-columns: 1fr; } }
+  .boxes { display: flex; flex-direction: column; gap: 10px; }
+  .row {
+    border: 2px solid #334155; border-radius: 10px; padding: 12px 16px;
+    background: #1e293b; transition: all .25s ease; opacity: .55;
+  }
+  .row .name { font-weight: 700; font-size: 1rem; }
+  .row .job { color: #94a3b8; font-size: .82rem; margin-top: 2px; }
+  .row.active { opacity: 1; box-shadow: 0 0 0 2px currentColor inset; }
+  .row.wrong { border-color: #f87171; color: #f87171; }
+  .row.wrong.active { background: #3f1d24; }
+  .row.ok { border-color: #34d399; color: #34d399; }
+  .row.ok.active { background: #10261f; }
+  .row.amber { border-color: #fbbf24; color: #fbbf24; }
+  .row.amber.active { background: #2a2110; }
+  .row.dim { opacity: .22; }
+  .console {
+    background: #020617; border: 1px solid #334155; border-radius: 10px;
+    padding: 16px; font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    font-size: .86rem; line-height: 1.55; overflow-y: auto; min-height: 320px;
+    white-space: pre-wrap;
+  }
+  #console-lines span.ok { color: #34d399; }
+  #console-lines span.bad { color: #f87171; }
+  #console-lines span.amber { color: #fbbf24; }
+  #console-lines span.muted { color: #94a3b8; }
+  .narration {
+    background: #1e293b; border: 1px solid #334155; border-radius: 10px;
+    padding: 14px 18px; margin-bottom: 16px; min-height: 3.2em;
+  }
+  .controls { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  button {
+    background: #334155; color: #e2e8f0; border: 1px solid #475569;
+    border-radius: 8px; padding: 10px 18px; font-size: .92rem; cursor: pointer;
+  }
+  button:hover { background: #475569; }
+  button#play { background: #7c3aed; border-color: #7c3aed; }
+  button#play:hover { background: #8b5cf6; }
+  #progress { color: #94a3b8; font-size: .85rem; margin-left: auto; }
+  .step-label {
+    font-size: .78rem; text-transform: uppercase; letter-spacing: .04em;
+    color: #a78bfa; font-weight: 700; margin-bottom: 4px;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Future/Promise — Step by Step</h1>
+  <p class="sub">
+    Six acts, the same ones the demo prints. A red box is where it goes wrong.
+  </p>
+
+  <div class="narration">
+    <div class="step-label" id="step-label">Ready</div>
+    <div id="narration">Press Step or Play to begin.</div>
+  </div>
+
+  <div class="stage">
+    <div class="boxes" id="boxes">
+      <div class="row" id="row-dp">
+        <div class="name">deploy</div>
+        <div class="job">ships everything</div>
+      </div>
+      <div class="row" id="row-tb">
+        <div class="name">the toggle table</div>
+        <div class="job">read at run time</div>
+      </div>
+      <div class="row" id="row-ck">
+        <div class="name">checkout</div>
+        <div class="job">gift wrap already inside</div>
+      </div>
+    </div>
+    <div class="console"><div id="console-lines"></div></div>
+  </div>
+
+  <div class="controls">
+    <button id="step">Step ▸</button>
+    <button id="play">Play ▶</button>
+    <button id="reset">Reset ↺</button>
+    <span id="progress">0 / 0</span>
+  </div>
+</div>
+
+<script>
+const STEPS = [
+  {
+    label: "Act 1 — deploying is releasing",
+    narration: "Gift wrap goes live by deploying it: one deploy. It has a bug, so taking it away is another: two deploys. Each deploy ships every other change waiting in the branch too. The wish to switch one thing carries everything else with it.",
+    rows: { dp: "active wrong" },
+    console: [
+      ["2 deploys", "bad"],
+      ["ships everything else too", "bad"],
+    ],
+  },
+  {
+    label: "Act 2 — deploy dark, switch later",
+    narration: "Gift wrap is in the deployed code, switched off. An order of five thousand costs five thousand. The switch is turned on in the table, with no deploy. The same order costs fifty three hundred.",
+    rows: { tb: "active ok", ck: "active ok" },
+    console: [
+      ["off: 5000", "ok"],
+      ["switched on: 5300", "ok"],
+      ["deploys: 0", "ok"],
+    ],
+  },
+  {
+    label: "Act 3 — switch on for some",
+    narration: "A ten percent rollout: of a hundred customers, ten got it. Then only two named testers: of a hundred customers, two got it.",
+    rows: { tb: "active ok" },
+    console: [
+      ["10 percent: 10 of 100", "ok"],
+      ["named testers: 2 of 100", "ok"],
+    ],
+  },
+  {
+    label: "Act 4 — the kill switch",
+    narration: "Gift wrap has a bug. With twenty percent on, of a hundred orders, twenty failed. One change in the table turned it off. Of a hundred orders, none failed. No deploy.",
+    rows: { tb: "active ok", ck: "active wrong" },
+    console: [
+      ["20 percent on: 20 fail", "bad"],
+      ["switched off: 0 fail", "ok"],
+    ],
+  },
+  {
+    label: "Act 5 — when the table cannot be read",
+    narration: "The table is up, and an order of five thousand costs fifty three hundred. The table is down, and it costs five thousand. The order still works, and every feature falls back to off.",
+    rows: { tb: "active wrong", ck: "active ok" },
+    console: [
+      ["table up: 5300", "ok"],
+      ["table down: 5000, still works", "amber"],
+    ],
+  },
+  {
+    label: "Act 6 — the bill",
+    narration: "Five toggles make thirty two possible combinations. The tests usually run one. And on day two hundred, three toggles have been settled for over ninety days and are still in the code: express shipping, gift wrap and new search. Every one is an if that nobody needs.",
+    rows: { tb: "active amber" },
+    console: [
+      ["5 toggles: 32 combinations", "amber"],
+      ["3 stale toggles", "bad"],
+    ],
+  },
+];
+
+const rowIds = ["dp", "tb", "ck"];
+const stepLabel = document.getElementById("step-label");
+const narrationEl = document.getElementById("narration");
+const consoleEl = document.getElementById("console-lines");
+const progressEl = document.getElementById("progress");
+const stepBtn = document.getElementById("step");
+const playBtn = document.getElementById("play");
+const resetBtn = document.getElementById("reset");
+
+let i = -1;
+let timer = null;
+
+function clearRows() {
+  for (const id of rowIds) {
+    document.getElementById("row-" + id).className = "row";
+  }
+}
+
+function render() {
+  clearRows();
+  if (i < 0) {
+    stepLabel.textContent = "Ready";
+    narrationEl.textContent = "Press Step or Play to begin.";
+    consoleEl.innerHTML = "";
+    progressEl.textContent = "0 / " + STEPS.length;
+    return;
+  }
+  const s = STEPS[i];
+  stepLabel.textContent = s.label;
+  narrationEl.textContent = s.narration;
+  for (const id of rowIds) {
+    const el = document.getElementById("row-" + id);
+    const cls = s.rows[id];
+    el.className = "row " + (cls ? cls : "dim");
+  }
+  consoleEl.innerHTML = s.console
+    .map(([text, cls]) => '<span class="' + cls + '">' + text + "</span>")
+    .join("\n");
+  progressEl.textContent = (i + 1) + " / " + STEPS.length;
+}
+
+function step() {
+  if (i >= STEPS.length - 1) { stopPlay(); return; }
+  i += 1;
+  render();
+}
+
+function reset() {
+  stopPlay();
+  i = -1;
+  render();
+}
+
+function startPlay() {
+  if (timer) return;
+  playBtn.textContent = "Pause ❚❚";
+  timer = setInterval(() => {
+    if (i >= STEPS.length - 1) { stopPlay(); return; }
+    step();
+  }, 2600);
+}
+
+function stopPlay() {
+  if (timer) clearInterval(timer);
+  timer = null;
+  playBtn.textContent = "Play ▶";
+}
+
+stepBtn.addEventListener("click", () => { stopPlay(); step(); });
+resetBtn.addEventListener("click", reset);
+playBtn.addEventListener("click", () => { if (timer) stopPlay(); else startPlay(); });
+
+render();
+</script>
+</body>
+</html>
