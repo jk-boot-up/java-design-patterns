@@ -202,6 +202,12 @@ ORDER = [
     ("foundational-design-patterns", "execute-around"),
     ("foundational-design-patterns", "callback"),
     ("foundational-design-patterns", "delegation"),
+    ("platform-design-patterns", "blue-green-and-canary-with-kubernetes"),
+    ("platform-design-patterns", "service-mesh-with-envoy"),
+    ("platform-design-patterns", "feature-toggle-with-flagd"),
+    ("platform-design-patterns", "consumer-driven-contract-with-pact"),
+    ("architectural-design-patterns", "event-driven-architecture-with-kafka"),
+    ("architectural-design-patterns", "serverless-with-localstack"),
 ]
 
 # Demos that mint an identifier per run, so their output is not byte-stable.
@@ -346,6 +352,12 @@ NAMES = {
     "execute-around": "Execute Around",
     "callback": "Callback",
     "delegation": "Delegation",
+    "blue-green-and-canary-with-kubernetes": "Blue-Green and Canary with Kubernetes",
+    "service-mesh-with-envoy": "Service Mesh with Envoy",
+    "feature-toggle-with-flagd": "Feature Toggle with flagd",
+    "consumer-driven-contract-with-pact": "Consumer-Driven Contract with Pact",
+    "event-driven-architecture-with-kafka": "Event-Driven Architecture with Kafka",
+    "serverless-with-localstack": "Serverless with LocalStack",
 }
 
 # ---------------------------------------------------------------------------
@@ -6758,6 +6770,33 @@ requirements=[
     '**A rule can be swapped on a live order.**',
     '**A rule is given the order it is called for.**',
     '**Extra calls and forwarding methods are counted.**',
+],
+),
+
+"blue-green-and-canary-with-kubernetes": dict(
+purpose="""
+Show blue-green and canary on a real Kubernetes cluster made with kind: a gap when one release is replaced by another, a switch of a Service selector with no failures, a switch back after a bug, a canary spread by the cluster over pods, a gate that halts a bad release, and the pods that two releases cost.
+""",
+nongoals=[
+    'Not a re-teaching of Blue-Green and Canary. The partner project owns the pattern; this one names it in its first paragraph.',
+    'Not a Kubernetes tutorial. Only what the pattern needs is introduced, as it appears.',
+],
+problem="""
+Blue-Green and Canary simulated the router. On Kubernetes the router is a Service and the cluster does the spreading.
+
+**What this project must deliver:** a real gap, a real switch and switch back, a real canary, a gate, and a count of pods.
+""",
+roles=[
+    ('The demo', '`BlueGreenK8sDemo`, `Cluster`'),
+    ('The traffic', '`Traffic`'),
+    ('The manifests', '`checkout.yaml`, `kind-config.yaml`'),
+],
+requirements=[
+    '**The cluster is real,** made by kind and deleted afterwards.',
+    '**Requests use a new connection each,** so the switch and the spread are visible.',
+    '**Waits are bounded polls.** Only outcomes that cannot vary are asserted exactly; the canary share is asserted in a range.',
+    '**Tests are skipped when Docker, kind or kubectl are missing.**',
+    '**Dependencies are explained.** `docs/dependencies.md` says what to install, what it costs, and that skipping loses nothing.',
 ],
 ),
 

@@ -188,6 +188,12 @@ ORDER = [
     ("foundational-design-patterns", "execute-around"),
     ("foundational-design-patterns", "callback"),
     ("foundational-design-patterns", "delegation"),
+    ("platform-design-patterns", "blue-green-and-canary-with-kubernetes"),
+    ("platform-design-patterns", "service-mesh-with-envoy"),
+    ("platform-design-patterns", "feature-toggle-with-flagd"),
+    ("platform-design-patterns", "consumer-driven-contract-with-pact"),
+    ("architectural-design-patterns", "event-driven-architecture-with-kafka"),
+    ("architectural-design-patterns", "serverless-with-localstack"),
 ]
 
 # Per-project title and tag material. The title is what gets pasted into
@@ -778,6 +784,30 @@ META = {
     "delegation": {
         "title": 'Delegation',
         "tags": ['delegation pattern', 'java'],
+    },
+    "blue-green-and-canary-with-kubernetes": {
+        "title": 'Blue-Green and Canary with Kubernetes',
+        "tags": ['blue green', 'canary', 'kubernetes', 'kind'],
+    },
+    "service-mesh-with-envoy": {
+        "title": 'Service Mesh with Envoy',
+        "tags": ['service mesh', 'envoy proxy', 'docker'],
+    },
+    "feature-toggle-with-flagd": {
+        "title": 'Feature Toggle with flagd',
+        "tags": ['feature toggle', 'openfeature', 'flagd'],
+    },
+    "consumer-driven-contract-with-pact": {
+        "title": 'Consumer-Driven Contract with Pact',
+        "tags": ['consumer driven contract', 'pact', 'contract testing'],
+    },
+    "event-driven-architecture-with-kafka": {
+        "title": 'Event-Driven Architecture with Kafka',
+        "tags": ['event driven architecture', 'kafka', 'docker'],
+    },
+    "serverless-with-localstack": {
+        "title": 'Serverless with LocalStack',
+        "tags": ['serverless', 'aws lambda', 'localstack'],
     },
 }
 

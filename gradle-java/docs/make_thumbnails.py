@@ -459,6 +459,24 @@ META = {
     "delegation": (['DELEGATION'],
                   'Hand the work to a helper',
                   'helper.do()'),
+    "blue-green-and-canary-with-kubernetes": (['BLUE-GREEN', 'WITH KUBERNETES'],
+                  'A real cluster, a real switch',
+                  'kubectl patch service'),
+    "service-mesh-with-envoy": (['SERVICE MESH', 'WITH ENVOY'],
+                  'A real proxy retrying for you',
+                  'retry_on: 5xx'),
+    "feature-toggle-with-flagd": (['FEATURE TOGGLE', 'WITH FLAGD'],
+                  'OpenFeature, in a real container',
+                  'flags.json changed'),
+    "consumer-driven-contract-with-pact": (['CONSUMER CONTRACT', 'WITH PACT'],
+                  'A real pact file, verified',
+                  'pact verify'),
+    "event-driven-architecture-with-kafka": (['EVENT-DRIVEN', 'WITH KAFKA'],
+                  'A real broker and real offsets',
+                  'consumer group lag'),
+    "serverless-with-localstack": (['SERVERLESS', 'WITH LOCALSTACK'],
+                  'Real Lambda cold starts, locally',
+                  'lambda invoke'),
 }
 
 GROUP = {
@@ -638,6 +656,18 @@ GROUP["execute-around"] = "foundational-design-patterns"
 GROUP["callback"] = "foundational-design-patterns"
 
 GROUP["delegation"] = "foundational-design-patterns"
+
+GROUP["blue-green-and-canary-with-kubernetes"] = "platform-design-patterns"
+
+GROUP["service-mesh-with-envoy"] = "platform-design-patterns"
+
+GROUP["feature-toggle-with-flagd"] = "platform-design-patterns"
+
+GROUP["consumer-driven-contract-with-pact"] = "platform-design-patterns"
+
+GROUP["event-driven-architecture-with-kafka"] = "architectural-design-patterns"
+
+GROUP["serverless-with-localstack"] = "architectural-design-patterns"
 
 GROUP.update({slug: "creational" for slug in (
     "singleton-with-spring",
