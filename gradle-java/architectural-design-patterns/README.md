@@ -86,3 +86,10 @@ Each of these reruns a pattern above on a real framework. They sit beside their 
 - [MVP and MVVM](mvp-and-mvvm-pattern)
 - [Onion Architecture](onion-architecture-pattern)
 - [Serverless](serverless-pattern)
+
+## With real infrastructure
+
+The hand-built projects above run as counted simulations. These pair with them and run the same idea against the real tool, in Docker or a local Kubernetes cluster. Each is skipped by its tests when the tools are missing.
+
+- [Event-Driven Architecture with Kafka](event-driven-architecture-with-kafka-pattern), with Kafka in Docker
+- [Serverless with LocalStack](serverless-with-localstack-pattern), with LocalStack and Lambda

@@ -115,3 +115,12 @@ microservices ones. See [`../README.md`](../README.md) for the full course.
 - [Feature Toggle](feature-toggle-pattern)
 - [Service Mesh](service-mesh-pattern)
 - [Consumer-Driven Contract](consumer-driven-contract-pattern)
+
+## With real infrastructure
+
+The hand-built projects above run as counted simulations. These pair with them and run the same idea against the real tool, in Docker or a local Kubernetes cluster. Each is skipped by its tests when the tools are missing.
+
+- [Blue-Green and Canary with Kubernetes](blue-green-and-canary-with-kubernetes-pattern), with kind
+- [Service Mesh with Envoy](service-mesh-with-envoy-pattern), with Envoy in Docker
+- [Feature Toggle with flagd](feature-toggle-with-flagd-pattern), with flagd in Docker
+- [Consumer-Driven Contract with Pact](consumer-driven-contract-with-pact-pattern), with Pact JVM

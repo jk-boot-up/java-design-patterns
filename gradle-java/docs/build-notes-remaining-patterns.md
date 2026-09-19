@@ -70,3 +70,28 @@ every time. The same rule covers pull request descriptions.
   categories.
 - Category READMEs and their HTML twins updated, and the root README's category table and counts rewritten.
 - All commits pushed; `origin/main` is at `816bd48`.
+
+## Addendum: the real-infrastructure versions
+
+After the report above, the simulations for the six infrastructure patterns were paired with real versions,
+as separate projects, and the simulations were left as they were.
+
+| Real version | Real tool | How it runs |
+| --- | --- | --- |
+| Blue-Green and Canary with Kubernetes | Kubernetes, through kind 0.33 | A cluster made and deleted by the demo |
+| Service Mesh with Envoy | Envoy 1.37 | A container; the payment service is a Java HTTP server on the host |
+| Feature Toggle with flagd | flagd, the OpenFeature daemon | A container watching a flags file |
+| Consumer-Driven Contract with Pact | Pact JVM 4.7.5 | A library; pact files replayed over HTTP |
+| Event-Driven Architecture with Kafka | Apache Kafka 4.3.1 | A KRaft broker in a container |
+| Serverless with LocalStack | LocalStack 4.14.0 and Lambda | LocalStack in a container, and a container per function copy |
+
+What changed in the way the demos are written: counts that depend on the tool's own scheduling, such as the
+spread of a Kubernetes canary, are asserted in a range and printed as a description, not as an exact number.
+Counts that cannot vary, such as what a Kafka group's lag is after three events, stay exact. Every wait is a
+bounded poll on a real condition, and there is no fixed sleep.
+
+Two things the real tools taught:
+- **Keep-alive hides a switch.** A reused HTTP connection stays on the pod it first reached, so a Service
+  switch, and a canary's spread, only show when every request uses a new connection.
+- **LocalStack now needs an account.** From its 2026 releases the image refuses to start without an auth
+  token. The Serverless project pins 4.14.0, the newest release that runs without one, and says so.
