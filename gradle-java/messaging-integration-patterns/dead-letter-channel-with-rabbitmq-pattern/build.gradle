@@ -1,0 +1,39 @@
+plugins {
+    id 'java'
+    id 'application'
+}
+
+group = 'com.jk.explore'
+version = '1.0-SNAPSHOT'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // The RabbitMQ Java client, 5.36.0, talking AMQP 0-9-1 to the broker in the container.
+    implementation 'com.rabbitmq:amqp-client:5.36.0'
+    // Testcontainers 2.0.5 starts and stops the broker. The demo needs it at run time,
+    // not only in tests, because the demo itself owns the container's lifetime.
+    // In the 2.x line every module carries the `testcontainers-` prefix.
+    implementation 'org.testcontainers:testcontainers-rabbitmq:2.0.5'
+    runtimeOnly 'org.slf4j:slf4j-simple:2.0.17'
+
+    testImplementation platform('org.junit:junit-bom:5.10.2')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+application {
+    mainClass = 'com.jk.explore.deadletterrabbit.RabbitDeadLetterDemo'
+}
+
+test {
+    useJUnitPlatform()
+}
