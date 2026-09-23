@@ -1,0 +1,36 @@
+plugins {
+    id 'java'
+    id 'application'
+}
+
+group = 'com.jk.explore'
+version = '1.0-SNAPSHOT'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // Apache Camel 4.20.0, the newest generally available release. camel-core carries the
+    // routing engine and the core components the demo uses: direct, seda and mock.
+    implementation 'org.apache.camel:camel-core:4.20.0'
+    runtimeOnly 'org.slf4j:slf4j-simple:2.0.16'
+
+    testImplementation platform('org.junit:junit-bom:5.10.2')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+application {
+    mainClass = 'com.jk.explore.splitteraggregatorcamel.CamelSplitterAggregatorDemo'
+}
+
+test {
+    useJUnitPlatform()
+}

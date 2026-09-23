@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Splitter and Aggregator with Camel — Animated Walkthrough</title>
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 24px;
+    background: #0f172a; color: #e2e8f0;
+    font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
+    padding-top: calc(24px + env(safe-area-inset-top, 0px));
+    padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+  }
+  h1 { font-size: 1.4rem; margin: 0 0 4px; }
+  p.sub { color: #94a3b8; margin: 0 0 20px; max-width: 70ch; }
+  .wrap { max-width: 1100px; margin: 0 auto; }
+  .stage {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+    margin-bottom: 16px;
+  }
+  @media (max-width: 760px) { .stage { grid-template-columns: 1fr; } }
+  .boxes { display: flex; flex-direction: column; gap: 10px; }
+  .row {
+    border: 2px solid #334155; border-radius: 10px; padding: 12px 16px;
+    background: #1e293b; transition: all .25s ease; opacity: .55;
+  }
+  .row .name { font-weight: 700; font-size: 1rem; }
+  .row .job { color: #94a3b8; font-size: .82rem; margin-top: 2px; }
+  .row.active { opacity: 1; box-shadow: 0 0 0 2px currentColor inset; }
+  .row.wrong { border-color: #f87171; color: #f87171; }
+  .row.wrong.active { background: #3f1d24; }
+  .row.ok { border-color: #34d399; color: #34d399; }
+  .row.ok.active { background: #10261f; }
+  .row.amber { border-color: #fbbf24; color: #fbbf24; }
+  .row.amber.active { background: #2a2110; }
+  .row.dim { opacity: .22; }
+  .console {
+    background: #020617; border: 1px solid #334155; border-radius: 10px;
+    padding: 16px; font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    font-size: .86rem; line-height: 1.55; overflow-y: auto; min-height: 320px;
+    white-space: pre-wrap;
+  }
+  #console-lines span.ok { color: #34d399; }
+  #console-lines span.bad { color: #f87171; }
+  #console-lines span.amber { color: #fbbf24; }
+  #console-lines span.muted { color: #94a3b8; }
+  .narration {
+    background: #1e293b; border: 1px solid #334155; border-radius: 10px;
+    padding: 14px 18px; margin-bottom: 16px; min-height: 3.2em;
+  }
+  .controls { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  button {
+    background: #334155; color: #e2e8f0; border: 1px solid #475569;
+    border-radius: 8px; padding: 10px 18px; font-size: .92rem; cursor: pointer;
+  }
+  button:hover { background: #475569; }
+  button#play { background: #7c3aed; border-color: #7c3aed; }
+  button#play:hover { background: #8b5cf6; }
+  button#audio.on { background: #0f766e; border-color: #14b8a6; }
+  #progress { color: #94a3b8; font-size: .85rem; margin-left: auto; }
+  .audio-note { color: #94a3b8; font-size: .78rem; margin: 10px 0 0; min-height: 1em; }
+  .step-label {
+    font-size: .78rem; text-transform: uppercase; letter-spacing: .04em;
+    color: #a78bfa; font-weight: 700; margin-bottom: 4px;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Splitter and Aggregator with Camel — Step by Step</h1>
+  <p class="sub">
+    Six acts, the same ones the demo prints. Green is an answer that came out, amber is
+    something still waiting, red is a wait that will never end on its own.
+  </p>
+
+  <div class="narration">
+    <div class="step-label" id="step-label">Ready</div>
+    <div id="narration">Press Step or Play to begin.</div>
+  </div>
+
+  <div class="stage">
+    <div class="boxes" id="boxes">
+      <div class="row" id="row-ord">
+        <div class="name">order ORD-4471</div>
+        <div class="job">three lines, three warehouses, £283.42</div>
+      </div>
+      <div class="row" id="row-spl">
+        <div class="name">Camel split</div>
+        <div class="job">one message per line, each stamped with the order number</div>
+      </div>
+      <div class="row" id="row-whs">
+        <div class="name">Leeds · Reading · Glasgow</div>
+        <div class="job">each picks and prices its own line</div>
+      </div>
+      <div class="row" id="row-agg">
+        <div class="name">Camel aggregate</div>
+        <div class="job">gathers by order number, until a completion condition says stop</div>
+      </div>
+      <div class="row" id="row-ddl">
+        <div class="name">deadline checker</div>
+        <div class="job">looks at the clock every 100 milliseconds</div>
+      </div>
+    </div>
+    <div class="console"><div id="console-lines"></div></div>
+  </div>
+
+  <div class="controls">
+    <button id="step">Step &#9656;</button>
+    <button id="play">Play &#9654;</button>
+    <button id="reset">Reset &#8635;</button>
+    <button id="audio" aria-pressed="false">&#128263; Narration: off</button>
+    <span id="progress">0 / 0</span>
+  </div>
+  <p class="audio-note" id="audio-note"></p>
+</div>
+
+<script>
+const STEPS = [
+  {
+    label: "Act 1 — one picker, one order",
+    narration: "One worker takes the whole basket and walks all three warehouses, one line after another: three steps of work on one thread. The basket comes to two hundred and eighty three pounds and forty two pence, and while that worker walks, the other two warehouses stand idle.",
+    rows: { ord: "active wrong", whs: "active wrong" },
+    console: [
+      ["3 steps of work on 1 thread", "bad"],
+      ["basket: £283.42", "muted"],
+    ],
+  },
+  {
+    label: "Act 2 — Camel splits the order",
+    narration: "The split step sends out one message for each line. Camel numbers the pieces itself and copies the order number onto every one of them. That number is the only thing that will put them back together.",
+    rows: { ord: "active ok", spl: "active ok", whs: "active ok" },
+    console: [
+      ["shipment 1 of 3 to Leeds: £15.98", "ok"],
+      ["shipment 2 of 3 to Reading: £249.99", "ok"],
+      ["shipment 3 of 3 to Glasgow: £17.45", "ok"],
+    ],
+  },
+  {
+    label: "Act 3 — they come back in any order",
+    narration: "The warehouses answer third, first, second. The aggregator does not care. It files each arrival under the place it says it is, so the answer comes out in the customer's own line order. Camel says the reason it finished was size: three messages arrived and three were expected.",
+    rows: { whs: "active amber", agg: "active ok" },
+    console: [
+      ["answered in the order: 3 1 2", "amber"],
+      ["completed by: size, 3 of 3, £283.42", "ok"],
+    ],
+  },
+  {
+    label: "Act 4 — the completion condition decides everything",
+    narration: "Now Glasgow is closed. Its message reaches the warehouse and stops there, and nothing downstream is told. Two shipments reach an aggregator whose only condition is a count of three. Two is not three, so no answer comes out, one order sits open, and nothing will ever change that.",
+    rows: { whs: "active wrong", agg: "active wrong" },
+    console: [
+      ["Glasgow closed: 2 of 3 came back", "amber"],
+      ["answers out: 0, orders still open: 1", "bad"],
+    ],
+  },
+  {
+    label: "Act 5 — a deadline, which the simulation got for free",
+    narration: "The same thing happens to a second aggregator, and this one also has a deadline: six hundred milliseconds, looked at every hundred. A background checker watches the clock. When the deadline passes it ends the wait, with nobody asking. Camel's word for the reason is timeout, not size. The answer carries two of three shipments, names Glasgow as the one that never came, and comes to two hundred and sixty five pounds and ninety seven pence.",
+    rows: { agg: "active amber", ddl: "active ok" },
+    console: [
+      ["deadline 600 ms, checked every 100", "amber"],
+      ["completed by: timeout, 2 of 3", "ok"],
+      ["missing [Glasgow], £265.97", "amber"],
+    ],
+  },
+  {
+    label: "Act 6 — the bill",
+    narration: "A thousand orders each short of one shipment means a thousand orders held in the aggregator's memory, and a restart throws all of them away. Then the surprise: completion by size counts messages, not distinct pieces. Deliver the Reading shipment twice and the order is declared finished with only two of its three lines. The duplicate check is yours to write, and it is the difference between charging two hundred and sixty five pounds and charging five hundred and fifteen.",
+    rows: { agg: "active amber" },
+    console: [
+      ["1000 orders held in memory", "amber"],
+      ["duplicate: completed by size at 2 of 3 lines", "bad"],
+      ["£265.97 with the check, £515.96 without", "ok"],
+    ],
+  },
+];
+
+const rowIds = ["ord", "spl", "whs", "agg", "ddl"];
+const stepLabel = document.getElementById("step-label");
+const narrationEl = document.getElementById("narration");
+const consoleEl = document.getElementById("console-lines");
+const progressEl = document.getElementById("progress");
+const stepBtn = document.getElementById("step");
+const playBtn = document.getElementById("play");
+const resetBtn = document.getElementById("reset");
+const audioBtn = document.getElementById("audio");
+const audioNote = document.getElementById("audio-note");
+
+let i = -1;
+let timer = null;
+let audioOn = false;
+let current = null;
+
+const clips = STEPS.map((_, k) => {
+  const a = new Audio("audio/step-" + (k + 1) + ".m4a");
+  a.preload = "none";
+  return a;
+});
+
+function stopAudio() {
+  if (!current) return;
+  current.pause();
+  current.currentTime = 0;
+  current.onended = null;
+  current = null;
+}
+
+function playClip(k) {
+  stopAudio();
+  if (!audioOn || k < 0 || k >= clips.length) return;
+  const a = clips[k];
+  current = a;
+  a.currentTime = 0;
+  a.onended = () => { current = null; };
+  a.play().catch(() => {
+    current = null;
+    audioNote.textContent =
+      "Narration audio could not be played. Run docs/make_animation_audio.sh to generate the clips.";
+  });
+}
+
+function setAudio(on) {
+  audioOn = on;
+  audioBtn.classList.toggle("on", on);
+  audioBtn.setAttribute("aria-pressed", String(on));
+  audioBtn.innerHTML = (on ? "\u{1F50A}" : "\u{1F507}") + " Narration: " + (on ? "on" : "off");
+  audioNote.textContent = on ? "Each step is read aloud as it appears." : "";
+  if (!on) stopAudio();
+}
+
+function clearRows() {
+  for (const id of rowIds) {
+    document.getElementById("row-" + id).className = "row";
+  }
+}
+
+function render() {
+  clearRows();
+  if (i < 0) {
+    stepLabel.textContent = "Ready";
+    narrationEl.textContent = "Press Step or Play to begin.";
+    consoleEl.innerHTML = "";
+    progressEl.textContent = "0 / " + STEPS.length;
+    return;
+  }
+  const s = STEPS[i];
+  stepLabel.textContent = s.label;
+  narrationEl.textContent = s.narration;
+  for (const id of rowIds) {
+    const el = document.getElementById("row-" + id);
+    const cls = s.rows[id];
+    el.className = "row " + (cls ? cls : "dim");
+  }
+  consoleEl.innerHTML = s.console
+    .map(([text, cls]) => '<span class="' + cls + '">' + text + "</span>")
+    .join("\n");
+  progressEl.textContent = (i + 1) + " / " + STEPS.length;
+}
+
+function step() {
+  if (i >= STEPS.length - 1) { stopPlay(); return; }
+  i += 1;
+  render();
+  playClip(i);
+}
+
+function reset() {
+  stopPlay();
+  stopAudio();
+  i = -1;
+  render();
+}
+
+function startPlay() {
+  if (timer) return;
+  playBtn.innerHTML = "Pause &#10074;&#10074;";
+  timer = setInterval(() => {
+    if (i >= STEPS.length - 1) { stopPlay(); return; }
+    step();
+  }, 9000);
+}
+
+function stopPlay() {
+  if (timer) clearInterval(timer);
+  timer = null;
+  playBtn.innerHTML = "Play &#9654;";
+}
+
+stepBtn.addEventListener("click", () => { stopPlay(); step(); });
+resetBtn.addEventListener("click", reset);
+playBtn.addEventListener("click", () => { if (timer) stopPlay(); else startPlay(); });
+audioBtn.addEventListener("click", () => setAudio(!audioOn));
+
+render();
+</script>
+</body>
+</html>
