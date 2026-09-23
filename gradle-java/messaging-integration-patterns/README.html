@@ -67,9 +67,12 @@ footer {
 <main>
 <h1>Messaging and Integration Patterns</h1>
 <p>The eleventh category. How separate systems, and separate parts of one system, exchange messages safely. Each project is plain Java with tests, docs, diagrams, an animation, a narrated video pipeline and a YouTube document, and each shows its bill.</p>
-<p><strong>Status: five built.</strong></p>
+<p><strong>Status: five built, each with a real-infrastructure version.</strong></p>
 <ol><li><a href="message-channel-pattern">Message Channel</a> — a named queue between a sender and a receiver, so neither waits for the other.</li><li><a href="content-based-router-pattern">Content-Based Router</a> — reads a message and sends it where its content says, in one place.</li><li><a href="splitter-aggregator-pattern">Splitter and Aggregator</a> — breaks a message into parts that carry their place, and puts them back by id.</li><li><a href="dead-letter-channel-pattern">Dead Letter Channel</a> — where a message goes when it can never succeed, so it stops blocking the line.</li><li><a href="event-bus-pattern">Event Bus</a> — one meeting place inside a program, where components post events and subscribe to the kinds they care about.</li></ol>
 <p>They are meant to be watched in that order. Related patterns elsewhere in the repository: <a href="../micro-services-design-patterns/publisher-subscriber-pattern">Publisher-Subscriber</a>, <a href="../micro-services-design-patterns/competing-consumers-pattern">Competing Consumers</a>, <a href="../micro-services-design-patterns/claim-check-pattern">Claim Check</a> and <a href="../micro-services-design-patterns/idempotent-consumer-pattern">Idempotent Consumer</a>.</p>
+<h2>With real infrastructure</h2>
+<p>The hand-built projects above run in plain Java with nothing installed. These pair with them and run the same idea on the real tool: a RabbitMQ broker or a NATS server in Docker, or Apache Camel. Each one names what its simulation got right and what it left out. The tests that need Docker are skipped when it is missing.</p>
+<ul><li><a href="message-channel-with-rabbitmq-pattern">Message Channel with RabbitMQ</a>, with RabbitMQ in Docker</li><li><a href="content-based-router-with-camel-pattern">Content-Based Router with Camel</a>, with Apache Camel over RabbitMQ in Docker</li><li><a href="splitter-aggregator-with-camel-pattern">Splitter and Aggregator with Camel</a>, with Apache Camel, and nothing to install</li><li><a href="dead-letter-channel-with-rabbitmq-pattern">Dead Letter Channel with RabbitMQ</a>, with RabbitMQ in Docker</li><li><a href="event-bus-with-nats-pattern">Event Bus with NATS</a>, with NATS in Docker</li></ul>
 </main>
 <footer>
 Generated from <code>README.md</code> by <code>docs/make_readme_html.py</code> &mdash;

@@ -25,10 +25,10 @@ README with the order to read it in:
 | [Concurrency](gradle-java/concurrency-design-patterns) | 16 | Producer–Consumer → Two-Phase Termination |
 | [Enterprise](gradle-java/enterprise-design-patterns) | 17 | Data Mapper, Unit of Work, Gateway and the offline locks |
 | [Foundational](gradle-java/foundational-design-patterns) | 15 | Null Object → Delegation, with Spring and HikariCP versions |
-| [Messaging and integration](gradle-java/messaging-integration-patterns) | 5 | Message Channel → Event Bus |
+| [Messaging and integration](gradle-java/messaging-integration-patterns) | 10 | Message Channel → Event Bus, with RabbitMQ, Camel and NATS versions |
 | [Domain-driven design](gradle-java/domain-driven-design-patterns) | 6 | Value Object → Bounded Context |
 
-That is 152 projects. Each has runnable code with deterministic tests, a README
+That is 157 projects. Each has runnable code with deterministic tests, a README
 with diagrams, an animation, a session plan and a narrated video pipeline, and
 each is taught through an online store unless the pattern is clearer in another
 setting. Every project ends with a bill: what the pattern costs.
@@ -53,7 +53,7 @@ on the `PATH` is the only prerequisite, and every project's
 ## Repository layout
 
 ```
-gradle-java/                 the course — 11 categories, 152 projects
+gradle-java/                 the course — 11 categories, 157 projects
   docs/                      the repository-wide specs and the shared
                              generators for specs, thumbnails and
                              YouTube documents
@@ -72,7 +72,7 @@ gradle-java/                 the course — 11 categories, 152 projects
   foundational-design-patterns/
                              15 projects
   messaging-integration-patterns/
-                             5 projects
+                             10 projects
   domain-driven-design-patterns/
                              6 projects
 

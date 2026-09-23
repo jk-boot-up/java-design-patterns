@@ -477,6 +477,21 @@ META = {
     "serverless-with-localstack": (['SERVERLESS', 'WITH LOCALSTACK'],
                   'Real Lambda cold starts, locally',
                   'lambda invoke'),
+    "splitter-aggregator-with-camel": (['SPLITTER AGGREGATOR', 'WITH CAMEL'],
+                  'Camel counts messages, not pieces',
+                  'completed by: timeout'),
+    "event-bus-with-nats": (['EVENT BUS', 'WITH NATS'],
+                  'Nobody listening? The event is gone',
+                  'no responders'),
+    "dead-letter-channel-with-rabbitmq": (['DEAD LETTER CHANNEL', 'WITH RABBITMQ'],
+                  'The broker parks it, and says why',
+                  'x-death: rejected'),
+    "content-based-router-with-camel": (['CONTENT ROUTER', 'WITH CAMEL'],
+                  'No otherwise branch? The order is gone',
+                  'messages left: 0'),
+    "message-channel-with-rabbitmq": (['MESSAGE CHANNEL', 'WITH RABBITMQ'],
+                  'Restart the broker. Which orders survive?',
+                  'durable + persistent'),
 }
 
 GROUP = {
@@ -668,6 +683,16 @@ GROUP["consumer-driven-contract-with-pact"] = "platform-design-patterns"
 GROUP["event-driven-architecture-with-kafka"] = "architectural-design-patterns"
 
 GROUP["serverless-with-localstack"] = "architectural-design-patterns"
+
+GROUP["splitter-aggregator-with-camel"] = "messaging-integration-patterns"
+
+GROUP["event-bus-with-nats"] = "messaging-integration-patterns"
+
+GROUP["dead-letter-channel-with-rabbitmq"] = "messaging-integration-patterns"
+
+GROUP["content-based-router-with-camel"] = "messaging-integration-patterns"
+
+GROUP["message-channel-with-rabbitmq"] = "messaging-integration-patterns"
 
 GROUP.update({slug: "creational" for slug in (
     "singleton-with-spring",

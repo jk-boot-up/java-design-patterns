@@ -194,6 +194,11 @@ ORDER = [
     ("platform-design-patterns", "consumer-driven-contract-with-pact"),
     ("architectural-design-patterns", "event-driven-architecture-with-kafka"),
     ("architectural-design-patterns", "serverless-with-localstack"),
+    ("messaging-integration-patterns", "splitter-aggregator-with-camel"),
+    ("messaging-integration-patterns", "event-bus-with-nats"),
+    ("messaging-integration-patterns", "dead-letter-channel-with-rabbitmq"),
+    ("messaging-integration-patterns", "content-based-router-with-camel"),
+    ("messaging-integration-patterns", "message-channel-with-rabbitmq"),
 ]
 
 # Per-project title and tag material. The title is what gets pasted into
@@ -808,6 +813,26 @@ META = {
     "serverless-with-localstack": {
         "title": 'Serverless with LocalStack',
         "tags": ['serverless', 'aws lambda', 'localstack'],
+    },
+    "splitter-aggregator-with-camel": {
+        "title": 'Splitter and Aggregator with Camel',
+        "tags": ['splitter', 'aggregator', 'apache camel', 'enterprise integration patterns'],
+    },
+    "event-bus-with-nats": {
+        "title": 'Event Bus with NATS',
+        "tags": ['event bus', 'nats', 'publish subscribe', 'docker'],
+    },
+    "dead-letter-channel-with-rabbitmq": {
+        "title": 'Dead Letter Channel with RabbitMQ',
+        "tags": ['dead letter channel', 'rabbitmq', 'dead letter queue', 'docker'],
+    },
+    "content-based-router-with-camel": {
+        "title": 'Content-Based Router with Camel',
+        "tags": ['content based router', 'apache camel', 'rabbitmq', 'enterprise integration patterns'],
+    },
+    "message-channel-with-rabbitmq": {
+        "title": 'Message Channel with RabbitMQ',
+        "tags": ['message channel', 'rabbitmq', 'message queue', 'docker'],
     },
 }
 

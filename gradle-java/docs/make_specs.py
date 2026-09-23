@@ -208,6 +208,11 @@ ORDER = [
     ("platform-design-patterns", "consumer-driven-contract-with-pact"),
     ("architectural-design-patterns", "event-driven-architecture-with-kafka"),
     ("architectural-design-patterns", "serverless-with-localstack"),
+    ("messaging-integration-patterns", "splitter-aggregator-with-camel"),
+    ("messaging-integration-patterns", "event-bus-with-nats"),
+    ("messaging-integration-patterns", "dead-letter-channel-with-rabbitmq"),
+    ("messaging-integration-patterns", "content-based-router-with-camel"),
+    ("messaging-integration-patterns", "message-channel-with-rabbitmq"),
 ]
 
 # Demos that mint an identifier per run, so their output is not byte-stable.
@@ -358,6 +363,11 @@ NAMES = {
     "consumer-driven-contract-with-pact": "Consumer-Driven Contract with Pact",
     "event-driven-architecture-with-kafka": "Event-Driven Architecture with Kafka",
     "serverless-with-localstack": "Serverless with LocalStack",
+    "splitter-aggregator-with-camel": "Splitter and Aggregator with Camel",
+    "event-bus-with-nats": "Event Bus with NATS",
+    "dead-letter-channel-with-rabbitmq": "Dead Letter Channel with RabbitMQ",
+    "content-based-router-with-camel": "Content-Based Router with Camel",
+    "message-channel-with-rabbitmq": "Message Channel with RabbitMQ",
 }
 
 # ---------------------------------------------------------------------------
@@ -6935,6 +6945,142 @@ requirements=[
     '**LocalStack and the copies are real,** run in Docker and removed afterwards, including the function containers.',
     '**Copies are counted from Docker,** and identified by an instance id the function makes when it starts.',
     '**Waits are bounded polls.** Only outcomes that cannot vary are asserted; milliseconds are compared, never fixed.',
+    '**Tests are skipped when Docker is missing.**',
+    '**Dependencies are explained.** `docs/dependencies.md` says what to install, what it costs, and that skipping loses nothing.',
+],
+),
+
+"splitter-aggregator-with-camel": dict(
+purpose="""
+Show splitter and aggregator inside Apache Camel: one order split into numbered shipments carrying its order number, the shipments gathered back in the customer's line order whatever order they return in, an aggregator that waits forever on a count alone, a deadline that closes an incomplete order on its own, and the two costs Camel leaves to the author — a duplicate shipment counted as a new piece, and orders held only in memory.
+""",
+nongoals=[
+    'Not a re-teaching of Splitter and Aggregator. The partner project owns the pattern; this one names it in its first paragraph.',
+    'Not an Apache Camel tutorial. Only the split, the aggregate and the completion conditions are introduced, as they appear.',
+],
+problem="""
+Splitter and Aggregator built the gathering by hand, on a clock it controlled, counting exactly the pieces it meant to count. Camel gathers by rule: it counts messages, and finishes only when a completion condition says so.
+
+**What this project must deliver:** a declared split and aggregate, a completion by size, an aggregator that never finishes, a completion by timeout, and a duplicate shipment that completes an order early.
+""",
+roles=[
+    ('The demo', '`CamelSplitterAggregatorDemo`'),
+    ('The engine', '`Store`, which starts and stops Camel, and `StoreRoutes`'),
+    ('The fold', '`ShipmentAggregationStrategy`, with `Gathering` and `Gathered`'),
+],
+requirements=[
+    '**Camel is real,** running inside the demo\'s own process. No container, broker or network is needed.',
+    '**Completion is Camel\'s own,** reported with Camel\'s word for why an aggregate finished: size or timeout.',
+    '**Waits are bounded polls.** No test contains a fixed sleep; the deadline is observed, never waited out blindly.',
+    '**The duplicate is reproduced on every run,** and the fold\'s own check is shown beside it.',
+    '**Dependencies are explained.** `docs/dependencies.md` says what Camel brings in and why.',
+],
+),
+
+"event-bus-with-nats": dict(
+purpose="""
+Show an event bus on a real NATS server in Docker: services that publish to a named subject instead of wiring to each other, wildcard subjects that hear one, some or all events, a listener that fails without stopping the others, an event lost outright because nobody was listening when it was sent, and a request that comes back with no responders.
+""",
+nongoals=[
+    'Not a re-teaching of Event Bus. The partner project owns the pattern; this one names it in its first paragraph.',
+    'Not a NATS tutorial. Only subjects, wildcards and the server\'s own count of listeners are introduced, as they appear.',
+    'Not a durable log. NATS core keeps nothing; the durable trade belongs to the Kafka project.',
+],
+problem="""
+Event Bus passed events inside one process. NATS passes them between processes and keeps none of them: an event nobody is listening for is simply gone.
+
+**What this project must deliver:** the wiring cost with and without a bus, wildcard subjects, isolation between listeners, a provably missed event, and the server's own count of listeners.
+""",
+roles=[
+    ('The demo', '`EventBusNatsDemo`'),
+    ('The server', '`NatsServer`, which runs the NATS container, and `ServerView`'),
+    ('A service', '`StoreBus` and `StoreSubscriber`'),
+],
+requirements=[
+    '**The NATS server is real,** run in Docker by the demo and removed afterwards.',
+    '**A missed event is proved, not waited for.** Delivery on one subject is ordered, so a first event of ORD-2 proves ORD-1 was lost.',
+    '**Waits are bounded polls.** No test contains a fixed sleep; every wait for an event has a deadline.',
+    '**Tests are skipped when Docker is missing.**',
+    '**Dependencies are explained.** `docs/dependencies.md` says what to install, what it costs, and that skipping loses nothing.',
+],
+),
+
+"dead-letter-channel-with-rabbitmq": dict(
+purpose="""
+Show a dead letter channel on a real RabbitMQ broker in Docker: an unreadable order redelivered forever and blocking the queue, a rule on the queue that makes the broker park it instead, the note the broker attaches saying why, two deaths no worker chose — an expired order and one pushed out of a full queue — a replay that puts a parked order back at the end of the line, and a parked queue that hides a real loss behind a healthy dashboard.
+""",
+nongoals=[
+    'Not a re-teaching of Dead Letter Channel. The partner project owns the pattern; this one names it in its first paragraph.',
+    'Not a RabbitMQ tutorial. Only queues, the dead letter exchange, time limits and length limits are introduced, as they appear.',
+],
+problem="""
+Dead Letter Channel moved a failed message by hand, in the application's own code. RabbitMQ moves it itself, by a rule written on the queue, and records its own reason: rejected, expired, or pushed out by a length limit.
+
+**What this project must deliver:** a blocked queue, a broker-parked order, the broker's note, the two deaths no worker chooses, a replay, and the cost of an unwatched parked queue.
+""",
+roles=[
+    ('The demo', '`RabbitDeadLetterDemo`'),
+    ('The broker', '`Broker`, which runs the RabbitMQ container, and `OrderChannel`, which writes the rules'),
+    ('The workers', '`Worker`, `Shipping` and `ParkedOrders`'),
+],
+requirements=[
+    '**The broker is real,** run in Docker by the demo and removed afterwards.',
+    '**The broker decides.** The application never publishes to the parked queue; it only refuses, and the broker moves the order.',
+    '**Waits are bounded polls.** No test contains a fixed sleep; the expiry is observed on the broker, never slept through.',
+    '**Tests are skipped when Docker is missing.**',
+    '**Dependencies are explained.** `docs/dependencies.md` says what to install, what it costs, and that skipping loses nothing.',
+],
+),
+
+"content-based-router-with-camel": dict(
+purpose="""
+Show a content-based router as an Apache Camel route over a real RabbitMQ broker in Docker: one warehouse queue with an if for every kind of order, replaced by a declared list of yes-or-no questions; the order of those questions changing where a gift card goes; a message no question claims silently deleted when there is no otherwise branch; a new question added without touching anyone else; and a failing branch that needs its own error queue.
+""",
+nongoals=[
+    'Not a re-teaching of Content-Based Router. The partner project owns the pattern; this one names it in its first paragraph.',
+    'Not an Apache Camel or RabbitMQ tutorial. Only the route, its predicates, the otherwise branch and the error handler are introduced, as they appear.',
+],
+problem="""
+Content-Based Router built the rules by hand and counted what it dropped. Camel declares the rules as a route, and keeps no count at all: with no otherwise branch, an unclaimed order is acknowledged and deleted, and nothing says so.
+
+**What this project must deliver:** a declared route, question order as part of the design, an unclaimed order lost and then kept, a question added in isolation, and a failing branch caught by an error handler.
+""",
+roles=[
+    ('The demo', '`CamelRouterDemo`'),
+    ('The route', '`ShopRoutes`, run by `ShopRouter`'),
+    ('The broker', '`Broker`, which runs the RabbitMQ container'),
+],
+requirements=[
+    '**Camel and the broker are real.** RabbitMQ runs in Docker, started and removed by the demo.',
+    '**The silent loss is measured on the broker,** as zero messages left in any queue, not inferred from the route.',
+    '**Waits are bounded polls.** No test contains a fixed sleep.',
+    '**Tests are skipped when Docker is missing.**',
+    '**Dependencies are explained.** `docs/dependencies.md` says what to install, what it costs, and that skipping loses nothing.',
+],
+),
+
+"message-channel-with-rabbitmq": dict(
+purpose="""
+Show a message channel as a real RabbitMQ queue in Docker: checkouts that fail when the warehouse is called directly, orders sent once and taken once in order, orders held by the broker while no receiver is running, an order redelivered after a picker crashes before saying done, a broker restart that keeps only the orders written to disk, and a full queue that refuses new orders with a receipt for every send.
+""",
+nongoals=[
+    'Not a re-teaching of Message Channel. The partner project owns the pattern; this one names it in its first paragraph.',
+    'Not a RabbitMQ tutorial. Only queues, acknowledgement, durability, persistence and length limits are introduced, as they appear.',
+],
+problem="""
+Message Channel was a queue in the program's own memory, gone when the program stopped. RabbitMQ's queue outlives both sender and receiver, but only when two separate settings are both on: a queue that survives a restart, and messages written to disk.
+
+**What this project must deliver:** a channel that holds orders with nobody listening, redelivery after a crash, a restart that keeps one queue's orders and loses the other's, and a full queue that refuses rather than silently drops.
+""",
+roles=[
+    ('The demo', '`RabbitMessageChannelDemo`'),
+    ('The broker', '`Broker`, which runs the RabbitMQ container, and `Channel`'),
+    ('The receivers', '`Warehouse` and `PickOrder`'),
+],
+requirements=[
+    '**The broker is real,** run in Docker by the demo and removed afterwards, and restarted mid-demo to test durability.',
+    '**Delivery counts are the broker\'s own,** including the redelivered flag on an order a crashed picker never finished.',
+    '**Waits are bounded polls.** No test contains a fixed sleep.',
     '**Tests are skipped when Docker is missing.**',
     '**Dependencies are explained.** `docs/dependencies.md` says what to install, what it costs, and that skipping loses nothing.',
 ],
