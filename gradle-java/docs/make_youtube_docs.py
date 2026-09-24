@@ -204,6 +204,9 @@ ORDER = [
     ("micro-services-design-patterns", "claim-check-with-s3"),
     ("micro-services-design-patterns", "rate-limiter-with-redis"),
     ("micro-services-design-patterns", "cache-aside-with-redis"),
+    ("micro-services-design-patterns", "queue-based-load-leveling-with-sqs"),
+    ("micro-services-design-patterns", "idempotent-consumer-with-kafka"),
+    ("micro-services-design-patterns", "database-per-service-with-containers"),
 ]
 
 # Per-project title and tag material. The title is what gets pasted into
@@ -858,6 +861,18 @@ META = {
     "cache-aside-with-redis": {
         "title": 'Cache-Aside with Redis',
         "tags": ['cache aside', 'redis cache', 'redis', 'docker'],
+    },
+    "queue-based-load-leveling-with-sqs": {
+        "title": 'Queue-Based Load Leveling with SQS',
+        "tags": ['queue based load leveling', 'amazon sqs', 'visibility timeout', 'localstack'],
+    },
+    "idempotent-consumer-with-kafka": {
+        "title": 'Idempotent Consumer with Kafka',
+        "tags": ['idempotent consumer', 'kafka', 'postgres', 'exactly once'],
+    },
+    "database-per-service-with-containers": {
+        "title": 'Database per Service with Containers',
+        "tags": ['database per service', 'postgres', 'mongodb', 'microservices data'],
     },
 }
 

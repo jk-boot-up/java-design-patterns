@@ -48,7 +48,7 @@ tracked file belonging to an existing project may show as modified.
 | Wave | Projects | State |
 | --- | --- | --- |
 | 1 | 5 messaging and integration | committed |
-| 2 | 10 microservices | group A building 2026-09-24: cache-aside-with-redis, publisher-subscriber-with-redis, rate-limiter-with-redis, competing-consumers-with-rabbitmq, claim-check-with-s3. Group B next: transactional-outbox-with-debezium, database-per-service-with-containers, leader-election-with-kubernetes, queue-based-load-leveling-with-sqs, idempotent-consumer-with-kafka |
+| 2 | 10 microservices | group A (cache-aside-with-redis, publisher-subscriber-with-redis, rate-limiter-with-redis, competing-consumers-with-rabbitmq, claim-check-with-s3) committed and registered 2026-09-25, `ef95754`..`3354d71`. Group B building three at a time for Docker memory: queue-based-load-leveling-with-sqs, database-per-service-with-containers, idempotent-consumer-with-kafka; then transactional-outbox-with-debezium and leader-election-with-kubernetes. Category README and root counts are updated when all ten are in |
 | 3 | 4 platform | not started |
 | 4 | 9 framework versions | not started |
 
@@ -197,3 +197,8 @@ coordination cost is the central registration step in §3, and that is cheap.
 **`make_thumbnails.py` and `make_readme_html.py` need `/usr/bin/python3`.** The Homebrew
 `python3` first on the PATH has no matplotlib and fails with `No module named 'matplotlib'`.
 `make_specs.py` and `make_youtube_docs.py` run under either.
+
+**Registration is scripted.** `register.py` (kept in the session scratchpad; its logic is simply
+to insert one entry before fixed end markers in each of the three generators) takes a JSON
+description — group, slug, title, spec purpose/non-goals/problem/roles/requirements, thumbnail
+lines, hook and badge, YouTube tags — so each project is registered in one step.

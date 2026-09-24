@@ -507,6 +507,15 @@ META = {
     "cache-aside-with-redis": (['CACHE-ASIDE', 'WITH REDIS'],
                   'One plain SET made a stale price permanent',
                   'TTL -1: never'),
+    "queue-based-load-leveling-with-sqs": (['LOAD LEVELING', 'WITH SQS'],
+                  'A slow worker packs the same order twice',
+                  'ApproximateReceiveCount: 2'),
+    "idempotent-consumer-with-kafka": (['IDEMPOTENT CONSUMER', 'WITH KAFKA'],
+                  'Kafka sends it again, to a different copy',
+                  '3 orders, 6 emails'),
+    "database-per-service-with-containers": (['DATABASE PER SERVICE', 'WITH CONTAINERS'],
+                  'Postgres refuses the join. MongoDB says nothing',
+                  '$lookup: 0 orders, no error'),
 }
 
 GROUP = {
@@ -718,6 +727,12 @@ GROUP["claim-check-with-s3"] = "micro-services-design-patterns"
 GROUP["rate-limiter-with-redis"] = "micro-services-design-patterns"
 
 GROUP["cache-aside-with-redis"] = "micro-services-design-patterns"
+
+GROUP["queue-based-load-leveling-with-sqs"] = "micro-services-design-patterns"
+
+GROUP["idempotent-consumer-with-kafka"] = "micro-services-design-patterns"
+
+GROUP["database-per-service-with-containers"] = "micro-services-design-patterns"
 
 GROUP.update({slug: "creational" for slug in (
     "singleton-with-spring",

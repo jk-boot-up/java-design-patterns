@@ -218,6 +218,9 @@ ORDER = [
     ("micro-services-design-patterns", "claim-check-with-s3"),
     ("micro-services-design-patterns", "rate-limiter-with-redis"),
     ("micro-services-design-patterns", "cache-aside-with-redis"),
+    ("micro-services-design-patterns", "queue-based-load-leveling-with-sqs"),
+    ("micro-services-design-patterns", "idempotent-consumer-with-kafka"),
+    ("micro-services-design-patterns", "database-per-service-with-containers"),
 ]
 
 # Demos that mint an identifier per run, so their output is not byte-stable.
@@ -378,6 +381,9 @@ NAMES = {
     "claim-check-with-s3": 'Claim Check with S3',
     "rate-limiter-with-redis": 'Rate Limiter with Redis',
     "cache-aside-with-redis": 'Cache-Aside with Redis',
+    "queue-based-load-leveling-with-sqs": 'Queue-Based Load Leveling with SQS',
+    "idempotent-consumer-with-kafka": 'Idempotent Consumer with Kafka',
+    "database-per-service-with-containers": 'Database per Service with Containers',
 }
 
 # ---------------------------------------------------------------------------
@@ -7226,6 +7232,87 @@ requirements=[
     '**Redis is real,** run in Docker by the demo and removed afterwards, and read by a second shop in a separate Java process.',
     '**The stampede without protection is asserted as a range** and printed as a description; every other count is exact.',
     '**Waits are bounded polls.** No test contains a fixed sleep; expiry is observed on Redis, never slept through.',
+    '**Tests are skipped when Docker is missing.**',
+    '**Dependencies are explained.** `docs/dependencies.md` says what to install, what it costs, and that skipping loses nothing.',
+],
+),
+
+"queue-based-load-leveling-with-sqs": dict(
+purpose="""
+Show queue-based load leveling on real Amazon SQS through LocalStack in Docker: a burst of 100 orders sent in batches of at most 10 and held as queue depth; packers taking at most 10 at a time while the depth falls round by round; a taken order hidden rather than removed for the visibility timeout; a slow packer whose order is handed to a second packer and packed twice, and the extension that prevents it; a packer that stops mid-batch losing nothing; and a queue with no depth limit at all.
+""",
+nongoals=[
+    'Not a re-teaching of Queue-Based Load Leveling. The partner project owns the pattern; this one names it in its first paragraph.',
+    'Not an AWS tutorial. Only batch sends and receives, the visibility timeout, its extension and retention are introduced, as they appear.',
+],
+problem="""
+Queue-Based Load Leveling held a burst in a list and removed each order as it was taken. SQS never removes a taken order until it is deleted: it only hides it for the visibility timeout, so a slow worker's order comes back to someone else.
+
+**What this project must deliver:** the batch limits, the depth a burst builds, the visibility timeout, a double pack and its cure, a stopped packer that loses nothing, and the cost in requests.
+""",
+roles=[
+    ('The demo', '`LoadLevelingSqsDemo`'),
+    ('The platform', '`LocalStack` and `OrderQueue`'),
+    ('The shop', '`Checkout`, `Packer` and `Warehouse`'),
+],
+requirements=[
+    '**SQS is a real API,** served by LocalStack 4.14.0 in Docker, started and removed by the demo.',
+    "**Limits are the service's own,** shown by its refusals rather than assumed.",
+    '**Waits are bounded polls.** No test contains a fixed sleep; the timeout is observed on the queue.',
+    '**Tests are skipped when Docker is missing.**',
+    '**Dependencies are explained.** `docs/dependencies.md` says what to install, what it costs, and where LocalStack is kinder than Amazon.',
+],
+),
+
+"idempotent-consumer-with-kafka": dict(
+purpose="""
+Show an idempotent consumer on real Kafka and Postgres in Docker: a service copy that crashes before committing its offset, so the same orders are redelivered to a different copy and every customer is emailed twice; a set of ids in memory that the new copy never has; the id and the email written in one Postgres transaction, and the double email when they are written in two steps; two copies holding the same order at once, decided by the primary key while Kafka refuses the slow copy's commit; and a deduplication table that must outlive the topic's retention.
+""",
+nongoals=[
+    'Not a re-teaching of Idempotent Consumer. The partner project owns the pattern; this one names it in its first paragraph.',
+    'Not a Kafka or Postgres tutorial. Only offsets, consumer groups, the poll interval, transactions and primary keys are introduced, as they appear.',
+],
+problem="""
+Idempotent Consumer redelivered a message to the same object, whose memory still held the id. On Kafka a redelivery happens because a copy of the service stopped, so it goes to a different copy with empty memory, and nothing marks it as a repeat.
+
+**What this project must deliver:** real redelivery, the failure of in-memory ids, one transaction for id and effect, the two-step failure, a concurrent duplicate, and the retention bill.
+""",
+roles=[
+    ('The demo', '`KafkaIdempotentConsumerDemo`'),
+    ('The infrastructure', '`Broker` for Kafka and `Database` for Postgres'),
+    ('The handlers', '`JustSend`, `RememberInMemory`, `RecordIdAfterwards` and `RecordIdInSameTransaction`'),
+],
+requirements=[
+    '**Kafka and Postgres are real,** run in Docker by the demo and removed afterwards.',
+    "**Redelivery is Kafka's own,** caused by a copy leaving the group without committing its offset.",
+    '**Waits are bounded polls.** No test contains a fixed sleep.',
+    '**Tests are skipped when Docker is missing.**',
+    '**Dependencies are explained.** `docs/dependencies.md` says what to install, what it costs, and that skipping loses nothing.',
+],
+),
+
+"database-per-service-with-containers": dict(
+purpose="""
+Show database per service on two real engines in Docker, Postgres and MongoDB: one shared database where the order page is a single join and a catalog column rename breaks the orders service; the split onto different engines, where the page costs two round trips and the rename touches no one else; the join attempted anyway, refused aloud by Postgres and silently answered with empty results by MongoDB; a delete no foreign key can stop; and the bill of a rollback that only one engine honours, an outage, and two query languages.
+""",
+nongoals=[
+    'Not a re-teaching of Database per Service. The partner project owns the pattern; this one names it in its first paragraph.',
+    'Not a Postgres or MongoDB tutorial. Only joins, foreign keys, documents, `$lookup` and transactions are introduced, as they appear.',
+],
+problem="""
+Database per Service kept each service's data in its own Java object, and a cross-service join could only fail with an exception the author wrote. On two real engines the join is genuinely impossible — and one of them does not even say so.
+
+**What this project must deliver:** the coupling of a shared schema, the split, the refused and the silent join, the lost foreign key, and the bill.
+""",
+roles=[
+    ('The demo', '`DatabasePerServiceWithContainersDemo`'),
+    ('The engines', '`Engines`, `Postgres` and `Mongo`'),
+    ('The services', '`OrderService`, `CatalogService` and `OrderHistoryPage`'),
+],
+requirements=[
+    '**Both engines are real,** one Postgres and one MongoDB container, started and removed by the demo.',
+    "**Every error is the engine's own,** quoted with its SQL state, never written by the demo.",
+    '**Round trips are counted, not timed,** so the output is the same on every run.',
     '**Tests are skipped when Docker is missing.**',
     '**Dependencies are explained.** `docs/dependencies.md` says what to install, what it costs, and that skipping loses nothing.',
 ],
