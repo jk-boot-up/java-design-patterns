@@ -1,0 +1,56 @@
+plugins {
+    id 'java'
+    id 'application'
+}
+
+group = 'com.jk.explore'
+version = '1.0-SNAPSHOT'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // The Fabric8 Kubernetes client, and its LeaderElector, which runs an election on a
+    // Kubernetes Lease. 8.0.0 is the newest release. The client normally brings a Vert.x
+    // HTTP stack with it; it is swapped for the one built into the JDK, which is smaller
+    // and needs nothing else.
+    implementation('io.fabric8:kubernetes-client:8.0.0') {
+        exclude group: 'io.fabric8', module: 'kubernetes-httpclient-vertx-5'
+    }
+    implementation 'io.fabric8:kubernetes-httpclient-jdk:8.0.0'
+
+    // Fabric8 logs through SLF4J. The simple binding is set to `error` in
+    // src/main/resources, so the demo's own output is the only output.
+    implementation 'org.slf4j:slf4j-simple:2.0.20'
+
+    testImplementation platform('org.junit:junit-bom:5.10.2')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+application {
+    mainClass = 'com.jk.explore.leaderelectionk8s.KubernetesLeaderElectionDemo'
+}
+
+// The three copies of the shop's service are real, separate Java processes. They are
+// started with the same classpath the demo itself runs on, handed over in this property.
+def candidateClasspath = { sourceSets.main.runtimeClasspath.asPath }
+
+tasks.named('run') {
+    doFirst { systemProperty 'candidate.classpath', candidateClasspath() }
+}
+
+test {
+    useJUnitPlatform()
+    doFirst { systemProperty 'candidate.classpath', candidateClasspath() }
+    testLogging {
+        showStandardStreams = false
+    }
+}

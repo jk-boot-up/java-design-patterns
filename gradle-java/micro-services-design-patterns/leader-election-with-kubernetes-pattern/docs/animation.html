@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Leader Election with Kubernetes — Animated Walkthrough</title>
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 24px;
+    background: #0f172a; color: #e2e8f0;
+    font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
+    padding-top: calc(24px + env(safe-area-inset-top, 0px));
+    padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+  }
+  h1 { font-size: 1.4rem; margin: 0 0 4px; }
+  p.sub { color: #94a3b8; margin: 0 0 20px; max-width: 70ch; }
+  .wrap { max-width: 1100px; margin: 0 auto; }
+  .stage {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+    margin-bottom: 16px;
+  }
+  @media (max-width: 760px) { .stage { grid-template-columns: 1fr; } }
+  .boxes { display: flex; flex-direction: column; gap: 10px; }
+  .row {
+    border: 2px solid #334155; border-radius: 10px; padding: 12px 16px;
+    background: #1e293b; transition: all .25s ease; opacity: .55;
+  }
+  .row .name { font-weight: 700; font-size: 1rem; }
+  .row .job { color: #94a3b8; font-size: .82rem; margin-top: 2px; }
+  .row.active { opacity: 1; box-shadow: 0 0 0 2px currentColor inset; }
+  .row.wrong { border-color: #f87171; color: #f87171; }
+  .row.wrong.active { background: #3f1d24; }
+  .row.ok { border-color: #34d399; color: #34d399; }
+  .row.ok.active { background: #10261f; }
+  .row.amber { border-color: #fbbf24; color: #fbbf24; }
+  .row.amber.active { background: #2a2110; }
+  .row.dim { opacity: .22; }
+  .console {
+    background: #020617; border: 1px solid #334155; border-radius: 10px;
+    padding: 16px; font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    font-size: .86rem; line-height: 1.55; overflow-y: auto; min-height: 320px;
+    white-space: pre-wrap;
+  }
+  #console-lines span.ok { color: #34d399; }
+  #console-lines span.bad { color: #f87171; }
+  #console-lines span.amber { color: #fbbf24; }
+  #console-lines span.muted { color: #94a3b8; }
+  .narration {
+    background: #1e293b; border: 1px solid #334155; border-radius: 10px;
+    padding: 14px 18px; margin-bottom: 16px; min-height: 3.2em;
+  }
+  .controls { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  button {
+    background: #334155; color: #e2e8f0; border: 1px solid #475569;
+    border-radius: 8px; padding: 10px 18px; font-size: .92rem; cursor: pointer;
+  }
+  button:hover { background: #475569; }
+  button#play { background: #7c3aed; border-color: #7c3aed; }
+  button#play:hover { background: #8b5cf6; }
+  button#audio.on { background: #0f766e; border-color: #14b8a6; }
+  #progress { color: #94a3b8; font-size: .85rem; margin-left: auto; }
+  .audio-note { color: #94a3b8; font-size: .78rem; margin: 10px 0 0; min-height: 1em; }
+  .step-label {
+    font-size: .78rem; text-transform: uppercase; letter-spacing: .04em;
+    color: #a78bfa; font-weight: 700; margin-bottom: 4px;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Leader Election with Kubernetes — Step by Step</h1>
+  <p class="sub">
+    Six acts, the same ones the demo prints against a real Kubernetes API server; the last takes two steps.
+    Green is a copy that rightly leads or a report rightly accepted, amber is a copy waiting or a lease
+    running out, red is a report sent twice or a copy acting on a stale belief.
+  </p>
+
+  <div class="narration">
+    <div class="step-label" id="step-label">Ready</div>
+    <div id="narration">Press Step or Play to begin.</div>
+  </div>
+
+  <div class="stage">
+    <div class="boxes" id="boxes">
+      <div class="row" id="row-a">
+        <div class="name">copy A</div>
+        <div class="job">a reporting service process, with Fabric8's elector</div>
+      </div>
+      <div class="row" id="row-b">
+        <div class="name">copy B</div>
+        <div class="job">a second process; reads the lease every second</div>
+      </div>
+      <div class="row" id="row-c">
+        <div class="name">copy C</div>
+        <div class="job">a third process; reads the lease every second</div>
+      </div>
+      <div class="row" id="row-lease">
+        <div class="name">Lease in the API server</div>
+        <div class="job">holder, 5 seconds, last renewal, holder changes</div>
+      </div>
+      <div class="row" id="row-inbox">
+        <div class="name">manager's inbox</div>
+        <div class="job">receives the nightly sales report; can check a token</div>
+      </div>
+    </div>
+    <div class="console"><div id="console-lines"></div></div>
+  </div>
+
+  <div class="controls">
+    <button id="step">Step &#9656;</button>
+    <button id="play">Play &#9654;</button>
+    <button id="reset">Reset &#8635;</button>
+    <button id="audio" aria-pressed="false">&#128263; Narration: off</button>
+    <span id="progress">0 / 0</span>
+  </div>
+  <p class="audio-note" id="audio-note"></p>
+</div>
+
+<script>
+const STEPS = [
+  {
+    label: "Act 1 — three copies, nobody in charge",
+    narration: "Three copies of the reporting service run as three separate processes. None of them asks who is in charge. Each is told to send the nightly sales report, and each does. The manager receives it three times.",
+    rows: { a: "active wrong", b: "active wrong", c: "active wrong", inbox: "active wrong" },
+    console: [
+      ["3 separate processes, nobody asks", "muted"],
+      ["sent by every copy: [A, B, C]", "bad"],
+      ["the manager receives it 3 times", "bad"],
+    ],
+  },
+  {
+    label: "Act 2 — one holds the lease",
+    narration: "Copy A asks the API server first, and is written into the lease: holder A, five seconds, holder changes zero. B and C read it and are told the leader is A. Only A sends the report. Then two writes are made from the same version of the lease. The server accepts the first, and refuses the second with 409 Conflict. That is the only rule it enforces.",
+    rows: { a: "active ok", b: "amber", c: "amber", lease: "active ok", inbox: "active ok" },
+    console: [
+      ["holder A, lasts 5 seconds, holder changes 0", "ok"],
+      ["B and C are told the leader is A", "muted"],
+      ["the report was sent by: [A]", "ok"],
+      ["second write from one version: 409 Conflict", "amber"],
+    ],
+  },
+  {
+    label: "Act 3 — the leader stops",
+    narration: "A is shut down cleanly, and hands the lease back on its way out. One of B and C takes over within a couple of seconds. Then the new leader is killed outright. The lease goes on naming the dead copy, and the last copy waits about one whole five-second lease before it takes over. For that time, nobody leads.",
+    rows: { a: "dim", b: "active amber", c: "active amber", lease: "active amber" },
+    console: [
+      ["clean stop: took over within a couple of seconds", "ok"],
+      ["killed: about one whole 5-second lease", "amber"],
+      ["nobody leads while the lease runs out", "bad"],
+    ],
+  },
+  {
+    label: "Act 4 — two who think they lead",
+    narration: "A checks that it leads, and starts the report. Then its whole process freezes, as in a long garbage-collection pause, and it stops renewing. The lease runs out, and B takes it: holder B, holder changes one. B sends the report. A wakes, still believing it leads, and sends too. The lease, read at that moment, names B.",
+    rows: { a: "active wrong", b: "active ok", lease: "active ok", inbox: "active wrong" },
+    console: [
+      ["A checked, then froze", "amber"],
+      ["holder B, holder changes 1", "ok"],
+      ["the report was sent by: [B, A]", "bad"],
+      ["when A sent, the lease named B", "bad"],
+    ],
+  },
+  {
+    label: "Act 5 — fencing",
+    narration: "The same again, but each report carries a token: the lease's count of holder changes when that copy took it. A's token is zero, B's is one. B sends first. When A wakes and sends with zero, the inbox refuses it. Only B's report arrives.",
+    rows: { a: "active wrong", b: "active ok", lease: "active ok", inbox: "active ok" },
+    console: [
+      ["A's token is 0, B's is 1", "muted"],
+      ["refused, token 0 is older than 1", "ok"],
+      ["the report was sent by: [B]", "ok"],
+    ],
+  },
+  {
+    label: "Act 6 — the loser never rejoins",
+    narration: "B is killed. A is still running, but its elector gave up for good when it lost the lease. Two whole leases later the lease still names B, and nobody leads. Only when A starts a brand-new elector does it lead again, with token two.",
+    rows: { a: "active amber", b: "dim", lease: "active wrong" },
+    console: [
+      ["B killed; A alive, its elector stopped", "amber"],
+      ["2 whole leases later: still names B", "bad"],
+      ["new elector: A leads, token 2", "ok"],
+    ],
+  },
+  {
+    label: "Act 6 — the bill",
+    narration: "A five-second lease means a dead leader goes unnoticed for up to five seconds, and a shorter one lets a slow moment cost a healthy leader its lease. Each copy judges the lease by its own clock. And all of it needs a Kubernetes API server: one cluster, with one node, for one nightly report.",
+    rows: { lease: "active amber" },
+    console: [
+      ["lease 5 seconds, renewed every 1", "muted"],
+      ["judged by each copy's own clock", "amber"],
+      ["1 cluster, with 1 node, for 1 nightly report", "bad"],
+    ],
+  },
+];
+
+const rowIds = ["a", "b", "c", "lease", "inbox"];
+const stepLabel = document.getElementById("step-label");
+const narrationEl = document.getElementById("narration");
+const consoleEl = document.getElementById("console-lines");
+const progressEl = document.getElementById("progress");
+const stepBtn = document.getElementById("step");
+const playBtn = document.getElementById("play");
+const resetBtn = document.getElementById("reset");
+const audioBtn = document.getElementById("audio");
+const audioNote = document.getElementById("audio-note");
+
+let i = -1;
+let timer = null;
+let audioOn = false;
+let current = null;
+
+const clips = STEPS.map((_, k) => {
+  const a = new Audio("audio/step-" + (k + 1) + ".m4a");
+  a.preload = "none";
+  return a;
+});
+
+function stopAudio() {
+  if (!current) return;
+  current.pause();
+  current.currentTime = 0;
+  current.onended = null;
+  current = null;
+}
+
+function playClip(k) {
+  stopAudio();
+  if (!audioOn || k < 0 || k >= clips.length) return;
+  const a = clips[k];
+  current = a;
+  a.currentTime = 0;
+  a.onended = () => { current = null; };
+  a.play().catch(() => {
+    current = null;
+    audioNote.textContent =
+      "Narration audio could not be played. Run docs/make_animation_audio.sh to generate the clips.";
+  });
+}
+
+function setAudio(on) {
+  audioOn = on;
+  audioBtn.classList.toggle("on", on);
+  audioBtn.setAttribute("aria-pressed", String(on));
+  audioBtn.innerHTML = (on ? "\u{1F50A}" : "\u{1F507}") + " Narration: " + (on ? "on" : "off");
+  audioNote.textContent = on ? "Each step is read aloud as it appears." : "";
+  if (!on) stopAudio();
+}
+
+function clearRows() {
+  for (const id of rowIds) {
+    document.getElementById("row-" + id).className = "row";
+  }
+}
+
+function render() {
+  clearRows();
+  if (i < 0) {
+    stepLabel.textContent = "Ready";
+    narrationEl.textContent = "Press Step or Play to begin.";
+    consoleEl.innerHTML = "";
+    progressEl.textContent = "0 / " + STEPS.length;
+    return;
+  }
+  const s = STEPS[i];
+  stepLabel.textContent = s.label;
+  narrationEl.textContent = s.narration;
+  for (const id of rowIds) {
+    const el = document.getElementById("row-" + id);
+    const cls = s.rows[id];
+    el.className = "row " + (cls ? cls : "dim");
+  }
+  consoleEl.innerHTML = s.console
+    .map(([text, cls]) => '<span class="' + cls + '">' + text + "</span>")
+    .join("\n");
+  progressEl.textContent = (i + 1) + " / " + STEPS.length;
+}
+
+function step() {
+  if (i >= STEPS.length - 1) { stopPlay(); return; }
+  i += 1;
+  render();
+  playClip(i);
+}
+
+function reset() {
+  stopPlay();
+  stopAudio();
+  i = -1;
+  render();
+}
+
+function startPlay() {
+  if (timer) return;
+  playBtn.innerHTML = "Pause &#10074;&#10074;";
+  timer = setInterval(() => {
+    if (i >= STEPS.length - 1) { stopPlay(); return; }
+    step();
+  }, 9000);
+}
+
+function stopPlay() {
+  if (timer) clearInterval(timer);
+  timer = null;
+  playBtn.innerHTML = "Play &#9654;";
+}
+
+stepBtn.addEventListener("click", () => { stopPlay(); step(); });
+resetBtn.addEventListener("click", reset);
+playBtn.addEventListener("click", () => { if (timer) stopPlay(); else startPlay(); });
+audioBtn.addEventListener("click", () => setAudio(!audioOn));
+
+render();
+</script>
+</body>
+</html>
