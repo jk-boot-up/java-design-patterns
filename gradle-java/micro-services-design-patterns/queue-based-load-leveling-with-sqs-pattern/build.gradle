@@ -1,0 +1,44 @@
+plugins {
+    id 'java'
+    id 'application'
+}
+
+group = 'com.jk.explore'
+version = '1.0-SNAPSHOT'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // AWS SDK for Java 2.55.4, the newest release. Its SQS client talks to LocalStack,
+    // which answers exactly as the real Amazon service does, limits and error messages included.
+    implementation platform('software.amazon.awssdk:bom:2.55.4')
+    implementation 'software.amazon.awssdk:sqs'
+
+    // Testcontainers starts and stops the LocalStack container for us. 2.0.5 is the newest
+    // release; in the 2.x line every module carries the `testcontainers-` prefix.
+    implementation 'org.testcontainers:testcontainers-localstack:2.0.5'
+
+    // The libraries above log through SLF4J. The simple binding is turned off in
+    // src/main/resources so the demo's own output is the only output.
+    implementation 'org.slf4j:slf4j-simple:2.0.17'
+
+    testImplementation platform('org.junit:junit-bom:5.10.2')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+application {
+    mainClass = 'com.jk.explore.loadlevelingsqs.LoadLevelingSqsDemo'
+}
+
+test {
+    useJUnitPlatform()
+}
