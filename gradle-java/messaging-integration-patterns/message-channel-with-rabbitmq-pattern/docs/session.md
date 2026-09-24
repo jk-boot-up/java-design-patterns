@@ -6,7 +6,7 @@ A 60-minute session built around one question: once the channel is a real broker
 
 1. Say, in plain words, what a broker, a queue, an exchange, an acknowledgement and a publisher confirm are.
 2. Show a message waiting in a queue for a receiver that does not exist yet.
-3. Explain why a receiver that crashes before saying done costs a second delivery rather than a lost order.
+3. Explain why a receiver that crashes before saying done costs a second delivery rather than a lost order, and how a limit on unfinished orders, prefetch, spreads a shared queue between a slow and a fast receiver.
 4. Show that a durable queue is not enough, and name the second setting a restart depends on.
 5. Say what a full RabbitMQ queue does by default, and what it takes to make it refuse out loud.
 
@@ -16,7 +16,7 @@ A 60-minute session built around one question: once the channel is a real broker
 | --- | --- |
 | 0:00–0:08 | The post office analogy, and the partner project recapped in two minutes |
 | 0:08–0:18 | Acts one to three: the direct call, the channel, and nobody listening |
-| 0:18–0:30 | Act four: saying done, and the order seen twice |
+| 0:18–0:30 | Act four: saying done, the order seen twice, and two pickers on one queue |
 | 0:30–0:42 | Act five: the restart |
 | 0:42–0:50 | Act six: the bill |
 | 0:50–0:55 | The verdict |
@@ -31,7 +31,7 @@ cd messaging-integration-patterns/message-channel-with-rabbitmq-pattern
 ./gradlew -q run
 ```
 
-Act one: how many checkouts failed, and did selling actually need the warehouse? Act two: did checkout wait for the warehouse? Act three: how many orders did the broker hold with no receiver anywhere, and in what order did they come out? Act four: how many deliveries, how many orders picked, and what told the second picker it might be a repeat? Act five: both queues were durable, so why did one come back empty? Act six: what would have happened to the three refused orders without receipts?
+Act one: how many checkouts failed, and did selling actually need the warehouse? Act two: did checkout wait for the warehouse? Act three: how many orders did the broker hold with no receiver anywhere, and in what order did they come out? Act four: how many deliveries, how many orders picked, and what told the second picker it might be a repeat? With two pickers and no limit, why did the slow one get 5 of the 10, and why did a limit of 1 change that? Act five: both queues were durable, so why did one come back empty? Act six: what would have happened to the three refused orders without receipts?
 
 Then open `src/main/java/com/jk/explore/messagechannelrabbitmq/Channel.java` and read `send` and `sendWithoutWritingDown` aloud. The only difference between the two is one argument to `basicPublish`.
 
@@ -48,5 +48,6 @@ Then ask what the warehouse should do with an order marked as seen before. Pick 
 3. Turn automatic acknowledgement on in `receiveEachInto`, make the warehouse throw on the second order, and count what is lost.
 4. Make the warehouse remember the order numbers it has picked, and skip an order marked as seen before that it has already picked.
 5. Declare the fifth act's queues as not durable, restart the broker, and say what happens to the queues themselves.
+6. In the fourth act, try a limit of 3 instead of 1, run it a few times, and describe how the slow picker's share changes.
 
 Close with the verdict: write down the queue and the message, say done after the work and not before, and give every queue a limit and a receipt.

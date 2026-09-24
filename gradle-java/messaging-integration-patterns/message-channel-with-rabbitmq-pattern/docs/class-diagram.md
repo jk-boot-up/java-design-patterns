@@ -27,6 +27,7 @@ classDiagram
         +waiting() int
         +takeWithoutSayingDone() Taken
         +sayDone(taken)
+        +handAtMost(unfinished) Channel
         +receiveEachInto(receiver)
         +crash()
     }
@@ -50,6 +51,12 @@ classDiagram
         +pick(order)
         +picked() List
     }
+    class Picker {
+        +slow() Picker
+        +fast() Picker
+        +pick(order)
+        +count() int
+    }
     class Poll {
         +until(what, condition)
     }
@@ -58,6 +65,7 @@ classDiagram
     Channel ..> Taken : hands out
     Taken --> PickOrder
     Warehouse ..> PickOrder : picks
+    Picker ..> PickOrder : picks, slow or fast
     Broker ..> Poll : waits with
 ```
 

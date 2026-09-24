@@ -115,6 +115,44 @@ public class RabbitMessageChannelDemo {
                 System.out.println("  a second picker is handed the same " + secondTry.order().orderId() + ", marked as seen before: " + secondTry.seenBefore() + ", and says done. deliveries: " + deliveries + ", orders picked: " + picked + ", waiting: " + watch.waiting() + ".");
             }
         }
+
+        System.out.println("  two pickers share one channel, one slow and one fast. checkout sends " + SHARED_ORDERS + " orders.");
+        Split noLimit = shareBetweenASlowAndAFastPicker(broker, "pick-orders-shared", 0);
+        System.out.println("  with no limit on unfinished orders, the broker hands them all out at once, in turn: slow picker " + noLimit.slow() + ", fast picker " + noLimit.fast() + ". the fast one finishes and stands idle while the slow one works through its pile.");
+        Split limitOfOne = shareBetweenASlowAndAFastPicker(broker, "pick-orders-shared-one-at-a-time", 1);
+        System.out.println("  with a limit of 1 unfinished order each, the broker waits for a picker to say done before handing it another: " + limitOfOne.describe() + ".");
+    }
+
+    /** How many orders each picker was handed, when two of them share one channel. */
+    record Split(int slow, int fast) {
+
+        /** The spread depends on the broker's timing, so it is described, never counted out. */
+        String describe() {
+            return fast > slow ? "the fast picker took most of them" : "the slow picker kept up, which it should not have";
+        }
+    }
+
+    static final int SHARED_ORDERS = 10;
+
+    /**
+     * Two pickers, one slow and one fast, listen on the same channel, and checkout sends ten
+     * orders. The limit is how many unfinished orders the broker may hand one picker before it
+     * waits for that picker to say done; RabbitMQ calls it prefetch, and 0 means no limit.
+     */
+    static Split shareBetweenASlowAndAFastPicker(Broker broker, String queue, int limit) {
+        Picker slow = Picker.slow();
+        Picker fast = Picker.fast();
+        try (Channel checkout = broker.channel(queue).openWrittenDown();
+             Channel slowPicker = broker.channel(queue).openWrittenDown().handAtMost(limit);
+             Channel fastPicker = broker.channel(queue).openWrittenDown().handAtMost(limit)) {
+            slowPicker.receiveEachInto(slow::pick);
+            fastPicker.receiveEachInto(fast::pick);
+            for (int i = 1; i <= SHARED_ORDERS; i++) {
+                checkout.send(PickOrder.of(i));
+            }
+            Poll.until("both pickers to finish every order", () -> slow.count() + fast.count() == SHARED_ORDERS);
+            return new Split(slow.count(), fast.count());
+        }
     }
 
     private static Channel.Taken take(Channel channel) {

@@ -166,6 +166,21 @@ public class Channel implements AutoCloseable {
     }
 
     /**
+     * Tells the broker how many unfinished orders it may hand this receiver before it waits
+     * for the receiver to say done with one. Without this there is no limit, and the broker
+     * hands out everything it has at once. RabbitMQ calls this limit prefetch. It has to be
+     * set before the receiver starts listening.
+     */
+    public Channel handAtMost(int unfinished) {
+        try {
+            amqp.basicQos(unfinished);
+            return this;
+        } catch (IOException e) {
+            throw new IllegalStateException("could not set the prefetch limit on " + name, e);
+        }
+    }
+
+    /**
      * Registers a receiver that is handed every message as it arrives, and that says it is
      * done with each one only after the work has finished.
      */

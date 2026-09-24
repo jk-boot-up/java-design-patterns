@@ -88,6 +88,26 @@ class RealBrokerTest {
         }
     }
 
+    /**
+     * Two pickers share one channel, one slow and one fast. With no limit on unfinished
+     * orders the broker deals them out in turn before any work is done, so the split is
+     * exact. With a limit of one, the split depends on the broker's timing, so it is asserted
+     * as a range: the fast picker takes most of them.
+     */
+    @Test
+    void aLimitOfOneUnfinishedOrderLetsTheFastPickerTakeMostOfThem() {
+        RabbitMessageChannelDemo.Split noLimit =
+                RabbitMessageChannelDemo.shareBetweenASlowAndAFastPicker(broker, "shared-no-limit", 0);
+        assertEquals(5, noLimit.slow());
+        assertEquals(5, noLimit.fast());
+
+        RabbitMessageChannelDemo.Split limitOfOne =
+                RabbitMessageChannelDemo.shareBetweenASlowAndAFastPicker(broker, "shared-limit-of-one", 1);
+        assertEquals(10, limitOfOne.slow() + limitOfOne.fast());
+        assertTrue(limitOfOne.fast() >= 7, "the fast picker should take most: " + limitOfOne);
+        assertTrue(limitOfOne.slow() <= 3, "the slow picker should take only a few: " + limitOfOne);
+    }
+
     @Test
     void aChannelWithARoomLimitRefusesRatherThanQuietlyDropping() {
         try (Channel bounded = broker.channel("room-for-five").openWithRoomFor(5).askForReceipts()) {

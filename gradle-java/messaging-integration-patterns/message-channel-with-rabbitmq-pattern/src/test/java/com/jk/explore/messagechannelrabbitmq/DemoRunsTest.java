@@ -30,6 +30,9 @@ class DemoRunsTest {
         assertTrue(out.contains("the broker puts it back. waiting again: 1."), out);
         assertTrue(out.contains("marked as seen before: true"), out);
         assertTrue(out.contains("deliveries: 2, orders picked: 1, waiting: 0."), out);
+        assertTrue(out.contains("two pickers share one channel, one slow and one fast. checkout sends 10 orders."), out);
+        assertTrue(out.contains("in turn: slow picker 5, fast picker 5."), out);
+        assertTrue(out.contains("before handing it another: the fast picker took most of them."), out);
         assertTrue(out.contains("two channels hold 3 orders each."), out);
         assertTrue(out.contains("written to disk: 3 orders still waiting. held in memory only: 0."), out);
         assertTrue(out.contains("a channel with room for 5 is given 8: 5 accepted, 3 refused."), out);

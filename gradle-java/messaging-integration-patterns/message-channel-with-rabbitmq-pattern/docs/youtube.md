@@ -19,21 +19,21 @@ The first two lines are what a viewer sees above the fold, so they carry the hoo
 ```
 CHAPTERS
 00:00 Introduction
-00:57 The Scenario
-01:32 Checkout Calls The Warehouse
-01:54 The Broker's Words
-02:43 A Real Channel Between Them
-03:08 Nobody Is Listening Yet
-03:41 Where The Message Lives
-04:12 Saying Done
-05:05 Written To Disk, Or Not
-05:50 Two Settings, Not One
-06:13 The Bill
-07:05 What The Simulation Left Out
-07:42 The Verdict
-08:17 What Is Real Here
-08:46 When This Is Too Much
-09:15 Thanks for Watching
+01:01 The Scenario
+01:35 Checkout Calls The Warehouse
+01:57 The Broker's Words
+02:46 A Real Channel Between Them
+03:11 Nobody Is Listening Yet
+03:45 Where The Message Lives
+04:15 Saying Done
+05:09 Two Pickers, One Queue
+06:07 Written To Disk, Or Not
+06:52 Two Settings, Not One
+07:15 The Bill
+08:07 What The Simulation Left Out
+08:45 The Verdict
+09:19 What Is Real, And When Not
+10:15 Thanks for Watching
 
 SOURCE CODE, WRITTEN NOTES AND AN INTERACTIVE ANIMATION
 https://github.com/jk-boot-up/java-design-patterns/tree/main/gradle-java/messaging-integration-patterns/message-channel-with-rabbitmq-pattern
@@ -48,21 +48,21 @@ YouTube renders these as chapters only if there are at least three and the first
 
 ```
 00:00 Introduction
-00:57 The Scenario
-01:32 Checkout Calls The Warehouse
-01:54 The Broker's Words
-02:43 A Real Channel Between Them
-03:08 Nobody Is Listening Yet
-03:41 Where The Message Lives
-04:12 Saying Done
-05:05 Written To Disk, Or Not
-05:50 Two Settings, Not One
-06:13 The Bill
-07:05 What The Simulation Left Out
-07:42 The Verdict
-08:17 What Is Real Here
-08:46 When This Is Too Much
-09:15 Thanks for Watching
+01:01 The Scenario
+01:35 Checkout Calls The Warehouse
+01:57 The Broker's Words
+02:46 A Real Channel Between Them
+03:11 Nobody Is Listening Yet
+03:45 Where The Message Lives
+04:15 Saying Done
+05:09 Two Pickers, One Queue
+06:07 Written To Disk, Or Not
+06:52 Two Settings, Not One
+07:15 The Bill
+08:07 What The Simulation Left Out
+08:45 The Verdict
+09:19 What Is Real, And When Not
+10:15 Thanks for Watching
 ```
 
 ## Tags
@@ -101,4 +101,4 @@ Add a card partway through pointing at the playlist, so a viewer who arrives at 
 
 ## Runtime
 
-Approximately 09:54, narrated at 145 words per minute.
+Approximately 10:54, narrated at 145 words per minute.

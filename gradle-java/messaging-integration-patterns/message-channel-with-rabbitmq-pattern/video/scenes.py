@@ -27,7 +27,8 @@ SCENES = [
             'takes the order out whenever it is ready. [[slnc 300]] By '
             'the end you will have seen a broker hold orders for a '
             'warehouse that is not even running, hand an order out again '
-            'when a picker crashes, and come back from its own restart '
+            'when a picker crashes, share orders between a slow picker '
+            'and a fast one, and come back from its own restart '
             'with some orders kept and others gone.'
         ),
     ),
@@ -183,7 +184,39 @@ SCENES = [
         ),
     ),
     dict(
-        key='09-five', kind='console', title='Written To Disk, Or Not',
+        key='09-shared', kind='console', title='Two Pickers, One Queue',
+        body="""  two pickers share one channel,
+  one slow and one fast.
+  checkout sends 10 orders.
+
+  no limit on unfinished orders:
+  slow picker 5, fast picker 5.
+  the fast one stands idle.
+
+  a limit of 1 unfinished order each:
+  the fast picker took most of them.""",
+        narration=(
+            'Still in the fourth act, one more thing about saying done. '
+            'Two pickers now share one queue. One is slow, because its '
+            'shelves are at the far end of the building, and one is fast. '
+            'Checkout sends ten orders. [[slnc 250]] The broker has a '
+            'setting for how many unfinished orders it will hand one '
+            'picker before it waits for that picker to say done. '
+            'RabbitMQ calls this setting prefetch, and by default there '
+            'is no limit. [[slnc 250]] With no limit, the broker hands '
+            'all ten out at once, in turn, before any work is done. Five '
+            'go to the slow picker and five to the fast one. The fast one '
+            'finishes quickly, then stands idle while the slow one works '
+            'through its pile. [[slnc 250]] With a limit of one, the '
+            'broker waits for each picker to say done before handing it '
+            'the next order. So the fast picker keeps coming back for '
+            'more, and it took most of them. The exact split depends on '
+            'the broker\'s timing, which is why the demo describes it '
+            'rather than counting it.'
+        ),
+    ),
+    dict(
+        key='10-five', kind='console', title='Written To Disk, Or Not',
         body="""FIVE. Written to disk, or only memory.
   two channels hold 3 orders each.
   one: written to disk.
@@ -209,7 +242,7 @@ SCENES = [
         ),
     ),
     dict(
-        key='10-settings', kind='code', title='Two Settings, Not One',
+        key='11-settings', kind='code', title='Two Settings, Not One',
         body="""// the queue is written down
 queueDeclare(name, true, ...);
 
@@ -231,7 +264,7 @@ basicPublish("", name,
         ),
     ),
     dict(
-        key='11-six', kind='console', title='The Bill',
+        key='12-six', kind='console', title='The Bill',
         body="""SIX. The bill.
   room for 5, given 8:
   5 accepted, 3 refused.
@@ -259,7 +292,7 @@ basicPublish("", name,
         ),
     ),
     dict(
-        key='12-contrast', kind='bullets', title='What The Simulation Left Out',
+        key='13-contrast', kind='bullets', title='What The Simulation Left Out',
         body=['It got the shape right: send and', 'carry on, each order once, in order,',
               'a limit, and no news of the work.', '',
               'It left out three things.', '',
@@ -280,7 +313,7 @@ basicPublish("", name,
         ),
     ),
     dict(
-        key='13-verdict', kind='bullets', title='The Verdict',
+        key='14-verdict', kind='bullets', title='The Verdict',
         body=['Use a channel when two systems', 'live on different schedules.', '',
               'Then say three things out loud:', '',
               '1. Write down the queue', '   and every message.',
@@ -300,37 +333,29 @@ basicPublish("", name,
         ),
     ),
     dict(
-        key='14-real', kind='bullets', title='What Is Real Here',
-        body=['RabbitMQ 4.3.6, in a container', 'the demo starts and stops itself.', '',
-              'The Java client 5.36.0, and', 'Testcontainers 2.0.5.', '',
-              'Every number quoted comes from', "the program's own output, and",
-              'two runs print the same thing.'],
+        key='15-real', kind='bullets', title='What Is Real, And When Not',
+        body=['RabbitMQ 4.3.6, Java client 5.36.0,', 'Testcontainers 2.0.5, in a container',
+              'the demo starts and stops itself.', '',
+              'Too much if both systems are always', 'up and the caller needs the answer',
+              'now, or if losing a waiting order', 'on a restart is fine.', '',
+              'A broker is a third system to run.'],
         narration=(
             'What is real here? The broker is RabbitMQ, version four '
             'point three point six, the newest release, running in a '
             'container that the demo starts at the beginning and stops '
             'at the end. Nothing is installed and nothing is left '
             'running. The one thing you need is a container runtime, '
-            'such as Docker Desktop, switched on before you start. '
-            '[[slnc 250]] Every number quoted in this video comes from '
-            'the program\'s own output, and two runs one after the other '
-            'print exactly the same thing.'
-        ),
-    ),
-    dict(
-        key='15-too-much', kind='bullets', title='When This Is Too Much',
-        body=['If both systems are always up and', 'the caller needs the answer now,', 'call directly.', '',
-              'If losing a waiting order on a', 'restart is fine, a queue inside', 'the program costs nothing.', '',
-              'A broker is a third system to run.'],
-        narration=(
-            'So when is this too much? If both systems are always up '
-            'together, and the caller needs the answer now, a direct call '
-            'is simpler and tells you more. If losing a waiting order on '
-            'a restart is acceptable, a queue inside the program, like '
-            'the partner project\'s, costs nothing to run. [[slnc 250]] A '
-            'broker is a third system to install, secure, upgrade and '
-            'watch. It earns that only when the sender and the receiver '
-            'genuinely live on different schedules.'
+            'such as Docker Desktop, switched on before you start. Every '
+            'number quoted in this video comes from the program\'s own '
+            'output, and two runs one after the other print the same '
+            'thing. [[slnc 300]] So when is this too much? If both '
+            'systems are always up together, and the caller needs the '
+            'answer now, a direct call is simpler. If losing a waiting '
+            'order on a restart is acceptable, a queue inside the '
+            'program, like the partner project\'s, costs nothing to run. '
+            '[[slnc 250]] A broker is a third system to install, secure, '
+            'upgrade and watch. It earns that only when the sender and '
+            'the receiver genuinely live on different schedules.'
         ),
     ),
     dict(

@@ -7,6 +7,7 @@ src/main/java/com/jk/explore/messagechannelrabbitmq/
 ├── Channel.java                    the pattern: a named queue on the broker, send, take, say done
 ├── PickOrder.java                  the message, and the text it travels as
 ├── Warehouse.java                  the system on the other end; can be taken down
+├── Picker.java                     one picker in the warehouse, slow or fast
 └── Poll.java                       every wait is a question asked until the answer is yes
 ```
 
@@ -37,6 +38,9 @@ THREE. Nobody is listening yet.
 FOUR. Saying done.
   a picker takes ORD-1 and crashes before saying it is done. the broker puts it back. waiting again: 1.
   a second picker is handed the same ORD-1, marked as seen before: true, and says done. deliveries: 2, orders picked: 1, waiting: 0.
+  two pickers share one channel, one slow and one fast. checkout sends 10 orders.
+  with no limit on unfinished orders, the broker hands them all out at once, in turn: slow picker 5, fast picker 5. the fast one finishes and stands idle while the slow one works through its pile.
+  with a limit of 1 unfinished order each, the broker waits for a picker to say done before handing it another: the fast picker took most of them.
 FIVE. Written to disk, or only held in memory.
   two channels hold 3 orders each. the broker is asked to write one channel's messages to disk and to hold the other's in memory only.
   the broker program is stopped and started again. written to disk: 3 orders still waiting. held in memory only: 0.
@@ -55,7 +59,7 @@ The first run downloads the RabbitMQ image, about 256 MB once unpacked, and take
 ./gradlew test
 ```
 
-3 test classes, 12 test methods. `PlainPartsTest` needs nothing installed. `RealBrokerTest` starts one broker for the whole class and asks it directly: a message waits while nobody listens, order is kept, an unacknowledged message comes back marked as seen before, a full channel refuses rather than drops, and a restart keeps only what was written to disk. `DemoRunsTest` runs the demo and asserts every figure the documents quote.
+3 test classes, 13 test methods. `PlainPartsTest` needs nothing installed. `RealBrokerTest` starts one broker for the whole class and asks it directly: a message waits while nobody listens, order is kept, an unacknowledged message comes back marked as seen before, a limit of one unfinished order lets a fast picker take most of a shared channel's orders, a full channel refuses rather than drops, and a restart keeps only what was written to disk. `DemoRunsTest` runs the demo and asserts every figure the documents quote.
 
 There is no `Thread.sleep` anywhere under `src/test`. Every wait is a poll on something the broker can actually be asked about — how many messages are waiting, whether a message was handed over — with a sixty-second limit that fails the test rather than hanging it. The tests that need the broker are skipped when no container runtime is there; the rest still run.
 
@@ -68,6 +72,8 @@ This is the reason this project exists, so it comes before anything else.
 **What it left out, first: the channel lived inside the sender.** The simulation's channel was a list in the same program as the shop and the warehouse. "The warehouse is away" was a flag on an object. If that program had stopped, every waiting message would have gone with it, so the simulation could only ever show a receiver that was away, never a receiver that did not exist yet. Here the channel is in another process, and the third act sends three orders to a queue with no receiver at all, then starts the warehouse afterwards.
 
 **Second: a message handed over is not a message finished.** In the simulation, taking a message out of the list removed it. On a broker, handing a message to a receiver and forgetting it are two separate steps, and the second only happens when the receiver says it is done — RabbitMQ calls that an acknowledgement. The fourth act shows why: a picker takes order ORD-1 and crashes before saying done, and the broker puts it back and hands it to the next picker, flagged as seen before. That is 2 deliveries for 1 order picked. The cost is that the receiver must be ready to see the same message twice.
+
+The same act then puts two pickers on one channel, one slow and one fast, and sends 10 orders. The broker has a setting for how many unfinished orders it will hand one receiver before it waits for that receiver to say done; RabbitMQ calls it prefetch, and by default there is no limit. With no limit the broker deals all 10 out at once, in turn, before any work is done: 5 to the slow picker and 5 to the fast one, and the fast one stands idle while the slow one works through its pile. With a limit of 1, the fast picker took most of them. That second split depends on the broker's timing, so the demo describes it rather than counting it, and the test asserts a range. The simulation's receiver took one message at a time by construction, so it never had to choose.
 
 **Third, and the headline find: "keep it safe" is two settings, not one.** The simulation had no disk to write to, so it never had to say what survives. RabbitMQ asks twice: once when the queue is created, whether the queue itself is written down, and again on every message, whether that message is. The fifth act makes both queues written down and differs only in the messages. After the broker program is stopped and started again, both queues are still there, but one holds 3 orders and the other holds 0. A queue that survived a restart and came back empty looks, from outside, exactly like a quiet day.
 

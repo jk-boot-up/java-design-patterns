@@ -72,7 +72,7 @@
 <div class="wrap">
   <h1>Message Channel with RabbitMQ — Step by Step</h1>
   <p class="sub">
-    Six acts, the same ones the demo prints against a real broker. Green is a message that
+    Six acts, the same ones the demo prints against a real broker; the fourth takes two steps. Green is a message that
     got where it was going, amber is a message the broker is holding, red is an order lost
     or a checkout failed.
   </p>
@@ -155,6 +155,17 @@ const STEPS = [
       ["the broker puts it back. waiting again: 1", "amber"],
       ["ORD-1 again, seen before: true", "amber"],
       ["deliveries: 2, picked: 1, waiting: 0", "ok"],
+    ],
+  },
+  {
+    label: "Act 4, continued — two pickers, one queue",
+    narration: "Two pickers now share one queue, one slow and one fast, and checkout sends ten orders. The broker has a setting for how many unfinished orders it will hand one picker before it waits for that picker to say done. RabbitMQ calls it prefetch, and by default there is no limit. With no limit, the broker hands all ten out at once, in turn: five to the slow picker and five to the fast one. The fast one finishes and stands idle while the slow one works through its pile. With a limit of one, the fast picker keeps coming back for more, and it took most of them.",
+    rows: { shop: "active ok", q: "active amber", wh: "active amber" },
+    console: [
+      ["one slow picker, one fast. checkout sends 10", "muted"],
+      ["no limit: slow picker 5, fast picker 5", "amber"],
+      ["the fast one stands idle", "bad"],
+      ["limit of 1: the fast picker took most of them", "ok"],
     ],
   },
   {

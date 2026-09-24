@@ -8,7 +8,7 @@ A message channel is a named place that one system puts messages into and anothe
 
 Think of a post office. You hand a parcel over the counter and walk away. You do not wait for the person it is addressed to; they may be on holiday, and that is fine, because the post office keeps the parcel on a shelf until they come for it.
 
-Now three questions a post office has to answer, and the partner project never had to. What if the person collecting the parcel drops it on the way out and never gets it home? A good post office hands it over only when it is signed for, so an unsigned parcel is still the post office's parcel. What if the post office itself closes for the night? The parcels on the shelf are still there in the morning, but a note written on the whiteboard is not. And what if the shelf is full? Somebody has to decide whether to turn the next parcel away or throw out the oldest one. Those three questions are the whole of this project.
+Now four questions a post office has to answer, and the partner project never had to. What if the person collecting the parcel drops it on the way out and never gets it home? A good post office hands it over only when it is signed for, so an unsigned parcel is still the post office's parcel. And if two clerks collect from the same shelf, one quick and one slow, should the post office hand each a whole armful up front, or one parcel at a time? What if the post office itself closes for the night? The parcels on the shelf are still there in the morning, but a note written on the whiteboard is not. And what if the shelf is full? Somebody has to decide whether to turn the next parcel away or throw out the oldest one. Those four questions are the whole of this project.
 
 ## What RabbitMQ calls these things
 
@@ -24,7 +24,7 @@ An **acknowledgement** is the signature: the receiver telling the broker it has 
 
 A **publisher confirm** is a receipt: the broker telling the sender that it took a message, or turned it away.
 
-**Prefetch** is how many messages the broker will hand one receiver before that receiver has said done with any of them. It only matters when several receivers share a queue, which never happens here: every act has at most one receiver at a time, so this project leaves it unset. Where two receivers do share a queue, how the broker spreads messages between them depends on its own scheduling, and is honestly described as a range rather than a fixed number.
+**Prefetch** is how many unfinished orders the broker will hand one receiver before it waits for that receiver to say done. By default there is no limit. It only matters when several receivers share a queue, and the fourth act shows why: two pickers, one slow and one fast, on one queue. How the broker spreads the orders between them with a limit depends on its own timing, so the demo describes that spread rather than counting it, and the test asserts a range.
 
 One warning about words. The RabbitMQ Java client also has a type called `Channel`, and it means something unrelated: a lightweight conversation over one network connection. This project gives the name `Channel` to the pattern, and keeps the client's conversation in a field called `amqp`.
 
@@ -63,9 +63,14 @@ A picker takes order ORD-1 but does not say it is done. Then it crashes: its con
 
 The price of never losing an order this way is that a receiver can see the same order twice, and has to be written to cope.
 
+Then the same act puts two pickers on one queue, one slow and one fast, and checkout sends 10 orders. With no limit on unfinished orders, the broker deals all 10 out at once, in turn, before any work is done: 5 to the slow picker and 5 to the fast one. The fast one finishes quickly and stands idle while the slow one works through its pile. With a limit of 1 unfinished order each, the broker waits for a picker to say done before handing it the next, so the fast picker keeps coming back, and it took most of them.
+
 ```
   a picker takes ORD-1 and crashes before saying it is done. the broker puts it back. waiting again: 1.
   a second picker is handed the same ORD-1, marked as seen before: true, and says done. deliveries: 2, orders picked: 1, waiting: 0.
+  two pickers share one channel, one slow and one fast. checkout sends 10 orders.
+  with no limit on unfinished orders, the broker hands them all out at once, in turn: slow picker 5, fast picker 5. the fast one finishes and stands idle while the slow one works through its pile.
+  with a limit of 1 unfinished order each, the broker waits for a picker to say done before handing it another: the fast picker took most of them.
 ```
 
 ### Written To Disk, Or Only Held In Memory
@@ -103,6 +108,7 @@ Put a channel between two systems when they live on different schedules. On a re
 - A `basicAck` called before the work instead of after it, which is the same mistake written by hand.
 - `x-max-length` with no `x-overflow`, which quietly drops the oldest message when the queue is full.
 - A `confirmSelect` and `waitForConfirms`, which is a sender that wants to know.
+- Several receivers on one queue with no `basicQos` call, which means no prefetch limit: a slow receiver is handed a pile while a fast one waits.
 
 ## Where you have already met this
 

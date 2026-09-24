@@ -45,13 +45,13 @@ The video itself needs no container runtime; only the demo does.
 | 6 | Nobody Is Listening Yet | Act three |
 | 7 | Where The Message Lives | Three programs, and the rule that holds them together |
 | 8 | Saying Done | Act four: acknowledgement, and a second delivery |
-| 9 | Written To Disk, Or Not | Act five: the restart |
-| 10 | Two Settings, Not One | Durable queue, persistent message |
-| 11 | The Bill | Act six: the limit, receipts, and the cost |
-| 12 | What The Simulation Left Out | The contrast with the partner project |
-| 13 | The Verdict | |
-| 14 | What Is Real Here | RabbitMQ 4.3.6 in a container the demo owns |
-| 15 | When This Is Too Much | |
+| 9 | Two Pickers, One Queue | Act four, continued: a slow and a fast picker, with and without a limit on unfinished orders (prefetch) |
+| 10 | Written To Disk, Or Not | Act five: the restart |
+| 11 | Two Settings, Not One | Durable queue, persistent message |
+| 12 | The Bill | Act six: the limit, receipts, and the cost |
+| 13 | What The Simulation Left Out | The contrast with the partner project |
+| 14 | The Verdict | |
+| 15 | What Is Real, And When Not | RabbitMQ 4.3.6 in a container the demo owns, and when a broker is too much |
 | 16 | Thanks for Watching | The exercise |
 
 Scene 16 deliberately does not name whichever pattern comes next.
