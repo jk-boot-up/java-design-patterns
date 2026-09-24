@@ -184,6 +184,16 @@ Every Tier 1 project states its prerequisite plainly in `docs/prerequisites.md` 
 README: a container runtime, and for the Kubernetes project, kind. A project that cannot run
 without a daemon says so in its first paragraph rather than failing confusingly at run time.
 
+### 5.5a Every project is self-contained
+
+Added at the owner's instruction on 2026-09-24, for projects built from then on; projects
+committed before that date are left as they are. A project depends on no other project. It
+copies what it needs from a reference rather than pointing at it, contains no relative link or
+path into a sibling project's directory, names its plain-Java twin in words rather than
+linking to it, and explains its own tooling — the audio pipeline included — in its own files.
+The one shared place is `gradle-java/docs`, whose generators and registration tables serve
+every project.
+
 ### 5.6 The git surface
 
 Source and documentation are committed. Rendered output never is — no mp4, m4a, srt, wav or
@@ -226,6 +236,7 @@ A project is finished when all of the following hold. This is the checklist from
 - [ ] Both diagrams rendered; poster and thumbnail looked at, not merely generated.
 - [ ] Spec regenerated **after** the video existed, and the line it printed checked.
 - [ ] `git status` clean of mp4, m4a, srt, wav, log, `docs/audio/` and `video/build/`.
+- [ ] **No relative link or path into any sibling project** (§5.5a); `gradle-java/docs` is the only shared dependency.
 
 ---
 

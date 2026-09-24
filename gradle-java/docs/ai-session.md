@@ -6,7 +6,7 @@
 | Last updated | 2026-09-24 (resumed session) |
 | Branch | `main`, at `8994c81` |
 | Commits made this session | none |
-| Repository state | 152 projects committed; wave 1 (5 projects) finished and registered, uncommitted on disk |
+| Repository state | 157 projects committed (wave 1 committed 2026-09-24, `bef1611`..`bdac65c`, not pushed); wave 2 building |
 
 This document exists so that a session working on this batch can be stopped at any point and
 picked up later, by a different session with no memory of this one, without having to re-derive
@@ -43,12 +43,12 @@ tracked file belonging to an existing project may show as modified.
 
 ## 2. Current state
 
-**Wave 1 of 4 is finished and registered, and awaits the owner's go-ahead to commit.** Nothing is committed. The messaging category README, its HTML twin and the root README counts (messaging 5 → 10, total 152 → 157) are updated.
+**Wave 1 is committed. Wave 2 is building in two groups of five** (Docker has 4 CPUs and 4 GB, so the heavy stacks wait for group B). Wave 1 commits: one per project, then one for registration and READMEs. The messaging category README, its HTML twin and the root README counts (messaging 5 → 10, total 152 → 157) are updated.
 
 | Wave | Projects | State |
 | --- | --- | --- |
-| 1 | 5 messaging and integration | all 5 finished, verified and registered; uncommitted |
-| 2 | 10 microservices | not started |
+| 1 | 5 messaging and integration | committed |
+| 2 | 10 microservices | group A building 2026-09-24: cache-aside-with-redis, publisher-subscriber-with-redis, rate-limiter-with-redis, competing-consumers-with-rabbitmq, claim-check-with-s3. Group B next: transactional-outbox-with-debezium, database-per-service-with-containers, leader-election-with-kubernetes, queue-based-load-leveling-with-sqs, idempotent-consumer-with-kafka |
 | 3 | 4 platform | not started |
 | 4 | 9 framework versions | not started |
 
@@ -168,6 +168,10 @@ re-litigated, and they override any default behaviour.
 - **Every number** in a README, document, slide or narration line is the real output of
   `./gradlew run` for that project. Nothing rounded, nothing invented.
 - **Any fix to the audio pipeline is rolled out to all projects**, not left where it was found.
+- **New projects are self-contained** (instruction of 2026-09-24, spec §5.5a). No relative link
+  or path into a sibling project, the twin named in words, the audio pipeline explained in the
+  project's own `video/README.md`. Existing projects are not to be disturbed to retrofit this.
+  `gradle-java/docs`, including its three registration tables, is the permitted shared place.
 
 ---
 
@@ -176,8 +180,8 @@ re-litigated, and they override any default behaviour.
 1. ~~Verify the four wave-1 builds~~ — done 2026-09-24.
 2. ~~Register all five slugs and generate the four files per project~~ — done.
 3. ~~Update the messaging README, its HTML twin and the root README counts~~ — done.
-4. Commit, once the owner asks for it. One commit per project is the established shape of this
-   repository's history.
+4. ~~Commit wave 1~~ — done. The owner then asked for a prefetch act in
+   `message-channel-with-rabbitmq`; that revision is in progress and gets its own commit.
 5. Then wave 2, the ten microservices projects, which is the largest of the four.
 
 Three things worth carrying forward into later waves:
