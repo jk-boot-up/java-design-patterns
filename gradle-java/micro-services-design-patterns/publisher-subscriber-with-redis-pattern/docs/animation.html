@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Publisher-Subscriber with Redis — Animated Walkthrough</title>
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 24px;
+    background: #0f172a; color: #e2e8f0;
+    font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
+    padding-top: calc(24px + env(safe-area-inset-top, 0px));
+    padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+  }
+  h1 { font-size: 1.4rem; margin: 0 0 4px; }
+  p.sub { color: #94a3b8; margin: 0 0 20px; max-width: 70ch; }
+  .wrap { max-width: 1100px; margin: 0 auto; }
+  .stage {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+    margin-bottom: 16px;
+  }
+  @media (max-width: 760px) { .stage { grid-template-columns: 1fr; } }
+  .boxes { display: flex; flex-direction: column; gap: 10px; }
+  .row {
+    border: 2px solid #334155; border-radius: 10px; padding: 12px 16px;
+    background: #1e293b; transition: all .25s ease; opacity: .55;
+  }
+  .row .name { font-weight: 700; font-size: 1rem; }
+  .row .job { color: #94a3b8; font-size: .82rem; margin-top: 2px; }
+  .row.active { opacity: 1; box-shadow: 0 0 0 2px currentColor inset; }
+  .row.wrong { border-color: #f87171; color: #f87171; }
+  .row.wrong.active { background: #3f1d24; }
+  .row.ok { border-color: #34d399; color: #34d399; }
+  .row.ok.active { background: #10261f; }
+  .row.amber { border-color: #fbbf24; color: #fbbf24; }
+  .row.amber.active { background: #2a2110; }
+  .row.dim { opacity: .22; }
+  .console {
+    background: #020617; border: 1px solid #334155; border-radius: 10px;
+    padding: 16px; font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    font-size: .86rem; line-height: 1.55; overflow-y: auto; min-height: 320px;
+    white-space: pre-wrap;
+  }
+  #console-lines span.ok { color: #34d399; }
+  #console-lines span.bad { color: #f87171; }
+  #console-lines span.amber { color: #fbbf24; }
+  #console-lines span.muted { color: #94a3b8; }
+  .narration {
+    background: #1e293b; border: 1px solid #334155; border-radius: 10px;
+    padding: 14px 18px; margin-bottom: 16px; min-height: 3.2em;
+  }
+  .controls { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  button {
+    background: #334155; color: #e2e8f0; border: 1px solid #475569;
+    border-radius: 8px; padding: 10px 18px; font-size: .92rem; cursor: pointer;
+  }
+  button:hover { background: #475569; }
+  button#play { background: #7c3aed; border-color: #7c3aed; }
+  button#play:hover { background: #8b5cf6; }
+  button#audio.on { background: #0f766e; border-color: #14b8a6; }
+  #progress { color: #94a3b8; font-size: .85rem; margin-left: auto; }
+  .audio-note { color: #94a3b8; font-size: .78rem; margin: 10px 0 0; min-height: 1em; }
+  .step-label {
+    font-size: .78rem; text-transform: uppercase; letter-spacing: .04em;
+    color: #a78bfa; font-weight: 700; margin-bottom: 4px;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Publisher-Subscriber with Redis — Step by Step</h1>
+  <p class="sub">
+    Six acts, the same ones the demo prints against a real Redis server. Green is an order that
+    reached a listener, amber is Redis answering with a count or holding a pile, red is an order
+    a listener never got.
+  </p>
+
+  <div class="narration">
+    <div class="step-label" id="step-label">Ready</div>
+    <div id="narration">Press Step or Play to begin.</div>
+  </div>
+
+  <div class="stage">
+    <div class="boxes" id="boxes">
+      <div class="row" id="row-pub">
+        <div class="name">order service</div>
+        <div class="job">the publisher; publishes once and is told a count</div>
+      </div>
+      <div class="row" id="row-redis">
+        <div class="name">Redis channel orders.placed</div>
+        <div class="job">in a container the demo starts and stops; stores nothing</div>
+      </div>
+      <div class="row" id="row-subs">
+        <div class="name">inventory, email, analytics</div>
+        <div class="job">subscribers, each on a connection of its own</div>
+      </div>
+      <div class="row" id="row-loyalty">
+        <div class="name">loyalty points</div>
+        <div class="job">a subscriber in a second Java process</div>
+      </div>
+    </div>
+    <div class="console"><div id="console-lines"></div></div>
+  </div>
+
+  <div class="controls">
+    <button id="step">Step &#9656;</button>
+    <button id="play">Play &#9654;</button>
+    <button id="reset">Reset &#8635;</button>
+    <button id="audio" aria-pressed="false">&#128263; Narration: off</button>
+    <span id="progress">0 / 0</span>
+  </div>
+  <p class="audio-note" id="audio-note"></p>
+</div>
+
+<script>
+const STEPS = [
+  {
+    label: "Act 1 — the order service calls each one",
+    narration: "Act one. The order service calls inventory, email and analytics, each by name, and each handles order one. It works, but the order service now knows three services by name, and a fourth, loyalty points, means editing it.",
+    rows: { pub: "active wrong", subs: "active ok" },
+    console: [
+      ["inventory [ORD-1], email [ORD-1], analytics [ORD-1]", "ok"],
+      ["the order service knows 3 services by name", "bad"],
+      ["a fourth, loyalty points, means editing it", "muted"],
+    ],
+  },
+  {
+    label: "Act 2 — publish once, and Redis fans it out",
+    narration: "Act two. Redis is running in a container. Inventory, email and analytics each subscribe on a connection of their own. The order service publishes order one once, and Redis answers three receivers. Then loyalty points starts as a second Java process. Order two is published, Redis answers four, and the loyalty process prints order two and exits cleanly. The order service was not changed.",
+    rows: { pub: "active ok", redis: "active ok", subs: "active ok", loyalty: "active ok" },
+    console: [
+      ["published OrderPlaced ORD-1 once", "muted"],
+      ["Redis answered: 3 receivers", "ok"],
+      ["loyalty starts as a separate Java process", "muted"],
+      ["ORD-2 is published: 4 receivers", "ok"],
+      ["the loyalty process printed [ORD-2], exit code 0", "ok"],
+    ],
+  },
+  {
+    label: "Act 3 — a subscriber that arrives late",
+    narration: "Act three. Only email is listening, and three orders are published. Redis answers one, one and one. Loyalty starts listening, and order four is published to two receivers. Email saw all four orders. Loyalty saw only order four. Redis stored none of them: the number of keys in its database is zero.",
+    rows: { pub: "active ok", redis: "active amber", subs: "active ok", loyalty: "active wrong" },
+    console: [
+      ["3 published while only email listened: [1, 1, 1]", "muted"],
+      ["loyalty joins. ORD-4: 2 receivers", "ok"],
+      ["email saw [ORD-1, ORD-2, ORD-3, ORD-4]", "ok"],
+      ["loyalty saw [ORD-4]", "bad"],
+      ["keys in the database: 0", "amber"],
+    ],
+  },
+  {
+    label: "Act 4 — each takes what it wants",
+    narration: "Act four. Email subscribes to the exact name orders dot placed. Analytics subscribes to orders dot star, which matches every name starting with orders. A placed order reaches two receivers. A cancelled order reaches one. Email got the placed order, and analytics got both.",
+    rows: { pub: "active ok", redis: "active ok", subs: "active ok" },
+    console: [
+      ["OrderPlaced ORD-1 reached 2 receivers", "ok"],
+      ["OrderCancelled ORD-1 reached 1", "ok"],
+      ["email, orders.placed: [OrderPlaced ORD-1]", "muted"],
+      ["analytics, orders.*: placed and cancelled", "muted"],
+    ],
+  },
+  {
+    label: "Act 5 — a subscriber that cannot keep up",
+    narration: "Act five. Redis keeps a pile of unread messages for each listener, with a limit. Out of the box it is thirty two megabytes, or eight megabytes for sixty seconds. The demo lowers it to one megabyte. Analytics stops reading, and orders go out in rounds of one thousand until Redis acts. More than ten thousand orders later, Redis cuts analytics off, and its counter of listeners cut off reads one. The first order reached two receivers, the last reached one. Email received every one. Analytics got some of them, not all, and the rest are gone.",
+    rows: { pub: "active ok", redis: "active amber", subs: "active wrong" },
+    console: [
+      ["out of the box: 32mb, or 8mb for 60 seconds", "muted"],
+      ["lowered to 1mb. analytics stops reading", "amber"],
+      ["more than 10,000 orders later: cut off", "bad"],
+      ["listeners cut off for falling behind: 1", "bad"],
+      ["first order: 2 receivers, last: 1", "amber"],
+      ["email received every one", "ok"],
+      ["analytics got some of them, not all", "bad"],
+    ],
+  },
+  {
+    label: "Act 6 — the bill",
+    narration: "Act six. Email is down when order one is placed, and Redis tells the order service zero receivers. When email comes back it gets nothing, because there is nothing to catch up from. The count says how many connections were listening, not which ones, and not whether any finished the work. And Redis is a separate program to run: one container and two Java processes.",
+    rows: { pub: "active amber", redis: "active amber", subs: "active wrong" },
+    console: [
+      ["email down. Redis told the order service: 0 receivers", "amber"],
+      ["email came back and got: []", "bad"],
+      ["a count, not names, not the work done", "muted"],
+      ["1 container and 2 Java processes", "amber"],
+    ],
+  },
+];
+const rowIds = ["pub", "redis", "subs", "loyalty"];
+const stepLabel = document.getElementById("step-label");
+const narrationEl = document.getElementById("narration");
+const consoleEl = document.getElementById("console-lines");
+const progressEl = document.getElementById("progress");
+const stepBtn = document.getElementById("step");
+const playBtn = document.getElementById("play");
+const resetBtn = document.getElementById("reset");
+const audioBtn = document.getElementById("audio");
+const audioNote = document.getElementById("audio-note");
+
+let i = -1;
+let timer = null;
+let audioOn = false;
+let current = null;
+
+const clips = STEPS.map((_, k) => {
+  const a = new Audio("audio/step-" + (k + 1) + ".m4a");
+  a.preload = "none";
+  return a;
+});
+
+function stopAudio() {
+  if (!current) return;
+  current.pause();
+  current.currentTime = 0;
+  current.onended = null;
+  current = null;
+}
+
+function playClip(k) {
+  stopAudio();
+  if (!audioOn || k < 0 || k >= clips.length) return;
+  const a = clips[k];
+  current = a;
+  a.currentTime = 0;
+  a.onended = () => { current = null; };
+  a.play().catch(() => {
+    current = null;
+    audioNote.textContent =
+      "Narration audio could not be played. Run docs/make_animation_audio.sh to generate the clips.";
+  });
+}
+
+function setAudio(on) {
+  audioOn = on;
+  audioBtn.classList.toggle("on", on);
+  audioBtn.setAttribute("aria-pressed", String(on));
+  audioBtn.innerHTML = (on ? "\u{1F50A}" : "\u{1F507}") + " Narration: " + (on ? "on" : "off");
+  audioNote.textContent = on ? "Each step is read aloud as it appears." : "";
+  if (!on) stopAudio();
+}
+
+function clearRows() {
+  for (const id of rowIds) {
+    document.getElementById("row-" + id).className = "row";
+  }
+}
+
+function render() {
+  clearRows();
+  if (i < 0) {
+    stepLabel.textContent = "Ready";
+    narrationEl.textContent = "Press Step or Play to begin.";
+    consoleEl.innerHTML = "";
+    progressEl.textContent = "0 / " + STEPS.length;
+    return;
+  }
+  const s = STEPS[i];
+  stepLabel.textContent = s.label;
+  narrationEl.textContent = s.narration;
+  for (const id of rowIds) {
+    const el = document.getElementById("row-" + id);
+    const cls = s.rows[id];
+    el.className = "row " + (cls ? cls : "dim");
+  }
+  consoleEl.innerHTML = s.console
+    .map(([text, cls]) => '<span class="' + cls + '">' + text + "</span>")
+    .join("\n");
+  progressEl.textContent = (i + 1) + " / " + STEPS.length;
+}
+
+function step() {
+  if (i >= STEPS.length - 1) { stopPlay(); return; }
+  i += 1;
+  render();
+  playClip(i);
+}
+
+function reset() {
+  stopPlay();
+  stopAudio();
+  i = -1;
+  render();
+}
+
+function startPlay() {
+  if (timer) return;
+  playBtn.innerHTML = "Pause &#10074;&#10074;";
+  timer = setInterval(() => {
+    if (i >= STEPS.length - 1) { stopPlay(); return; }
+    step();
+  }, 9000);
+}
+
+function stopPlay() {
+  if (timer) clearInterval(timer);
+  timer = null;
+  playBtn.innerHTML = "Play &#9654;";
+}
+
+stepBtn.addEventListener("click", () => { stopPlay(); step(); });
+resetBtn.addEventListener("click", reset);
+playBtn.addEventListener("click", () => { if (timer) stopPlay(); else startPlay(); });
+audioBtn.addEventListener("click", () => setAudio(!audioOn));
+
+render();
+</script>
+</body>
+</html>

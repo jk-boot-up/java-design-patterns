@@ -1,0 +1,47 @@
+plugins {
+    id 'java'
+    id 'application'
+}
+
+group = 'com.jk.explore'
+version = '1.0-SNAPSHOT'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // Jedis, the Redis Java client. 8.0.1 is the newest release. Each subscriber in this
+    // project holds its own Jedis connection, because a Redis connection that is listening
+    // can do nothing else.
+    implementation 'redis.clients:jedis:8.0.1'
+
+    // Testcontainers starts and stops the Redis container for us. 2.0.5 is the newest
+    // release. Redis needs nothing beyond a generic container, so this is the core module.
+    implementation 'org.testcontainers:testcontainers:2.0.5'
+
+    // Testcontainers and Jedis log through SLF4J. The simple binding is switched off in
+    // src/main/resources so the demo's own output is the only output.
+    implementation 'org.slf4j:slf4j-simple:2.0.17'
+
+    testImplementation platform('org.junit:junit-bom:5.10.2')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+application {
+    mainClass = 'com.jk.explore.pubsubredis.RedisPubSubDemo'
+}
+
+test {
+    useJUnitPlatform()
+    testLogging {
+        showStandardStreams = false
+    }
+}
