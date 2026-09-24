@@ -1,0 +1,44 @@
+plugins {
+    id 'java'
+    id 'application'
+}
+
+group = 'com.jk.explore'
+version = '1.0-SNAPSHOT'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // The RabbitMQ Java client. 5.36.0 is the newest release, and it speaks AMQP 0-9-1
+    // to any RabbitMQ 3.x or 4.x broker.
+    implementation 'com.rabbitmq:amqp-client:5.36.0'
+
+    // Testcontainers starts and stops the broker container for us, on a port it picks at
+    // random. 2.0.5 is the newest release; in the 2.x line every module carries the
+    // `testcontainers-` prefix.
+    implementation 'org.testcontainers:testcontainers-rabbitmq:2.0.5'
+
+    // Testcontainers logs through SLF4J. Without a binding it prints a warning and
+    // nothing else; the simple binding is turned off in src/main/resources.
+    implementation 'org.slf4j:slf4j-simple:2.0.17'
+
+    testImplementation platform('org.junit:junit-bom:5.10.2')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+application {
+    mainClass = 'com.jk.explore.competingconsumersrabbitmq.RabbitCompetingConsumersDemo'
+}
+
+test {
+    useJUnitPlatform()
+}
