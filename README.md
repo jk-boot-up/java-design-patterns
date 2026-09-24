@@ -19,7 +19,7 @@ README with the order to read it in:
 | [Creational](gradle-java/creational) | 9 | Simple Factory → Singleton, and the framework versions |
 | [Structural](gradle-java/structural) | 8 | Adapter → Proxy |
 | [Behavioural](gradle-java/behavioural) | 16 | Strategy → Interpreter |
-| [Microservices](gradle-java/micro-services-design-patterns) | 28 | API Gateway → Scatter-Gather, and Service Discovery with Consul |
+| [Microservices](gradle-java/micro-services-design-patterns) | 38 | API Gateway → Scatter-Gather, with Spring Cloud, Resilience4j and real-infrastructure versions |
 | [Platform](gradle-java/platform-design-patterns) | 16 | Externalised Configuration → Consumer-Driven Contract |
 | [Architectural](gradle-java/architectural-design-patterns) | 16 | Layered → Serverless, with Spring Boot versions |
 | [Concurrency](gradle-java/concurrency-design-patterns) | 16 | Producer–Consumer → Two-Phase Termination |
@@ -28,7 +28,7 @@ README with the order to read it in:
 | [Messaging and integration](gradle-java/messaging-integration-patterns) | 10 | Message Channel → Event Bus, with RabbitMQ, Camel and NATS versions |
 | [Domain-driven design](gradle-java/domain-driven-design-patterns) | 6 | Value Object → Bounded Context |
 
-That is 157 projects. Each has runnable code with deterministic tests, a README
+That is 167 projects. Each has runnable code with deterministic tests, a README
 with diagrams, an animation, a session plan and a narrated video pipeline, and
 each is taught through an online store unless the pattern is clearer in another
 setting. Every project ends with a bill: what the pattern costs.
@@ -53,7 +53,7 @@ on the `PATH` is the only prerequisite, and every project's
 ## Repository layout
 
 ```
-gradle-java/                 the course — 11 categories, 157 projects
+gradle-java/                 the course — 11 categories, 167 projects
   docs/                      the repository-wide specs and the shared
                              generators for specs, thumbnails and
                              YouTube documents
@@ -61,7 +61,7 @@ gradle-java/                 the course — 11 categories, 157 projects
   structural/                8 projects
   behavioural/               16 projects
   micro-services-design-patterns/
-                             28 projects
+                             38 projects
   platform-design-patterns/  16 projects
   architectural-design-patterns/
                              16 projects

@@ -80,7 +80,8 @@ Each of these reruns a pattern above on a real framework. They sit beside their 
 - [Retry with Resilience4j](retry-with-resilience4j-pattern)
 - [Bulkhead with Resilience4j](bulkhead-with-resilience4j-pattern)
 - [API Gateway with Spring Cloud Gateway](api-gateway-with-spring-cloud-gateway-pattern)
-- [Load Balancing with Spring Cloud LoadBalancer](load-balancing-with-spring-cloud-loadbalancer-pattern)- [Service Discovery with Spring Cloud Consul Pattern](service-discovery-with-spring-cloud-consul-pattern)
+- [Load Balancing with Spring Cloud LoadBalancer](load-balancing-with-spring-cloud-loadbalancer-pattern)
+- [Service Discovery with Spring Cloud Consul Pattern](service-discovery-with-spring-cloud-consul-pattern)
 
 ## More cloud and resilience patterns
 
@@ -94,3 +95,18 @@ Each of these reruns a pattern above on a real framework. They sit beside their 
 - [Publisher-Subscriber](publisher-subscriber-pattern)
 - [Pipes and Filters](pipes-and-filters-pattern)
 - [Scatter-Gather](scatter-gather-pattern)
+
+## With real infrastructure
+
+The hand-built projects above run in plain Java with nothing installed. These pair with them and run the same idea on the real tool — Redis, RabbitMQ, Kafka, Postgres, MongoDB, Debezium, Amazon S3 and SQS through LocalStack, or a Kubernetes cluster through kind. Each one names what its simulation got right and what it left out, and each stands on its own. The tests that need Docker or kind are skipped when they are missing.
+
+- [Cache-Aside with Redis](cache-aside-with-redis-pattern), with Redis in Docker
+- [Publisher-Subscriber with Redis](publisher-subscriber-with-redis-pattern), with Redis in Docker
+- [Rate Limiter with Redis](rate-limiter-with-redis-pattern), with Redis and Bucket4j
+- [Competing Consumers with RabbitMQ](competing-consumers-with-rabbitmq-pattern), with RabbitMQ in Docker
+- [Claim Check with S3](claim-check-with-s3-pattern), with S3 and SQS through LocalStack
+- [Queue-Based Load Leveling with SQS](queue-based-load-leveling-with-sqs-pattern), with SQS through LocalStack
+- [Idempotent Consumer with Kafka](idempotent-consumer-with-kafka-pattern), with Kafka and Postgres in Docker
+- [Database per Service with Containers](database-per-service-with-containers-pattern), with Postgres and MongoDB in Docker
+- [Transactional Outbox with Debezium](transactional-outbox-with-debezium-pattern), with Postgres, Kafka and Debezium
+- [Leader Election with Kubernetes](leader-election-with-kubernetes-pattern), with a Kubernetes Lease through kind

@@ -516,6 +516,12 @@ META = {
     "database-per-service-with-containers": (['DATABASE PER SERVICE', 'WITH CONTAINERS'],
                   'Postgres refuses the join. MongoDB says nothing',
                   '$lookup: 0 orders, no error'),
+    "leader-election-with-kubernetes": (['LEADER ELECTION', 'WITH KUBERNETES'],
+                  'The leader froze. It sent the report anyway',
+                  'sent by [B, A]'),
+    "transactional-outbox-with-debezium": (['TRANSACTIONAL OUTBOX', 'WITH DEBEZIUM'],
+                  'The outbox row was deleted. The event still went out',
+                  'outbox rows: 0, events: 3'),
 }
 
 GROUP = {
@@ -733,6 +739,10 @@ GROUP["queue-based-load-leveling-with-sqs"] = "micro-services-design-patterns"
 GROUP["idempotent-consumer-with-kafka"] = "micro-services-design-patterns"
 
 GROUP["database-per-service-with-containers"] = "micro-services-design-patterns"
+
+GROUP["leader-election-with-kubernetes"] = "micro-services-design-patterns"
+
+GROUP["transactional-outbox-with-debezium"] = "micro-services-design-patterns"
 
 GROUP.update({slug: "creational" for slug in (
     "singleton-with-spring",

@@ -6,7 +6,7 @@
 | Last updated | 2026-09-24 (resumed session) |
 | Branch | `main`, at `8994c81` |
 | Commits made this session | none |
-| Repository state | 157 projects committed (wave 1 committed 2026-09-24, `bef1611`..`bdac65c`, not pushed); wave 2 building |
+| Repository state | 167 projects committed and pushed to `origin/main`; waves 1 and 2 done; waves 3 (4 platform) and 4 (9 framework versions) not started |
 
 This document exists so that a session working on this batch can be stopped at any point and
 picked up later, by a different session with no memory of this one, without having to re-derive
@@ -48,7 +48,7 @@ tracked file belonging to an existing project may show as modified.
 | Wave | Projects | State |
 | --- | --- | --- |
 | 1 | 5 messaging and integration | committed |
-| 2 | 10 microservices | group A (cache-aside-with-redis, publisher-subscriber-with-redis, rate-limiter-with-redis, competing-consumers-with-rabbitmq, claim-check-with-s3) committed and registered 2026-09-25, `ef95754`..`3354d71`. Group B building three at a time for Docker memory: queue-based-load-leveling-with-sqs, database-per-service-with-containers, idempotent-consumer-with-kafka; then transactional-outbox-with-debezium and leader-election-with-kubernetes. Category README and root counts are updated when all ten are in |
+| 2 | 10 microservices | **finished, committed and pushed** 2026-09-25. Microservices README section "With real infrastructure" added; root counts now 38 microservices, 167 projects |
 | 3 | 4 platform | not started |
 | 4 | 9 framework versions | not started |
 

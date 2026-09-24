@@ -207,6 +207,8 @@ ORDER = [
     ("micro-services-design-patterns", "queue-based-load-leveling-with-sqs"),
     ("micro-services-design-patterns", "idempotent-consumer-with-kafka"),
     ("micro-services-design-patterns", "database-per-service-with-containers"),
+    ("micro-services-design-patterns", "leader-election-with-kubernetes"),
+    ("micro-services-design-patterns", "transactional-outbox-with-debezium"),
 ]
 
 # Per-project title and tag material. The title is what gets pasted into
@@ -873,6 +875,14 @@ META = {
     "database-per-service-with-containers": {
         "title": 'Database per Service with Containers',
         "tags": ['database per service', 'postgres', 'mongodb', 'microservices data'],
+    },
+    "leader-election-with-kubernetes": {
+        "title": 'Leader Election with Kubernetes',
+        "tags": ['leader election', 'kubernetes lease', 'fencing token', 'kind'],
+    },
+    "transactional-outbox-with-debezium": {
+        "title": 'Transactional Outbox with Debezium',
+        "tags": ['transactional outbox', 'debezium', 'change data capture', 'kafka'],
     },
 }
 

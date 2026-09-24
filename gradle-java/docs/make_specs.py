@@ -221,6 +221,8 @@ ORDER = [
     ("micro-services-design-patterns", "queue-based-load-leveling-with-sqs"),
     ("micro-services-design-patterns", "idempotent-consumer-with-kafka"),
     ("micro-services-design-patterns", "database-per-service-with-containers"),
+    ("micro-services-design-patterns", "leader-election-with-kubernetes"),
+    ("micro-services-design-patterns", "transactional-outbox-with-debezium"),
 ]
 
 # Demos that mint an identifier per run, so their output is not byte-stable.
@@ -384,6 +386,8 @@ NAMES = {
     "queue-based-load-leveling-with-sqs": 'Queue-Based Load Leveling with SQS',
     "idempotent-consumer-with-kafka": 'Idempotent Consumer with Kafka',
     "database-per-service-with-containers": 'Database per Service with Containers',
+    "leader-election-with-kubernetes": 'Leader Election with Kubernetes',
+    "transactional-outbox-with-debezium": 'Transactional Outbox with Debezium',
 }
 
 # ---------------------------------------------------------------------------
@@ -7315,6 +7319,60 @@ requirements=[
     '**Round trips are counted, not timed,** so the output is the same on every run.',
     '**Tests are skipped when Docker is missing.**',
     '**Dependencies are explained.** `docs/dependencies.md` says what to install, what it costs, and that skipping loses nothing.',
+],
+),
+
+"leader-election-with-kubernetes": dict(
+purpose="""
+Show leader election on a real Kubernetes Lease through kind, with three service copies as separate JVMs using Fabric8's LeaderElector: a nightly report sent three times with no election; one copy written into the lease and a second write refused with 409 Conflict; a hand-over after a clean stop and after a kill; a frozen leader that wakes and sends the report while the lease already names another copy; the lease's own count of holder changes used as a fencing token that refuses the stale write; and a loser that never rejoins on its own.
+""",
+nongoals=[
+    'Not a re-teaching of Leader Election. The partner project owns the pattern; this one names it in its first paragraph.',
+    'Not a Kubernetes tutorial. Only the Lease object, its holder, renew time and transition count, and optimistic concurrency are introduced, as they appear.',
+],
+problem="""
+Leader Election decided the leader in one process, on one clock. Kubernetes only stores the lease and refuses writes from an old version; each copy decides expiry with its own clock, so a paused leader can still act after it has lost.
+
+**What this project must deliver:** duplicate work without an election, a real lease and a refused write, hand-over timings, a stale leader acting, a fencing token as the answer, and the cost.
+""",
+roles=[
+    ('The demo', '`KubernetesLeaderElectionDemo`'),
+    ('The cluster', '`Cluster`, which creates and deletes the kind cluster, and `LeaseView`'),
+    ('The copies', '`ServiceCopy`, `Candidate` and the `Inbox` that checks tokens'),
+],
+requirements=[
+    '**The API server and the lease are real,** in a kind cluster the demo creates with a private kubeconfig and deletes at the end.',
+    '**The freeze is a real process pause,** so the stale leader is not simulated; hand-over times vary and are printed as descriptions.',
+    '**Waits are bounded polls.** No test contains a fixed sleep.',
+    '**Tests are skipped when Docker or kind is missing.**',
+    '**Dependencies are explained.** `docs/dependencies.md` says what to install, what it costs, and that skipping loses nothing.',
+],
+),
+
+"transactional-outbox-with-debezium": dict(
+purpose="""
+Show the transactional outbox with real change data capture: Postgres with logical decoding, Debezium's embedded engine reading its write-ahead log through a replication slot, and Kafka. A dual write that loses an event or publishes one for an order that never saved; the outbox row committed with the order and published by Debezium, and nothing published on rollback; an outbox row deleted in the same transaction still published; a stopped connector whose slot holds the log without limit; a crash that republishes events with the same ids; and per-order ordering on Kafka partitions.
+""",
+nongoals=[
+    'Not a re-teaching of Transactional Outbox. The partner project owns the pattern; this one names it in its first paragraph.',
+    'Not a Debezium or Kafka tutorial. Only the write-ahead log, the replication slot, the outbox event router, offsets and partitions are introduced, as they appear.',
+],
+problem="""
+Transactional Outbox polled its own table and published what it found. Debezium reads the database's log instead, so what it publishes is every committed change — even a row deleted in the same transaction — and the slot it reads through keeps the log for as long as it is away.
+
+**What this project must deliver:** both dual-write failures, commit-then-publish, rollback, the deleted-row surprise, the growing slot, republish after a crash, and ordering per key.
+""",
+roles=[
+    ('The demo', '`OutboxWithDebeziumDemo`'),
+    ('The infrastructure', '`OrdersDatabase` for Postgres, `Broker` for Kafka, and `ChangeDataCapture` running Debezium'),
+    ('The checkouts', '`DualWriteCheckout` and `OutboxCheckout`'),
+],
+requirements=[
+    "**Change data capture is real,** from Postgres's write-ahead log through a replication slot, with Postgres and Kafka in Docker and Debezium embedded in the demo.",
+    "**Republished events are Debezium's own,** with the same event ids; the size of the retained log varies and is printed as a description.",
+    '**Waits are bounded polls.** No test contains a fixed sleep.',
+    '**Tests are skipped when Docker is missing.**',
+    '**Dependencies are explained.** `docs/dependencies.md` says what to install, what it costs, and why the embedded engine was chosen.',
 ],
 ),
 
