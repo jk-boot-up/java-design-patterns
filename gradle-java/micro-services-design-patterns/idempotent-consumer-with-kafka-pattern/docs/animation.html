@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Idempotent Consumer with Kafka — Animated Walkthrough</title>
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 24px;
+    background: #0f172a; color: #e2e8f0;
+    font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
+    padding-top: calc(24px + env(safe-area-inset-top, 0px));
+    padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+  }
+  h1 { font-size: 1.4rem; margin: 0 0 4px; }
+  p.sub { color: #94a3b8; margin: 0 0 20px; max-width: 70ch; }
+  .wrap { max-width: 1100px; margin: 0 auto; }
+  .stage {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+    margin-bottom: 16px;
+  }
+  @media (max-width: 760px) { .stage { grid-template-columns: 1fr; } }
+  .boxes { display: flex; flex-direction: column; gap: 10px; }
+  .row {
+    border: 2px solid #334155; border-radius: 10px; padding: 12px 16px;
+    background: #1e293b; transition: all .25s ease; opacity: .55;
+  }
+  .row .name { font-weight: 700; font-size: 1rem; }
+  .row .job { color: #94a3b8; font-size: .82rem; margin-top: 2px; }
+  .row.active { opacity: 1; box-shadow: 0 0 0 2px currentColor inset; }
+  .row.wrong { border-color: #f87171; color: #f87171; }
+  .row.wrong.active { background: #3f1d24; }
+  .row.ok { border-color: #34d399; color: #34d399; }
+  .row.ok.active { background: #10261f; }
+  .row.amber { border-color: #fbbf24; color: #fbbf24; }
+  .row.amber.active { background: #2a2110; }
+  .row.dim { opacity: .22; }
+  .console {
+    background: #020617; border: 1px solid #334155; border-radius: 10px;
+    padding: 16px; font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    font-size: .86rem; line-height: 1.55; overflow-y: auto; min-height: 320px;
+    white-space: pre-wrap;
+  }
+  #console-lines span.ok { color: #34d399; }
+  #console-lines span.bad { color: #f87171; }
+  #console-lines span.amber { color: #fbbf24; }
+  #console-lines span.muted { color: #94a3b8; }
+  .narration {
+    background: #1e293b; border: 1px solid #334155; border-radius: 10px;
+    padding: 14px 18px; margin-bottom: 16px; min-height: 3.2em;
+  }
+  .controls { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  button {
+    background: #334155; color: #e2e8f0; border: 1px solid #475569;
+    border-radius: 8px; padding: 10px 18px; font-size: .92rem; cursor: pointer;
+  }
+  button:hover { background: #475569; }
+  button#play { background: #7c3aed; border-color: #7c3aed; }
+  button#play:hover { background: #8b5cf6; }
+  button#audio.on { background: #0f766e; border-color: #14b8a6; }
+  #progress { color: #94a3b8; font-size: .85rem; margin-left: auto; }
+  .audio-note { color: #94a3b8; font-size: .78rem; margin: 10px 0 0; min-height: 1em; }
+  .step-label {
+    font-size: .78rem; text-transform: uppercase; letter-spacing: .04em;
+    color: #a78bfa; font-weight: 700; margin-bottom: 4px;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Idempotent Consumer with Kafka — Step by Step</h1>
+  <p class="sub">
+    Six acts, the same ones the demo prints against a real Kafka broker and a real Postgres
+    database. Green is one email per order, amber is an order handed out again or a copy
+    left waiting, red is a second email for the same order.
+  </p>
+
+  <div class="narration">
+    <div class="step-label" id="step-label">Ready</div>
+    <div id="narration">Press Step or Play to begin.</div>
+  </div>
+
+  <div class="stage">
+    <div class="boxes" id="boxes">
+      <div class="row" id="row-shop">
+        <div class="name">checkout</div>
+        <div class="job">writes one OrderPlaced message per order, each with its own id</div>
+      </div>
+      <div class="row" id="row-kafka">
+        <div class="name">Kafka topic</div>
+        <div class="job">keeps the orders at numbered places, and each group's bookmark</div>
+      </div>
+      <div class="row" id="row-a">
+        <div class="name">notifications, copy A</div>
+        <div class="job">one running copy of the service, in the group notifications</div>
+      </div>
+      <div class="row" id="row-b">
+        <div class="name">notifications, copy B</div>
+        <div class="job">another copy; handed whatever copy A left behind</div>
+      </div>
+      <div class="row" id="row-db">
+        <div class="name">Postgres</div>
+        <div class="job">confirmations, one row per email; handled_messages, one row per id</div>
+      </div>
+    </div>
+    <div class="console"><div id="console-lines"></div></div>
+  </div>
+
+  <div class="controls">
+    <button id="step">Step &#9656;</button>
+    <button id="play">Play &#9654;</button>
+    <button id="reset">Reset &#8635;</button>
+    <button id="audio" aria-pressed="false">&#128263; Narration: off</button>
+    <span id="progress">0 / 0</span>
+  </div>
+  <p class="audio-note" id="audio-note"></p>
+</div>
+
+<script>
+const STEPS = [
+  {
+    label: "Act 1 — Kafka sends it again",
+    narration: "Act one. Checkout places three orders. Kafka keeps them in a topic, at places zero, one and two. Copy A of the notifications service is handed all three, and queues three confirmation emails. Then it crashes, before asking Kafka to write down the place it reached. Kafka calls that writing-down committing the offset. So no place is written down, and copy B is handed the same three orders again, at the same places. Nothing on them says they are repeats. Six deliveries for three orders, and six emails.",
+    rows: {shop: "active ok", kafka: "active amber", a: "active wrong", b: "active wrong", db: "active wrong"},
+    console: [
+      ["checkout places 3 orders, at places 0, 1, 2", "muted"],
+      ["copy A is handed 3, queues 3 emails, crashes", "bad"],
+      ["place written down: none", "amber"],
+      ["copy B is handed places 0, 1, 2 again", "amber"],
+      ["nothing on them says they are repeats", "muted"],
+      ["deliveries 6 for 3 orders. emails queued: 6", "bad"],
+    ],
+  },
+  {
+    label: "Act 2 — a list of ids in memory",
+    narration: "Act two. Copy A keeps a list of the ids it has handled, in its own memory. It handles three orders, remembers three ids, and crashes before writing down its place. Copy B is handed the same three. Its list starts with no ids at all. Six emails again. A repeat only happens because a copy stopped, so it always lands on a list that is new.",
+    rows: {kafka: "active amber", a: "active wrong", b: "active wrong", db: "active wrong"},
+    console: [
+      ["copy A remembers 3 ids, then crashes", "amber"],
+      ["copy B's list starts with 0 ids", "bad"],
+      ["emails queued: 6", "bad"],
+      ["the list died with copy A", "muted"],
+    ],
+  },
+  {
+    label: "Act 3 — a table of ids, in the same transaction",
+    narration: "Act three. The pattern. Copy A writes each order's id into a table in Postgres, and the email beside it, in one database transaction. Then it crashes before writing down its place in Kafka. Copy B is handed the same three. The table already holds their ids, so copy B skips all three and queues none. Six deliveries, three emails, three ids. The table outlived the copy that wrote it.",
+    rows: {kafka: "active amber", a: "active ok", b: "active ok", db: "active ok"},
+    console: [
+      ["copy A: id and email in one transaction, x3", "ok"],
+      ["copy A crashes before writing its place", "amber"],
+      ["copy B is handed 3. skips 3, queues 0", "ok"],
+      ["deliveries 6. emails 3. ids stored 3", "ok"],
+    ],
+  },
+  {
+    label: "Act 4 — where the crash lands",
+    narration: "Act four. First the id is written after the email, as a second step. Copy A queues the email for order one and dies before writing the id. Copy B finds no id and queues the email again. Two emails. Then the id and the email go in one transaction, and copy A dies before the commit. Postgres throws both away: no email, no id. Copy B handles the order properly. One email, one id. Exactly once, from a broker that only promises at least once.",
+    rows: {kafka: "active amber", a: "active wrong", b: "active ok", db: "active ok"},
+    console: [
+      ["second step: A dies before the id. emails 1, ids 0", "amber"],
+      ["copy B queues it again. emails for ORD-1: 2", "bad"],
+      ["one transaction: A dies before the commit", "amber"],
+      ["Postgres throws both away. emails 0, ids 0", "muted"],
+      ["copy B handles it. emails 1, ids 1", "ok"],
+    ],
+  },
+  {
+    label: "Act 5 — two copies at once",
+    narration: "Act five. Kafka gives each copy a patience limit: how long it may go without asking for more, before Kafka decides it is stuck. Here the limit is three seconds. Copy A is handed order one, writes the id and the email, and is slow to commit. After three seconds Kafka hands the same order to copy B. Copy B tries to write the same id, and Postgres makes it wait, because copy A holds a lock on it. Copy A commits. Postgres tells copy B the id is taken, and copy B skips it. One email. Then copy A asks Kafka to write down its place, and Kafka refuses. Copy A no longer owns those orders.",
+    rows: {kafka: "active amber", a: "active amber", b: "active ok", db: "active ok"},
+    console: [
+      ["copy A is handed ORD-1 and is slow", "amber"],
+      ["after 3 seconds, Kafka hands ORD-1 to copy B", "amber"],
+      ["B writes the same id. waiting on a lock: 1", "amber"],
+      ["A commits. queued by B: 0. emails for ORD-1: 1", "ok"],
+      ["A's place refused: CommitFailedException", "bad"],
+    ],
+  },
+  {
+    label: "Act 6 — the bill",
+    narration: "Act six, the bill. Three orders placed two days ago are handled, and their three ids stored. A cleanup job keeps ids for twenty four hours, and deletes all three. But this topic keeps orders for one hundred and sixty eight hours, which is seven days. An operator replays the group from the start. Three orders are handed out again, and with their ids gone, three more emails are queued. Six in all. Keep the ids at least as long as Kafka keeps the orders. And there are two more systems to run: two containers, a broker and a database, for one email per order.",
+    rows: {shop: "active", kafka: "active amber", b: "active wrong", db: "active wrong"},
+    console: [
+      ["ids stored 3. cleanup keeps 24 hours, deletes 3", "amber"],
+      ["topic keeps orders for 168 hours", "muted"],
+      ["replay: handed again 3. emails queued: 6", "bad"],
+      ["keep ids as long as Kafka keeps orders", "ok"],
+      ["2 containers, for 1 email per order", "muted"],
+    ],
+  },
+];
+
+const rowIds = ["shop", "kafka", "a", "b", "db"];
+const stepLabel = document.getElementById("step-label");
+const narrationEl = document.getElementById("narration");
+const consoleEl = document.getElementById("console-lines");
+const progressEl = document.getElementById("progress");
+const stepBtn = document.getElementById("step");
+const playBtn = document.getElementById("play");
+const resetBtn = document.getElementById("reset");
+const audioBtn = document.getElementById("audio");
+const audioNote = document.getElementById("audio-note");
+
+let i = -1;
+let timer = null;
+let audioOn = false;
+let current = null;
+
+const clips = STEPS.map((_, k) => {
+  const a = new Audio("audio/step-" + (k + 1) + ".m4a");
+  a.preload = "none";
+  return a;
+});
+
+function stopAudio() {
+  if (!current) return;
+  current.pause();
+  current.currentTime = 0;
+  current.onended = null;
+  current = null;
+}
+
+function playClip(k) {
+  stopAudio();
+  if (!audioOn || k < 0 || k >= clips.length) return;
+  const a = clips[k];
+  current = a;
+  a.currentTime = 0;
+  a.onended = () => { current = null; };
+  a.play().catch(() => {
+    current = null;
+    audioNote.textContent =
+      "Narration audio could not be played. Run docs/make_animation_audio.sh to generate the clips.";
+  });
+}
+
+function setAudio(on) {
+  audioOn = on;
+  audioBtn.classList.toggle("on", on);
+  audioBtn.setAttribute("aria-pressed", String(on));
+  audioBtn.innerHTML = (on ? "\u{1F50A}" : "\u{1F507}") + " Narration: " + (on ? "on" : "off");
+  audioNote.textContent = on ? "Each step is read aloud as it appears." : "";
+  if (!on) stopAudio();
+}
+
+function clearRows() {
+  for (const id of rowIds) {
+    document.getElementById("row-" + id).className = "row";
+  }
+}
+
+function render() {
+  clearRows();
+  if (i < 0) {
+    stepLabel.textContent = "Ready";
+    narrationEl.textContent = "Press Step or Play to begin.";
+    consoleEl.innerHTML = "";
+    progressEl.textContent = "0 / " + STEPS.length;
+    return;
+  }
+  const s = STEPS[i];
+  stepLabel.textContent = s.label;
+  narrationEl.textContent = s.narration;
+  for (const id of rowIds) {
+    const el = document.getElementById("row-" + id);
+    const cls = s.rows[id];
+    el.className = "row " + (cls ? cls : "dim");
+  }
+  consoleEl.innerHTML = s.console
+    .map(([text, cls]) => '<span class="' + cls + '">' + text + "</span>")
+    .join("\n");
+  progressEl.textContent = (i + 1) + " / " + STEPS.length;
+}
+
+function step() {
+  if (i >= STEPS.length - 1) { stopPlay(); return; }
+  i += 1;
+  render();
+  playClip(i);
+}
+
+function reset() {
+  stopPlay();
+  stopAudio();
+  i = -1;
+  render();
+}
+
+function startPlay() {
+  if (timer) return;
+  playBtn.innerHTML = "Pause &#10074;&#10074;";
+  timer = setInterval(() => {
+    if (i >= STEPS.length - 1) { stopPlay(); return; }
+    step();
+  }, 9000);
+}
+
+function stopPlay() {
+  if (timer) clearInterval(timer);
+  timer = null;
+  playBtn.innerHTML = "Play &#9654;";
+}
+
+stepBtn.addEventListener("click", () => { stopPlay(); step(); });
+resetBtn.addEventListener("click", reset);
+playBtn.addEventListener("click", () => { if (timer) stopPlay(); else startPlay(); });
+audioBtn.addEventListener("click", () => setAudio(!audioOn));
+
+render();
+</script>
+</body>
+</html>
