@@ -199,6 +199,11 @@ ORDER = [
     ("messaging-integration-patterns", "dead-letter-channel-with-rabbitmq"),
     ("messaging-integration-patterns", "content-based-router-with-camel"),
     ("messaging-integration-patterns", "message-channel-with-rabbitmq"),
+    ("micro-services-design-patterns", "publisher-subscriber-with-redis"),
+    ("micro-services-design-patterns", "competing-consumers-with-rabbitmq"),
+    ("micro-services-design-patterns", "claim-check-with-s3"),
+    ("micro-services-design-patterns", "rate-limiter-with-redis"),
+    ("micro-services-design-patterns", "cache-aside-with-redis"),
 ]
 
 # Per-project title and tag material. The title is what gets pasted into
@@ -833,6 +838,26 @@ META = {
     "message-channel-with-rabbitmq": {
         "title": 'Message Channel with RabbitMQ',
         "tags": ['message channel', 'rabbitmq', 'message queue', 'docker'],
+    },
+    "publisher-subscriber-with-redis": {
+        "title": 'Publisher-Subscriber with Redis',
+        "tags": ['publisher subscriber', 'redis pub sub', 'redis', 'docker'],
+    },
+    "competing-consumers-with-rabbitmq": {
+        "title": 'Competing Consumers with RabbitMQ',
+        "tags": ['competing consumers', 'rabbitmq', 'prefetch', 'docker'],
+    },
+    "claim-check-with-s3": {
+        "title": 'Claim Check with S3',
+        "tags": ['claim check', 'amazon s3', 'amazon sqs', 'localstack'],
+    },
+    "rate-limiter-with-redis": {
+        "title": 'Rate Limiter with Redis',
+        "tags": ['rate limiter', 'redis', 'bucket4j', 'docker'],
+    },
+    "cache-aside-with-redis": {
+        "title": 'Cache-Aside with Redis',
+        "tags": ['cache aside', 'redis cache', 'redis', 'docker'],
     },
 }
 

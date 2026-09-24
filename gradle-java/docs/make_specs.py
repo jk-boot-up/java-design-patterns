@@ -213,6 +213,11 @@ ORDER = [
     ("messaging-integration-patterns", "dead-letter-channel-with-rabbitmq"),
     ("messaging-integration-patterns", "content-based-router-with-camel"),
     ("messaging-integration-patterns", "message-channel-with-rabbitmq"),
+    ("micro-services-design-patterns", "publisher-subscriber-with-redis"),
+    ("micro-services-design-patterns", "competing-consumers-with-rabbitmq"),
+    ("micro-services-design-patterns", "claim-check-with-s3"),
+    ("micro-services-design-patterns", "rate-limiter-with-redis"),
+    ("micro-services-design-patterns", "cache-aside-with-redis"),
 ]
 
 # Demos that mint an identifier per run, so their output is not byte-stable.
@@ -368,6 +373,11 @@ NAMES = {
     "dead-letter-channel-with-rabbitmq": "Dead Letter Channel with RabbitMQ",
     "content-based-router-with-camel": "Content-Based Router with Camel",
     "message-channel-with-rabbitmq": "Message Channel with RabbitMQ",
+    "publisher-subscriber-with-redis": 'Publisher-Subscriber with Redis',
+    "competing-consumers-with-rabbitmq": 'Competing Consumers with RabbitMQ',
+    "claim-check-with-s3": 'Claim Check with S3',
+    "rate-limiter-with-redis": 'Rate Limiter with Redis',
+    "cache-aside-with-redis": 'Cache-Aside with Redis',
 }
 
 # ---------------------------------------------------------------------------
@@ -7081,6 +7091,141 @@ requirements=[
     '**The broker is real,** run in Docker by the demo and removed afterwards, and restarted mid-demo to test durability.',
     '**Delivery counts are the broker\'s own,** including the redelivered flag on an order a crashed picker never finished.',
     '**Waits are bounded polls.** No test contains a fixed sleep.',
+    '**Tests are skipped when Docker is missing.**',
+    '**Dependencies are explained.** `docs/dependencies.md` says what to install, what it costs, and that skipping loses nothing.',
+],
+),
+
+"publisher-subscriber-with-redis": dict(
+purpose="""
+Show publisher-subscriber on a real Redis server in Docker: an order service that names every consumer, replaced by one publish that Redis answers with a count of receivers; a subscriber in a second Java process; a message missed by a late subscriber and kept nowhere; pattern subscriptions; and a subscriber that falls behind being cut off by Redis's own output buffer limit, while the publisher sees only the count drop.
+""",
+nongoals=[
+    'Not a re-teaching of Publisher-Subscriber. The partner project owns the pattern; this one names it in its first paragraph.',
+    'Not a Redis tutorial. Only PUBLISH, SUBSCRIBE, pattern subscriptions and the client output buffer limit are introduced, as they appear.',
+],
+problem="""
+Publisher-Subscriber kept its topic as an object inside one program. Redis keeps it in a separate server, across processes, and keeps nothing: a publish reaches whoever is listening at that instant, and a listener that stops reading is not waited for.
+
+**What this project must deliver:** a publish that returns its receiver count, a subscriber in another process, a missed message, pattern subscriptions, and a slow subscriber cut off by the server.
+""",
+roles=[
+    ('The demo', '`RedisPubSubDemo`'),
+    ('The server', '`RedisServer`, which runs the Redis container and reads its counters'),
+    ('The publisher and subscribers', '`OrderService`, `Subscriber` and `LoyaltyProcess`'),
+],
+requirements=[
+    '**Redis is real,** run in Docker by the demo and removed afterwards, with one subscriber in a second Java process.',
+    "**The cut-off is Redis's own,** confirmed by its `client_output_buffer_limit_disconnections` counter, and asserted as a range because the network path buffers an unpredictable amount first.",
+    '**Waits are bounded polls.** No test contains a fixed sleep.',
+    '**Tests are skipped when Docker is missing.**',
+    '**Dependencies are explained.** `docs/dependencies.md` says what to install, what it costs, and that skipping loses nothing.',
+],
+),
+
+"competing-consumers-with-rabbitmq": dict(
+purpose="""
+Show competing consumers on a real RabbitMQ broker in Docker: several pickers sharing one queue so each order is picked once; the broker's default of no prefetch limit handing the whole queue to the first picker while another sits idle; prefetch 10 and prefetch 1 compared; a picker that crashes mid-work handing back every order it held, all marked seen before; automatic acknowledgement losing orders outright; and a poison order redelivered for ever.
+""",
+nongoals=[
+    'Not a re-teaching of Competing Consumers. The partner project owns the pattern; this one names it in its first paragraph.',
+    'Not a RabbitMQ tutorial. Only queues, prefetch, acknowledgement and the redelivered mark are introduced, as they appear.',
+],
+problem="""
+Competing Consumers let each worker take one message at a time. RabbitMQ pushes messages to workers, and by default sets no limit on how many one worker may hold, so the first to listen can be handed the whole queue.
+
+**What this project must deliver:** a fair split of equal work, the default-prefetch imbalance, the effect of prefetch 10 and 1, redelivery after a crash, loss under automatic acknowledgement, and a poison order.
+""",
+roles=[
+    ('The demo', '`RabbitCompetingConsumersDemo`'),
+    ('The broker', '`Broker`, which runs the RabbitMQ container, and `OrderQueue`'),
+    ('The pickers', '`Picker`, `PickOrder` and `Stock`'),
+],
+requirements=[
+    '**The broker is real,** run in Docker by the demo and removed afterwards.',
+    "**The split of equal work is the broker's own scheduling,** asserted as a range and printed as a description; every other count is exact.",
+    '**Waits are bounded polls.** No test contains a fixed sleep.',
+    '**Tests are skipped when Docker is missing.**',
+    '**Dependencies are explained.** `docs/dependencies.md` says what to install, what it costs, and that skipping loses nothing.',
+],
+),
+
+"claim-check-with-s3": dict(
+purpose="""
+Show claim check on real Amazon S3 and SQS through LocalStack in Docker: an invoice PDF refused by the queue's own size limit, which counts base64 text rather than bytes; the same invoice stored in S3 and sent as a 113-byte ticket; stored objects left behind by uncollected and failed sends; two invoices sharing one key; a versioned bucket that keeps every byte after a delete; expiry by lifecycle rule and queue retention; and the extra requests the ticket costs.
+""",
+nongoals=[
+    'Not a re-teaching of Claim Check. The partner project owns the pattern; this one names it in its first paragraph.',
+    'Not an AWS tutorial. Only the SQS message size limit, S3 keys, versioning, lifecycle rules and retention are introduced, as they appear.',
+],
+problem="""
+Claim Check stored a payload in a map and passed its key. Here the limit is the queue service's own, the store is S3, and the ticket and the payload can each outlive, lose or overwrite the other.
+
+**What this project must deliver:** a real refusal at the size limit, a ticket round trip, orphaned objects, a shared key, a versioned delete, expiry, and the request bill.
+""",
+roles=[
+    ('The demo', '`ClaimCheckS3Demo`'),
+    ('The platform', '`LocalStack`, with `Bucket` and `Queue`'),
+    ('Sender and receiver', '`Sender`, `Receiver` and the `Claim` ticket'),
+],
+requirements=[
+    '**S3 and SQS are real APIs,** served by LocalStack 4.14.0 in Docker, started and removed by the demo.',
+    "**The size limit is the service's own,** found by probing at the edge, never assumed.",
+    '**Waits are bounded polls.** No test contains a fixed sleep; a day-long expiry is simulated and said to be.',
+    '**Tests are skipped when Docker is missing.**',
+    '**Dependencies are explained.** `docs/dependencies.md` says what to install, what it costs, and that skipping loses nothing.',
+],
+),
+
+"rate-limiter-with-redis": dict(
+purpose="""
+Show a rate limiter shared through Redis with Bucket4j, in Docker: per-server buckets that let three times the limit through once the service is scaled out; one bucket in Redis that holds the limit across servers and restarts; 90 simultaneous requests still held to exactly 10; a read-then-write counter that serves two searches from one token; one server with a fast clock refilling the shared bucket for everyone; and the bill of keys and a Redis outage.
+""",
+nongoals=[
+    'Not a re-teaching of Rate Limiter. The partner project owns the pattern; this one names it in its first paragraph.',
+    'Not a Redis or Bucket4j tutorial. Only the shared bucket, the compare-and-swap write, key expiry and the refill clock are introduced, as they appear.',
+],
+problem="""
+Rate Limiter kept its bucket in one process, on one hand-moved clock. Scaled out, every server needs the same bucket, which Redis can hold; but each server still does the refill sums with its own clock.
+
+**What this project must deliver:** the leak with per-server buckets, a shared bucket that holds, exactness under concurrency, a lost update without compare-and-swap, a fast clock that breaks the limit, and the cost.
+""",
+roles=[
+    ('The demo', '`RedisRateLimiterDemo`'),
+    ('Redis', '`Redis`, which runs the container'),
+    ('The servers', '`ServerWithOwnBuckets`, `ServerSharingRedis`, `SearchLimit` and `PlainCounter`'),
+],
+requirements=[
+    '**Redis and Bucket4j are real,** Redis run in Docker by the demo and removed afterwards, and stopped on purpose in the last act.',
+    '**Every count is exact,** because the bucket refills once an hour and Bucket4j writes only if the bucket is unchanged since it was read.',
+    '**Waits are bounded polls.** No test contains a fixed sleep.',
+    '**Tests are skipped when Docker is missing.**',
+    '**Dependencies are explained.** `docs/dependencies.md` says what to install, what it costs, and that skipping loses nothing.',
+],
+),
+
+"cache-aside-with-redis": dict(
+purpose="""
+Show cache-aside on a real Redis server in Docker: 1000 product views cut from 1000 database reads to 10; a second shop process that finds the cache already warm, and one delete that clears the stale price for every process; real expiry, and a plain write that silently erases it and makes a stale price permanent; a stampede of 50 requests on a cold key, fixed per instance and then across instances with a lock kept in Redis; and the bill of memory limits and a cold restart.
+""",
+nongoals=[
+    'Not a re-teaching of Cache-Aside. The partner project owns the pattern; this one names it in its first paragraph.',
+    'Not a Redis tutorial. Only GET, SET with an expiry, DEL, the time-to-live and a lock key are introduced, as they appear.',
+],
+problem="""
+Cache-Aside kept its cache in one process, on a clock it controlled. Redis keeps it where every process can see it and expires keys itself — but only keys written with an expiry, and it does nothing about many processes missing the same key at once.
+
+**What this project must deliver:** the saving, a cache shared across processes, real expiry and its silent loss, a stampede and its two cures, and the bill.
+""",
+roles=[
+    ('The demo', '`RedisCacheAsideDemo`'),
+    ('The cache', '`RedisServer`, which runs the container, and `RedisCache`'),
+    ('The shop', '`ProductService`, `Database` and `SecondShop`'),
+],
+requirements=[
+    '**Redis is real,** run in Docker by the demo and removed afterwards, and read by a second shop in a separate Java process.',
+    '**The stampede without protection is asserted as a range** and printed as a description; every other count is exact.',
+    '**Waits are bounded polls.** No test contains a fixed sleep; expiry is observed on Redis, never slept through.',
     '**Tests are skipped when Docker is missing.**',
     '**Dependencies are explained.** `docs/dependencies.md` says what to install, what it costs, and that skipping loses nothing.',
 ],

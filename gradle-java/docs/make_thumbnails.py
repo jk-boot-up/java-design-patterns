@@ -492,6 +492,21 @@ META = {
     "message-channel-with-rabbitmq": (['MESSAGE CHANNEL', 'WITH RABBITMQ'],
                   'Restart the broker. Which orders survive?',
                   'durable + persistent'),
+    "publisher-subscriber-with-redis": (['PUBLISHER-SUBSCRIBER', 'WITH REDIS'],
+                  'Fall behind, and Redis cuts you off',
+                  'cut off for falling behind: 1'),
+    "competing-consumers-with-rabbitmq": (['COMPETING CONSUMERS', 'WITH RABBITMQ'],
+                  'No prefetch set: one picker took 12 of 12',
+                  'basicQos(1)'),
+    "claim-check-with-s3": (['CLAIM CHECK', 'WITH S3'],
+                  'Under the limit, and still refused',
+                  '1048580 > 1048576'),
+    "rate-limiter-with-redis": (['RATE LIMITER', 'WITH REDIS'],
+                  'One fast clock broke the shared limit',
+                  'tryConsume(1): 10 of 90'),
+    "cache-aside-with-redis": (['CACHE-ASIDE', 'WITH REDIS'],
+                  'One plain SET made a stale price permanent',
+                  'TTL -1: never'),
 }
 
 GROUP = {
@@ -693,6 +708,16 @@ GROUP["dead-letter-channel-with-rabbitmq"] = "messaging-integration-patterns"
 GROUP["content-based-router-with-camel"] = "messaging-integration-patterns"
 
 GROUP["message-channel-with-rabbitmq"] = "messaging-integration-patterns"
+
+GROUP["publisher-subscriber-with-redis"] = "micro-services-design-patterns"
+
+GROUP["competing-consumers-with-rabbitmq"] = "micro-services-design-patterns"
+
+GROUP["claim-check-with-s3"] = "micro-services-design-patterns"
+
+GROUP["rate-limiter-with-redis"] = "micro-services-design-patterns"
+
+GROUP["cache-aside-with-redis"] = "micro-services-design-patterns"
 
 GROUP.update({slug: "creational" for slug in (
     "singleton-with-spring",
