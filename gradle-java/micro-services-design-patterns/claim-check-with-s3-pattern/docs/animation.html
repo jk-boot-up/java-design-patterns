@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Claim Check with S3 — Animated Walkthrough</title>
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 24px;
+    background: #0f172a; color: #e2e8f0;
+    font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
+    padding-top: calc(24px + env(safe-area-inset-top, 0px));
+    padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+  }
+  h1 { font-size: 1.4rem; margin: 0 0 4px; }
+  p.sub { color: #94a3b8; margin: 0 0 20px; max-width: 70ch; }
+  .wrap { max-width: 1100px; margin: 0 auto; }
+  .stage {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+    margin-bottom: 16px;
+  }
+  @media (max-width: 760px) { .stage { grid-template-columns: 1fr; } }
+  .boxes { display: flex; flex-direction: column; gap: 10px; }
+  .row {
+    border: 2px solid #334155; border-radius: 10px; padding: 12px 16px;
+    background: #1e293b; transition: all .25s ease; opacity: .55;
+  }
+  .row .name { font-weight: 700; font-size: 1rem; }
+  .row .job { color: #94a3b8; font-size: .82rem; margin-top: 2px; }
+  .row.active { opacity: 1; box-shadow: 0 0 0 2px currentColor inset; }
+  .row.wrong { border-color: #f87171; color: #f87171; }
+  .row.wrong.active { background: #3f1d24; }
+  .row.ok { border-color: #34d399; color: #34d399; }
+  .row.ok.active { background: #10261f; }
+  .row.amber { border-color: #fbbf24; color: #fbbf24; }
+  .row.amber.active { background: #2a2110; }
+  .row.dim { opacity: .22; }
+  .console {
+    background: #020617; border: 1px solid #334155; border-radius: 10px;
+    padding: 16px; font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    font-size: .86rem; line-height: 1.55; overflow-y: auto; min-height: 320px;
+    white-space: pre-wrap;
+  }
+  #console-lines span.ok { color: #34d399; }
+  #console-lines span.bad { color: #f87171; }
+  #console-lines span.amber { color: #fbbf24; }
+  #console-lines span.muted { color: #94a3b8; }
+  .narration {
+    background: #1e293b; border: 1px solid #334155; border-radius: 10px;
+    padding: 14px 18px; margin-bottom: 16px; min-height: 3.2em;
+  }
+  .controls { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  button {
+    background: #334155; color: #e2e8f0; border: 1px solid #475569;
+    border-radius: 8px; padding: 10px 18px; font-size: .92rem; cursor: pointer;
+  }
+  button:hover { background: #475569; }
+  button#play { background: #7c3aed; border-color: #7c3aed; }
+  button#play:hover { background: #8b5cf6; }
+  button#audio.on { background: #0f766e; border-color: #14b8a6; }
+  #progress { color: #94a3b8; font-size: .85rem; margin-left: auto; }
+  .audio-note { color: #94a3b8; font-size: .78rem; margin: 10px 0 0; min-height: 1em; }
+  .step-label {
+    font-size: .78rem; text-transform: uppercase; letter-spacing: .04em;
+    color: #a78bfa; font-weight: 700; margin-bottom: 4px;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Claim Check with S3 — Step by Step</h1>
+  <p class="sub">
+    Six acts, the same ones the demo prints against Amazon S3 and SQS played by LocalStack. Green is an invoice
+    that arrived whole, amber is a ticket or an invoice still waiting, red is a refusal or an invoice lost.
+  </p>
+
+  <div class="narration">
+    <div class="step-label" id="step-label">Ready</div>
+    <div id="narration">Press Step or Play to begin.</div>
+  </div>
+
+  <div class="stage">
+    <div class="boxes" id="boxes">
+      <div class="row" id="row-shop">
+        <div class="name">checkout</div>
+        <div class="job">has an invoice PDF to hand to the email service</div>
+      </div>
+      <div class="row" id="row-s3">
+        <div class="name">S3 bucket</div>
+        <div class="job">the left-luggage office: holds the PDF under a key</div>
+      </div>
+      <div class="row" id="row-q">
+        <div class="name">SQS queue</div>
+        <div class="job">carries text, at most 1048576 bytes a message</div>
+      </div>
+      <div class="row" id="row-mail">
+        <div class="name">email service</div>
+        <div class="job">takes a ticket, fetches the PDF, checks it, clears up</div>
+      </div>
+    </div>
+    <div class="console"><div id="console-lines"></div></div>
+  </div>
+
+  <div class="controls">
+    <button id="step">Step &#9656;</button>
+    <button id="play">Play &#9654;</button>
+    <button id="reset">Reset &#8635;</button>
+    <button id="audio" aria-pressed="false">&#128263; Narration: off</button>
+    <span id="progress">0 / 0</span>
+  </div>
+  <p class="audio-note" id="audio-note"></p>
+</div>
+
+<script>
+const STEPS = [
+  {
+    label: "Act 1 — an invoice too big for the queue",
+    narration: "The email service's queue is on Amazon SQS, played by LocalStack, and it takes messages of at most 1048576 bytes. A business customer's monthly invoice is a PDF of 1500000 bytes. A message has to be text, so the PDF is written out as base64, which is 2000000 characters. SQS refuses it. Even a PDF of 786433 bytes, under the limit, grows to 1048580 characters and is refused. 786432 bytes is the largest that fits.",
+    rows: { shop: "active wrong", q: "active wrong" },
+    console: [
+      ["longest message: 1048576 bytes", "muted"],
+      ["PDF 1500000 bytes -> base64 2000000", "amber"],
+      ["refused: Message must be shorter than 1048576 bytes.", "bad"],
+      ["786432 bytes -> 1048576: accepted", "ok"],
+      ["786433 bytes -> 1048580: refused", "bad"],
+    ],
+  },
+  {
+    label: "Act 2 — send the ticket, not the luggage",
+    narration: "Checkout stores the PDF in an S3 bucket under a random key of 36 characters, and sends only a ticket through the queue: 113 bytes of text naming the bucket, the key, the size and a checksum. The email service takes the ticket, fetches 1500000 bytes, identical to what was sent, then deletes the object and the message. Nothing is left in either.",
+    rows: { shop: "active ok", s3: "active ok", q: "active ok", mail: "active ok" },
+    console: [
+      ["stored under a random key of 36 characters", "ok"],
+      ["ticket: 113 bytes, checksum bb8711d26a6daf29", "ok"],
+      ["fetched 1500000 bytes, identical: true", "ok"],
+      ["objects left: 0. messages waiting: 0", "muted"],
+    ],
+  },
+  {
+    label: "Act 3 — luggage nobody collected",
+    narration: "Checkout sends 10 invoices by ticket. The email service collects 6, then stops. S3 still holds 4 invoices and SQS still holds 4 tickets. Then an 11th invoice is stored, and its send fails because the queue does not exist. Now S3 holds 5 invoices and SQS holds 4 tickets: 1 invoice has no ticket, and nobody will ever ask for it.",
+    rows: { shop: "active amber", s3: "active amber", q: "active amber", mail: "dim" },
+    console: [
+      ["10 sent, 6 collected", "muted"],
+      ["S3 holds 4, SQS holds 4 tickets", "amber"],
+      ["11th stored, send fails: The specified queue does not exist.", "bad"],
+      ["S3 holds 5, SQS holds 4: 1 with no ticket", "bad"],
+    ],
+  },
+  {
+    label: "Act 4 — the same key, twice",
+    narration: "A bucket keyed by order number. Order 1042's invoice is stored and its ticket sent, then a corrected invoice is stored under the same key. S3 keeps 1 object, the new one. The first ticket's checksum does not match, and the email service refuses it. With versioning on, each store keeps its own version and the ticket names one: the first ticket gets the first invoice. But deleting the key leaves 0 keys listed, 2 versions still stored and 1 delete marker. Only deleting each version by its id brings it to 0.",
+    rows: { shop: "active amber", s3: "active wrong", mail: "active amber" },
+    console: [
+      ["same key, stored twice. S3 keeps 1 object", "amber"],
+      ["first ticket: the checksum does not match", "bad"],
+      ["versioned: first ticket, identical: true", "ok"],
+      ["keys listed: 0. versions stored: 2. markers: 1", "bad"],
+      ["delete each version by id: 0 stored", "ok"],
+    ],
+  },
+  {
+    label: "Act 5 — how long each one waits",
+    narration: "The bucket gets a rule: remove every invoice 1 day after it was stored. A day is the smallest unit S3 takes, and it stamps the invoice to expire at a midnight UTC between 24 and 48 hours away. The queue keeps a ticket nobody has taken for 345600 seconds, which is 4 days. The demo removes the invoice as the rule would; 1 ticket is still waiting, and a slow email service that redeems it is told the key does not exist.",
+    rows: { s3: "active wrong", q: "active amber", mail: "active wrong" },
+    console: [
+      ["S3 rule: remove after 1 day", "muted"],
+      ["expires at a midnight UTC, 24 to 48 hours away", "amber"],
+      ["SQS keeps a ticket 345600 seconds: 4 days", "amber"],
+      ["tickets still waiting: 1", "amber"],
+      ["redeem: The specified key does not exist.", "bad"],
+    ],
+  },
+  {
+    label: "Act 6 — the bill",
+    narration: "A 600000-byte invoice sent whole takes 3 requests, and the queue carries 800000 bytes. The same invoice by ticket takes 6 requests: store, send, receive, fetch, delete the object, delete the message. The queue carries 117 bytes. Twice the requests, two services to run and pay for, and a gap between storing and sending. The demo needed 1 container for 1 queue service and 1 storage service.",
+    rows: { shop: "active amber", s3: "active amber", q: "active amber", mail: "active amber" },
+    console: [
+      ["whole: 3 requests, queue carried 800000 bytes", "muted"],
+      ["by ticket: 6 requests, queue carried 117 bytes", "amber"],
+      ["PutObject SendMessage ReceiveMessage", "muted"],
+      ["GetObject DeleteObject DeleteMessage", "muted"],
+      ["1 container: 1 queue and 1 storage service", "amber"],
+    ],
+  },
+];
+
+const rowIds = ["shop", "s3", "q", "mail"];
+const stepLabel = document.getElementById("step-label");
+const narrationEl = document.getElementById("narration");
+const consoleEl = document.getElementById("console-lines");
+const progressEl = document.getElementById("progress");
+const stepBtn = document.getElementById("step");
+const playBtn = document.getElementById("play");
+const resetBtn = document.getElementById("reset");
+const audioBtn = document.getElementById("audio");
+const audioNote = document.getElementById("audio-note");
+
+let i = -1;
+let timer = null;
+let audioOn = false;
+let current = null;
+
+const clips = STEPS.map((_, k) => {
+  const a = new Audio("audio/step-" + (k + 1) + ".m4a");
+  a.preload = "none";
+  return a;
+});
+
+function stopAudio() {
+  if (!current) return;
+  current.pause();
+  current.currentTime = 0;
+  current.onended = null;
+  current = null;
+}
+
+function playClip(k) {
+  stopAudio();
+  if (!audioOn || k < 0 || k >= clips.length) return;
+  const a = clips[k];
+  current = a;
+  a.currentTime = 0;
+  a.onended = () => { current = null; };
+  a.play().catch(() => {
+    current = null;
+    audioNote.textContent =
+      "Narration audio could not be played. Run docs/make_animation_audio.sh to generate the clips.";
+  });
+}
+
+function setAudio(on) {
+  audioOn = on;
+  audioBtn.classList.toggle("on", on);
+  audioBtn.setAttribute("aria-pressed", String(on));
+  audioBtn.innerHTML = (on ? "\u{1F50A}" : "\u{1F507}") + " Narration: " + (on ? "on" : "off");
+  audioNote.textContent = on ? "Each step is read aloud as it appears." : "";
+  if (!on) stopAudio();
+}
+
+function clearRows() {
+  for (const id of rowIds) {
+    document.getElementById("row-" + id).className = "row";
+  }
+}
+
+function render() {
+  clearRows();
+  if (i < 0) {
+    stepLabel.textContent = "Ready";
+    narrationEl.textContent = "Press Step or Play to begin.";
+    consoleEl.innerHTML = "";
+    progressEl.textContent = "0 / " + STEPS.length;
+    return;
+  }
+  const s = STEPS[i];
+  stepLabel.textContent = s.label;
+  narrationEl.textContent = s.narration;
+  for (const id of rowIds) {
+    const el = document.getElementById("row-" + id);
+    const cls = s.rows[id];
+    el.className = "row " + (cls ? cls : "dim");
+  }
+  consoleEl.innerHTML = s.console
+    .map(([text, cls]) => '<span class="' + cls + '">' + text + "</span>")
+    .join("\n");
+  progressEl.textContent = (i + 1) + " / " + STEPS.length;
+}
+
+function step() {
+  if (i >= STEPS.length - 1) { stopPlay(); return; }
+  i += 1;
+  render();
+  playClip(i);
+}
+
+function reset() {
+  stopPlay();
+  stopAudio();
+  i = -1;
+  render();
+}
+
+function startPlay() {
+  if (timer) return;
+  playBtn.innerHTML = "Pause &#10074;&#10074;";
+  timer = setInterval(() => {
+    if (i >= STEPS.length - 1) { stopPlay(); return; }
+    step();
+  }, 9000);
+}
+
+function stopPlay() {
+  if (timer) clearInterval(timer);
+  timer = null;
+  playBtn.innerHTML = "Play &#9654;";
+}
+
+stepBtn.addEventListener("click", () => { stopPlay(); step(); });
+resetBtn.addEventListener("click", reset);
+playBtn.addEventListener("click", () => { if (timer) stopPlay(); else startPlay(); });
+audioBtn.addEventListener("click", () => setAudio(!audioOn));
+
+render();
+</script>
+</body>
+</html>
