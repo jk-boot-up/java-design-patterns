@@ -1,0 +1,47 @@
+plugins {
+    id 'java'
+    id 'application'
+}
+
+group = 'com.jk.explore'
+version = '1.0-SNAPSHOT'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // Jedis, the Redis client whose method names are the Redis command names: get, set,
+    // del, ttl. 8.0.1 is the newest release; it speaks to any Redis 7 or 8 server.
+    implementation 'redis.clients:jedis:8.0.1'
+
+    // Testcontainers starts and stops the Redis container for us. 2.0.5 is the newest
+    // release. There is no Redis module in the 2.x line, so the plain container type from
+    // the core library is used, told which port Redis listens on.
+    implementation 'org.testcontainers:testcontainers:2.0.5'
+
+    // Testcontainers and Jedis log through SLF4J. The simple binding is switched off in
+    // src/main/resources so the demo's own output is the only output.
+    implementation 'org.slf4j:slf4j-simple:2.0.17'
+
+    testImplementation platform('org.junit:junit-bom:5.10.2')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+application {
+    mainClass = 'com.jk.explore.cacheasideredis.RedisCacheAsideDemo'
+}
+
+test {
+    useJUnitPlatform()
+    testLogging {
+        showStandardStreams = false
+    }
+}
