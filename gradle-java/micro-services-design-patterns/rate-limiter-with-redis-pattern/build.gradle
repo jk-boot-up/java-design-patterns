@@ -1,0 +1,51 @@
+plugins {
+    id 'java'
+    id 'application'
+}
+
+group = 'com.jk.explore'
+version = '1.0-SNAPSHOT'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // Bucket4j's Redis integration through the Lettuce client. 8.20.0 is the newest
+    // release. It brings bucket4j_jdk17-core (the token bucket itself) and the shared
+    // Redis code with it, and expects the application to supply the Redis client.
+    implementation 'com.bucket4j:bucket4j_jdk17-lettuce:8.20.0'
+
+    // Lettuce, the Redis client Bucket4j talks through. 7.7.0.RELEASE is the newest release.
+    implementation 'io.lettuce:lettuce-core:7.7.0.RELEASE'
+
+    // Testcontainers starts and stops the Redis container for us. 2.0.5 is the newest
+    // release. There is no Redis module in the 2.x line, so the core library's generic
+    // container is used, with Redis's port mapped to a random free port on this machine.
+    implementation 'org.testcontainers:testcontainers:2.0.5'
+
+    // Testcontainers logs through SLF4J. Without a binding it prints a warning and
+    // nothing else; the simple binding is turned off in src/main/resources.
+    implementation 'org.slf4j:slf4j-simple:2.0.17'
+
+    testImplementation platform('org.junit:junit-bom:5.10.2')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+application {
+    mainClass = 'com.jk.explore.ratelimiterredis.RedisRateLimiterDemo'
+}
+
+test {
+    useJUnitPlatform()
+    testLogging {
+        showStandardStreams = false
+    }
+}
