@@ -1,0 +1,22 @@
+# Settings for the config server process. The demo starts it with
+# --spring.config.name=config-server, so it reads this file and not the shop's.
+spring:
+  application:
+    name: config-server
+  cloud:
+    config:
+      # The server is a Spring application too, and the config client library is on the
+      # same class path. This stops the server from trying to fetch its own settings from
+      # a config server.
+      enabled: false
+      server:
+        git:
+          # Clone the repository as the server starts, so a wrong address fails at once
+          # rather than on the first request.
+          clone-on-start: true
+          default-label: main
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health

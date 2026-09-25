@@ -1,0 +1,69 @@
+plugins {
+    id 'java'
+    id 'application'
+    // Spring Boot 4.1.1 is the newest generally available release. The dependency-management
+    // plugin applies Boot's list of versions, so no Spring library below names a version.
+    id 'org.springframework.boot' version '4.1.1'
+    id 'io.spring.dependency-management' version '1.1.7'
+}
+
+group = 'com.jk.explore'
+version = '1.0-SNAPSHOT'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+dependencyManagement {
+    imports {
+        // Spring Cloud 2025.1.3 is the newest release train, and the one the Spring Cloud
+        // team lists against Spring Boot 4.1. It brings Spring Cloud Config 5.0.5.
+        mavenBom 'org.springframework.cloud:spring-cloud-dependencies:2025.1.3'
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // The config server: a small web application that reads a git repository and answers
+    // "what are the settings for this application?" over HTTP. It brings JGit, a git written
+    // in Java, which the demo also uses to create and commit to the repository itself.
+    implementation 'org.springframework.cloud:spring-cloud-config-server'
+
+    // The config client: what lets the shop say "fetch my settings from that server at
+    // startup" with one line, spring.config.import.
+    implementation 'org.springframework.cloud:spring-cloud-starter-config'
+
+    // The shop's two web pages, the quote and the banner.
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+
+    // Actuator gives the shop POST /actuator/refresh, the request that tells a running
+    // application to fetch its settings again, and both processes a health page.
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+
+    // The declared range on the delivery threshold, checked when the settings are bound.
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+    testImplementation platform('org.junit:junit-bom:5.10.2')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+application {
+    mainClass = 'com.jk.explore.springcloudconfig.SpringCloudConfigDemo'
+}
+
+bootJar {
+    mainClass = 'com.jk.explore.springcloudconfig.SpringCloudConfigDemo'
+}
+
+test {
+    useJUnitPlatform()
+    testLogging {
+        showStandardStreams = false
+    }
+}

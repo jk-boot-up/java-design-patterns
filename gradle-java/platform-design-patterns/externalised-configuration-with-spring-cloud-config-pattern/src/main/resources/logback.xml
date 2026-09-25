@@ -1,0 +1,16 @@
+<!--
+  Logging is off by default. The demo's own printed lines are the lesson, and Spring Boot
+  would otherwise print several screens for every start, stop and refused start.
+  The config server process is started with logging.level.root=INFO and its output goes to
+  a file in the demo's temporary folder, where it can be read if the server will not start.
+-->
+<configuration>
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+    <root level="OFF">
+        <appender-ref ref="CONSOLE"/>
+    </root>
+</configuration>

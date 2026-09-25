@@ -1,0 +1,20 @@
+# The shop's own settings file, packed inside the shop. The demo starts the shop with
+# --spring.config.name=shop, so it reads this file.
+#
+# The two delivery values here are the shop's local defaults. Anything the config server
+# sends overrides them. They are only used when the shop is told the config server is
+# optional and the server cannot be reached.
+spring:
+  application:
+    # This name is the lookup key. The config server answers with the file called
+    # checkout-service.yml because the shop says it is called checkout-service.
+    name: checkout-service
+delivery:
+  free-over: 50.00
+  standard: 4.99
+management:
+  endpoints:
+    web:
+      exposure:
+        # refresh is the request that tells the running shop to fetch its settings again.
+        include: health,refresh
