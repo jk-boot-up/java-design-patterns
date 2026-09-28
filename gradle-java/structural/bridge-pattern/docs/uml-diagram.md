@@ -7,32 +7,6 @@ channel type.
 
 ![Bridge pattern sequence diagram](images/uml-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-sequenceDiagram
-    actor Client as NotificationDemo
-    participant Notif as OrderConfirmationNotification
-    participant Chan as MessageChannel (SmsChannel)
-
-    Client->>Notif: new OrderConfirmationNotification(sms, "ORD-1042", 129.99)
-    Client->>Notif: send("+1-555-0142")
-    activate Notif
-    Notif->>Notif: subject()
-    Notif->>Notif: body()
-    Notif->>Chan: deliver("+1-555-0142", subject, body)
-    activate Chan
-    Chan->>Chan: truncate if over 140 chars
-    Chan-->>Client: prints "[SMS to +1-555-0142] ..."
-    deactivate Chan
-    deactivate Notif
-
-    Note over Client,Chan: Swap SmsChannel for EmailChannel or PushChannel and this diagram is unchanged -- only the box's internal behavior differs.
-```
-
-</details>
-
 ## Notes
 
 - The client makes exactly **two** calls: construct the `Notification` with

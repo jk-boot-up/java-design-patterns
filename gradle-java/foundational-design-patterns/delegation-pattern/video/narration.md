@@ -2,56 +2,56 @@
 
 ## 1. Delegation
 
-Hello, and welcome. This video explains the Delegation pattern in Java, and it is written and presented by Jayasekhar Konduru. The plain definition: delegation is when an object does not do a job itself. It hands the job to a helper object that it holds, and that it can swap. This is another project in the foundational category, whose subject is how an object gets hold of another, and how small idioms shape everyday Java. In our online store, an order can be priced in several ways, and each new way seems to need a new kind of order. By the end you will see classes multiply for each way of pricing, see an order hand its pricing on, see the helper swapped while the order lives, see two helpers used at once, see why the helper is given the order, and see the bill, which is an extra call and forwarding methods.
+Hello, and welcome. This video explains the Delegation pattern, in Java. This video is presented by Jayasekhar Konduru. First, a simple definition. Delegation is when an object does not do a job itself. Instead, it hands the job to a helper object that it holds. And that helper can be swapped. Think of a busy manager with an assistant. The manager passes the diary to the assistant. And if the assistant changes, the manager's job does not. In our online store, an order can be priced in several ways. And each new way seems to need a new kind of order. In this video, classes multiply for every way of pricing. Then an order hands its pricing to a helper. We will swap the helper, combine two helpers, and then hear the cost.
 
 ## 2. The Scenario
 
-Here is the scenario. An order can be priced with a premium discount, with gift wrap, with both, or with neither. A customer may become premium in the middle of shopping. The question: do we need a class for each?
+Here is the scenario. An order can be priced with a premium discount. Or with gift wrap. Or with both, or neither. And a customer might become premium in the middle of shopping. So here is the question. Do we need a separate class for each combination?
 
 ## 3. A Subclass For Each Way
 
-First, a subclass for each way. Premium, gift wrap, and both: four classes for two features. A third feature would need eight. A premium gift order is ninety six hundred. And an order cannot change its class once it exists.
+First, the naive way: a subclass for each combination. Premium, gift wrap, and both. That is four classes, for just two features. A third feature would need eight. A premium gift order costs ninety-six pounds. But once an order exists, it can never change its class.
 
 ## 4. The Pattern
 
-The pattern. The object holds a helper. When asked to do the job, it hands the job to the helper. The helper can be swapped, and used with others.
+Now, the pattern. The object holds a helper. When asked to do the job, it hands the job to the helper. The helper can be swapped. And it can be combined with other helpers.
 
 ## 5. The Order Hands The Pricing On
 
-Second, the order hands the pricing on. One order class. With no rule, ten thousand. With premium, nine thousand. With gift wrap, ten thousand six hundred.
+Second demo: the order hands its pricing on. There is just one order class. With no pricing rule, the order costs one hundred pounds. With the premium rule, ninety pounds. With the gift wrap rule, one hundred and six pounds.
 
 ## 6. Change The Helper While It Lives
 
-Third, change the helper while it lives. The customer joins the premium plan while shopping. The same order object: ten thousand, then nine thousand.
+Third demo: change the helper while the order exists. The customer joins the premium plan, while shopping. The very same order object costs one hundred pounds, and then ninety.
 
 ## 7. Two Helpers At Once
 
-Fourth, two helpers at once. Premium then gift wrap: ninety six hundred, the same as the class made for both. Classes added: none.
+Fourth demo: two helpers at once. Premium, and then gift wrap. The total is ninety-six pounds. Exactly the same as the special class made for both. And the number of classes added: none.
 
 ## 8. The Helper Needs To See The Order
 
-Fifth, the helper needs to see the order. Gift wrap is three hundred for each item, so it must look at the order it was called for. Two items: ten thousand six hundred. Three items: ten thousand nine hundred. That is why the order passes itself in: the helper is a different object, and does not know which order it is helping.
+Fifth demo: the helper needs to see the order. Gift wrap costs three pounds for each item. So the helper must look at the order it is pricing. Two items: one hundred and six pounds. Three items: one hundred and nine pounds. That is why the order passes itself in, when it calls the helper. The helper is a separate object. It does not know which order it is helping, unless it is told.
 
 ## 9. The Bill
 
-Last, the bill. One total made three calls to helpers, where inheritance made none: one more hop for every helper. To look like a helper with four methods, the order had to write four forwarding methods that only pass the call on. And a helper knows nothing of its owner unless it is told.
+Finally, the cost. Working out one total made three calls to helpers. Inheritance would have made none. So there is one extra hop, for every helper. To offer a helper's four methods, the order had to write four forwarding methods. They do nothing but pass the call along. And a helper knows nothing about its owner, unless it is told.
 
 ## 10. How To Recognise It
 
-How do you recognise this in code you did not write? A field of an interface type, and a method that just calls it. Strategy, State, Decorator and Proxy, which are all delegation with a purpose. Kotlin's by keyword, and Lombok's @Delegate. Collections.unmodifiableList, which hands each call to a list it holds.
+How can you spot this pattern in code someone else wrote? Look for a field whose type is an interface, and a method that simply calls it. Many famous patterns are delegation with a purpose. Strategy, State, Decorator, and Proxy. Kotlin has a keyword for it, called by. And Java's unmodifiable list simply hands each call to a list it holds.
 
 ## 11. The Verdict
 
-Here is my verdict, plainly. Prefer holding a helper to inheriting from a parent, when what varies is one job. Pass the owner in if the helper needs it. Let the helper be swapped, and combined. Accept the extra hop, and the forwarding code, or use a language feature that writes it for you.
+So, here is the verdict. When what varies is one job, prefer holding a helper, over inheriting from a parent. Pass the owner in, if the helper needs to see it. Let the helper be swapped, and combined. And accept the extra hop, and the forwarding code. Or use a language feature that writes the forwarding for you.
 
 ## 12. What Is Real Here
 
-The same honest admission as everywhere in this course. Everything is plain Java. Every number quoted comes from this program's own output. Nothing depends on a clock, so every run is the same.
+A quick, honest note about this demo. Everything is plain Java. Every number you heard comes from the program's own output. And nothing depends on the clock, so every run gives the same result.
 
 ## 13. When This Is Too Much
 
-So when is it too much? If there is one fixed way of doing a job, do it directly. Delegation pays off when a job varies, or must change at run time.
+So, when is this too much? If there is only one fixed way to do a job, just do it directly. Delegation pays off when a job varies, or must change while the program runs.
 
 ## 14. Thanks for Watching
 
-That's Delegation. If you take one sentence away, take this one: delegation hands a job to a helper you can swap and combine, and the price is an extra call, and the forwarding code you must write. The full source, the written notes, the diagrams and an animated walkthrough are all in the repository, running offline with nothing installed but a Java development kit. If you try one exercise, add a fourth rule that adds a shipping fee, and combine it with premium without adding a class. If this helped, a like genuinely does help other people find it, and subscribe if you would like the rest of the series. Thanks for watching.
+That's the Delegation pattern. If you remember one sentence, make it this one. Delegation hands a job to a helper you can swap and combine, and the price is an extra call, and forwarding code you must write. The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. Here is one exercise to try. Add a fourth rule that adds a shipping fee. And combine it with premium, without adding a class. If this helped, a like really does help other people find it. And subscribe, if you'd like the rest of the series. Thanks for watching.

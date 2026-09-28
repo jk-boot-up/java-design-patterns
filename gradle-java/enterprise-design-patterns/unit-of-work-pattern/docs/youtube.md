@@ -19,20 +19,20 @@ The first two lines are what a viewer sees above the fold, so they carry the hoo
 ```
 CHAPTERS
 00:00 Introduction
-00:39 The Scenario
-00:58 Each Object Saves Itself
-01:28 Wrap It In A Transaction
-01:58 The Pattern
-02:16 Nothing Until Commit
-02:37 All Of It, Or None
-02:57 Cost One: Order Of Writes
-03:18 Cost Two: Knowing What Changed
-03:38 Cost Three: Memory Disagrees
-03:57 The Toy Database
-04:16 Where You Have Met This
-04:37 What Is Real Here
-04:56 When This Is Too Much
-05:09 Thanks for Watching
+00:50 The Scenario
+01:07 Each Object Saves Itself
+01:38 Wrap It In A Transaction
+02:08 The Pattern
+02:29 Nothing Until Commit
+02:53 All Of It, Or None
+03:15 Cost One: Order Of Writes
+03:37 Cost Two: Knowing What Changed
+03:58 Cost Three: Memory Disagrees
+04:21 The Toy Database
+04:43 Where You Have Met This
+05:07 What Is Real Here
+05:27 When This Is Too Much
+05:42 Thanks for Watching
 
 SOURCE CODE, WRITTEN NOTES AND AN INTERACTIVE ANIMATION
 https://github.com/jk-boot-up/java-design-patterns/tree/main/gradle-java/enterprise-design-patterns/unit-of-work-pattern
@@ -47,20 +47,20 @@ YouTube renders these as chapters only if there are at least three and the first
 
 ```
 00:00 Introduction
-00:39 The Scenario
-00:58 Each Object Saves Itself
-01:28 Wrap It In A Transaction
-01:58 The Pattern
-02:16 Nothing Until Commit
-02:37 All Of It, Or None
-02:57 Cost One: Order Of Writes
-03:18 Cost Two: Knowing What Changed
-03:38 Cost Three: Memory Disagrees
-03:57 The Toy Database
-04:16 Where You Have Met This
-04:37 What Is Real Here
-04:56 When This Is Too Much
-05:09 Thanks for Watching
+00:50 The Scenario
+01:07 Each Object Saves Itself
+01:38 Wrap It In A Transaction
+02:08 The Pattern
+02:29 Nothing Until Commit
+02:53 All Of It, Or None
+03:15 Cost One: Order Of Writes
+03:37 Cost Two: Knowing What Changed
+03:58 Cost Three: Memory Disagrees
+04:21 The Toy Database
+04:43 Where You Have Met This
+05:07 What Is Real Here
+05:27 When This Is Too Much
+05:42 Thanks for Watching
 ```
 
 ## Tags
@@ -99,4 +99,4 @@ Add a card partway through pointing at the playlist, so a viewer who arrives at 
 
 ## Runtime
 
-Approximately 05:45, narrated at 145 words per minute.
+Approximately 06:15, narrated at 145 words per minute.

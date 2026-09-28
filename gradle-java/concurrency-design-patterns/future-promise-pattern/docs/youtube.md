@@ -19,20 +19,20 @@ The first two lines are what a viewer sees above the fold, so they carry the hoo
 ```
 CHAPTERS
 00:00 Introduction
-00:52 The Scenario
-01:28 Naive — Sequential Lookups
-01:48 The Pattern — Concurrent Lookups
-02:13 The Two Halves Beginners Conflate
-02:47 Future And Promise, Made Explicit
-03:13 Exceptions Move
-03:48 get() With No Timeout Is A Hang
-04:16 Cancellation Is Cooperative
-04:45 One More Cost: Chained Callbacks
-05:17 The Same Harness, Proven Again
-05:49 What The Scheduler Really Does
-06:27 The Bill
-07:01 When This Is Too Much
-07:30 Thanks for Watching
+00:55 The Scenario
+01:21 Naive — Sequential Lookups
+01:41 The Pattern — Concurrent Lookups
+02:02 The Two Halves Beginners Conflate
+02:33 Future And Promise, Made Explicit
+03:02 Exceptions Move
+03:33 get() With No Timeout Is A Hang
+04:04 Cancellation Is Cooperative
+04:31 One More Cost: Chained Callbacks
+04:58 The Same Harness, Proven Again
+05:30 What The Scheduler Really Does
+05:55 The Bill
+06:21 When This Is Too Much
+06:41 Thanks for Watching
 
 SOURCE CODE, WRITTEN NOTES AND AN INTERACTIVE ANIMATION
 https://github.com/jk-boot-up/java-design-patterns/tree/main/gradle-java/concurrency-design-patterns/future-promise-pattern
@@ -47,20 +47,20 @@ YouTube renders these as chapters only if there are at least three and the first
 
 ```
 00:00 Introduction
-00:52 The Scenario
-01:28 Naive — Sequential Lookups
-01:48 The Pattern — Concurrent Lookups
-02:13 The Two Halves Beginners Conflate
-02:47 Future And Promise, Made Explicit
-03:13 Exceptions Move
-03:48 get() With No Timeout Is A Hang
-04:16 Cancellation Is Cooperative
-04:45 One More Cost: Chained Callbacks
-05:17 The Same Harness, Proven Again
-05:49 What The Scheduler Really Does
-06:27 The Bill
-07:01 When This Is Too Much
-07:30 Thanks for Watching
+00:55 The Scenario
+01:21 Naive — Sequential Lookups
+01:41 The Pattern — Concurrent Lookups
+02:02 The Two Halves Beginners Conflate
+02:33 Future And Promise, Made Explicit
+03:02 Exceptions Move
+03:33 get() With No Timeout Is A Hang
+04:04 Cancellation Is Cooperative
+04:31 One More Cost: Chained Callbacks
+04:58 The Same Harness, Proven Again
+05:30 What The Scheduler Really Does
+05:55 The Bill
+06:21 When This Is Too Much
+06:41 Thanks for Watching
 ```
 
 ## Tags
@@ -99,4 +99,4 @@ Add a card partway through pointing at the playlist, so a viewer who arrives at 
 
 ## Runtime
 
-Approximately 08:17, narrated at 145 words per minute.
+Approximately 07:19, narrated at 145 words per minute.

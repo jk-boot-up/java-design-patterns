@@ -7,53 +7,6 @@ load only happens if it passes — and only on the first call.
 
 ![Proxy pattern sequence diagram](images/uml-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-sequenceDiagram
-    actor Client as ProductImageDemo
-    participant Guard as RestrictedProductImage
-    participant Lazy as LazyProductImage
-    participant Real as HighResolutionProductImage
-
-    Client->>Guard: render()
-    activate Guard
-    Guard->>Guard: role == CATALOG_ADMIN?
-    alt role is CATALOG_ADMIN
-        Guard->>Lazy: image.render()
-        activate Lazy
-        Lazy->>Lazy: realImage == null?
-        Lazy->>Real: new HighResolutionProductImage(sku)
-        activate Real
-        Real-->>Lazy: instance (loadCount + 1)
-        deactivate Real
-        Lazy->>Real: render()
-        activate Real
-        Real-->>Lazy: "Rendering SKU-9001 hero image (1920x1080)"
-        deactivate Real
-        Lazy-->>Guard: "Rendering SKU-9001 hero image (1920x1080)"
-        deactivate Lazy
-        Guard-->>Client: "Rendering SKU-9001 hero image (1920x1080)"
-    else role is SHOPPER
-        Guard-->>Client: throws SecurityException
-        Note over Guard,Real: Lazy is never even asked -- the real image\nstays unbuilt, loadCount stays unchanged.
-    end
-    deactivate Guard
-
-    Client->>Guard: render() again
-    activate Guard
-    Guard->>Lazy: image.render()
-    activate Lazy
-    Lazy->>Lazy: realImage == null? No -- reuse cached instance
-    Lazy-->>Guard: "Rendering SKU-9001 hero image (1920x1080)"
-    deactivate Lazy
-    Guard-->>Client: "Rendering SKU-9001 hero image (1920x1080)"
-    deactivate Guard
-```
-
-</details>
-
 ## Notes
 
 - The client makes exactly **one** call, `render()`, on the outermost

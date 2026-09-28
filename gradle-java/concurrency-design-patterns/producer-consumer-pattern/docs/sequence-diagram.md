@@ -18,28 +18,6 @@ so directly, rather than being left to wonder.
 
 ![Producer-Consumer pattern sequence diagram](images/sequence-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant Main as Test thread
-    participant Q as BoundedOrderQueue «capacity 3»
-    participant Packer as packer thread
-
-    Main->>Q: put(ord-holding)
-    Packer->>Q: take() -> ord-holding
-    Packer->>Packer: pack(ord-holding) — parked at a Gate
-    Note over Main: a CountDownLatch confirms the packer<br/>has taken the order and is now parked
-    Main->>Q: put(ord-1), put(ord-2), put(ord-3)
-    Note over Q: size() == 3 == capacity, guaranteed, not hoped for
-    Main->>Q: offer(ord-overflow, patience 150ms)
-    Q-->>Main: false — rejected, no room appeared in time
-```
-
-</details>
-
 Say the load-bearing sentence aloud, because it is the one a picture
 cannot carry on its own: **the queue is not full because we counted three
 puts — it is full because the one thread that could have made room for a

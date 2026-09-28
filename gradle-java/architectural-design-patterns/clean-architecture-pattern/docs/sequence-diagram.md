@@ -16,32 +16,6 @@ the use case has no way to mention them — it has never seen their names.
 
 ![Clean Architecture pattern sequence diagram](images/sequence-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant Web as CheckoutController «adapters»
-    participant UC as PlaceOrderInteractor «use cases»
-    participant Prod as ProductRepository «boundary»
-    participant Pay as PaymentGateway «boundary»
-    participant Ord as OrderRepository «boundary»
-    participant Notify as NotificationGateway «boundary»
-
-    Web->>UC: execute(input)
-    UC->>Prod: find + stockOf, each line
-    Prod-->>UC: prices and stock levels
-    UC->>Pay: charge(cust-8801, £382.50)
-    Pay-->>UC: charged
-    UC->>Prod: reduceStock, each line
-    UC->>Ord: save(order)
-    UC->>Notify: send(ada@example.com, confirmation)
-    UC-->>Web: placed, ord-1001, £382.50
-```
-
-</details>
-
 Say the load-bearing sentence aloud, because it is the one a picture cannot
 carry on its own: **control flows outward to whichever gateway was wired
 in, but the source code dependency the interactor carries points inward,

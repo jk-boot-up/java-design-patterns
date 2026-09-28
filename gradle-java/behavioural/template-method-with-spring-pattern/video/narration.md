@@ -2,64 +2,64 @@
 
 ## 1. Template Method with Spring
 
-Hello, and welcome. This video explains the Template Method pattern with Spring Boot, in Java, and it is written and presented by Jayasekhar Konduru. It is the framework version of the Template Method video. That one fixed the order of an order's fulfilment steps in one final method, and let three routes fill in the holes. This one shows the same idea inside Spring Boot. The plain definition, in short: in Spring, a template owns the fixed steps of a task, and you hand it a small function for the one step that differs. By the end you will see plain database code leak a connection, see the same query through JdbcTemplate never leak, and see a transaction template roll back a half-finished checkout.
+Hello, and welcome. This video explains the Template Method pattern, in Java, using Spring Boot. This video is presented by Jayasekhar Konduru. First, a simple definition. The Template Method pattern fixes the order of a task's steps in one place, and leaves only certain steps to be filled in. In Spring, a template class owns the fixed steps of a task. You hand it a small function for the one step that differs. Think of a car wash. It always soaps, rinses, and dries, in that order. You only choose the extras, like wax. This is the framework version of the Template Method video, in the same online shop. We will hear plain database code leak a connection. Then the same query through Spring's JDBC template, which never leaks. And a transaction template that undoes a half-finished checkout.
 
 ## 2. The Partner Project
 
-This video assumes the Template Method video. If you have not seen it, start there. It fixes the order of the fulfilment steps in one final method, and lets three routes fill in the holes, by inheritance. This one uses the same example. It does not teach the pattern again. It shows what Spring Boot does with it.
+Before we start, a quick note. This video has a partner: the hand-built Template Method video. That one fixes the order of an order's fulfilment steps in one final method. And three routes fill in the steps, through inheritance. If you are new to the pattern, watch that one first. Here, we ask what Spring Boot does with the same idea.
 
 ## 3. Before The First Line
 
-Before the first line of code, what Spring Boot is. Spring is a framework whose core is a container that creates your objects. Its JDBC support has a template that owns opening, running and closing a database call, and asks you only for the part that differs. And a promise: skipping this video loses none of the pattern. The hand-built one teaches all of it.
+One thing is new in this project: Spring Boot. We use its database support, and a small in-memory database called H2. Spring's JDBC template owns the fixed steps of a database call. Opening a connection, running the query, and closing everything. It asks you only for the part that differs. And one promise. If you skip this video, you lose none of the pattern. This one is about the tool.
 
 ## 4. Plain JDBC Leaks
 
-First, the problem the pattern solves. Plain database code opens a connection, runs the query, walks the rows, and closes, in that order. On a good query, no connection is left in use. With one typo in the SQL, the code throws before it reaches the close. One connection stays in use. The pool has two. Two typos, and the pool is empty.
+First demo: the problem the pattern solves. Plain database code opens a connection, runs the query, reads the rows, and then closes the connection. In that order. With a good query, no connection is left in use. But with one typo in the query, the code fails before it reaches the close. One connection is left in use, forever. The pool only has two connections. So after two typos, the pool is empty, and the whole shop stops.
 
 ## 5. The Template Closes On Every Path
 
-Second, the same query through the template. A good query leaves none in use. The same typo, three times over, still leaves none in use. The template closes on every path, because closing is one of its fixed steps.
+Second demo: the same query, through the template. With a good query, no connection is left in use. With the same typo, three times over, still none are left in use. The template closes the connection on every path, including failures. Because closing is one of its fixed steps.
 
 ## 6. What Is Ours
 
-Third, what is ours. Ask for Asha's orders and you get two. The only code we wrote is one lambda, which turns a row into an order. The template opened the connection, prepared the statement, bound the customer, ran it, walked the rows, and closed everything. That is the pattern. The template is the skeleton. The lambda is the hole.
+Third demo: what is left for us to write. We ask for Asha's orders, and get two. The only code we wrote is one small function. It turns one database row into one order. The template did everything else. It opened the connection, prepared the query, filled in the customer, ran it, walked through the rows, and closed everything. That is the pattern. The template is the fixed sequence. Our small function fills the one gap.
 
 ## 7. Exceptions, Translated
 
-Fourth, exceptions. By hand, a typo gives a checked exception, with a vendor's state code. Through the template, it becomes a bad SQL grammar exception, unchecked, and the same on every database. A repeated order number becomes a duplicate key exception. You catch by meaning, not by vendor code.
+Fourth demo: errors, translated. With plain code, a typo gives a checked error with a database-specific code. Through the template, the same typo becomes a Bad SQL Grammar exception. It is unchecked, and it is the same on every database. And a repeated order number becomes a Duplicate Key exception. So you catch errors by their meaning, not by a vendor's code.
 
 ## 8. What The Template Decides
 
-Fifth, what the template decides for you. Ask for exactly one row. None found is an exception. Two found is an exception. Nothing in your code says so. The template decided that a missing row is an error, not a null. That is fine, but you should know it, because it shapes every caller.
+Fifth demo: what the template decides for you. We ask for exactly one row. If none is found, that is an error. If two are found, that is also an error. Nothing in our code said so. The template decided that a missing row is an error, not an empty value. That is fine, but you should know it, because it affects every caller.
 
 ## 9. A Transaction Is A Template Too
 
-Last, a transaction is a template too. The transaction template owns begin, commit and roll back. A good checkout takes the orders from three to four and the mugs from three to one. A checkout for four mugs inserts an order first, then fails on the stock. Afterwards there are still four orders, and one mug. The order row was rolled back. The template did that.
+Last demo: a transaction is a template too. The transaction template owns three fixed steps: begin, commit, and roll back. At the start, there are three orders, and three mugs in stock. A good checkout makes it four orders, and one mug. Then a checkout for four mugs begins. It saves the order first, and then fails, because there is not enough stock. Afterwards, there are still four orders, and one mug. The half-finished order was rolled back. The template did that for us.
 
 ## 10. The Verdict
 
-My verdict, plainly. Use the template, not the raw API. Learn what it decides for you. Keep the lambda small. And catch the translated exceptions, not vendor codes.
+So, here is the verdict. Use the template, not the raw database interface. Learn what it decides for you. Keep your small function small. And catch the translated errors, not vendor codes.
 
 ## 11. How To Recognise It
 
-How do you recognise this in code you did not write? A call to the JDBC template with a lambda. A transaction template execute. Or any Spring class whose name ends in template.
+How can you spot this in code someone else wrote? Look for a JDBC template query, with a small function passed in. Look for a transaction template's execute method. Or any Spring class whose name ends in Template.
 
 ## 12. Where You Have Met This
 
-You have met this in every Spring class whose name ends in template. Each owns the fixed steps of talking to something, and asks for the step that differs.
+Where have you met this before? In every Spring class whose name ends in Template. Each one owns the fixed steps of talking to something, and asks you only for the step that differs.
 
 ## 13. What Was Used
 
-For the record. Spring Boot four point one point one, with JDBC and an in memory H2 database. No web server.
+For the record, here are the versions. Spring Boot four point one point one, with its database support, and an in-memory H2 database. No web server.
 
 ## 14. What Is Real Here
 
-The same honest admission as everywhere in this course. Everything is real: a real pool, a real database, real exceptions. Connections are counted, never timed.
+A quick, honest note about this demo. Everything in it is real. A real connection pool, a real database, and real errors. Connections are counted, never timed.
 
 ## 15. When This Is Too Much
 
-So when is it too much? For one query in a script, plain JDBC with try with resources is fine. The template earns its place when many callers repeat the fixed steps.
+So, when is this too much? For one query in a small script, plain database code with try-with-resources is fine. The template earns its place when many callers repeat the same fixed steps.
 
 ## 16. Thanks for Watching
 
-That's Template Method with Spring. If you take one sentence away, take this one: a Spring template owns the fixed steps, and quietly makes some decisions for you. The full source, the written notes, the diagrams and an animated walkthrough are all in the repository. If you try one exercise, add try with resources to the by hand method, and rerun act one. If this helped, a like genuinely does help other people find it, and subscribe if you would like the rest of the series. Thanks for watching.
+That's Template Method with Spring. If you remember one sentence, make it this one. A Spring template owns the fixed steps, and quietly makes some decisions for you. The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. Here is one exercise to try. Add try-with-resources to the plain database method. Then run the first demo again, and count the connections left in use. If this helped, a like really does help other people find it. And subscribe, if you'd like the rest of the series. Thanks for watching.

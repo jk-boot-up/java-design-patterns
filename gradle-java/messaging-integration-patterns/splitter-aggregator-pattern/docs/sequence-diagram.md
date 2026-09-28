@@ -6,24 +6,4 @@ Say it in words. The splitter turns the order into three parts and sends them to
 
 ![Splitter and Aggregator pattern sequence diagram](images/sequence-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant S as splitter
-    participant P as three pickers
-    participant A as aggregator
-    S->>P: part 1, part 2, part 3
-    P->>A: part 3
-    A-->>A: waiting
-    P->>A: part 1
-    A-->>A: waiting
-    P->>A: part 2
-    A-->>A: complete: 1, 2, 3 in order
-```
-
-</details>
-
 The load-bearing sentence: **the numbers on the parts are what put the order back.**

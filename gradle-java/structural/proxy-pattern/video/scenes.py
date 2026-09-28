@@ -17,21 +17,23 @@ SCENES = [
         title="The Proxy Pattern",
         body=None,
         narration=(
-            "Hello, and welcome. This video explains the Proxy pattern in Java, "
-            "and it is written and presented by Jayasekhar Konduru. [[slnc 300]] "
-            "Let's start with the simple definition. The proxy pattern puts a "
-            "stand-in in front of a real object, with the same interface as the "
-            "real thing. The caller cannot tell the difference, but the stand-in "
-            "is free to delay the expensive work, check who is asking, or count "
-            "the calls, before it passes anything along. [[slnc 350]] That's the "
-            "idea in a sentence — controlling when an object gets built, and who "
-            "is allowed to touch it. The rest of the video does it properly, by "
-            "building a real working Java project: an online store's category "
-            "page, where loading a product's full-resolution image is expensive "
-            "and not every asset is one a shopper may see. [[slnc 250]] By the "
-            "end you'll know how to delay expensive work until it is actually "
-            "needed, and how to put an access check in one place that no caller "
-            "can forget."
+            'Hello, and welcome. [[slnc 400]] This video explains the '
+            'Proxy pattern, in Java. [[slnc 300]] This video is presented '
+            'by Jayasekhar Konduru. [[slnc 600]] First, a simple '
+            'definition. [[slnc 300]] A proxy is a stand-in, placed in '
+            'front of a real object, with exactly the same shape. [[slnc '
+            '300]] The caller cannot tell the difference. [[slnc 300]] '
+            'But the stand-in can delay expensive work, check who is '
+            'asking, or count calls, before passing anything along. '
+            '[[slnc 600]] Think of a bouncer at the door of a club. '
+            '[[slnc 300]] You ask the bouncer to come in, and the bouncer '
+            'decides. [[slnc 700]] In our online store, a category page '
+            'shows product images. [[slnc 300]] Loading a full-size image '
+            'is expensive. [[slnc 300]] And some images only certain '
+            'staff may see. [[slnc 500]] By the end, you will know how to '
+            'delay expensive work until it is needed. [[slnc 300]] And '
+            'how to put an access check in one place that no caller can '
+            'forget.'
         ),
     ),
     dict(
@@ -49,13 +51,14 @@ SCENES = [
             "  don't let a non-admin render a restricted image at all",
         ],
         narration=(
-            "So, imagine a product listing backed by full-resolution images. "
-            "[[slnc 250]] Loading a single one of those is expensive — decoding "
-            "the file, allocating the memory, reading from disk. [[slnc 300]] "
-            "And there are two things the listing needs that the image itself "
-            "really shouldn't have to know anything about. First, don't load an "
-            "image until it is actually rendered. And second, don't let a "
-            "non-admin render a restricted image at all."
+            'Here is the scenario. [[slnc 400]] A product listing uses '
+            'full-size images. [[slnc 300]] Loading just one is '
+            'expensive: reading the file, decoding it, and holding it in '
+            'memory. [[slnc 600]] And the listing needs two things that '
+            'the image itself should not have to care about. [[slnc 500]] '
+            'First: do not load an image until it is actually shown. '
+            '[[slnc 300]] Second: do not let an ordinary shopper see a '
+            'restricted image at all.'
         ),
     ),
     dict(
@@ -72,13 +75,13 @@ SCENES = [
             "and each one has to remember to do both, correctly.",
         ],
         narration=(
-            "Without a stand-in, both of those concerns land in the caller. "
-            "[[slnc 250]] The listing builds every image up front in its "
-            "constructor, because that's the simplest thing that works. And "
-            "every screen that shows an image re-implements the same role check "
-            "inline. [[slnc 300]] Now add a thumbnail grid, a slideshow, a "
-            "search results page — and each one of those has to remember to do "
-            "both of those things, and to do them correctly."
+            'Without a stand-in, both jobs land on the caller. [[slnc '
+            '500]] The listing loads every image up front, when it is '
+            'created, because that is simplest. [[slnc 300]] And every '
+            'screen that shows an image repeats the same access check. '
+            '[[slnc 600]] Now add a thumbnail grid, a slideshow, and a '
+            'search results page. [[slnc 300]] Each one must remember to '
+            'do both jobs, and do them correctly.'
         ),
     ),
     dict(
@@ -104,13 +107,14 @@ public final class NaiveAdminImageViewer {
     }
 }""",
         narration=(
-            "So here's the naive approach. [[slnc 250]] NaiveProductListing takes "
-            "a list of SKUs and, in its constructor, builds a "
-            "HighResolutionProductImage for every single one — before anything has been "
-            "rendered at all. [[slnc 300]] And NaiveAdminImageViewer has the "
-            "role check written directly inside its view method. That check is "
-            "correct. The problem is that it's correct in exactly one place, and "
-            "the next screen has to copy it."
+            'Here is the naive approach. [[slnc 400]] The naive listing '
+            'receives a list of product codes. [[slnc 300]] And straight '
+            'away, it loads a full-size image for every one, before '
+            'anything is shown. [[slnc 600]] And a separate admin viewer '
+            'has the access check written directly inside it. [[slnc '
+            '300]] That check is correct. [[slnc 300]] But it is correct '
+            'in only one place. [[slnc 300]] The next screen has to copy '
+            'it.'
         ),
     ),
     dict(
@@ -124,15 +128,15 @@ public final class NaiveAdminImageViewer {
             "✗   Nothing here is a bug — the waste is structural",
         ],
         narration=(
-            "And that does real damage as the system grows. [[slnc 250]] You pay "
-            "the full loading cost for images that are never shown — build a "
-            "listing of ten and render one, and nine loads were wasted. The "
-            "access rule is duplicated in every screen that renders an image. "
-            "[[slnc 300]] And worse than duplication: a screen that simply "
-            "forgets the check isn't a compile error, it's a silent security "
-            "hole. [[slnc 250]] None of this is a bug. Each naive class does "
-            "exactly what it says. The waste is structural — access control and "
-            "lifetime management pushed out into every caller."
+            'That does real damage as the system grows. [[slnc 500]] You '
+            'pay the full loading cost for images that are never shown. '
+            '[[slnc 300]] Load a listing of ten, show one, and nine loads '
+            'were wasted. [[slnc 500]] The access rule is copied into '
+            'every screen that shows an image. [[slnc 300]] And worse, a '
+            'screen that forgets the check does not fail to build. [[slnc '
+            '300]] It becomes a silent security hole. [[slnc 600]] None '
+            'of this is a bug. [[slnc 300]] The waste is in the '
+            'structure: access and timing pushed out into every caller.'
         ),
     ),
     dict(
@@ -149,11 +153,12 @@ public final class NaiveAdminImageViewer {
             "same interface, but it decides whether and when the call gets through.",
         ],
         narration=(
-            "The proxy pattern fixes exactly this. [[slnc 250]] In Gang of Four "
-            "terms, proxy provides a surrogate or placeholder for another object "
-            "in order to control access to it. [[slnc 300]] In plain language? "
-            "Same interface, but it decides whether, and when, the call actually "
-            "gets through."
+            'The Proxy pattern fixes exactly this. [[slnc 400]] The '
+            'classic book on design patterns, by the authors known as the '
+            'Gang of Four, describes it like this. [[slnc 300]] Provide a '
+            'stand-in, or placeholder, for another object, to control '
+            'access to it. [[slnc 600]] In plain words: the same shape, '
+            'but it decides whether, and when, the call gets through.'
         ),
     ),
     dict(
@@ -170,14 +175,15 @@ public final class NaiveAdminImageViewer {
             "Somebody just controls the door.",
         ],
         narration=(
-            "Here's how to remember it forever. Think about the bouncer on the "
-            "door of a club. [[slnc 250]] The bouncer stands in front of the "
-            "club, not inside it. You talk to the bouncer exactly the way you'd "
-            "talk to the club itself — you ask to come in. [[slnc 300]] And the "
-            "bouncer decides whether that request gets through. [[slnc 250]] "
-            "Here's the part that matters. The club is the same club either way. "
-            "Nothing was added to it, nothing was changed about it. Somebody just "
-            "controls the door."
+            'Here is how to remember it. [[slnc 300]] Think about the '
+            'bouncer at the door of a club. [[slnc 500]] The bouncer '
+            'stands in front of the club, not inside it. [[slnc 300]] You '
+            'talk to the bouncer just as you would to the club. [[slnc '
+            '300]] You ask to come in. [[slnc 300]] And the bouncer '
+            'decides whether you get through. [[slnc 600]] Here is the '
+            'part that matters. [[slnc 300]] The club is the same club '
+            'either way. [[slnc 300]] Nothing was added to it. [[slnc '
+            '300]] Someone just controls the door.'
         ),
     ),
     dict(
@@ -186,17 +192,19 @@ public final class NaiveAdminImageViewer {
         title="The Four Roles",
         body=None,
         narration=(
-            "Every proxy setup has four roles. [[slnc 200]] The subject, ProductImage, "
-            "the interface the real thing and every stand-in share. The real "
-            "subject, HighResolutionProductImage, the expensive object we're protecting. "
-            "The proxies — LazyProductImage, which delays construction until the first "
-            "render call, and RestrictedProductImage, which checks the "
-            "caller's role first. And the client, ProductImageDemo, which holds "
-            "only a ProductImage and never learns which of those it actually has. "
-            "[[slnc 350]] Here's the single most important idea in this whole "
-            "video. The proxy exposes exactly the same interface as the real "
-            "subject, and returns exactly the same result. Nothing new is added. "
-            "That is what makes it a proxy and not a decorator."
+            'Every proxy has four roles. [[slnc 500]] The subject: the '
+            'shared interface, here called product image. [[slnc 300]] '
+            'The real subject: the full-size image, the expensive object '
+            'being protected. [[slnc 300]] The proxies: a lazy image, '
+            'which waits until the first time it is shown. [[slnc 300]] '
+            "And a restricted image, which checks the caller's role "
+            'first. [[slnc 300]] And the client: the demo code, which '
+            'only ever holds a product image, and never learns which kind '
+            'it has. [[slnc 600]] Here is the most important idea in this '
+            'video. [[slnc 300]] A proxy has exactly the same shape as '
+            'the real object, and gives exactly the same result. [[slnc '
+            '300]] Nothing new is added. [[slnc 300]] That is what makes '
+            'it a proxy, and not a decorator.'
         ),
     ),
     dict(
@@ -218,12 +226,14 @@ public final class HighResolutionProductImage implements ProductImage {
     @Override public String sku()    { return sku; }
 }""",
         narration=(
-            "This is the subject, ProductImage. [[slnc 250]] It's the shared interface "
-            "the real image and every proxy implement — just render, and "
-            "S K U. [[slnc 300]] And this is the real subject, "
-            "HighResolutionProductImage. Its constructor bumps a static load count, "
-            "which is our stand-in for expensive work. Notice it knows nothing "
-            "about proxies, or roles, or laziness. It just is an image."
+            'Here is the subject: the product image interface. [[slnc '
+            '400]] It has just two questions. [[slnc 300]] Show yourself. '
+            '[[slnc 300]] And what is your product code? [[slnc 600]] And '
+            'here is the real subject: the full-size image. [[slnc 300]] '
+            'Every time one is created, it adds one to a load counter. '
+            '[[slnc 300]] That counter stands for expensive work. [[slnc '
+            '500]] It knows nothing about proxies, roles, or waiting. '
+            '[[slnc 300]] It just is an image.'
         ),
     ),
     dict(
@@ -246,15 +256,15 @@ public final class HighResolutionProductImage implements ProductImage {
     public String sku() { return sku; }   // cheap: never triggers a load
 }""",
         narration=(
-            "And this is the virtual proxy, LazyProductImage. [[slnc 250]] It holds a "
-            "S K U, and a realImage field that stays null until somebody "
-            "actually calls render. First call, it builds the real image and "
-            "caches it. Every call after that reuses the cached one. [[slnc "
-            "300]] And look at the S K U method. It answers straight from the "
-            "proxy's own "
-            "field, without loading anything. That detail matters — a proxy that "
-            "has to build the real subject just to answer a cheap question has "
-            "defeated its own purpose."
+            'Here is the lazy proxy. [[slnc 400]] It holds a product '
+            'code, and an empty space for the real image. [[slnc 500]] '
+            'The first time it is asked to show itself, it loads the real '
+            'image, and keeps it. [[slnc 300]] Every time after that, it '
+            'reuses the one it kept. [[slnc 600]] And when asked for its '
+            'product code, it answers from its own record. [[slnc 300]] '
+            'Without loading anything. [[slnc 500]] That matters. [[slnc '
+            '300]] A proxy that loads the real thing just to answer a '
+            'cheap question has defeated its own purpose.'
         ),
     ),
     dict(
@@ -277,15 +287,17 @@ public final class HighResolutionProductImage implements ProductImage {
 ProductImage guarded =
         new RestrictedProductImage(new LazyProductImage("SKU-9001"), Role.CATALOG_ADMIN);""",
         narration=(
-            "Here's the subtlety worth pausing on. [[slnc 250]] "
-            "RestrictedProductImage takes a ProductImage in its constructor. Not a "
-            "HighResolutionProductImage — a ProductImage. [[slnc 300]] That one detail is what "
-            "lets it wrap a LazyProductImage, so you get the role check and the lazy "
-            "loading together, from two small classes that were never written "
-            "with each other in mind. [[slnc 250]] And notice the order. If the "
-            "role check fails, it throws before it ever calls render on the "
-            "image it wraps — so a denied shopper never causes a load at all. The "
-            "expensive work is skipped because the access decision came first."
+            'Here is a detail worth pausing on: the restricted proxy. '
+            '[[slnc 400]] It wraps any product image, not just a '
+            'full-size one. [[slnc 500]] That is what lets it wrap a lazy '
+            'image. [[slnc 300]] So you get the role check and the lazy '
+            'loading together. [[slnc 300]] From two small classes that '
+            'were never written with each other in mind. [[slnc 600]] And '
+            'notice the order. [[slnc 300]] If the role check fails, it '
+            'refuses before touching the image it wraps. [[slnc 300]] So '
+            'a refused shopper never causes a load at all. [[slnc 300]] '
+            'The expensive work is skipped, because the access decision '
+            'came first.'
         ),
     ),
     dict(
@@ -310,16 +322,17 @@ Shopper denied: Only catalog admins may view SKU-2087
 Total images loaded so far: 2 -- SKU-9001 is not among them yet, still lazy
 Total images loaded after admin render: 3""",
         narration=(
-            "When we run the project, the numbers tell the whole story. [[slnc "
-            "250]] The naive listing has loaded three images before rendering "
-            "anything. The virtual proxy has loaded zero — the real subject "
-            "hasn't been touched. [[slnc 300]] After the first render it's one. "
-            "After the second render it's still one, because the instance was "
-            "cached. [[slnc 250]] Then the protection proxy lets an admin "
-            "through and refuses a shopper. And in the composed section, S K U "
-            "nine thousand one stays unloaded right up until an admin passes "
-            "the role "
-            "check — one proxy wrapped in the other, doing both jobs at once."
+            "Let's run the project. [[slnc 400]] The naive listing has "
+            'loaded three images before showing anything. [[slnc 500]] '
+            'The lazy proxy has loaded none. [[slnc 300]] The real image '
+            'has not been touched. [[slnc 300]] After the first time it '
+            'is shown, one image is loaded. [[slnc 300]] After the second '
+            'time, still only one, because it was kept. [[slnc 600]] Then '
+            'the restricted proxy lets an admin through, and refuses a '
+            'shopper. [[slnc 500]] And in the combined example, the '
+            'restricted image stays unloaded, right up until an admin '
+            'passes the check. [[slnc 300]] One proxy wrapped in the '
+            'other, doing both jobs at once.'
         ),
     ),
     dict(
@@ -338,16 +351,18 @@ Total images loaded after admin render: 3""",
             "Decorator keeps the same interface and adds new behaviour.",
         ],
         narration=(
-            "So, to recap. Use proxy when a client shouldn't have to manage when "
-            "an object gets created, or whether it's allowed to be used at all. "
-            "[[slnc 300]] Keep the proxy's interface identical to the subject, "
-            "and keep the cheap questions cheap — never load the real thing just "
-            "to answer one. [[slnc 350]] And if you remember one sentence from "
-            "today, make it this one. Proxy keeps the same interface and "
-            "delegates in order to control access — when to create, whether to "
-            "allow, where the real thing lives. Decorator keeps the same "
-            "interface and delegates in order to add new behaviour on top. Same "
-            "shape, different intent."
+            'So, to recap. [[slnc 400]] Use a proxy when the caller '
+            'should not have to manage when an object is created. [[slnc '
+            '300]] Or whether it may be used at all. [[slnc 600]] Keep '
+            "the proxy's shape identical to the real object. [[slnc 300]] "
+            'And keep cheap questions cheap. [[slnc 300]] Never load the '
+            'real thing just to answer one. [[slnc 600]] And one '
+            'comparison worth knowing. [[slnc 300]] A proxy and a '
+            'decorator look the same: same shape, passing calls along. '
+            '[[slnc 300]] But a proxy controls access: when to create, '
+            'and whether to allow. [[slnc 300]] A decorator adds new '
+            'behaviour on top. [[slnc 300]] Same shape, different '
+            'purpose.'
         ),
     ),
     dict(
@@ -361,13 +376,19 @@ Total images loaded after admin render: 3""",
             "Full source code, notes and an animation are in the repository.",
         ],
         narration=(
-            "And that's the proxy pattern. [[slnc 300]] If you got something out "
-            "of this, do give it a thumbs up, and subscribe. It genuinely helps "
-            "the channel, and it's what makes more of these possible. [[slnc "
-            "250]] And if there's a pattern you'd like me to cover next, drop it "
-            "in the comments. I read every one. [[slnc 250]] All the source code, "
-            "the written notes and an interactive animation are in the "
-            "repository. Thanks for watching, and I'll see you in the next one."
+            "That's the Proxy pattern. [[slnc 400]] If you remember one "
+            'sentence, make it this one. [[slnc 300]] A proxy is a '
+            'stand-in with the same shape as the real thing, deciding '
+            'when it is built, and who may use it. [[slnc 500]] The full '
+            'source code, written notes, diagrams, and an animated '
+            'walkthrough are all in the repository. [[slnc 300]] It runs '
+            'offline, with nothing installed except a Java development '
+            'kit. [[slnc 500]] Here is one exercise to try. [[slnc 300]] '
+            'Add a third proxy that counts how often each image is shown. '
+            '[[slnc 300]] And notice the caller does not change. [[slnc '
+            '500]] If this helped, a like really does help other people '
+            "find it. [[slnc 300]] And subscribe, if you'd like the rest "
+            'of the series. [[slnc 400]] Thanks for watching.'
         ),
     ),
 ]

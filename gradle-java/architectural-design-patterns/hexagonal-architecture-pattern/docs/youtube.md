@@ -19,19 +19,19 @@ The first two lines are what a viewer sees above the fold, so they carry the hoo
 ```
 CHAPTERS
 00:00 Introduction
-01:12 The Scenario
-01:46 The Naive Version
-02:33 Ports, Declared By The Core
-03:26 One Move From The Project Before It
-04:19 The Core, Driven By HTTP
-04:58 The Half Most Treatments Skip
-05:45 The Same Core, Driven By A CLI Instead
-06:22 The Rule, Written Where A Build Can Read It
-06:55 Watching It Go Red
-07:19 The Forced Change, Both Halves At Once
-08:02 The Bill
-08:41 When This Is Too Much
-09:22 Thanks for Watching
+01:08 The Scenario
+01:48 The Naive Version
+02:25 Ports, Declared By The Core
+03:11 One Move From The Project Before It
+03:51 The Core, Driven By HTTP
+04:32 The Half Most Treatments Skip
+05:07 The Same Core, Driven By A CLI Instead
+05:41 The Rule, Written Where A Build Can Read It
+06:11 Watching It Go Red
+06:36 The Forced Change, Both Halves At Once
+07:11 The Bill
+07:46 When This Is Too Much
+08:19 Thanks for Watching
 
 SOURCE CODE, WRITTEN NOTES AND AN INTERACTIVE ANIMATION
 https://github.com/jk-boot-up/java-design-patterns/tree/main/gradle-java/architectural-design-patterns/hexagonal-architecture-pattern
@@ -46,19 +46,19 @@ YouTube renders these as chapters only if there are at least three and the first
 
 ```
 00:00 Introduction
-01:12 The Scenario
-01:46 The Naive Version
-02:33 Ports, Declared By The Core
-03:26 One Move From The Project Before It
-04:19 The Core, Driven By HTTP
-04:58 The Half Most Treatments Skip
-05:45 The Same Core, Driven By A CLI Instead
-06:22 The Rule, Written Where A Build Can Read It
-06:55 Watching It Go Red
-07:19 The Forced Change, Both Halves At Once
-08:02 The Bill
-08:41 When This Is Too Much
-09:22 Thanks for Watching
+01:08 The Scenario
+01:48 The Naive Version
+02:25 Ports, Declared By The Core
+03:11 One Move From The Project Before It
+03:51 The Core, Driven By HTTP
+04:32 The Half Most Treatments Skip
+05:07 The Same Core, Driven By A CLI Instead
+05:41 The Rule, Written Where A Build Can Read It
+06:11 Watching It Go Red
+06:36 The Forced Change, Both Halves At Once
+07:11 The Bill
+07:46 When This Is Too Much
+08:19 Thanks for Watching
 ```
 
 ## Tags
@@ -97,4 +97,4 @@ Add a card partway through pointing at the playlist, so a viewer who arrives at 
 
 ## Runtime
 
-Approximately 10:10, narrated at 145 words per minute.
+Approximately 09:06, narrated at 145 words per minute.

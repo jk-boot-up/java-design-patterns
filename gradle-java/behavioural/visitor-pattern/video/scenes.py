@@ -17,23 +17,25 @@ SCENES = [
         title="Visitor",
         body=None,
         narration=(
-            "Hello, and welcome. This video explains the Visitor design pattern "
-            "in Java, and it is written and presented by Jayasekhar Konduru. "
-            "[[slnc 300]] Let's start with the simple definition. Visitor lets "
-            "you add a new operation to a set of objects without changing those "
-            "objects. You write the operation as a class of its own — a visitor — "
-            "and hand it to each object in turn, and each object calls back the "
-            "one method on it that fits its own type. The objects stay as they "
-            "are; the new behaviour arrives from outside. [[slnc 350]] That's the "
-            "idea in a sentence. The rest of the video does it properly, in an "
-            "online shop, where the catalog is a tree of categories, products and "
-            "bundles and the business keeps asking new questions about it — what "
-            "the stock is worth, what sits in each category, a spreadsheet for "
-            "finance, and which items can't simply be put in a box and posted. "
-            "Each of those questions becomes a visitor. [[slnc 300]] By the end "
-            "you'll know what double dispatch is and why Java needs two method "
-            "calls to get it, and — more useful — when this pattern is the wrong "
-            "answer."
+            'Hello, and welcome. [[slnc 400]] This video explains the '
+            'Visitor pattern, in Java. [[slnc 300]] This video is '
+            'presented by Jayasekhar Konduru. [[slnc 600]] First, a '
+            'simple definition. [[slnc 300]] The Visitor pattern lets you '
+            'add a new operation to a set of objects, without changing '
+            'those objects. [[slnc 400]] You write the operation as its '
+            'own class, called a visitor. [[slnc 300]] You hand it to '
+            'each object in turn. [[slnc 300]] And each object calls back '
+            'the one method on the visitor that fits its own type. [[slnc '
+            '600]] Think of inspectors visiting a building. [[slnc 300]] '
+            'A fire officer, a valuer, and a census taker each walk the '
+            'same rooms. [[slnc 300]] But each one does a completely '
+            "different job. [[slnc 700]] In this video, an online shop's "
+            'catalog is a tree of categories, products, and bundles. '
+            '[[slnc 300]] The business keeps asking new questions about '
+            'it. [[slnc 300]] Each question becomes a visitor. [[slnc '
+            '500]] By the end, you will know what double dispatch means. '
+            '[[slnc 300]] And, more usefully, when this pattern is the '
+            'wrong answer.'
         ),
     ),
     dict(
@@ -54,17 +56,18 @@ SCENES = [
             "  CSV export         compliance audit",
         ],
         narration=(
-            "So, the catalog. It's a tree: categories hold products and other "
-            "categories, and it has looked like that since the shop opened. If "
-            "you've done the composite project in this series, this is literally "
-            "that tree. [[slnc 300]] What changes is not the tree. It's what the "
-            "business wants to know about it. Finance wants the value of the "
-            "stock, and a spreadsheet every Monday. Merchandising wants the lines "
-            "in each category. Shipping wants to know which items can't simply be "
-            "put in a box and posted. [[slnc 300]] Four questions, one structure "
-            "— and next month there will be a fifth. Hold on to that shape, "
-            "because it's the only condition under which today's pattern is worth "
-            "its cost."
+            "Here is the scenario: the shop's catalog. [[slnc 400]] It is "
+            'a tree. [[slnc 300]] Categories hold products, and other '
+            'categories. [[slnc 300]] And it has looked like that since '
+            'the shop opened. [[slnc 500]] What changes is not the tree. '
+            '[[slnc 300]] It is the questions the business asks about it. '
+            '[[slnc 400]] Finance wants the value of the stock, and a '
+            'spreadsheet every Monday. [[slnc 300]] Merchandising wants a '
+            'count of items in each category. [[slnc 300]] Shipping wants '
+            'to know which items cannot simply be boxed and posted. '
+            '[[slnc 500]] Four questions, one structure. [[slnc 300]] And '
+            'next month there will be a fifth. [[slnc 300]] That shape is '
+            'the only situation where this pattern is worth its cost.'
         ),
     ),
     dict(
@@ -87,20 +90,22 @@ SCENES = [
             "  bundle   ->  every restriction in the box",
         ],
         narration=(
-            "Before any of the design, look at two nodes, because the whole video "
-            "turns on the difference between them. [[slnc 250]] A product is one "
-            "item on the shelf: a price, a stock level, and possibly a "
-            "restriction — a lithium cell, say, which needs a dangerous goods "
-            "declaration if it flies. A bundle is a kit sold as one thing: the "
-            "starter kit is a phone, a case and a spare battery, at six hundred "
-            "and thirty nine pounds. [[slnc 300]] Now ask both the same two "
-            "questions. What are you worth? A product is price times stock. A "
-            "bundle is its kit price times stock — not the sum of its parts, "
-            "because the point of a bundle is that it costs less than the parts. "
-            "[[slnc 300]] And: are you restricted? A product is, or it isn't. One "
-            "field. A bundle has no restriction of its own — it's restricted by "
-            "what's in the box. [[slnc 300]] Two node types, two genuinely "
-            "different rules, twice over."
+            "Before the design, let's compare two kinds of item, because "
+            'everything depends on their difference. [[slnc 500]] A '
+            'product is one item on the shelf. [[slnc 300]] It has a '
+            'price, a stock level, and maybe a restriction. [[slnc 300]] '
+            'For example, a lithium battery needs a dangerous goods '
+            'declaration if it flies. [[slnc 400]] A bundle is a kit sold '
+            'as one thing. [[slnc 300]] The starter kit is a phone, a '
+            'case, and a spare battery, for six hundred and thirty-nine '
+            'pounds. [[slnc 500]] Now ask both of them two questions. '
+            '[[slnc 300]] First: what are you worth? [[slnc 300]] A '
+            'product is its price times its stock. [[slnc 300]] A bundle '
+            'is its kit price times its stock, not the sum of its parts. '
+            '[[slnc 400]] Second: are you restricted? [[slnc 300]] A '
+            'product either is, or is not. [[slnc 300]] A bundle has no '
+            'restriction of its own. [[slnc 300]] It is restricted by '
+            'what is inside the box.'
         ),
     ),
     dict(
@@ -122,19 +127,20 @@ private static String quote(String field) {
     return '"' + field.replace("\\"", "\\"\\"") + '"';
 }""",
         narration=(
-            "Written the obvious way, a report is a method on the node. [[slnc "
-            "250]] Here's the interface after four of them. Read the list and ask "
-            "which of these is about a catalog. Name, obviously. Inventory value, "
-            "arguably. [[slnc 300]] But append C S V to? That's not about a "
-            "product. That's a rule from a nineteen nineties file format: a field "
-            "containing a comma gets wrapped in quotes, and a quote inside it "
-            "gets doubled. And underneath, there it is — a private quote method, "
-            "on a class whose job is to describe a thing on a shelf. [[slnc 300]] "
-            "I want to be fair to this design, because it isn't stupid. Each "
-            "method is the shortest correct way to answer its question, and the "
-            "demo proves it: the naive inventory value and the visitor inventory "
-            "value agree to the penny. [[slnc 300]] Everything that follows is "
-            "about the fourth report, and the third year."
+            'The obvious approach is to add each report as a method on '
+            'the catalog items. [[slnc 500]] After four reports, the '
+            'shared interface has methods for value, counting, '
+            'spreadsheet export, and the compliance audit. [[slnc 400]] '
+            'Is spreadsheet export really about a product? [[slnc 300]] '
+            'No. [[slnc 300]] It is a rule from a file format. [[slnc '
+            '300]] A field containing a comma must be wrapped in quotes. '
+            '[[slnc 300]] Yet that rule now lives inside a class that '
+            'describes a thing on a shelf. [[slnc 500]] To be fair, this '
+            'design is not foolish. [[slnc 300]] Each method is the '
+            'shortest correct answer to its question. [[slnc 300]] And '
+            'the naive stock value matches the visitor version, to the '
+            'penny. [[slnc 400]] The trouble arrives with the fourth '
+            'report, in the third year.'
         ),
     ),
     dict(
@@ -158,27 +164,25 @@ private static String quote(String field) {
             "5. Report five edits three finished classes.",
         ],
         narration=(
-            "So here's what goes wrong, and it goes wrong in a particular order. "
-            "[[slnc 250]] One. A report is now a change to the domain model — the "
-            "quoting rule lives in two node classes, because the bundle needed "
-            "one too. [[slnc 300]] Two. Knowing something twice is how it comes "
-            "to be known differently. The bundle class was written eighteen "
-            "months later, by copying the product class, and the copy dropped the "
-            "quoting calls. Nothing failed — no kit had a comma in its name that "
-            "year. Then marketing renamed the kit to Starter Kit, comma, three "
-            "items, and one row of the finance spreadsheet quietly gained a "
-            "column. [[slnc 350]] Three, and this is the one that matters. The "
-            "compliance check was copied too. The product version reads the "
-            "product's restriction field, so the bundle version reads its own "
-            "restriction field — which came across with the copy and is never "
-            "set. So the starter kit, with a lithium cell in the box, is not on "
-            "the dangerous goods report, and a shipment goes out filed as clear "
-            "for air freight. [[slnc 300]] Nobody wrote that bug, and the "
-            "interface couldn't have caught it: it says the method exists, and "
-            "both classes have one. [[slnc 300]] Four. Every report on the "
-            "category class is the same loop with a different body. And five: the "
-            "fifth report is a fifth method, and three more implementations of "
-            "it."
+            'Here is what goes wrong, in order. [[slnc 500]] One. [[slnc '
+            '200]] Every new report changes the catalog classes '
+            'themselves. [[slnc 300]] The quoting rule now lives in two '
+            'item classes. [[slnc 500]] Two. [[slnc 200]] Knowing '
+            'something twice is how it comes to be known differently. '
+            '[[slnc 300]] The bundle class was written later, by copying '
+            'the product class, and the copy dropped the quoting. [[slnc '
+            '300]] Then marketing renamed the kit to, Starter Kit, comma, '
+            'three items. [[slnc 300]] And one row of the finance '
+            'spreadsheet quietly gained an extra column. [[slnc 500]] '
+            'Three, and this one really matters. [[slnc 300]] The '
+            'compliance check was copied too. [[slnc 300]] The bundle '
+            "version reads the bundle's own restriction, which is never "
+            'set. [[slnc 300]] So the starter kit, with a lithium battery '
+            'inside, is missing from the dangerous goods report. [[slnc '
+            '300]] And a shipment goes out marked as safe for air '
+            'freight. [[slnc 500]] Nobody wrote that bug on purpose. '
+            '[[slnc 300]] And every new report means another method, in '
+            'every item class.'
         ),
     ),
     dict(
@@ -197,16 +201,18 @@ private static String quote(String field) {
             "about change — and about one direction of change.",
         ],
         narration=(
-            "The Gang of Four define it like this. Represent an operation to be "
-            "performed on the elements of an object structure. Visitor lets you "
-            "define a new operation without changing the classes of the elements "
-            "on which it operates. [[slnc 350]] Read that second sentence again, "
-            "because it's a promise about change, not about structure. This isn't "
-            "a way of walking a tree — composite already walks the tree. It's a "
-            "way of deciding which of your two axes of change is going to be "
-            "cheap. [[slnc 300]] And notice what the definition is careful not to "
-            "say. It says nothing at all about new element types, and that "
-            "silence is the whole cost of the pattern."
+            "Here is the pattern's definition, from the famous Gang of "
+            'Four book. [[slnc 400]] Represent an operation to be '
+            'performed on the elements of an object structure. [[slnc '
+            '300]] Visitor lets you define a new operation, without '
+            'changing the classes of the elements it works on. [[slnc '
+            '500]] That second sentence is a promise about change. [[slnc '
+            '300]] This is not a way of walking a tree. [[slnc 300]] It '
+            'is a way of choosing which kind of change will be cheap. '
+            '[[slnc 500]] And notice what the definition does not say. '
+            '[[slnc 300]] It says nothing about adding new kinds of '
+            'element. [[slnc 300]] That silence is the whole cost of the '
+            'pattern.'
         ),
     ),
     dict(
@@ -227,20 +233,22 @@ private static String quote(String field) {
             "A new kind of room: every inspector needs training.",
         ],
         narration=(
-            "Here's how I'd explain this at a whiteboard. [[slnc 250]] Think "
-            "about a building, and the people who come to inspect it. The fire "
-            "officer checks the exits. The valuer estimates what it's worth. The "
-            "census taker counts the occupants. Three completely different jobs. "
-            "[[slnc 300]] And the caretaker walks each of them the same route, "
-            "through the same doors, in the same order. The caretaker doesn't "
-            "care what they're looking for, and the inspectors don't know the "
-            "layout. [[slnc 350]] Now a new kind of inspector turns up. An "
-            "accessibility auditor. You hire one, they join the walk, and nothing "
-            "in the building changes. That's the benefit, and it's real. [[slnc "
-            "300]] But add a new kind of room — a plant room, a server room — and "
-            "every single inspector needs to be told what to do standing in it. "
-            "Every one. That's the bill, and it arrives every time the building "
-            "changes shape."
+            'Here is an analogy: a building, and the people who inspect '
+            'it. [[slnc 500]] The fire officer checks the exits. [[slnc '
+            '300]] The valuer estimates what it is worth. [[slnc 300]] '
+            'The census taker counts the people. [[slnc 300]] Three '
+            'completely different jobs. [[slnc 500]] The caretaker walks '
+            'each inspector along the same route, through the same doors, '
+            'in the same order. [[slnc 300]] The caretaker does not care '
+            'what they are looking for. [[slnc 300]] And the inspectors '
+            'do not need to know the layout. [[slnc 500]] Now a new kind '
+            'of inspector arrives, an accessibility auditor. [[slnc 300]] '
+            'They join the walk, and nothing in the building changes. '
+            '[[slnc 300]] That is the benefit. [[slnc 500]] But add a new '
+            'kind of room, like a server room. [[slnc 300]] Now every '
+            'single inspector must be told what to do in it. [[slnc 300]] '
+            'That is the cost, and it arrives every time the building '
+            'changes shape.'
         ),
     ),
     dict(
@@ -249,20 +257,22 @@ private static String quote(String field) {
         title="The Roles",
         body=None,
         narration=(
-            "Here are the pieces, and the shape to take away is two hierarchies "
-            "side by side. [[slnc 300]] On the left, the catalog: three node "
-            "types, product, bundle and category. That hierarchy is finished, and "
-            "has been for years. On the right, the reports: a catalog visitor "
-            "interface, and under it the four the business asked for, plus a "
-            "trace and a low stock report. Six classes, growing every month. "
-            "[[slnc 300]] Between them, one arrow, and it points in the direction "
-            "that surprises people. The structure depends on the visitor "
-            "interface, while no node knows that any concrete report exists. "
-            "That's what lets me declare a report inside a test file and have it "
-            "walk a tree compiled without it. [[slnc 300]] Count the boxes. Three "
-            "and six. Adding to the six is free; adding to the three costs an "
-            "edit to all six. Those two numbers are the entire argument for and "
-            "against this pattern."
+            'Here are the pieces, and the shape to remember is two '
+            'families side by side. [[slnc 500]] On one side, the '
+            'catalog, with three item types: product, bundle, and '
+            'category. [[slnc 300]] That family is finished, and has been '
+            'for years. [[slnc 500]] On the other side, the reports. '
+            '[[slnc 300]] A Catalog Visitor interface, and six visitors '
+            'below it. [[slnc 300]] Stock value, category count, '
+            'spreadsheet export, compliance audit, a trace, and a low '
+            'stock report. [[slnc 300]] That family grows every month. '
+            '[[slnc 500]] The catalog only depends on the visitor '
+            'interface. [[slnc 300]] No item knows that any particular '
+            'report exists. [[slnc 500]] Count them: three item types, '
+            'six visitors. [[slnc 300]] Adding a visitor is free. [[slnc '
+            '300]] Adding an item type means editing all six visitors. '
+            '[[slnc 300]] Those two numbers are the whole argument, for '
+            'and against this pattern.'
         ),
     ),
     dict(
@@ -288,20 +298,22 @@ public void accept(CatalogVisitor visitor) {
     visitor.visit(this);
 }""",
         narration=(
-            "Here is the whole pattern, and it's smaller than its reputation "
-            "suggests. [[slnc 250]] The element interface has two methods. Name, "
-            "and accept, which hands the node to a visitor. That's the last "
-            "method this interface will ever need. [[slnc 300]] The visitor "
-            "interface has one visit method per node type. Three methods with the "
-            "same name, distinguished only by their parameter — ordinary Java "
-            "overloading, and it's the mechanism the whole pattern runs on. "
-            "[[slnc 300]] Leave is a default method, called on the way back out "
-            "of a category, because a tree walk has two moments at a branch and a "
-            "report that tracks which category it's in needs both. [[slnc 350]] "
-            "And at the bottom, accept. One line, the same line in all three node "
-            "classes. [[slnc 250]] Which raises the obvious objection: if it's "
-            "the same line three times, why isn't it one line in one place? "
-            "That's the next slide, and it's the only genuinely hard idea here."
+            'Here is the whole pattern, and it is smaller than its '
+            'reputation. [[slnc 500]] Every catalog item has a method '
+            'called accept, which receives a visitor. [[slnc 300]] That '
+            'is the last method the item interface will ever need. [[slnc '
+            '500]] The visitor interface has one visit method for each '
+            'item type. [[slnc 300]] Visit a product, visit a bundle, and '
+            'visit a category. [[slnc 300]] They share the same name, and '
+            'differ only by the type they receive. [[slnc 400]] There is '
+            'also a leave method, called on the way back out of a '
+            'category. [[slnc 300]] So a report can keep track of which '
+            'category it is in. [[slnc 500]] And inside each item class, '
+            "accept is just one line. [[slnc 300]] It calls the visitor's "
+            'visit method, passing itself. [[slnc 300]] The same line, in '
+            'all three classes. [[slnc 300]] So why not write it once, in '
+            'one place? [[slnc 300]] That is the next question, and the '
+            'only truly hard idea here.'
         ),
     ),
     dict(
@@ -322,24 +334,25 @@ public void accept(CatalogVisitor visitor) {
 node.accept(v)   ->  runtime picks the node    (dynamic dispatch)
    v.visit(this) ->  compiler picks the report (overload resolution)""",
         narration=(
-            "Take a node, held in a variable of type catalog component, and try "
-            "to call visit on it directly. It does not compile. [[slnc 300]] Java "
-            "picks between overloaded methods using the static type of the "
-            "argument — what the compiler can see at that line — and there, all "
-            "it can see is a catalog component. There's no visit that takes one, "
-            "and the compiler will not guess. It does not matter that the object "
-            "really is a product. [[slnc 350]] Now move the same call inside the "
-            "product class. In that file, this is a product. The compiler knows "
-            "the type and picks visit of product. [[slnc 300]] So the two hops do "
-            "two different jobs. Node dot accept is dynamic dispatch at runtime, "
-            "picking which node we're on. Visitor dot visit of this is overload "
-            "resolution at compile time, picking which report method runs. "
-            "Together they select a method from two types at once, and that is "
-            "double dispatch. [[slnc 350]] Is it awkward to read? Yes, and the "
-            "reason is a fact about Java's overload rules rather than a fact "
-            "about catalogs. That cost is paid on every read, and the only thing "
-            "justifying it is the number of reports on the other side of the "
-            "ledger."
+            'Imagine you have a catalog item, but your variable only says '
+            'it is a catalog component. [[slnc 300]] Try calling the '
+            "visitor's visit method with it directly. [[slnc 300]] It "
+            'will not compile. [[slnc 500]] Java chooses between '
+            'same-named methods using the type the compiler can see, at '
+            'that line. [[slnc 300]] All it can see is a catalog '
+            'component. [[slnc 300]] And there is no visit method for '
+            'that. [[slnc 300]] It does not matter that the object really '
+            'is a product. [[slnc 500]] Now move the same call inside the '
+            'product class. [[slnc 300]] There, the compiler knows it is '
+            'a product. [[slnc 300]] So it picks visit product. [[slnc '
+            '600]] So there are two hops. [[slnc 300]] The first hop, '
+            'calling accept, finds which item we are on, at run time. '
+            '[[slnc 300]] The second hop, calling visit, picks which '
+            'report method runs. [[slnc 300]] Together, they choose a '
+            'method based on two types at once. [[slnc 300]] That is '
+            'called double dispatch. [[slnc 500]] Is it awkward to read? '
+            "[[slnc 300]] Yes. [[slnc 300]] That is a fact about Java's "
+            'rules, not about catalogs.'
         ),
     ),
     dict(
@@ -363,21 +376,21 @@ public void visit(Bundle bundle) {
         if (content.restriction().isRestricted()) record(...);
 }""",
         narration=(
-            "Three pieces of real code. [[slnc 250]] At the top, the walk. The "
-            "category visits itself, hands the visitor to each child, then says "
-            "it's leaving. Depth first, siblings in the order they were added, "
-            "and the same order on every run — because a spreadsheet that "
-            "reorders itself between runs can't be compared with yesterday's. "
-            "That's written once, and every report gets it free, including the "
-            "one you write next year. A test makes the point by counting: a "
-            "visitor with no loop and no recursion in it still sees all seventeen "
-            "calls. [[slnc 350]] In the middle, the inventory value. A product is "
-            "worth price times stock. A bundle is worth its kit price times "
-            "stock. Two plain sentences, and — this is the bit I'd point at — no "
-            "if statement, and no instance of check. [[slnc 350]] At the bottom, "
-            "the compliance rule the naive version lost. A bundle is restricted "
-            "by what's in the box, so here's a loop over the contents. Ask where "
-            "else that loop could go. There is nowhere."
+            'Now three pieces of real code. [[slnc 500]] First, the walk, '
+            'inside the category class. [[slnc 300]] The category visits '
+            'itself, then passes the visitor to each child, and then says '
+            'it is leaving. [[slnc 300]] Always in the same order, so '
+            "today's spreadsheet can be compared with yesterday's. [[slnc "
+            '300]] That walk is written once, and every report gets it '
+            'for free. [[slnc 600]] Second, the stock value report. '
+            '[[slnc 300]] A product is worth its price times its stock. '
+            '[[slnc 300]] A bundle is worth its kit price times its '
+            'stock. [[slnc 300]] Two plain rules, with no if statements, '
+            'and no type checks. [[slnc 600]] Third, the compliance rule '
+            'the naive version lost. [[slnc 300]] A bundle is restricted '
+            'by what is inside it. [[slnc 300]] So the visitor loops over '
+            "the bundle's contents. [[slnc 300]] And that loop lives in "
+            'the one report that needs it.'
         ),
     ),
     dict(
@@ -403,17 +416,19 @@ void aVisitorSeesTheWholeTree() {          // the cost, asserted
     assertEquals(5, visitor.visitedUnderAccessories); // wanted
 }""",
         narration=(
-            "Two tests, because a test that checks an inventory total proves "
-            "nothing about the pattern — the naive version passes that one too. "
-            "[[slnc 300]] The first is the pattern's whole claim, made checkable. "
-            "A report class declared inside the test file, walking a tree whose "
-            "classes were compiled long before it existed. No model file was "
-            "opened. If that passes, extension without modification isn't a "
-            "slogan, it's a property. [[slnc 350]] The second asserts the cost, "
-            "and it's deliberately in the suite. A report that only cares about "
-            "accessories is offered seven nodes and wants five. It can't prune. "
-            "The walk belongs to the structure, so it filters, and does the whole "
-            "tour anyway."
+            'Two tests are worth describing. [[slnc 300]] A test that '
+            'checks the stock total proves nothing about the pattern, '
+            'because the naive version passes it too. [[slnc 500]] The '
+            "first test proves the pattern's promise. [[slnc 300]] A "
+            'brand new report is written inside the test file. [[slnc '
+            '300]] It walks a catalog whose classes were written long '
+            'before it existed. [[slnc 300]] No catalog file was opened, '
+            'and it works. [[slnc 600]] The second test deliberately '
+            'shows a cost. [[slnc 300]] A report that only cares about '
+            'accessories is offered seven items, and only wants five. '
+            '[[slnc 300]] It cannot skip the rest. [[slnc 300]] The walk '
+            'belongs to the catalog, so the report must filter, and still '
+            'do the whole tour.'
         ),
     ),
     dict(
@@ -438,20 +453,22 @@ void aVisitorSeesTheWholeTree() {          // the cost, asserted
     InventoryValueVisitor  CategoryCountVisitor  CsvExportVisitor
     ComplianceAuditVisitor  DispatchTraceVisitor  LowStockVisitor""",
         narration=(
-            "Run it, and the two halves sit side by side. [[slnc 250]] Section "
-            "one is the naive design. The bundle row has eight fields where every "
-            "other row has seven, and the compliance report has two findings, and "
-            "the starter kit isn't one of them. [[slnc 300]] Section two is the "
-            "same catalog and the same four questions, as visitors. The bundle "
-            "name is quoted, because there's one quoting rule in one class "
-            "applied to every node. And the audit has three findings — the kit is "
-            "on the list, with the reason: from the spare battery pack in the "
-            "box. Clear for air freight, false. [[slnc 350]] Section five is the "
-            "part I'd ask you not to skip. Add one node type — a gift card, say — "
-            "and every one of those six classes stops compiling until a method is "
-            "written on it. Six today, and that list only grows, because reports "
-            "are never deleted. The naive design takes a new node type in its "
-            "stride: one new class, and nothing else recompiles."
+            "Let's run the demo. [[slnc 500]] First, the naive design. "
+            "[[slnc 300]] The bundle's spreadsheet row has eight fields, "
+            'where every other row has seven. [[slnc 300]] And the '
+            'compliance report has two findings, but the starter kit is '
+            'not one of them. [[slnc 600]] Now the same catalog and the '
+            "same four questions, as visitors. [[slnc 300]] The bundle's "
+            'name is quoted correctly, because one quoting rule, in one '
+            'class, handles every item. [[slnc 300]] And the audit now '
+            'has three findings. [[slnc 300]] The starter kit is on the '
+            'list, because of the spare battery in the box. [[slnc 300]] '
+            'It is no longer marked safe for air freight. [[slnc 600]] '
+            'Finally, the part not to skip. [[slnc 300]] Add one new item '
+            'type, such as a gift card. [[slnc 300]] Every one of the six '
+            'visitors stops compiling, until a method is written for it. '
+            '[[slnc 300]] The naive design would have needed only one new '
+            'class.'
         ),
     ),
     dict(
@@ -475,22 +492,22 @@ void aVisitorSeesTheWholeTree() {          // the cost, asserted
             "Two operations over a stable tree? Write the methods.",
         ],
         narration=(
-            "So, what to take away. [[slnc 250]] Accept exists because Java picks "
-            "overloads from the static type of the argument. Two hops to reach "
-            "one method, and it will never be obvious to a reader who doesn't "
-            "already know the pattern. Don't defend it as elegant — defend it "
-            "with the ledger. [[slnc 300]] And the ledger is this. A new "
-            "operation costs one new file and zero edits. A new node type costs "
-            "one method on every visitor you've ever written, every time. [[slnc "
-            "350]] So before you commit, count your own two numbers. How many "
-            "node types, how many operations over them — and which of those grew "
-            "last year? Whichever is growing is the one that has to be cheap. "
-            "[[slnc 300]] For a catalog the answer is obvious. For a syntax tree "
-            "still gaining features it's the other way round. That's why this "
-            "pattern has the reputation it does — not because it's bad, but "
-            "because it gets used on the wrong axis. [[slnc 300]] And if you have "
-            "two operations over a stable tree? Write the two methods. Put them "
-            "on the nodes. This project agrees with you."
+            'So, what should you remember? [[slnc 500]] Accept exists '
+            'because Java chooses methods by the type the compiler can '
+            'see. [[slnc 300]] Two hops to reach one method, and it is '
+            'never obvious to a new reader. [[slnc 600]] The trade is '
+            'this. [[slnc 300]] A new operation costs one new file, and '
+            'zero edits. [[slnc 300]] A new item type costs one method, '
+            'in every visitor you have ever written. [[slnc 500]] So '
+            'before you choose, count two numbers in your own code. '
+            '[[slnc 300]] How many item types, and how many operations on '
+            'them. [[slnc 300]] Which one grew last year? [[slnc 300]] '
+            'Whichever is growing must be the cheap one. [[slnc 500]] For '
+            'a shop catalog, operations grow, so Visitor fits. [[slnc '
+            '300]] For something still gaining new kinds of item, it is '
+            'the other way round. [[slnc 500]] And with only two '
+            'operations, on a tree that never changes? [[slnc 300]] Just '
+            'write the two methods, on the items.'
         ),
     ),
     dict(
@@ -503,16 +520,20 @@ void aVisitorSeesTheWholeTree() {          // the cost, asserted
             "a GiftCard node and makes you fix all six visitors.",
         ],
         narration=(
-            "That's visitor. [[slnc 250]] The full source, the written notes, "
-            "the diagrams and an animated walkthrough are all in the repository "
-            "— including the exercise I'd most recommend, and it's the "
-            "unpleasant one. Add a gift card node type, then fix every visitor "
-            "the compiler shouts at you about. Count how many needed a real "
-            "rule, and how many just got an empty method to make the build go "
-            "green. [[slnc 300]] If this helped, a like genuinely helps other "
-            "people find it, and subscribe if you'd like the rest of the "
-            "behavioural series. [[slnc 250]] Thanks for watching, and I'll see "
-            "you in the next one."
+            "That's the Visitor pattern. [[slnc 400]] If you remember one "
+            'sentence, make it this one. [[slnc 300]] Visitor makes new '
+            'operations cheap, and new item types expensive, so use it '
+            'only when operations are what keep growing. [[slnc 500]] The '
+            'full source code, written notes, diagrams, and an animated '
+            'walkthrough are all in the repository. [[slnc 500]] Here is '
+            'one exercise to try, and it is the uncomfortable one. [[slnc '
+            '300]] Add a gift card item type. [[slnc 300]] Then fix every '
+            'visitor the compiler complains about. [[slnc 300]] And count '
+            'how many needed a real rule, and how many just got an empty '
+            'method. [[slnc 500]] If this helped, a like really does help '
+            "other people find it. [[slnc 300]] And subscribe, if you'd "
+            'like the rest of the series. [[slnc 400]] Thanks for '
+            'watching.'
         ),
     ),
 ]

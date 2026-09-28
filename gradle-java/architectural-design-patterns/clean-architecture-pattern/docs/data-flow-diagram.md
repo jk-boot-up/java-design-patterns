@@ -5,41 +5,6 @@ unchanged interactor, and leaving through the boundaries it declared.
 
 ![Clean Architecture pattern data flow diagram](images/data-flow-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-flowchart TD
-    HttpReq(["a simulated JSON body arrives"])
-    BatchReq(["a simulated CSV row arrives"])
-    UC["PlaceOrderInteractor.execute<br/>the same method, either way"]
-    Check{"every SKU exists,<br/>with enough stock?"}
-    Refuse1["refused — via whichever controller called"]
-    Charge["PaymentGateway.charge"]
-    Declined{"accepted?"}
-    Refuse2["refused — nothing written down yet"]
-    Reduce["ProductRepository.reduceStock"]
-    Save["OrderRepository.save"]
-    Notify["NotificationGateway.send"]
-    HttpResp(["JSON-shaped response string"])
-    BatchResp(["IMPORTED / SKIPPED line"])
-    Shortcut["NaivePlaceOrderInteractor<br/>constructs InMemoryOrderRepository directly"]
-
-    HttpReq --> UC
-    BatchReq --> UC
-    UC --> Check
-    Check -- no --> Refuse1
-    Check -- yes --> Charge --> Declined
-    Declined -- no --> Refuse2
-    Declined -- yes --> Reduce --> Save --> Notify
-    Notify --> HttpResp
-    Notify --> BatchResp
-
-    UC -.->|the shortcut skips every boundary| Shortcut
-```
-
-</details>
-
 ## Reading The Diagram
 
 **Two arrows enter `UC` from the top, and both go to the same box.**

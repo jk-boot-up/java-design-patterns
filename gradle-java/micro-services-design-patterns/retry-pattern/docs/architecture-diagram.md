@@ -26,46 +26,6 @@ the request already exists.
 
 ![Retry with backoff architecture diagram](images/architecture-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-flowchart TB
-    subgraph W["what the program is a model of"]
-        direction TB
-        Shop["the shop's checkout<br/>builds the request once, key and all"]
-        Retry["the retry loop<br/>attempt, wait, attempt again"]
-        subgraph Far["somebody else's system — across a network you do not control"]
-            direction TB
-            GW["the payment gateway<br/>remembers keys it has already charged"]
-            Bank["the bank<br/>approves, or declines for a reason"]
-            GW --> Bank
-        end
-        Shop -- "one request, one key" --> Retry
-        Retry -- "the same bytes, up to three times" --> GW
-        GW -- "a receipt, a decline, or nothing at all" --> Retry
-    end
-
-    subgraph J["what actually runs — one JVM, JDK 21, no network, nothing installed"]
-        direction LR
-        Demo["RetryDemo<br/>the four acts"]
-        CS["CheckoutService<br/>builds the request OUTSIDE the loop"]
-        NCS["NaiveCheckoutService<br/>the comparison — builds it inside"]
-        R["Retrier<br/>has never heard of payments"]
-        P["RetryPolicy<br/>3 attempts, 100ms doubling, jitter"]
-        PG["PaymentGateway<br/>can time out, decline, or charge then lose the reply"]
-        Clock["SimulatedClock + CallLog<br/>backoff that costs no wall-clock time"]
-        Demo --> CS --> R --> P
-        Demo --> NCS
-        CS --> PG --> Clock
-        R --> Clock
-    end
-
-    W -. "no Resilience4j, no Spring Retry, no network — a loop and a clock" .-> J
-```
-
-</details>
-
 ## What the diagram is telling you to count
 
 **The key is created in the top box and nowhere else.** `CheckoutService` builds the

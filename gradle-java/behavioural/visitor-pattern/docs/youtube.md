@@ -21,20 +21,20 @@ Learn the Visitor design pattern in Java 21 by building the reports an online st
 
 CHAPTERS
 00:00 Introduction
-01:06 The Scenario
-01:48 Two Kinds of Node, and They Are Not Alike
-02:45 The Naive Approach — A Method Per Report
-03:37 Why That Hurts
-04:58 The Visitor Pattern
-05:37 An Analogy
-06:30 The Roles
-07:26 The Element and the Visitor
-08:23 Why accept Has To Exist
-09:34 The Walk, and Two Reports
-10:36 The Tests — Asserting What Only Visitor Gives You
-11:19 Running It
-12:17 What to Remember
-13:20 Thanks for Watching
+00:59 The Scenario
+01:38 Two Kinds of Node, and They Are Not Alike
+02:28 The Naive Approach — A Method Per Report
+03:13 Why That Hurts
+04:11 The Visitor Pattern
+04:47 An Analogy
+05:36 The Roles
+06:27 The Element and the Visitor
+07:18 Why accept Has To Exist
+08:17 The Walk, and Two Reports
+09:05 The Tests — Asserting What Only Visitor Gives You
+09:46 Running It
+10:36 What to Remember
+11:28 Thanks for Watching
 
 SOURCE CODE, WRITTEN NOTES AND AN INTERACTIVE ANIMATION
 https://github.com/jk-boot-up/java-design-patterns/tree/main/gradle-java/behavioural/visitor-pattern
@@ -49,20 +49,20 @@ YouTube renders these as chapters only if there are at least three and the first
 
 ```
 00:00 Introduction
-01:06 The Scenario
-01:48 Two Kinds of Node, and They Are Not Alike
-02:45 The Naive Approach — A Method Per Report
-03:37 Why That Hurts
-04:58 The Visitor Pattern
-05:37 An Analogy
-06:30 The Roles
-07:26 The Element and the Visitor
-08:23 Why accept Has To Exist
-09:34 The Walk, and Two Reports
-10:36 The Tests — Asserting What Only Visitor Gives You
-11:19 Running It
-12:17 What to Remember
-13:20 Thanks for Watching
+00:59 The Scenario
+01:38 Two Kinds of Node, and They Are Not Alike
+02:28 The Naive Approach — A Method Per Report
+03:13 Why That Hurts
+04:11 The Visitor Pattern
+04:47 An Analogy
+05:36 The Roles
+06:27 The Element and the Visitor
+07:18 Why accept Has To Exist
+08:17 The Walk, and Two Reports
+09:05 The Tests — Asserting What Only Visitor Gives You
+09:46 Running It
+10:36 What to Remember
+11:28 Thanks for Watching
 ```
 
 ## Tags
@@ -101,4 +101,4 @@ Add a card partway through pointing at the playlist, so a viewer who arrives at 
 
 ## Runtime
 
-Approximately 13:56, narrated at 145 words per minute.
+Approximately 12:12, narrated at 145 words per minute.

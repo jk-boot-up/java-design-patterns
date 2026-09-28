@@ -19,19 +19,19 @@ The first two lines are what a viewer sees above the fold, so they carry the hoo
 ```
 CHAPTERS
 00:00 Introduction
-00:48 The Scenario
-01:09 A Loose Order
-01:30 The Pattern
-01:47 The Root Guards The Rules
-02:13 There Is Only One Door
-02:27 Other Aggregates By Id
-02:45 Saved Whole, Or Not At All
-03:06 An Aggregate Drawn Too Big
-03:29 How To Recognise It
-03:46 The Verdict
-04:02 What Is Real Here
-04:16 When This Is Too Much
-04:28 Thanks for Watching
+00:55 The Scenario
+01:19 A Loose Order
+01:43 The Pattern
+02:03 The Root Guards The Rules
+02:29 There Is Only One Door
+02:45 Other Aggregates By Id
+03:09 Saved Whole, Or Not At All
+03:32 An Aggregate Drawn Too Big
+03:59 How To Recognise It
+04:20 The Verdict
+04:37 What Is Real Here
+04:51 When This Is Too Much
+05:04 Thanks for Watching
 
 SOURCE CODE, WRITTEN NOTES AND AN INTERACTIVE ANIMATION
 https://github.com/jk-boot-up/java-design-patterns/tree/main/gradle-java/domain-driven-design-patterns/aggregate-pattern
@@ -46,19 +46,19 @@ YouTube renders these as chapters only if there are at least three and the first
 
 ```
 00:00 Introduction
-00:48 The Scenario
-01:09 A Loose Order
-01:30 The Pattern
-01:47 The Root Guards The Rules
-02:13 There Is Only One Door
-02:27 Other Aggregates By Id
-02:45 Saved Whole, Or Not At All
-03:06 An Aggregate Drawn Too Big
-03:29 How To Recognise It
-03:46 The Verdict
-04:02 What Is Real Here
-04:16 When This Is Too Much
-04:28 Thanks for Watching
+00:55 The Scenario
+01:19 A Loose Order
+01:43 The Pattern
+02:03 The Root Guards The Rules
+02:29 There Is Only One Door
+02:45 Other Aggregates By Id
+03:09 Saved Whole, Or Not At All
+03:32 An Aggregate Drawn Too Big
+03:59 How To Recognise It
+04:20 The Verdict
+04:37 What Is Real Here
+04:51 When This Is Too Much
+05:04 Thanks for Watching
 ```
 
 ## Tags
@@ -97,4 +97,4 @@ Add a card partway through pointing at the playlist, so a viewer who arrives at 
 
 ## Runtime
 
-Approximately 05:05, narrated at 145 words per minute.
+Approximately 05:39, narrated at 145 words per minute.

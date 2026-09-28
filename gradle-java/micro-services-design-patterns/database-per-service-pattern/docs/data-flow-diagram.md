@@ -19,37 +19,6 @@ in the catalogue)`.
 
 ![Database per Service data flow diagram](images/data-flow-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-flowchart TD
-    Start(["show the order history for cust-7"])
-    Which{"one schema,<br/>or one database each?"}
-
-    Q["SELECT orders JOIN products<br/>one round trip, one engine, one answer"]
-    QRows["finished rows — every one with a product name,<br/>because a join cannot forget one"]
-
-    A1["ask Orders for the customer's orders — 10ms"]
-    A2["collect the skus from those orders<br/>a list, deduplicated"]
-    A3["ask Catalog: namesFor(the whole list) — 10ms<br/>one call, not one per row"]
-    A4{"did a name come back<br/>for every sku?"}
-    Missing["render '(no longer in the catalogue)'<br/>the product was deleted, and nothing<br/>was left to prevent that"]
-    Stitch["ASSEMBLED — join the two answers in Java<br/>work the database used to do for free"]
-    Done(["the same two rows on the page"])
-
-    Refused["NotYourDataException<br/>Orders asked the Catalog database directly<br/>and the database refused"]
-
-    Start --> Which
-    Which -- "shared schema" --> Q --> QRows --> Done
-    Which -- "one each" --> A1 --> A2 --> A3 --> A4
-    A4 -- "yes" --> Stitch --> Done
-    A4 -- "no" --> Missing --> Stitch
-    A1 -. "and if it tries to shortcut the call" .-> Refused
-```
-
-</details>
-
 ## What the picture is telling you
 
 **The right-hand path is longer, and it is also slower.** 20ms and two service calls

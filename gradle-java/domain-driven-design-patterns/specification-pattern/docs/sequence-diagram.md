@@ -6,26 +6,4 @@ Say it in words. A customer picks the old mug. The checkout asks the cheap and a
 
 ![Specification pattern sequence diagram](images/sequence-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant C as checkout
-    participant R as cheapAndAvailable
-    participant S as in stock
-    participant P as under 10
-    participant D as not discontinued
-    C->>R: isSatisfiedBy(old mug)
-    R->>S: yes
-    R->>P: yes
-    R->>D: no
-    R-->>C: no
-    C->>R: unmet(old mug)
-    R-->>C: [not discontinued]
-```
-
-</details>
-
 The load-bearing sentence: **the rule that decides is the rule that explains.**

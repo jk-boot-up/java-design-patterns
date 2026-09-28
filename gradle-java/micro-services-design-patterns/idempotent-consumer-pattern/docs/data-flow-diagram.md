@@ -16,43 +16,6 @@ of the two bugs this pattern exists to remove.
 
 ![Idempotent Consumer data flow diagram](images/data-flow-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-flowchart TD
-    Msg(["a message arrives — possibly for the second time"])
-    Q1{"run this handler twice:<br/>is the result the same?"}
-    Natural(["just handle it — naturally idempotent<br/>'set the status to SHIPPED' twice is still SHIPPED.<br/>No store, no window, nothing to operate."])
-    Q2{"can the handler be REWRITTEN so it is?"}
-    Rewrite(["'add 70 points' becomes<br/>'set the points for this order to 70'<br/>and now it needs nothing either"])
-    Id{"does the message carry a stable id,<br/>the same on every delivery?"}
-    NoId(["stop — there is nothing to deduplicate on.<br/>The fix is at the SENDING end."])
-
-    Seen{"have we already handled this id?"}
-    Skip(["ignore it — one read, no transaction,<br/>no write, no work"])
-    Begin["begin ONE transaction"]
-    Eff["write the effect — a row, a queued confirmation<br/>(the stamp on the hand)"]
-    Rec["record the handled id beside it<br/>(the name on the doorman's list)"]
-    Commit{"did the commit happen?"}
-    Nothing(["neither row exists — and that is FINE.<br/>The redelivery will handle it properly."])
-    Done(["handled exactly once,<br/>out of a broker that promises at least once"])
-
-    Msg --> Q1
-    Q1 -- "yes" --> Natural
-    Q1 -- "no" --> Q2
-    Q2 -- "yes" --> Rewrite
-    Q2 -- "no — an email cannot be unsent" --> Id
-    Id -- "no" --> NoId
-    Id -- "yes" --> Seen
-    Seen -- "yes" --> Skip
-    Seen -- "no" --> Begin --> Eff --> Rec --> Commit
-    Commit -- "no — the process died" --> Nothing
-    Commit -- "yes" --> Done
-```
-
-</details>
-
 ## What the picture is telling you
 
 **The top third is the part that saves the most work.** `ShipmentStatusConsumer` sets a

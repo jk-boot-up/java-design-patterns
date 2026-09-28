@@ -19,19 +19,19 @@ The first two lines are what a viewer sees above the fold, so they carry the hoo
 ```
 CHAPTERS
 00:00 Introduction
-00:57 The Scenario
-01:13 A New One Each Time
-01:27 The Pattern
-01:38 One Per Region
-01:49 Shared, So They Agree
-02:01 A Fixed Set Of Keys
-02:11 Two Threads, One Region
-02:29 The Bill
-02:52 How To Recognise It
-03:13 The Verdict
-03:32 What Is Real Here
-03:45 When This Is Too Much
-03:56 Thanks for Watching
+00:53 The Scenario
+01:10 A New One Each Time
+01:29 The Pattern
+01:48 One Per Region
+02:01 Shared, So They Agree
+02:16 A Fixed Set Of Keys
+02:27 Two Threads, One Region
+02:53 The Bill
+03:19 How To Recognise It
+03:42 The Verdict
+04:02 What Is Real Here
+04:15 When This Is Too Much
+04:26 Thanks for Watching
 
 SOURCE CODE, WRITTEN NOTES AND AN INTERACTIVE ANIMATION
 https://github.com/jk-boot-up/java-design-patterns/tree/main/gradle-java/foundational-design-patterns/multiton-pattern
@@ -46,19 +46,19 @@ YouTube renders these as chapters only if there are at least three and the first
 
 ```
 00:00 Introduction
-00:57 The Scenario
-01:13 A New One Each Time
-01:27 The Pattern
-01:38 One Per Region
-01:49 Shared, So They Agree
-02:01 A Fixed Set Of Keys
-02:11 Two Threads, One Region
-02:29 The Bill
-02:52 How To Recognise It
-03:13 The Verdict
-03:32 What Is Real Here
-03:45 When This Is Too Much
-03:56 Thanks for Watching
+00:53 The Scenario
+01:10 A New One Each Time
+01:29 The Pattern
+01:48 One Per Region
+02:01 Shared, So They Agree
+02:16 A Fixed Set Of Keys
+02:27 Two Threads, One Region
+02:53 The Bill
+03:19 How To Recognise It
+03:42 The Verdict
+04:02 What Is Real Here
+04:15 When This Is Too Much
+04:26 Thanks for Watching
 ```
 
 ## Tags
@@ -97,4 +97,4 @@ Add a card partway through pointing at the playlist, so a viewer who arrives at 
 
 ## Runtime
 
-Approximately 04:34, narrated at 145 words per minute.
+Approximately 05:03, narrated at 145 words per minute.

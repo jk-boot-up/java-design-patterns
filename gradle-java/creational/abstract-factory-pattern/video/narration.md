@@ -1,207 +1,65 @@
-# Abstract Factory Pattern — Video Narration Script
+# The Abstract Factory Pattern Pattern — Video Narration Script
 
-The full spoken script, scene by scene. This is the human-readable copy;
-the authoritative text lives in the `narration` field of each scene in
-[`scenes.py`](scenes.py), next to the slide it belongs to.
+## 1. The Abstract Factory Pattern
 
-**Voice:** female (macOS `Samantha`, US English), rate 165 wpm.
-**Runtime:** approximately 9 and a half minutes.
+Hello, and welcome. This video explains the Abstract Factory pattern, in Java. This video is presented by Jayasekhar Konduru. First, a simple definition. An abstract factory is one object that creates a whole family of related objects. You choose the factory once. And everything it gives you afterwards is guaranteed to belong together. You can never accidentally mix one family with another. Think of a restaurant's set menu. You choose one menu, and every course that arrives was designed to go together. In this video, an online store's checkout sells into three countries. By the end, you will know what an abstract factory is, why it exists, and, just as importantly, when not to use it.
 
-Some words are spelled out phonetically for the synthesiser — "V A T"
-rather than "VAT". Keep that habit if you edit the script, or the
-narration will mispronounce them.
+## 2. The Scenario
 
-The first and last scenes carry the channel branding: scene 1 credits the
-author out loud over the poster, and the final scene asks for the thumbs up
-and the subscribe.
+Here is the scenario. Your online store used to sell in one country. Now it sells in three. And checkout turns out to be three separate jobs. Working out the tax. Formatting the money. And checking the delivery address. In Britain, that means twenty percent value added tax, prices in pounds, and a postcode. In America, sales tax, dollars, and a zip code. In India, goods and services tax, rupees, and a pin code. Three countries, three sets of rules. And the three parts always change together.
 
-The script is written to be spoken rather than read, and carries `[[slnc NNN]]`
-pause markers in [`scenes.py`](scenes.py) that insert NNN milliseconds of
-silence. Those are instructions to the synthesiser, not words: they are
-stripped from the text below and from the subtitles.
+## 3. Nine Classes, Three Legal Combinations
 
----
+So you write the classes. Three tax calculators, three money formatters, and three address checkers. Nine small classes, each one easy. Picture them in a grid. Three columns: tax, money, and address. And three rows: Britain, America, and India. Each column is just an ordinary interface, with three versions. Nothing new there. But each row is more interesting. A row is a family: three objects designed to be used together. And here is the whole problem, in one sentence. There are nine classes, but only three combinations are legal.
 
-## Scene 1 — The Abstract Factory Pattern
+## 4. The Problem
 
-Hello, and welcome. This video explains the Abstract Factory pattern in
-Java, and it is written and presented by Jayasekhar Konduru. Let's start
-with the simple definition. An abstract factory is one object that creates
-a whole family of related objects. You choose the factory once, and
-everything it hands you afterwards is guaranteed to belong together — you
-never assemble the family piece by piece, and you can never accidentally
-mix one family with another. That's the idea in a sentence. It's the most
-ambitious of the factory patterns in the Gang of Four book and it sounds
-intimidating, which I think is entirely the name's fault. The rest of the
-video does it properly, by building a real working Java project: the
-checkout step of an online store that sells into three countries. By the
-end you'll know what an abstract factory is, why it exists, and — just as
-importantly — when not to use it.
+Without a pattern, the checkout picks each piece for itself. One chain of if statements, checking the country name, to choose the tax calculator. Another chain, on the very same name, to choose the money formatter. And a third chain, to choose the address checker. None of this is exactly wrong. It compiles, and it runs. But you have built three separate decisions that must always agree. And nothing checks that they do.
 
-## Scene 2 — The Scenario
+## 5. Why That Hurts
 
-So, imagine your online store has been selling in one country, and now it
-sells in three. And you quickly discover that checkout isn't one piece of
-logic. It's three. There's the tax to work out. There's the money to
-format. And there's the delivery address to validate. In Britain that's
-twenty percent value added tax, prices in pounds, and a postcode. In
-America, sales tax, dollars, and a zip code. In India, goods and services
-tax, rupees, and a pin code. Three countries, three sets of rules. And all
-three parts change together.
+And that costs you. Reorder the cases in one chain, forget the other two, and the checkout charges British tax, but prints it in dollars. A mismatched family is one copy and paste away. When Germany arrives, you must open a class that handles real money, and edit it in three places. Your checkout should be about totals and receipts. Instead, it has become a list of nine class names. And the worst part? None of this fails loudly. It compiles, it runs, and it quietly produces a wrong invoice.
 
-## Scene 3 — Nine Classes, Three Legal Combinations
+## 6. The Abstract Factory Pattern
 
-So you write the classes. Three tax calculators, three currency
-formatters, three address validators. Nine small classes, and each one of
-them is easy. Here they all are, laid out as a grid. Now read the grid
-downwards. Each column is just an ordinary interface with three
-implementations. Nothing new there. But read it across, and each row is
-something more interesting. A row is a family. Three objects that were
-designed to be used together. And here's the whole problem, in one
-sentence. There are nine classes, but only three combinations of them are
-legal.
+This is exactly the problem the Abstract Factory solves. Here is its definition, from the famous Gang of Four book. Provide an interface for creating families of related objects, without naming their concrete classes. The key word is families. In plain words: choose a whole set at once, instead of one piece at a time. And if your objects have no reason to match each other, you do not need this pattern at all.
 
-## Scene 4 — The Problem
+## 7. The Set Menu
 
-Without a pattern, the checkout picks each piece for itself. Here's what
-that looks like. One chain of conditions to choose the tax calculator.
-Another chain, on the very same string, to choose the currency formatter.
-And a third one, off the bottom of the screen, for the address validator.
-Now, none of this is wrong, exactly. It compiles. It runs. But look at
-what you've built. Three separate decisions, that all have to agree with
-each other, and nothing whatsoever checking that they do.
+Here is an easy way to remember it: ordering dinner. You can order from the full menu. Pick a starter, pick a main course, pick a wine. Three free choices. And nothing stops you putting a delicate fish next to a heavy red wine. The kitchen will serve it. It will just be wrong. Or, you order the set menu. You make one choice: the tasting menu, please. And three courses arrive that were designed together. You never named a single dish. The set menu takes away your freedom, on purpose. And that is exactly what you are paying for.
 
-## Scene 5 — Why That Hurts
+## 8. The Roles
 
-And that costs you. Reorder the cases in the middle chain, forget the
-other two, and you've built a checkout that charges British tax and prints
-it in dollars. A mismatched family is one copy and paste away. When
-Germany arrives, you're opening a class that handles real money and
-editing it in three separate places. And your checkout, which should be
-about totals and receipts, has turned into a directory of nine class
-names. But here's the worst part. None of this fails loudly. It compiles,
-it runs, and it quietly produces a wrong invoice.
+Now let's map that onto code. There are five roles. The client is our Checkout Service. It holds one factory, and never mentions a country. The abstract factory is an interface called Market Factory. It has one creation method for each kind of product. The concrete factories are one per country. Each one builds a complete family. The abstract products are three interfaces: tax calculator, money formatter, and address checker. And the concrete products are the nine classes behind them. Here is the key point. Every product is created by exactly one factory. So there is no path that puts a British tax rate next to an American address.
 
-## Scene 6 — The Abstract Factory Pattern
+## 9. The Abstract Factory
 
-And this is exactly the problem the abstract factory solves. The formal
-definition goes like this. Provide an interface for creating families of
-related or dependent objects, without specifying their concrete classes.
-The word doing all the work in that sentence is families. In plain
-English, the pattern says, choose a whole set at once, instead of a piece
-at a time. And if your objects have got no reason to match each other,
-then you don't need this pattern at all.
+Here is the abstract factory itself, and it is smaller than you might expect. Four methods, and not one line of real code. One returns the market's name. The other three create a tax calculator, a money formatter, and an address checker. All three return interfaces. And notice what is missing. There is no parameter saying which country. The country is not an argument anywhere. Because it was already decided, the moment someone chose which factory to use.
 
-## Scene 7 — The Set Menu
+## 10. A Concrete Factory
 
-Here's how to remember it forever. Think about ordering dinner. You can
-order a la carte. Pick a starter, pick a main, pick a wine. Three free
-decisions, and nothing at all stops you putting a delicate fish next to a
-heavy red. The kitchen will serve it. It'll simply be wrong. Or, you order
-the set menu. And you choose one thing. You say, the tasting menu, please.
-And three courses arrive that were designed together. You never named a
-single dish. The set menu takes your freedom away on purpose. And that's
-exactly what you're paying for.
+Here is one concrete factory: the UK market factory. It creates three things. A UK tax calculator. A pound formatter. And a postcode checker. That is the entire consistency guarantee. And it is remarkably cheap. How many lines check that these three products match? Zero. They match because this is the only place the choice is made. There is nowhere else that could get it wrong. The American and Indian factories have exactly the same shape, with different products.
 
-## Scene 8 — The Roles
+## 11. The Client
 
-So let's map that onto code. There are five roles. At the top is the
-client, our checkout service. It holds one factory, and it names no
-country anywhere. In the middle is the abstract factory, market factory,
-which declares one creation method per product kind. Below that are the
-concrete factories, one per country, and each one builds a complete
-family. And then the products themselves. Three interfaces, the abstract
-products, and nine classes behind them, the concrete products. Now watch
-the arrows. Every creates arrow leaves exactly one factory. There's no
-path in this picture that puts a British tax rate next to an American
-address.
+Now the client, and this is the part to really listen to. In its constructor, the checkout asks the factory for four things. The market name, the tax calculator, the money formatter, and the address checker. After that, the factory is never touched again. It was a decision, not a dependency. And the method that quotes an order never mentions a country. Not Britain, not India, not anywhere. No if statements on the country at all. Even the error message is right in every market. Because words like zip code come from the products themselves.
 
-## Scene 9 — The Abstract Factory
+## 12. What You Gain
 
-Here's the abstract factory itself, and it's smaller than you'd expect.
-Four methods, and not one line of implementation. Look at the return
-types. All three are interfaces, so nothing here even reveals that a pound
-formatter exists. But the really important thing about this interface is
-what's missing from it. Find me the parameter that says which country.
-There isn't one. The country isn't an argument anywhere, because it was
-already decided, at the moment somebody chose which factory to use.
+So what did all that buy us? The headline: a mismatched family is not caught. It is impossible. Nothing is checked, because no code anywhere could produce one. There is now one decision, instead of three. The checkout shrank from nine class names to three interfaces, and no country codes. Adding a new market means adding files, and editing none. In fact, one test invents a German market, inside a single test method. And the unchanged checkout quotes it correctly. And finally, the British market is now a real object. Something you can build, pass around, and test.
 
-## Scene 10 — A Concrete Factory
+## 13. The Honest Cost
 
-And here's one concrete factory. Three new calls, in a class whose name
-says British. That's the entire consistency guarantee, and it's worth
-pausing for a second to appreciate how cheap it is. Ask yourself, how many
-lines of code in here check that these three products match? Zero. Nothing
-is validated. They match because this is the only place the choice is
-made, and there's nowhere else that could get it wrong. The American and
-Indian factories are the same shape, with different nouns.
+But this pattern has a real cost, and you should know it before you use it. Adding a new country is cheap. One factory, three products, and nothing edited. But suppose checkout now needs a receipt template too. That is a new kind of product. So you must add a method to the abstract factory, and then edit every single factory. In the grid, new rows are cheap. New columns are expensive. Also, the number of classes is countries times product kinds, so be sure the families are real. And something, somewhere, still has to choose which factory to use. Here is the honest test for whether you need this. Would a mismatched pair be a bug? If not, just pass the objects in separately.
 
-## Scene 11 — The Client
+## 14. Running It
 
-Now the client. And this is the part I really want you to look at. Four
-lines in the constructor, and the whole world is set up. After that last
-line, the factory has done its job, and it's never touched again. It was a
-decision, not a dependency. And then read the method underneath. Search it
-for the letters U, K. Search it for India. There's nothing. Not one branch
-on the country. Even the error message is correct in every market, because
-the words in it, United States, zip code, came from the products
-themselves.
+Let's run the demo. The same order, worth one hundred and twenty, is quoted in three countries. Britain adds twenty percent, and shows the total in pounds: one hundred and forty-four. America adds its sales tax, and shows dollars: one hundred and thirty dollars sixty-five. India adds eighteen percent, and shows rupees. All of that came from one method, with no condition on the country at all. Only the factory changed. And finally, the demo sends a British postcode to the American market. It is rejected, because the address checker came from the same family as the money.
 
-## Scene 12 — What You Gain
+## 15. Wrap Up
 
-So what did all of that buy us? The headline is this. A mismatched family
-isn't caught. It's impossible. Nothing is being validated. There's simply
-no code anywhere that could produce one. There's one decision now, instead
-of three. The client shrank from nine class names down to three
-interfaces, and no country codes at all. Adding a new market is purely
-additive, you add files and you edit none. In fact the test suite in this
-project invents a German market inside a single test method, and the
-unchanged checkout quotes it correctly. And finally, the British market is
-now an actual object. Something you can build, pass around, and write a
-test about.
+So, to wrap up. Use the Abstract Factory when several objects must agree with each other. And skip it when they do not, because then you are only adding classes. If you know the other factory patterns, here is how they compare. A simple factory chooses with a switch statement. A factory method chooses through inheritance. And an abstract factory chooses a whole family, all at once. And one sentence to remember. If mixing objects from different groups would be a bug, you want an abstract factory.
 
-## Scene 13 — The Honest Cost
+## 16. Thanks for Watching
 
-But I'd be doing you a disservice if I stopped there, because this pattern
-has a real cost, and you should know it before you reach for it. Adding a
-new country is cheap. One factory, three products, nothing edited. But
-suppose checkout now needs a receipt template as well. That's a new kind
-of product, so you have to add a method to the abstract factory, which
-means editing every single factory you've got. Rows are cheap. Columns are
-expensive. Beyond that, your class count is countries multiplied by
-product kinds, so do be sure the families are real. And something,
-somewhere, still has to choose which factory to use. And here's the honest
-test for whether you need this at all. Would a mismatched pair be a bug?
-If the answer's no, inject the objects separately and walk away.
-
-## Scene 14 — Running It
-
-Here's the program actually running. The same order, worth one hundred and
-twenty, quoted in three countries. Britain adds twenty percent and prints
-pounds. America adds its sales tax and prints dollars. India adds eighteen
-percent and prints rupees. Now, the important thing. Those nine lines were
-produced by one method. And that method contains no condition on the
-country at all. Only the factory changed. And look at the last line. The
-demo deliberately sends a British postcode to the American market, and it
-gets turned away, because the validator came from the same family as the
-money.
-
-## Scene 15 — Wrap Up
-
-So, to wrap up. Reach for the abstract factory when several objects have
-to agree with each other. And skip it when they don't, because then you're
-only adding classes. If you've seen the other two factory patterns, here's
-how they line up. A simple factory chooses with a switch. A factory method
-chooses with inheritance. And an abstract factory chooses a whole family,
-all at once. If you remember one sentence from this video, make it this
-one. If getting two objects from different groups would be a bug, you want
-an abstract factory.
-
-## Scene 16 — Thanks for Watching
-
-And that's the abstract factory. If you got something out of this, do give
-it a thumbs up, and subscribe. It genuinely helps the channel, and it's
-what makes more of these possible. And if there's a pattern you'd like me
-to cover next, drop it in the comments. I read every one. All the source
-code, the written notes and an interactive animation are in the
-repository. Thanks for watching, and I'll see you in the next one.
+That's the Abstract Factory pattern. If you remember one sentence, make it this one. Choose a whole family of objects at once, and a mismatched family becomes impossible. The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. If there is a pattern you would like to see covered, suggest it in the comments. If this helped, a like really does help other people find it. And subscribe, if you'd like the rest of the series. Thanks for watching.

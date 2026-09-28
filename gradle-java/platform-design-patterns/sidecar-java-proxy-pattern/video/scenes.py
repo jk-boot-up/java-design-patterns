@@ -37,37 +37,29 @@ SCENES = [
         title="Sidecar with a Java Proxy",
         body=None,
         narration=(
-            "Hello, and welcome. This video explains how to swap out a sidecar "
-            "proxy in Java, and it is written and presented by Jayasekhar "
-            "Konduru. [[slnc 165]] Here is the simple definition. When a "
-            "service talks to a helper program running beside it, the only "
-            "thing connecting the two is an address. Not a library, not a "
-            "shared language, not a shared build. Just an address. And that "
-            "means whatever is listening at that address can be replaced with "
-            "something completely different, written in a completely different "
-            "language, while the service keeps running and is never told. "
-            "[[slnc 193]] Think about the plug on a kettle. The kettle knows "
-            "nothing about the electricity. Not the voltage, not which wire is "
-            "live, not what the fuse in the plug is rated at. So when somebody "
-            "discovers the fuse is the wrong rating, they change the fuse. They "
-            "do not open the kettle, and they do not send it back to the "
-            "factory. That works because the contract between the kettle and "
-            "the electricity is the shape of a socket, rather than a wiring "
-            "diagram. [[slnc 165]] One thing before we start. This video is a "
-            "follow-on. It assumes you have already watched the Sidecar video, "
-            "which explains what a sidecar is and why the retry code left the "
-            "service in the first place. If you have not seen that one, watch "
-            "it first, because this video spends about one minute recapping it "
-            "and then never mentions it again. [[slnc 193]] The rest of this "
-            "video does one job properly, by building a working Java project. "
-            "An online shop. A payment provider that has a bad three hundred "
-            "milliseconds. A sentence the shop's proxy has no words for. And a "
-            "forty-line replacement that goes on the same port beside a service "
-            "that is never rebuilt, never restarted, and never told anything at "
-            "all. [[slnc 150]] By the end you will know why a proxy retrying "
-            "immediately is correct almost everywhere and wrong here, what it "
-            "costs to write your own proxy instead, and the narrow rule that "
-            "says when you should."
+            'Hello, and welcome. [[slnc 400]] This video explains how to '
+            'swap out a sidecar proxy, in Java. [[slnc 300]] This video '
+            'is presented by Jayasekhar Konduru. [[slnc 600]] First, a '
+            'simple definition. [[slnc 300]] When a service talks to a '
+            'helper program beside it, the only thing connecting them is '
+            'an address. [[slnc 300]] Not a library, and not a shared '
+            'language. [[slnc 300]] So whatever listens at that address '
+            'can be replaced, even with something in a different '
+            'language. [[slnc 300]] And the service is never told. [[slnc '
+            '600]] Think of the plug on a kettle. [[slnc 300]] The kettle '
+            'knows nothing about the electricity. [[slnc 300]] If the '
+            'fuse in the plug is wrong, you change the fuse. [[slnc 300]] '
+            'You do not open the kettle. [[slnc 600]] This video follows '
+            'on from the Sidecar video. [[slnc 300]] If you have not seen '
+            'that one, watch it first. [[slnc 700]] In our online store, '
+            'a payment provider has a bad three hundred milliseconds. '
+            "[[slnc 300]] The shop's proxy cannot express what the "
+            'provider asked for. [[slnc 300]] And a forty-line '
+            'replacement goes on the same port, beside a service that is '
+            'never rebuilt or restarted. [[slnc 500]] By the end, you '
+            'will know why retrying immediately is wrong here. [[slnc '
+            '300]] What writing your own proxy costs. [[slnc 300]] And '
+            'the narrow rule for when you should.'
         ),
     ),
     dict(
@@ -88,26 +80,23 @@ SCENES = [
             "Today, the thing listening there is nginx.",
         ],
         narration=(
-            "So, one minute on where we are, and then we move on. [[slnc 165]] "
-            "The online shop takes payments at checkout. The code that knows "
-            "how to talk to the payment provider used to live inside that "
-            "service, and in the previous project we moved it out. It now runs "
-            "in a small separate program on the same machine, right beside the "
-            "service. Everything the shop had decided about that provider — how "
-            "many times to try, when to give up, what certificate to present — "
-            "is written down once, in one file, which that proxy reads. [[slnc "
-            "193]] Which means the checkout service's entire configuration for "
-            "reaching a payment provider is now one line, and that line is an "
-            "address on its own machine. Not a provider hostname. Not a "
-            "certificate. Not a retry count. Whatever is listening at that "
-            "address answers, and checkout has no way at all to find out what "
-            "it is. [[slnc 165]] Today, the thing listening there is nginx. "
-            "About twenty-two lines of configuration, running in a container "
-            "that somebody else wrote, somebody else tested, somebody else "
-            "hardened, and somebody else has been patching for twenty years. "
-            "That was a good decision, and nothing in this video undoes it. "
-            "[[slnc 150]] Hold on to one thing from all of that: the contract "
-            "between the service and the thing next door is an address."
+            'First, one minute on where we are. [[slnc 400]] The shop '
+            'takes payments at checkout. [[slnc 300]] The code that talks '
+            'to the payment provider used to live inside that service. '
+            '[[slnc 300]] In the Sidecar video, it moved into a small '
+            'separate program beside the service. [[slnc 300]] Everything '
+            'about talking to the provider, how often to retry and when '
+            'to give up, is written once, in one file that the proxy '
+            "reads. [[slnc 600]] So checkout's whole configuration for "
+            'payments is now one line. [[slnc 300]] An address on its own '
+            'machine. [[slnc 300]] Whatever listens there answers, and '
+            'checkout cannot tell what it is. [[slnc 600]] Today, the '
+            'thing listening there is nginx, a well-known web server. '
+            '[[slnc 300]] About twenty-two lines of settings. [[slnc '
+            '300]] Written, tested, and patched by other people, for '
+            'twenty years. [[slnc 300]] That was a good decision. [[slnc '
+            '500]] Remember one thing: the contract between the service '
+            'and its neighbour is just an address.'
         ),
     ),
     dict(
@@ -127,18 +116,18 @@ SCENES = [
             "Read the second half of that sentence again.",
         ],
         narration=(
-            "In March, the payment provider writes to every merchant, and it "
-            "asks for two things. At most three attempts per payment. And wait "
-            "properly between them. [[slnc 165]] Both of those are reasonable, "
-            "and the reason for the second one is worth a moment. If you retry "
-            "ten milliseconds after a failure, the failure has not had time to "
-            "clear. All you have done is spend capacity that the provider then "
-            "has to ration. So: try again, but leave a real gap. [[slnc 150]] "
-            "The shop agreed to both. The configuration says three attempts. "
-            "Everybody went home. [[slnc 193]] Now read the second half of that "
-            "sentence again, because it is the whole problem in this video. "
-            "Wait properly between them. The shop's proxy can say the first "
-            "half of what the provider asked for. It cannot say the second."
+            'In March, the payment provider writes to every shop. [[slnc '
+            '300]] It asks for two things. [[slnc 500]] At most three '
+            'attempts per payment. [[slnc 300]] And wait properly between '
+            'them. [[slnc 600]] The second part matters. [[slnc 300]] '
+            'Retrying ten milliseconds after a failure does not help. '
+            '[[slnc 300]] The problem has not had time to clear. [[slnc '
+            '300]] So try again, but leave a real gap. [[slnc 600]] The '
+            'shop agrees to both. [[slnc 300]] The settings say three '
+            'attempts. [[slnc 300]] Everyone goes home. [[slnc 600]] But '
+            'listen again to the second part: wait properly between them. '
+            "[[slnc 300]] The shop's proxy can express the first half. "
+            '[[slnc 300]] It cannot express the second.'
         ),
     ),
     dict(
@@ -160,26 +149,23 @@ SCENES = [
   The provider recovered at 300ms.
   There was nobody left to ask.""",
         narration=(
-            "Three weeks later, the provider has a bad three hundred "
-            "milliseconds. Nothing is broken and nobody needs paging. It "
-            "declines everything for a fraction of a second, and then it is "
-            "fine again. [[slnc 165]] A customer buys a coffee maker for "
-            "forty-seven pounds ninety-nine. The proxy makes its three allowed "
-            "attempts. And here is what the provider itself recorded, with the "
-            "times measured at the provider's end rather than the shop's, which "
-            "matters, because a proxy reporting on its own behaviour is a claim "
-            "and a supplier's log is evidence. [[slnc 193]] The first attempt "
-            "arrived after one millisecond, and was declined. The second "
-            "arrived after two milliseconds, and was declined. The third "
-            "arrived after three milliseconds, and was declined. Three "
-            "attempts, and from the first to the last, two milliseconds. "
-            "[[slnc 165]] The provider did not recover until three hundred. "
-            "Every one of those attempts landed inside the bad window, because "
-            "every one of them was made inside the bad window. The shop spent "
-            "its entire allowance for that payment before the provider had time "
-            "to get better, and the customer got nothing. [[slnc 150]] So the "
-            "half of the agreement that limits the shop was kept. The half that "
-            "would have helped was not."
+            'First demo: three attempts that bought nothing. [[slnc 400]] '
+            'The provider has a bad three hundred milliseconds. [[slnc '
+            '300]] It declines everything for a moment, and then it is '
+            'fine. [[slnc 600]] A customer buys a coffee maker for '
+            'forty-seven pounds ninety-nine. [[slnc 300]] The proxy makes '
+            'its three allowed attempts. [[slnc 300]] The times are '
+            'recorded by the provider itself, which is real evidence. '
+            '[[slnc 600]] The first attempt arrives after one '
+            'millisecond, and is declined. [[slnc 300]] The second, after '
+            'two milliseconds, declined. [[slnc 300]] The third, after '
+            'three milliseconds, declined. [[slnc 300]] All three '
+            'attempts, within two milliseconds. [[slnc 600]] The provider '
+            'did not recover until three hundred milliseconds. [[slnc '
+            '300]] So every attempt landed inside the bad moment. [[slnc '
+            '300]] And the customer got nothing. [[slnc 500]] The half of '
+            'the agreement that limits the shop was kept. [[slnc 300]] '
+            'The half that would have helped was not.'
         ),
     ),
     dict(
@@ -201,32 +187,26 @@ SCENES = [
             "not exist in the language.",
         ],
         narration=(
-            "Now, the obvious response is to go and fix the proxy's "
-            "configuration. And this is the part that makes this a design "
-            "problem rather than a defect: there is nothing to fix it with. "
-            "[[slnc 193]] nginx does not have a retry feature in the sense you "
-            "are probably imagining. What it has is something called an "
-            "upstream group, which is a list of servers, and a rule that says: "
-            "if this one fails, try the next one in the list. The shop's "
-            "configuration lists the payment provider's address three times, "
-            "because three entries in the list is how you spell up to three "
-            "attempts when there is only one address to talk to. [[slnc 165]] "
-            "And moving on to the next entry in that list happens immediately. "
-            "[[slnc 150]] That was a good decision for the case it was designed "
-            "for. Picture a pool of ten web servers. If the ninth one fails, "
-            "the tenth one is a different computer, and it is probably "
-            "perfectly healthy. Waiting before you try it would make every "
-            "single request slower, for no reason at all. [[slnc 193]] It stops "
-            "being a good decision the moment every entry in that list is the "
-            "same address, and that address is the one having a bad minute. "
-            "Three attempts at the same unwell thing, made inside the same "
-            "three milliseconds, are three attempts that are all going to get "
-            "the same answer. [[slnc 165]] So nobody wrote a bug here. There is "
-            "no directive anywhere in nginx's proxy module that says wait two "
-            "hundred milliseconds before the next attempt. The sentence the "
-            "provider asked for does not exist in the language the shop's "
-            "policy is written in. And that is a very different situation from "
-            "a mistake, because there is nothing to correct."
+            "The obvious response is to fix the proxy's settings. [[slnc "
+            '300]] But there is nothing to fix them with. [[slnc 600]] '
+            'nginx does not have a retry setting as you might imagine. '
+            '[[slnc 300]] It has a list of servers, and a rule. [[slnc '
+            '300]] If this one fails, try the next one on the list. '
+            "[[slnc 300]] The shop's settings list the provider's address "
+            'three times. [[slnc 300]] Because that is how you say three '
+            'attempts, when there is only one address. [[slnc 500]] And '
+            'moving to the next entry happens immediately. [[slnc 600]] '
+            'That makes sense for what it was designed for. [[slnc 300]] '
+            'Picture ten web servers. [[slnc 300]] If the ninth fails, '
+            'the tenth is a different computer, and probably healthy. '
+            '[[slnc 300]] Waiting would just slow every request down. '
+            '[[slnc 600]] But here, every entry is the same address. '
+            '[[slnc 300]] And that address is the one having a bad '
+            'moment. [[slnc 300]] Three instant attempts at the same '
+            'unwell thing all get the same answer. [[slnc 600]] So nobody '
+            'wrote a bug. [[slnc 300]] nginx simply has no way to say: '
+            'wait two hundred milliseconds before the next attempt. '
+            '[[slnc 300]] The sentence does not exist in its language.'
         ),
     ),
     dict(
@@ -246,28 +226,23 @@ SCENES = [
             "       the service already talks to an address",
         ],
         narration=(
-            "There are three ways out of this, and two of them are bad. [[slnc "
-            "165]] The first is to put the waiting back inside the service. "
-            "That undoes the entire previous project. Four services that take "
-            "money means four copies of the waiting, and the next time the "
-            "policy changes it will land in three of them and be missed in the "
-            "fourth. That was the exact problem the sidecar existed to solve. "
-            "[[slnc 193]] The second is to script the proxy. nginx will run a "
-            "language called Lua, and there is a JavaScript module for it too, "
-            "and either one can express a delay. But think about what you have "
-            "just done. You are now writing code inside a proxy that you chose "
-            "precisely because it was configured rather than programmed, in a "
-            "language most of your team does not use, with worse tooling, and "
-            "nowhere obvious to put a test. [[slnc 193]] And the third is to "
-            "put a different proxy on the port. [[slnc 165]] That third option "
-            "only exists because of a decision made in the previous project, "
-            "and it is easy to walk straight past it. The contract between the "
-            "service and its proxy is an address. Not a library. Not a "
-            "language. Not a shared build, or a shared version of anything. The "
-            "service sends a request to a local address, and something answers. "
-            "Nothing about that is Java, and nothing about it is nginx. [[slnc "
-            "150]] That is a far weaker promise than a library dependency, and "
-            "it turns out to be exactly as sufficient."
+            'There are three ways out of this. [[slnc 300]] Two of them '
+            'are bad. [[slnc 600]] The first: put the waiting back inside '
+            'the service. [[slnc 300]] That undoes the Sidecar video. '
+            '[[slnc 300]] Four services would need four copies of the '
+            'waiting. [[slnc 300]] And the next rule change would be '
+            'missed in one of them. [[slnc 600]] The second: add a script '
+            'inside nginx, in a language called Lua. [[slnc 300]] That '
+            'can express a delay. [[slnc 300]] But now you are writing '
+            'code inside a proxy you chose because it needed no code. '
+            '[[slnc 300]] In a language your team rarely uses, and hard '
+            'to test. [[slnc 600]] The third: put a different proxy on '
+            'the port. [[slnc 500]] That option only exists because of a '
+            'decision in the Sidecar video. [[slnc 300]] The contract '
+            'between the service and its proxy is an address. [[slnc '
+            '300]] The service sends a request to a local address, and '
+            'something answers. [[slnc 300]] Nothing about that is Java, '
+            'and nothing about it is nginx.'
         ),
     ),
     dict(
@@ -289,15 +264,16 @@ for (int attempt = 1; attempt <= policy.maxAttempts(); attempt++) {
     }
 }""",
         narration=(
-            "Here is the nginx proxy's retry loop, written out in Java so we "
-            "can look at it. Try the provider. If it fails, go round again. If "
-            "the provider says the allowance is spent, stop immediately, "
-            "because retrying that would just be making a busy supplier busier. "
-            "[[slnc 165]] And then, at the bottom of the loop, there is a "
-            "comment, and the comment says: and here is where the waiting would "
-            "go, if it could be said at all. [[slnc 193]] That empty space is "
-            "the entire subject of this video. It is not empty because somebody "
-            "forgot. It is empty because there was nothing to write in it."
+            "Here is the nginx proxy's retry loop, written out in Java, "
+            'so we can see it. [[slnc 500]] Try the provider. [[slnc '
+            '300]] If it fails, go round again. [[slnc 300]] If the '
+            'provider says the allowance is used up, stop at once. [[slnc '
+            '600]] And at the bottom of the loop, there is just a '
+            'comment. [[slnc 300]] It says: this is where the waiting '
+            'would go, if it could be expressed at all. [[slnc 600]] That '
+            'empty space is the whole subject of this video. [[slnc 300]] '
+            'It is not empty because someone forgot. [[slnc 300]] It is '
+            'empty because there was nothing to write.'
         ),
     ),
     dict(
@@ -322,21 +298,21 @@ for (int attempt = 1; attempt <= policy.maxAttempts(); attempt++) {
     }
 }""",
         narration=(
-            "So somebody writes a proxy. It is about forty lines of Java, and "
-            "the whole of it is one shape: read the policy, try, catch, wait, "
-            "double the wait, try again. [[slnc 165]] Put it next to the other "
-            "one and they are the same loop with four lines added. Wait. Then "
-            "double how long you will wait next time. [[slnc 193]] The doubling "
-            "is not decoration, and it is worth understanding why. If every "
-            "retry in the whole shop waited a fixed two hundred milliseconds, "
-            "then every service that failed at the same moment would come back "
-            "at the same moment — and the provider's first breath after a bad "
-            "second would be the entire shop arriving at once. Doubling spreads "
-            "them out. [[slnc 165]] One honest note. A real production proxy "
-            "would also add a small random amount to each wait, for exactly the "
-            "same reason. This one does not, and that is deliberate: a random "
-            "number would make the program print something different on every "
-            "run, and every figure in this video is asserted by a test."
+            'So someone writes their own proxy. [[slnc 300]] About forty '
+            'lines of Java. [[slnc 500]] Read the rules. [[slnc 200]] '
+            'Try. [[slnc 200]] If it fails, wait. [[slnc 200]] Double the '
+            'wait. [[slnc 200]] Try again. [[slnc 600]] Compared with the '
+            'nginx version, it is the same loop, with four lines added. '
+            '[[slnc 300]] Wait. [[slnc 300]] Then double how long to wait '
+            'next time. [[slnc 600]] Why double? [[slnc 300]] If every '
+            'retry in the shop waited exactly two hundred milliseconds, '
+            'every service that failed together would come back together. '
+            "[[slnc 300]] And the provider's first moment of recovery "
+            'would be the whole shop arriving at once. [[slnc 300]] '
+            'Doubling spreads them out. [[slnc 600]] A real proxy would '
+            'also add a small random amount to each wait. [[slnc 300]] '
+            'This one does not, on purpose. [[slnc 300]] So every number '
+            'in this video stays the same, and can be checked by a test.'
         ),
     ),
     dict(
@@ -359,24 +335,21 @@ for (int attempt = 1; attempt <= policy.maxAttempts(); attempt++) {
   Checkout was not told.
   There is no method on it to tell.""",
         narration=(
-            "Now put the new proxy on the port. That is one line, and the line "
-            "is not in the service. [[slnc 165]] Look at what that line does "
-            "not take. It takes a proxy. It does not take the service. It has "
-            "nothing it could use to notify a service, and nothing it could use "
-            "to restart one. There is no such thing to pass in, because there "
-            "is no such step. [[slnc 193]] Before the swap, the thing listening "
-            "on the local port is nginx, checkout is on start number one, and "
-            "its configured endpoint is that same local address. After the "
-            "swap, the thing listening is the Java proxy, checkout is still on "
-            "start number one, and its configured endpoint is character for "
-            "character the same. Payments services ever started, across the "
-            "whole program: one. [[slnc 165]] And that start number staying "
-            "still is not the demonstration being careful with itself. There is "
-            "exactly one place in the entire program where a payments service "
-            "is constructed, and it runs before the first act. A test reads the "
-            "program's own source code, strips the comments out, and counts the "
-            "constructions, so it stays that way. [[slnc 150]] Checkout was not "
-            "told about any of this. There is no method on it to tell."
+            'Second demo: the swap. [[slnc 400]] Put the new proxy on the '
+            'port. [[slnc 300]] That is one line, and it is not in the '
+            'service. [[slnc 600]] That line takes a proxy. [[slnc 300]] '
+            'It does not take the service. [[slnc 300]] It has no way to '
+            'notify or restart a service. [[slnc 600]] Before the swap, '
+            'nginx is listening on the local port. [[slnc 300]] Checkout '
+            'is on its first start. [[slnc 300]] And its configured '
+            'address is that local port. [[slnc 500]] After the swap, the '
+            'Java proxy is listening. [[slnc 300]] Checkout is still on '
+            'its first start. [[slnc 300]] And its configured address is '
+            'exactly the same. [[slnc 600]] There is only one place in '
+            'the whole program where a payment service is created. [[slnc '
+            "300]] And a test checks the program's own code to keep it "
+            'that way. [[slnc 500]] Checkout was never told about any of '
+            'this. [[slnc 300]] There is no way to tell it.'
         ),
     ),
     dict(
@@ -397,22 +370,21 @@ for (int attempt = 1; attempt <= policy.maxAttempts(); attempt++) {
   The provider's allowance is untouched.
   Only the spacing changed.""",
         narration=(
-            "Same provider. Same bad three hundred milliseconds. Same payment, "
-            "and the same allowance of three attempts. [[slnc 165]] The first "
-            "attempt arrived after one millisecond, and was declined. The "
-            "second arrived after two hundred and two milliseconds, and was "
-            "declined. The third arrived after six hundred and three "
-            "milliseconds — and that one was charged. Three attempts, and from "
-            "the first to the last, six hundred and two milliseconds. [[slnc "
-            "193]] Now hold that against the earlier run and notice what is not "
-            "different. Three attempts in both. The shop is not being greedier. "
-            "The provider's allowance is completely untouched, and the provider "
-            "did not get one extra request out of this change. It cost them "
-            "nothing at all. [[slnc 165]] The only thing that changed is when "
-            "the third attempt arrives. And by six hundred milliseconds, the "
-            "provider is well again. [[slnc 150]] The spacing was the "
-            "difference between a customer walking away and a coffee maker "
-            "being sold."
+            'Third demo: the same wobble, and the same three attempts. '
+            '[[slnc 400]] Same provider, same bad three hundred '
+            'milliseconds, same payment, same allowance. [[slnc 600]] The '
+            'first attempt arrives after one millisecond, and is '
+            'declined. [[slnc 300]] The second, after two hundred and two '
+            'milliseconds, declined. [[slnc 300]] The third, after six '
+            'hundred and three milliseconds. [[slnc 300]] And that one is '
+            'charged. [[slnc 600]] Notice what did not change. [[slnc '
+            '300]] Three attempts in both runs. [[slnc 300]] The shop is '
+            'not being greedier. [[slnc 300]] The provider got no extra '
+            'requests at all. [[slnc 500]] The only change is when the '
+            'attempts arrive. [[slnc 300]] And by six hundred '
+            'milliseconds, the provider is well again. [[slnc 500]] The '
+            'spacing was the difference between a lost customer, and a '
+            'coffee maker sold.'
         ),
     ),
     dict(
@@ -421,29 +393,24 @@ for (int attempt = 1; attempt <= policy.maxAttempts(); attempt++) {
         title="What Is Actually In This Program",
         body=None,
         narration=(
-            "Let me name the pieces, because there are not many of them. "
-            "[[slnc 165]] There is a payments service, and it has two things "
-            "in it: a name, and a local port to send payments to. That is all "
-            "it has. A test reads its source code and fails if the words retry, "
-            "backoff, timeout, keystore or certificate ever appear in it. "
-            "[[slnc 165]] There is the local port itself, which is the hinge of "
-            "the whole project. It holds one thing: whatever proxy is currently "
-            "bound to it. You can install something, you can empty it, and you "
-            "can send a payment to it — and if nothing is bound, sending gets "
-            "you a connection refused. [[slnc 165]] There is an interface "
-            "called Proxy, which is just a shape: a name, a language, a line "
-            "count, and a method that forwards a payment. Two classes implement "
-            "it. One is the nginx proxy, one is the Java proxy, and they hold "
-            "exactly the same three things — the name of the service they stand "
-            "beside, the provider, and the policy. [[slnc 193]] And that policy "
-            "is the piece worth pausing on. It is one object, and both proxies "
-            "read that same one object. Not a copy each. Because four equal "
-            "copies of a policy would be the old problem back again with better "
-            "manners. [[slnc 165]] Look at what neither proxy holds: nothing "
-            "about the shop. No basket. No order. No refund window. No "
-            "customer. That is the test for whether something belongs in a "
-            "proxy at all — and remember it, because it is about to get much "
-            "harder to enforce."
+            "Let's name the pieces. [[slnc 300]] There are only a few. "
+            '[[slnc 600]] First, a payment service. [[slnc 300]] It holds '
+            'just two things: a name, and a local port to send payments '
+            'to. [[slnc 300]] A test fails if words like retry, backoff, '
+            'or timeout ever appear in its code. [[slnc 500]] Second, the '
+            'local port, which is the hinge of the project. [[slnc 300]] '
+            'It holds whichever proxy is currently plugged into it. '
+            '[[slnc 300]] If nothing is plugged in, sending a payment '
+            'gets connection refused. [[slnc 500]] Third, a proxy '
+            'interface, with two versions: the nginx proxy, and the Java '
+            'proxy. [[slnc 300]] Both hold the same three things: which '
+            'service they sit beside, the provider, and the rules. [[slnc '
+            '500]] Both read the very same rules object. [[slnc 300]] Not '
+            'a copy each. [[slnc 600]] And notice what neither proxy '
+            'holds. [[slnc 300]] Nothing about the shop. [[slnc 300]] No '
+            'basket, no order, no refund rules, no customer. [[slnc 300]] '
+            'That is the test for what belongs in a proxy. [[slnc 300]] '
+            'Remember it, because it is about to get harder to enforce.'
         ),
     ),
     dict(
@@ -464,27 +431,23 @@ for (int attempt = 1; attempt <= policy.maxAttempts(); attempt++) {
   Nothing in the provider's dashboards
   will ever show that this happened.""",
         narration=(
-            "There is a cost here, and it is the one that will actually page "
-            "somebody, so we are going to look at it rather than skip past it. "
-            "[[slnc 165]] A swap is not instant. The old proxy stops, and the "
-            "new one starts, and in between there is a moment when nothing at "
-            "all is listening on that port. [[slnc 193]] So: the payment "
-            "provider is healthy. The network is healthy. The checkout service "
-            "is healthy. A customer pays thirty-one pounds fifty for a kettle, "
-            "and the payment fails instantly, with a connection refused, "
-            "because nothing is listening. [[slnc 165]] And the number to "
-            "listen for is the next one. Attempts that reached the provider: "
-            "zero. The request never left the machine. Which also means nothing "
-            "in the provider's dashboards will ever show that it happened. "
-            "[[slnc 165]] And there is nothing to fall back on, because the "
-            "retry code that would have covered this was deleted in the "
-            "previous project — and deleting it was the right call. But it does "
-            "mean the swap window is a window of hard, immediate failures "
-            "rather than slow ones. [[slnc 193]] So a real swap is not one line "
-            "in a demonstration. It is a rollout. Start the new proxy before "
-            "you stop the old one. Move one service at a time. And keep the old "
-            "proxy installable — because the honest reason to be able to swap "
-            "forwards is to be able to swap back."
+            'Fourth demo: the gap in the middle of a swap. [[slnc 400]] A '
+            'swap is not instant. [[slnc 300]] The old proxy stops, and '
+            'the new one starts. [[slnc 300]] In between, nothing is '
+            'listening on the port. [[slnc 600]] The provider is healthy. '
+            '[[slnc 300]] The network is healthy. [[slnc 300]] Checkout '
+            'is healthy. [[slnc 300]] A customer pays thirty-one pounds '
+            'fifty for a kettle. [[slnc 300]] And the payment fails '
+            'instantly: connection refused. [[slnc 600]] Attempts that '
+            'reached the provider: zero. [[slnc 300]] The request never '
+            "left the machine. [[slnc 300]] So the provider's dashboards "
+            'will never show it happened. [[slnc 600]] And there is '
+            "nothing to fall back on, because the service's retry code "
+            'was removed on purpose. [[slnc 600]] So a real swap is not '
+            'one line. [[slnc 300]] It is a careful rollout. [[slnc 300]] '
+            'Start the new proxy before stopping the old one. [[slnc '
+            '300]] Move one service at a time. [[slnc 300]] And keep the '
+            'old proxy ready, so you can swap back.'
         ),
     ),
     dict(
@@ -505,19 +468,19 @@ for (int attempt = 1; attempt <= policy.maxAttempts(); attempt++) {
   Two proxies. Two languages. One port.
   One service whose source file did not change.""",
         narration=(
-            "So here is what all of that actually bought. [[slnc 165]] The "
-            "previous project made a claim: that a sidecar is language "
-            "independent, that the proxy may be written in a language nobody on "
-            "your team knows, and that the service will not care. [[slnc 150]] "
-            "That claim was true, and it was completely unsupported. Every "
-            "single line of evidence in that project was Java talking to Java. "
-            "[[slnc 193]] Here there are two proxies. One is configured in "
-            "nginx's configuration language, in twenty-two lines. The other is "
-            "written in Java, in forty. They go on the same port, beside the "
-            "same service, and they are handed the same policy object. And the "
-            "service's source file is byte for byte identical in both runs. "
-            "[[slnc 165]] That is not a claim about language independence. That "
-            "is language independence, happening."
+            'So here is what all of that really bought. [[slnc 500]] The '
+            'Sidecar video claimed that a sidecar is language '
+            'independent. [[slnc 300]] That the proxy could be written in '
+            'any language, and the service would not care. [[slnc 300]] '
+            'That was true, but unproven. [[slnc 300]] Every piece of '
+            'evidence there was Java talking to Java. [[slnc 600]] Here, '
+            'there are two proxies. [[slnc 300]] One is nginx settings, '
+            'twenty-two lines. [[slnc 300]] The other is Java, forty '
+            'lines. [[slnc 300]] They sit on the same port, beside the '
+            'same service, reading the same rules. [[slnc 300]] And the '
+            "service's code is exactly the same in both runs. [[slnc "
+            '500]] That is not a claim about language independence. '
+            '[[slnc 300]] That is language independence, happening.'
         ),
     ),
     dict(
@@ -539,33 +502,28 @@ for (int attempt = 1; attempt <= policy.maxAttempts(); attempt++) {
             "       the shop's refund rules in the proxy",
         ],
         narration=(
-            "And now the bill, because a pattern taught without its costs is an "
-            "advertisement. This bill is longer than the benefit, and most of it "
-            "argues against doing any of this. [[slnc 193]] Twenty-two lines of "
-            "somebody else's configuration became forty lines of your own code. "
-            "That code is now yours. Yours to test, yours to review, yours to "
-            "keep working on the next version of Java, and yours to fix at "
-            "three in the morning. Nobody is patching it for you while you "
-            "sleep. [[slnc 165]] Everything nginx brought for free is gone "
-            "until you write it. Transport security termination. A structured "
-            "access log, in a format every service in the shop already shares. "
-            "Connection pooling. Header handling that nobody has to think "
-            "about. And twenty years of somebody answering security advisories "
-            "before you had even heard of them. A forty-line proxy that grows "
-            "all of that back is not a forty-line proxy any more. [[slnc 165]] "
-            "A whole Java virtual machine now sits beside every service, where "
-            "a few megabytes of nginx used to sit. Multiply that by the number "
-            "of services you run, and then go and look at what that costs on "
-            "the machines you actually rent. [[slnc 193]] And here is the one "
-            "that is not on any invoice. Nothing now stops the next person "
-            "putting the shop's refund rules into the proxy. A configuration "
-            "language is a fence: there is simply no way to express refunds are "
-            "not allowed after ninety days in an nginx config block, so nobody "
-            "ever tries. Java will happily let them. And a business rule hidden "
-            "in a proxy is a business rule that no developer will ever think to "
-            "go looking for. [[slnc 165]] The limitation and the fence were the "
-            "same thing. You took the fence down at the exact moment you took "
-            "the limitation away."
+            'Now the bill. [[slnc 300]] It is longer than the benefit, '
+            'and most of it argues against doing this. [[slnc 600]] '
+            "Twenty-two lines of someone else's settings became forty "
+            'lines of your own code. [[slnc 300]] Now you must test it, '
+            'review it, keep it working, and fix it at three in the '
+            'morning. [[slnc 300]] Nobody is patching it for you. [[slnc '
+            '600]] Everything nginx gave for free is gone until you write '
+            'it. [[slnc 300]] Network encryption, a standard access log, '
+            'connection reuse, and twenty years of security fixes. [[slnc '
+            '300]] A forty-line proxy that grows all that back is no '
+            'longer forty lines. [[slnc 600]] A whole Java runtime now '
+            'sits beside every service, where a few megabytes of nginx '
+            'used to be. [[slnc 300]] Multiply that by the number of '
+            'services you run. [[slnc 600]] And one cost that appears on '
+            'no invoice. [[slnc 300]] Nothing now stops someone putting '
+            "the shop's refund rules into the proxy. [[slnc 300]] nginx "
+            'settings simply cannot express a refund rule, so nobody '
+            'tries. [[slnc 300]] Java can express anything. [[slnc 300]] '
+            'And a business rule hidden in a proxy is one nobody will '
+            'think to look for. [[slnc 500]] The limitation and the fence '
+            'were the same thing. [[slnc 300]] Removing one removed the '
+            'other.'
         ),
     ),
     dict(
@@ -586,24 +544,20 @@ for (int attempt = 1; attempt <= policy.maxAttempts(); attempt++) {
             "— Very little else clears that bar.",
         ],
         narration=(
-            "So the rule is narrow, and it is the thing to remember when the "
-            "demonstration has faded. [[slnc 165]] Swap the proxy when the "
-            "thing you need cannot be said in the configuration language at "
-            "all. [[slnc 193]] Not when it is awkward. Not when the "
-            "configuration file has grown ugly. And not when you would rather "
-            "write Java — which you would, because everybody would. [[slnc "
-            "165]] Here, the missing sentence was the difference between a "
-            "payment going through and a payment failing. That clears the bar. "
-            "Very little else does. Most of the time the right answer is to "
-            "keep nginx, accept the gap, and spend the afternoon on something "
-            "that matters more. [[slnc 193]] But here is what is worth keeping "
-            "either way, and it is the real prize. The choice was available. "
-            "Because the service talks to an address rather than to a library, "
-            "swapping the proxy was a decision somebody could make on a Tuesday "
-            "afternoon — and swapping it back is the same decision in the other "
-            "order. [[slnc 150]] That option is what the previous project "
-            "actually bought you, and this is what it looks like when somebody "
-            "finally spends it."
+            'So the rule is narrow. [[slnc 400]] Swap the proxy when what '
+            'you need cannot be expressed in its settings at all. [[slnc '
+            '600]] Not when it is awkward. [[slnc 300]] Not when the '
+            'settings file has grown ugly. [[slnc 300]] And not just '
+            'because you would rather write Java. [[slnc 600]] Here, the '
+            'missing sentence was the difference between a payment '
+            'succeeding, and failing. [[slnc 300]] That clears the bar. '
+            '[[slnc 300]] Very little else does. [[slnc 300]] Most of the '
+            'time, keep nginx, and accept the gap. [[slnc 600]] But here '
+            'is the real prize, either way. [[slnc 300]] Because the '
+            'service talks to an address, not a library, swapping the '
+            'proxy is a choice anyone can make on a Tuesday afternoon. '
+            '[[slnc 300]] And swapping back is the same choice, in '
+            'reverse.'
         ),
     ),
     dict(
@@ -624,22 +578,21 @@ for (int attempt = 1; attempt <= policy.maxAttempts(); attempt++) {
             "       and keep the old one installable",
         ],
         narration=(
-            "Four things to take away. [[slnc 165]] First: the contract between "
-            "a service and the helper beside it is an address, and that is why "
-            "the thing on the other end of it is replaceable. Weak contracts "
-            "buy you options. [[slnc 165]] Second: the fix was the same three "
-            "attempts, spaced out. One millisecond, two hundred and two, six "
-            "hundred and three — instead of one, two and three. The provider "
-            "got no extra traffic out of it at all. When something is failing, "
-            "asking better is usually available before asking more. [[slnc "
-            "165]] Third: the swap was proved by identity rather than by "
-            "behaviour. The test asserts that the service object afterwards is "
-            "the same object, not that it behaves the same — because a service "
-            "that merely behaves the same afterwards is a service somebody may "
-            "have carefully rebuilt. [[slnc 165]] And fourth: a swap is a "
-            "rollout, not an assignment. Start the new proxy before you stop the "
-            "old one, move one service at a time, and keep the old one "
-            "installable."
+            'Here are four things to remember. [[slnc 500]] One. [[slnc '
+            '200]] The contract between a service and its helper is an '
+            'address. [[slnc 300]] That is why the helper can be '
+            'replaced. [[slnc 300]] Weak contracts buy you options. '
+            '[[slnc 400]] Two. [[slnc 200]] The fix was the same three '
+            'attempts, spaced out. [[slnc 300]] One, two hundred and two, '
+            'and six hundred and three milliseconds, instead of one, two, '
+            'and three. [[slnc 300]] The provider got no extra traffic. '
+            '[[slnc 300]] Asking better often works before asking more. '
+            '[[slnc 400]] Three. [[slnc 200]] The swap was proved by '
+            'checking that the service afterwards is the very same '
+            'object. [[slnc 300]] Not just that it behaves the same. '
+            '[[slnc 400]] Four. [[slnc 200]] A swap is a rollout, not a '
+            'single step. [[slnc 300]] Start the new proxy first, move '
+            'one service at a time, and keep the old one ready.'
         ),
     ),
     dict(
@@ -653,14 +606,18 @@ for (int attempt = 1; attempt <= policy.maxAttempts(); attempt++) {
             "Written and presented by Jayasekhar Konduru",
         ],
         narration=(
-            "Thanks for watching. [[slnc 165]] The full project is in the "
-            "repository, including the two proxies side by side, the tests that "
-            "hold every number in this video in place, and an animated "
-            "walkthrough you can step through in a browser. [[slnc 165]] If "
-            "this was useful, please like the video and subscribe — it genuinely "
-            "helps. And if you disagree with the rule at the end, I would like "
-            "to hear why in the comments. [[slnc 150]] This was written and "
-            "presented by Jayasekhar Konduru. See you in the next one."
+            "That's swapping a Sidecar, with a Java proxy. [[slnc 400]] "
+            'If you remember one sentence, make it this one. [[slnc 300]] '
+            'Because a service talks to its sidecar through an address, '
+            'the sidecar can be replaced, but only replace it when what '
+            'you need truly cannot be said any other way. [[slnc 500]] '
+            'The full source code, written notes, diagrams, and an '
+            'animated walkthrough are all in the repository. [[slnc 300]] '
+            'Including both proxies, side by side, and the tests that '
+            'hold every number in place. [[slnc 500]] If this helped, a '
+            'like really does help other people find it. [[slnc 300]] And '
+            "subscribe, if you'd like the rest of the series. [[slnc "
+            '400]] Thanks for watching.'
         ),
     ),
 ]

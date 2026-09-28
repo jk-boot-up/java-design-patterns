@@ -10,33 +10,36 @@ SCENES = [
         key='01-poster', kind='poster', title='Queue-Based Load Leveling',
         body=None,
         narration=(
-            'Hello, and welcome. This video explains the Queue-Based Load '
-            'Leveling pattern in Java, and it is written and presented by '
-            'Jayasekhar Konduru. [[slnc 300]] The plain definition: queue '
-            'based load leveling puts a queue between a source of bursty '
-            'work and the service that does it. The service works at its '
-            'own steady pace, and the burst waits its turn instead of '
-            'overwhelming it. [[slnc 350]] This is another project in the '
-            'microservices category, whose subject is how many small '
-            'services stay reliable when they talk to each other. In our '
-            'online store, the busiest moment is the start of a sale, '
-            'when a hundred orders arrive at once. [[slnc 300]] By the '
-            'end you will see a burst refused when it goes straight to '
-            'the worker, see a queue spread the same burst with nothing '
-            'lost, see what waiting costs, see an unbounded queue hide a '
-            'worker that is too slow, and see the bill, which is that an '
-            'in-memory queue forgets.'
+            'Hello, and welcome. [[slnc 400]] This video explains the '
+            'Queue-Based Load Leveling pattern, in Java. [[slnc 300]] '
+            'This video is presented by Jayasekhar Konduru. [[slnc 600]] '
+            'First, a simple definition. [[slnc 300]] You put a queue '
+            'between a source of sudden bursts of work, and the service '
+            'that does the work. [[slnc 300]] The service works at its '
+            'own steady pace. [[slnc 300]] And the burst waits its turn, '
+            'instead of overwhelming it. [[slnc 600]] Think of a busy '
+            'bakery with a ticket machine. [[slnc 300]] When a crowd '
+            'rushes in, everyone takes a number. [[slnc 300]] The bakers '
+            'serve at their normal speed, and nobody is turned away. '
+            '[[slnc 700]] In our online store, the busiest moment is the '
+            'start of a sale, when a hundred orders arrive at once. '
+            '[[slnc 500]] By the end, you will hear a burst refused when '
+            'it goes straight to the worker. [[slnc 300]] A queue spread '
+            'the same burst, with nothing lost. [[slnc 300]] What waiting '
+            'costs. [[slnc 300]] A queue with no limit hide a worker that '
+            'is too slow. [[slnc 300]] And the bill.'
         ),
     ),
     dict(
         key='02-scenario', kind='bullets', title='The Scenario',
         body=['A sale starts.', '100 orders arrive in one moment.', '', 'The order service handles 10 a', 'tick.', '', 'The rest of the day it is nearly', 'idle.', '', 'What happens to the other 90?'],
         narration=(
-            'Here is the scenario. A sale starts in the online store, and '
-            'a hundred orders arrive in the same moment. The order '
-            'service can process ten in a tick. The rest of the day it is '
-            'nearly idle. [[slnc 300]] The question: what happens to the '
-            'other ninety?'
+            'Here is the scenario. [[slnc 400]] A sale starts in the '
+            'online store. [[slnc 300]] A hundred orders arrive in the '
+            'same moment. [[slnc 500]] The order service can process ten '
+            'orders in each tick of time. [[slnc 300]] The rest of the '
+            'day, it is nearly idle. [[slnc 500]] So here is the '
+            'question. [[slnc 300]] What happens to the other ninety?'
         ),
     ),
     dict(
@@ -49,19 +52,22 @@ SCENES = [
 
   on the busiest moment.""",
         narration=(
-            'First, a burst straight to the worker. A hundred orders '
-            'arrive at once. The order service handles ten a tick. Ten '
-            'are processed. Ninety are refused. Ninety customers are told '
-            'to try again, on the busiest moment the shop has all day.'
+            'First demo: the burst goes straight to the worker. [[slnc '
+            '400]] A hundred orders arrive at once. [[slnc 300]] The '
+            'order service handles ten per tick. [[slnc 500]] Ten are '
+            'processed. [[slnc 300]] Ninety are refused. [[slnc 500]] '
+            'Ninety customers are told to try again. [[slnc 300]] On the '
+            'busiest moment the shop has all day.'
         ),
     ),
     dict(
         key='04-pattern', kind='bullets', title='The Pattern',
         body=['Put a queue between the work', 'and the worker.', '', 'The burst goes into the queue', 'at once.', '', 'The worker takes from the queue', 'at its own steady pace.'],
         narration=(
-            'The pattern. Put a queue between the work and the worker. '
-            'The burst goes into the queue all at once. The worker takes '
-            'from the queue at its own steady pace. The queue absorbs the '
+            'Now, the pattern. [[slnc 400]] Put a queue between the work '
+            'and the worker. [[slnc 500]] The burst goes into the queue, '
+            'all at once. [[slnc 300]] The worker takes from the queue at '
+            'its own steady pace. [[slnc 300]] The queue absorbs the '
             'difference.'
         ),
     ),
@@ -76,10 +82,12 @@ SCENES = [
   the worker never did more
   than 10 a tick.""",
         narration=(
-            'Second, a queue in between. The same hundred orders. All '
-            'hundred are processed. None are refused. The queue got a '
-            'hundred deep, and the worker never did more than ten in a '
-            'tick. The burst was spread over ten ticks.'
+            'Second demo: a queue in between. [[slnc 400]] The same '
+            'hundred orders. [[slnc 500]] All hundred are processed. '
+            '[[slnc 300]] None are refused. [[slnc 500]] The queue grew '
+            'to a hundred orders. [[slnc 300]] And the worker never did '
+            'more than ten in a tick. [[slnc 300]] The burst was spread '
+            'over ten ticks.'
         ),
     ),
     dict(
@@ -92,10 +100,12 @@ SCENES = [
   nothing was lost, and only the
   first ten were quick.""",
         narration=(
-            'Third, what the queue costs. The first order waited nothing. '
-            'The last waited nine ticks. On average, an order waited four '
-            'and a half. No order was lost, but only the first ten were '
-            'quick. The queue trades refusal for waiting.'
+            'Third demo: what the queue costs. [[slnc 400]] The first '
+            'order did not wait at all. [[slnc 300]] The last order '
+            'waited nine ticks. [[slnc 300]] On average, an order waited '
+            'four and a half ticks. [[slnc 600]] No order was lost. '
+            '[[slnc 300]] But only the first ten were quick. [[slnc 500]] '
+            'The queue swaps refusing for waiting.'
         ),
     ),
     dict(
@@ -110,13 +120,15 @@ SCENES = [
 
   it hides a slow worker.""",
         narration=(
-            'Fourth, a queue with no end, and one with a limit. Fifteen '
-            'orders arrive every tick, and the worker does ten. An '
-            'unbounded queue reaches five hundred waiting, and is still '
-            'growing. A queue limited to fifty refuses four hundred and '
-            'sixty, and no order waits more than four ticks. [[slnc 300]] '
-            'A queue does not fix a worker that is too slow. It hides it, '
-            'until the limit says so.'
+            'Fourth demo: a queue with no limit, and one with a limit. '
+            '[[slnc 400]] Now fifteen orders arrive every tick, but the '
+            'worker only handles ten. [[slnc 600]] With no limit, the '
+            'queue reaches five hundred orders waiting. [[slnc 300]] And '
+            'it is still growing. [[slnc 500]] With a limit of fifty, '
+            'four hundred and sixty orders are refused. [[slnc 300]] But '
+            'no order waits longer than four ticks. [[slnc 600]] A queue '
+            'does not fix a worker that is too slow. [[slnc 300]] It '
+            'hides it, until the limit reveals it.'
         ),
     ),
     dict(
@@ -129,12 +141,14 @@ SCENES = [
   queue: a worker of 100, idle
   almost all day.""",
         narration=(
-            'Fifth, size the worker for the average, not the peak. A '
-            'worker of ten clears the burst with a longest wait of nine. '
-            'A worker of twenty halves that, to four. To serve the whole '
-            'peak at once with no queue, you would need a worker of a '
-            'hundred, idle almost all day. The queue lets you pay for the '
-            'average.'
+            'Fifth demo: size the worker for the average, not the peak. '
+            '[[slnc 400]] A worker that handles ten per tick clears the '
+            'burst, with a longest wait of nine ticks. [[slnc 300]] A '
+            'worker that handles twenty cuts that to four. [[slnc 600]] '
+            'To serve the whole peak at once, with no queue, you would '
+            'need a worker of a hundred. [[slnc 300]] And it would sit '
+            'idle almost all day. [[slnc 500]] The queue lets you pay for '
+            'the average.'
         ),
     ),
     dict(
@@ -149,74 +163,83 @@ SCENES = [
   it must be kept somewhere
   that survives.""",
         narration=(
-            'Last, the bill. The process that holds the queue stops at '
-            'tick three, and the queue was in memory. Thirty orders had '
-            'been processed. Seventy were waiting, and are gone. Seventy '
-            'customers were told their order was accepted, and it never '
-            'happened. A queue that must not lose orders has to live '
-            'somewhere that survives.'
+            'Finally, the bill. [[slnc 400]] The program holding the '
+            'queue stops, at tick three. [[slnc 300]] And the queue was '
+            'only kept in memory. [[slnc 500]] Thirty orders had been '
+            'processed. [[slnc 300]] Seventy were waiting, and they are '
+            'gone. [[slnc 500]] Seventy customers were told their order '
+            'was accepted. [[slnc 300]] And it never happened. [[slnc '
+            '600]] A queue that must not lose orders has to be kept '
+            'somewhere that survives a restart.'
         ),
     ),
     dict(
         key='10-recognise', kind='bullets', title='How To Recognise It',
         body=['A message broker or a queue', 'between a web tier and a worker', '', 'A BlockingQueue between threads,', 'sized on purpose.', '', 'A chart of queue depth on a', 'dashboard, with an alert.'],
         narration=(
-            'How do you recognise this in code you did not write? A '
-            'message broker or a queue between a web tier and a worker '
-            'tier. A BlockingQueue between threads, sized on purpose. A '
-            'chart of queue depth on a dashboard, with an alert. Amazon '
-            'SQS, RabbitMQ, Kafka, or Azure Service Bus in an '
-            'architecture diagram.'
+            'How can you spot this pattern in code someone else wrote? '
+            '[[slnc 400]] Look for a message broker or queue between the '
+            'web servers and the workers. [[slnc 300]] Look for a queue '
+            'between threads, with a size chosen on purpose. [[slnc 300]] '
+            'Look for a chart of queue length on a dashboard, with an '
+            'alert. [[slnc 300]] Or names like Amazon S Q S, RabbitMQ, or '
+            'Kafka on an architecture diagram.'
         ),
     ),
     dict(
         key='11-verdict', kind='bullets', title='The Verdict',
         body=['Use a queue to level load when', 'work arrives in bursts, the caller', 'does not need the answer straight', 'away, and a short wait is', 'acceptable. Bound the queue, watch', 'its depth, and size the worker for', 'the average. Keep the queue', 'somewhere durable if orders must', 'not be lost. Do not use it where'],
         narration=(
-            'Here is my verdict, plainly. Use a queue to level load when '
-            'work arrives in bursts, the caller does not need the answer '
-            'straight away, and a short wait is acceptable. Bound the '
-            'queue, watch its depth, and size the worker for the average. '
-            'Keep the queue somewhere durable if orders must not be lost. '
-            'Do not use it where the caller needs an immediate result.'
+            'So, here is the verdict. [[slnc 400]] Use a queue to level '
+            'the load when work arrives in bursts. [[slnc 300]] When the '
+            'caller does not need the answer straight away. [[slnc 300]] '
+            'And when a short wait is acceptable. [[slnc 600]] Give the '
+            'queue a limit. [[slnc 300]] Watch how long it gets. [[slnc '
+            '300]] Size the worker for the average. [[slnc 300]] And keep '
+            'the queue somewhere that survives, if orders must not be '
+            'lost. [[slnc 500]] Do not use it where the caller needs an '
+            'immediate result.'
         ),
     ),
     dict(
         key='12-real', kind='bullets', title='What Is Real Here',
         body=['Everything is plain Java.', '', 'Every number quoted comes from', "this program's own output.", '', 'Nothing depends on a clock,', 'so every run is the same.'],
         narration=(
-            'The same honest admission as everywhere in this course. '
-            'Everything is plain Java. Every number quoted comes from '
-            "this program's own output. Nothing depends on a clock, so "
-            'every run is the same.'
+            'A quick, honest note about this demo. [[slnc 300]] '
+            'Everything is plain Java. [[slnc 300]] Every number you '
+            "heard comes from the program's own output. [[slnc 300]] "
+            'Nothing depends on a real clock, so every run gives the same '
+            'result.'
         ),
     ),
     dict(
         key='13-too-much', kind='bullets', title='When This Is Too Much',
         body=['If load is steady and the service', 'copes, a queue is one more thing', 'to run. If the caller needs the', 'answer now, a queue is the wrong', 'shape.'],
         narration=(
-            'So when is it too much? If load is steady and the service '
-            'copes, a queue is one more thing to run. If the caller needs '
-            'the answer now, a queue is the wrong shape.'
+            'So, when is this too much? [[slnc 400]] If the load is '
+            'steady, and the service copes, a queue is just one more '
+            'thing to run. [[slnc 400]] And if the caller needs the '
+            'answer now, a queue is the wrong shape.'
         ),
     ),
     dict(
         key='14-outro', kind='outro', title='Thanks for Watching',
         body=['Full source, notes, diagrams and an animated walkthrough', 'are in the repository. Try the exercises in', 'the session guide.'],
         narration=(
-            "That's Queue-Based Load Leveling. [[slnc 250]] If you take "
-            'one sentence away, take this one: a queue lets a service '
-            'keep its pace, and the price is waiting, a limit you must '
-            'choose, and a copy of the orders that must survive. [[slnc '
-            '350]] The full source, the written notes, the diagrams and '
-            'an animated walkthrough are all in the repository, running '
-            'offline with nothing installed but a Java development kit. '
-            '[[slnc 300]] If you try one exercise, change the queue limit '
-            'to two hundred and see what happens to the refusals and the '
-            'longest wait. [[slnc 300]] If this helped, a like genuinely '
-            'does help other people find it, and subscribe if you would '
-            'like the rest of the series. [[slnc 250]] Thanks for '
-            'watching.'
+            "That's the Queue-Based Load Leveling pattern. [[slnc 400]] "
+            'If you remember one sentence, make it this one. [[slnc 300]] '
+            'A queue lets a service keep its own pace, and the price is '
+            'waiting, a limit you must choose, and orders that must be '
+            'stored somewhere safe. [[slnc 500]] The full source code, '
+            'written notes, diagrams, and an animated walkthrough are all '
+            'in the repository. [[slnc 300]] It runs offline, with '
+            'nothing installed except a Java development kit. [[slnc '
+            '500]] Here is one exercise to try. [[slnc 300]] Change the '
+            'queue limit to two hundred. [[slnc 300]] Then see what '
+            'happens to the refusals, and to the longest wait. [[slnc '
+            '500]] If this helped, a like really does help other people '
+            "find it. [[slnc 300]] And subscribe, if you'd like the rest "
+            'of the series. [[slnc 400]] Thanks for watching.'
         ),
     ),
 ]

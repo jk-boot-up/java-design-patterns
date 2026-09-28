@@ -6,26 +6,4 @@ Say it in words. The checkout asks a product for its total. The product asks its
 
 ![Type Object pattern sequence diagram](images/sequence-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant C as checkout
-    participant P as Product
-    participant E as type: ebook
-    participant B as type: book
-    C->>P: totalCents()
-    P->>E: taxPercent()
-    E->>B: not stated: ask parent
-    B-->>E: 0
-    E-->>P: 0
-    P->>E: shippingCents()
-    E-->>P: 0
-    P-->>C: total
-```
-
-</details>
-
 The load-bearing sentence: **the type answers from itself, or from its parent.**

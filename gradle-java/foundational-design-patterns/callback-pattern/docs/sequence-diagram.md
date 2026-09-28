@@ -6,21 +6,4 @@ Say it in words. The caller asks the gateway to charge order one, and hands over
 
 ![Callback pattern sequence diagram](images/sequence-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant C as caller
-    participant G as gateway
-    C->>G: charge(ORD-1, callback)
-    G-->>C: returns at once
-    C->>C: other work
-    Note over G: the answer arrives
-    G->>C: callback(ORD-1 paid)
-```
-
-</details>
-
 The load-bearing sentence: **the callback runs later, when the answer is ready.**

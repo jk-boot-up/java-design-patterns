@@ -19,20 +19,20 @@ The first two lines are what a viewer sees above the fold, so they carry the hoo
 ```
 CHAPTERS
 00:00 Introduction
-00:42 The Scenario
-00:58 The Logic In The Controller
-01:20 A Second Door
-01:55 Put It All In The Domain Object
-02:17 The Pattern
-02:36 One placeOrder, Two Doors
-02:56 Cost One: The Anemic Domain
-03:20 Cost Two: The Line Is Hard To Draw
-03:44 Other Ways To Organise It
-04:03 The Toy Database
-04:21 Where You Have Met This
-04:35 What Is Real Here
-04:49 When This Is Too Much
-05:00 Thanks for Watching
+00:45 The Scenario
+01:00 The Logic In The Controller
+01:21 A Second Door
+01:57 Put It All In The Domain Object
+02:20 The Pattern
+02:42 One placeOrder, Two Doors
+03:04 Cost One: The Anemic Domain
+03:30 Cost Two: The Line Is Hard To Draw
+03:56 Other Ways To Organise It
+04:17 The Toy Database
+04:37 Where You Have Met This
+04:54 What Is Real Here
+05:10 When This Is Too Much
+05:21 Thanks for Watching
 
 SOURCE CODE, WRITTEN NOTES AND AN INTERACTIVE ANIMATION
 https://github.com/jk-boot-up/java-design-patterns/tree/main/gradle-java/enterprise-design-patterns/service-layer-pattern
@@ -47,20 +47,20 @@ YouTube renders these as chapters only if there are at least three and the first
 
 ```
 00:00 Introduction
-00:42 The Scenario
-00:58 The Logic In The Controller
-01:20 A Second Door
-01:55 Put It All In The Domain Object
-02:17 The Pattern
-02:36 One placeOrder, Two Doors
-02:56 Cost One: The Anemic Domain
-03:20 Cost Two: The Line Is Hard To Draw
-03:44 Other Ways To Organise It
-04:03 The Toy Database
-04:21 Where You Have Met This
-04:35 What Is Real Here
-04:49 When This Is Too Much
-05:00 Thanks for Watching
+00:45 The Scenario
+01:00 The Logic In The Controller
+01:21 A Second Door
+01:57 Put It All In The Domain Object
+02:20 The Pattern
+02:42 One placeOrder, Two Doors
+03:04 Cost One: The Anemic Domain
+03:30 Cost Two: The Line Is Hard To Draw
+03:56 Other Ways To Organise It
+04:17 The Toy Database
+04:37 Where You Have Met This
+04:54 What Is Real Here
+05:10 When This Is Too Much
+05:21 Thanks for Watching
 ```
 
 ## Tags
@@ -99,4 +99,4 @@ Add a card partway through pointing at the playlist, so a viewer who arrives at 
 
 ## Runtime
 
-Approximately 05:37, narrated at 145 words per minute.
+Approximately 05:59, narrated at 145 words per minute.

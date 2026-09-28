@@ -6,27 +6,6 @@ Say it in words. Nobody is listening yet. Checkout publishes an order-placed eve
 
 ![Event Bus with NATS pattern sequence diagram](images/sequence-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant C as checkout
-    participant N as NATS
-    participant W as warehouse
-    C->>N: publish OrderPlaced ORD-1
-    N-->>C: returns at once, no result
-    Note over N: nobody is listening, so it is dropped
-    W->>N: send me everything on store.orders.placed
-    N-->>W: confirmed
-    C->>N: publish OrderPlaced ORD-2
-    N->>W: OrderPlaced ORD-2
-    Note over W: its first ever event is ORD-2, so ORD-1 was missed
-```
-
-</details>
-
 The other sequences — the fan-out to three listeners, a subscriber that throws, and asking instead of telling — are in [`uml-diagram.md`](uml-diagram.md).
 
 The load-bearing sentence: **publishing always succeeds, and succeeding means nothing.**

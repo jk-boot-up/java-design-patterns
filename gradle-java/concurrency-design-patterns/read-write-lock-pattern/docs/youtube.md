@@ -19,19 +19,19 @@ The first two lines are what a viewer sees above the fold, so they carry the hoo
 ```
 CHAPTERS
 00:00 Introduction
-00:43 The Scenario
-01:08 No Lock — The Torn Read
-01:37 One Lock — Correct, But Queued
-02:04 The Pattern — Two Locks In One
-02:24 The Surprise
-02:53 Cost One — Writer Starvation
-03:20 Cost Two — The Upgrade Deadlock
-03:51 Cost Three — When The Lock Loses
-04:22 How The Demo Forces The Torn Read
-04:46 What The Scheduler Really Does
-05:16 The Bill
-05:36 When To Use It, And When Not
-05:59 Thanks for Watching
+00:52 The Scenario
+01:13 No Lock — The Torn Read
+01:41 One Lock — Correct, But Queued
+02:09 The Pattern — Two Locks In One
+02:31 The Surprise
+03:04 Cost One — Writer Starvation
+03:30 Cost Two — The Upgrade Deadlock
+04:02 Cost Three — When The Lock Loses
+04:38 How The Demo Forces The Torn Read
+05:05 What The Scheduler Really Does
+05:33 The Bill
+05:51 When To Use It, And When Not
+06:15 Thanks for Watching
 
 SOURCE CODE, WRITTEN NOTES AND AN INTERACTIVE ANIMATION
 https://github.com/jk-boot-up/java-design-patterns/tree/main/gradle-java/concurrency-design-patterns/read-write-lock-pattern
@@ -46,19 +46,19 @@ YouTube renders these as chapters only if there are at least three and the first
 
 ```
 00:00 Introduction
-00:43 The Scenario
-01:08 No Lock — The Torn Read
-01:37 One Lock — Correct, But Queued
-02:04 The Pattern — Two Locks In One
-02:24 The Surprise
-02:53 Cost One — Writer Starvation
-03:20 Cost Two — The Upgrade Deadlock
-03:51 Cost Three — When The Lock Loses
-04:22 How The Demo Forces The Torn Read
-04:46 What The Scheduler Really Does
-05:16 The Bill
-05:36 When To Use It, And When Not
-05:59 Thanks for Watching
+00:52 The Scenario
+01:13 No Lock — The Torn Read
+01:41 One Lock — Correct, But Queued
+02:09 The Pattern — Two Locks In One
+02:31 The Surprise
+03:04 Cost One — Writer Starvation
+03:30 Cost Two — The Upgrade Deadlock
+04:02 Cost Three — When The Lock Loses
+04:38 How The Demo Forces The Torn Read
+05:05 What The Scheduler Really Does
+05:33 The Bill
+05:51 When To Use It, And When Not
+06:15 Thanks for Watching
 ```
 
 ## Tags
@@ -97,4 +97,4 @@ Add a card partway through pointing at the playlist, so a viewer who arrives at 
 
 ## Runtime
 
-Approximately 06:39, narrated at 145 words per minute.
+Approximately 06:53, narrated at 145 words per minute.

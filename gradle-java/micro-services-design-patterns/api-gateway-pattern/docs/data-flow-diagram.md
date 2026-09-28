@@ -19,44 +19,6 @@ one real decision and everything else here is plumbing.
 
 ![API Gateway pattern data flow diagram](images/data-flow-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-flowchart TD
-    Start(["a shopper taps a product<br/>token + SKU-1001, a few dozen bytes"])
-    Hop["over the mobile network<br/>200ms out and back — the only slow hop in the picture"]
-    GW["ProductPageGateway<br/>adds nothing to the data yet"]
-    Auth["AuthService.check<br/>turns a token into a Customer<br/>once, for the whole page"]
-    Fan["four calls, over the internal network<br/>10ms each"]
-
-    Cat["Catalog answers<br/>+ name, + description"]
-    Pri["Pricing answers<br/>+ price in pence"]
-    Inv["Inventory answers<br/>+ in stock, true or false"]
-    Rec{"Recommendations<br/>answered?"}
-
-    RecOk["+ two suggested SKUs"]
-    RecNo["+ an empty list<br/>and one DEGRADED line in the log"]
-
-    Page["ProductPage<br/>one object, shaped the way the app draws it"]
-    Back["back over the mobile network<br/>the same 200ms trip, closing"]
-    Done(["the page appears<br/>240ms after the tap"])
-
-    Fail(["no page<br/>an honest error, because a page with no price is worse"])
-
-    Start --> Hop --> GW --> Auth --> Fan
-    Fan --> Cat --> Page
-    Fan --> Pri --> Page
-    Fan --> Inv --> Page
-    Fan --> Rec
-    Rec -- "yes" --> RecOk --> Page
-    Rec -- "no — optional" --> RecNo --> Page
-    Pri -. "did not answer — essential" .-> Fail
-    Page --> Back --> Done
-```
-
-</details>
-
 ## What the picture is telling you
 
 **The app adds a token and a product code, and nothing else.** Everything on the page was

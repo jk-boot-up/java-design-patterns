@@ -15,32 +15,6 @@ and cannot find out, which concrete class answered.
 
 ![Hexagonal Architecture pattern sequence diagram](images/sequence-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant Web as HttpCheckoutAdapter «driving»
-    participant Core as PlaceOrderService «core»
-    participant Catalog as ProductCatalog «port»
-    participant Pay as PaymentGateway «port»
-    participant Store as OrderStore «port»
-    participant Notify as Notifier «port»
-
-    Web->>Core: place(request, "ada@example.com")
-    Core->>Catalog: find + stockOf, each line
-    Catalog-->>Core: prices and stock levels
-    Core->>Pay: charge(cust-8801, £382.50)
-    Pay-->>Core: charged
-    Core->>Catalog: reduceStock, each line
-    Core->>Store: save(order)
-    Core->>Notify: send(ada@example.com, confirmation)
-    Core-->>Web: placed, ord-1001, £382.50
-```
-
-</details>
-
 Say the load-bearing sentence aloud, because it is the one a picture cannot
 carry on its own: **every name the core calls out in this sequence is a
 name the core itself gave.** Not one step names `InMemoryOrderStore`,

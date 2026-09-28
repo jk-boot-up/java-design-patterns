@@ -2,64 +2,64 @@
 
 ## 1. Chain of Responsibility with Spring
 
-Hello, and welcome. This video explains the Chain of Responsibility pattern with Spring Boot, in Java, and it is written and presented by Jayasekhar Konduru. It is the framework version of the Chain of Responsibility video. That one passed a checkout request along address, stock, fraud and payment checks, stopping at the first that answered, and reported which links never ran. This one shows the same idea inside Spring Boot. The plain definition, in short: in Spring, the links are beans of one interface, and the container hands you the list, already in order. By the end you will see the same screening built from beans, then see what changes: the order becomes a cost, a failing link needs a policy, and a property can remove a check.
+Hello, and welcome. This video explains the Chain of Responsibility pattern, in Java, using Spring Boot. This video is presented by Jayasekhar Konduru. First, a simple definition. A chain passes a request along a line of objects, until one of them is willing to answer. In Spring, each link in the chain is a bean of one shared interface. And Spring hands you the whole list of links, already sorted. Think of airport security. Your bag goes through one check after another: passport, scanner, and a hand search. Any one of them can stop you. This is the framework version of the Chain of Responsibility video, with the same online checkout. We will build the same order checks from Spring beans. Then we will see what changes. The order of the checks becomes a cost, a failing check needs a policy, and a setting can remove a check.
 
 ## 2. The Partner Project
 
-This video assumes the Chain of Responsibility video. If you have not seen it, start there. It passes a checkout request along address, stock, fraud and payment checks, stops at the first that answers, and reports which links never ran. This one uses the same example. It does not teach the pattern again. It shows what Spring Boot does with it.
+Before we start, a quick note. This video has a partner: the hand-built Chain of Responsibility video. That one passes a checkout request along four checks: address, stock, fraud, and payment. It stops at the first check that answers, and reports which checks never ran. If you are new to the pattern, watch that one first. Here, we keep the same example, and ask what Spring Boot does with it.
 
 ## 3. Before The First Line
 
-Before the first line of code, what Spring Boot is. Spring is a framework whose core is a container that creates your objects. It can inject every bean of one interface as a list, sorted by an order annotation. And a promise: skipping this video loses none of the pattern. The hand-built one teaches all of it.
+One thing is new in this project: Spring Boot. At its heart, Spring is a container that creates your objects for you. It can collect every bean of one interface into a list. And it sorts that list using an order number written on each class. And one promise. If you skip this video, you lose none of the pattern. This one is about the tool.
 
 ## 4. Spring Builds The Chain
 
-First, the chain. Spring injects the four checks in order: address, stock, fraud, payment limit. Where does that order come from? From order numbers, written on four different classes. No single file shows the chain.
+First demo: Spring builds the chain. Spring hands us the four checks, in this order. Address, stock, fraud, and payment limit. Where does that order come from? From order numbers, written on four different classes. So no single file shows you the whole chain.
 
 ## 5. Five Requests
 
-Second, five requests. Asha passes every check, and the fallback approves her. Erin is rejected by the address check, and three links never ran. Ben is stopped by stock. Carol by fraud. Dev is referred by the payment limit.
+Second demo: five customers place orders. Asha passes every check, so nobody objects, and the fallback approves her order. Erin is rejected by the address check. The other three checks never ran. Ben is stopped by the stock check. Carol is stopped by the fraud check. And Dev is referred to a person, by the payment limit check.
 
 ## 6. The Order Is The Cost
 
-Third, the order is the cost. With the cheap checks first, only three of the five requests reach the paid fraud service. Put the paid check first, and all five do. Same checks, same answers, and a different bill. In Spring, a single order number changes it.
+Third demo: the order of the checks is a cost. The fraud service is paid for, per call. With the cheap checks first, only three of the five orders reach the paid fraud service. Put the paid check first, and all five orders reach it. The same checks, and the same answers. But a bigger bill. And in Spring, a single order number decides it.
 
 ## 7. A Link That Throws
 
-Fourth, a link that throws. The fraud service is down. The chain catches the exception and refers the order to a person. The caller sees a decision, not an error. That is a policy, and it is written in the walker. Without it, one broken service stops every checkout.
+Fourth demo: a check that crashes. The fraud service is down, and its check throws an error. The chain catches the error, and refers Asha's order to a person. The caller receives a decision, not an error. That is a policy, and it is written once, in the code that walks the chain. Without it, one broken service would stop every checkout.
 
 ## 8. Switched Off By A Property
 
-Fifth, a property. Set one setting to false, and the fraud link disappears. The chain is three links long. Carol, who was rejected before, is approved. No code changed. That is convenient in a test, and dangerous in production, so print the order at startup.
+Fifth demo: a setting switches a check off. Set the fraud check's setting to false, and that check disappears. The chain is now three checks long. Carol, who was rejected before, is now approved. And no code changed. That is handy in a test, but dangerous in production. So print the chain's order when the application starts.
 
 ## 9. Nobody Answers
 
-Last, nobody answers. When every link has no opinion, a fallback answers. It is a named setting. Approved by default, and referred if you change it. Falling off the end of a chain should be a decision, not an accident.
+Last demo: what if nobody answers? When every check has no opinion, a fallback decides. It is a named setting. By default, it approves, so Asha goes through. Change it to refer, and Asha is sent to a person instead. Reaching the end of a chain should be a decision, not an accident.
 
 ## 10. The Verdict
 
-My verdict, plainly. Put cheap and decisive links first. Decide what a throwing link means. Print the order at startup. And test the whole chain.
+So, here is the verdict. Put the cheap, decisive checks first. Decide what a crashing check should mean. Print the chain's order when the application starts. And test the whole chain, not just each check.
 
 ## 11. How To Recognise It
 
-How do you recognise this in code you did not write? A list of an interface in a constructor, with order annotations on the implementations. And a loop that stops at the first answer.
+How can you spot this in code someone else wrote? Look for a constructor that receives a list of one interface. With the at Order annotation on each implementation. And a loop that stops at the first answer.
 
 ## 12. Where You Have Met This
 
-You have met this in servlet filters, Spring Security's filter chain, and validation pipelines.
+Where have you met this before? In servlet filters, in Spring Security's filter chain, and in validation pipelines.
 
 ## 13. What Was Used
 
-For the record. Spring Boot four point one point one. No web server, no database, and no web starter.
+For the record, here are the versions. Spring Boot four point one point one. No web server, no database, and no web library.
 
 ## 14. What Is Real Here
 
-The same honest admission as everywhere in this course. Everything is real: Spring's container and its ordering. The paid fraud service is a counter, not a real service.
+A quick, honest note about this demo. Spring's container, and its ordering, are real. The paid fraud service is only a counter. Nothing is really paid for.
 
 ## 15. When This Is Too Much
 
-So when is it too much? For two checks that never change, an if statement is clearer than a chain.
+So, when is this too much? For two checks that never change, a plain if statement is clearer than a chain.
 
 ## 16. Thanks for Watching
 
-That's Chain of Responsibility with Spring. If you take one sentence away, take this one: Spring builds and orders the chain, and the order becomes a cost you have to watch. The full source, the written notes, the diagrams and an animated walkthrough are all in the repository. If you try one exercise, give two checks the same order number, and see what happens. If this helped, a like genuinely does help other people find it, and subscribe if you would like the rest of the series. Thanks for watching.
+That's Chain of Responsibility with Spring. If you remember one sentence, make it this one. Spring builds and orders the chain for you, and that order becomes a cost you have to watch. The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. Here is one exercise to try. Give two checks the same order number. Then run it, and find out what happens. If this helped, a like really does help other people find it. And subscribe, if you'd like the rest of the series. Thanks for watching.

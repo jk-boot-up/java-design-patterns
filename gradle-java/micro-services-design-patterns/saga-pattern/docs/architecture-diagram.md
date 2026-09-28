@@ -23,45 +23,6 @@ everything that might fail.
 
 ![Saga architecture diagram](images/architecture-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-flowchart TB
-    subgraph W["what the program is a model of"]
-        direction TB
-        Chk["place an order — one job, five services,<br/>five databases, and no transaction over any of them"]
-        subgraph Steps["five steps, five separate commits"]
-            direction LR
-            S1["reserve stock<br/>undo: release it — cheap and reliable"]
-            S2["take payment<br/>undo: a SECOND, negative ledger entry"]
-            S3["create order<br/>undo: set it to CANCELLED, never delete"]
-            S4["schedule shipment<br/>undo: cancel the collection"]
-            S5["send confirmation email<br/>undo: THERE IS NONE — so it goes last"]
-        end
-        Chk --> S1 --> S2 --> S3 --> S4 --> S5
-        S5 -. "if anything fails, walk back the other way" .-> S1
-    end
-
-    subgraph J["what actually runs — one JVM, JDK 21, no network, nothing installed"]
-        direction LR
-        Demo["PlaceOrderSagaDemo<br/>the five acts"]
-        Orch["SagaOrchestrator.run<br/>about fifteen lines: forward keeping a list,<br/>then backwards over that list"]
-        Step["SagaStep<br/>execute, compensate, canBeCompensated"]
-        Ctx["SagaContext + SagaOutcome<br/>COMPLETED, COMPENSATED, NEEDS_HUMAN_HELP"]
-        Svc["Stock, Payment, Order, Shipping, Email<br/>each holding its own map"]
-        Naive["NaiveCheckoutService<br/>the comparison — four calls in a try block"]
-        Clock["SimulatedClock + CallLog + RemoteCall<br/>failNext scripts an outage, refuse scripts a refusal"]
-        Demo --> Orch --> Step --> Svc --> Clock
-        Orch --> Ctx
-        Demo --> Naive
-    end
-
-    W -. "no Spring, no broker, no database, no sockets — a list and a loop" .-> J
-```
-
-</details>
-
 ## What the diagram is telling you to count
 
 **Five commits, and not one of them is provisional.** By the time payment is taken, the

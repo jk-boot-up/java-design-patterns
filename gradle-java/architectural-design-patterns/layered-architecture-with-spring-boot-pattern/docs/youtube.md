@@ -19,21 +19,21 @@ The first two lines are what a viewer sees above the fold, so they carry the hoo
 ```
 CHAPTERS
 00:00 Introduction
-00:52 The Partner Project
-01:14 Before The First Line
-01:39 Four Layers, One Real Request
-01:54 One Transaction
-02:11 Failures Become Statuses In One Place
-02:24 The Shortcut Runs
-02:40 It Also Leaks
-02:54 A Rule The Container Does Not Have
-03:13 The Verdict
-03:25 How To Recognise It
-03:37 Where You Have Met This
-03:42 What Was Used
-03:51 What Is Real Here
-04:02 When This Is Too Much
-04:09 Thanks for Watching
+01:03 The Partner Project
+01:30 Before The First Line
+02:01 Four Layers, One Real Request
+02:27 One Transaction
+02:56 Failures Become Statuses In One Place
+03:19 The Shortcut Runs
+03:41 It Also Leaks
+04:06 A Rule The Container Does Not Have
+04:28 The Verdict
+04:41 How To Recognise It
+04:55 Where You Have Met This
+05:01 What Was Used
+05:13 What Is Real Here
+05:24 When This Is Too Much
+05:31 Thanks for Watching
 
 SOURCE CODE, WRITTEN NOTES AND AN INTERACTIVE ANIMATION
 https://github.com/jk-boot-up/java-design-patterns/tree/main/gradle-java/architectural-design-patterns/layered-architecture-with-spring-boot-pattern
@@ -48,21 +48,21 @@ YouTube renders these as chapters only if there are at least three and the first
 
 ```
 00:00 Introduction
-00:52 The Partner Project
-01:14 Before The First Line
-01:39 Four Layers, One Real Request
-01:54 One Transaction
-02:11 Failures Become Statuses In One Place
-02:24 The Shortcut Runs
-02:40 It Also Leaks
-02:54 A Rule The Container Does Not Have
-03:13 The Verdict
-03:25 How To Recognise It
-03:37 Where You Have Met This
-03:42 What Was Used
-03:51 What Is Real Here
-04:02 When This Is Too Much
-04:09 Thanks for Watching
+01:03 The Partner Project
+01:30 Before The First Line
+02:01 Four Layers, One Real Request
+02:27 One Transaction
+02:56 Failures Become Statuses In One Place
+03:19 The Shortcut Runs
+03:41 It Also Leaks
+04:06 A Rule The Container Does Not Have
+04:28 The Verdict
+04:41 How To Recognise It
+04:55 Where You Have Met This
+05:01 What Was Used
+05:13 What Is Real Here
+05:24 When This Is Too Much
+05:31 Thanks for Watching
 ```
 
 ## Tags
@@ -101,4 +101,4 @@ Add a card partway through pointing at the playlist, so a viewer who arrives at 
 
 ## Runtime
 
-Approximately 04:42, narrated at 145 words per minute.
+Approximately 06:07, narrated at 145 words per minute.

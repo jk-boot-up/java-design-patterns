@@ -6,22 +6,4 @@ Say it in words. The worker has read the stock, which is zero, and is holding it
 
 ![Active Object with Spring pattern sequence diagram](images/sequence-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant W as worker thread
-    participant F as stock field
-    participant C as caller thread
-    W->>F: read: 0
-    Note over W: holding the old value
-    C->>F: this.restock(5): stock is 5
-    W->>F: write 0 + 10
-    Note over F: 10, not 15
-```
-
-</details>
-
 The load-bearing sentence: **the lock-free design holds only for the calls that go through the proxy.**

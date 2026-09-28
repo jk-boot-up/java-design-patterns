@@ -20,36 +20,6 @@ it those numbers. It found them out by working.
 
 ![Client-side load balancing data flow diagram](images/data-flow-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-flowchart TD
-    Start(["a caller needs the name of SKU-1234"])
-    List["the candidate list — catalog-1, catalog-2, catalog-3<br/>from service discovery, not from this pattern"]
-    Which{"which strategy<br/>is the client holding?"}
-    First["FirstInstanceBalancer<br/>index 0, every time<br/>no state at all"]
-    RR["RoundRobinBalancer<br/>a counter, one step per request"]
-    LL["LeastLatencyBalancer<br/>try each once, then pick the fastest seen"]
-    Rand["RandomBalancer<br/>a seeded Random, so tests repeat"]
-    Pick["one instance chosen"]
-    Call["call it — the clock advances by<br/>that instance's latency, 10ms or 60ms"]
-    Log["CallLog records who was asked and what it cost"]
-    Learn["the measured duration is written back<br/>into the balancer's memory"]
-    Done(["'Barista Pro Espresso Machine' —<br/>the same answer whoever was asked"])
-
-    Start --> List --> Which
-    Which --> First --> Pick
-    Which --> RR --> Pick
-    Which --> LL --> Pick
-    Which --> Rand --> Pick
-    Pick --> Call --> Log --> Done
-    Call -. "only the least-latency strategy has anywhere to put this" .-> Learn
-    Learn -. "which is why its second dozen requests<br/>are better aimed than its first" .-> LL
-```
-
-</details>
-
 ## What the picture is telling you
 
 **Everything above the choice is shared and everything below it is shared.** The candidate

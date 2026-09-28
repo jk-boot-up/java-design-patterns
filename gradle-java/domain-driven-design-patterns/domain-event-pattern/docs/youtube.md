@@ -19,19 +19,19 @@ The first two lines are what a viewer sees above the fold, so they carry the hoo
 ```
 CHAPTERS
 00:00 Introduction
-00:51 The Scenario
-01:08 The Order Calls Everyone
-01:32 The Pattern
-01:47 The Order Says What Happened
-02:03 Delivered After The Save
-02:18 A Failing Reaction
-02:39 Events Are Facts
-02:56 The Gap Between Saving And Telling
-03:23 How To Recognise It
-03:44 The Verdict
-04:08 What Is Real Here
-04:22 When This Is Too Much
-04:34 Thanks for Watching
+00:57 The Scenario
+01:15 The Order Calls Everyone
+01:42 The Pattern
+01:57 The Order Says What Happened
+02:18 Delivered After The Save
+02:36 A Failing Reaction
+02:59 Events Are Facts
+03:19 The Gap Between Saving And Telling
+03:54 How To Recognise It
+04:19 The Verdict
+04:43 What Is Real Here
+04:58 When This Is Too Much
+05:12 Thanks for Watching
 
 SOURCE CODE, WRITTEN NOTES AND AN INTERACTIVE ANIMATION
 https://github.com/jk-boot-up/java-design-patterns/tree/main/gradle-java/domain-driven-design-patterns/domain-event-pattern
@@ -46,19 +46,19 @@ YouTube renders these as chapters only if there are at least three and the first
 
 ```
 00:00 Introduction
-00:51 The Scenario
-01:08 The Order Calls Everyone
-01:32 The Pattern
-01:47 The Order Says What Happened
-02:03 Delivered After The Save
-02:18 A Failing Reaction
-02:39 Events Are Facts
-02:56 The Gap Between Saving And Telling
-03:23 How To Recognise It
-03:44 The Verdict
-04:08 What Is Real Here
-04:22 When This Is Too Much
-04:34 Thanks for Watching
+00:57 The Scenario
+01:15 The Order Calls Everyone
+01:42 The Pattern
+01:57 The Order Says What Happened
+02:18 Delivered After The Save
+02:36 A Failing Reaction
+02:59 Events Are Facts
+03:19 The Gap Between Saving And Telling
+03:54 How To Recognise It
+04:19 The Verdict
+04:43 What Is Real Here
+04:58 When This Is Too Much
+05:12 Thanks for Watching
 ```
 
 ## Tags
@@ -97,4 +97,4 @@ Add a card partway through pointing at the playlist, so a viewer who arrives at 
 
 ## Runtime
 
-Approximately 05:12, narrated at 145 words per minute.
+Approximately 05:47, narrated at 145 words per minute.

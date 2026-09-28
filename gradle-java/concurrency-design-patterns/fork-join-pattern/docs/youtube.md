@@ -19,19 +19,19 @@ The first two lines are what a viewer sees above the fold, so they carry the hoo
 ```
 CHAPTERS
 00:00 Introduction
-00:54 The Scenario
+00:52 The Scenario
 01:07 One Loop
-01:23 The Pattern
-01:37 Split It Until It Is Small
-01:56 The Pieces Really Run Together
-02:14 How Small Is Small Enough
-02:37 Pieces That Are Not The Same Size
-02:57 The Bill
-03:22 How To Recognise It
-03:45 The Verdict
-04:11 What Is Real Here
-04:24 When This Is Too Much
-04:36 Thanks for Watching
+01:26 The Pattern
+01:41 Split It Until It Is Small
+02:05 The Pieces Really Run Together
+02:25 How Small Is Small Enough
+02:56 Pieces That Are Not The Same Size
+03:22 The Bill
+03:49 How To Recognise It
+04:10 The Verdict
+04:39 What Is Real Here
+04:52 When This Is Too Much
+05:06 Thanks for Watching
 
 SOURCE CODE, WRITTEN NOTES AND AN INTERACTIVE ANIMATION
 https://github.com/jk-boot-up/java-design-patterns/tree/main/gradle-java/concurrency-design-patterns/fork-join-pattern
@@ -46,19 +46,19 @@ YouTube renders these as chapters only if there are at least three and the first
 
 ```
 00:00 Introduction
-00:54 The Scenario
+00:52 The Scenario
 01:07 One Loop
-01:23 The Pattern
-01:37 Split It Until It Is Small
-01:56 The Pieces Really Run Together
-02:14 How Small Is Small Enough
-02:37 Pieces That Are Not The Same Size
-02:57 The Bill
-03:22 How To Recognise It
-03:45 The Verdict
-04:11 What Is Real Here
-04:24 When This Is Too Much
-04:36 Thanks for Watching
+01:26 The Pattern
+01:41 Split It Until It Is Small
+02:05 The Pieces Really Run Together
+02:25 How Small Is Small Enough
+02:56 Pieces That Are Not The Same Size
+03:22 The Bill
+03:49 How To Recognise It
+04:10 The Verdict
+04:39 What Is Real Here
+04:52 When This Is Too Much
+05:06 Thanks for Watching
 ```
 
 ## Tags
@@ -97,4 +97,4 @@ Add a card partway through pointing at the playlist, so a viewer who arrives at 
 
 ## Runtime
 
-Approximately 05:17, narrated at 145 words per minute.
+Approximately 05:47, narrated at 145 words per minute.

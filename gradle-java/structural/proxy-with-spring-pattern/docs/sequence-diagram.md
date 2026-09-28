@@ -6,21 +6,4 @@ Say it in words. A shopper calls a method on the catalogue that is not protected
 
 ![Proxy with Spring pattern sequence diagram](images/sequence-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant S as shopper
-    participant P as proxy
-    participant B as real bean
-    S->>P: renderThroughThis
-    P->>B: no advice, method is not protected
-    B->>B: this.render (no proxy)
-    B-->>S: the image
-```
-
-</details>
-
 The load-bearing sentence: **a call on this never meets the aspect.**

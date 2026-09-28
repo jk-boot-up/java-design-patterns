@@ -21,55 +21,6 @@ this diagram that is not downward-one-layer, and it is drawn in the project's
 
 ![Layered Architecture pattern architecture diagram](images/architecture-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-flowchart TB
-    Root["PlaceAnOrderDemo<br/>composition root — the only class allowed<br/>to say `new` for a concrete layer type"]
-
-    subgraph P["presentation"]
-        direction TB
-        Screen["CheckoutScreen"]
-    end
-
-    subgraph A["application"]
-        direction TB
-        Service["PlaceOrderService<br/>one use case, four steps in order"]
-    end
-
-    subgraph D["domain"]
-        direction TB
-        Order["Order · OrderLine · Product · Money<br/>no dependency on any other layer"]
-    end
-
-    subgraph I["infrastructure"]
-        direction TB
-        OT["OrderTable «interface»<br/>InMemoryOrderTable / AppendOnlyOrderTable"]
-        PT["ProductTable"]
-        CN["CardNetwork"]
-        ES["EmailServer"]
-    end
-
-    subgraph N["naive — outside the real four layers"]
-        direction TB
-        Hist["OrderHistoryScreen<br/>the shortcut"]
-    end
-
-    Root -.->|wires all four layers| P
-    Root -.-> A
-    Root -.-> I
-
-    P -->|calls, application only| A
-    A -->|reads and writes| I
-    A -.->|builds and returns| D
-    I -.->|persists and prices| D
-
-    Hist -->|skips application —<br/>the rule this project enforces| OT
-```
-
-</details>
-
 ## Reading The Diagram
 
 **Every solid arrow between real layers points down, one layer at a time.**

@@ -19,19 +19,19 @@ The first two lines are what a viewer sees above the fold, so they carry the hoo
 ```
 CHAPTERS
 00:00 Introduction
-00:54 The Scenario
-01:08 Ask, And Keep Asking
-01:20 The Pattern
-01:30 Say What To Do, And Go On
+00:48 The Scenario
+01:02 Ask, And Keep Asking
+01:16 The Pattern
+01:26 Say What To Do, And Go On
 01:42 What Happened Decides What To Do
-01:53 When The Callback Fails
-02:12 Answers In Another Order
-02:28 The Bill
-02:47 How To Recognise It
-03:04 The Verdict
-03:26 What Is Real Here
-03:39 When This Is Too Much
-03:50 Thanks for Watching
+01:57 When The Callback Fails
+02:18 Answers In Another Order
+02:44 The Bill
+03:04 How To Recognise It
+03:26 The Verdict
+03:50 What Is Real Here
+04:03 When This Is Too Much
+04:14 Thanks for Watching
 
 SOURCE CODE, WRITTEN NOTES AND AN INTERACTIVE ANIMATION
 https://github.com/jk-boot-up/java-design-patterns/tree/main/gradle-java/foundational-design-patterns/callback-pattern
@@ -46,19 +46,19 @@ YouTube renders these as chapters only if there are at least three and the first
 
 ```
 00:00 Introduction
-00:54 The Scenario
-01:08 Ask, And Keep Asking
-01:20 The Pattern
-01:30 Say What To Do, And Go On
+00:48 The Scenario
+01:02 Ask, And Keep Asking
+01:16 The Pattern
+01:26 Say What To Do, And Go On
 01:42 What Happened Decides What To Do
-01:53 When The Callback Fails
-02:12 Answers In Another Order
-02:28 The Bill
-02:47 How To Recognise It
-03:04 The Verdict
-03:26 What Is Real Here
-03:39 When This Is Too Much
-03:50 Thanks for Watching
+01:57 When The Callback Fails
+02:18 Answers In Another Order
+02:44 The Bill
+03:04 How To Recognise It
+03:26 The Verdict
+03:50 What Is Real Here
+04:03 When This Is Too Much
+04:14 Thanks for Watching
 ```
 
 ## Tags
@@ -97,4 +97,4 @@ Add a card partway through pointing at the playlist, so a viewer who arrives at 
 
 ## Runtime
 
-Approximately 04:32, narrated at 145 words per minute.
+Approximately 04:54, narrated at 145 words per minute.

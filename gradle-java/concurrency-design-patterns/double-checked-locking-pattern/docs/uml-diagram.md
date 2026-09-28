@@ -6,17 +6,3 @@ Four sequences.
 
 ![After It Is Built](images/uml-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant T as any thread
-    participant F as volatile field
-    T->>F: read: built
-    F-->>T: the price list, and no lock
-```
-
-</details>
-

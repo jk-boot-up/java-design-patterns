@@ -6,39 +6,6 @@ layer adding its own fee on the way back up.
 
 ![Decorator pattern sequence diagram](images/uml-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-sequenceDiagram
-    actor Client as PricingDemo
-    participant Express as ExpressHandlingDecorator
-    participant Insurance as InsuranceDecorator
-    participant GiftWrap as GiftWrapDecorator
-    participant Product as Product
-
-    Client->>Express: cost()
-    activate Express
-    Express->>Insurance: wrapped.cost()
-    activate Insurance
-    Insurance->>GiftWrap: wrapped.cost()
-    activate GiftWrap
-    GiftWrap->>Product: wrapped.cost()
-    activate Product
-    Product-->>GiftWrap: $79.99
-    deactivate Product
-    GiftWrap-->>Insurance: $83.49 (+ $3.50 gift wrap fee)
-    deactivate GiftWrap
-    Insurance-->>Express: $85.16 (+ 2% premium of $83.49)
-    deactivate Insurance
-    Express-->>Client: $95.15 (+ $9.99 express fee)
-    deactivate Express
-
-    Note over Client,Product: Each layer only ever calls wrapped.cost() -- none of them know how many layers are beneath them, or whether there are any at all.
-```
-
-</details>
-
 ## Notes
 
 - The client makes exactly **one** call, `cost()`, on the outermost

@@ -19,19 +19,19 @@ The first two lines are what a viewer sees above the fold, so they carry the hoo
 ```
 CHAPTERS
 00:00 Introduction
-00:41 The Scenario
-01:02 A Plain Count — The Lost Update
-01:26 volatile — Still Not Atomic
-01:50 The Caller Holds The Lock
-02:15 The Pattern — The Object Owns Its Lock
-02:38 Waiting And Signalling
-03:08 Cost One — wait In A Loop
-03:37 Cost Two — Nested Monitors
-04:03 Cost Three — Calling Out
-04:31 How The Demo Forces The Race
-04:56 What The Scheduler Really Does
-05:24 The Bill, And When It Is Too Much
-05:50 Thanks for Watching
+00:51 The Scenario
+01:13 A Plain Count — The Lost Update
+01:36 volatile — Still Not Atomic
+02:02 The Caller Holds The Lock
+02:28 The Pattern — The Object Owns Its Lock
+02:54 Waiting And Signalling
+03:31 Cost One — wait In A Loop
+04:01 Cost Two — Nested Monitors
+04:29 Cost Three — Calling Out
+04:59 How The Demo Forces The Race
+05:28 What The Scheduler Really Does
+05:56 The Bill, And When It Is Too Much
+06:25 Thanks for Watching
 
 SOURCE CODE, WRITTEN NOTES AND AN INTERACTIVE ANIMATION
 https://github.com/jk-boot-up/java-design-patterns/tree/main/gradle-java/concurrency-design-patterns/monitor-object-pattern
@@ -46,19 +46,19 @@ YouTube renders these as chapters only if there are at least three and the first
 
 ```
 00:00 Introduction
-00:41 The Scenario
-01:02 A Plain Count — The Lost Update
-01:26 volatile — Still Not Atomic
-01:50 The Caller Holds The Lock
-02:15 The Pattern — The Object Owns Its Lock
-02:38 Waiting And Signalling
-03:08 Cost One — wait In A Loop
-03:37 Cost Two — Nested Monitors
-04:03 Cost Three — Calling Out
-04:31 How The Demo Forces The Race
-04:56 What The Scheduler Really Does
-05:24 The Bill, And When It Is Too Much
-05:50 Thanks for Watching
+00:51 The Scenario
+01:13 A Plain Count — The Lost Update
+01:36 volatile — Still Not Atomic
+02:02 The Caller Holds The Lock
+02:28 The Pattern — The Object Owns Its Lock
+02:54 Waiting And Signalling
+03:31 Cost One — wait In A Loop
+04:01 Cost Two — Nested Monitors
+04:29 Cost Three — Calling Out
+04:59 How The Demo Forces The Race
+05:28 What The Scheduler Really Does
+05:56 The Bill, And When It Is Too Much
+06:25 Thanks for Watching
 ```
 
 ## Tags
@@ -97,4 +97,4 @@ Add a card partway through pointing at the playlist, so a viewer who arrives at 
 
 ## Runtime
 
-Approximately 06:29, narrated at 145 words per minute.
+Approximately 07:03, narrated at 145 words per minute.

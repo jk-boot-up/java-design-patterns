@@ -7,154 +7,21 @@ the shapes, so read the notes rather than the outlines.
 
 ![CQRS sequence diagram](images/uml-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant User as Customer
-    participant Comp as ComposingOrderHistory
-    participant Ord as OrdersQueryApi
-    participant Cat as CatalogService
-
-    User->>Comp: view the order history page
-    Comp->>Ord: ordersFor("cust-7")
-    Ord-->>Comp: order lines, no names (30ms)
-    Comp->>Cat: namesFor([SKU-KETTLE, SKU-MUG])
-    Cat-->>Comp: 2 names, one batched call (60ms)
-    Comp-->>User: the page (90ms)
-
-    Note over User,Cat: and again, and again. 3 views cost 270ms<br/>and 6 service calls, for a page that never changed.
-```
-
-</details>
-
 ## Act Two — The Page Kept Ready By The Events
 
 ![Act Two — The Page Kept Ready By The Events](images/uml-diagram-2.png)
-
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant Write as OrderWriteService
-    participant Bus as EventBus
-    participant RM as OrderHistoryReadModel
-    participant Cat as CatalogService
-    participant User as Customer
-
-    Write->>Bus: OrderPlaced(ord-5001)
-    Bus->>RM: deliver
-    RM->>Cat: namesFor([...]) — ONCE, at write time
-    Cat-->>RM: 2 names
-    Note over RM: the finished rows are kept
-
-    User->>RM: view the page
-    RM-->>User: 2 rows (5ms, 0 services called)
-    User->>RM: view it again
-    RM-->>User: 2 rows (5ms, 0 services called)
-
-    Note over Write,User: the work did not vanish — it moved to write time,<br/>paid once per order instead of once per view.
-```
-
-</details>
 
 ## Act Three — Eventually Consistent, Shown Honestly
 
 ![Act Three — Eventually Consistent, Shown Honestly](images/uml-diagram-3.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant User as Customer
-    participant Write as OrderWriteService
-    participant Bus as EventBus
-    participant RM as OrderHistoryReadModel
-
-    User->>Write: place ord-5001
-    Write-->>User: placed, paid for, final
-    Write->>Bus: 3 events
-    Note over Bus: held — still in flight
-
-    User->>RM: view the order history page
-    RM-->>User: 0 rows
-
-    Note over User,RM: the order is real and the money has moved,<br/>and the page does not have it on.
-
-    Bus->>RM: deliver
-    User->>RM: view it again
-    RM-->>User: 2 rows
-
-    Note over User,RM: the window is however long delivery takes,<br/>and it closes by itself.
-```
-
-</details>
-
 ## Act Four — The Cache That Cannot Know It Is Wrong
 
 ![Act Four — The Cache That Cannot Know It Is Wrong](images/uml-diagram-4.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant Cat as CatalogService
-    participant Bus as EventBus
-    participant RM as OrderHistoryReadModel
-    participant Cache as CachedOrderHistory
-    participant Clock as SimulatedClock
-
-    Cat->>Bus: ProductRenamed(SKU-KETTLE, "Brushed Steel Kettle")
-    Bus->>RM: deliver
-    Note over RM: corrected by the same event<br/>that made it wrong
-
-    Bus--xCache: there is no arrow here
-    Note over Cache: still says "Stainless Steel Kettle"
-
-    Clock->>Cache: 300 seconds elapse
-    Note over Cache: only now does it stop being wrong
-
-    Note over Cat,Clock: a cache is a copy that cannot know it is wrong.<br/>Its only correction is a timer.
-```
-
-</details>
-
 ## Act Five — The Last Kettle
 
 ![Act Five — The Last Kettle](images/uml-diagram-5.png)
-
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant Shopper as Second shopper
-    participant RM as OrderHistoryReadModel
-    participant Write as OrderWriteService
-    participant Ledger as StockLedger
-
-    Shopper->>RM: is a kettle available?
-    RM-->>Shopper: stockOnDisplay = 1
-    Note over RM: stale, and it has no way to know
-
-    Shopper->>Write: buy it
-    Write->>Ledger: reserve(SKU-KETTLE, 1)
-    Ledger--xWrite: cannot reserve 1 of SKU-KETTLE, only 0 left
-    Write--xShopper: refused
-
-    Note over Shopper,Ledger: the write side saved the shop, because the sale<br/>was decided there. Show a read model's stock number.<br/>Never sell against it.
-```
-
-</details>
 
 ## Notes On Reading These
 

@@ -19,19 +19,19 @@ The first two lines are what a viewer sees above the fold, so they carry the hoo
 ```
 CHAPTERS
 00:00 Introduction
-00:50 The Scenario
-01:08 One Customer For Everyone
-01:25 The Pattern
-01:38 The Same Word, Three Meanings
-02:00 A Model For Each Context
-02:17 The Contexts Talk By Events
-02:36 The Boundary Can Be Checked
-02:51 The Bill
-03:10 How To Recognise It
-03:35 The Verdict
-03:55 What Is Real Here
-04:08 When This Is Too Much
-04:21 Thanks for Watching
+00:51 The Scenario
+01:12 One Customer For Everyone
+01:32 The Pattern
+01:47 The Same Word, Three Meanings
+02:10 A Model For Each Context
+02:29 The Contexts Talk By Events
+02:53 The Boundary Can Be Checked
+03:10 The Bill
+03:31 How To Recognise It
+04:00 The Verdict
+04:24 What Is Real Here
+04:37 When This Is Too Much
+04:50 Thanks for Watching
 
 SOURCE CODE, WRITTEN NOTES AND AN INTERACTIVE ANIMATION
 https://github.com/jk-boot-up/java-design-patterns/tree/main/gradle-java/domain-driven-design-patterns/bounded-context-pattern
@@ -46,19 +46,19 @@ YouTube renders these as chapters only if there are at least three and the first
 
 ```
 00:00 Introduction
-00:50 The Scenario
-01:08 One Customer For Everyone
-01:25 The Pattern
-01:38 The Same Word, Three Meanings
-02:00 A Model For Each Context
-02:17 The Contexts Talk By Events
-02:36 The Boundary Can Be Checked
-02:51 The Bill
-03:10 How To Recognise It
-03:35 The Verdict
-03:55 What Is Real Here
-04:08 When This Is Too Much
-04:21 Thanks for Watching
+00:51 The Scenario
+01:12 One Customer For Everyone
+01:32 The Pattern
+01:47 The Same Word, Three Meanings
+02:10 A Model For Each Context
+02:29 The Contexts Talk By Events
+02:53 The Boundary Can Be Checked
+03:10 The Bill
+03:31 How To Recognise It
+04:00 The Verdict
+04:24 What Is Real Here
+04:37 When This Is Too Much
+04:50 Thanks for Watching
 ```
 
 ## Tags
@@ -97,4 +97,4 @@ Add a card partway through pointing at the playlist, so a viewer who arrives at 
 
 ## Runtime
 
-Approximately 05:00, narrated at 145 words per minute.
+Approximately 05:26, narrated at 145 words per minute.

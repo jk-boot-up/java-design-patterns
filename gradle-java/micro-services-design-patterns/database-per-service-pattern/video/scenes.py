@@ -44,24 +44,28 @@ SCENES = [
         title="Database per Service",
         body=None,
         narration=(
-            "Hello, and welcome. This video explains the Database per Service "
-            "pattern in Java, and it is written and presented by Jayasekhar "
-            "Konduru. [[slnc 300]] Let's start with the simple definition. Each "
-            "service keeps its own data, nobody else is allowed to read it "
-            "directly, and if you want somebody else's data, you ask them for "
-            "it. [[slnc 350]] That is genuinely all it says. There is no "
-            "algorithm in this pattern, and by the end of the video I want you "
-            "to find the mechanism slightly disappointing, because the "
-            "interesting part is not how you do it. It is what it costs. "
-            "[[slnc 300]] The rest of the video builds a real working Java "
-            "project: an online shop with two teams. One looks after products — "
-            "names, prices, photographs. The other looks after what people have "
-            "bought. [[slnc 300]] They share one database, and one Tuesday "
-            "afternoon somebody renames a column. [[slnc 350]] By the end "
-            "you'll know why a completely correct migration breaks a page in "
-            "another team's repository; why every test can pass while the system "
-            "is broken; what splitting the database actually buys, which is less "
-            "than people claim; and what it takes away, which is more."
+            'Hello, and welcome. [[slnc 400]] This video explains the '
+            'Database per Service pattern, in Java. [[slnc 300]] This '
+            'video is presented by Jayasekhar Konduru. [[slnc 600]] '
+            'First, a simple definition. [[slnc 300]] Each service keeps '
+            'its own data. [[slnc 300]] Nobody else may read that data '
+            "directly. [[slnc 300]] If you want another service's data, "
+            'you ask that service for it. [[slnc 600]] Think of two '
+            'departments in an office, each with its own filing cabinet. '
+            '[[slnc 300]] If you need something from the other '
+            'department, you ask them. [[slnc 300]] You do not go through '
+            'their drawers. [[slnc 600]] There is no clever algorithm in '
+            'this pattern. [[slnc 300]] The interesting part is not how '
+            'you do it, but what it costs. [[slnc 700]] In our online '
+            'store, there are two teams. [[slnc 300]] One looks after '
+            'products: names, prices, and photographs. [[slnc 300]] The '
+            'other looks after what people have bought. [[slnc 300]] They '
+            'share one database, and one Tuesday afternoon, somebody '
+            'renames a column. [[slnc 500]] By the end, you will know why '
+            "a perfectly correct change breaks a page in another team's "
+            'code. [[slnc 300]] Why every test can pass while the system '
+            'is broken. [[slnc 300]] What splitting the database really '
+            'buys. [[slnc 300]] And what it takes away.'
         ),
     ),
     dict(
@@ -83,21 +87,21 @@ SCENES = [
             "Two teams. One schema. Nobody in charge of it.",
         ],
         narration=(
-            "Here is the shop, and it is worth picturing before any code. "
-            "[[slnc 300]] There are two teams. The catalog team looks after "
-            "products: the names, the descriptions, the prices, the "
-            "photographs. The orders team looks after what people have actually "
-            "bought. [[slnc 350]] They share one database. The products table "
-            "and the orders table sit in it side by side, and either team can "
-            "read both. [[slnc 300]] The page we are going to follow all the way "
-            "through is the order history page — the one a shopper opens to see "
-            "what they have ordered. Each line on it has an order number, a "
-            "product code, the name of the product, and how many they bought. "
-            "[[slnc 350]] And here is the thing to hold on to, because "
-            "everything follows from it. The product code lives in the orders "
-            "table. The product name lives in the products table. So building "
-            "that page means reading both. [[slnc 300]] Two teams, one schema, "
-            "and nobody actually in charge of the schema."
+            'Here is the shop. [[slnc 400]] There are two teams. [[slnc '
+            '300]] The catalog team looks after products: names, '
+            'descriptions, prices, and photographs. [[slnc 300]] The '
+            'orders team looks after what people have bought. [[slnc '
+            '600]] They share one database. [[slnc 300]] The products '
+            'table and the orders table sit side by side. [[slnc 300]] '
+            'And either team can read both. [[slnc 600]] We follow one '
+            'page: the order history page. [[slnc 300]] Each line shows '
+            "an order number, a product code, the product's name, and how "
+            'many were bought. [[slnc 500]] Here is the key point. [[slnc '
+            '300]] The product code lives in the orders table. [[slnc '
+            '300]] The product name lives in the products table. [[slnc '
+            '300]] So building the page means reading both. [[slnc 500]] '
+            'Two teams, one shared database, and nobody really in charge '
+            'of it.'
         ),
     ),
     dict(
@@ -115,19 +119,20 @@ for (Order order : orders) {
 
 public static final String PRODUCT_NAME_COLUMN = "product_name";""",
         narration=(
-            "In this project there is no real database — the tables are maps, "
-            "and a column is a key in a map, which turns out to matter in a "
-            "minute. But the shape is exactly the shape of a join. [[slnc 300]] "
-            "For every order the customer placed, find the matching product, "
-            "read the product's name out of it, and put a row together from the "
-            "two halves. [[slnc 350]] Now notice the last line, because it is "
-            "the whole video in one constant. The query names the column it "
-            "wants. It asks for a column called, in so many words, product "
-            "underscore name. [[slnc 300]] That string is written down in the "
-            "orders team's code. And the column it refers to belongs to the "
-            "catalog team. [[slnc 350]] Nobody thinks about that on the day they "
-            "write it, because in one database it is simply how you read a "
-            "table."
+            'In this project, there is no real database. [[slnc 300]] '
+            'Each table is a simple map, and each column is a key in that '
+            'map. [[slnc 300]] But the shape is exactly a database join. '
+            '[[slnc 300]] A join reads two tables together, and matches '
+            'their rows up. [[slnc 600]] For every order, find the '
+            "matching product. [[slnc 300]] Read the product's name. "
+            '[[slnc 300]] And build a line from the two halves. [[slnc '
+            '600]] Now notice one detail, because it is the whole video. '
+            '[[slnc 300]] The code asks for a column by name: product '
+            "name. [[slnc 500]] That name is written in the orders team's "
+            'code. [[slnc 300]] But the column belongs to the catalog '
+            'team. [[slnc 500]] Nobody thinks about that when they write '
+            'it. [[slnc 300]] In one shared database, that is simply how '
+            'you read a table.'
         ),
     ),
     dict(
@@ -143,14 +148,14 @@ Act 1 - one database, one query
   every row has a product name, because a join cannot
   forget one""",
         narration=(
-            "And it works. [[slnc 250]] Two orders come back for this customer. "
-            "A stainless steel kettle, one of them. A blue stoneware mug, four "
-            "of them. Each line has the order number, the product code, the "
-            "product's name and the quantity, and the page is complete. "
-            "[[slnc 350]] One round trip to one database. [[slnc 300]] That "
-            "number — one — is printed on purpose, because in a few minutes we "
-            "are going to have something to compare it against, and the "
-            "comparison is the argument of the entire video."
+            'First demo: one database, one query. [[slnc 400]] And it '
+            'works. [[slnc 500]] Two orders come back for this customer. '
+            '[[slnc 300]] One stainless steel kettle. [[slnc 300]] And '
+            'four blue stoneware mugs. [[slnc 300]] Each line has the '
+            'order number, the product code, the name, and the quantity. '
+            '[[slnc 300]] The page is complete. [[slnc 600]] It took one '
+            'trip to one database. [[slnc 300]] Remember that number, '
+            'one. [[slnc 300]] Later, we will compare against it.'
         ),
     ),
     dict(
@@ -172,24 +177,22 @@ Act 1 - one database, one query
             "If a shop can live like this, it should.",
         ],
         narration=(
-            "Before we break it, I want to spend half a minute being fair to "
-            "this arrangement, because the rest of the video is the story of "
-            "giving it up, and if you have not appreciated it you will not "
-            "understand what is being paid. [[slnc 350]] One round trip. One "
-            "conversation with one database, and the page is done. [[slnc 250]] "
-            "The join itself is performed by a query engine that is "
-            "extraordinarily good at joins, written by people who have been "
-            "refining it for thirty years, and you did not have to write any of "
-            "it. [[slnc 300]] A join cannot forget a name. Either every row "
-            "comes back complete, or the query fails — there is no such thing "
-            "as a half-built page. [[slnc 350]] And a foreign key guarantees "
-            "that the product an order refers to actually exists. Not "
-            "probably. Not usually. The database will refuse to let you create "
-            "an order pointing at a product that is not there. [[slnc 300]] "
-            "Nothing here is eventually consistent. What you read is what is "
-            "true, right now. [[slnc 350]] So let me say the sentence that most "
-            "talks about microservices leave out. If a shop can live like this, "
-            "it should."
+            "Before we break it, let's be fair to this design. [[slnc "
+            '300]] It is very good. [[slnc 600]] One trip to one '
+            'database, and the page is done. [[slnc 500]] The join is '
+            'done by a database engine that has been perfected for '
+            'decades. [[slnc 300]] And you did not have to write any of '
+            'it. [[slnc 500]] A join cannot forget a name. [[slnc 300]] '
+            'Either every line comes back complete, or the query fails. '
+            '[[slnc 300]] There is no half-built page. [[slnc 500]] And a '
+            'foreign key guarantees that the product an order refers to '
+            'really exists. [[slnc 300]] A foreign key is a rule inside '
+            'the database that links two tables. [[slnc 300]] The '
+            'database will refuse an order that points at a product that '
+            'is not there. [[slnc 500]] Nothing here is ever out of date. '
+            '[[slnc 300]] What you read is what is true, right now. '
+            '[[slnc 600]] So here is a sentence many talks leave out. '
+            '[[slnc 300]] If a shop can live like this, it should.'
         ),
     ),
     dict(
@@ -202,19 +205,20 @@ Act 1 - one database, one query
                       -- somebody renamed it
   nobody did anything wrong. The column was theirs.""",
         narration=(
-            "Now it is Tuesday afternoon, and the catalog team decides that the "
-            "column called product name should be called title instead. "
-            "[[slnc 300]] They have good reasons. Perhaps it is what the rest of "
-            "their schema looks like. Perhaps title is the word the business "
-            "actually uses. It is their column, in their table, and renaming it "
-            "is entirely their business. [[slnc 350]] So they write a migration. "
-            "They run it. Their tests pass. Their service works. They go home. "
-            "[[slnc 400]] And the order history page is dead. [[slnc 350]] It "
-            "asked for a column called product name, and there is no longer a "
-            "column called product name. [[slnc 300]] Look at what each side "
-            "saw. The catalog team saw a green build and a clean deployment. The "
-            "orders team saw an incident. Both of those are true at the same "
-            "moment, and neither team can see the other one."
+            'Second demo: Tuesday afternoon. [[slnc 400]] The catalog '
+            'team decides that the column called product name should be '
+            'called title. [[slnc 300]] They have good reasons. [[slnc '
+            '300]] It is their column, in their table. [[slnc 600]] So '
+            'they write a change to the database, called a migration. '
+            '[[slnc 300]] They run it. [[slnc 300]] Their tests pass. '
+            '[[slnc 300]] Their service works. [[slnc 300]] They go home. '
+            '[[slnc 600]] And the order history page is dead. [[slnc '
+            '500]] It asked for a column called product name. [[slnc '
+            '300]] And there is no longer a column with that name. [[slnc '
+            '600]] The catalog team saw a successful release. [[slnc '
+            '300]] The orders team saw an outage. [[slnc 300]] Both are '
+            'true at the same moment. [[slnc 300]] And neither team can '
+            'see the other.'
         ),
     ),
     dict(
@@ -236,24 +240,22 @@ Act 1 - one database, one query
             "A test suite tests a codebase. This lives between two.",
         ],
         narration=(
-            "Here is the uncomfortable part, and it is the reason this problem "
-            "survives in real companies for years. [[slnc 350]] Nobody did "
-            "anything wrong. [[slnc 300]] The migration was correct. There is a "
-            "test in this project that proves it: after the rename, every "
-            "product name is still there, still readable, under its new name. "
-            "Nothing was lost. [[slnc 350]] And the catalog team could not have "
-            "known. The query that broke is in a different repository, written "
-            "by people they may never have met. It is not in their code, not in "
-            "their tests, not in their build. There is no review that would have "
-            "caught this, because there is no reviewer who can see both sides. "
-            "[[slnc 400]] And now the sharpest way I can put it. This project "
-            "has a test named: a rename breaks the order history page. "
-            "[[slnc 250]] That test passes. [[slnc 350]] Every test in the file "
-            "passes, including the one asserting that a page is broken. Your "
-            "test suite is never going to warn you about this, and it is not "
-            "being careless. A test suite tests a codebase, and this problem "
-            "lives in between two codebases. [[slnc 300]] Nobody owns the "
-            "in-between."
+            'Here is the uncomfortable part. [[slnc 400]] Nobody did '
+            'anything wrong. [[slnc 600]] The migration was correct. '
+            '[[slnc 300]] A test proves that every product name is still '
+            'there, under its new name. [[slnc 300]] Nothing was lost. '
+            '[[slnc 500]] And the catalog team could not have known. '
+            "[[slnc 300]] The code that broke is in a different team's "
+            'project. [[slnc 300]] It is not in their code, their tests, '
+            'or their build. [[slnc 300]] No reviewer could have seen '
+            'both sides. [[slnc 600]] Here is the sharpest way to say it. '
+            '[[slnc 300]] This project has a test named: a rename breaks '
+            'the order history page. [[slnc 300]] And that test passes. '
+            '[[slnc 500]] Every test passes, including the one that says '
+            'a page is broken. [[slnc 300]] A test suite checks one '
+            'codebase. [[slnc 300]] This problem lives between two '
+            'codebases. [[slnc 300]] And nobody owns the space in '
+            'between.'
         ),
     ),
     dict(
@@ -275,24 +277,21 @@ Act 1 - one database, one query
             "So they buy a second cabinet.",
         ],
         narration=(
-            "Let me leave the code for a moment, because there is an ordinary "
-            "version of this that everybody has lived through. [[slnc 350]] Two "
-            "departments in an office share one filing cabinet. [[slnc 300]] "
-            "While they share it, life is easy. A question that spans both "
-            "departments is one trip to one drawer. Nothing is ever out of date. "
-            "The folders are all in the same order, because there is only one "
-            "order. [[slnc 350]] And then one department decides to reorganise. "
-            "They have every right to — it is their half of the cabinet, and the "
-            "new arrangement suits their work far better. They do it carefully. "
-            "They check their own work. Everything they need is exactly where "
-            "they now expect it. [[slnc 300]] The other department comes in on "
-            "Monday and cannot find anything. [[slnc 350]] Nobody was careless. "
-            "The trouble is that the filing system was a shared decision that "
-            "neither department was in charge of, and the only safe way to change "
-            "it was a meeting that nobody thought to call. [[slnc 300]] So they "
-            "buy a second cabinet. [[slnc 250]] Hold on to that image, because in "
-            "a minute we are going to count what the second cabinet costs, and it "
-            "is not nothing."
+            "Let's leave the code for a moment. [[slnc 300]] There is an "
+            'everyday version of this. [[slnc 500]] Two departments in an '
+            'office share one filing cabinet. [[slnc 300]] While they '
+            'share it, life is easy. [[slnc 300]] Any question is one '
+            'trip to one drawer. [[slnc 300]] Nothing is ever out of '
+            'date. [[slnc 600]] Then one department reorganises its half. '
+            '[[slnc 300]] They have every right to. [[slnc 300]] They do '
+            'it carefully, and check their own work. [[slnc 500]] On '
+            'Monday, the other department cannot find anything. [[slnc '
+            '600]] Nobody was careless. [[slnc 300]] The filing system '
+            'was a shared decision that neither department owned. [[slnc '
+            '300]] The only safe way to change it was a meeting that '
+            'nobody thought to call. [[slnc 600]] So they buy a second '
+            'cabinet. [[slnc 300]] Remember that, because soon we will '
+            'count what the second cabinet costs.'
         ),
     ),
     dict(
@@ -313,25 +312,24 @@ Act 1 - one database, one query
             "  and it buys time. It does not change who decides.",
         ],
         narration=(
-            "Before the fix, the three answers that come up in every room I have "
-            "asked this in. [[slnc 350]] The first: write a test that catches it. "
-            "Good instinct — but in whose repository does it live? For it to "
-            "help, the catalog team's build would have to run the orders team's "
-            "queries against the catalog team's schema. That is possible, and "
-            "what you have then is a shared build with a shared owner, which is "
-            "the coupling you were trying to remove wearing a different hat. "
-            "[[slnc 400]] The second: just don't rename columns. [[slnc 250]] "
-            "This is the one that actually gets adopted, and it is the worst of "
-            "the three, because it is invisible. Nobody writes it down. The "
-            "schema slowly fills up with columns whose names are wrong, and every "
-            "person on both teams quietly learns that changing anything is "
-            "expensive. [[slnc 400]] The third: add a database view so the old "
-            "name still works. That is a real technique and it buys real time. "
-            "But it does not change who is allowed to decide, and now there is "
-            "one more layer maintained by somebody who owns neither side of it. "
-            "[[slnc 350]] So here is the actual question. What if the catalog "
-            "team's data were somewhere the orders team physically could not "
-            "read?"
+            'Before the real fix, here are three tempting fixes. [[slnc '
+            '600]] The first: write a test that catches it. [[slnc 300]] '
+            'But in whose project does that test live? [[slnc 300]] It '
+            "would have to run one team's queries against the other "
+            "team's database. [[slnc 300]] That is a shared build with a "
+            'shared owner. [[slnc 300]] The same problem, in a different '
+            'disguise. [[slnc 600]] The second: just never rename '
+            'columns. [[slnc 300]] This is the one that really gets '
+            'adopted, and it is the worst. [[slnc 300]] Nobody writes it '
+            'down. [[slnc 300]] The database slowly fills with badly '
+            'named columns. [[slnc 300]] And everyone learns that '
+            'changing anything is expensive. [[slnc 600]] The third: add '
+            'a database view, so the old name still works. [[slnc 300]] '
+            'That is a real technique, and it buys time. [[slnc 300]] But '
+            'it does not change who is allowed to decide. [[slnc 300]] '
+            'And it adds one more layer that nobody owns. [[slnc 600]] So '
+            'here is the real question. [[slnc 300]] What if the orders '
+            "team simply could not read the catalog team's data at all?"
         ),
     ),
     dict(
@@ -348,23 +346,21 @@ Act 1 - one database, one query
 // Orders may not read Catalog's database directly.
 // Ask Catalog for it.""",
         narration=(
-            "And here is the entire mechanism. [[slnc 300]] Every method on "
-            "every database takes the name of whoever is asking, and refuses "
-            "anybody who is not the owner. That is it. There is no algorithm, "
-            "nothing adaptive, nothing to configure. [[slnc 400]] Now the most "
-            "important sentence in this video, and I am going to say it slowly. "
-            "[[slnc 300]] In a real shop, nothing throws that exception. "
-            "[[slnc 350]] The rule is not enforced in Java. It is not a "
-            "convention, it is not a comment, and it is not a page on a wiki "
-            "asking people not to. The orders service connects to the database "
-            "with credentials that simply cannot see the catalog tables. An "
-            "attempt to read them fails as a permissions error, long before it "
-            "reaches any application code. [[slnc 350]] That exception exists in "
-            "this project only so that the rule is visible in something small "
-            "enough to read in one sitting. When you see it, read it as: the "
-            "database refused. [[slnc 400]] And take the test away with you. If "
-            "the rule in your system is a comment asking people not to, you do "
-            "not have this pattern. You have a wish."
+            'Here is the whole mechanism. [[slnc 400]] Every database '
+            'method takes the name of whoever is asking. [[slnc 300]] And '
+            'it refuses anybody who is not the owner. [[slnc 300]] That '
+            'is all. [[slnc 600]] Now the most important point in this '
+            'video. [[slnc 300]] In a real shop, nothing in Java does '
+            'this refusing. [[slnc 500]] The orders service connects to '
+            'the database with a login that simply cannot see the catalog '
+            'tables. [[slnc 300]] So any attempt to read them fails as a '
+            'permissions error, inside the database. [[slnc 500]] The '
+            "refusal in this project's Java code only exists so you can "
+            'see the rule. [[slnc 300]] Think of it as: the database '
+            'refused. [[slnc 600]] And here is a simple test for your own '
+            'system. [[slnc 300]] If the rule is only a comment asking '
+            'people not to, you do not have this pattern. [[slnc 300]] '
+            'You have a wish.'
         ),
     ),
     dict(
@@ -379,21 +375,20 @@ Act 1 - one database, one query
   the same page took 20ms and 2 service calls
   instead of 1 query""",
         narration=(
-            "So the shop splits. Orders gets its own database, catalog gets its "
-            "own database, and now we have to rebuild that page without a join. "
-            "[[slnc 350]] It goes like this. Ask the orders service what this "
-            "customer bought. What comes back is product codes and quantities, "
-            "and no names at all, because orders does not have the names. "
-            "[[slnc 300]] Then collect the product codes. Ask the catalog "
-            "service what those codes are called. [[slnc 250]] Then stitch the "
-            "two answers together in Java. [[slnc 350]] And the page that comes "
-            "out is identical. A test in this project asserts exactly that: same "
-            "rows, same names, same order, the assembled page says precisely "
-            "what the joined page said. [[slnc 300]] That is what makes the "
-            "comparison fair — and it is what makes the next number mean "
-            "something. [[slnc 350]] Twenty milliseconds and two service calls, "
-            "for a page that used to be one query. The cost changed. The answer "
-            "did not."
+            'Third demo: the shop splits. [[slnc 400]] Orders gets its '
+            'own database. [[slnc 300]] Catalog gets its own database. '
+            '[[slnc 300]] Now we must rebuild the page without a join. '
+            '[[slnc 600]] First, ask the orders service what this '
+            'customer bought. [[slnc 300]] It returns product codes and '
+            'quantities, but no names. [[slnc 300]] Because orders does '
+            'not have the names. [[slnc 500]] Then ask the catalog '
+            'service what those codes are called. [[slnc 500]] Then join '
+            'the two answers together, in Java. [[slnc 600]] The page '
+            'that comes out is identical. [[slnc 300]] A test checks '
+            'that: same lines, same names, same order. [[slnc 500]] But '
+            'it now takes twenty milliseconds, and two service calls. '
+            '[[slnc 300]] It used to be one query. [[slnc 300]] The cost '
+            'changed. [[slnc 300]] The answer did not.'
         ),
     ),
     dict(
@@ -415,22 +410,20 @@ Act 1 - one database, one query
             "And a customer with no orders never calls Catalog.",
         ],
         narration=(
-            "One detail in there is doing far more work than it looks. "
-            "[[slnc 300]] The call to the catalog service takes a list of "
-            "product codes, and returns all of the names in a single answer. "
-            "[[slnc 350]] That is not a convenience method, and it is not "
-            "tidiness. Asking once per row would turn this two-row page into two "
-            "network calls, a fifty-row page into fifty, and a report into an "
-            "outage. It is the single most common way this pattern gets "
-            "implemented badly, and it usually happens by accident, because "
-            "asking for one name at a time reads perfectly naturally in a loop. "
-            "[[slnc 350]] So there is a test that asserts the catalog service is "
-            "called exactly once, no matter how many rows the page has. "
-            "[[slnc 300]] And one more, which is the cheapest call of all: a "
-            "customer with no orders never troubles the catalog service at all. "
-            "There is nothing to name, so nobody is asked. [[slnc 300]] The "
-            "batch call is the difference between an assembly step and a "
-            "disaster."
+            'One small detail matters much more than it looks. [[slnc '
+            '400]] The call to the catalog takes a whole list of product '
+            'codes. [[slnc 300]] And returns all the names in one answer. '
+            '[[slnc 600]] That is not just tidiness. [[slnc 300]] Asking '
+            'once per line would make a two-line page cost two network '
+            'calls. [[slnc 300]] A fifty-line page would cost fifty. '
+            '[[slnc 300]] And a big report could cause an outage. [[slnc '
+            '500]] This is the most common way this pattern goes wrong. '
+            '[[slnc 300]] And it usually happens by accident, because '
+            'asking one at a time in a loop looks natural. [[slnc 600]] '
+            'So one test checks that the catalog is called exactly once, '
+            'however many lines the page has. [[slnc 300]] And a customer '
+            'with no orders never calls the catalog at all. [[slnc 300]] '
+            'There is nothing to name, so nobody is asked.'
         ),
     ),
     dict(
@@ -439,29 +432,27 @@ Act 1 - one database, one query
         title="Who Owns What",
         body=None,
         narration=(
-            "Let me name the pieces, because each one has exactly one job. "
-            "[[slnc 300]] On one side is the design being replaced: a single "
-            "schema holding both teams' tables, and one method that builds the "
-            "whole page with a join. When a team renames a column in it, what "
-            "comes out is an exception in somebody else's repository — and I want "
-            "to stress again that this is not a bug in anybody's code. "
-            "[[slnc 350]] On the other side is the split. The orders service, "
-            "which owns the order rows and reads its own database as, quite "
-            "literally, Orders. The catalog service, which owns the product rows "
-            "and reads its own database as Catalog. [[slnc 300]] Between them "
-            "sits the order history page, and that class is the price of this "
-            "pattern made concrete. Ask orders, ask catalog once for all the "
-            "names, stitch the two answers together. It exists because the join "
-            "does not. [[slnc 350]] And the refusal. When anybody but the owner "
-            "asks, the database throws — and the message names who asked and "
-            "whose data it was, which is a far more useful thing to be woken up "
-            "by than a permissions error with no story attached. [[slnc 300]] "
-            "One last piece: the call log. Both designs return exactly the same "
-            "page, so the only way to see the difference between them is to count "
-            "the calls and read the clock. That is why the demo prints a timeline "
-            "rather than printing the page. [[slnc 350]] And nothing in this "
-            "project sleeps. A simulated clock moves forward ten milliseconds per "
-            "service call, so the timings are exact, repeatable and free."
+            "Let's name the pieces. [[slnc 300]] Each has one job. [[slnc "
+            '600]] On one side is the design being replaced. [[slnc 300]] '
+            "One shared database holding both teams' tables. [[slnc 300]] "
+            'And one method that builds the whole page with a join. '
+            '[[slnc 300]] When a team renames a column, the failure '
+            "appears in the other team's code. [[slnc 600]] On the other "
+            'side is the split. [[slnc 300]] The orders service owns the '
+            'order data, in its own database. [[slnc 300]] The catalog '
+            'service owns the product data, in its own database. [[slnc '
+            '500]] Between them sits the order history page. [[slnc 300]] '
+            'It asks orders, then asks catalog once for all the names, '
+            'and joins the answers. [[slnc 300]] It exists because the '
+            'database join no longer does. [[slnc 600]] Then there is the '
+            'refusal. [[slnc 300]] When anyone but the owner asks, the '
+            'database refuses. [[slnc 300]] And the message says who '
+            'asked, and whose data it was. [[slnc 600]] Finally, the demo '
+            'counts calls and reads a clock. [[slnc 300]] Both designs '
+            'produce the same page, so that is the only way to see the '
+            'difference. [[slnc 300]] And nothing sleeps. [[slnc 300]] A '
+            'simulated clock moves ten milliseconds per call, so every '
+            'run gives the same result.'
         ),
     ),
     dict(
@@ -474,26 +465,25 @@ Act 1 - one database, one query
   the page is unchanged. Nothing outside Catalog ever
   named that column.""",
         narration=(
-            "Now run Tuesday again. [[slnc 300]] The catalog team renames "
-            "product name to title, exactly as before — except this time the "
-            "column is in a database that only they can read. [[slnc 350]] The "
-            "rows change, and the queries that read those rows change in the same "
-            "class, in the same commit, tested together, by the same people. "
-            "[[slnc 300]] And the order history page is unchanged. "
-            "[[slnc 400]] That is the payoff, and notice how quiet it is. "
-            "Nothing happened. That is the whole point. [[slnc 350]] But be "
-            "precise about what has just been bought, because this is the moment "
-            "people oversell it. [[slnc 300]] It bought no speed. Act three was "
-            "slower than act one — twenty milliseconds and two calls instead of "
-            "one query. [[slnc 250]] It bought no correctness. The page was "
-            "already right. [[slnc 350]] What it bought is that the catalog team "
-            "can change their mind without asking permission, and can deploy that "
-            "change without coordinating a release with a team they have never "
-            "met. [[slnc 300]] That is an organisational benefit, and it is the "
-            "only one on offer. Which gives you the test for whether to do this "
-            "at all: if the two teams are the same three people, you are paying an "
-            "organisational price to solve an organisational problem you do not "
-            "have."
+            'Fourth demo: Tuesday again. [[slnc 400]] The catalog team '
+            'renames product name to title, just as before. [[slnc 300]] '
+            'But this time, the column is in a database only they can '
+            'read. [[slnc 600]] The data changes, and the code that reads '
+            'it changes too. [[slnc 300]] In the same place, at the same '
+            'time, tested together, by the same people. [[slnc 500]] And '
+            'the order history page is unchanged. [[slnc 600]] That is '
+            'the payoff. [[slnc 300]] Nothing happened, and that is the '
+            'whole point. [[slnc 600]] But be precise about what was '
+            'bought. [[slnc 300]] It bought no speed. [[slnc 300]] The '
+            'split page was slower. [[slnc 300]] It bought no '
+            'correctness. [[slnc 300]] The page was already right. [[slnc '
+            '500]] What it bought is freedom. [[slnc 300]] The catalog '
+            'team can change their mind without asking permission. [[slnc '
+            '300]] And release without coordinating with a team they have '
+            'never met. [[slnc 600]] That is a benefit for the '
+            'organisation, and it is the only one on offer. [[slnc 300]] '
+            'So if both teams are really the same three people, you are '
+            'paying for a problem you do not have.'
         ),
     ),
     dict(
@@ -509,25 +499,25 @@ Act 1 - one database, one query
      that rule now lives in code and in agreements
      between teams, not in the database.""",
         narration=(
-            "And now the bill, because any explanation that stops before here is "
-            "selling you something. [[slnc 350]] Two things were given up, and "
-            "the second is the one people forget. [[slnc 300]] The first is the "
-            "join. Every question that spans both services is now two calls and "
-            "a piece of code. That is fine for an order history page. It is "
-            "considerably less fine for the report somebody in finance runs on a "
-            "Monday morning, which used to be one statement with three joins and "
-            "now has nowhere to live. [[slnc 400]] The second is the foreign key, "
-            "and this one is worse. [[slnc 300]] Watch what happens. The catalog "
-            "team deletes a product. An order still refers to it. And nothing "
-            "stops the delete — nothing can, because the two rows are in "
-            "different databases and no constraint can span them. [[slnc 350]] "
-            "So the order survives, naming a product that the catalogue has never "
-            "heard of, and something has to decide what to put on the page. Here "
-            "it prints: no longer in the catalogue. [[slnc 350]] And the page "
-            "surviving is the good news and the bad news at the same time. A rule "
-            "that used to be impossible to break is now merely impolite to break. "
-            "It has moved out of the database and into code, into tests, and into "
-            "agreements between teams — which is to say, into hope."
+            'Finally, the bill. [[slnc 400]] Two things were given up. '
+            '[[slnc 300]] And people usually forget the second. [[slnc '
+            '600]] The first is the join. [[slnc 300]] Every question '
+            'that spans both services is now two calls, and some code. '
+            '[[slnc 300]] That is fine for an order history page. [[slnc '
+            '300]] It is much harder for a Monday finance report that '
+            'used to be one query with three joins. [[slnc 600]] The '
+            'second is the foreign key, and this one is worse. [[slnc '
+            '500]] The catalog team deletes a product. [[slnc 300]] An '
+            'order still refers to it. [[slnc 300]] And nothing stops the '
+            'delete. [[slnc 300]] Nothing can, because the two rows are '
+            'in different databases. [[slnc 500]] So the order survives, '
+            'naming a product the catalog has never heard of. [[slnc '
+            '300]] And something must decide what to show. [[slnc 300]] '
+            'Here, the page says: no longer in the catalogue. [[slnc '
+            '600]] A rule that used to be impossible to break is now only '
+            'impolite to break. [[slnc 300]] It moved out of the '
+            'database, and into code, tests, and agreements between '
+            'teams.'
         ),
     ),
     dict(
@@ -541,32 +531,24 @@ Act 1 - one database, one query
             "can outlive the product it names.",
         ],
         narration=(
-            "That's database per service. [[slnc 250]] The full source, the "
-            "written notes, the diagrams and an animated walkthrough are all in "
-            "the repository, and everything runs offline with nothing installed "
-            "but a Java development kit. [[slnc 300]] There is no real database "
-            "in this project, and that is deliberate: the tables are maps, and a "
-            "column is a key in a map, which is what lets a rename be a real "
-            "rename rather than a story about one. The subject here is who is "
-            "allowed to read what, and that is a question about ownership, not "
-            "about SQL. [[slnc 350]] If you try one exercise, try this one. Take "
-            "the order history page and change it to ask the catalog service for "
-            "one name at a time, in a loop, instead of asking once for all of "
-            "them. Watch the test fail, and then read the timeline. Then imagine "
-            "fifty rows. [[slnc 300]] And then the harder question, which no "
-            "exercise can answer for you. Take a schema you actually work on, and "
-            "draw one line through it. Which tables end up on each side? Which "
-            "query that exists today would stop working? And where would that "
-            "query live afterwards? [[slnc 350]] If the answer is that it would "
-            "have nowhere to live, that is not a reason to give up — it is the "
-            "question the next pattern in this series exists to answer. "
-            "[[slnc 300]] Because the real lesson here is this. The mechanism is "
-            "a refusal, and you already know how to write it. Deciding where the "
-            "line goes, and admitting out loud that you are trading a guarantee "
-            "for the ability to move, is the part that needs a person. "
-            "[[slnc 300]] If this helped, a like genuinely does help other people "
-            "find it, and subscribe if you would like the rest of the series. "
-            "[[slnc 250]] Thanks for watching, and I'll see you in the next one."
+            "That's the Database per Service pattern. [[slnc 400]] If you "
+            'remember one sentence, make it this one. [[slnc 300]] Each '
+            'service owns its own data, which buys each team the freedom '
+            'to change, and costs you the join and the foreign key. '
+            '[[slnc 500]] The full source code, written notes, diagrams, '
+            'and an animated walkthrough are all in the repository. '
+            '[[slnc 300]] It runs offline, with nothing installed except '
+            'a Java development kit. [[slnc 500]] Here is one exercise to '
+            'try. [[slnc 300]] Change the order history page to ask the '
+            'catalog for one name at a time, in a loop. [[slnc 300]] '
+            'Watch the test fail. [[slnc 300]] Then imagine a page with '
+            'fifty lines. [[slnc 500]] And one question to think about. '
+            '[[slnc 300]] Take a database you work on, and draw one line '
+            'through it. [[slnc 300]] Which tables end up on each side? '
+            '[[slnc 300]] And which query would stop working? [[slnc '
+            '500]] If this helped, a like really does help other people '
+            "find it. [[slnc 300]] And subscribe, if you'd like the rest "
+            'of the series. [[slnc 400]] Thanks for watching.'
         ),
     ),
 ]

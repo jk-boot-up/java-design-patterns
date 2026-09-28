@@ -19,19 +19,19 @@ The first two lines are what a viewer sees above the fold, so they carry the hoo
 ```
 CHAPTERS
 00:00 Introduction
-00:49 The Scenario
-01:08 Their Model, Everywhere
-01:26 The Pattern
-01:41 Their Model, Translated Once
-02:00 Bad Data Stops At The Door
-02:19 The Other Side Changes
-02:39 What The Layer Costs
-02:58 What The Layer Protects
-03:17 How To Recognise It
-03:41 The Verdict
-04:03 What Is Real Here
-04:16 When This Is Too Much
-04:30 Thanks for Watching
+00:52 The Scenario
+01:13 Their Model, Everywhere
+01:34 The Pattern
+01:50 Their Model, Translated Once
+02:10 Bad Data Stops At The Door
+02:35 The Other Side Changes
+02:59 What The Layer Costs
+03:20 What The Layer Protects
+03:40 How To Recognise It
+04:08 The Verdict
+04:35 What Is Real Here
+04:48 When This Is Too Much
+05:03 Thanks for Watching
 
 SOURCE CODE, WRITTEN NOTES AND AN INTERACTIVE ANIMATION
 https://github.com/jk-boot-up/java-design-patterns/tree/main/gradle-java/domain-driven-design-patterns/anti-corruption-layer-pattern
@@ -46,19 +46,19 @@ YouTube renders these as chapters only if there are at least three and the first
 
 ```
 00:00 Introduction
-00:49 The Scenario
-01:08 Their Model, Everywhere
-01:26 The Pattern
-01:41 Their Model, Translated Once
-02:00 Bad Data Stops At The Door
-02:19 The Other Side Changes
-02:39 What The Layer Costs
-02:58 What The Layer Protects
-03:17 How To Recognise It
-03:41 The Verdict
-04:03 What Is Real Here
-04:16 When This Is Too Much
-04:30 Thanks for Watching
+00:52 The Scenario
+01:13 Their Model, Everywhere
+01:34 The Pattern
+01:50 Their Model, Translated Once
+02:10 Bad Data Stops At The Door
+02:35 The Other Side Changes
+02:59 What The Layer Costs
+03:20 What The Layer Protects
+03:40 How To Recognise It
+04:08 The Verdict
+04:35 What Is Real Here
+04:48 When This Is Too Much
+05:03 Thanks for Watching
 ```
 
 ## Tags
@@ -97,4 +97,4 @@ Add a card partway through pointing at the playlist, so a viewer who arrives at 
 
 ## Runtime
 
-Approximately 05:10, narrated at 145 words per minute.
+Approximately 05:41, narrated at 145 words per minute.

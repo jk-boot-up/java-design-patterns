@@ -17,18 +17,20 @@ SCENES = [
         title="The Facade Pattern",
         body=None,
         narration=(
-            "Hello, and welcome. This video explains the Facade pattern in Java, "
-            "and it is written and presented by Jayasekhar Konduru. [[slnc 300]] "
-            "Let's start with the simple definition. The facade pattern puts one "
-            "simple interface in front of a complicated set of classes. The "
-            "subsystem keeps every one of its parts, and the specialist can still "
-            "reach them, but the ordinary caller talks to a single object with a "
-            "single method instead of orchestrating six. [[slnc 350]] That's the "
-            "idea in a sentence, and it's one of the most useful and most "
-            "approachable patterns in software. The rest of the video does it "
-            "properly, by building a real working Java project: the checkout of "
-            "an online store. [[slnc 250]] By the end you'll know what a facade "
-            "is, why it exists, and how to write one yourself."
+            'Hello, and welcome. [[slnc 400]] This video explains the '
+            'Facade pattern, in Java. [[slnc 300]] This video is '
+            'presented by Jayasekhar Konduru. [[slnc 600]] First, a '
+            'simple definition. [[slnc 300]] A facade puts one simple '
+            'front door in front of a complicated group of classes. '
+            '[[slnc 300]] The classes behind it all still exist, and '
+            'specialists can still use them. [[slnc 300]] But ordinary '
+            'callers talk to one object, with one method, instead of '
+            'juggling many. [[slnc 600]] Think of a waiter in a '
+            'restaurant. [[slnc 300]] You tell the waiter what you want, '
+            'and the waiter deals with the kitchen. [[slnc 700]] In our '
+            'online store, we look at checkout. [[slnc 500]] By the end, '
+            'you will know what a facade is, why it exists, and how to '
+            'write one yourself.'
         ),
     ),
     dict(
@@ -45,13 +47,14 @@ SCENES = [
             "  4.  Email a confirmation",
         ],
         narration=(
-            "So, imagine you're building an online store. A customer fills up "
-            "their basket, and clicks the place order button. [[slnc 250]] Now "
-            "that one click looks simple from the outside. But behind the scenes, "
-            "four different things have to happen. [[slnc 250]] We reserve the "
-            "stock, so nobody else buys the last item. We charge the customer's "
-            "card. We schedule the shipment with the warehouse. And finally, we "
-            "email the customer a confirmation."
+            'Here is the scenario. [[slnc 400]] A customer fills their '
+            'basket, and clicks place order. [[slnc 500]] That one click '
+            'looks simple. [[slnc 300]] But behind it, four different '
+            'things must happen. [[slnc 500]] Reserve the stock, so '
+            'nobody else buys the last item. [[slnc 300]] Charge the '
+            "customer's card. [[slnc 300]] Book the delivery with the "
+            'warehouse. [[slnc 300]] And email the customer a '
+            'confirmation.'
         ),
     ),
     dict(
@@ -67,12 +70,13 @@ SCENES = [
             "Each one is small, focused, and does its job well.",
         ],
         narration=(
-            "In our project, each of those four jobs lives in its own class. "
-            "[[slnc 250]] The Inventory Service reserves the stock. The Payment "
-            "Service charges the card, and gives us back a payment identifier. "
-            "The Shipping Service books the delivery, and gives us a tracking "
-            "number. And the Notification Service sends the confirmation email. "
-            "[[slnc 250]] Each one is small, focused, and does its own job well."
+            'In this project, each of those four jobs lives in its own '
+            'class. [[slnc 500]] The inventory service reserves the '
+            'stock. [[slnc 300]] The payment service charges the card, '
+            'and returns a payment I D. [[slnc 300]] The shipping service '
+            'books the delivery, and returns a tracking number. [[slnc '
+            '300]] And the notification service sends the email. [[slnc '
+            '500]] Each one is small, focused, and does its job well.'
         ),
     ),
     dict(
@@ -93,13 +97,14 @@ notification.sendOrderConfirmation(customerId, orderId, trackingId);
 
 //  ...repeated in the website, the mobile app, the admin tool""",
         narration=(
-            "So here's the problem. [[slnc 250]] Without a facade, every single "
-            "part of our application that wants to place an order has to know "
-            "about all four of these services. It has to create them, call them "
-            "in exactly the right order, and carry the results from one across to "
-            "the next. [[slnc 300]] Our website does this. The mobile app does "
-            "this. The admin tool does this. The same fragile code, copied into "
-            "three places."
+            'Here is the problem. [[slnc 400]] Without a facade, every '
+            'part of the application that places an order must know all '
+            'four services. [[slnc 300]] It must create them. [[slnc '
+            '300]] Call them in exactly the right order. [[slnc 300]] And '
+            'pass the results from one to the next. [[slnc 600]] The '
+            'website does this. [[slnc 300]] The mobile app does this. '
+            '[[slnc 300]] The admin tool does this. [[slnc 300]] The same '
+            'fragile code, copied into three places.'
         ),
     ),
     dict(
@@ -114,13 +119,14 @@ notification.sendOrderConfirmation(customerId, orderId, trackingId);
             "✗   Testing one order needs four collaborators",
         ],
         narration=(
-            "And that does real damage. [[slnc 250]] New developers have to learn "
-            "four classes just to place one order. The ordering is easy to get "
-            "wrong, and getting it wrong means charging a customer for something "
-            "we can't actually ship. [[slnc 300]] When we add a fifth step "
-            "tomorrow, we're editing every caller. And testing gets painful, "
-            "because a simple order needs four collaborators standing up, every "
-            "single time."
+            'That does real damage. [[slnc 500]] New developers must '
+            'learn four classes, just to place one order. [[slnc 300]] '
+            'The order of steps is easy to get wrong. [[slnc 300]] And '
+            'getting it wrong means charging a customer for something we '
+            'cannot ship. [[slnc 500]] Add a fifth step tomorrow, and '
+            'every caller must change. [[slnc 300]] The copies slowly '
+            'drift apart. [[slnc 300]] And testing one order needs all '
+            'four services set up, every time.'
         ),
     ),
     dict(
@@ -138,11 +144,12 @@ notification.sendOrderConfirmation(customerId, orderId, trackingId);
             "one simple front door to a complicated building.",
         ],
         narration=(
-            "The facade fixes exactly this. [[slnc 250]] And the definition is "
-            "short. A facade provides a simplified, unified interface to a set of "
-            "interfaces in a subsystem, making that subsystem easier to use. "
-            "[[slnc 300]] In plain language? It gives you one simple front door, "
-            "to a complicated building."
+            'The Facade pattern fixes exactly this. [[slnc 400]] The '
+            'classic book on design patterns, by the authors known as the '
+            'Gang of Four, describes it like this. [[slnc 300]] Provide '
+            'one simple, unified interface to a set of interfaces in a '
+            'subsystem, making it easier to use. [[slnc 600]] In plain '
+            'words: one simple front door, to a complicated building.'
         ),
     ),
     dict(
@@ -162,14 +169,16 @@ notification.sendOrderConfirmation(customerId, orderId, trackingId);
             "The waiter is a facade.",
         ],
         narration=(
-            "Here's how to remember it forever. Think about a restaurant. [[slnc "
-            "250]] You don't walk into the kitchen and talk to the grill chef, "
-            "and then the sauce chef, and then the pastry chef. You talk to one "
-            "person. The waiter. And you say, I'll have the steak. [[slnc 300]] "
-            "The waiter knows which chefs to speak to, in what order, and what to "
-            "bring back to you. [[slnc 250]] The chefs still exist. They're still "
-            "doing skilled, specialised work. You're simply protected from all "
-            "that complexity. [[slnc 200]] The waiter is a facade."
+            'Here is how to remember it. [[slnc 300]] Think about a '
+            'restaurant. [[slnc 500]] You do not walk into the kitchen '
+            'and talk to the grill chef, then the sauce chef, then the '
+            'pastry chef. [[slnc 300]] You talk to one person, the '
+            'waiter. [[slnc 300]] And you say: I will have the steak. '
+            '[[slnc 500]] The waiter knows which chefs to speak to, in '
+            'what order, and what to bring back. [[slnc 500]] The chefs '
+            'still exist, doing skilled work. [[slnc 300]] You are just '
+            'protected from the complexity. [[slnc 300]] The waiter is a '
+            'facade.'
         ),
     ),
     dict(
@@ -178,14 +187,15 @@ notification.sendOrderConfirmation(customerId, orderId, trackingId);
         title="The Three Roles",
         body=None,
         narration=(
-            "Every facade has three roles. [[slnc 200]] First, the facade itself, "
-            "which here is the Order Facade class. Second, the subsystems, which "
-            "are our four services. And third, the client. The code that just "
-            "wants to place an order. [[slnc 350]] Now here's the single most "
-            "important idea in this whole video. The facade knows about the "
-            "subsystems. But the subsystems never know about the facade. [[slnc "
-            "250]] That arrow points one way only. And that's what keeps each "
-            "service independently reusable."
+            'Every facade has three roles. [[slnc 500]] The facade '
+            'itself: here, the order facade class. [[slnc 300]] The '
+            'subsystems: our four services. [[slnc 300]] And the client: '
+            'the code that just wants to place an order. [[slnc 600]] '
+            'Here is the most important idea in this video. [[slnc 300]] '
+            'The facade knows about the services. [[slnc 300]] But the '
+            'services never know about the facade. [[slnc 500]] The '
+            'connection only goes one way. [[slnc 300]] And that keeps '
+            'each service reusable on its own.'
         ),
     ),
     dict(
@@ -204,13 +214,14 @@ notification.sendOrderConfirmation(customerId, orderId, trackingId);
 //  It has no idea a facade exists.
 //  You could reuse it in a different application tomorrow.""",
         narration=(
-            "Let's look at some code. This is the Inventory Service. [[slnc 250]] "
-            "Notice how small it is. How ordinary. It reserves stock, and it "
-            "returns whether that worked. That's all. It has absolutely no idea a "
-            "facade exists. [[slnc 300]] Which is deliberate. Because it knows "
-            "nothing about the bigger workflow, you could lift this class into a "
-            "completely different application tomorrow. [[slnc 200]] The other "
-            "three services follow exactly the same shape."
+            'Here is one of the services: the inventory service. [[slnc '
+            '400]] Notice how small and ordinary it is. [[slnc 300]] It '
+            'reserves stock, and says whether that worked. [[slnc 300]] '
+            'That is all. [[slnc 300]] It has no idea a facade exists. '
+            '[[slnc 600]] That is on purpose. [[slnc 300]] Because it '
+            'knows nothing about the bigger process, you could reuse it '
+            'in a different application tomorrow. [[slnc 300]] The other '
+            'three services follow the same shape.'
         ),
     ),
     dict(
@@ -238,14 +249,16 @@ notification.sendOrderConfirmation(customerId, orderId, trackingId);
     }
 }""",
         narration=(
-            "And this is the facade itself. [[slnc 250]] It holds the four "
-            "services as private fields, and it exposes just one method. Place "
-            "order. [[slnc 300]] Now look at what that method is really doing. It "
-            "reserves the stock first. And if that fails, it stops immediately, "
-            "so the customer is never charged for something we can't ship. [[slnc "
-            "250]] Only then does it take the payment. Then it schedules the "
-            "shipment. Then it sends the email. And finally it packages those "
-            "three results into one confirmation object, and hands it back."
+            'Here is the facade itself. [[slnc 400]] It holds the four '
+            'services inside it. [[slnc 300]] And it offers just one '
+            'method: place order. [[slnc 600]] Here is what that method '
+            'does. [[slnc 300]] First, it reserves the stock. [[slnc '
+            '300]] If that fails, it stops at once, so the customer is '
+            'never charged for something we cannot ship. [[slnc 500]] '
+            'Only then does it take the payment. [[slnc 300]] Then it '
+            'books the delivery. [[slnc 300]] Then it sends the email. '
+            '[[slnc 300]] Finally, it gathers the three results into one '
+            'confirmation, and hands it back.'
         ),
     ),
     dict(
@@ -263,15 +276,16 @@ notification.sendOrderConfirmation(customerId, orderId, trackingId);
             "Keep it thin.",
         ],
         narration=(
-            "So the facade is giving us three things. [[slnc 200]] It gives us "
-            "sequencing. The right calls, in the right order, defined in exactly "
-            "one place. It gives us a guard rail. No payment, unless the stock "
-            "was secured. And it gives us assembly. Three separate results, "
-            "gathered into one clean object. [[slnc 350]] Now notice what it "
-            "doesn't contain. There's almost no business logic in here at all. A "
-            "facade delegates. It doesn't decide. [[slnc 250]] Keep it thin, and "
-            "it stays a facade, rather than turning into one of those giant "
-            "tangled classes we've all met."
+            'So the facade gives us three things. [[slnc 500]] '
+            'Sequencing: the right calls, in the right order, written in '
+            'one place. [[slnc 300]] A safety rule: no payment, unless '
+            'the stock was secured. [[slnc 300]] And assembly: three '
+            'separate results, gathered into one clean answer. [[slnc '
+            '600]] Now notice what it does not contain. [[slnc 300]] '
+            'Almost no business logic. [[slnc 300]] A facade passes work '
+            'on. [[slnc 300]] It does not make decisions. [[slnc 500]] '
+            'Keep it thin, and it stays a facade. [[slnc 300]] Instead of '
+            'growing into one of those giant, tangled classes.'
         ),
     ),
     dict(
@@ -290,12 +304,13 @@ OrderConfirmation confirmation = orderFacade.placeOrder(request);
 //  Add a fraud check to the facade tomorrow
 //  and this code does not change at all.""",
         narration=(
-            "And now, the payoff. This is the entire client code. Three lines. "
-            "[[slnc 250]] We create the facade, we build a request, and we place "
-            "the order. [[slnc 300]] Our client doesn't know that payments exist. "
-            "It doesn't know shipping exists. And if we add a fraud check to the "
-            "facade tomorrow, this code doesn't change at all. [[slnc 250]] "
-            "That's the whole point of the pattern."
+            'And now the payoff. [[slnc 300]] Here is the whole client '
+            'code, in three steps. [[slnc 500]] Create the facade. [[slnc '
+            '300]] Build an order request. [[slnc 300]] And place the '
+            'order. [[slnc 600]] The client does not know that payments '
+            'exist. [[slnc 300]] Or shipping. [[slnc 300]] And if a fraud '
+            'check is added to the facade tomorrow, this code does not '
+            'change at all. [[slnc 300]] That is the whole point.'
         ),
     ),
     dict(
@@ -314,12 +329,16 @@ Notification: emailed customer CUST-001 confirmation for
 Order placed: OrderConfirmation[orderId=ORD-0D1ADD0C,
           paymentId=PMT-C68994F4, trackingId=TRK-A844891E]""",
         narration=(
-            "When we run the project, you can watch it happen. [[slnc 250]] Each "
-            "line of output comes from a different service, in the exact order "
-            "the facade arranged. Stock reserved. Card charged. Shipment "
-            "scheduled. Email sent. [[slnc 300]] And at the end, one single "
-            "confirmation returned to the client. [[slnc 250]] One call in. One "
-            "result out. And four subsystems quietly coordinated in between."
+            "Let's run the project. [[slnc 400]] Each line of output "
+            'comes from a different service, in the order the facade '
+            'arranged. [[slnc 500]] Two units of the product are '
+            'reserved. [[slnc 300]] The card is charged forty-nine pounds '
+            'ninety-eight. [[slnc 300]] The delivery is booked, with a '
+            'tracking number. [[slnc 300]] And the confirmation email is '
+            'sent. [[slnc 600]] At the end, one confirmation goes back to '
+            'the client. [[slnc 300]] One call in. [[slnc 300]] One '
+            'result out. [[slnc 300]] And four services quietly '
+            'coordinated in between.'
         ),
     ),
     dict(
@@ -339,13 +358,14 @@ Order placed: OrderConfirmation[orderId=ORD-0D1ADD0C,
             "A Facade simplifies many of them.",
         ],
         narration=(
-            "So, to recap. Use a facade when a group of classes has to be used "
-            "together in a particular way, and you want to spare your callers all "
-            "that complexity. [[slnc 300]] Keep the facade thin. Keep the "
-            "subsystems public and independent. And remember that a facade is a "
-            "convenience, not a wall. [[slnc 350]] And if you remember one "
-            "sentence from today, make it this one. An adapter changes an "
-            "interface. A facade simplifies many of them."
+            'So, to recap. [[slnc 400]] Use a facade when a group of '
+            'classes must be used together in a particular way. [[slnc '
+            '300]] And you want to spare callers that complexity. [[slnc '
+            '600]] Keep the facade thin. [[slnc 300]] Keep the services '
+            'public, and independent. [[slnc 300]] A facade is a '
+            'convenience, not a wall. [[slnc 600]] And one comparison '
+            'worth knowing. [[slnc 300]] An adapter changes one '
+            'interface. [[slnc 300]] A facade simplifies many of them.'
         ),
     ),
     dict(
@@ -359,13 +379,19 @@ Order placed: OrderConfirmation[orderId=ORD-0D1ADD0C,
             "Full source code, notes and an animation are in the repository.",
         ],
         narration=(
-            "And that's the facade pattern. [[slnc 300]] If you got something out "
-            "of this, do give it a thumbs up, and subscribe. It genuinely helps "
-            "the channel, and it's what makes more of these possible. [[slnc "
-            "250]] And if there's a pattern you'd like me to cover next, drop it "
-            "in the comments. I read every one. [[slnc 250]] All the source code, "
-            "the written notes and an interactive animation are in the "
-            "repository. Thanks for watching, and I'll see you in the next one."
+            "That's the Facade pattern. [[slnc 400]] If you remember one "
+            'sentence, make it this one. [[slnc 300]] A facade is one '
+            'simple front door that coordinates many classes, so callers '
+            'never have to. [[slnc 500]] The full source code, written '
+            'notes, diagrams, and an animated walkthrough are all in the '
+            'repository. [[slnc 300]] It runs offline, with nothing '
+            'installed except a Java development kit. [[slnc 500]] Here '
+            'is one exercise to try. [[slnc 300]] Add a fraud check to '
+            'the facade, before payment. [[slnc 300]] And notice that the '
+            'client code does not change. [[slnc 500]] If this helped, a '
+            'like really does help other people find it. [[slnc 300]] And '
+            "subscribe, if you'd like the rest of the series. [[slnc "
+            '400]] Thanks for watching.'
         ),
     ),
 ]

@@ -19,19 +19,19 @@ The first two lines are what a viewer sees above the fold, so they carry the hoo
 ```
 CHAPTERS
 00:00 Introduction
-00:36 The Scenario
-00:56 Eager Loading
-01:18 The Pattern
-01:33 Four Ways To Load Later
-02:08 Cost One: N Plus One
-02:36 Cost Two: A Field Is Now I/O
-02:58 Cost Three: The Closed Session
-03:24 Where You Have Met This
-03:44 The Toy Database
-04:00 What Is Real Here
-04:18 When This Is Too Much
-04:30 What To Do About It
-04:51 Thanks for Watching
+00:43 The Scenario
+01:03 Eager Loading
+01:25 The Pattern
+01:41 Four Ways To Load Later
+02:24 Cost One: N Plus One
+02:56 Cost Two: A Field Is Now I/O
+03:23 Cost Three: The Closed Session
+03:51 Where You Have Met This
+04:10 The Toy Database
+04:27 What Is Real Here
+04:46 When This Is Too Much
+05:00 What To Do About It
+05:23 Thanks for Watching
 
 SOURCE CODE, WRITTEN NOTES AND AN INTERACTIVE ANIMATION
 https://github.com/jk-boot-up/java-design-patterns/tree/main/gradle-java/enterprise-design-patterns/lazy-load-pattern
@@ -46,19 +46,19 @@ YouTube renders these as chapters only if there are at least three and the first
 
 ```
 00:00 Introduction
-00:36 The Scenario
-00:56 Eager Loading
-01:18 The Pattern
-01:33 Four Ways To Load Later
-02:08 Cost One: N Plus One
-02:36 Cost Two: A Field Is Now I/O
-02:58 Cost Three: The Closed Session
-03:24 Where You Have Met This
-03:44 The Toy Database
-04:00 What Is Real Here
-04:18 When This Is Too Much
-04:30 What To Do About It
-04:51 Thanks for Watching
+00:43 The Scenario
+01:03 Eager Loading
+01:25 The Pattern
+01:41 Four Ways To Load Later
+02:24 Cost One: N Plus One
+02:56 Cost Two: A Field Is Now I/O
+03:23 Cost Three: The Closed Session
+03:51 Where You Have Met This
+04:10 The Toy Database
+04:27 What Is Real Here
+04:46 When This Is Too Much
+05:00 What To Do About It
+05:23 Thanks for Watching
 ```
 
 ## Tags
@@ -97,4 +97,4 @@ Add a card partway through pointing at the playlist, so a viewer who arrives at 
 
 ## Runtime
 
-Approximately 05:30, narrated at 145 words per minute.
+Approximately 06:00, narrated at 145 words per minute.

@@ -6,23 +6,4 @@ Say it in words. The marketing service calls the finder on the repository. There
 
 ![Repository with Spring Data pattern sequence diagram](images/sequence-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant S as MarketingService
-    participant P as generated proxy
-    participant DB as H2
-    S->>P: findByCityAndOrderedAfter(London, 70)
-    P->>DB: one generated SELECT
-    DB-->>P: rows
-    P-->>S: managed Customer objects
-    S->>S: change a customer, inside a transaction
-    Note over S,DB: written at commit, no save called
-```
-
-</details>
-
 The load-bearing sentence: **the interface looks like a collection, and the entities it returns are not plain objects.**

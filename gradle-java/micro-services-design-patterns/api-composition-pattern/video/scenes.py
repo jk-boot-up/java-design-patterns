@@ -45,26 +45,26 @@ SCENES = [
         title="API Composition",
         body=None,
         narration=(
-            "Hello, and welcome. This video explains the API Composition "
-            "pattern in Java, and it is written and presented by Jayasekhar "
-            "Konduru. [[slnc 300]] Let's start with the simple definition. When "
-            "one screen needs data that several different services own, you ask "
-            "all of them, and you assemble the answer yourself. [[slnc 350]] "
-            "That is it, and the mechanical half of it is a single sentence: "
-            "calls made one after another cost the sum of their waiting times, "
-            "while calls sent together cost only the longest one. [[slnc 300]] "
-            "But there is a second half that most explanations leave out, and "
-            "it is the harder half. For every service you ask, somebody has to "
-            "have decided, in advance, whether the screen can be shown without "
-            "it. [[slnc 300]] The rest of the video does both, by building a "
-            "real working Java project: an online shop, and one perfectly "
-            "ordinary page showing a shopper one of their orders. [[slnc 300]] "
-            "By the end you'll know why that page takes two hundred and ten "
-            "milliseconds when it could take a hundred and fifty; why sixty of "
-            "those milliseconds buy absolutely nothing; why a failure in the "
-            "last call throws away two perfectly good answers that had already "
-            "arrived; and why three excellent services combine into a page that "
-            "is worse than any one of them."
+            'Hello, and welcome. [[slnc 400]] This video explains the A P '
+            'I Composition pattern, in Java. [[slnc 300]] This video is '
+            'presented by Jayasekhar Konduru. [[slnc 600]] First, a '
+            'simple definition. [[slnc 300]] When one screen needs data '
+            'that several different services own, you ask all of them. '
+            '[[slnc 300]] And you assemble the answer yourself. [[slnc '
+            '600]] Think of making a sandwich, when no shop sells it '
+            'ready-made. [[slnc 300]] You need bread from the baker, '
+            'tomatoes from the grocer, and cheese from the deli. [[slnc '
+            '700]] There are two halves to this pattern. [[slnc 300]] The '
+            'easy half: calls made one after another cost the total of '
+            'their waiting times. [[slnc 300]] But calls sent together '
+            'cost only the longest one. [[slnc 500]] The harder half: for '
+            'every service you ask, someone must decide in advance '
+            'whether the screen can be shown without it. [[slnc 500]] In '
+            'this video, an online shop shows a customer one of their '
+            'orders. [[slnc 300]] By the end, you will know why that page '
+            'takes two hundred and ten milliseconds, when it could take '
+            'one hundred and fifty. [[slnc 300]] And why three excellent '
+            'services can combine into a page worse than any one of them.'
         ),
     ),
     dict(
@@ -86,24 +86,21 @@ SCENES = [
             "And there is no database join any more.",
         ],
         narration=(
-            "Here is the situation, and it is worth picturing before any code. "
-            "[[slnc 300]] A shopper clicks on one of their past orders. The page "
-            "that comes back shows the order reference at the top, then a line "
-            "for each thing they bought — the name of it, how many, what it "
-            "cost — then the total, and underneath all of that, where the parcel "
-            "currently is. [[slnc 300]] You have seen this page a hundred times. "
-            "It is completely unremarkable. [[slnc 350]] Except for one thing. "
-            "Three different services own those facts. [[slnc 250]] The Orders "
-            "service knows what was bought and what was paid. The Catalog "
-            "service is the only thing that knows what a product code actually "
-            "means, so it is the only thing that can turn sku dash kettle into "
-            "stainless steel kettle. And the Shipping service is the only thing "
-            "that knows which carrier has the parcel and where it has got to. "
-            "[[slnc 350]] Each of those services has its own database, and none "
-            "of them can see into the others. So there is no join any more. "
-            "Nobody can write one query that produces this page. [[slnc 300]] "
-            "Somebody has to ask all three, and put the answer together. That "
-            "somebody is what this pattern is about."
+            'Here is the scenario. [[slnc 400]] A shopper clicks on one '
+            'of their past orders. [[slnc 300]] The page shows the order '
+            'reference. [[slnc 300]] Then a line for each item: its name, '
+            'how many, and what it cost. [[slnc 300]] Then the total. '
+            '[[slnc 300]] And finally, where the parcel is now. [[slnc '
+            '500]] A completely ordinary page. [[slnc 300]] Except that '
+            'three different services own those facts. [[slnc 500]] The '
+            'Orders service knows what was bought, and what was paid. '
+            '[[slnc 300]] The Catalog service is the only one that knows '
+            "a product code's real name. [[slnc 300]] And the Shipping "
+            'service is the only one that knows where the parcel is. '
+            '[[slnc 500]] Each has its own database, and none can see '
+            'into the others. [[slnc 300]] So no single query can build '
+            'this page. [[slnc 300]] Someone must ask all three, and put '
+            'the answer together.'
         ),
     ),
     dict(
@@ -122,17 +119,16 @@ return assemble(order, names, delivery);
 
 // no bug. right page. every test passes.""",
         narration=(
-            "So here is what everybody writes first, and it is three lines of "
-            "entirely ordinary Java. [[slnc 300]] Fetch the order. Ask Catalog "
-            "for the product names. Ask Shipping for the delivery status. Then "
-            "assemble the page out of the three answers. [[slnc 350]] I want to "
-            "be completely fair to this code, because it is going to be the "
-            "villain of the next few minutes and it does not deserve to be. "
-            "[[slnc 300]] There is no bug in it. It is easy to read. It returns "
-            "exactly the right page. Every test written against it passes. "
-            "[[slnc 250]] And a code review waves it through without a single "
-            "comment — because the cost of this code is not in the code at all. "
-            "[[slnc 350]] Let's run it, and watch the clock."
+            'Here is what everyone writes first: three ordinary lines of '
+            'Java. [[slnc 400]] Fetch the order. [[slnc 300]] Ask Catalog '
+            'for the product names. [[slnc 300]] Ask Shipping for the '
+            'delivery status. [[slnc 300]] Then build the page from the '
+            'three answers. [[slnc 500]] To be fair, there is no bug '
+            'here. [[slnc 300]] It is easy to read, it returns exactly '
+            'the right page, and every test passes. [[slnc 300]] A code '
+            'review would approve it without a comment. [[slnc 500]] '
+            'Because the cost of this code is not in the code. [[slnc '
+            "300]] Let's run it, and listen to the clock."
         ),
     ),
     dict(
@@ -152,18 +148,17 @@ return assemble(order, names, delivery);
 
   the shopper waited 210ms: 30 + 60 + 120, added up""",
         narration=(
-            "Read the left-hand column, because that is the whole story. "
-            "[[slnc 300]] The call to Orders leaves at zero and comes back at "
-            "thirty. The call to Catalog leaves at thirty and comes back at "
-            "ninety. The call to Shipping leaves at ninety and comes back at "
-            "two hundred and ten. [[slnc 300]] Thirty, plus sixty, plus a "
-            "hundred and twenty. The shopper waited two hundred and ten "
-            "milliseconds, and every one of those milliseconds is one of the "
-            "three services taking its turn. [[slnc 350]] Now here is the "
-            "question I would like you to sit with for a second, and it is the "
-            "question this whole first half turns on. [[slnc 250]] Which of "
-            "those three calls actually needed the answer from the one before "
-            "it?"
+            'First demo: three calls, one after another. [[slnc 400]] The '
+            'call to Orders starts at zero, and returns at thirty '
+            'milliseconds. [[slnc 300]] The call to Catalog starts at '
+            'thirty, and returns at ninety. [[slnc 300]] The call to '
+            'Shipping starts at ninety, and returns at two hundred and '
+            'ten. [[slnc 500]] Thirty, plus sixty, plus one hundred and '
+            'twenty. [[slnc 300]] The shopper waited two hundred and ten '
+            'milliseconds, as each service took its turn. [[slnc 500]] '
+            'Now here is the key question. [[slnc 300]] Which of those '
+            'three calls actually needed the answer from the one before '
+            'it?'
         ),
     ),
     dict(
@@ -185,22 +180,19 @@ return assemble(order, names, delivery);
             "of statements does.",
         ],
         narration=(
-            "Let's answer it. [[slnc 300]] Catalog genuinely had to wait. To "
-            "look up product names it has to be told which product codes you "
-            "mean, and the only thing that knows which products are on this "
-            "order is the order itself. So that call could not have gone any "
-            "earlier. [[slnc 350]] But look at Shipping. What does Shipping "
-            "actually need in order to answer? One thing. The order id. "
-            "[[slnc 300]] And the order id is what the shopper clicked on. It "
-            "was available before we made a single call. Certainly by thirty "
-            "milliseconds. [[slnc 350]] So the call to Shipping sat and waited "
-            "sixty milliseconds for Catalog's answer, and then never so much as "
-            "glanced at it. [[slnc 300]] Sixty milliseconds of a shopper's life, "
-            "spent on nothing at all. [[slnc 250]] And nobody could have caught "
-            "that in a code review, because there is nothing wrong with any of "
-            "those three lines. That is simply what a sequence of statements "
-            "does. It does them in sequence. [[slnc 300]] Which is exactly why "
-            "nobody ever notices the day a page got slower."
+            "Let's answer it. [[slnc 400]] Catalog really did have to "
+            'wait. [[slnc 300]] To look up product names, it needs the '
+            'product codes. [[slnc 300]] And only the order knows which '
+            'products are on it. [[slnc 500]] But what does Shipping '
+            'need? [[slnc 300]] Just one thing: the order I D. [[slnc '
+            '300]] And the shopper clicked on that order I D before any '
+            'call was made. [[slnc 500]] So the call to Shipping waited '
+            "sixty milliseconds for Catalog's answer. [[slnc 300]] And "
+            'then never even looked at it. [[slnc 300]] Sixty '
+            'milliseconds, spent on nothing. [[slnc 500]] No code review '
+            'could catch this, because nothing is wrong with any single '
+            'line. [[slnc 300]] That is simply what a sequence of '
+            'statements does. [[slnc 300]] It does them in sequence.'
         ),
     ),
     dict(
@@ -222,26 +214,24 @@ return assemble(order, names, delivery);
             "as long as you don't claim there were tomatoes.",
         ],
         narration=(
-            "Forget software for thirty seconds. You want a sandwich. "
-            "[[slnc 300]] And there is no shop that sells the finished thing, so "
-            "you need bread from the baker, tomatoes from the grocer, and cheese "
-            "from the deli. [[slnc 350]] Two things follow immediately, and "
-            "between them they are the entire pattern. [[slnc 300]] First: go to "
-            "all three at once. If you walk to the baker, come home, walk to the "
-            "grocer, come home, walk to the deli, come home — lunch takes three "
-            "trips. Send three people at the same time and lunch takes one trip, "
-            "the longest one. [[slnc 300]] Notice what did not happen there. No "
-            "shop got any faster. You simply stopped waiting for one before "
-            "starting the next. [[slnc 350]] Second, and this is the one people "
-            "skip: decide now, before you leave the house, what happens if a "
-            "shop is shut. [[slnc 300]] No bread means no sandwich. That is not "
-            "a partial lunch, it is no lunch. No tomatoes means a sandwich "
-            "without tomatoes, which is fine — as long as you do not tell "
-            "anybody there were tomatoes on it. [[slnc 350]] That second "
-            "decision is the difficult one, it has nothing whatsoever to do with "
-            "programming, and it has to be made before you get to the shops. "
-            "[[slnc 300]] I would rather you remembered the sandwich than any of "
-            "the class names coming up."
+            'Forget software for a moment, and think about that sandwich. '
+            '[[slnc 400]] You need bread from the baker, tomatoes from '
+            'the grocer, and cheese from the deli. [[slnc 500]] Two '
+            'things follow, and together they are the whole pattern. '
+            '[[slnc 500]] First: go to all three shops at once. [[slnc '
+            '300]] Visit them one after another, and lunch takes three '
+            'trips. [[slnc 300]] Send three people at the same time, and '
+            'lunch takes as long as the slowest trip. [[slnc 300]] No '
+            'shop got faster. [[slnc 300]] You simply stopped waiting for '
+            'one before starting the next. [[slnc 600]] Second, and this '
+            'is the part people skip. [[slnc 300]] Decide, before you '
+            'leave the house, what happens if a shop is shut. [[slnc '
+            '500]] No bread means no sandwich at all. [[slnc 300]] No '
+            'tomatoes means a sandwich without tomatoes. [[slnc 300]] '
+            'That is fine, as long as nobody claims there were tomatoes '
+            'on it. [[slnc 500]] That second decision has nothing to do '
+            'with programming. [[slnc 300]] And it must be made before '
+            'you reach the shops.'
         ),
     ),
     dict(
@@ -263,22 +253,19 @@ return assemble(order, names, delivery);
             "In real systems: a couple of waves, not a burst.",
         ],
         narration=(
-            "So the fix is to stop waiting. But be careful about how far that "
-            "goes, because there is a tempting version of it that is wrong. "
-            "[[slnc 300]] The tempting version is: send all three calls at zero "
-            "milliseconds. [[slnc 250]] This page cannot do that. Catalog has to "
-            "be told which product codes to look up, and the only thing that "
-            "knows them is the order. [[slnc 350]] So the real shape is one "
-            "call, and then two together. Fetch the order on its own; then send "
-            "Catalog and Shipping off at the same instant. [[slnc 300]] And this "
-            "is where I would push back on the phrase just parallelise it, "
-            "because working out which calls genuinely depend on which is most "
-            "of the job. [[slnc 300]] In a real system the honest answer is "
-            "almost never one flat burst of calls. It is a couple of waves: "
-            "here is what we can ask immediately, here is what we can only ask "
-            "once the first answers come back. [[slnc 350]] Drawing that "
-            "dependency out — on paper, before writing anything — is the part "
-            "worth doing slowly."
+            'So the fix is to stop waiting. [[slnc 300]] But be careful '
+            'how far you take that. [[slnc 500]] The tempting version is '
+            'to send all three calls at the very start. [[slnc 300]] This '
+            'page cannot do that. [[slnc 300]] Catalog must be told which '
+            'product codes to look up, and only the order knows them. '
+            '[[slnc 500]] So the real shape is one call, and then two '
+            'together. [[slnc 300]] Fetch the order first, on its own. '
+            '[[slnc 300]] Then send Catalog and Shipping at the same '
+            'instant. [[slnc 500]] Working out which calls truly depend '
+            'on which is most of the job. [[slnc 300]] In real systems, '
+            'it is rarely one flat burst of calls. [[slnc 300]] It is '
+            'usually a few waves. [[slnc 300]] What can be asked at once, '
+            'and what must wait for the first answers.'
         ),
     ),
     dict(
@@ -297,20 +284,19 @@ Branch<DeliveryStatus> delivery = fanout.add(
 
 fanout.awaitAll();     // both left at the same moment""",
         narration=(
-            "Here is that shape as code. [[slnc 300]] The order is fetched "
-            "first, on its own, because nothing else can start without it. "
-            "[[slnc 250]] Then a fan-out is created, and the two remaining calls "
-            "are handed to it — not called, handed over. Each one is given a "
-            "name and a piece of work that has not been run yet. [[slnc 300]] "
-            "Catalog is given the job of naming the product codes from the "
-            "order. Shipping is given the job of looking up the delivery status "
-            "for the order id. [[slnc 350]] And then one line says: wait for "
-            "all of them. [[slnc 300]] The fan-out runs both pieces of work from "
-            "the same starting moment, and hands back a handle to each — which "
-            "the code calls a branch. Hold on to that word, because the second "
-            "half of this video is entirely about what a branch does when its "
-            "call fails. [[slnc 300]] For now, let's just run it and look at the "
-            "clock again."
+            'Here is that shape, in code. [[slnc 400]] The order is '
+            'fetched first, on its own, because nothing else can start '
+            'without it. [[slnc 500]] Then a fan-out is created. [[slnc '
+            '300]] The two remaining calls are handed to it, each with a '
+            'name. [[slnc 300]] Not called yet, just handed over. [[slnc '
+            '500]] Catalog is given the job of naming the products on the '
+            'order. [[slnc 300]] Shipping is given the job of looking up '
+            'the delivery status. [[slnc 500]] Then one line says: wait '
+            'for all of them. [[slnc 300]] The fan-out starts both jobs '
+            'at the same moment. [[slnc 300]] And gives back a handle to '
+            'each, called a branch. [[slnc 500]] Remember that word, '
+            'branch. [[slnc 300]] The second half of this video is about '
+            'what a branch does when its call fails.'
         ),
     ),
     dict(
@@ -329,22 +315,21 @@ fanout.awaitAll();     // both left at the same moment""",
 
   the shopper waited 150ms: 30, then the slower of 60 and 120""",
         narration=(
-            "One column changed, and it is the left one. [[slnc 300]] Orders "
-            "still leaves at zero and comes back at thirty. But now Catalog "
-            "leaves at thirty — and so does Shipping. They departed at the same "
-            "instant. [[slnc 300]] Catalog comes back at ninety. Shipping comes "
-            "back at a hundred and fifty. And the page is finished the moment "
-            "the slower of the two lands. [[slnc 350]] A hundred and fifty "
-            "milliseconds, instead of two hundred and ten. [[slnc 300]] And "
-            "notice what did not happen. Nothing got faster. Shipping still "
-            "takes its full hundred and twenty milliseconds, exactly as before. "
-            "What went away is the queuing. [[slnc 350]] So here is the whole "
-            "mechanical content of this pattern, in one sentence, and it is "
-            "worth memorising. [[slnc 250]] Calls made one after another cost "
-            "the sum of their waiting times. Calls sent together cost the "
-            "maximum. [[slnc 300]] And the sixty milliseconds we got back are "
-            "precisely the sixty that Shipping used to spend waiting for an "
-            "answer it never used."
+            'Second demo: the same calls, sent together. [[slnc 400]] '
+            'Orders still starts at zero, and returns at thirty '
+            'milliseconds. [[slnc 300]] But now Catalog and Shipping both '
+            'start at thirty, at the same instant. [[slnc 500]] Catalog '
+            'returns at ninety. [[slnc 300]] Shipping returns at one '
+            'hundred and fifty. [[slnc 300]] And the page is finished the '
+            'moment the slower one arrives. [[slnc 500]] One hundred and '
+            'fifty milliseconds, instead of two hundred and ten. [[slnc '
+            '500]] And notice that nothing got faster. [[slnc 300]] '
+            'Shipping still takes its full one hundred and twenty '
+            'milliseconds. [[slnc 300]] What disappeared was the queuing. '
+            '[[slnc 600]] So here is the easy half of the pattern, in one '
+            'sentence. [[slnc 300]] Calls made one after another cost the '
+            'total of their waiting times. [[slnc 300]] Calls sent '
+            'together cost only the longest.'
         ),
     ),
     dict(
@@ -353,27 +338,25 @@ fanout.awaitAll();     // both left at the same moment""",
         title="Who Decides What",
         body=None,
         narration=(
-            "Let me name the pieces, because there are only four that matter "
-            "and each one has exactly one job. [[slnc 300]] The composer is the "
-            "thing that builds the page. It calls Orders first, alone, and then "
-            "hands the other two calls to the fan-out. It is the only piece that "
-            "knows anything about shopping. [[slnc 350]] The fan-out runs "
-            "several pieces of work from the same starting moment. It has never "
-            "heard of orders, or parcels, or money. It takes named work, runs "
-            "it, and hands back a handle to each one. [[slnc 300]] Each of those "
-            "handles is a branch, and a branch holds one of two things: an "
-            "answer, or the failure that happened instead. [[slnc 350]] And then "
-            "the three services, described not by what they do but by what they "
-            "mean to this page. [[slnc 300]] Orders is required. Without it "
-            "there is no page. Catalog is optional: without it the page shows "
-            "product codes instead of product names. Shipping is optional: "
-            "without it the delivery section says it cannot check. [[slnc 350]] "
-            "That is the most important fact about this whole system, and I want "
-            "you to notice something uncomfortable about it. It appears nowhere "
-            "in the types. Nothing in the compiler knows that Shipping is "
-            "optional. [[slnc 300]] The fan-out certainly does not — it parks "
-            "every failure and judges none of them. Only the composer can know "
-            "which absence the page can live with."
+            'There are four pieces, each with one job. [[slnc 500]] The '
+            'composer builds the page. [[slnc 300]] It calls Orders '
+            'first, then hands the other two calls to the fan-out. [[slnc '
+            '300]] It is the only piece that knows anything about '
+            'shopping. [[slnc 500]] The fan-out runs several jobs from '
+            'the same starting moment. [[slnc 300]] It knows nothing '
+            'about orders or parcels. [[slnc 300]] It gives back one '
+            'branch for each job. [[slnc 500]] Each branch holds one of '
+            'two things: an answer, or the failure that happened instead. '
+            '[[slnc 500]] And then there are the three services, '
+            'described by what they mean to this page. [[slnc 300]] '
+            'Orders is required: without it, there is no page. [[slnc '
+            '300]] Catalog is optional: without it, the page shows '
+            'product codes instead of names. [[slnc 300]] Shipping is '
+            'optional: without it, the delivery section says it cannot '
+            'check. [[slnc 600]] That is the most important fact in this '
+            'whole system. [[slnc 300]] And it appears nowhere in the '
+            'types. [[slnc 300]] Only the composer knows which missing '
+            'piece the page can live without.'
         ),
     ),
     dict(
@@ -393,27 +376,25 @@ fanout.awaitAll();     // both left at the same moment""",
     delivery: unknown, we cannot check this right now
   missing: [delivery status]""",
         narration=(
-            "Now the same outage, given to both versions. Shipping has stopped "
-            "answering. [[slnc 300]] The three-line version fetches the order — "
-            "fine. Gets the product names — fine. Calls Shipping, and throws. "
-            "[[slnc 250]] And look at what goes down with it. The order had "
-            "already arrived. The product names had already arrived. Both of "
-            "them, sitting in local variables, perfectly good. Both thrown away. "
-            "[[slnc 350]] The shopper is shown an error page that was assembled "
-            "out of two entirely correct answers that nobody ever looked at. "
-            "[[slnc 300]] The composed version does something different, and the "
-            "mechanism is four lines. Each piece of work in the fan-out runs "
-            "inside a try, and when one throws, the exception is caught and "
-            "parked on that branch instead of being allowed to escape. Nothing "
-            "else is disturbed. [[slnc 350]] Which lets the composer ask, "
-            "afterwards, one branch at a time: is this particular absence fatal? "
-            "[[slnc 300]] For Shipping, no. So the shopper still sees what they "
-            "bought, how many, and what it cost — because none of that was ever "
-            "Shipping's to know. And where the delivery section would be, the "
-            "page says: unknown, we cannot check this right now. [[slnc 300]] "
-            "And then, at the bottom, the page lists delivery status as missing. "
-            "That list matters more than it looks, and the next slide is about "
-            "why."
+            'Third demo: Shipping stops answering. [[slnc 400]] The same '
+            'failure is given to both versions. [[slnc 500]] The '
+            'three-line version fetches the order, which is fine. [[slnc '
+            '300]] It gets the product names, which is fine. [[slnc 300]] '
+            'Then it calls Shipping, and throws an error. [[slnc 500]] '
+            'And look what is lost with it. [[slnc 300]] The order had '
+            'already arrived. [[slnc 300]] The product names had already '
+            'arrived. [[slnc 300]] Both were perfectly good, and both are '
+            'thrown away. [[slnc 300]] The shopper gets an error page. '
+            '[[slnc 600]] The composed version works differently. [[slnc '
+            '300]] When one job in the fan-out fails, the error is '
+            'caught, and kept on that branch. [[slnc 300]] Nothing else '
+            'is disturbed. [[slnc 500]] Then the composer asks, one '
+            'branch at a time: is this missing piece fatal? [[slnc 300]] '
+            'For Shipping, no. [[slnc 500]] So the shopper still sees '
+            'what they bought, how many, and what it cost. [[slnc 300]] '
+            'And where the delivery section would be, the page says: '
+            'unknown, we cannot check this right now. [[slnc 300]] At the '
+            'bottom, the page lists delivery status as missing.'
         ),
     ),
     dict(
@@ -435,26 +416,22 @@ fanout.awaitAll();     // both left at the same moment""",
             "It is not allowed to make something up.",
         ],
         narration=(
-            "This is the part worth arguing about in a review, and it is the "
-            "reason I made this video. [[slnc 350]] When Shipping is down, the "
-            "page says: we cannot check this right now. [[slnc 300]] It would "
-            "have been very easy to write something else there. In transit. "
-            "[[slnc 250]] Think about how attractive that is. It is nearly "
-            "always true. It reads better. It looks less broken. Nobody "
-            "complains about it. [[slnc 350]] Don't. [[slnc 300]] A shopper who "
-            "is told their parcel is in transit will not ring up about the "
-            "parcel that never left the warehouse. You have not made the page "
-            "nicer. You have taken away the one signal that something is wrong, "
-            "from the only person who was in a position to notice. [[slnc 350]] "
-            "The page is allowed to say it does not know. It is not allowed to "
-            "make something up. [[slnc 300]] And the same rule applies to the "
-            "whole page, which is what that missing list is for. A page that "
-            "quietly drops the delivery section when Shipping is down looks "
-            "exactly like a page for an order that has not shipped yet, and the "
-            "shopper cannot tell those two things apart. [[slnc 350]] Naming the "
-            "gap is what makes a partial answer honest rather than merely "
-            "convenient. [[slnc 300]] There is a test in this project whose "
-            "entire job is to stop somebody being helpful here."
+            'This part is worth arguing about in a code review. [[slnc '
+            '500]] When Shipping is down, the page says: we cannot check '
+            'this right now. [[slnc 300]] It would have been easy to '
+            'write something else, like: in transit. [[slnc 500]] That is '
+            'tempting. [[slnc 300]] It is nearly always true. [[slnc '
+            '300]] It reads better, and looks less broken. [[slnc 500]] '
+            "Don't do it. [[slnc 500]] A shopper told their parcel is in "
+            'transit will never ring up about the parcel that never left '
+            'the warehouse. [[slnc 300]] You have not made the page '
+            'nicer. [[slnc 300]] You have hidden the one signal that '
+            'something is wrong, from the only person who could notice. '
+            '[[slnc 600]] The page is allowed to say it does not know. '
+            '[[slnc 300]] It is not allowed to make something up. [[slnc '
+            '500]] That is what the missing list is for. [[slnc 300]] '
+            'Naming the gap is what makes a partial answer honest, not '
+            'just convenient.'
         ),
     ),
     dict(
@@ -471,20 +448,19 @@ fanout.awaitAll();     // both left at the same moment""",
 
   Catalog was never called: 0 calls""",
         narration=(
-            "Now the classification working in the other direction, because it "
-            "would be easy to come away from this thinking that degrading is "
-            "always the answer. [[slnc 300]] Orders has stopped answering. And "
-            "the composer does not degrade anything at all. It throws, and the "
-            "shopper gets an honest error page. [[slnc 350]] That is correct. It "
-            "is not a gap in the pattern and it is not laziness. A page with no "
-            "order on it is not a partial page — it is a blank one. There is "
-            "nothing honest to show. [[slnc 300]] And notice the last line. "
-            "Catalog was never called. Zero calls. Because the failure happened "
-            "before the fan-out even existed, nothing else was troubled at all. "
-            "[[slnc 350]] Being able to say this one is required is as much a "
-            "part of the pattern as being able to degrade. [[slnc 300]] A "
-            "composer that degrades everything is a composer that will "
-            "eventually show somebody a page about nothing."
+            'Fourth demo: Orders is down. [[slnc 400]] Degrading is not '
+            'always the answer. [[slnc 500]] Orders stops answering. '
+            '[[slnc 300]] And the composer does not degrade anything. '
+            '[[slnc 300]] It throws an error, and the shopper gets an '
+            'honest error page. [[slnc 500]] That is correct. [[slnc '
+            '300]] A page with no order on it is not a partial page. '
+            '[[slnc 300]] It is a blank one, with nothing honest to show. '
+            '[[slnc 500]] And Catalog was never called at all. [[slnc '
+            '300]] The failure happened before the fan-out even existed. '
+            '[[slnc 500]] Knowing which piece is required is as much part '
+            'of the pattern as knowing which can be missing. [[slnc 300]] '
+            'A composer that treats everything as optional will one day '
+            'show someone a page about nothing.'
         ),
     ),
     dict(
@@ -503,29 +479,26 @@ fanout.awaitAll();     // both left at the same moment""",
   with only Orders required:
         99.900% -> 43.2 min down a month""",
         narration=(
-            "Last act, and this one is arithmetic rather than code. It is also "
-            "the reason the second half of this video exists. [[slnc 350]] "
-            "Suppose each of these three services is up ninety-nine point nine "
-            "percent of the time. That is a genuinely good service — about "
-            "forty-three minutes of downtime in a month. [[slnc 300]] So how "
-            "available is a page that needs all three? [[slnc 350]] Most people "
-            "say ninety-nine point nine. It is not. [[slnc 300]] The page works "
-            "only when all three services are up at the same moment, and "
-            "probabilities of independent things all holding at once get "
-            "multiplied together. Ninety-nine point nine percent, three times "
-            "over, is ninety-nine point seven. [[slnc 300]] Which is a hundred "
-            "and twenty-nine minutes of downtime a month. Over two hours. "
-            "[[slnc 350]] Sit with that for a second. Three services that each "
-            "behaved impeccably have combined into a page that is worse than "
-            "any one of them, because their outages mostly do not overlap. "
-            "[[slnc 300]] So how do you fix it? Make the services better? "
-            "[[slnc 250]] There is no realistic amount of engineering that takes "
-            "three separate teams from ninety-nine point nine to ninety-nine "
-            "point nine seven. [[slnc 300]] The fix is needing fewer of them. "
-            "[[slnc 350]] And that is exactly what the required-and-optional "
-            "decision bought us. Once only Orders is required, the page renders "
-            "whenever Orders is up — back to forty-three minutes — and the other "
-            "two outages cost a gap on the page instead of the page."
+            'Fifth demo, and this one is arithmetic. [[slnc 400]] It is '
+            'the reason the second half of this pattern matters. [[slnc '
+            '500]] Suppose each of the three services is up ninety-nine '
+            'point nine percent of the time. [[slnc 300]] That is a '
+            'genuinely good service: about forty-three minutes of '
+            'downtime a month. [[slnc 500]] So how available is a page '
+            'that needs all three? [[slnc 300]] Most people guess '
+            'ninety-nine point nine. [[slnc 300]] It is not. [[slnc 500]] '
+            'The page only works when all three are up at the same '
+            'moment. [[slnc 300]] So the chances multiply together. '
+            '[[slnc 300]] The result is ninety-nine point seven percent. '
+            '[[slnc 300]] That is one hundred and twenty-nine minutes of '
+            'downtime a month. [[slnc 300]] Over two hours. [[slnc 600]] '
+            'Three services that each behaved perfectly have combined '
+            'into a page that is worse than any one of them. [[slnc 500]] '
+            'The fix is not better services. [[slnc 300]] The fix is '
+            'needing fewer of them. [[slnc 500]] Once only Orders is '
+            'required, the page works whenever Orders is up. [[slnc 300]] '
+            'Back to forty-three minutes a month. [[slnc 300]] And the '
+            'other outages cost a gap on the page, not the whole page.'
         ),
     ),
     dict(
@@ -547,28 +520,22 @@ fanout.awaitAll();     // both left at the same moment""",
             "page that says nothing.",
         ],
         narration=(
-            "Let's be honest about the bill, because this pattern is not free. "
-            "[[slnc 300]] First, the page can never be faster than its slowest "
-            "dependency. Parallelism removed the addition; it did not remove the "
-            "maximum. There is a test in the project that slows Shipping to four "
-            "hundred milliseconds, and the page immediately costs four hundred "
-            "and thirty. No rearranging of calls will beat that while Shipping "
-            "is on the critical path. [[slnc 350]] Second, the fan-out is load. "
-            "One page view just became three calls. Ten thousand shoppers "
-            "became thirty thousand calls, and Catalog now has to be sized for "
-            "traffic it never used to see. [[slnc 300]] Third, and this is the "
-            "expensive one: somebody has to make a product decision for every "
-            "single dependency. That is real work, it does not compress into a "
-            "configuration file, and it has to be revisited every time a new "
-            "dependency is added — which is precisely the moment nobody "
-            "remembers to. [[slnc 350]] And there is a limit to how much of a "
-            "page can honestly be optional. A page where everything is optional "
-            "is a page that says nothing. [[slnc 300]] When the timing or the "
-            "arithmetic stops working — six services, or one that is "
-            "unavoidably slow, or a page read a thousand times more often than "
-            "the data changes — then the answer is to stop assembling on demand "
-            "and keep a copy that is already assembled. But that is a different "
-            "pattern, not a failure of this one."
+            'Now the honest costs. [[slnc 500]] First, the page can never '
+            'be faster than its slowest required service. [[slnc 300]] '
+            'Sending calls together removed the adding up, but not the '
+            'slowest one. [[slnc 300]] Slow Shipping down to four hundred '
+            'milliseconds, and the page takes four hundred and thirty. '
+            '[[slnc 500]] Second, the fan-out adds load. [[slnc 300]] One '
+            'page view is now three calls. [[slnc 300]] Ten thousand '
+            'shoppers become thirty thousand calls. [[slnc 500]] Third, '
+            'and most expensive: someone must make a business decision '
+            'for every single service. [[slnc 300]] Is it required, or '
+            'optional? [[slnc 300]] And revisit it every time a service '
+            'is added. [[slnc 300]] Which is exactly when nobody '
+            'remembers. [[slnc 500]] And a page where everything is '
+            'optional says nothing at all. [[slnc 500]] When the numbers '
+            'stop working, the answer is to keep a ready-assembled copy '
+            'of the data. [[slnc 300]] But that is a different pattern.'
         ),
     ),
     dict(
@@ -582,31 +549,23 @@ fanout.awaitAll();     // both left at the same moment""",
             "and costs the page an hour of uptime a month.",
         ],
         narration=(
-            "That's API composition. [[slnc 250]] The full source, the written "
-            "notes, the diagrams and an animated walkthrough are all in the "
-            "repository, and everything runs offline with nothing installed but "
-            "a Java development kit. There is no network in this project, and "
-            "no threads either — the fan-out winds a fake clock backwards "
-            "between calls, which produces exactly the timeline real parallel "
-            "calls would produce, with nothing to reason about concurrently. "
-            "[[slnc 300]] If you try one exercise, try this one. Find the line "
-            "where the composer asks its shipping branch for a value, and change "
-            "it from the version that substitutes a fallback to the version that "
-            "rethrows. [[slnc 300]] Two tests go red, and that is the point: one "
-            "line just turned an optional dependency into a required one, and "
-            "cost the page an hour of uptime a month. Then ask yourself whether "
-            "a code review would have caught it. [[slnc 350]] And then sit with "
-            "the harder question, the one no exercise can answer. Somewhere in "
-            "the system you work on, there is a screen that shows something "
-            "reassuring when a service behind it is down. [[slnc 300]] Is what "
-            "it says true? [[slnc 350]] Because that is the real lesson here. "
-            "Sending the calls together is arithmetic, and you now know it: sum "
-            "versus maximum. Deciding what the page may do without, and refusing "
-            "to invent what you do not know, is the part that needs a person. "
-            "[[slnc 300]] If this helped, a like genuinely does help other "
-            "people find it, and subscribe if you would like the rest of the "
-            "series. [[slnc 250]] Thanks for watching, and I'll see you in the "
-            "next one."
+            "That's the A P I Composition pattern. [[slnc 400]] If you "
+            'remember one sentence, make it this one. [[slnc 300]] Send '
+            'independent calls together, and decide in advance which '
+            'missing answers the page can live without, and never invent '
+            'what you do not know. [[slnc 500]] The full source code, '
+            'written notes, diagrams, and an animated walkthrough are all '
+            'in the repository. [[slnc 300]] It runs offline, with '
+            'nothing installed except a Java development kit. [[slnc '
+            '500]] Here is one exercise to try. [[slnc 300]] Find the '
+            'line where the composer asks the Shipping branch for its '
+            'answer. [[slnc 300]] Change it so a failure is thrown, '
+            'instead of replaced. [[slnc 300]] Two tests will fail. '
+            '[[slnc 300]] One line just turned an optional service into a '
+            'required one, and cost the page an hour of uptime a month. '
+            '[[slnc 500]] If this helped, a like really does help other '
+            "people find it. [[slnc 300]] And subscribe, if you'd like "
+            'the rest of the series. [[slnc 400]] Thanks for watching.'
         ),
     ),
 ]

@@ -26,47 +26,6 @@ parallelise it" comes unstuck.
 
 ![API Composition architecture diagram](images/architecture-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-flowchart TB
-    subgraph W["what the program is a model of"]
-        direction TB
-        Page["the order details page<br/>one screen, three owners, no join left"]
-        Comp["the composer<br/>fans out, waits, assembles, names the gaps"]
-        subgraph Deps["three services, and only one of them is load-bearing"]
-            direction LR
-            O["Orders — REQUIRED, 30ms<br/>no order, no page"]
-            C["Catalog — optional, 60ms<br/>without it: sku codes instead of names"]
-            S["Shipping — optional, 120ms<br/>without it: 'we cannot check this right now'"]
-        end
-        Page --> Comp
-        Comp -- "first, because it says which skus exist" --> O
-        Comp -- "then these two together" --> C
-        Comp -- "at the same instant" --> S
-    end
-
-    subgraph J["what actually runs — one JVM, JDK 21, no network, nothing installed"]
-        direction LR
-        Demo["OrderDetailsDemo<br/>the five acts"]
-        OC["OrderDetailsComposer<br/>value() rethrows, valueOr() substitutes"]
-        Seq["SequentialOrderDetailsComposer<br/>the comparison — correct, reviewable, 210ms"]
-        F["Fanout + Fanout.Branch<br/>a failed branch parks its failure<br/>rather than ending the fan-out"]
-        Av["Availability<br/>three nines each, and what that does to a page"]
-        ODP["OrderDetailsPage<br/>missingSections() — the page names its own holes"]
-        Clock["SimulatedClock + CallLog<br/>the clock is wound back before each branch"]
-        Demo --> OC --> F --> Clock
-        Demo --> Seq
-        Demo --> Av
-        OC --> ODP
-    end
-
-    W -. "no HTTP, no thread pool, no CompletableFuture — a loop and a clock" .-> J
-```
-
-</details>
-
 ## What the diagram is telling you to count
 
 **Three dependencies, one of them required, and that ratio is the availability story.**

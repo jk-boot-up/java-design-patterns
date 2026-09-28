@@ -120,11 +120,10 @@ never need to jump forward.
 | `thumbnail.png` | The image to upload |
 | `spec.md` / `spec.html` | This document |
 
-Both Mermaid diagrams are committed as source *and* rendered PNG. The PNG
-is what the README embeds, because GitHub's Mermaid rendering cannot be
-relied on at these diagrams' size; the source is what gets edited.
-Regenerating after an edit is mandatory — a diagram that disagrees with
-the code is worse than no diagram.
+Every diagram is an image file in `docs/images/` (PNG or SVG); Mermaid is
+not used. The README and the HTML pages embed those images. Updating the
+image after a code change is mandatory — a diagram that disagrees with the
+code is worse than no diagram.
 
 ---
 
@@ -285,8 +284,8 @@ uploading is copy-and-paste rather than reconstruction. Seven sections
 are required:
 
 1. **Title** — the exact string, ≤ 60 characters so search does not
-   truncate it, leading with the pattern name. Currently *"API Gateway in Java - One Front Door for the Store"*,
-   50 characters. The suffix after the dash names the worked e-commerce scenario, so the title says what the viewer will actually watch rather than only which pattern it is about.
+   truncate it, leading with the pattern name. Currently *"API Gateway Design Pattern in Java - Explained - One Front Door for the Store"*,
+   77 characters. The suffix after the dash names the worked e-commerce scenario, so the title says what the viewer will actually watch rather than only which pattern it is about.
 2. **Description** — first two lines carry the hook, because that is what
    shows above the fold; then what the video covers, the chapters, the
    repository link, the prerequisites.

@@ -174,7 +174,6 @@ Seventeen tests should pass. Open
 | `does not override abstract method createCourier()` | A subclass is missing the override | Add it — this is the compiler enforcing the pattern |
 | `permission denied: ./gradlew` | Wrapper not executable | `chmod +x gradlew` |
 | Wrapper download times out | Offline / proxy | Install Gradle and run `gradle build` |
-| Diagrams show as raw text | Viewer lacks Mermaid support | Open the PNGs in `docs/images/` |
 
 ## Recommended Reading Order
 

@@ -723,5 +723,103 @@ document.addEventListener("keydown", e => {
 setAudio(false);
 reset();
 </script>
+<!-- videokit:narration -->
+<script>
+/* videokit narration player: a Narration on/off switch and a play/pause
+   button for the current step. It watches the page's own narration text,
+   works out which step is showing, and plays audio/step-N.m4a beside the
+   page (rendered by tools/videokit; not embedded, so the page stays small).
+   If the page already plays its own clips, only the pause button is added. */
+(function () {
+  "use strict";
+  var STEPS = ["Every order this shop fulfils runs the same six steps. The order matters and it is not negotiable: charging before reserving takes money for goods you cannot supply, and notifying before dispatching sends an email about a reference that does not exist yet. Hold on to that last one.", "NaiveFulfilment has three methods, one per route, and each writes the whole sequence out for itself. The digital copy validates, decides there is nothing to reserve, takes the money, and has nothing to pack. Four steps in, and everything it has done is correct.", "The email quotes the dispatch reference. But dispatch has not run, so the reference is still the placeholder: not dispatched. Nothing throws. The email is composed, addressed and sent, and it contains nothing worth having.", "One line later the key is minted, and it is perfectly correct. The customer will never see it. Two lines are in the wrong order in one copy of a sequence that exists nowhere except in three method bodies, and nothing in the language, the compiler or the test suite knows those six calls have an order at all.", "The marketplace copy moved its charge above the seller confirmation. So a customer can be charged forty-two pounds and then told the seller will not supply it. The exception is correct, the refusal is correct, and the money has already gone. Two copies, two independent drifts, and neither was a difficult mistake to make.", "Same six steps, same three routes, one change of shape. The sequence moves into a single method on an abstract base class, and that method is marked final. A route may decide how a step behaves. It may not decide when the steps run, and now that is not a rule anybody has to remember.", "Validate is private, so no route can replace it. The only say a route gets is answering a hook: does this route require a shipping address? The digital route answers no, and gets its addressless order through. Notice what it did not get. It cannot skip validation, and its orders still have to have lines and an email address.", "Reserve and charge are abstract: every route must answer, because there is no default that would be right for all of them. Holding stock in a warehouse and asking a marketplace seller to confirm have nothing in common but their place in the sequence. The digital route has nothing to reserve, and says so out loud rather than doing nothing quietly.", "Pack is not abstract. The base class already knows how to box and label an order, so the warehouse route says nothing at all about packing and gets that for free. The digital route overrides it, because there is nothing to put in a box. Choosing which steps deserve a default, and which must be answered, is most of the work of using this pattern.", "The digital route's dispatch generates a licence key and writes it onto the report as the dispatch reference. This is the step that, in the hand-written copy, ran last. Here it cannot: it is the fifth line of a method no subclass is able to override.", "The email quotes the dispatch reference, exactly as the hand-written copy did, using the same two lines of code. This time the reference is there. Not because the author was more careful, but because the order is structural: no route, present or future, can put notify before dispatch.", "afterFulfilment does nothing, and is called anyway, so the marketplace route has somewhere to post its commission without the base class knowing marketplaces exist. Click and collect is one new class and no edit to anything that already worked, and it gets the same six steps in the same order for free. What it costs is inheritance: every route is welded to this base class and can extend nothing else, and a seventh step here lands on all four at once. Pay that when the order is what you are protecting; compose strategies when it is not."];
+  var norm = function (s) { return String(s || "").replace(/\s+/g, " ").trim(); };
+  var box = document.getElementById("narration") || document.querySelector(".narration");
+  if (!box || !STEPS.length) return;
+
+  var pageOwnsAudio = !!document.getElementById("audio");
+  var current = null, step = -1, on = false;
+  try { on = localStorage.getItem("vk-narration") === "on"; } catch (e) {}
+
+  // Remember whichever clip the page (or this script) last started.
+  var realPlay = HTMLMediaElement.prototype.play;
+  HTMLMediaElement.prototype.play = function () {
+    if (current && current !== this) { try { current.pause(); } catch (e) {} }
+    current = this;
+    this.addEventListener("play", label);
+    this.addEventListener("pause", label);
+    this.addEventListener("ended", label);
+    var p = realPlay.apply(this, arguments);
+    label();
+    return p;
+  };
+
+  var bar = document.querySelector(".controls") || box.parentNode;
+  function button(id, text) {
+    var b = document.createElement("button");
+    b.id = id; b.type = "button"; b.textContent = text;
+    bar.appendChild(b);
+    return b;
+  }
+  var narrBtn = pageOwnsAudio ? null : button("vk-narration", "");
+  var stepBtn = button("vk-step-audio", "");
+  var note = document.createElement("span");
+  note.id = "vk-note";
+  note.style.cssText = "color:#94a3b8;font-size:.8rem;margin-left:8px";
+  bar.appendChild(note);
+
+  function stepFor(text) {
+    var t = norm(text);
+    for (var i = 0; i < STEPS.length; i++) {
+      var s = norm(STEPS[i]);
+      if (s && t.indexOf(s.slice(0, 60)) !== -1) return i;
+    }
+    return -1;
+  }
+  function stop() { if (current) { try { current.pause(); } catch (e) {} } current = null; label(); }
+  function play(i) {
+    if (i < 0) return;
+    var a = new Audio("audio/step-" + (i + 1) + ".m4a");
+    a.play().then(function () { note.textContent = ""; }, function (e) {
+      note.textContent = e && e.name === "NotAllowedError"
+        ? "Click Play step to hear this step."
+        : "Narration audio not found: run tools/videokit/videokit.sh animation <project>.";
+      label();
+    });
+  }
+  function label() {
+    if (narrBtn) narrBtn.textContent = (on ? "🔊 Narration: on" : "🔇 Narration: off");
+    if (narrBtn) narrBtn.setAttribute("aria-pressed", String(on));
+    var playing = current && !current.paused && !current.ended;
+    var paused = current && current.paused && !current.ended;
+    stepBtn.textContent = playing ? "⏸ Pause step" : paused ? "▶ Resume step" : "▶ Play step";
+    stepBtn.disabled = step < 0;
+  }
+
+  if (narrBtn) narrBtn.addEventListener("click", function () {
+    on = !on;
+    try { localStorage.setItem("vk-narration", on ? "on" : "off"); } catch (e) {}
+    if (on) { if (step >= 0) play(step); } else stop();
+    label();
+  });
+  stepBtn.addEventListener("click", function () {
+    if (current && !current.ended) {
+      if (current.paused) current.play(); else current.pause();
+    } else play(step);
+  });
+
+  function changed() {
+    var i = stepFor(box.textContent);
+    if (i === step) return;
+    step = i;
+    if (!pageOwnsAudio) { stop(); if (on) play(i); }
+    label();
+  }
+  new MutationObserver(changed).observe(box, { childList: true, subtree: true, characterData: true });
+  changed();
+  label();
+})();
+</script>
+<!-- /videokit:narration -->
 </body>
 </html>

@@ -6,21 +6,4 @@ Say it in words. The checkout asks the directory for customer two's discount. Th
 
 ![Null Object pattern sequence diagram](images/sequence-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant C as checkout
-    participant D as NullObjectDirectory
-    participant N as NoDiscount
-    C->>D: find(2)
-    D-->>C: NoDiscount, never null
-    C->>N: apply(10000)
-    N-->>C: 10000
-```
-
-</details>
-
 The load-bearing sentence: **absence is normal, and a failure is not absence.**

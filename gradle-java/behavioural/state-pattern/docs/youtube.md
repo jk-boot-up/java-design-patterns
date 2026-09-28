@@ -21,20 +21,20 @@ Learn the State design pattern in Java 21 by building the order lifecycle for an
 
 CHAPTERS
 00:00 Introduction
-01:02 The Scenario
-01:40 Look Closely at One Row
-02:22 The Naive Approach — One Rule, Three Copies
-03:28 Why That Hurts
-04:15 The State Pattern
-04:54 Everyday Analogy: The Vending Machine
-05:36 The Roles
-06:23 Every Request Refuses By Default
-07:14 The Context Has No Conditionals At All
-07:59 Same Verb, Genuinely Different Work
-08:57 The Test That Proves It
-09:47 Running It
-10:32 What to Remember
-12:04 Thanks for Watching
+01:01 The Scenario
+01:30 Look Closely at One Row
+02:03 The Naive Approach — One Rule, Three Copies
+02:54 Why That Hurts
+03:31 The State Pattern
+04:06 Everyday Analogy: The Vending Machine
+04:43 The Roles
+05:22 Every Request Refuses By Default
+06:09 The Context Has No Conditionals At All
+06:51 Same Verb, Genuinely Different Work
+07:36 The Test That Proves It
+08:20 Running It
+09:02 What to Remember
+10:02 Thanks for Watching
 
 SOURCE CODE, WRITTEN NOTES AND AN INTERACTIVE ANIMATION
 https://github.com/jk-boot-up/java-design-patterns/tree/main/gradle-java/behavioural/state-pattern
@@ -49,20 +49,20 @@ YouTube renders these as chapters only if there are at least three and the first
 
 ```
 00:00 Introduction
-01:02 The Scenario
-01:40 Look Closely at One Row
-02:22 The Naive Approach — One Rule, Three Copies
-03:28 Why That Hurts
-04:15 The State Pattern
-04:54 Everyday Analogy: The Vending Machine
-05:36 The Roles
-06:23 Every Request Refuses By Default
-07:14 The Context Has No Conditionals At All
-07:59 Same Verb, Genuinely Different Work
-08:57 The Test That Proves It
-09:47 Running It
-10:32 What to Remember
-12:04 Thanks for Watching
+01:01 The Scenario
+01:30 Look Closely at One Row
+02:03 The Naive Approach — One Rule, Three Copies
+02:54 Why That Hurts
+03:31 The State Pattern
+04:06 Everyday Analogy: The Vending Machine
+04:43 The Roles
+05:22 Every Request Refuses By Default
+06:09 The Context Has No Conditionals At All
+06:51 Same Verb, Genuinely Different Work
+07:36 The Test That Proves It
+08:20 Running It
+09:02 What to Remember
+10:02 Thanks for Watching
 ```
 
 ## Tags
@@ -101,4 +101,4 @@ Add a card partway through pointing at the playlist, so a viewer who arrives at 
 
 ## Runtime
 
-Approximately 12:42, narrated at 145 words per minute.
+Approximately 10:43, narrated at 145 words per minute.

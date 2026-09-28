@@ -17,20 +17,24 @@ SCENES = [
         title="Interpreter",
         body=None,
         narration=(
-            "Hello, and welcome. This video explains the Interpreter pattern in "
-            "Java, and it is written and presented by Jayasekhar Konduru. "
-            "[[slnc 300]] Let's start with the simple definition. The "
-            "interpreter pattern means writing one small class for each kind of "
-            "phrase in a little language, and letting a big phrase hold small "
-            "ones. The tree of objects you end up with is the sentence, and "
-            "running the sentence is calling one method on the top of that tree. "
-            "[[slnc 350]] That's the idea in a sentence. The rest of the video "
-            "does it properly, by building a real working Java project: the "
-            "promotion rules of an online shop, written as text instead of as "
-            "code. [[slnc 250]] By the end you'll know what a terminal and a "
-            "non-terminal expression are, why a rule that can describe itself is "
-            "worth more than a rule that merely works, and the honest limit of "
-            "this pattern — which is the sentence people skip."
+            'Hello, and welcome. [[slnc 400]] This video explains the '
+            'Interpreter pattern, in Java. [[slnc 300]] This video is '
+            'presented by Jayasekhar Konduru. [[slnc 600]] First, a '
+            'simple definition. [[slnc 300]] The Interpreter pattern is '
+            'for small languages. [[slnc 300]] You write one small class '
+            'for each kind of phrase in the language. [[slnc 300]] And '
+            'bigger phrases are built by holding smaller ones. [[slnc '
+            '400]] The result is a tree of objects that represents a '
+            'sentence. [[slnc 300]] To run the sentence, you call one '
+            'method on the top of the tree. [[slnc 600]] Think of a '
+            'recipe card. [[slnc 300]] Mix the flour and the eggs, then '
+            'bake. [[slnc 300]] The cook does not need a new cookbook for '
+            'every cake, just a few words that combine. [[slnc 700]] In '
+            "this video, we write an online shop's promotion rules as "
+            'simple text, instead of as code. [[slnc 400]] By the end, '
+            'you will know why a rule that can explain itself is worth '
+            'more than a rule that merely works. [[slnc 300]] And you '
+            "will know this pattern's honest limit."
         ),
     ),
     dict(
@@ -53,18 +57,18 @@ SCENES = [
             "            && order.basketPounds() > 50) { return 10; }",
         ],
         narration=(
-            "So, imagine an online shop. [[slnc 250]] It runs promotions, and a "
-            "promotion is three things: a code, a percentage off, and a rule "
-            "about who qualifies. [[slnc 300]] Save ten is ten percent for UK "
-            "orders over fifty pounds. Save fifteen is fifteen percent over a "
-            "hundred. Free ship is five percent for UK orders of three items or "
-            "more. [[slnc 300]] Written in Java, the first one is four lines, "
-            "and I want to be clear about this: there is nothing wrong with it. "
-            "It's the right amount of code for the job. [[slnc 350]] The trouble "
-            "is not the first promotion. The trouble is the fourth — because by "
-            "then, each new offer is written by copying the one above it and "
-            "changing the numbers, which is the fastest correct-looking thing "
-            "anybody can do."
+            'Here is the scenario. [[slnc 400]] An online shop runs '
+            'promotions. [[slnc 300]] Each promotion has a code, a '
+            'percentage off, and a rule about who qualifies. [[slnc 500]] '
+            'Save ten gives ten percent off for UK orders over fifty '
+            'pounds. [[slnc 300]] Save fifteen gives fifteen percent off '
+            'for UK orders over one hundred pounds. [[slnc 300]] Free '
+            'ship gives five percent off for UK orders of three items or '
+            'more. [[slnc 500]] In Java, the first promotion is four '
+            'lines of code, and there is nothing wrong with that. [[slnc '
+            '500]] The trouble starts later. [[slnc 300]] Each new offer '
+            'gets written by copying the one above it, and changing the '
+            'numbers. [[slnc 300]] That is quick, and it looks correct.'
         ),
     ),
     dict(
@@ -87,21 +91,23 @@ SCENES = [
             "    A returning UK shopper with 3 items gets nothing.",
         ],
         narration=(
-            "Here are the two copies that went wrong, and they went wrong in "
-            "opposite directions. [[slnc 300]] Save fifteen gives money away. "
-            "The ticket said fifteen percent on baskets over a hundred pounds. "
-            "That the offer was UK only was in the paragraph above the sentence "
-            "somebody actually read, so no line of code was ever written for it. "
-            "[[slnc 300]] Every large overseas order now takes fifteen percent "
-            "off. On a hundred and twenty pound order that's eighteen pounds, on "
-            "every order, for as long as nobody adds it up. [[slnc 350]] Free "
-            "ship withholds it. That branch was copied from a welcome offer that "
-            "retired last spring, and the first-order check came along with it. "
-            "So a returning UK shopper with three items is offered nothing. "
-            "[[slnc 300]] And nobody reports that one. A missing discount looks "
-            "exactly like a shopper who didn't qualify. [[slnc 300]] Neither bug "
-            "throws. Neither is logged. Both are correct-looking Java that "
-            "compiled, passed review, and shipped."
+            'Here are two copies that went wrong, in opposite directions. '
+            '[[slnc 500]] Save fifteen gives money away. [[slnc 300]] The '
+            'request said fifteen percent off baskets over one hundred '
+            'pounds. [[slnc 300]] The fact that it was for UK customers '
+            'only was mentioned in an earlier paragraph. [[slnc 300]] So '
+            'nobody wrote the country check. [[slnc 400]] Now every large '
+            'overseas order gets fifteen percent off. [[slnc 300]] On a '
+            'one hundred and twenty pound order, that is eighteen pounds '
+            'lost, every time. [[slnc 600]] Free ship does the opposite. '
+            '[[slnc 300]] It was copied from an old welcome offer, and it '
+            "kept that offer's first-order check. [[slnc 300]] So a "
+            'returning UK customer with three items gets nothing. [[slnc '
+            '300]] And nobody complains, because a missing discount looks '
+            'like a customer who simply did not qualify. [[slnc 600]] '
+            'Neither bug causes an error. [[slnc 300]] Both are '
+            'correct-looking code that compiled, passed review, and '
+            'shipped.'
         ),
     ),
     dict(
@@ -123,17 +129,17 @@ private int save15(Order order) {
     return 0;
 }""",
         narration=(
-            "Here's the shape of it. [[slnc 250]] One method per promotion, one "
-            "branch inside each, and a method at the top taking the best of "
-            "them. [[slnc 300]] And honestly? For three offers this is fine. I "
-            "wouldn't reject this in a review. [[slnc 350]] But look at what "
-            "happens when marketing wants an offer live on Friday. That is now a "
-            "branch, a pull request, a review, a merge and a release — and the "
-            "person who writes the branch is not the person who understands the "
-            "offer. [[slnc 300]] The gap between those two people is where both "
-            "of the bugs we just saw came from. It isn't a skill problem. It's "
-            "that the campaign brief has to be translated into Java by hand, "
-            "every single time, and nothing anywhere checks the translation."
+            'Here is the shape of the naive code. [[slnc 400]] One method '
+            'per promotion, each with one if statement. [[slnc 300]] And '
+            'one method at the top that picks the best discount. [[slnc '
+            '500]] Honestly, for three offers, this is fine. [[slnc 500]] '
+            'But think about what happens when marketing wants a new '
+            'offer live by Friday. [[slnc 300]] It becomes a code change, '
+            'a review, a merge, and a release. [[slnc 300]] And the '
+            'person writing the code is not the person who understands '
+            'the offer. [[slnc 500]] Both bugs came from that gap. [[slnc '
+            '300]] Every offer must be translated into Java by hand. '
+            '[[slnc 300]] And nothing ever checks the translation.'
         ),
     ),
     dict(
@@ -159,24 +165,21 @@ private int save15(Order order) {
             "    riskier to add than the first.",
         ],
         narration=(
-            "Let's be precise, because it's five separate costs. [[slnc 300]] "
-            "One. Every rule change is a code change. Marketing wants seventy "
-            "five pounds instead of fifty, and that's a release. [[slnc 300]] "
-            "Two. The people who own the offers can't read the rules. Nobody "
-            "outside the team can check that the code says what the campaign "
-            "brief said, which means the one check that would have caught a "
-            "misread ticket can't happen at all. [[slnc 300]] Three. Nothing can "
-            "say why. When a shopper asks why they got fifteen percent off, the "
-            "only answer available is, read the source. A number came out of a "
-            "method, and the reasoning stayed behind in the shape of the Java it "
-            "was made of. [[slnc 300]] Four. There's no place for a typo to be "
-            "caught. A mistyped condition is valid Java. It compiles, it "
-            "deploys, and it behaves — wrongly — at checkout. There is no "
-            "earlier moment at which anything could have objected. [[slnc 350]] "
-            "And five. It grows the wrong way. Every new promotion is a new "
-            "branch in one growing method, and each one is a fresh chance to "
-            "copy the wrong condition. The tenth promotion is riskier to add "
-            "than the first, which is precisely backwards."
+            'So what exactly is wrong? [[slnc 300]] Five separate things. '
+            '[[slnc 500]] One. [[slnc 200]] Every rule change is a code '
+            'change. [[slnc 300]] Seventy-five pounds instead of fifty '
+            'means a whole release. [[slnc 500]] Two. [[slnc 200]] The '
+            'people who own the offers cannot read the rules. [[slnc '
+            '300]] So nobody can check that the code matches the request. '
+            '[[slnc 500]] Three. [[slnc 200]] Nothing can explain itself. '
+            '[[slnc 300]] When a customer asks why they got fifteen '
+            'percent off, the only answer is, read the source code. '
+            '[[slnc 500]] Four. [[slnc 200]] There is no place to catch a '
+            'typo. [[slnc 300]] A mistyped condition is still valid Java. '
+            '[[slnc 300]] It compiles, deploys, and quietly does the '
+            'wrong thing at checkout. [[slnc 500]] And five. [[slnc 200]] '
+            'It gets worse over time. [[slnc 300]] Each new promotion is '
+            'another chance to copy the wrong condition.'
         ),
     ),
     dict(
@@ -196,19 +199,17 @@ private int save15(Order order) {
             "and a big phrase holds small ones.",
         ],
         narration=(
-            "Here's the definition from the Gang of Four book. [[slnc 250]] "
-            "Given a language, define a representation for its grammar, along "
-            "with an interpreter that uses the representation to interpret "
-            "sentences in the language. [[slnc 350]] That sentence puts people "
-            "off, and it's the main reason this pattern has a reputation for "
-            "being the hard one. It shouldn't. [[slnc 300]] Strip the vocabulary "
-            "and it says: write one small class per kind of phrase, and let a "
-            "big phrase hold small ones. That's it. The tree of objects you end "
-            "up with is the sentence, and running the sentence is calling one "
-            "method on the top of the tree. [[slnc 300]] In this project the "
-            "language is promotion rules, a sentence is, country is UK and "
-            "basket over fifty, and interpreting one is asking a tree of rule "
-            "objects whether an order matches."
+            "Here is the pattern's definition, from the famous Gang of "
+            'Four book. [[slnc 400]] Given a language, define a '
+            'representation for its grammar, along with an interpreter '
+            'that uses it to interpret sentences in the language. [[slnc '
+            '600]] That sounds hard, but it is not. [[slnc 300]] In plain '
+            'words: write one small class for each kind of phrase. [[slnc '
+            '300]] And let big phrases hold small ones. [[slnc 500]] In '
+            'this project, the language is promotion rules. [[slnc 300]] '
+            'A sentence is something like: country is UK, and basket over '
+            'fifty. [[slnc 300]] And interpreting it means asking a tree '
+            'of rule objects whether an order matches.'
         ),
     ),
     dict(
@@ -233,17 +234,16 @@ private int save15(Order order) {
             "The grammar composes, so the objects compose.",
         ],
         narration=(
-            "Here's the analogy to hold on to. [[slnc 250]] Think about how a "
-            "sentence is put together. The man is a noun phrase. The tall man in "
-            "the blue coat is also a noun phrase. One is more elaborate than the "
-            "other, but both fit in the same slot — you can drop either of them "
-            "into, dot dot dot bought a laptop, without rewriting the sentence "
-            "around it. [[slnc 350]] A rule tree is exactly that idea. Basket "
-            "over fifty is a rule. Country is UK and basket over fifty or first "
-            "order is also a rule. Both fit wherever a rule fits. [[slnc 300]] "
-            "The grammar composes, so the objects compose. And once you've seen "
-            "that, the pattern stops being clever and starts being obvious — "
-            "which is the point I'd most like to land."
+            'Here is an analogy from everyday English. [[slnc 500]] The '
+            'phrase, the man, is a noun phrase. [[slnc 300]] The phrase, '
+            'the tall man in the blue coat, is also a noun phrase. [[slnc '
+            '300]] One is longer, but both fit in the same place in a '
+            'sentence. [[slnc 300]] Either can be followed by, bought a '
+            'laptop. [[slnc 600]] Rules work exactly the same way. [[slnc '
+            '300]] Basket over fifty is a rule. [[slnc 300]] Country is '
+            'UK, and basket over fifty, or first order, is also a rule. '
+            '[[slnc 300]] Both fit anywhere a rule fits. [[slnc 500]] The '
+            'grammar combines, so the objects combine.'
         ),
     ),
     dict(
@@ -252,21 +252,20 @@ private int save15(Order order) {
         title="The Roles",
         body=None,
         narration=(
-            "So here are the pieces. [[slnc 250]] At the top there's rule: the "
-            "abstract expression. Two methods, matches and describe, and every "
-            "single rule class in the project is one of these. [[slnc 300]] "
-            "Underneath it, two kinds of class, and only two. On the left, the "
-            "terminal expressions — basket over, country is, items at least, "
-            "first order. Each one is a leaf. One comparison, and no other rule "
-            "inside it. [[slnc 300]] On the right, the non-terminal expressions "
-            "— and, or, not. These hold other rules and answer by asking them. "
-            "[[slnc 300]] Now look at the arrow that goes from and-rule back up "
-            "into rule. That one loop in the picture is the whole recursion. "
-            "Because it holds a rule and not a leaf, it can hold another "
-            "and-rule, or an or-rule, or anything else — and it never finds out "
-            "which. [[slnc 300]] And off to the side, order: the context. That's "
-            "what a sentence gets interpreted against, and notice that only the "
-            "leaves ever touch it."
+            'So here are the pieces. [[slnc 500]] At the top is Rule, the '
+            'shared interface. [[slnc 300]] It has two methods: matches, '
+            'and describe. [[slnc 300]] Every rule class in the project '
+            'is a Rule. [[slnc 500]] Below it are just two kinds of '
+            'class. [[slnc 400]] The first kind are simple rules, called '
+            'terminal expressions. [[slnc 300]] Basket over, country is, '
+            'items at least, and first order. [[slnc 300]] Each makes one '
+            'comparison, and holds no other rule. [[slnc 500]] The second '
+            'kind combine other rules, called non-terminal expressions. '
+            '[[slnc 300]] And, or, and not. [[slnc 300]] They hold other '
+            'rules, and answer by asking them. [[slnc 500]] And one more '
+            'piece: the order itself. [[slnc 300]] That is what a rule is '
+            'checked against. [[slnc 300]] Only the simple rules ever '
+            'look at it.'
         ),
     ),
     dict(
@@ -291,20 +290,19 @@ public record AndRule(List<Rule> parts) implements Rule {   // NON-TERMINAL
     }
 }""",
         narration=(
-            "And here is the entire pattern on one slide. [[slnc 300]] Rule at "
-            "the top: two methods, no fields. Everything implements that. "
-            "[[slnc 300]] Basket over is a terminal — a leaf. One comparison, "
-            "one string, and that is the whole class. It doesn't need to be "
-            "bigger. [[slnc 300]] And-rule is a non-terminal. It holds other "
-            "rules and answers by asking them. [[slnc 350]] Now read and-rule "
-            "again, and notice what is not in it. It does not know what its "
-            "parts are. It does not know whether they're leaves or more "
-            "and-rules. It does not know how many levels are below it, and it "
-            "never finds out, because it only ever asks. [[slnc 300]] That is "
-            "the whole trick. It's why a rule of any shape and any depth is used "
-            "exactly like a rule with one comparison in it — and why you can put "
-            "a whole nested tree into either of those slots without changing a "
-            "line of this."
+            'Here is the whole pattern in code. [[slnc 500]] The Rule '
+            'interface has two methods, and no fields. [[slnc 500]] '
+            'Basket over is a simple rule. [[slnc 300]] It compares the '
+            'basket total with a number, and describes itself as, basket '
+            'over, and the number. [[slnc 300]] That is the whole class. '
+            '[[slnc 500]] The And rule holds two other rules. [[slnc '
+            '300]] It matches only when both parts match. [[slnc 600]] '
+            'Notice what the And rule does not know. [[slnc 300]] It does '
+            'not know what its parts are. [[slnc 300]] Simple rules, or '
+            'more And rules? [[slnc 300]] How deep does the tree go? '
+            '[[slnc 300]] It never finds out, because it only ever asks. '
+            '[[slnc 500]] That is the whole trick. [[slnc 300]] A rule of '
+            'any size and shape is used exactly like the simplest rule.'
         ),
     ),
     dict(
@@ -326,23 +324,22 @@ private Rule parseCondition(String text) {     // on RuleParser
             "I do not understand \\"" + text + "\\"");
 }""",
         narration=(
-            "Two things this buys you that are easy to undersell. [[slnc 300]] "
-            "The first is describe. Each node says its own piece and asks its "
-            "parts for theirs, so the sentence comes back out of the tree. "
-            "[[slnc 300]] And here's the bit that matters: that string is "
-            "rebuilt from the objects the checkout actually obeys. It is not "
-            "remembered from the line that was read in. If the two ever "
-            "disagreed, this is the one telling the truth. [[slnc 300]] So, why "
-            "did this order get fifteen percent off, becomes a question the code "
-            "can answer, in the words the offer was written in — for the audit "
-            "log and for the shopper alike. There's a round-trip test asserting "
-            "that parsing a rule and describing it gives the line back "
-            "unchanged, so that guarantee is checked rather than hoped for. "
-            "[[slnc 350]] The second is that a rule language which guesses is "
-            "worse than no rule language at all. Every phrase the parser can't "
-            "read is refused, naming the phrase. [[slnc 300]] Which means the "
-            "typo is caught while the promotion is being saved, on a Wednesday, "
-            "when it is cheap. Not at a checkout on Friday."
+            'This buys two things that are easy to undervalue. [[slnc '
+            '500]] The first is describe. [[slnc 300]] Each rule '
+            'describes its own part, and asks its parts to describe '
+            'theirs. [[slnc 300]] So the whole sentence can be rebuilt '
+            'from the tree. [[slnc 400]] And that sentence comes from the '
+            'very objects the checkout obeys. [[slnc 300]] Not from a '
+            'copy of the text. [[slnc 400]] So when a customer asks why '
+            'they got fifteen percent off, the code can answer in the '
+            'words the offer was written in. [[slnc 300]] A test checks '
+            'that reading a rule and describing it gives back the same '
+            'line. [[slnc 600]] The second thing is refusing typos. '
+            '[[slnc 300]] A rule language that guesses is worse than '
+            'none. [[slnc 300]] So any phrase the reader cannot '
+            'understand is refused, and the phrase is named. [[slnc 300]] '
+            'The typo is caught when the promotion is saved, on a quiet '
+            'Wednesday. [[slnc 300]] Not at a busy checkout on Friday.'
         ),
     ),
     dict(
@@ -365,24 +362,20 @@ private Rule parseCondition(String text) {     // on RuleParser
             new Order(120, "US", 2, false)));  // the wrong answer,
 }                                              // pinned on purpose""",
         narration=(
-            "Twenty one tests, and these three are the ones worth showing. "
-            "[[slnc 300]] The first pins the precedence. The parser splits on "
-            "or first and and second, which is what gives and the tighter grip, "
-            "so A and B or C reads as, bracket A and B, or C — the way a person "
-            "says it. Swap those two lines round and this test goes red. [[slnc "
-            "350]] The second is the round trip, and it's my favourite test in "
-            "the project. Parse a line, describe the tree, and you must get the "
-            "same line back. [[slnc 300]] That's what stops the audit log and "
-            "the code drifting apart. Change how or-rule joins its parts and the "
-            "rule still evaluates perfectly correctly — and this test still "
-            "fails, because the explanation and the decision are no longer the "
-            "same sentence. [[slnc 350]] And the third asserts a wrong answer, "
-            "deliberately. It pins the naive version handing fifteen percent to "
-            "an American order, with a message explaining why. [[slnc 300]] Fix "
-            "the naive version and its own tests go red. That's intentional. "
-            "Being broken is its entire job, and the cost of that design should "
-            "be something the build says out loud rather than something a README "
-            "claims."
+            'The project has twenty-one tests. [[slnc 300]] Three are '
+            'worth describing. [[slnc 500]] The first checks precedence, '
+            'which means which word binds tighter. [[slnc 300]] A and B '
+            'or C must mean: A and B together, or else C. [[slnc 300]] '
+            'That is how a person would say it. [[slnc 300]] Swap two '
+            'lines in the rule reader, and this test fails. [[slnc 500]] '
+            'The second is the round trip. [[slnc 300]] Read a line, '
+            'describe the tree, and you must get the same line back. '
+            '[[slnc 300]] That keeps the explanation and the decision in '
+            'step. [[slnc 500]] The third test checks a wrong answer, on '
+            'purpose. [[slnc 300]] It confirms that the naive version '
+            'gives fifteen percent to an American order. [[slnc 300]] '
+            "Being broken is that version's whole job in this project, "
+            'and the build says so out loud.'
         ),
     ),
     dict(
@@ -410,20 +403,21 @@ private Rule parseCondition(String text) {     // on RuleParser
 === and a rule with a typo in it ===
   refused: I do not understand "basket ovr 50\"""",
         narration=(
-            "Run it, and the halves sit side by side. [[slnc 250]] Same three "
-            "orders, both ways. [[slnc 300]] The Java branches give fifteen "
-            "percent to an American order, and nothing at all to a UK shopper "
-            "who qualifies. No exception was thrown for either. [[slnc 300]] The "
-            "language version gets all three right, and every discount comes "
-            "with a because line, in the words the offer was written in. [[slnc "
-            "350]] Then the part I'd frame. It's Friday, and marketing wants one "
-            "more offer: basket over two hundred, or items at least ten. [[slnc "
-            "300]] Now that shape appears nowhere in this codebase. There is no "
-            "promotion anywhere in the shop that uses an or. And adding it is "
-            "one line of text — no new class, nothing recompiled, nothing "
-            "deployed. [[slnc 300]] And last, a rule with a typo in it. Basket "
-            "ovr fifty. It's refused, by name, at the moment the promotion is "
-            "saved."
+            "Let's run the demo. [[slnc 400]] Three orders, checked both "
+            'ways. [[slnc 500]] The Java version gives fifteen percent to '
+            'an American order. [[slnc 300]] And nothing at all to a UK '
+            'customer who qualifies. [[slnc 300]] No error for either. '
+            '[[slnc 500]] The rule language gets all three right. [[slnc '
+            '300]] And every discount comes with a reason, in the words '
+            'the offer was written in. [[slnc 600]] Then it is Friday, '
+            'and marketing wants one more offer. [[slnc 300]] Basket over '
+            'two hundred, or items at least ten. [[slnc 300]] No '
+            'promotion in the shop has ever used or before. [[slnc 300]] '
+            'Yet adding it is one line of text. [[slnc 300]] No new '
+            'class, nothing recompiled, nothing deployed. [[slnc 500]] '
+            'And finally, a rule with a typo in it: basket ovr fifty. '
+            '[[slnc 300]] It is refused, by name, the moment the '
+            'promotion is saved.'
         ),
     ),
     dict(
@@ -449,30 +443,26 @@ private Rule parseCondition(String text) {     // on RuleParser
             "And if the rules never change, two if statements win.",
         ],
         narration=(
-            "So, what to take away. [[slnc 300]] A rule written in code can only "
-            "be run. A rule written in a language can be run, read, printed, "
-            "checked, and changed by the person who owns it. [[slnc 350]] On the "
-            "comparisons, because these get confused constantly. Interpreter is "
-            "a tree of expressions for evaluating a sentence. Composite is a "
-            "tree of parts for treating one thing and many things alike. [[slnc "
-            "300]] And here's the honest answer: interpreter is a composite. The "
-            "tree, the uniform interface, the leaves and containers looking "
-            "alike — that's all composite's. The difference is intent. Composite "
-            "is about structure; interpreter is about meaning. [[slnc 300]] "
-            "Strategy is the third one people reach for, and a whole rule tree "
-            "is often used as a strategy: the checkout holds a rule and doesn't "
-            "care which one. That's strategy's shape wrapped around "
-            "interpreter's insides. [[slnc 350]] Now the honest bill, and this "
-            "one is important. One class per phrase is fine for seven phrases "
-            "and unbearable for seventy. A grammar with real syntax wants a "
-            "parser generator, not this pattern. The Gang of Four say exactly "
-            "that, and it is the most commonly ignored sentence in the chapter. "
-            "[[slnc 300]] Adding a terminal stays cheap forever. Adding brackets "
-            "is a real parser, and that's a much bigger day's work than it "
-            "looks. [[slnc 300]] And don't reach for this when the rules never "
-            "change. If the shop has run the same two promotions for four years, "
-            "two if statements are better code than a language is. This pattern "
-            "earns its keep when shipping code is the bottleneck."
+            'So, what should you remember? [[slnc 400]] A rule written in '
+            'code can only be run. [[slnc 300]] A rule written in a '
+            'language can be run, read, printed, checked, and changed by '
+            'the person who owns it. [[slnc 600]] Now, two patterns '
+            'people confuse with this one. [[slnc 300]] Composite is a '
+            'tree of parts, where one thing and many things are treated '
+            'alike. [[slnc 300]] Interpreter uses exactly that tree. '
+            '[[slnc 300]] The difference is purpose. [[slnc 300]] '
+            'Composite is about structure. [[slnc 300]] Interpreter is '
+            'about meaning. [[slnc 500]] And Strategy. [[slnc 300]] The '
+            'checkout holds a rule, and does not care which one. [[slnc '
+            '300]] That is Strategy on the outside, with Interpreter on '
+            'the inside. [[slnc 600]] Now the honest costs. [[slnc 300]] '
+            'One class per phrase is fine for seven phrases, and painful '
+            'for seventy. [[slnc 300]] A language with real syntax, like '
+            'brackets, needs a proper parser tool, not this pattern. '
+            '[[slnc 300]] The Gang of Four say exactly that. [[slnc 500]] '
+            'And if the rules never change, two if statements beat a '
+            'language. [[slnc 300]] This pattern pays off when releasing '
+            'code is the bottleneck.'
         ),
     ),
     dict(
@@ -486,17 +476,19 @@ private Rule parseCondition(String text) {     // on RuleParser
             "promotion in the shop means.",
         ],
         narration=(
-            "That's the interpreter pattern. [[slnc 250]] The full source, the "
-            "written notes, the diagrams and an animated walkthrough are all in "
-            "the repository — including the exercise I'd most recommend. Swap "
-            "the two splits in the parser so that and binds looser than or, run "
-            "the tests, and then work out which of the shop's promotions would "
-            "have quietly changed meaning. [[slnc 300]] It takes a minute, and "
-            "it's the moment precedence stops being a word from a compilers "
-            "course and becomes money. [[slnc 300]] If this helped, a like "
-            "genuinely does help other people find it, and subscribe if you'd "
-            "like the rest of the behavioural series. [[slnc 250]] Thanks for "
-            "watching, and I'll see you in the next one."
+            "That's the Interpreter pattern. [[slnc 400]] If you remember "
+            'one sentence, make it this one. [[slnc 300]] Write one small '
+            'class per kind of phrase, and your rules can be run, read, '
+            'checked, and explained. [[slnc 500]] The full source code, '
+            'written notes, diagrams, and an animated walkthrough are all '
+            'in the repository. [[slnc 500]] Here is one exercise to try. '
+            '[[slnc 300]] Swap the two splitting steps in the rule '
+            'reader, so that and binds more loosely than or. [[slnc 300]] '
+            'Run the tests. [[slnc 300]] Then work out which of the '
+            "shop's promotions would quietly change their meaning. [[slnc "
+            '500]] If this helped, a like really does help other people '
+            "find it. [[slnc 300]] And subscribe, if you'd like the rest "
+            'of the series. [[slnc 400]] Thanks for watching.'
         ),
     ),
 ]

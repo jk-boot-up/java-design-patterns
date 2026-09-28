@@ -19,19 +19,19 @@ The first two lines are what a viewer sees above the fold, so they carry the hoo
 ```
 CHAPTERS
 00:00 Introduction
-00:51 The Scenario
-01:07 Save Every Time
-01:18 The Pattern
-01:31 Balk When There Is Nothing To Save
-01:45 Balk When A Save Is Already Running
-02:04 An Edit During A Save
-02:25 The Caller Is Told
-02:40 The Bill
-03:02 How To Recognise It
-03:23 The Verdict
-03:47 What Is Real Here
-04:00 When This Is Too Much
-04:13 Thanks for Watching
+00:49 The Scenario
+01:08 Save Every Time
+01:22 The Pattern
+01:36 Balk When There Is Nothing To Save
+01:51 Balk When A Save Is Already Running
+02:11 An Edit During A Save
+02:44 The Caller Is Told
+03:04 The Bill
+03:29 How To Recognise It
+03:50 The Verdict
+04:17 What Is Real Here
+04:30 When This Is Too Much
+04:45 Thanks for Watching
 
 SOURCE CODE, WRITTEN NOTES AND AN INTERACTIVE ANIMATION
 https://github.com/jk-boot-up/java-design-patterns/tree/main/gradle-java/concurrency-design-patterns/balking-pattern
@@ -46,19 +46,19 @@ YouTube renders these as chapters only if there are at least three and the first
 
 ```
 00:00 Introduction
-00:51 The Scenario
-01:07 Save Every Time
-01:18 The Pattern
-01:31 Balk When There Is Nothing To Save
-01:45 Balk When A Save Is Already Running
-02:04 An Edit During A Save
-02:25 The Caller Is Told
-02:40 The Bill
-03:02 How To Recognise It
-03:23 The Verdict
-03:47 What Is Real Here
-04:00 When This Is Too Much
-04:13 Thanks for Watching
+00:49 The Scenario
+01:08 Save Every Time
+01:22 The Pattern
+01:36 Balk When There Is Nothing To Save
+01:51 Balk When A Save Is Already Running
+02:11 An Edit During A Save
+02:44 The Caller Is Told
+03:04 The Bill
+03:29 How To Recognise It
+03:50 The Verdict
+04:17 What Is Real Here
+04:30 When This Is Too Much
+04:45 Thanks for Watching
 ```
 
 ## Tags
@@ -97,4 +97,4 @@ Add a card partway through pointing at the playlist, so a viewer who arrives at 
 
 ## Runtime
 
-Approximately 04:51, narrated at 145 words per minute.
+Approximately 05:22, narrated at 145 words per minute.

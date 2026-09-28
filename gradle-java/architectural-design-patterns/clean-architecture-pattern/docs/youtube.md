@@ -19,20 +19,20 @@ The first two lines are what a viewer sees above the fold, so they carry the hoo
 ```
 CHAPTERS
 00:00 Introduction
-01:14 The Scenario
-01:50 The Naive Version
-02:21 Four Circles, One Rule
-03:09 This Is Not Hexagonal Again
-04:01 The Real Graph, Wired By Hand
-04:32 The Dependency-Inversion Moment
-05:26 Wired By Hand, On Purpose
-06:12 Add Two Things At Once
-06:50 Both Paths, Proven Rather Than Narrated
-07:19 The Rule, As ArchUnit's Own API
-07:57 Watching It Go Red
-08:18 The Bill
-08:59 When This Is Too Much
-09:34 Thanks for Watching
+00:55 The Scenario
+01:32 The Naive Version
+02:09 Four Circles, One Rule
+02:59 This Is Not Hexagonal Again
+03:46 The Real Graph, Wired By Hand
+04:27 The Dependency-Inversion Moment
+05:20 Wired By Hand, On Purpose
+06:00 Add Two Things At Once
+06:46 Both Paths, Proven Rather Than Narrated
+07:17 The Rule, As ArchUnit's Own API
+07:56 Watching It Go Red
+08:21 The Bill
+09:00 When This Is Too Much
+09:33 Thanks for Watching
 
 SOURCE CODE, WRITTEN NOTES AND AN INTERACTIVE ANIMATION
 https://github.com/jk-boot-up/java-design-patterns/tree/main/gradle-java/architectural-design-patterns/clean-architecture-pattern
@@ -47,20 +47,20 @@ YouTube renders these as chapters only if there are at least three and the first
 
 ```
 00:00 Introduction
-01:14 The Scenario
-01:50 The Naive Version
-02:21 Four Circles, One Rule
-03:09 This Is Not Hexagonal Again
-04:01 The Real Graph, Wired By Hand
-04:32 The Dependency-Inversion Moment
-05:26 Wired By Hand, On Purpose
-06:12 Add Two Things At Once
-06:50 Both Paths, Proven Rather Than Narrated
-07:19 The Rule, As ArchUnit's Own API
-07:57 Watching It Go Red
-08:18 The Bill
-08:59 When This Is Too Much
-09:34 Thanks for Watching
+00:55 The Scenario
+01:32 The Naive Version
+02:09 Four Circles, One Rule
+02:59 This Is Not Hexagonal Again
+03:46 The Real Graph, Wired By Hand
+04:27 The Dependency-Inversion Moment
+05:20 Wired By Hand, On Purpose
+06:00 Add Two Things At Once
+06:46 Both Paths, Proven Rather Than Narrated
+07:17 The Rule, As ArchUnit's Own API
+07:56 Watching It Go Red
+08:21 The Bill
+09:00 When This Is Too Much
+09:33 Thanks for Watching
 ```
 
 ## Tags
@@ -99,4 +99,4 @@ Add a card partway through pointing at the playlist, so a viewer who arrives at 
 
 ## Runtime
 
-Approximately 10:18, narrated at 145 words per minute.
+Approximately 10:17, narrated at 145 words per minute.

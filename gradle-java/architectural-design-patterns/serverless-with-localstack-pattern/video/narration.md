@@ -2,64 +2,64 @@
 
 ## 1. Serverless with LocalStack
 
-Hello, and welcome. This video explains the Serverless pattern with LocalStack and AWS Lambda, in Java, and it is written and presented by Jayasekhar Konduru. It is the framework version of the Serverless video. That one counted a platform's instances on a clock. It showed a server paid for while idle, a function per event, scale out and back to zero, a cold start, lost memory, and the price when busy. This one shows the same idea inside LocalStack and AWS Lambda. The plain definition, in short: with Lambda, a function is uploaded once. The platform starts a container for each concurrent call, keeps it warm for a while, and removes it when it is idle. By the end you will see a function uploaded to a real Lambda API, see five orders at once start five real containers, see them removed when idle, see a real cold start, see a function forget its variables, and see a job stopped at its time limit.
+Hello, and welcome. This video explains the Serverless pattern, in Java, using LocalStack and A W S Lambda. This video is presented by Jayasekhar Konduru. First, a simple definition. Serverless runs each piece of work as a short function, started by an event, and you pay for each call. With A W S Lambda, you upload a function once. The platform starts a container for each call that runs at the same time. It keeps that container warm for a while, and removes it when it is idle. Think of a taxi rank. When a crowd arrives, more taxis pull in. When the street is quiet, they drive away. This is the framework version of the Serverless video, with the same online store. We will upload a real function, watch five real containers start for five orders, and watch them disappear. We will hear a real cold start, a function that forgets, and a job stopped at its time limit.
 
 ## 2. The Partner Project
 
-This video assumes the Serverless video. If you have not seen it, start there. It counts a platform's instances on a clock, and shows scale to zero, a cold start, lost memory, and the price when busy. This one uses the same example. It does not teach the pattern again. It shows what LocalStack and AWS Lambda does with it.
+Before we start, a quick note. This video has a partner: the hand-built Serverless video. That one simulates a function platform, counting in ticks. It shows scaling to zero, a cold start, lost memory, and the price when busy. If you are new to the pattern, watch that one first. Here, we keep the same example, and ask what a real Lambda platform does with it.
 
 ## 3. Before The First Line
 
-Before the first line of code, what LocalStack and AWS Lambda is. Lambda is Amazon's function platform. LocalStack is a program that answers the same programming interface on your own machine, and runs each copy of a function in a container of its own. And a promise: skipping this video loses none of the pattern. The hand-built one teaches all of it.
+Two things are new in this project. First, A W S Lambda, which is Amazon's function platform. And LocalStack, a program that offers the same Lambda interface on your own machine. It runs each copy of a function in its own container. Second, the A W S software kit for Java, which our program uses to talk to it. You need Docker running. Without it, the demo tells you so, and stops. And one promise. If you skip this video, you lose none of the pattern. This one is about the tool.
 
 ## 4. A Machine That Is Always On
 
-First, a machine that is always on. In the earlier project's price units, a server costs two a tick. A hundred ticks with three orders costs two hundred. It was paid for a hundred ticks, and used for three orders.
+First, the traditional way: a machine that is always on. Using the same price units as the earlier video, a server costs two per tick. One hundred ticks, with three orders, costs two hundred. We paid for one hundred ticks, and used it for three orders.
 
 ## 5. A Function Per Event
 
-Second, a function per event. The function is uploaded to a real Lambda API, and run for each of three orders. Three receipts are sent, and the bill at one per call is three. Between orders nothing has to be running, and nothing is paid for.
+Second demo: one function per event. The receipt function is uploaded to a real Lambda interface. Then it is called once for each of three orders. Three receipts are sent. At one unit per call, the bill is three. Between orders, nothing needs to run, and nothing is paid for.
 
 ## 6. Scale Out, And Back To Zero
 
-Third, scale out, and back to zero. Before any order, no copies are running. Five orders at the same moment: five distinct copies answered, and five containers are running. Five quiet seconds later, with no orders: none are running.
+Third demo: scaling out, and back to zero. Before any order arrives, no copies are running. Then five orders arrive at the same moment. Five different copies answer, and five containers are running. Five quiet seconds later, none are running.
 
 ## 7. The Cold Start
 
-Fourth, the cold start. The first call after a quiet time took several hundred milliseconds, and the call right after it, a few. The cold call was slower. The first call had to start a container for the function, and the second found it running.
+Fourth demo: the cold start. After a quiet time, the first call takes several hundred milliseconds. The call right after it takes just a few milliseconds. Why? The first call had to start a container for the function. The second call found one already running.
 
 ## 8. No Memory Between Calls
 
-Fifth, no memory between calls. A call to the copy that is running: it has handled three calls. After the quiet time, a different copy answers, and it has handled one. What the first copy kept in its variables went with it. Anything that must last goes in a store outside.
+Fifth demo: a function has no memory between calls. We call the copy that is running. It says it has handled three calls so far. Then there is a quiet time, and we call again. A different copy answers. It says it has handled one call. Whatever the first copy kept in its variables is gone. Anything that must last belongs in a store outside the function.
 
 ## 9. The Bill
 
-Last, the bill. In the earlier project's price units, in a hundred ticks, with three calls, functions cost three and the server two hundred. With three hundred calls, functions cost three hundred, and the server two hundred. Paying per call is cheap when quiet, and dear when busy all the time. And a job that needs six seconds, with a limit of three, fails: the platform says the task timed out.
+Finally, the bill, in the same price units as before. In a quiet hundred ticks, with three calls, functions cost three, and the server costs two hundred. In a busy hundred ticks, with three hundred calls, functions cost three hundred, and the server still costs two hundred. So paying per call is cheap when quiet, and expensive when busy all the time. And there is a time limit. A job that needs six seconds, on a function limited to three, fails. The platform reports that the task timed out after three seconds.
 
 ## 10. The Verdict
 
-My verdict, plainly. Use functions for work that is short, bursty and keeps nothing between calls. Keep state outside. Expect a cold start after a quiet time, and set the time limit on purpose. Work out the price at your busiest, and keep long jobs off it.
+So, here is the verdict. Use functions for work that is short, comes in bursts, and keeps nothing between calls. Keep any lasting state outside. Expect a cold start after a quiet time. Set the time limit on purpose. Work out the price at your busiest. And keep long jobs somewhere else.
 
 ## 11. How To Recognise It
 
-How do you recognise this in code you did not write? A handler that takes an event and a context. A function's timeout and memorySize settings. InvokeRequest calls in the AWS SDK.
+How can you spot this in code someone else wrote? Look for a handler method that takes an event and a context. Look for a function's timeout and memory size settings. And look for Invoke Request calls in the A W S software kit.
 
 ## 12. Where You Have Met This
 
-You have met this in aws lambda, google cloud functions and azure functions, and image resizing, receipts and webhooks.
+Where have you met this before? In A W S Lambda, Google Cloud Functions, and Azure Functions. And in jobs like resizing images, sending receipts, and handling webhooks.
 
 ## 13. What Was Used
 
-For the record. LocalStack, 4.14.0. AWS SDK for Java, 2.55.1. Lambda runtime, Python 3.12.
+For the record, here are the versions. LocalStack four point fourteen. The A W S software kit for Java, two point fifty-five point one. And the Lambda runtime, Python three point twelve.
 
 ## 14. What Is Real Here
 
-The same honest admission as everywhere in this course. Everything is real: a real Lambda API, real containers for each copy, and a real cold start. The prices in act six are the earlier project's units, and not real charges.
+A quick, honest note about this demo. Everything in it is real. A real Lambda interface, real containers for each copy, and a real cold start. The prices, though, use the earlier video's units. They are not real charges.
 
 ## 15. When This Is Too Much
 
-So when is it too much? For steady heavy load, long jobs, or work that needs memory between calls, an ordinary server is cheaper and simpler.
+So, when is this too much? For heavy, steady traffic, for long jobs, or for work that needs memory between calls, an ordinary server is cheaper and simpler.
 
 ## 16. Thanks for Watching
 
-That's Serverless with LocalStack. If you take one sentence away, take this one: a real function platform starts a container for each concurrent call and drops it when idle, and the price is the cold start, lost memory and a time limit. The full source, the written notes, the diagrams and an animated walkthrough are all in the repository. If you try one exercise, raise the function's time limit to ten seconds, and rerun the last act. If this helped, a like genuinely does help other people find it, and subscribe if you would like the rest of the series. Thanks for watching.
+That's Serverless with LocalStack. If you remember one sentence, make it this one. A real function platform starts a container for each call that runs at once, and removes it when idle, and the price is the cold start, lost memory, and a time limit. The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. Here is one exercise to try. Raise the function's time limit to ten seconds. Then run the last demo again. If this helped, a like really does help other people find it. And subscribe, if you'd like the rest of the series. Thanks for watching.

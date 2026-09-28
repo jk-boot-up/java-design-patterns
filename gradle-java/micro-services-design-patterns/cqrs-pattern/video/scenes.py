@@ -45,22 +45,25 @@ SCENES = [
         title="CQRS",
         body=None,
         narration=(
-            "Hello, and welcome. This video explains the C Q R S pattern in "
-            "Java — command query responsibility segregation — and it is "
-            "written and presented by Jayasekhar Konduru. [[slnc 300]] Let's "
-            "start with the simple definition. Changing something and reading "
-            "something are two different jobs, so stop making them the same "
-            "code path. The side that changes things announces what it did, and "
-            "the side that answers questions keeps an answer already prepared. "
-            "[[slnc 350]] That is all it says, and the mechanism is small enough "
-            "to fit on one slide later on. [[slnc 300]] The rest of the video "
-            "builds a real working Java project: an online shop, and one page — "
-            "the order history page a shopper opens to see what they have "
-            "bought. [[slnc 300]] We are going to build that page three "
-            "different ways, and the middle one is the one that matters, "
-            "because it is the answer almost everybody reaches for first, and "
-            "it is not this pattern. [[slnc 350]] By the end I want you to be "
-            "able to say the difference out loud without using the word fast."
+            'Hello, and welcome. [[slnc 400]] This video explains the C Q '
+            'R S pattern, in Java. [[slnc 300]] C Q R S stands for '
+            'command query responsibility segregation. [[slnc 300]] This '
+            'video is presented by Jayasekhar Konduru. [[slnc 600]] '
+            'First, a simple definition. [[slnc 300]] Changing something '
+            'and reading something are two different jobs. [[slnc 300]] '
+            'So stop making them the same code. [[slnc 300]] The side '
+            'that changes things announces what it did. [[slnc 300]] And '
+            'the side that answers questions keeps an answer already '
+            'prepared. [[slnc 600]] Think of a restaurant. [[slnc 300]] '
+            'The kitchen cooks the food. [[slnc 300]] But the menu board '
+            'by the door is kept up to date separately, so guests can '
+            'read it without asking the chef. [[slnc 700]] In our online '
+            'store, we look at one page: the order history page, where a '
+            'shopper sees what they have bought. [[slnc 500]] We build '
+            'that page three ways. [[slnc 300]] The middle way is the '
+            'answer almost everybody reaches for first. [[slnc 300]] And '
+            'it is not this pattern. [[slnc 500]] By the end, you will be '
+            'able to explain the difference without using the word fast.'
         ),
     ),
     dict(
@@ -82,23 +85,23 @@ SCENES = [
             "and again, and again.",
         ],
         narration=(
-            "Here is the shop, and it is worth picturing before any code. "
-            "[[slnc 300]] A shopper opens their order history page. Each line on "
-            "it has an order number, a product code, the name of the product, "
-            "and how many of them they bought. [[slnc 350]] Now, where do those "
-            "things live? The order number and the product code live with the "
-            "orders service, because that service is the one that took the "
-            "order. The product's name lives with the catalog service, because "
-            "that is the service that owns names. [[slnc 300]] So to build one "
-            "line of that page, somebody has to ask two different services and "
-            "stitch the answers together. That is a perfectly normal thing to do "
-            "and it has a name — it is the A P I composition pattern, and there "
-            "is a separate project about it. [[slnc 350]] Hold on to one more "
-            "thing, because the whole video turns on it. An order is placed "
-            "once. The page that shows it is opened by the customer, and then by "
-            "the confirmation email, and then by a support agent, and then by "
-            "the customer again next week. [[slnc 300]] The facts changed once. "
-            "The page is built a thousand times."
+            'Here is the shop. [[slnc 400]] A shopper opens their order '
+            'history page. [[slnc 300]] Each line shows an order number, '
+            "a product code, the product's name, and how many they "
+            'bought. [[slnc 600]] Where does that information live? '
+            '[[slnc 300]] The order number and product code live in the '
+            'orders service, which took the order. [[slnc 300]] The '
+            "product's name lives in the catalog service, which owns "
+            'names. [[slnc 500]] So to build one line, someone has to ask '
+            'two services, and join the answers together. [[slnc 300]] '
+            'That is normal, and it has its own name: the A P I '
+            'Composition pattern. [[slnc 600]] Now remember one more '
+            'thing, because the whole video turns on it. [[slnc 300]] An '
+            'order is placed once. [[slnc 300]] But the page that shows '
+            'it is opened by the customer, by the confirmation email, by '
+            'a support agent, and by the customer again next week. [[slnc '
+            '500]] The facts changed once. [[slnc 300]] The page is built '
+            'a thousand times.'
         ),
     ),
     dict(
@@ -119,17 +122,16 @@ return orders.stream()
                 names.get(o.sku()), o.quantity()))
         .toList();""",
         narration=(
-            "This is the first of our three versions, and I want to be generous "
-            "about it, because it is good code. [[slnc 300]] It asks the orders "
-            "service for this customer's orders. Then it collects every product "
-            "code that appeared, and asks the catalog for all of those names in "
-            "one single call — not one call per row, one call for the lot. Then "
-            "it puts the two together into the finished rows. [[slnc 350]] There "
-            "is no loop over the network. There is no duplicated work. Nobody "
-            "would object to this in a code review, and I have never heard of "
-            "anybody being paged about it. [[slnc 400]] And that is exactly why "
-            "it survives for years. [[slnc 300]] Let's run it and see what it "
-            "costs."
+            'Here is the first version, and it is good code. [[slnc 400]] '
+            "It asks the orders service for this customer's orders. "
+            '[[slnc 300]] Then it collects every product code. [[slnc '
+            '300]] And it asks the catalog for all the names in one '
+            'single call, not one call per line. [[slnc 300]] Then it '
+            'joins the two into finished lines. [[slnc 500]] There is no '
+            'wasted work. [[slnc 300]] Nobody would object to this in a '
+            'code review. [[slnc 500]] And that is exactly why it '
+            "survives for years. [[slnc 300]] Let's run it, and see what "
+            'it costs.'
         ),
     ),
     dict(
@@ -148,23 +150,23 @@ Act 1 - composing the page on every view
   3 views cost 270ms and 6 service calls
   every view rebuilt a page identical to the last one""",
         narration=(
-            "The shopper opens that page three times. [[slnc 300]] And the "
-            "timeline shows what happened underneath. Ask orders, thirty "
-            "milliseconds. Ask catalog, sixty milliseconds. Then ask orders "
-            "again. Then catalog again. Then orders, then catalog. [[slnc 350]] "
-            "Three views cost two hundred and seventy milliseconds and six "
-            "service calls. [[slnc 400]] Now, before anybody says the word slow "
-            "— ninety milliseconds for a page is not slow. Nobody is going to "
-            "complain about that. [[slnc 350]] Two other things are wrong here, "
-            "and they are both worse. [[slnc 300]] The first is the ratio. Every "
-            "one of those three pages was identical to the one before it. "
-            "Nothing had changed. The shop paid full price, three times, to "
-            "produce the same answer. [[slnc 350]] The second is quieter and it "
-            "is the one that gets people. Every single view is a live call to "
-            "two other services. Which means a page about orders the customer "
-            "has already paid for cannot be shown at all if the catalog service "
-            "is having a bad afternoon. [[slnc 300]] The customer's own history "
-            "depends on somebody else being up."
+            'The shopper opens the page three times. [[slnc 400]] '
+            'Underneath, each view asks the orders service, which takes '
+            'thirty milliseconds. [[slnc 300]] Then asks the catalog, '
+            'which takes sixty. [[slnc 300]] And the same again, for '
+            'every view. [[slnc 500]] Three views cost two hundred and '
+            'seventy milliseconds, and six service calls. [[slnc 600]] '
+            'Now, ninety milliseconds per page is not slow. [[slnc 300]] '
+            'Nobody will complain about that. [[slnc 300]] Two other '
+            'things are wrong, and both are worse. [[slnc 500]] The first '
+            'is waste. [[slnc 300]] All three pages were identical. '
+            '[[slnc 300]] Nothing had changed. [[slnc 300]] The shop paid '
+            'full price, three times, for the same answer. [[slnc 500]] '
+            'The second is quieter. [[slnc 300]] Every view is a live '
+            'call to two other services. [[slnc 300]] So if the catalog '
+            'service is having a bad afternoon, the page cannot be shown '
+            "at all. [[slnc 300]] The customer's own history depends on "
+            'somebody else being up.'
         ),
     ),
     dict(
@@ -186,19 +188,17 @@ Act 1 - composing the page on every view
             "most useful thing in this video.",
         ],
         narration=(
-            "So what do we do about it? [[slnc 300]] The answer that everybody "
-            "reaches for, and I mean everybody, is: the page is the same every "
-            "time, so keep it. Cache it. [[slnc 350]] The first view builds the "
-            "page, stores it, and hands it over. The second view just hands over "
-            "what was stored. Put a five minute expiry on it so it does not go "
-            "stale forever, and move on. [[slnc 300]] And I want to be completely "
-            "clear about this, because it is easy to set up a straw man here and "
-            "I am not going to. This works. It is a real cache, the project has a "
-            "real implementation of it, and the second view really is free. If "
-            "you shipped that this afternoon, your page would get faster this "
-            "afternoon. [[slnc 400]] So — is that C Q R S? [[slnc 350]] No. And "
-            "the reason it is not is, I think, the single most useful idea in "
-            "this whole video. Let's go and find it."
+            'So what do we do? [[slnc 400]] The answer almost everybody '
+            'reaches for is this. [[slnc 300]] The page is the same every '
+            'time, so keep a copy. [[slnc 300]] Cache it. [[slnc 500]] '
+            'The first view builds the page, stores it, and hands it '
+            'over. [[slnc 300]] The second view just hands over what was '
+            'stored. [[slnc 300]] Add a five-minute expiry, so it does '
+            'not stay out of date forever. [[slnc 500]] And to be clear, '
+            'this works. [[slnc 300]] It is a real cache, and the second '
+            'view really is free. [[slnc 500]] So, is that C Q R S? '
+            '[[slnc 400]] No. [[slnc 300]] And the reason why is the most '
+            'useful idea in this video.'
         ),
     ),
     dict(
@@ -218,20 +218,18 @@ List<OrderHistoryRow> historyFor(String customerId) {
     return store(composing.historyFor(customerId));
 }""",
         narration=(
-            "Here is the cache, and look at how little there is to it. "
-            "[[slnc 300]] If we have rows for this customer, and they have not "
-            "expired yet, hand them back. Otherwise go and compose the page "
-            "properly, store the result, and hand that back. [[slnc 350]] Now ask "
-            "yourself a question about those stored rows. Under what "
-            "circumstances does that cache ever find out that what it is holding "
-            "has become wrong? [[slnc 400]] And the answer is: none. There is no "
-            "such circumstance. [[slnc 350]] It stored some rows. It does not "
-            "understand them. Nothing in the shop has any way of reaching in and "
-            "telling it that the world moved on. The only thing in the entire "
-            "universe that will ever correct that copy is the clock running out. "
-            "[[slnc 300]] The project has a test with that name — it is called "
-            "it is corrected by a timer and nothing else. Let's watch that "
-            "happen."
+            'Here is the cache, and there is very little to it. [[slnc '
+            '400]] If there are stored lines for this customer, and they '
+            'have not expired, hand them back. [[slnc 300]] Otherwise, '
+            'build the page properly, store it, and hand it back. [[slnc '
+            '600]] Now ask one question about those stored lines. [[slnc '
+            '300]] How would this cache ever find out that what it holds '
+            'has become wrong? [[slnc 500]] The answer is: it never '
+            'would. [[slnc 500]] It stored some lines, but it does not '
+            'understand them. [[slnc 300]] Nothing in the shop can tell '
+            'it that the world has moved on. [[slnc 300]] The only thing '
+            'that will ever correct it is the clock running out. [[slnc '
+            "500]] Let's watch that happen."
         ),
     ),
     dict(
@@ -248,25 +246,25 @@ List<OrderHistoryRow> historyFor(String customerId) {
   that made it wrong
   cache hits 1, misses 1""",
         narration=(
-            "The catalog team renames a product. The stainless steel kettle "
-            "becomes the brushed steel kettle. This is an ordinary Tuesday "
-            "afternoon change and they are completely entitled to make it — it "
-            "is their product and their name. [[slnc 350]] Now there are two "
-            "fast copies of that page in this shop, and we ask both of them what "
-            "the kettle is called. [[slnc 300]] The cache says stainless steel "
-            "kettle. That is the old name. It is wrong. [[slnc 300]] The other "
-            "copy says brushed steel kettle. That is right. [[slnc 400]] And here "
-            "is the sentence I would like you to take away from this video, if "
-            "you take away nothing else. [[slnc 350]] A cache is a copy that "
-            "cannot know it is wrong. [[slnc 400]] That cache will go on "
-            "confidently telling customers the old name for the next three "
-            "hundred seconds, not because three hundred is a bad number, but "
-            "because nothing in the shop has any route to tell it otherwise. "
-            "[[slnc 350]] The other copy was corrected by the very same event "
-            "that made it wrong. The rename arrived, and it updated itself. "
-            "[[slnc 300]] So the difference between these two things is not "
-            "speed. They are both fast. The difference is whether anybody can "
-            "tell it."
+            'The catalog team renames a product. [[slnc 300]] The '
+            'Stainless Steel Kettle becomes the Brushed Steel Kettle. '
+            '[[slnc 300]] That is an ordinary change, and they are '
+            'entitled to make it. [[slnc 600]] Now there are two fast '
+            'copies of the page in this shop. [[slnc 300]] We ask both '
+            'what the kettle is called. [[slnc 500]] The cache says: '
+            'Stainless Steel Kettle. [[slnc 300]] That is the old name, '
+            'and it is wrong. [[slnc 500]] The other copy says: Brushed '
+            'Steel Kettle. [[slnc 300]] That is right. [[slnc 600]] Here '
+            'is the sentence to take away from this video. [[slnc 300]] A '
+            'cache is a copy that cannot know it is wrong. [[slnc 600]] '
+            'That cache will keep showing the old name for the next five '
+            'minutes. [[slnc 300]] Not because five minutes is a bad '
+            'number. [[slnc 300]] But because nothing in the shop can '
+            'tell it otherwise. [[slnc 500]] The other copy was corrected '
+            'by the same event that made it wrong. [[slnc 300]] The '
+            'rename arrived, and it updated itself. [[slnc 500]] So the '
+            'difference is not speed. [[slnc 300]] Both are fast. [[slnc '
+            '300]] The difference is whether anybody can tell it.'
         ),
     ),
     dict(
@@ -287,23 +285,21 @@ List<OrderHistoryRow> historyFor(String customerId) {
             "Long expiry, and you are wrong for longer.",
         ],
         narration=(
-            "So let's put the two side by side properly. [[slnc 350]] A cache is "
-            "a copy that cannot know it is wrong, and its only correction is an "
-            "expiry. [[slnc 300]] A read model — and that is the name for the "
-            "second copy — is a copy that is told. The same event that makes it "
-            "wrong is the one that corrects it, and it is corrected the moment "
-            "that event arrives rather than at some point in the next five "
-            "minutes. [[slnc 400]] And notice that there is no expiry setting "
-            "anywhere that turns the first thing into the second thing. This is "
-            "structural, not a matter of configuration. [[slnc 350]] The project "
-            "has a test called there is no free setting, and it makes the point "
-            "with numbers. Set the expiry short and you have thrown away the "
-            "saving you cached for in the first place. Set it long and you are "
-            "confidently wrong for longer. You will tune that number forever and "
-            "you will never win. [[slnc 400]] Now here is the question that "
-            "actually invents this pattern, and it is worth pausing on. What "
-            "would have to be true for the copy to know? [[slnc 400]] It would "
-            "have to be told. [[slnc 300]] So: who would tell it?"
+            "Let's put the two side by side. [[slnc 400]] A cache is a "
+            'copy that cannot know it is wrong. [[slnc 300]] Its only '
+            'correction is an expiry. [[slnc 500]] The second copy is '
+            'called a read model. [[slnc 300]] A read model is a copy '
+            'that is told. [[slnc 300]] The same event that makes it '
+            'wrong is the one that corrects it. [[slnc 300]] At once, not '
+            'sometime in the next five minutes. [[slnc 600]] And no '
+            'expiry setting can turn the first into the second. [[slnc '
+            '300]] Set the expiry short, and you lose the saving you '
+            'wanted. [[slnc 300]] Set it long, and you are wrong for '
+            'longer. [[slnc 300]] You can tune that number forever, and '
+            'never win. [[slnc 600]] So here is the question that leads '
+            'to this pattern. [[slnc 300]] What would have to be true for '
+            'the copy to know? [[slnc 500]] It would have to be told. '
+            '[[slnc 300]] So, who would tell it?'
         ),
     ),
     dict(
@@ -323,24 +319,24 @@ void apply(ShopEvent event) {
     }
 }""",
         narration=(
-            "And this is the entire mechanism. I promised it would be small, and "
-            "I would like you to find it slightly disappointing. [[slnc 350]] "
-            "When the write side places an order, it does its work — and then it "
-            "announces what it did. It publishes a fact: an order was placed. "
-            "[[slnc 300]] Something is listening. When a fact arrives, it looks "
-            "at what kind of fact it is and updates the rows it is holding. An "
-            "order was placed, so add the rows for it. A product was renamed, so "
-            "change that name everywhere it appears. The stock level changed, so "
-            "record the new number. [[slnc 400]] That is it. A side that "
-            "announces, and a side that listens and keeps a prepared answer. "
-            "[[slnc 350]] One small detail is worth pointing out because it will "
-            "save somebody a bad afternoon. The event type is a sealed type — "
-            "which means there is a fixed, known list of the kinds of fact this "
-            "shop can produce, and the compiler will refuse to build if somebody "
-            "adds a fourth kind and forgets to teach this listener about it. "
-            "[[slnc 300]] Without that, a projection quietly ignores facts it "
-            "has never heard of, drifts away from the truth, and every test stays "
-            "green."
+            'Here is the whole mechanism, and it is small. [[slnc 500]] '
+            'When the write side places an order, it does its work. '
+            '[[slnc 300]] Then it announces what it did. [[slnc 300]] It '
+            'publishes a fact, called an event: an order was placed. '
+            '[[slnc 600]] Something is listening: the read model. [[slnc '
+            '300]] When a fact arrives, it updates the lines it holds. '
+            '[[slnc 300]] An order was placed, so add its lines. [[slnc '
+            '300]] A product was renamed, so change that name everywhere. '
+            '[[slnc 300]] The stock changed, so record the new number. '
+            '[[slnc 600]] That is all. [[slnc 300]] One side announces. '
+            '[[slnc 300]] The other side listens, and keeps a prepared '
+            'answer. [[slnc 600]] One small detail saves real trouble. '
+            '[[slnc 300]] The list of event types is fixed, and Java '
+            'knows it. [[slnc 300]] So if someone adds a fourth kind of '
+            'event, and forgets to teach the listener, the code will not '
+            'compile. [[slnc 300]] Without that, the read model would '
+            'quietly ignore new facts, drift away from the truth, and '
+            'every test would still pass.'
         ),
     ),
     dict(
@@ -357,28 +353,26 @@ void apply(ShopEvent event) {
   the work did not vanish: Catalog was called 1 time
   when the order was placed""",
         narration=(
-            "Same customer, same page, same three views. [[slnc 300]] The page "
-            "itself is identical — a kettle at thirty four ninety nine, four "
-            "mugs at thirty five ninety six. That matters, because if the two "
-            "versions produced different pages we would not be comparing "
-            "anything. [[slnc 350]] Three views now cost fifteen milliseconds "
-            "instead of two hundred and seventy. [[slnc 300]] But the number I "
-            "actually want you to look at is the other one. Zero service calls. "
-            "[[slnc 400]] Not fewer. Zero. Serving that page does not touch the "
-            "orders service and does not touch the catalog. There is a test in "
-            "the project called reads survive an outage, and it takes the orders "
-            "service down completely and then renders the page anyway. The first "
-            "version could never have done that, at any speed. [[slnc 400]] And "
-            "now the honest line, which the demo prints itself, because I am not "
-            "going to pretend work disappeared. [[slnc 350]] The work did not "
-            "vanish. The catalog was still called once — when the order was "
-            "placed. The composing happened. It just happened at write time "
-            "instead of at read time. [[slnc 350]] Which is only a good trade "
-            "because of the ratio we talked about at the start. A shop places one "
-            "order and shows that page a thousand times. [[slnc 300]] Invert "
-            "that ratio — something written constantly and read rarely — and "
-            "this pattern is a straight loss. It is not free, it is funded, and "
-            "the ratio is what funds it."
+            'Same customer, same page, same three views. [[slnc 400]] The '
+            'page itself is identical. [[slnc 300]] A kettle at '
+            'thirty-four pounds ninety-nine, and four mugs at thirty-five '
+            'pounds ninety-six. [[slnc 600]] Three views now cost fifteen '
+            'milliseconds, instead of two hundred and seventy. [[slnc '
+            '300]] But the more important number is this one. [[slnc '
+            '300]] Zero service calls. [[slnc 500]] Not fewer. [[slnc '
+            '200]] Zero. [[slnc 300]] Showing the page touches neither '
+            'the orders service nor the catalog. [[slnc 300]] One test '
+            'switches the orders service off completely, and the page '
+            'still shows. [[slnc 300]] The first version could never do '
+            'that, at any speed. [[slnc 600]] Now, to be honest, the work '
+            'did not vanish. [[slnc 300]] The catalog was still called '
+            'once, when the order was placed. [[slnc 300]] The joining '
+            'still happened. [[slnc 300]] It just happened when writing, '
+            'not when reading. [[slnc 600]] That is only a good trade '
+            'because of the ratio from the start. [[slnc 300]] One order '
+            'is placed, and the page is shown a thousand times. [[slnc '
+            '300]] If something is written constantly and read rarely, '
+            'this pattern is a loss.'
         ),
     ),
     dict(
@@ -400,18 +394,17 @@ void apply(ShopEvent event) {
             "that decides whether you can use this at all.",
         ],
         narration=(
-            "So let's total it up honestly, because there is a bill. [[slnc 350]] "
-            "What you bought: reads that cost a single lookup, and a page that "
-            "still renders when other services are down. Those are both real and "
-            "both large. [[slnc 350]] What you paid. First, the work moved to "
-            "write time, and it is only affordable because you read far more "
-            "often than you write. [[slnc 300]] Second, you now have a second "
-            "copy of the data. Somebody has to keep it, and somebody has to fix "
-            "it when it breaks. [[slnc 350]] And third — the one that decides "
-            "whether you can use this pattern at all — there is now a window of "
-            "time in which that copy is behind. [[slnc 400]] People tend to "
-            "describe that window in a sentence and move on, which does it no "
-            "justice at all. So instead, let's look at it."
+            "So let's add up the bill. [[slnc 400]] What you bought. "
+            '[[slnc 300]] Reads that cost one lookup. [[slnc 300]] And a '
+            'page that still works when other services are down. [[slnc '
+            '600]] What you paid. [[slnc 300]] First, the work moved to '
+            'write time. [[slnc 300]] It is only affordable because you '
+            'read far more often than you write. [[slnc 500]] Second, you '
+            'now have a second copy of the data. [[slnc 300]] Somebody '
+            'has to keep it, and fix it when it breaks. [[slnc 500]] And '
+            'third, the one that decides whether you can use this pattern '
+            'at all. [[slnc 300]] There is now a window of time in which '
+            "that copy is behind. [[slnc 500]] Let's look at that window."
         ),
     ),
     dict(
@@ -430,24 +423,25 @@ void apply(ShopEvent event) {
   the window is however long delivery takes,
   and it closes by itself""",
         narration=(
-            "Read those first three lines together, because this is the most "
-            "uncomfortable frame in the project and it is in there on purpose. "
-            "[[slnc 400]] The order is placed. It is paid for. It is final. "
-            "[[slnc 300]] Three events are still in flight. [[slnc 300]] And the "
-            "number of rows on the customer's order history page is zero. "
-            "[[slnc 450]] The customer has just given this shop money, and they "
-            "are looking at a page that does not have their order on it. "
-            "[[slnc 400]] Nothing is broken. Nothing threw an exception. No test "
-            "is failing. The facts are true and they simply have not arrived "
-            "yet. [[slnc 350]] Two things make that survivable, and you need "
-            "both of them. The window is short. And — this is the important one "
-            "— it closes by itself. There is no operator, no retry button, no "
-            "overnight cleanup job. The events arrive, and the page has two rows "
-            "on it. [[slnc 400]] What is not optional is deciding, page by page, "
-            "whether you can live with that window. An order history page, "
-            "almost certainly yes. The screen a warehouse worker is packing "
-            "boxes from — that is a much harder conversation, and you should "
-            "have it before you build this, not after."
+            'This is the most uncomfortable moment in the project, and it '
+            'is here on purpose. [[slnc 500]] An order is placed. [[slnc '
+            '300]] It is paid for. [[slnc 300]] It is final. [[slnc 500]] '
+            'Three events are still on their way. [[slnc 300]] And the '
+            "customer's order history page shows no lines at all. [[slnc "
+            '600]] The customer has just given this shop money. [[slnc '
+            '300]] And they are looking at a page without their order on '
+            'it. [[slnc 500]] Nothing is broken. [[slnc 300]] No error '
+            'was raised. [[slnc 300]] The facts are true. [[slnc 300]] '
+            'They just have not arrived yet. [[slnc 600]] Two things make '
+            'this acceptable, and you need both. [[slnc 300]] The window '
+            'is short. [[slnc 300]] And it closes by itself. [[slnc 300]] '
+            'No operator, no retry button, no overnight job. [[slnc 300]] '
+            'The events arrive, and the page shows two lines. [[slnc '
+            '600]] So decide, page by page, whether you can live with '
+            'that window. [[slnc 300]] For an order history page, almost '
+            'certainly yes. [[slnc 300]] For the screen a warehouse '
+            'worker packs boxes from, that is a much harder question. '
+            '[[slnc 300]] Ask it before you build, not after.'
         ),
     ),
     dict(
@@ -456,25 +450,25 @@ void apply(ShopEvent event) {
         title="Who Does What",
         body=None,
         narration=(
-            "Let's put the whole cast in one place. [[slnc 350]] On one side is "
-            "the design we are replacing: a page composed on every single view, "
-            "asking the orders service and the catalog every time, at ninety "
-            "milliseconds and two calls a go. And underneath it the cache — the "
-            "tempting fix — which is fast and which nothing can correct except a "
-            "timer. [[slnc 350]] The important thing about that cache is what is "
-            "missing. Nothing connects it to the events. There is no arrow. It "
-            "is not a subscriber, it is a box that remembers what it was handed, "
-            "and that missing connection is the entire project. [[slnc 400]] On "
-            "the other side is the split. The write service reserves stock from "
-            "the ledger before it accepts anything, and that is where a sale is "
-            "actually decided. It announces what it did. The bus carries three "
-            "kinds of fact — an order was placed, a product was renamed, the "
-            "stock changed. And the read model listens, and holds rows that are "
-            "already assembled. [[slnc 350]] There is one more piece down there, "
-            "and it is a genuine consolation: the read model can be rebuilt from "
-            "the events. It is a derived thing. If you corrupt it, you throw it "
-            "away and replay. [[slnc 400]] And underneath all of it is the one "
-            "rule this pattern asks you to keep, which we are about to pay for."
+            'Here are all the pieces, in one place. [[slnc 500]] On one '
+            'side is the design we are replacing. [[slnc 300]] A page '
+            'built on every single view, asking two services every time. '
+            '[[slnc 300]] And beside it, the cache: fast, but corrected '
+            'only by a timer. [[slnc 500]] What matters about the cache '
+            'is what is missing. [[slnc 300]] Nothing connects it to the '
+            'events. [[slnc 300]] It does not listen. [[slnc 300]] It '
+            'only remembers what it was handed. [[slnc 600]] On the other '
+            'side is the split. [[slnc 300]] The write service first '
+            'reserves stock from the ledger, the true record of stock. '
+            '[[slnc 300]] That is where a sale is really decided. [[slnc '
+            '300]] Then it announces what it did. [[slnc 500]] The events '
+            'carry three kinds of fact. [[slnc 300]] An order was placed. '
+            '[[slnc 200]] A product was renamed. [[slnc 200]] The stock '
+            'changed. [[slnc 500]] And the read model listens, and holds '
+            'lines that are already put together. [[slnc 600]] One more '
+            'comfort. [[slnc 300]] The read model can be rebuilt from the '
+            'events. [[slnc 300]] If it breaks, you throw it away, and '
+            'replay the events.'
         ),
     ),
     dict(
@@ -492,28 +486,27 @@ void apply(ShopEvent event) {
   and a read model is throwaway:
   rebuilt from 6 events, 2 rows back""",
         narration=(
-            "One kettle left in the shop. Somebody buys it. [[slnc 300]] For a "
-            "moment, the fast copy still says there is one on the shelf, and the "
-            "ledger — the actual number — says zero. That is the window again, "
-            "and it is doing exactly what we just watched it do. [[slnc 350]] "
-            "And in that moment, a second shopper arrives and tries to buy a "
-            "kettle. [[slnc 400]] The page they are looking at says yes. "
-            "[[slnc 350]] And the shop is fine — because the sale was not "
-            "decided by the page. The sale went to the ledger, and the ledger "
-            "refused: cannot reserve one, there are zero left. [[slnc 400]] So "
-            "here is the rule, and it is the reason this video exists as much as "
-            "the mechanism is. [[slnc 350]] Show a read model's number. Never "
-            "decide anything with it. [[slnc 400]] Display the stock level, "
-            "absolutely. Display the balance, display the entitlement. But the "
-            "moment something is being allowed or refused — a sale, a payment, "
-            "access to something — that decision goes to the side that owns the "
-            "number. [[slnc 350]] And I have to be honest about what enforces "
-            "that rule, because it is uncomfortable. Nothing does. Not the type "
-            "system, not the compiler. A test, a code review, and people "
-            "remembering. [[slnc 400]] One consolation to finish on, and it is a "
-            "real one. If the read model is wrong, or corrupted, or you changed "
-            "its shape — you throw it away. Six events replayed, two rows back. "
-            "It is derived data, and derived data is never precious."
+            'There is one kettle left in the shop. [[slnc 300]] Somebody '
+            'buys it. [[slnc 500]] For a moment, the read model still '
+            'says one is on the shelf. [[slnc 300]] But the ledger, the '
+            'true number, says zero. [[slnc 300]] That is the window '
+            'again. [[slnc 600]] At that moment, a second shopper tries '
+            'to buy a kettle. [[slnc 300]] The page they see says yes. '
+            '[[slnc 500]] And the shop is still fine. [[slnc 300]] '
+            'Because the page did not decide the sale. [[slnc 300]] The '
+            'sale went to the ledger. [[slnc 300]] And the ledger '
+            'refused: there are none left. [[slnc 600]] So here is the '
+            "rule. [[slnc 300]] Show a read model's number. [[slnc 300]] "
+            'Never decide anything with it. [[slnc 500]] Show the stock '
+            'level, the balance, or what someone is allowed. [[slnc 300]] '
+            'But when something is being allowed or refused, a sale, a '
+            'payment, or access, ask the side that owns the number. '
+            '[[slnc 600]] And to be honest, nothing enforces that rule. '
+            '[[slnc 300]] Not the compiler. [[slnc 300]] Only a test, a '
+            'code review, and people remembering. [[slnc 600]] One real '
+            'comfort to finish. [[slnc 300]] If the read model is wrong, '
+            'or broken, you throw it away. [[slnc 300]] Six events are '
+            'replayed, and the two lines come back.'
         ),
     ),
     dict(
@@ -535,17 +528,18 @@ void apply(ShopEvent event) {
             "Show a read model's number. Never decide with it.",
         ],
         narration=(
-            "Five things to carry away. [[slnc 350]] Commands change things, "
-            "queries read things, and they are different jobs with different "
-            "needs. [[slnc 300]] A cache is a copy that cannot know it is wrong; "
-            "a read model is a copy that is told. That difference is structural, "
-            "and it is not about speed. [[slnc 350]] The work moved to write "
-            "time. It did not vanish, and the ratio of reads to writes is what "
-            "pays for it — so if you read a thing rarely, do not do this. "
-            "[[slnc 350]] The staleness window is real, it is occasionally "
-            "alarming to look at, and the thing that makes it liveable is that "
-            "it closes by itself. [[slnc 350]] And the rule. Show a read model's "
-            "number. Never decide anything with it."
+            'Here are five things to remember. [[slnc 500]] One. [[slnc '
+            '200]] Commands change things, and queries read things. '
+            '[[slnc 300]] They are different jobs. [[slnc 400]] Two. '
+            '[[slnc 200]] A cache is a copy that cannot know it is wrong. '
+            '[[slnc 300]] A read model is a copy that is told. [[slnc '
+            '400]] Three. [[slnc 200]] The work moved to write time. '
+            '[[slnc 300]] It did not vanish. [[slnc 300]] So if something '
+            'is rarely read, do not do this. [[slnc 400]] Four. [[slnc '
+            '200]] The window where the copy is behind is real. [[slnc '
+            '300]] It is only acceptable because it closes by itself. '
+            "[[slnc 400]] Five. [[slnc 200]] Show a read model's number. "
+            '[[slnc 300]] Never decide anything with it.'
         ),
     ),
     dict(
@@ -559,32 +553,28 @@ void apply(ShopEvent event) {
             "and the one that proves a sale is decided on the write side.",
         ],
         narration=(
-            "That's C Q R S. [[slnc 250]] The full source, the written notes, "
-            "the diagrams and an animated walkthrough are all in the repository, "
-            "and everything runs offline with nothing installed but a Java "
-            "development kit. [[slnc 300]] There is no message broker and no "
-            "database in this project, and that is deliberate. A broker would "
-            "add a container, a topic, and several minutes to every run, and it "
-            "would teach you nothing about the actual subject — which is which "
-            "copy is allowed to decide, and how each copy finds out it is wrong. "
-            "[[slnc 350]] If you try one exercise, try this one. Change the "
-            "second shopper so that it checks the read model's stock number and "
-            "sells if that number says yes. Watch the test fail. And then sit "
-            "with what that failure would have been in a real shop: a customer "
-            "charged for a kettle that does not exist. [[slnc 400]] And then the "
-            "harder question, which no exercise can answer for you. Take a page "
-            "in a system you actually work on. Estimate how many times it is "
-            "read for every time the facts behind it change. If that number is "
-            "under about ten, ask yourself honestly whether a permanent second "
-            "copy of the data is worth keeping. [[slnc 350]] Because the real "
-            "lesson here is this. The mechanism is publish, listen, and keep an "
-            "answer ready, and you already know how to write all three. "
-            "Deciding which of your pages can tolerate being a few seconds "
-            "behind, and holding the line that nothing is ever decided from the "
-            "fast copy — that is the part that needs a person. [[slnc 300]] If "
-            "this helped, a like genuinely does help other people find it, and "
-            "subscribe if you would like the rest of the series. [[slnc 250]] "
-            "Thanks for watching, and I'll see you in the next one."
+            "That's the C Q R S pattern. [[slnc 400]] If you remember one "
+            'sentence, make it this one. [[slnc 300]] A cache is a copy '
+            'that cannot know it is wrong, a read model is a copy that is '
+            'told, and nothing is ever decided from the fast copy. [[slnc '
+            '500]] The full source code, written notes, diagrams, and an '
+            'animated walkthrough are all in the repository. [[slnc 300]] '
+            'It runs offline, with nothing installed except a Java '
+            'development kit. [[slnc 300]] There is no message broker and '
+            'no database, on purpose, so the lesson stays on which copy '
+            'may decide. [[slnc 500]] Here is one exercise to try. [[slnc '
+            '300]] Change the second shopper so it checks the read '
+            "model's stock number, and sells if it says yes. [[slnc 300]] "
+            'Watch the test fail. [[slnc 300]] In a real shop, that '
+            'failure is a customer charged for a kettle that does not '
+            'exist. [[slnc 500]] And one question to think about. [[slnc '
+            '300]] Pick a page in your own system. [[slnc 300]] How many '
+            'times is it read, for every time its facts change? [[slnc '
+            '300]] If that number is small, is a second copy of the data '
+            'really worth keeping? [[slnc 500]] If this helped, a like '
+            'really does help other people find it. [[slnc 300]] And '
+            "subscribe, if you'd like the rest of the series. [[slnc "
+            '400]] Thanks for watching.'
         ),
     ),
 ]

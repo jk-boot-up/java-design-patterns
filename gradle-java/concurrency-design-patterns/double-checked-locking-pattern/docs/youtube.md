@@ -19,19 +19,19 @@ The first two lines are what a viewer sees above the fold, so they carry the hoo
 ```
 CHAPTERS
 00:00 Introduction
-00:52 The Scenario
-01:08 Check, Then Create
-01:27 The Pattern
-01:42 Lock Every Time
-02:02 Check, Lock, Check Again
-02:18 Why It Must Be Volatile
-02:38 The Simplest Correct Way
-02:57 The Bill
-03:21 How To Recognise It
-03:38 The Verdict
-04:01 What Is Real Here
-04:14 When This Is Too Much
-04:27 Thanks for Watching
+00:53 The Scenario
+01:11 Check, Then Create
+01:31 The Pattern
+01:48 Lock Every Time
+02:10 Check, Lock, Check Again
+02:29 Why It Must Be Volatile
+02:56 The Simplest Correct Way
+03:23 The Bill
+03:51 How To Recognise It
+04:15 The Verdict
+04:40 What Is Real Here
+04:54 When This Is Too Much
+05:09 Thanks for Watching
 
 SOURCE CODE, WRITTEN NOTES AND AN INTERACTIVE ANIMATION
 https://github.com/jk-boot-up/java-design-patterns/tree/main/gradle-java/concurrency-design-patterns/double-checked-locking-pattern
@@ -46,19 +46,19 @@ YouTube renders these as chapters only if there are at least three and the first
 
 ```
 00:00 Introduction
-00:52 The Scenario
-01:08 Check, Then Create
-01:27 The Pattern
-01:42 Lock Every Time
-02:02 Check, Lock, Check Again
-02:18 Why It Must Be Volatile
-02:38 The Simplest Correct Way
-02:57 The Bill
-03:21 How To Recognise It
-03:38 The Verdict
-04:01 What Is Real Here
-04:14 When This Is Too Much
-04:27 Thanks for Watching
+00:53 The Scenario
+01:11 Check, Then Create
+01:31 The Pattern
+01:48 Lock Every Time
+02:10 Check, Lock, Check Again
+02:29 Why It Must Be Volatile
+02:56 The Simplest Correct Way
+03:23 The Bill
+03:51 How To Recognise It
+04:15 The Verdict
+04:40 What Is Real Here
+04:54 When This Is Too Much
+05:09 Thanks for Watching
 ```
 
 ## Tags
@@ -97,4 +97,4 @@ Add a card partway through pointing at the playlist, so a viewer who arrives at 
 
 ## Runtime
 
-Approximately 05:06, narrated at 145 words per minute.
+Approximately 05:47, narrated at 145 words per minute.

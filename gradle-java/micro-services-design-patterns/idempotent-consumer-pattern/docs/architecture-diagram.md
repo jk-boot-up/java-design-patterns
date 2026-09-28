@@ -23,46 +23,6 @@ mistake in this whole area.
 
 ![Idempotent Consumer architecture diagram](images/architecture-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-flowchart TB
-    subgraph W["what the program is a model of"]
-        direction TB
-        Brk["the broker — it WILL deliver the same message twice<br/>the acknowledgement got lost and the sender had<br/>two choices: send again, or risk losing it forever"]
-        subgraph Cons["four consumers, and only one of them needs a dedupe store"]
-            direction LR
-            A["set the status to SHIPPED<br/>naturally idempotent — no store, no window, nothing to operate"]
-            B["set the points for THIS ORDER to 70<br/>rewritten from 'add 70' — now it needs nothing either"]
-            C["send an email, remembering ids in the heap<br/>a deploy empties the memory"]
-            D["send an email, remembering ids in the DATABASE<br/>the id and the effect commit together"]
-        end
-        Brk --> A
-        Brk --> B
-        Brk --> C
-        Brk --> D
-    end
-
-    subgraph J["what actually runs — one JVM, JDK 21, no network, nothing installed"]
-        direction LR
-        Demo["OrderPlacedTwiceDemo<br/>the five acts"]
-        MB["MessageBroker.deliverTwice<br/>at-least-once delivery, in two lines"]
-        IC["IdempotentNotificationConsumer<br/>hasHandled, then one transaction:<br/>the stamp and the name on the list"]
-        ND["NotificationsDatabase + Transaction<br/>holds its writes until commit,<br/>and expires ids after a chosen window"]
-        NC["NaiveNotificationConsumer<br/>the comparison — a HashSet updated after the work"]
-        SC["ShipmentStatusConsumer + LoyaltyPointsConsumer<br/>the question you should ask first"]
-        PD["ProcessDiedException + SimulatedClock + CallLog<br/>a sixty-second expiry costs a test nothing"]
-        Demo --> MB --> IC --> ND
-        Demo --> NC --> PD
-        Demo --> SC
-    end
-
-    W -. "no broker, no database, no sockets — a map and a transaction" .-> J
-```
-
-</details>
-
 ## What the diagram is telling you to count
 
 **The duplicate is nobody's fault.** A sender publishes and waits for an acknowledgement. If

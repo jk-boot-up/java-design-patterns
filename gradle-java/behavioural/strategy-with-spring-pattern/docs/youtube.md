@@ -19,21 +19,21 @@ The first two lines are what a viewer sees above the fold, so they carry the hoo
 ```
 CHAPTERS
 00:00 Introduction
-00:47 The Partner Project
-01:08 Before The First Line
-01:27 Spring Finds The Strategies
-01:40 The Same Shipments, Every Rule
-01:59 Configuration Chooses
-02:17 Four Beans, One Interface
-02:35 A Fifth Rule
-02:48 A Default When Nobody Chooses
-03:06 The Verdict
-03:17 How To Recognise It
-03:29 Where You Have Met This
-03:36 What Was Used
-03:44 What Is Real Here
-03:53 When This Is Too Much
-04:01 Thanks for Watching
+00:52 The Partner Project
+01:16 Before The First Line
+01:36 Spring Finds The Strategies
+01:55 The Same Shipments, Every Rule
+02:20 Configuration Chooses
+02:39 Four Beans, One Interface
+03:05 A Fifth Rule
+03:25 A Default When Nobody Chooses
+03:45 The Verdict
+03:59 How To Recognise It
+04:13 Where You Have Met This
+04:21 What Was Used
+04:30 What Is Real Here
+04:38 When This Is Too Much
+04:47 Thanks for Watching
 
 SOURCE CODE, WRITTEN NOTES AND AN INTERACTIVE ANIMATION
 https://github.com/jk-boot-up/java-design-patterns/tree/main/gradle-java/behavioural/strategy-with-spring-pattern
@@ -48,21 +48,21 @@ YouTube renders these as chapters only if there are at least three and the first
 
 ```
 00:00 Introduction
-00:47 The Partner Project
-01:08 Before The First Line
-01:27 Spring Finds The Strategies
-01:40 The Same Shipments, Every Rule
-01:59 Configuration Chooses
-02:17 Four Beans, One Interface
-02:35 A Fifth Rule
-02:48 A Default When Nobody Chooses
-03:06 The Verdict
-03:17 How To Recognise It
-03:29 Where You Have Met This
-03:36 What Was Used
-03:44 What Is Real Here
-03:53 When This Is Too Much
-04:01 Thanks for Watching
+00:52 The Partner Project
+01:16 Before The First Line
+01:36 Spring Finds The Strategies
+01:55 The Same Shipments, Every Rule
+02:20 Configuration Chooses
+02:39 Four Beans, One Interface
+03:05 A Fifth Rule
+03:25 A Default When Nobody Chooses
+03:45 The Verdict
+03:59 How To Recognise It
+04:13 Where You Have Met This
+04:21 What Was Used
+04:30 What Is Real Here
+04:38 When This Is Too Much
+04:47 Thanks for Watching
 ```
 
 ## Tags
@@ -101,4 +101,4 @@ Add a card partway through pointing at the playlist, so a viewer who arrives at 
 
 ## Runtime
 
-Approximately 04:34, narrated at 145 words per minute.
+Approximately 05:22, narrated at 145 words per minute.

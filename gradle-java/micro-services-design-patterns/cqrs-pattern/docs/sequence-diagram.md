@@ -14,50 +14,6 @@ before anybody has looked at anything.
 
 ![CQRS sequence diagram](images/sequence-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant U as Customer
-    participant C as ComposingOrderHistory
-    participant O as OrdersQueryApi
-    participant K as CatalogService
-    participant W as OrderWriteService
-    participant B as EventBus
-    participant R as OrderHistoryReadModel
-
-    Note over U,K: composing on every view — correct, current, and paid for each time
-
-    U->>C: view the order history page
-    C->>O: ordersFor(cust-7)
-    O-->>C: order lines, no names
-    C->>K: namesFor(the skus)
-    K-->>C: 2 names, one batched call
-    C-->>U: the page, 90ms
-    Note over U,K: and again, and again. 3 views cost 270ms<br/>and 6 service calls, for a page that never changed.
-
-    Note over U,R: the same page, kept ready
-
-    W->>B: OrderPlaced(ord-5001)
-    B->>R: deliver
-    R->>K: namesFor(the skus) — ONCE, at write time
-    K-->>R: 2 names
-    Note over R: the finished rows are kept
-
-    U->>R: view the order history page
-    R-->>U: 2 rows, 5ms, 0 services called
-    U->>R: view it again
-    R-->>U: 2 rows, 5ms, 0 services called
-    U->>R: and again
-    R-->>U: 2 rows, 5ms, 0 services called
-
-    Note over U,R: 3 views cost 15ms and 0 service calls.<br/>The work did not vanish — it moved to write time,<br/>paid once per order instead of once per view.
-```
-
-</details>
-
 ## Reading the timings
 
 **Ninety milliseconds against five, and zero is the more interesting number.** Latency is

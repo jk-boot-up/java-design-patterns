@@ -21,44 +21,6 @@ buys and everything it costs follows from it.
 
 ![Event sourcing architecture diagram](images/architecture-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-flowchart TB
-    subgraph One["one JVM, JDK 21 only — no database, no broker, no network"]
-        direction TB
-        Demo["LoyaltyBalanceDemo<br/>the nine acts"]
-        Chk["Checkout<br/>awards and spends points"]
-        Api["LoyaltyAccounts<br/>the one interface both designs satisfy"]
-
-        subgraph Now["the design most shops arrive at"]
-            direction TB
-            Cur["CurrentStateLoyaltyAccounts<br/>a map of customer to balance"]
-            Row["C-5120 = 140<br/>correct, and unable to say why"]
-            Cur --> Row
-        end
-
-        subgraph Es["event sourcing"]
-            direction TB
-            Store["LoyaltyEventStore<br/>append only, never updated, never deleted"]
-            Ev["PointsAwarded · PointsRedeemed · PointsExpired<br/>each one a thing that happened"]
-            Fold["the fold<br/>start at zero and add the events up"]
-            Snap["SnapshotStore · Snapshot<br/>a cache, and a second place a balance lives"]
-            Read["OrderHistoryReadModel<br/>a question asked of the same log"]
-            Store --> Ev --> Fold
-            Snap -.-> Fold
-            Store --> Read
-        end
-
-        Demo --> Chk --> Api
-        Api --> Cur
-        Api --> Store
-    end
-```
-
-</details>
-
 ## What the diagram is telling you to count
 
 **One interface, two implementations, one demo.** Both designs satisfy `LoyaltyAccounts`, so

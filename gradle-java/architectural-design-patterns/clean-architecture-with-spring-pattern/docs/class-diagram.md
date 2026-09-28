@@ -8,52 +8,6 @@ every class on that diagram exists here too, byte-for-byte.
 
 ![Clean Architecture with Spring class diagram](images/class-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-classDiagram
-    class AppConfig {
-        <<@Configuration>>
-        +productRepository() ProductRepository
-        +orderRepository() OrderRepository
-        +paymentGateway() PaymentGateway
-        +notificationGateway() NotificationGateway
-        +placeOrderInputBoundary(...) PlaceOrderInputBoundary
-        +checkoutController(...) CheckoutController
-        +batchOrderController(...) BatchOrderController
-    }
-
-    class BrokenAppConfig {
-        <<@Configuration — one @Bean missing>>
-        +productRepository() ProductRepository
-        +orderRepository() OrderRepository
-        +paymentGateway() PaymentGateway
-        +placeOrderInputBoundary(...) PlaceOrderInputBoundary
-    }
-
-    class Application {
-        <<@SpringBootApplication>>
-        +main(args)
-    }
-
-    class PlaceOrderInteractor {
-        <<usecases — UNCHANGED from §66>>
-    }
-
-    class InMemoryOrderRepository {
-        <<adapters.gateway — UNCHANGED from §66>>
-    }
-
-    AppConfig ..> PlaceOrderInteractor : @Bean returns new PlaceOrderInteractor(...)
-    AppConfig ..> InMemoryOrderRepository : @Bean returns new InMemoryOrderRepository()
-    BrokenAppConfig ..> PlaceOrderInteractor : same call, one argument unsatisfiable
-    Application --> AppConfig : the real context
-    Application --> BrokenAppConfig : a second, throwaway context — act five only
-```
-
-</details>
-
 ## Reading The Diagram
 
 **`AppConfig` and `BrokenAppConfig` both return the identical

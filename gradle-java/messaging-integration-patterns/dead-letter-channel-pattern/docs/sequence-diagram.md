@@ -6,25 +6,4 @@ Say it in words. The worker takes order two. It tries to read the body, and fail
 
 ![Dead Letter Channel pattern sequence diagram](images/sequence-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant W as worker
-    participant H as handler
-    participant D as dead letters
-    W->>H: ORD-2 (attempt 1)
-    H-->>W: fails
-    W->>H: ORD-2 (attempt 2)
-    H-->>W: fails
-    W->>H: ORD-2 (attempt 3)
-    H-->>W: fails
-    W->>D: ORD-2, 3 attempts, last error
-    W->>H: ORD-3, and on
-```
-
-</details>
-
 The load-bearing sentence: **the worker gives up on one message so that it does not give up on all of them.**

@@ -28,48 +28,6 @@ a sale happens.
 
 ![CQRS architecture diagram](images/architecture-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-flowchart TB
-    subgraph W["what the program is a model of"]
-        direction TB
-        subgraph WS["the write side — where things are decided"]
-            direction LR
-            Cmd["place an order, rename a product<br/>rare, and must be exactly right"]
-            Led["the stock ledger<br/>checked and decremented in one breath"]
-        end
-        Bus["events — the only thing that crosses the line<br/>one way, write to read, never back"]
-        subgraph RS["the read side — where questions are answered"]
-            direction LR
-            Proj["the order history page, already assembled<br/>thousands of views for every order placed"]
-            Cache["a cache over the old composition<br/>nothing tells it anything — only a timer"]
-        end
-        Cmd --> Led
-        Cmd --> Bus
-        Bus --> Proj
-        Bus -. "no arrow — a cache cannot subscribe" .-x Cache
-    end
-
-    subgraph J["what actually runs — one JVM, JDK 21, no network, nothing installed"]
-        direction LR
-        Demo["CqrsDemo<br/>the five acts"]
-        OWS["OrderWriteService + StockLedger<br/>the only place a sale is decided"]
-        EB["EventBus<br/>a list of subscribers and a loop<br/>holdEvents() freezes the window open"]
-        RM["OrderHistoryReadModel<br/>apply() does the work, historyFor() is a map lookup<br/>rebuildFrom() throws it away and replays"]
-        Comp["ComposingOrderHistory<br/>the comparison — correct, always current, 90ms a view"]
-        Cch["CachedOrderHistory<br/>fifteen lines, fast, and often right"]
-        Clock["SimulatedClock + CallLog<br/>a five-minute expiry costs a test nothing"]
-        Demo --> OWS --> EB --> RM
-        Demo --> Comp --> Cch --> Clock
-    end
-
-    W -. "no Kafka, no Redis, no second database — a list and two maps" .-> J
-```
-
-</details>
-
 ## What the diagram is telling you to count
 
 **Two stores of the same information, and that is the whole cost.** `OrderHistoryRow`

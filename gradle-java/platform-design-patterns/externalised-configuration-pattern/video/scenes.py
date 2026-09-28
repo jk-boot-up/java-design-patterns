@@ -29,29 +29,27 @@ SCENES = [
         title="Externalised Configuration",
         body=None,
         narration=(
-            "Hello, and welcome. This video explains the Externalised "
-            "Configuration design pattern in Java, and it is written and "
-            "presented by Jayasekhar Konduru. [[slnc 300]] Let's start with the "
-            "simple definition. Externalised configuration means keeping the "
-            "values your program needs outside the program itself, and reading "
-            "them while it runs — so that changing one of those values does not "
-            "mean building and shipping a new program. [[slnc 350]] Think of the "
-            "greengrocer with a chalk board outside the shop. The prices are not "
-            "painted on the wall. When the tomatoes need shifting before closing, "
-            "somebody walks out with a cloth and a stick of chalk, and the price "
-            "is different thirty seconds later. Nobody repaints the shop. [[slnc "
-            "300]] But notice the other half of that. The board is outside, where "
-            "anybody can reach it — which is also why anybody can write nonsense "
-            "on it. [[slnc 350]] That's the idea in a sentence. The rest of the "
-            "video does it properly, by building a real working Java project: an "
-            "online shop that gives free delivery to anyone spending over fifty "
-            "pounds, and a marketing team who want that to be thirty-five pounds "
-            "by Saturday morning. [[slnc 250]] By the end you'll know why a "
-            "perfectly well-written constant can still be in the wrong place, "
-            "exactly where the value has to be read from and why that one "
-            "placement decision is the whole pattern, and — just as importantly — "
-            "the four guards that value quietly loses on the way out of your "
-            "source code, and what you have to build to get them back."
+            'Hello, and welcome. [[slnc 400]] This video explains the '
+            'Externalised Configuration pattern, in Java. [[slnc 300]] '
+            'This video is presented by Jayasekhar Konduru. [[slnc 600]] '
+            'First, a simple definition. [[slnc 300]] Externalised '
+            'configuration keeps the values your program needs outside '
+            'the program itself. [[slnc 300]] And the program reads them '
+            'while it runs. [[slnc 300]] So changing one of those values '
+            'does not mean building and releasing a new program. [[slnc '
+            '600]] Think of a greengrocer with a chalk board outside the '
+            'shop. [[slnc 300]] The prices are not painted on the wall. '
+            '[[slnc 300]] To change a price, someone rubs it out and '
+            'chalks a new one, in thirty seconds. [[slnc 300]] But '
+            'because the board is outside, anyone can also write nonsense '
+            'on it. [[slnc 700]] In our online store, delivery is free '
+            'for anyone spending over fifty pounds. [[slnc 300]] And the '
+            'marketing team want that to be thirty-five pounds by '
+            'Saturday morning. [[slnc 500]] By the end, you will know why '
+            'a well-written constant can still be in the wrong place. '
+            '[[slnc 300]] Exactly where the value must be read. [[slnc '
+            '300]] And the four safety checks a value loses when it '
+            'leaves your code, and how to get them back.'
         ),
     ),
     dict(
@@ -73,21 +71,21 @@ SCENES = [
             "On Friday at 16:30, marketing want £35 by Saturday.",
         ],
         narration=(
-            "So, imagine an online shop, and one promise on its delivery page. "
-            "[[slnc 250]] Spend over fifty pounds and delivery is free. Spend less "
-            "than that and delivery costs four pounds ninety-nine. [[slnc 300]] "
-            "There are three baskets waiting at the checkout, and I want you to "
-            "hold onto these three numbers, because every act of this project uses "
-            "the same three. The first basket has sixty-two pounds of goods in it. "
-            "The second has forty-eight pounds. The third has thirty-one pounds "
-            "fifty. [[slnc 350]] Against a fifty pound threshold, the first one "
-            "ships free and the other two pay. Nothing surprising. [[slnc 300]] "
-            "And then on Friday afternoon, at half past four, the marketing team "
-            "come to you. Sales are soft, they have a campaign going out on "
-            "Saturday morning, and they would like free delivery over thirty-five "
-            "pounds instead of fifty for the weekend. [[slnc 250]] It is a "
-            "one-number change, and it is not a big ask. Keep that Friday half "
-            "past four in mind — it is going to do a lot of work in this video."
+            "Here is the scenario. [[slnc 400]] The shop's delivery page "
+            'makes one promise. [[slnc 300]] Spend over fifty pounds, and '
+            'delivery is free. [[slnc 300]] Spend less, and delivery '
+            'costs four pounds ninety-nine. [[slnc 600]] Three baskets '
+            'are waiting at the checkout. [[slnc 300]] Every demo uses '
+            'these same three. [[slnc 300]] The first holds sixty-two '
+            'pounds of goods. [[slnc 300]] The second, forty-eight '
+            'pounds. [[slnc 300]] The third, thirty-one pounds fifty. '
+            '[[slnc 500]] With a fifty-pound threshold, the first ships '
+            'free, and the other two pay. [[slnc 600]] Then, on Friday '
+            'afternoon at half past four, marketing ask for a change. '
+            '[[slnc 300]] For the weekend campaign, free delivery over '
+            'thirty-five pounds, instead of fifty. [[slnc 300]] A '
+            'one-number change. [[slnc 300]] Remember that Friday half '
+            'past four.'
         ),
     ),
     dict(
@@ -103,21 +101,18 @@ SCENES = [
 // Named.  Typed.  In one place.  A reviewer would pass it.
 // There is nothing wrong with this line.""",
         narration=(
-            "Here is where that fifty pounds lives today. It is a constant in the "
-            "checkout class: private, static, final, and given a name that says "
-            "exactly what it is. [[slnc 300]] Now, normally at this point in a "
-            "design patterns video I would show you something bad and then rescue "
-            "it. I am not going to do that, because there is nothing wrong with "
-            "this line. [[slnc 350]] It is named, so it is not a magic number. It "
-            "is typed as money, so it cannot accidentally be a postcode or a "
-            "quantity. It appears in exactly one place, so there is no risk of two "
-            "copies drifting apart. And if I put it in front of you in a code "
-            "review, you would approve it without a comment. [[slnc 400]] That "
-            "matters for the whole rest of this video, so let me say it plainly. "
-            "This pattern does not fix bad code. What it fixes is a value that is "
-            "in a place with the wrong change speed. [[slnc 300]] The code is "
-            "fine. The problem is what it takes to make that fifty into a "
-            "thirty-five."
+            'Here is where the fifty pounds lives today. [[slnc 300]] It '
+            'is a constant in the checkout class, with a clear name. '
+            '[[slnc 600]] And there is nothing wrong with it. [[slnc '
+            '300]] It has a name, so it is not a mystery number. [[slnc '
+            '300]] It is typed as money, so it cannot be mistaken for '
+            'anything else. [[slnc 300]] It appears in one place only. '
+            '[[slnc 300]] Any code reviewer would approve it. [[slnc '
+            "600]] So let's be clear. [[slnc 300]] This pattern does not "
+            'fix bad code. [[slnc 300]] It fixes a value that sits '
+            'somewhere that changes too slowly. [[slnc 500]] The code is '
+            'fine. [[slnc 300]] The problem is what it takes to turn '
+            'fifty into thirty-five.'
         ),
     ),
     dict(
@@ -138,35 +133,30 @@ SCENES = [
   the promotion was for the weekend.
   It is late by 2 days 1 hour 45 minutes.""",
         narration=(
-            "So let's price it. This is the second act of the demo, and it walks "
-            "the change through a release pipeline that any of you would recognise. "
-            "[[slnc 300]] Editing the constant takes fifteen minutes, and it "
-            "finishes at a quarter to five on Friday. Then a code review: "
-            "forty-five minutes. And it finishes on Monday morning at half past "
-            "nine. [[slnc 400]] Read those two lines against each other, because "
-            "that gap is the whole point. The edit finished at a quarter to five on "
-            "Friday and the review finished on Monday, because the release window "
-            "closed at five o'clock and did not open again until Monday morning. "
-            "[[slnc 350]] Then the build and the tests, twenty-five minutes. Then a "
-            "release approval, half an hour. Then the deploy itself, and twenty "
-            "minutes watching it to make sure nothing caught fire. [[slnc 300]] Add "
-            "it up. Two hours and fifteen minutes of actual work. And it goes live "
-            "on Monday at a quarter to eleven — which is two days and nearly two "
-            "hours after the Saturday morning the promotion was for. The campaign "
-            "runs all weekend advertising free delivery over thirty-five pounds, "
-            "and the shop charges everybody as though it were fifty. [[slnc 400]] "
-            "Now, here is the part I want you to sit with. Try to delete a step "
-            "from that list. [[slnc 250]] Code review is how a typo does not reach "
-            "a million customers. The build and the tests are how you avoid "
-            "shipping something that does not compile. The approval is how a "
-            "regulated business demonstrates that its releases are controlled. And "
-            "the weekday window exists because the people who would notice a bad "
-            "release are at their desks on weekdays — a deploy is simply not a "
-            "thing you do at nine in the morning on a Saturday. [[slnc 400]] "
-            "Nothing on that list is waste. Every single step is there for a good "
-            "reason. And the promotion still misses its weekend. That is the "
-            "problem this pattern exists to solve, and notice that it is not a code "
-            "quality problem at all."
+            'First demo: what changing one number costs. [[slnc 400]] The '
+            'change goes through a normal release process. [[slnc 600]] '
+            'Editing the constant takes fifteen minutes, and is done at a '
+            'quarter to five on Friday. [[slnc 300]] Then code review, '
+            'forty-five minutes. [[slnc 300]] But it finishes on Monday '
+            'morning. [[slnc 300]] Because the release window closed at '
+            'five on Friday, and only reopens on Monday. [[slnc 600]] '
+            'Then building and testing: twenty-five minutes. [[slnc 300]] '
+            'Release approval: half an hour. [[slnc 300]] Then the '
+            'release itself, and twenty minutes watching it. [[slnc 600]] '
+            'Two hours and fifteen minutes of real work. [[slnc 300]] And '
+            'it goes live on Monday at a quarter to eleven. [[slnc 300]] '
+            'Two days after the Saturday promotion started. [[slnc 300]] '
+            'All weekend, the campaign promises free delivery over '
+            'thirty-five pounds, and the shop charges as if it were '
+            'fifty. [[slnc 600]] Now try to remove a step. [[slnc 300]] '
+            'Code review stops typos reaching customers. [[slnc 300]] '
+            'Tests stop broken code being released. [[slnc 300]] Approval '
+            'proves releases are controlled. [[slnc 300]] And weekday '
+            'windows exist because the people who would spot a bad '
+            'release are at work on weekdays. [[slnc 500]] Nothing on '
+            'that list is waste. [[slnc 300]] And the promotion still '
+            'misses its weekend. [[slnc 300]] That is not a code quality '
+            'problem.'
         ),
     ),
     dict(
@@ -183,23 +173,21 @@ SCENES = [
             "so keep it outside, and read it while you run.",
         ],
         narration=(
-            "So here is the move, and it starts with a distinction rather than with "
-            "any code. [[slnc 300]] Some of the values in your program are "
-            "decisions about behaviour. The order of the steps in a workflow. How a "
-            "total is built up. The algorithm you chose. Those belong behind the "
-            "pipeline, and you should be glad they are hard to change, because the "
-            "pipeline is what stops somebody breaking them. [[slnc 400]] But some "
-            "values are not decisions about behaviour at all. They are decisions "
-            "about business policy — a threshold, a page size, a promotion window, "
-            "how long a session lasts. Those change on somebody else's calendar, "
-            "and that somebody is usually not an engineer. [[slnc 350]] And here is "
-            "the sentence the whole pattern rests on. Putting a policy value behind "
-            "the release pipeline does not make it safer. It makes it late. [[slnc "
-            "400]] So externalised configuration is the decision to keep that kind "
-            "of value outside the compiled program, and to read it while the "
-            "program is running. That's it. That is the pattern. [[slnc 300]] "
-            "Everything else in this video — every benefit, and every one of the "
-            "costs — falls out of that one sentence."
+            'So here is the idea, and it starts with a distinction. '
+            '[[slnc 500]] Some values in your program are decisions about '
+            'behaviour. [[slnc 300]] The order of steps, how a total is '
+            'built, the method you chose. [[slnc 300]] Those belong '
+            'behind the release process. [[slnc 300]] And you should be '
+            'glad they are hard to change. [[slnc 600]] Other values are '
+            'business policy. [[slnc 300]] A threshold, a page size, a '
+            'promotion window, how long a session lasts. [[slnc 300]] '
+            "These change on someone else's timetable, usually not an "
+            "engineer's. [[slnc 600]] Here is the key sentence. [[slnc "
+            '300]] Putting a policy value behind the release process does '
+            'not make it safer. [[slnc 300]] It makes it late. [[slnc '
+            '600]] So externalised configuration keeps that kind of value '
+            'outside the program. [[slnc 300]] And reads it while the '
+            'program runs. [[slnc 300]] That is the whole pattern.'
         ),
     ),
     dict(
@@ -220,26 +208,26 @@ SCENES = [
             "        history all stayed behind in the source file.",
         ],
         narration=(
-            "There are three moves, and most write-ups of this pattern only give "
-            "you the first two. [[slnc 350]] Move one. The value comes from "
-            "outside, and — this is the part people get wrong — it is read on every "
-            "single use. Not once when the object is built. Every time somebody "
-            "asks. [[slnc 300]] Move two. The code still carries its own default, "
-            "for the value it would have used if nobody had configured anything. "
-            "Because the place the value now lives is somewhere that can be "
-            "unreachable, and a shop that refuses to serve customers because a "
-            "configuration server is down is a worse shop than one with the number "
-            "baked in. [[slnc 400]] And move three, which is the one that gets "
-            "skipped, and which the second half of this video is about. [[slnc "
-            "250]] When that value was a constant in the source code, four "
-            "different things were quietly protecting it. The compiler, which would "
-            "refuse to build if you wrote the word fifty where a number belongs. "
-            "The type system, which would not let it be anything other than money. "
-            "A human reviewer, who would ask you an awkward question if you tried "
-            "to set it to minus one pound. And version control, which recorded who "
-            "changed it, when, and what it was before. [[slnc 400]] Not one of "
-            "those four follows the value out of the source file. If you want them, "
-            "you have to build them again yourself, on purpose, on the outside."
+            'It takes three moves. [[slnc 300]] Most explanations only '
+            'give you two. [[slnc 600]] Move one. [[slnc 200]] The value '
+            'comes from outside. [[slnc 300]] And it is read every single '
+            'time it is used. [[slnc 300]] Not once, when the program '
+            'starts. [[slnc 300]] Every time. [[slnc 600]] Move two. '
+            '[[slnc 200]] The code still carries its own default value. '
+            '[[slnc 300]] Because the outside source might be '
+            'unreachable. [[slnc 300]] And a shop that stops selling '
+            'because a settings server is down is worse than one with the '
+            'number built in. [[slnc 600]] Move three, the one usually '
+            'skipped. [[slnc 300]] While the value lived in the code, '
+            'four things protected it. [[slnc 300]] The compiler, which '
+            'refuses to build if you type the word fifty where a number '
+            'belongs. [[slnc 300]] The type system, which keeps it as '
+            'money. [[slnc 300]] A code reviewer, who would question '
+            'minus one pound. [[slnc 300]] And version control, which '
+            'records who changed it, when, and what it was before. [[slnc '
+            '600]] None of those four follows the value out of the code. '
+            '[[slnc 300]] If you want them, you must rebuild them '
+            'yourself.'
         ),
     ),
     dict(
@@ -248,32 +236,29 @@ SCENES = [
         title="Who Does What",
         body=None,
         narration=(
-            "Let me name the parts, because there are only five that matter and "
-            "they each do one job. [[slnc 300]] There is the checkout, which is the "
-            "code that needs the number. It works out whether a basket qualifies "
-            "for free delivery, and that arithmetic is identical in both versions "
-            "of this project. [[slnc 300]] There is the settings reader, and this "
-            "is the one piece of the program that knows the outside world exists. "
-            "The checkout asks it for the threshold and gets back an amount of "
-            "money. It does not know, and cannot find out, whether that money came "
-            "from a configuration server, from a file, or from the default baked "
-            "into the code. [[slnc 400]] There is the declared setting, which is a "
-            "small record holding four things: the key the value is stored under, "
-            "the default to use if nothing is configured, the lowest value that "
-            "makes sense, and the highest. Hold onto that little record, because it "
-            "is going to turn out to be the replacement for the compiler. [[slnc "
-            "350]] There is the configuration source itself, and the important "
-            "thing about it is how little it does. It stores text against keys. It "
-            "does not know what any of that text means, and it has no opinion about "
-            "whether the text is sensible. [[slnc 350]] And there is a change log, "
-            "which records every write: the key, the new value, the value it "
-            "displaced, who did it, and when. That is the replacement for version "
-            "control, and it is part of the pattern rather than an optional extra. "
-            "[[slnc 300]] Two of these have two versions in the project, and that "
-            "is the whole teaching device. There are two checkouts — one with the "
-            "number in the code and one that reads it — and there are two settings "
-            "readers, one that trusts whatever text it is given and one that "
-            "checks it. The same bad values go through both."
+            "Let's name the pieces. [[slnc 300]] There are five. [[slnc "
+            '600]] First, the checkout. [[slnc 300]] It works out whether '
+            'a basket gets free delivery. [[slnc 300]] That arithmetic is '
+            'the same in both versions of this project. [[slnc 500]] '
+            'Second, the settings reader. [[slnc 300]] It is the only '
+            'part that knows about the outside world. [[slnc 300]] '
+            'Checkout asks it for the threshold, and gets back an amount. '
+            '[[slnc 300]] Checkout cannot tell whether it came from a '
+            'server, a file, or the built-in default. [[slnc 500]] Third, '
+            'the declared setting. [[slnc 300]] A small record holding '
+            "four things. [[slnc 300]] The setting's name, its default, "
+            'the lowest sensible value, and the highest. [[slnc 300]] '
+            'This will replace the compiler. [[slnc 500]] Fourth, the '
+            'configuration source. [[slnc 300]] It just stores text under '
+            'names. [[slnc 300]] It has no idea whether the text makes '
+            'sense. [[slnc 500]] Fifth, a change log. [[slnc 300]] It '
+            'records every change: the setting, the new value, the old '
+            'value, who, and when. [[slnc 300]] That replaces version '
+            'control. [[slnc 600]] The project has two checkouts, one '
+            'with the number in the code, and one that reads it. [[slnc '
+            '300]] And two settings readers, one that trusts any text, '
+            'and one that checks it. [[slnc 300]] The same bad values go '
+            'through both.'
         ),
     ),
     dict(
@@ -294,32 +279,28 @@ public DeliveryQuote quote(Basket basket) {
 }
 // The read is INSIDE quote().  Not in the constructor.""",
         narration=(
-            "So here is the configured checkout, and I want you to notice how "
-            "little of it is new. [[slnc 300]] It is handed a basket. It asks the "
-            "settings reader for the free-delivery threshold. If the basket total "
-            "is at least that threshold, delivery is free, and otherwise delivery "
-            "is the standard charge. Then it hands back a quote. [[slnc 350]] The "
-            "arithmetic is character for character the same as the hard-coded "
-            "version. One line differs: instead of reading a constant, it asks for "
-            "a setting. [[slnc 400]] And now the single most important detail in "
-            "this entire video, which is not about what that line says but about "
-            "where it sits. [[slnc 250]] The read happens inside the quote method. "
-            "Every time a customer reaches the delivery step, the threshold is "
-            "fetched again. [[slnc 350]] Every tidy-minded developer who meets this "
-            "code wants to move that line into the constructor and keep the value "
-            "in a field. It reads better. It looks more efficient. And it destroys "
-            "the pattern — because now the only way to pick up a new value is to "
-            "restart the program, and you have swapped a rebuild for a restart. "
-            "Restarting a live shop on a Saturday morning is not much of a trade. "
-            "[[slnc 350]] There is a test in this project called, the threshold is "
-            "read every time, and its entire purpose is to fail the moment somebody "
-            "helpfully tidies this up. [[slnc 300]] One last thing to notice. What "
-            "comes back is not just an amount. It is an amount together with a "
-            "short description of where that amount came from, and that description "
-            "travels all the way out into the quote. Once a value can move, the "
-            "question you get asked is no longer what the threshold is. It is which "
-            "threshold was in force for this particular order, and where it came "
-            "from."
+            'Here is the configured checkout, and very little of it is '
+            'new. [[slnc 500]] It receives a basket. [[slnc 300]] It asks '
+            'the settings reader for the free-delivery threshold. [[slnc '
+            '300]] If the basket is worth at least that much, delivery is '
+            'free. [[slnc 300]] Otherwise, it charges the standard fee. '
+            '[[slnc 500]] Only one line differs from the hard-coded '
+            'version. [[slnc 300]] Instead of using a constant, it asks '
+            'for a setting. [[slnc 600]] Now the most important detail in '
+            'this video. [[slnc 300]] Not what that line says, but where '
+            'it sits. [[slnc 500]] It sits inside the method that prices '
+            'each basket. [[slnc 300]] So every time a customer reaches '
+            'delivery, the threshold is fetched again. [[slnc 600]] '
+            'Tidy-minded developers want to move it to the start, and '
+            'keep the value. [[slnc 300]] It looks neater. [[slnc 300]] '
+            'And it breaks the pattern. [[slnc 300]] Because now the only '
+            'way to pick up a new value is to restart the program. [[slnc '
+            '300]] One test exists only to fail if someone makes that '
+            'tidy-up. [[slnc 600]] And one more thing. [[slnc 300]] What '
+            'comes back is the amount, plus a note of where it came from. '
+            '[[slnc 300]] Once a value can change, the question becomes: '
+            'which threshold applied to this order, and where did it come '
+            'from?'
         ),
     ),
     dict(
@@ -342,23 +323,22 @@ public DeliveryQuote quote(Basket basket) {
 
   No rebuild, no redeploy, no restart.""",
         narration=(
-            "And this is what it buys. [[slnc 300]] The third act starts with "
-            "nothing configured at all, so every quote falls back to the default "
-            "compiled into the code, and the shop behaves exactly as it did in act "
-            "one. The sixty-two pound basket ships free and the other two pay. That "
-            "is worth pausing on: adopting this pattern, on its own, changed no "
-            "behaviour whatsoever. [[slnc 400]] Then somebody in marketing types "
-            "thirty-five into a box. [[slnc 250]] Four seconds later, the very next "
-            "basket is quoted against the new threshold, and the forty-eight pound "
-            "basket now ships free. [[slnc 350]] No rebuild. No redeploy. No "
-            "restart. Nobody was paged, nobody approved anything, and no pipeline "
-            "ran. [[slnc 300]] Set that four seconds against the two hours and "
-            "fifteen minutes of work spread over a weekend that we priced earlier, "
-            "and you have the entire commercial case for this pattern in one "
-            "comparison. [[slnc 350]] That is the good news, and it is genuinely "
-            "good news. The rest of the video is the bill, and it gets more room "
-            "than the benefit did — because the value did not leave your source "
-            "file on its own. It left four guards behind."
+            'Second demo: what it buys. [[slnc 400]] It starts with '
+            'nothing configured. [[slnc 300]] So every quote uses the '
+            'built-in default, and the shop behaves exactly as before. '
+            '[[slnc 300]] The sixty-two-pound basket ships free, and the '
+            'other two pay. [[slnc 300]] Adopting the pattern changed '
+            'nothing on its own. [[slnc 600]] Then someone in marketing '
+            'types thirty-five into a box. [[slnc 500]] Four seconds '
+            'later, the very next basket is priced against thirty-five '
+            'pounds. [[slnc 300]] And the forty-eight-pound basket now '
+            'ships free. [[slnc 600]] No rebuild. [[slnc 200]] No '
+            'release. [[slnc 200]] No restart. [[slnc 300]] Nobody '
+            'approved anything. [[slnc 500]] Four seconds, against two '
+            'hours of work spread over a whole weekend. [[slnc 300]] That '
+            'is the business case for this pattern. [[slnc 600]] That is '
+            'the good news. [[slnc 300]] The rest of this video is the '
+            'bill.'
         ),
     ),
     dict(
@@ -379,24 +359,19 @@ public DeliveryQuote quote(Basket basket) {
   note what it quietly lost, though: the promotion.
   Back to £50.00, with no error and no alarm.""",
         narration=(
-            "The first item on the bill is the one everybody thinks of, and it is "
-            "also the one everybody handles correctly. [[slnc 300]] The network "
-            "link to the configuration source drops. Every setting falls back to "
-            "the default compiled into the code, and the shop starts, and keeps "
-            "selling. That is exactly why move two insisted on a default, and it is "
-            "the right behaviour. [[slnc 400]] But read what it quietly lost. "
-            "[[slnc 250]] The threshold is back to fifty pounds. The promotion is "
-            "off. The campaign is still running, still advertising thirty-five "
-            "pounds, and the shop is charging everybody as though nothing had ever "
-            "been configured. [[slnc 350]] And nothing anywhere reports it. No "
-            "exception reaches a customer. No log line is written. No alert fires. "
-            "The shop is behaving perfectly reasonably, and it is behaving "
-            "perfectly reasonably in a way that is losing the business money. "
-            "[[slnc 350]] The only trace of it anywhere in the system is that "
-            "little description of where the value came from, which is the second "
-            "time in this video that the provenance has turned out to be worth "
-            "carrying. Surviving an outage quietly is not the same thing as "
-            "surviving it correctly."
+            'Third demo: the source goes away. [[slnc 400]] The '
+            'connection to the settings server drops. [[slnc 300]] Every '
+            'setting falls back to its built-in default. [[slnc 300]] And '
+            'the shop keeps selling. [[slnc 300]] That is exactly why '
+            'move two insisted on a default. [[slnc 600]] But listen to '
+            'what it quietly lost. [[slnc 300]] The threshold is back to '
+            'fifty pounds. [[slnc 300]] The promotion is off. [[slnc '
+            '300]] The campaign is still promising thirty-five pounds, '
+            'and the shop is charging as if it were fifty. [[slnc 600]] '
+            'And nothing reports it. [[slnc 300]] No error, no log, no '
+            'alert. [[slnc 300]] The only trace is that little note '
+            'saying where the value came from. [[slnc 500]] Surviving an '
+            'outage quietly is not the same as surviving it correctly.'
         ),
     ),
     dict(
@@ -417,29 +392,23 @@ public DeliveryQuote quote(Basket basket) {
   -1 is a perfectly well-formed number, so nothing
   complains.  No exception.  No log line.""",
         narration=(
-            "The second item on the bill is the one that should frighten you. "
-            "[[slnc 300]] Saturday morning, twelve minutes past nine. Somebody "
-            "types minus one into the box. Maybe they meant to type thirty-five and "
-            "caught the wrong key. Maybe a form defaulted to it. It does not "
-            "matter. [[slnc 350]] The configuration source stores it happily, "
-            "because storing text is all a configuration source does. And then "
-            "every basket in the shop is worth more than minus one pound, so every "
-            "basket qualifies for free delivery — including the thirty-one pound "
-            "fifty one, where the delivery costs the shop more than the margin on "
-            "the order. [[slnc 400]] Now listen to what does not happen. There is "
-            "no exception. There is no error log. Nothing crashes, nothing retries, "
-            "no alert fires, and no dashboard turns red. [[slnc 300]] And that is "
-            "not a bug in the program. Minus one is a perfectly well-formed number. "
-            "The program was told the threshold is minus one pound, and it is "
-            "faithfully, correctly applying it. There is nothing here to fix, "
-            "because in software terms nothing is broken. [[slnc 400]] There is a "
-            "test in this project that asserts this behaviour and it passes. It is "
-            "not a failure waiting to be repaired. It is a description of the "
-            "pattern working exactly as designed, with a value somebody typed "
-            "wrongly. [[slnc 350]] The first symptom of this is the margin report, "
-            "and the margin report is on Monday. It reached the running shop in "
-            "four seconds, with no compiler, no code review and no test suite "
-            "anywhere in the way. That is what you traded the release pipeline for."
+            'Fourth demo: a number nobody checked. [[slnc 400]] Saturday '
+            'morning, twelve minutes past nine. [[slnc 300]] Someone '
+            'types minus one into the box. [[slnc 300]] Perhaps they hit '
+            'the wrong key. [[slnc 600]] The settings server stores it, '
+            'because storing text is all it does. [[slnc 300]] Now every '
+            'basket is worth more than minus one pound. [[slnc 300]] So '
+            'every basket ships free. [[slnc 300]] Including the '
+            'thirty-one-pound basket, where delivery costs more than the '
+            'shop earns. [[slnc 600]] And nothing goes wrong, as far as '
+            'the software can tell. [[slnc 300]] No error, no crash, no '
+            'alert. [[slnc 300]] Minus one is a perfectly valid number. '
+            '[[slnc 300]] The program was told the threshold is minus one '
+            'pound, and it obeys. [[slnc 600]] The first sign is the '
+            'profit report, on Monday. [[slnc 300]] That value reached '
+            'the live shop in four seconds. [[slnc 300]] With no '
+            'compiler, no review, and no tests in the way. [[slnc 300]] '
+            'That is what you traded the release process for.'
         ),
     ),
     dict(
@@ -459,23 +428,24 @@ public DeliveryQuote quote(Basket basket) {
   not one basket can be quoted.  The shop is down,
   and it was taken down by a text box.""",
         narration=(
-            "Eight minutes later, somebody tries to fix it, and types the word "
-            "fifty. Not the digits. The word. [[slnc 350]] This one is not a number "
-            "at all, so turning the text into money fails, an exception is thrown, "
-            "nothing catches it, and it travels straight out through the checkout. "
-            "[[slnc 300]] Not one basket in the shop can be quoted. Every customer "
-            "at the delivery step gets an error page. The shop is down — and it was "
-            "taken down by somebody typing a word into a text box, with nothing "
-            "deployed and no code changed anywhere. [[slnc 400]] The compiler would "
-            "have refused this. It would not have built. That is not a small "
-            "difference: the compiler is no longer anywhere in the path between a "
-            "person's fingers and your running shop. [[slnc 350]] And here is the "
-            "uncomfortable comparison. Of those two failures, this one is the "
-            "better failure. [[slnc 300]] Because you find out. Error rates spike, "
-            "somebody is paged, and it is understood within minutes. Minus one runs "
-            "all weekend, cheerfully, giving away delivery on every order in the "
-            "shop, and the first person to notice is an accountant. [[slnc 350]] A "
-            "loud failure is a bad afternoon. A quiet failure is a bad quarter."
+            'Fifth demo: not a number at all. [[slnc 400]] Eight minutes '
+            'later, someone tries to fix it. [[slnc 300]] And types the '
+            'word fifty, in letters. [[slnc 600]] That cannot be turned '
+            'into money. [[slnc 300]] So an error is thrown, and nothing '
+            'catches it. [[slnc 500]] Not one basket can be priced. '
+            '[[slnc 300]] Every customer at the delivery step gets an '
+            'error page. [[slnc 300]] The shop is down. [[slnc 300]] '
+            'Taken down by someone typing a word into a box, with no code '
+            'changed at all. [[slnc 600]] The compiler would have refused '
+            'this. [[slnc 300]] But the compiler is no longer between a '
+            "person's fingers and your live shop. [[slnc 600]] And here "
+            'is an uncomfortable comparison. [[slnc 300]] Of these two '
+            'failures, this one is better. [[slnc 300]] Because you find '
+            'out. [[slnc 300]] Errors spike, someone is called, and it is '
+            'fixed within minutes. [[slnc 300]] Minus one runs all '
+            'weekend, quietly, and the first to notice is an accountant. '
+            '[[slnc 500]] A loud failure is a bad afternoon. [[slnc 300]] '
+            'A quiet failure is a bad quarter.'
         ),
     ),
     dict(
@@ -496,25 +466,23 @@ public DeliveryQuote quote(Basket basket) {
             "    ->  a rollback as fast as the change was",
         ],
         narration=(
-            "So let's pay the bill, item by item, because each of those four guards "
-            "has a replacement and none of the replacements is difficult. [[slnc "
-            "350]] The compiler refused the word fifty. Its replacement is a typed "
-            "setting: something that takes the text, tries to turn it into money, "
-            "and refuses it at the boundary if it cannot. [[slnc 300]] A human "
-            "reviewer would have queried minus one pound. Its replacement is a "
-            "declared range — a lowest value and a highest value written down as "
-            "data, that the configured value must fall between. [[slnc 300]] "
-            "Version control knew who changed the number, when, and what it was "
-            "before. Its replacement is an audit trail that records exactly those "
-            "things every time a value is written. [[slnc 300]] And a bad release "
-            "was undone by a revert and a redeploy. Its replacement is a rollback "
-            "that is as fast as the change was — which, once you have the audit "
-            "trail, is nearly free. [[slnc 400]] Look at that list again and notice "
-            "what it is not. It is not a framework, it is not a product, and it is "
-            "not clever. It is four small, ordinary pieces of code. [[slnc 300]] "
-            "The reason this pattern goes wrong so often in real systems is not "
-            "that these are hard. It is that the first two moves work on their own, "
-            "and so nobody gets round to the third."
+            "So let's rebuild the four protections, one by one. [[slnc "
+            '300]] None of them is difficult. [[slnc 600]] The compiler '
+            'refused the word fifty. [[slnc 300]] Its replacement is a '
+            'typed setting. [[slnc 300]] It tries to turn the text into '
+            'money, and rejects it at the door if it cannot. [[slnc 500]] '
+            'A reviewer would have questioned minus one pound. [[slnc '
+            '300]] Its replacement is a declared range: a lowest and a '
+            'highest allowed value. [[slnc 500]] Version control knew who '
+            'changed what, and when. [[slnc 300]] Its replacement is an '
+            'audit trail, recording that on every change. [[slnc 500]] '
+            'And a bad release was undone by a new release. [[slnc 300]] '
+            'Its replacement is a rollback that is as fast as the change '
+            'was. [[slnc 600]] Notice what this list is not. [[slnc 300]] '
+            'Not a framework, and not clever. [[slnc 300]] Four small, '
+            'ordinary pieces of code. [[slnc 300]] This pattern goes '
+            'wrong in real systems because the first two moves work on '
+            'their own. [[slnc 300]] So nobody gets round to the third.'
         ),
     ),
     dict(
@@ -537,38 +505,30 @@ public DeliveryQuote quote(Basket basket) {
   REJECTED  "fifty" — expected an amount of money
   REJECTED  "-1"    — expected between £5.00 and £200.00""",
         narration=(
-            "Here are the first two of those guards, running against the same two "
-            "bad values. [[slnc 350]] The setting is now declared, out loud, as "
-            "four things: the key it lives under, that it holds money, that it must "
-            "be between five pounds and two hundred pounds, and that it defaults to "
-            "fifty pounds if nothing is configured. [[slnc 400]] Spend a moment on "
-            "those two bounds, because they are the interesting part. Why five "
-            "pounds at the bottom? Because below five pounds you are giving free "
-            "delivery away on a packet of crisps. Why two hundred at the top? "
-            "Because above two hundred pounds almost nobody qualifies, and the "
-            "promotion is broken in the other direction — quietly, and nobody "
-            "notices for a month. [[slnc 350]] Both of those are business "
-            "judgements, not technical ones. And that is precisely why a program "
-            "has to enforce them, because the person typing into the box on a "
-            "Saturday morning is not thinking about either end. [[slnc 400]] Now "
-            "watch what happens. The word fifty is still configured, and it is "
-            "refused at the edge. The shop falls back to fifty pounds from the "
-            "code, and keeps trading. Nobody sees an error page. [[slnc 300]] Then "
-            "a good value, thirty-five, arrives and passes, and the reader does one "
-            "more thing with it: it files it away as the last value known to be "
-            "good. [[slnc 350]] And then somebody in operations types minus one "
-            "again. It is refused, and look very carefully at what the shop falls "
-            "back to. Not fifty pounds from the code. Thirty-five — the last value "
-            "that passed. [[slnc 400]] That distinction is worth arguing about, so "
-            "let me make the case. Somebody deliberately set that promotion to "
-            "thirty-five pounds an hour ago. If an unrelated typo silently reverted "
-            "it to fifty, you would have cancelled a promotion that nobody decided "
-            "to cancel — and you would have done it in the name of safety. Keeping "
-            "the last good value keeps the last actual decision. [[slnc 350]] And "
-            "notice the last two lines. Both rejections are recorded, loudly. A "
-            "guard that swallows bad input in silence is only half a guard, because "
-            "the typo is still sitting in the configuration, the promotion still is "
-            "not what anybody intended, and nobody is looking for it."
+            'Sixth demo: declared, and checked at the door. [[slnc 400]] '
+            'The setting is now declared, out loud. [[slnc 300]] It holds '
+            'money. [[slnc 300]] It must be between five pounds and two '
+            'hundred pounds. [[slnc 300]] And it defaults to fifty '
+            'pounds. [[slnc 600]] Why those limits? [[slnc 300]] Below '
+            'five pounds, you are giving free delivery on a packet of '
+            'crisps. [[slnc 300]] Above two hundred, almost nobody '
+            'qualifies, and the promotion is broken the other way. [[slnc '
+            '300]] Those are business judgements. [[slnc 300]] And that '
+            'is why the program must enforce them. [[slnc 600]] Now the '
+            'word fifty is still in the settings. [[slnc 300]] It is '
+            'refused at the door. [[slnc 300]] The shop falls back to '
+            'fifty pounds, and keeps trading. [[slnc 500]] Then a good '
+            'value, thirty-five, arrives, and passes. [[slnc 300]] And '
+            'the reader remembers it as the last known good value. [[slnc '
+            '500]] Then someone types minus one again. [[slnc 300]] It is '
+            'refused. [[slnc 300]] And the shop falls back, not to fifty, '
+            'but to thirty-five, the last good value. [[slnc 600]] That '
+            'matters. [[slnc 300]] Someone deliberately set thirty-five '
+            'an hour ago. [[slnc 300]] Reverting to fifty because of an '
+            'unrelated typo would cancel a promotion nobody decided to '
+            'cancel. [[slnc 500]] And both refusals are recorded, loudly. '
+            '[[slnc 300]] A guard that silently swallows bad input is '
+            'only half a guard.'
         ),
     ),
     dict(
@@ -593,36 +553,29 @@ Act 9 - a rollback as fast as the change
   nobody had to remember the old value: the log had it.
   the same fix through the pipeline: live Mon 10 Mar 11:15.""",
         narration=(
-            "And here are the other two guards. [[slnc 300]] This is every change "
-            "made to that one setting: five of them, in under a day, and each one "
-            "records the key, the new value, the value it displaced, who did it, and "
-            "the second it happened. [[slnc 350]] Now read the line under the list, "
-            "because it is the whole justification for building this. Five changes "
-            "to a business-critical number in a single day, and not one of them is "
-            "in the version control history. [[slnc 300]] When that value left the "
-            "source code, it left version control behind, and this list is the "
-            "replacement. [[slnc 350]] And the reason you need it is not the "
-            "question you expect. Nobody will ever ring you up to ask what the "
-            "threshold is now — you can look at the box. The question you actually "
-            "get asked, three weeks later, by somebody investigating a complaint, "
-            "is what the threshold was at nine o'clock on Saturday morning. Without "
-            "this list, there is no honest answer to that. [[slnc 400]] And then the "
-            "fourth guard, which is my favourite, because it has no equivalent at "
-            "all in the source-code world. [[slnc 250]] Saturday, twenty to twelve. "
-            "The margin report looks wrong, somebody on call works out that the "
-            "threshold is minus one pound, and rolls it back. Four seconds after the "
-            "decision, the shop is quoting on thirty-five pounds again. [[slnc "
-            "350]] And nobody had to remember that it used to be thirty-five. "
-            "Nobody had to guess, at speed, on a Saturday, while the shop gave "
-            "delivery away. The log had it, because every entry records the value it "
-            "displaced, so the rollback is a lookup rather than an act of memory. "
-            "[[slnc 400]] Compare that with the alternative. The same correction "
-            "through the release pipeline would have been live on Monday at a "
-            "quarter past eleven. [[slnc 300]] A bad release takes a release to "
-            "undo. A bad value takes four seconds. [[slnc 350]] That is the line I "
-            "would want you to take away, because it turns the whole argument round. "
-            "Externalised configuration is not a way of avoiding governance. It is a "
-            "way of governing a change in seconds instead of days."
+            'Seventh demo: the trail, and a rollback. [[slnc 400]] Here '
+            'is every change made to that one setting. [[slnc 300]] Five '
+            'changes, in less than a day. [[slnc 300]] Each records the '
+            'new value, the old value, who made it, and exactly when. '
+            '[[slnc 600]] Five changes to a business-critical number in '
+            'one day. [[slnc 300]] And none of them is in version '
+            'control. [[slnc 300]] This list is its replacement. [[slnc '
+            '600]] The question you will really be asked is not: what is '
+            'the threshold now? [[slnc 300]] You can just look. [[slnc '
+            "300]] It is: what was it at nine o'clock on Saturday "
+            'morning? [[slnc 300]] Without this list, there is no honest '
+            'answer. [[slnc 600]] Then the fourth protection. [[slnc '
+            '300]] Saturday, twenty to twelve. [[slnc 300]] Someone on '
+            'call sees the threshold is minus one, and rolls it back. '
+            '[[slnc 300]] Four seconds later, the shop is using '
+            'thirty-five pounds again. [[slnc 500]] Nobody had to '
+            'remember the old value. [[slnc 300]] The log had it. [[slnc '
+            '500]] The same fix through the release process would have '
+            'gone live on Monday. [[slnc 600]] A bad release takes a '
+            'release to undo. [[slnc 300]] A bad value takes four '
+            'seconds. [[slnc 500]] So externalised configuration is not a '
+            'way to avoid control. [[slnc 300]] It is a way to control a '
+            'change in seconds, instead of days.'
         ),
     ),
     dict(
@@ -645,27 +598,23 @@ Act 9 - a rollback as fast as the change
             "a parameter lives forever, a switch is meant to die.",
         ],
         narration=(
-            "So, what should you actually externalise? There are two questions, and "
-            "the order matters. [[slnc 350]] The first one is: does this value "
-            "change on an engineering calendar, or on somebody else's? A free "
-            "delivery threshold, a page size, a timeout, a promotion window — "
-            "somebody else's calendar, and those are the candidates. The order of "
-            "the steps in a workflow, the way a total is put together, the algorithm "
-            "itself — engineering, and those should stay behind the pipeline where "
-            "it is properly difficult to change them. [[slnc 400]] And then the "
-            "second question, which is the one that gets skipped: what can I break "
-            "by typing into that box? [[slnc 300]] If the answer is anything like "
-            "the whole shop, then the guards are not optional extras you will get "
-            "round to next quarter. They are the price of admission. [[slnc 350]] "
-            "One more distinction, because these two get muddled constantly. This is "
-            "not the same thing as a feature flag. Externalised configuration holds "
-            "parameters, and a parameter lives for as long as the product does — "
-            "there will always be some free-delivery threshold. A feature flag holds "
-            "a switch that picks between two code paths, and a switch is supposed to "
-            "die: once the new path is proven, you delete the flag and you delete the "
-            "old path. [[slnc 350]] Flags that are never removed turn a codebase into "
-            "a maze of paths nobody dares delete. That is the failure mode of that "
-            "pattern. The failure mode of this one is the quiet minus one."
+            'So, what should you move outside the code? [[slnc 300]] Ask '
+            'two questions, in this order. [[slnc 600]] First: does this '
+            "value change on an engineer's timetable, or someone else's? "
+            '[[slnc 300]] A free-delivery threshold, a page size, a '
+            "timeout, or a promotion window? [[slnc 300]] Someone else's. "
+            '[[slnc 300]] Those are candidates. [[slnc 500]] The order of '
+            'steps, how a total is built, the method itself? [[slnc 300]] '
+            'Those belong in the code, behind the release process. [[slnc '
+            '600]] Second: what could I break by typing into that box? '
+            '[[slnc 300]] If the answer is the whole shop, the '
+            'protections are not optional. [[slnc 300]] They are the '
+            'price of entry. [[slnc 600]] One last distinction. [[slnc '
+            '300]] This is not the same as a feature flag. [[slnc 300]] A '
+            'setting like a threshold lives as long as the product. '
+            '[[slnc 300]] A feature flag switches between two versions of '
+            'code. [[slnc 300]] And a flag is meant to be deleted, once '
+            'the new version is proven.'
         ),
     ),
     dict(
@@ -680,25 +629,23 @@ Act 9 - a rollback as fast as the change
             "the guard. The range is.",
         ],
         narration=(
-            "That's externalised configuration. [[slnc 250]] If you take one "
-            "sentence away, take this one: take the number out of the code, and you "
-            "take the compiler, the reviewer and the history out with it. [[slnc "
-            "350]] The full source, the written notes, the diagrams and an animated "
-            "walkthrough are all in the repository, and everything runs offline with "
-            "nothing installed but a Java development kit — no configuration server, "
-            "no Spring, no Docker. There is also an optional version that wires it "
-            "up to a real config server over HTTP, if you want to see it for "
-            "yourself. [[slnc 300]] If you try one exercise, try this one. Widen the "
-            "declared range so that the lowest allowed value is minus a thousand "
-            "pounds, and then run the demo again. [[slnc 250]] Minus one is now "
-            "accepted, and the shop gives delivery away on every order with "
-            "validation fully switched on. [[slnc 300]] That is the point worth "
-            "sitting with. The type was never the guard. The range is — and the range "
-            "is a conversation with somebody who is not an engineer, which is "
-            "probably why it is the part that gets left out. [[slnc 300]] If this "
-            "helped, a like genuinely does help other people find it, and subscribe "
-            "if you would like the rest of the series. [[slnc 250]] Thanks for "
-            "watching, and I'll see you in the next one."
+            "That's the Externalised Configuration pattern. [[slnc 400]] "
+            'If you remember one sentence, make it this one. [[slnc 300]] '
+            'Take a number out of the code, and you also take out the '
+            'compiler, the reviewer, and the history, so rebuild them on '
+            'the outside. [[slnc 500]] The full source code, written '
+            'notes, diagrams, and an animated walkthrough are all in the '
+            'repository. [[slnc 300]] It runs offline, with nothing '
+            'installed except a Java development kit. [[slnc 500]] Here '
+            'is one exercise to try. [[slnc 300]] Widen the allowed '
+            'range, so the lowest value is minus a thousand pounds. '
+            '[[slnc 300]] Run the demo again. [[slnc 300]] Now minus one '
+            'is accepted, and delivery is given away, even with checking '
+            'switched on. [[slnc 300]] The type was never the protection. '
+            '[[slnc 300]] The range is. [[slnc 500]] If this helped, a '
+            'like really does help other people find it. [[slnc 300]] And '
+            "subscribe, if you'd like the rest of the series. [[slnc "
+            '400]] Thanks for watching.'
         ),
     ),
 ]

@@ -6,22 +6,4 @@ Say it in words. Sales renames Ada. Sales changes its own buyer and publishes a 
 
 ![Bounded Context pattern sequence diagram](images/sequence-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant S as Sales
-    participant B as event bus
-    participant H as Shipping
-    S->>S: rename buyer to Ada King
-    S->>B: CustomerRenamed(ada, Ada King)
-    Note over S,H: Sales: Ada King. Shipping: Ada Lovelace.
-    B->>H: deliver
-    H->>H: change my Recipient's name
-```
-
-</details>
-
 The load-bearing sentence: **contexts agree eventually, and each changes only its own model.**

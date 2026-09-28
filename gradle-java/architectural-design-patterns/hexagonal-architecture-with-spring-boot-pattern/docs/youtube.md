@@ -19,21 +19,21 @@ The first two lines are what a viewer sees above the fold, so they carry the hoo
 ```
 CHAPTERS
 00:00 Introduction
-00:51 The Partner Project
-01:15 Before The First Line
-01:35 The Core Is Plain Java
-01:48 Two Storage Adapters
-02:04 Two Doors Into One Room
-02:20 The Core Without A Container
-02:34 A Use Case That Reaches For Spring
-02:51 A Port With No Adapter
-03:09 The Verdict
-03:21 How To Recognise It
-03:32 Where You Have Met This
-03:38 What Was Used
-03:46 What Is Real Here
-03:55 When This Is Too Much
-04:03 Thanks for Watching
+00:59 The Partner Project
+01:24 Before The First Line
+01:50 The Core Is Plain Java
+02:07 Two Storage Adapters
+02:32 Two Doors Into One Room
+02:58 The Core Without A Container
+03:16 A Use Case That Reaches For Spring
+03:38 A Port With No Adapter
+04:04 The Verdict
+04:18 How To Recognise It
+04:34 Where You Have Met This
+04:42 What Was Used
+04:53 What Is Real Here
+05:03 When This Is Too Much
+05:12 Thanks for Watching
 
 SOURCE CODE, WRITTEN NOTES AND AN INTERACTIVE ANIMATION
 https://github.com/jk-boot-up/java-design-patterns/tree/main/gradle-java/architectural-design-patterns/hexagonal-architecture-with-spring-boot-pattern
@@ -48,21 +48,21 @@ YouTube renders these as chapters only if there are at least three and the first
 
 ```
 00:00 Introduction
-00:51 The Partner Project
-01:15 Before The First Line
-01:35 The Core Is Plain Java
-01:48 Two Storage Adapters
-02:04 Two Doors Into One Room
-02:20 The Core Without A Container
-02:34 A Use Case That Reaches For Spring
-02:51 A Port With No Adapter
-03:09 The Verdict
-03:21 How To Recognise It
-03:32 Where You Have Met This
-03:38 What Was Used
-03:46 What Is Real Here
-03:55 When This Is Too Much
-04:03 Thanks for Watching
+00:59 The Partner Project
+01:24 Before The First Line
+01:50 The Core Is Plain Java
+02:07 Two Storage Adapters
+02:32 Two Doors Into One Room
+02:58 The Core Without A Container
+03:16 A Use Case That Reaches For Spring
+03:38 A Port With No Adapter
+04:04 The Verdict
+04:18 How To Recognise It
+04:34 Where You Have Met This
+04:42 What Was Used
+04:53 What Is Real Here
+05:03 When This Is Too Much
+05:12 Thanks for Watching
 ```
 
 ## Tags
@@ -101,4 +101,4 @@ Add a card partway through pointing at the playlist, so a viewer who arrives at 
 
 ## Runtime
 
-Approximately 04:35, narrated at 145 words per minute.
+Approximately 05:48, narrated at 145 words per minute.

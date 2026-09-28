@@ -12,24 +12,24 @@ SCENES = [
         key='01-poster', kind='poster', title='Idempotent Consumer with Kafka',
         body=None,
         narration=(
-            'Hello, and welcome. This video explains the Idempotent '
-            'Consumer pattern in Java, using a real Kafka broker and a '
-            'real Postgres database. [[slnc 250]] It is written and '
-            'presented by Jayasekhar Konduru. [[slnc 300]] Here is the '
-            'plain definition, in general words. A message can arrive '
-            'more than once. So the receiver writes down the id of every '
-            'message it has handled, in the same step as the work itself, '
-            'and when a message turns up whose id is already written '
-            'down, it does nothing. [[slnc 350]] Now the same thing in our '
-            'online store. Every time a customer places an order, '
-            'checkout sends a message, and the notifications service '
-            'queues one confirmation email. If that message arrives twice, '
-            'the customer must still get exactly one email. [[slnc 300]] '
-            'By the end you will have seen Kafka hand the same three '
-            'orders to a second copy of the service, a list of ids in '
-            'memory fail to notice, and two copies working on the same '
-            'order at the same time, with the database deciding which one '
-            'wins.'
+            'Hello, and welcome. [[slnc 400]] This video explains the '
+            'Idempotent Consumer pattern in Java, using a real Kafka '
+            'broker and a real Postgres database. [[slnc 300]] This video '
+            'is presented by Jayasekhar Konduru. [[slnc 600]] First, a '
+            'simple definition. [[slnc 300]] A message can arrive more '
+            'than once. [[slnc 300]] So the receiver writes down the I D '
+            'of every message it handles, in the same step as the work '
+            'itself. [[slnc 300]] When a message arrives whose I D is '
+            'already written down, it does nothing. [[slnc 700]] In our '
+            'online store, every time a customer places an order, '
+            'checkout sends a message. [[slnc 300]] The notifications '
+            'service then queues one confirmation email. [[slnc 300]] If '
+            'that message arrives twice, the customer must still get '
+            'exactly one email. [[slnc 500]] By the end, you will hear '
+            'Kafka hand the same three orders to a second copy of the '
+            'service. [[slnc 300]] A list of I Ds in memory fail to '
+            'notice. [[slnc 300]] And two copies working on the same '
+            'order at once, with the database deciding which one wins.'
         ),
     ),
     dict(
@@ -39,14 +39,15 @@ SCENES = [
               'Several copies of notifications', 'run at once, and restart on', 'every deploy.', '',
               'Goal: exactly one email per order.'],
         narration=(
-            'Here is the scenario. When a customer places an order, '
-            'checkout sends a message saying so. The notifications service '
-            'reads each message and queues one confirmation email, as a '
-            'row in its own database. [[slnc 300]] Several copies of the '
-            'notifications service run at the same time, and every time a '
-            'new version is deployed, they are stopped and started again. '
-            '[[slnc 250]] The shop wants exactly one email per order. None '
-            'missing, and none sent twice.'
+            'Here is the scenario. [[slnc 400]] When a customer places an '
+            'order, checkout sends a message saying so. [[slnc 300]] The '
+            'notifications service reads each message. [[slnc 300]] And '
+            'it queues one confirmation email, as a row in its own '
+            'database. [[slnc 600]] Several copies of the notifications '
+            'service run at the same time. [[slnc 300]] And every time a '
+            'new version is released, they are stopped and started again. '
+            '[[slnc 500]] The shop wants exactly one email per order. '
+            '[[slnc 300]] None missing, and none sent twice.'
         ),
     ),
     dict(
@@ -56,18 +57,20 @@ SCENES = [
               'One service, however many copies:', 'a consumer group.', '',
               'The bookmark the group asks to be', 'written: committing the offset.'],
         narration=(
-            'Before the demo, a few words, in plain language first. '
-            'Picture a shared notebook. The till writes one line in it for '
-            'every sale, and the back office reads down it with a '
-            'bookmark. [[slnc 250]] In Kafka the notebook is called a '
-            'topic. Every message sits at a numbered place in it, counting '
-            'from zero, and Kafka calls that number the offset. '
-            '[[slnc 250]] A service reading the topic is a consumer group, '
-            'however many copies of it are running. The broker keeps each '
-            'group\'s bookmark: the place it has reached. A copy has to '
-            'ask for the bookmark to be moved, and Kafka calls that '
-            'committing the offset. Until it is moved, Kafka assumes '
-            'nothing after it was handled.'
+            'Before the demo, a few words, in plain language. [[slnc '
+            '400]] Picture a shared notebook. [[slnc 300]] The till '
+            'writes one line in it for every sale. [[slnc 300]] And the '
+            'back office reads down it, with a bookmark. [[slnc 600]] In '
+            'Kafka, the notebook is called a topic. [[slnc 300]] Every '
+            'message sits at a numbered place in it, counting from zero. '
+            '[[slnc 300]] That number is called the offset. [[slnc 600]] '
+            'A service reading the topic is called a consumer group, '
+            'however many copies of it are running. [[slnc 300]] Kafka '
+            "keeps each group's bookmark: the place it has reached. "
+            '[[slnc 300]] A copy must ask for the bookmark to be moved. '
+            '[[slnc 300]] That is called committing the offset. [[slnc '
+            '300]] Until it is moved, Kafka assumes nothing after it was '
+            'handled.'
         ),
     ),
     dict(
@@ -85,16 +88,19 @@ SCENES = [
   deliveries: 6 for 3 orders.
   confirmation emails queued: 6.""",
         narration=(
-            'Act one. Checkout places three orders, and Kafka puts them at '
-            'places zero, one and two. Copy A of the notifications service '
-            'is handed all three, and queues three confirmation emails. '
-            'Then it crashes, before asking Kafka to move the bookmark. '
-            'So Kafka has written down no place at all for the group. '
-            '[[slnc 300]] Copy B joins the same group, and Kafka hands it '
-            'the same three orders again, at the same places, zero, one '
-            'and two. Nothing on them says they are repeats. Kafka has no '
-            'such mark. [[slnc 250]] Six deliveries for three orders, and '
-            'six emails. This is what Kafka means by at least once.'
+            'First demo: Kafka sends it again. [[slnc 400]] Checkout '
+            'places three orders, and Kafka puts them at places zero, '
+            'one, and two. [[slnc 500]] Copy A of the notifications '
+            'service is handed all three. [[slnc 300]] It queues three '
+            'confirmation emails. [[slnc 300]] Then it crashes, before '
+            'asking Kafka to move the bookmark. [[slnc 300]] So Kafka has '
+            'no bookmark for the group at all. [[slnc 600]] Copy B joins '
+            'the same group. [[slnc 300]] And Kafka hands it the same '
+            'three orders again, at the same places. [[slnc 300]] Nothing '
+            'on them says they are repeats. [[slnc 300]] Kafka has no '
+            'such mark. [[slnc 500]] Six deliveries, for three orders. '
+            '[[slnc 300]] And six emails. [[slnc 300]] This is what Kafka '
+            'means by at least once.'
         ),
     ),
     dict(
@@ -110,16 +116,18 @@ SCENES = [
 
   the list died with copy A.""",
         narration=(
-            'Act two. Copy A now keeps a list of the ids it has handled, '
-            'in its own memory. It handles three orders, remembers three '
-            'ids, and crashes before moving the bookmark. [[slnc 250]] '
-            'Copy B is handed the same three orders. Its list starts with '
-            'no ids at all, so it queues all three emails again. Six '
-            'emails. [[slnc 300]] This is the most important find in the '
-            'video. On Kafka, an order is only handed out again because a '
-            'copy stopped. So the repeat always lands on a copy whose '
-            'memory is new. A list in memory never even sees the '
-            'duplicate it was written to catch.'
+            'Second demo: a list of I Ds in memory. [[slnc 400]] Copy A '
+            'now keeps a list of the I Ds it has handled, in its own '
+            'memory. [[slnc 300]] It handles three orders, remembers '
+            'three I Ds, and crashes before moving the bookmark. [[slnc '
+            '600]] Copy B is handed the same three orders. [[slnc 300]] '
+            'Its list starts empty. [[slnc 300]] So it queues all three '
+            'emails again. [[slnc 300]] Six emails. [[slnc 600]] This is '
+            'the most important finding in the video. [[slnc 300]] On '
+            'Kafka, an order is only handed out again because a copy '
+            'stopped. [[slnc 300]] So the repeat always lands on a copy '
+            'with fresh, empty memory. [[slnc 300]] A list in memory '
+            'never even sees the duplicate it was meant to catch.'
         ),
     ),
     dict(
@@ -128,14 +136,15 @@ SCENES = [
               'A column no two rows may share:', 'a primary key.', '',
               'A second writer of the same key', 'waits for the first: a lock.'],
         narration=(
-            'The fix needs three words from the database, again in plain '
-            'language first. A group of changes that are kept together, '
-            'or thrown away together, is a transaction. Nothing in it is '
-            'visible to anyone else until it is committed. [[slnc 250]] '
-            'A column that no two rows may share is a primary key. '
-            '[[slnc 250]] And when two writers try to write the same key '
-            'at the same moment, the database makes the second one wait '
-            'for the first to finish. That waiting is a lock.'
+            'The fix needs three database words, in plain language. '
+            '[[slnc 500]] A group of changes that are kept together, or '
+            'thrown away together, is called a transaction. [[slnc 300]] '
+            'Nothing in it is visible to anyone else until it is '
+            'committed. [[slnc 500]] A column that no two rows may share '
+            'is called a primary key. [[slnc 500]] And when two writers '
+            'try to write the same key at the same moment, the database '
+            'makes the second one wait. [[slnc 300]] That waiting is '
+            'caused by a lock.'
         ),
     ),
     dict(
@@ -153,30 +162,34 @@ SCENES = [
   deliveries: 6. emails queued: 3.
   ids stored: 3.""",
         narration=(
-            'Act three is the pattern. Copy A writes each order\'s id into '
-            'a table of handled messages, where the id is the primary key, '
-            'and writes the email beside it, in one transaction. Then it '
-            'crashes before moving the bookmark. [[slnc 250]] Copy B is '
-            'handed the same three orders. For each one it tries to write '
-            'the id, and Postgres says the id is already there. So copy B '
-            'skips all three and queues none. [[slnc 250]] Six deliveries, '
-            'three emails, three ids. The table outlived the copy that '
-            'wrote it.'
+            'Third demo: the pattern. [[slnc 400]] Copy A writes each '
+            "order's I D into a table of handled messages. [[slnc 300]] "
+            'The I D is the primary key. [[slnc 300]] And the email is '
+            'written beside it, in the same transaction. [[slnc 300]] '
+            'Then copy A crashes, before moving the bookmark. [[slnc '
+            '600]] Copy B is handed the same three orders. [[slnc 300]] '
+            'For each one, it tries to write the I D. [[slnc 300]] And '
+            'Postgres says the I D is already there. [[slnc 300]] So copy '
+            'B skips all three, and queues no emails. [[slnc 600]] Six '
+            'deliveries, three emails, and three I Ds. [[slnc 300]] The '
+            'table outlived the copy that wrote it.'
         ),
     ),
     dict(
         key='08-diagram', kind='diagram', title='Where The Memory Lives',
         body=None,
         narration=(
-            'Here is the whole arrangement in words. Kafka keeps the '
-            'orders, and each group\'s bookmark. A copy of the service is '
-            'handed orders starting from the bookmark. For each order, it '
-            'opens one database transaction, writes the id first, then '
-            'the email, and commits. Only after that commit does it ask '
-            'Kafka to move the bookmark. [[slnc 300]] If it dies before '
-            'the bookmark moves, the order goes out again, to another '
-            'copy, and the id is waiting for it. The id and the email '
-            'land together, or not at all.'
+            'Here is the whole setup, in words. [[slnc 400]] Kafka keeps '
+            "the orders, and each group's bookmark. [[slnc 300]] A copy "
+            'of the service is handed orders, starting from the bookmark. '
+            '[[slnc 500]] For each order, it opens one database '
+            'transaction. [[slnc 300]] It writes the I D first, then the '
+            'email, and commits. [[slnc 300]] Only after that does it ask '
+            'Kafka to move the bookmark. [[slnc 600]] If it crashes '
+            'before the bookmark moves, the order goes out again, to '
+            'another copy. [[slnc 300]] And the I D is already waiting '
+            'for it. [[slnc 300]] The I D and the email are saved '
+            'together, or not at all.'
         ),
     ),
     dict(
@@ -193,16 +206,19 @@ SCENES = [
   emails: 0, ids: 0.
   copy B handles it. emails: 1, ids: 1.""",
         narration=(
-            'Act four moves the crash. First, the id is written after the '
-            'email, as a second step. Copy A queues the email for order '
-            'one, and dies before writing the id. One email, no id. Copy '
-            'B is handed the order, finds no id, and queues the email '
-            'again. Two emails for one order. [[slnc 300]] Now the id and '
-            'the email go in one transaction, and copy A dies before the '
-            'commit. Its connection drops, and Postgres throws the whole '
-            'transaction away. No email, no id. Copy B handles the order '
-            'properly: one email, one id. [[slnc 250]] Exactly once, from '
-            'a broker that only promises at least once.'
+            'Fourth demo: where the crash lands. [[slnc 400]] First, the '
+            'I D is written after the email, as a separate step. [[slnc '
+            '300]] Copy A queues the email for order one. [[slnc 300]] '
+            'Then it crashes before writing the I D. [[slnc 300]] One '
+            'email, and no I D. [[slnc 300]] Copy B is handed the order, '
+            'finds no I D, and queues the email again. [[slnc 300]] Two '
+            'emails, for one order. [[slnc 600]] Now the I D and the '
+            'email go in one transaction. [[slnc 300]] Copy A crashes '
+            'before the commit. [[slnc 300]] Its connection drops, and '
+            'Postgres throws the whole transaction away. [[slnc 300]] No '
+            'email, and no I D. [[slnc 300]] Copy B handles the order '
+            'properly: one email, one I D. [[slnc 500]] Exactly once, '
+            'from a broker that only promises at least once.'
         ),
     ),
     dict(
@@ -220,13 +236,15 @@ connection.commit();
 consumer.commitSync(); // only now""",
         narration=(
             'In the code, the whole pattern is two statements and a '
-            'commit. The copy opens a transaction and inserts the message '
-            'id, asking Postgres to write nothing if the id is already '
-            'there. Postgres answers with how many rows it wrote. One row '
-            'means the order is new, so the email is queued in the same '
-            'transaction. Zero rows means it was handled already. '
-            '[[slnc 250]] Then the transaction commits, and only after '
-            'that does the copy ask Kafka to move the bookmark.'
+            'commit. [[slnc 500]] The copy opens a transaction, and '
+            'inserts the message I D. [[slnc 300]] It asks Postgres to '
+            'write nothing if the I D is already there. [[slnc 300]] '
+            'Postgres answers with how many rows it wrote. [[slnc 500]] '
+            'One row means the order is new. [[slnc 300]] So the email is '
+            'queued, in the same transaction. [[slnc 300]] Zero rows '
+            'means it was already handled. [[slnc 500]] Then the '
+            'transaction commits. [[slnc 300]] And only then does the '
+            'copy ask Kafka to move the bookmark.'
         ),
     ),
     dict(
@@ -244,21 +262,24 @@ consumer.commitSync(); // only now""",
   A asks for its place to be written.
   Kafka refuses: CommitFailedException""",
         narration=(
-            'Act five is something the plain-Java version could never '
-            'show. Kafka gives every copy a patience limit: how long it '
-            'may go without asking for more orders before Kafka decides '
-            'it is stuck. Kafka calls it max poll interval, and its '
-            'default is five minutes. Here it is three seconds. '
-            '[[slnc 300]] Copy A is handed order one, writes the id and '
-            'the email, and is slow to commit. After three seconds, Kafka '
-            'hands the same order to copy B. Now two copies are working on '
-            'one order. [[slnc 250]] Copy B tries to write the same id, '
-            'and Postgres makes it wait, on copy A\'s lock. Copy A '
-            'commits. Postgres tells copy B the id is taken, and copy B '
-            'skips it. One email. [[slnc 250]] Then copy A asks Kafka to '
-            'move the bookmark, and Kafka refuses. Copy A no longer owns '
-            'that order. A check done in Java would have let both copies '
-            'through. Only the primary key could decide.'
+            'Fifth demo, and this is something the plain Java version '
+            'could never show. [[slnc 500]] Kafka gives every copy a '
+            'patience limit. [[slnc 300]] It is how long a copy may go '
+            'without asking for more orders, before Kafka decides it is '
+            'stuck. [[slnc 300]] By default it is five minutes. [[slnc '
+            '300]] Here, it is three seconds. [[slnc 600]] Copy A is '
+            'handed order one. [[slnc 300]] It writes the I D and the '
+            'email, but is slow to commit. [[slnc 300]] After three '
+            'seconds, Kafka hands the same order to copy B. [[slnc 300]] '
+            'Now two copies are working on one order. [[slnc 600]] Copy B '
+            'tries to write the same I D. [[slnc 300]] And Postgres makes '
+            "it wait, on copy A's lock. [[slnc 300]] Copy A commits. "
+            '[[slnc 300]] Postgres tells copy B the I D is taken, so copy '
+            'B skips it. [[slnc 300]] One email. [[slnc 600]] Then copy A '
+            'asks Kafka to move the bookmark, and Kafka refuses. [[slnc '
+            '300]] Copy A no longer owns that order. [[slnc 500]] A check '
+            'done in Java would have let both copies through. [[slnc '
+            "300]] Only the database's primary key could decide."
         ),
     ),
     dict(
@@ -275,19 +296,21 @@ consumer.commitSync(); // only now""",
   keep ids as long as Kafka keeps orders.
   2 containers, for 1 email per order.""",
         narration=(
-            'Act six is the bill. The table cannot keep every id for '
-            'ever, so a cleanup job deletes old ones. Three orders placed '
-            'two days ago are handled, and their three ids stored. The '
-            'cleanup keeps ids for twenty four hours, and deletes all '
-            'three. [[slnc 250]] But a topic keeps its orders for a set '
-            'time too, and this one keeps them for one hundred and sixty '
-            'eight hours: seven days, Kafka\'s default. An operator moves '
-            'the group\'s bookmark back to the start, to replay it. Three '
-            'orders are handed out again, and with their ids gone, three '
-            'more emails are queued. Six in all. [[slnc 300]] So keep the '
-            'ids at least as long as Kafka keeps the orders. And there '
-            'are two more systems to run: two containers, a broker and a '
-            'database, for one email per order.'
+            'Sixth demo: the bill. [[slnc 400]] The table cannot keep '
+            'every I D forever. [[slnc 300]] So a clean-up job deletes '
+            'old ones. [[slnc 500]] Three orders placed two days ago are '
+            'handled, and their three I Ds stored. [[slnc 300]] The '
+            'clean-up keeps I Ds for one day. [[slnc 300]] So it deletes '
+            'all three. [[slnc 600]] But a topic also keeps its orders '
+            'for a set time. [[slnc 300]] This one keeps them for seven '
+            "days, which is Kafka's default. [[slnc 500]] An operator "
+            "moves the group's bookmark back to the start, to replay it. "
+            '[[slnc 300]] Three orders are handed out again. [[slnc 300]] '
+            'Their I Ds are gone, so three more emails are queued. [[slnc '
+            '300]] Six in total. [[slnc 600]] So keep the I Ds at least '
+            'as long as Kafka keeps the orders. [[slnc 500]] And there '
+            'are two more systems to run, a broker and a database, for '
+            'one email per order.'
         ),
     ),
     dict(
@@ -297,15 +320,17 @@ consumer.commitSync(); // only now""",
               'Two copies can hold the same', 'order at the same time.', '',
               "Kafka's retention sets the", "cleanup window's floor."],
         narration=(
-            'How does this compare with the plain-Java version earlier in '
-            'the course? It got the whole pattern right. The list in '
-            'memory that loses at a restart, the crash between the work '
-            'and the id, and the single transaction that fixes both all '
-            'hold here. [[slnc 250]] What it left out is what Kafka adds. '
-            'The repeat goes to a different copy, with no mark on it. Two '
-            'copies can hold the same order at the same moment. And the '
-            'cleanup window is no longer a free guess: the topic\'s '
-            'retention sets its floor.'
+            'How does this compare with the plain Java version? [[slnc '
+            '400]] It got the whole pattern right. [[slnc 300]] The list '
+            'in memory that is lost on restart. [[slnc 300]] The crash '
+            'between the work and the I D. [[slnc 300]] And the single '
+            'transaction that fixes both. [[slnc 300]] All of that holds '
+            'here. [[slnc 600]] What it left out is what Kafka adds. '
+            '[[slnc 500]] The repeat goes to a different copy, with no '
+            'mark on it. [[slnc 300]] Two copies can hold the same order '
+            'at the same moment. [[slnc 300]] And the clean-up window is '
+            'no longer a free guess. [[slnc 300]] How long the topic '
+            'keeps messages sets its minimum.'
         ),
     ),
     dict(
@@ -315,14 +340,16 @@ consumer.commitSync(); // only now""",
               'Write the id first, in the same', 'transaction as the work.', '',
               'Commit the transaction, then', 'the offset.'],
         narration=(
-            'The verdict. Behind Kafka, assume every message will be '
-            'handed out twice, and to a different copy. Keep the ids in a '
-            'table in the same database as the work, with the id as the '
-            'primary key. [[slnc 250]] Write the id first, inside the same '
-            'transaction as the work, and let the database\'s answer '
-            'decide whether to go on. Commit the transaction, and only '
-            'then move the bookmark. And keep the ids at least as long as '
-            'the topic keeps the messages.'
+            'So, here is the verdict. [[slnc 400]] Behind Kafka, assume '
+            'every message will be handed out twice, to a different copy. '
+            '[[slnc 500]] Keep the I Ds in a table, in the same database '
+            'as the work. [[slnc 300]] With the I D as the primary key. '
+            '[[slnc 500]] Write the I D first, inside the same '
+            "transaction as the work. [[slnc 300]] Let the database's "
+            'answer decide whether to carry on. [[slnc 500]] Commit the '
+            'transaction, and only then move the bookmark. [[slnc 500]] '
+            'And keep the I Ds at least as long as the topic keeps the '
+            'messages.'
         ),
     ),
     dict(
@@ -332,17 +359,17 @@ consumer.commitSync(); // only now""",
               'Every number comes from the', "program's own output.", '',
               'If the work is safe to repeat,', 'skip the table.'],
         narration=(
-            'What is real here? The broker is Kafka, version four point '
-            'three point one, and the database is Postgres, version '
-            'eighteen point six, both the newest releases, each in a '
-            'container that the demo starts at the beginning and stops at '
-            'the end. The one thing you need is a container runtime, such '
-            'as Docker Desktop, switched on before you start. [[slnc 250]] '
-            'Every number in this video comes from the program\'s own '
-            'output, and two runs print the same thing. [[slnc 250]] And '
-            'when is this too much? If the work is naturally safe to '
-            'repeat, such as setting an order\'s status to shipped, there '
-            'is nothing to deduplicate, and no table is needed.'
+            'A quick, honest note about this demo. [[slnc 400]] The '
+            'broker is Kafka, version four point three point one. [[slnc '
+            '300]] The database is Postgres, version eighteen point six. '
+            '[[slnc 300]] Both are the newest releases. [[slnc 300]] Each '
+            'runs in a container that the demo starts and stops by '
+            'itself. [[slnc 300]] You just need Docker switched on first. '
+            "[[slnc 500]] Every number you heard comes from the program's "
+            'own output. [[slnc 600]] So, when is this too much? [[slnc '
+            '300]] If the work is naturally safe to repeat, like setting '
+            "an order's status to shipped, there is nothing to guard "
+            'against. [[slnc 300]] And no table is needed.'
         ),
     ),
     dict(
@@ -351,18 +378,19 @@ consumer.commitSync(); // only now""",
               'are in the repository. Try the exercises in',
               'the session guide.'],
         narration=(
-            "That's Idempotent Consumer with Kafka. [[slnc 250]] If you "
-            'take one sentence away, take this one: Kafka will hand the '
-            'same order to two copies, one after a crash or both at once, '
-            'and only an id written in the same transaction as the work '
-            'sees both of them. [[slnc 350]] The full source, the written '
-            'notes, the diagrams and an animated walkthrough are all in '
-            'the repository. [[slnc 300]] If you try one exercise, remove '
-            'the primary key from the table of handled ids, run act five, '
-            'and count the emails. [[slnc 300]] If this helped, a like '
-            'genuinely does help other people find it, and subscribe if '
-            'you would like the rest of the series. [[slnc 250]] Thanks '
-            'for watching.'
+            "That's Idempotent Consumer, with Kafka. [[slnc 400]] If you "
+            'remember one sentence, make it this one. [[slnc 300]] Kafka '
+            'will hand the same order to two copies, one after a crash or '
+            'both at once, and only an I D written in the same '
+            'transaction as the work catches both. [[slnc 500]] The full '
+            'source code, written notes, diagrams, and an animated '
+            'walkthrough are all in the repository. [[slnc 500]] Here is '
+            'one exercise to try. [[slnc 300]] Remove the primary key '
+            'from the table of handled I Ds. [[slnc 300]] Run the fifth '
+            'demo, and count the emails. [[slnc 500]] If this helped, a '
+            'like really does help other people find it. [[slnc 300]] And '
+            "subscribe, if you'd like the rest of the series. [[slnc "
+            '400]] Thanks for watching.'
         ),
     ),
 ]

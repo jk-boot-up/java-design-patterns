@@ -149,7 +149,6 @@ Wireless Headphones, gift-wrapped: $83.49
 | `permission denied: ./gradlew` | Wrapper not executable | `chmod +x gradlew` |
 | Wrapper download times out | Offline / proxy | Install Gradle and run `gradle build` |
 | Insurance total looks off by a cent | Rounding mode differs from `HALF_UP`, or wrong stacking order | Check `RoundingMode` and decorator order in `InsuranceDecorator` |
-| Diagrams show as raw text | Viewer lacks Mermaid support | Open the PNGs in `docs/images/` |
 
 ## Recommended Reading Order
 

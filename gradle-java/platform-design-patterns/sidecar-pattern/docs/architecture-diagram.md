@@ -21,49 +21,6 @@ argument of the project drawn as a missing line.
 
 ![Sidecar pattern architecture diagram](images/architecture-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-flowchart TB
-    subgraph T1["Tier 1 — one JVM, JDK 21 only, no network"]
-        direction LR
-        Demo["PaymentsDemo<br/>the seven acts"]
-        Svc["ServiceBehindASidecar<br/>no retry, no TLS, no counters"]
-        Car["Sidecar<br/>an object, in the same process"]
-        Cfg["SidecarConfig<br/>one instance, shared by all four"]
-        Gw["PaymentGateway<br/>an object that can wobble"]
-        Demo --> Svc --> Car --> Gw
-        Cfg -.-> Car
-    end
-
-    subgraph T2["Tier 2 — real/, five containers on Docker Compose v2"]
-        direction TB
-        subgraph P1["shared network namespace"]
-            direction LR
-            Chk["checkout<br/>Spring Boot 4.1.1<br/>eclipse-temurin:21-jre-alpine"]
-            Cx["sidecar-checkout<br/>nginx:1.31.5-alpine"]
-            Chk -- "http://localhost:8081" --> Cx
-        end
-        subgraph P2["shared network namespace"]
-            direction LR
-            Ref["refunds<br/>Spring Boot 4.1.1<br/>the same image as checkout"]
-            Rx["sidecar-refunds<br/>nginx:1.31.5-alpine"]
-            Ref -- "http://localhost:8081" --> Rx
-        end
-        Conf["payments-sidecar.conf.template<br/>one file on disk, mounted into both"]
-        Prov["gateway<br/>Spring Boot 4.1.1<br/>TLS 1.3 only, counts every attempt"]
-        Conf -.-> Cx
-        Conf -.-> Rx
-        Cx -- "https, up to 3 attempts" --> Prov
-        Rx -- "https, up to 3 attempts" --> Prov
-    end
-
-    T1 -. "the same seven acts, across a real process boundary" .-> T2
-```
-
-</details>
-
 ## What the diagram is telling you to count
 
 **Two shapes, five containers.** Two of the five are the shop. One is the supplier. The

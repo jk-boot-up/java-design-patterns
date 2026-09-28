@@ -6,25 +6,4 @@ Say it in words. The checkout service calls payments, and does nothing else. Its
 
 ![Service Mesh pattern sequence diagram](images/sequence-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant C as checkout
-    participant X as proxies
-    participant P as payments
-    C->>X: call payments
-    X->>P: attempt 1, as checkout
-    P-->>X: refused
-    X->>P: attempt 2
-    P-->>X: refused
-    X->>P: attempt 3
-    P-->>X: ok
-    X-->>C: ok
-```
-
-</details>
-
 The load-bearing sentence: **the service sees one answer. The proxies absorbed the failures.**

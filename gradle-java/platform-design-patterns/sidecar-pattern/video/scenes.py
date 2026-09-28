@@ -38,28 +38,28 @@ SCENES = [
         title="Sidecar",
         body=None,
         narration=(
-            "Hello, and welcome. This video explains the Sidecar design pattern "
-            "in Java, and it is written and presented by Jayasekhar Konduru. "
-            "[[slnc 165]] Here is the simple definition. The Sidecar pattern "
-            "means taking a job that every service has to do, but that is not "
-            "any service's real work, and moving it into a small separate "
-            "program that runs right beside the service on the same machine. "
-            "The service talks to its neighbour, and the neighbour talks to the "
-            "outside world. [[slnc 193]] Think of a busy restaurant kitchen. "
-            "The chefs cook, and somebody has to answer the telephone. Teach "
-            "every chef to do it, and every chef stops cooking when the phone "
-            "rings, each with a slightly different idea of the closing time. "
-            "Put one person on the phone beside the kitchen, and when the "
-            "closing time changes you tell that one person. [[slnc 165]] And "
-            "notice what it is not: not a call centre in another building. Same "
-            "room, same shift, one per kitchen. [[slnc 193]] The rest of the "
-            "video does this properly, by building a working Java project: an "
-            "online shop that charges cards in four places, one payment "
-            "provider behind all four, and a night when that provider had a bad "
-            "three hundred milliseconds. [[slnc 150]] By the end you'll know "
-            "why four correct services can produce an incident nobody can be "
-            "blamed for, what this pattern charges you in exchange, and the "
-            "honest answer to the objection that it is just a decorator."
+            'Hello, and welcome. [[slnc 400]] This video explains the '
+            'Sidecar pattern, in Java. [[slnc 300]] This video is '
+            'presented by Jayasekhar Konduru. [[slnc 600]] First, a '
+            'simple definition. [[slnc 300]] Some jobs every service must '
+            "do, but they are not any service's real work. [[slnc 300]] "
+            'The Sidecar pattern moves such a job into a small, separate '
+            'program. [[slnc 300]] That program runs right beside the '
+            'service, on the same machine. [[slnc 300]] The service talks '
+            'to its neighbour, and the neighbour talks to the outside '
+            'world. [[slnc 600]] Think of a busy restaurant kitchen. '
+            '[[slnc 300]] The chefs cook, and someone has to answer the '
+            'phone. [[slnc 300]] Teach every chef to answer it, and they '
+            'all stop cooking, each with a different idea of the closing '
+            'time. [[slnc 300]] Put one person on the phone beside the '
+            'kitchen, and when the closing time changes, you tell just '
+            'that one person. [[slnc 700]] In our online store, cards are '
+            'charged in four places, through one payment provider. [[slnc '
+            '300]] And one night, that provider has a bad three hundred '
+            'milliseconds. [[slnc 500]] By the end, you will know how '
+            'four correct services can cause an incident nobody can be '
+            'blamed for. [[slnc 300]] What this pattern costs. [[slnc '
+            '300]] And how it differs from the Decorator pattern.'
         ),
     ),
     dict(
@@ -79,21 +79,20 @@ SCENES = [
             "One payment provider at the other end of all four.",
         ],
         narration=(
-            "So, imagine an online shop, and imagine it takes money in four "
-            "different places. [[slnc 165]] Checkout charges a card while a "
-            "customer sits watching a spinner. If it is slow, they notice. "
-            "[[slnc 150]] Refunds gives money back when the copper coffee maker "
-            "comes back in the post. Nobody is watching that one. It can take a "
-            "minute, but it absolutely must happen. [[slnc 150]] Subscription "
-            "billing runs at two in the morning against thousands of saved "
-            "cards, alone, in the dark, unattended. [[slnc 150]] And "
-            "marketplace payouts pays the independent sellers every Friday. "
-            "Large amounts, and they notice immediately if it does not happen. "
-            "[[slnc 193]] Four teams. Four repositories. Four release days. And "
-            "one payment provider at the other end of all four of them. [[slnc "
-            "165]] Hold on to that last part, because everything here comes out "
-            "of it: four pieces of software with nothing to do with each other, "
-            "all talking to the same supplier."
+            'Here is the scenario. [[slnc 400]] The shop takes money in '
+            'four places. [[slnc 500]] Checkout charges a card while a '
+            'customer watches. [[slnc 300]] If it is slow, they notice. '
+            '[[slnc 400]] Refunds gives money back when a product is '
+            'returned. [[slnc 300]] Nobody is watching, but it must '
+            'happen. [[slnc 400]] Subscription billing runs at two in the '
+            'morning, against thousands of saved cards, unattended. '
+            '[[slnc 400]] And marketplace payouts pays the independent '
+            'sellers every Friday. [[slnc 300]] Large amounts, and the '
+            'sellers notice at once if it fails. [[slnc 600]] Four teams. '
+            '[[slnc 200]] Four separate code bases. [[slnc 200]] Four '
+            'release days. [[slnc 300]] And one payment provider behind '
+            'all four. [[slnc 500]] Remember that last part. [[slnc 300]] '
+            'Four unrelated programs, all talking to the same supplier.'
         ),
     ),
     dict(
@@ -116,27 +115,24 @@ SCENES = [
   subscriptions or payouts. They would be identical
   if the shop sold bicycles.""",
         narration=(
-            "Now, none of those four teams wanted to become an expert on a "
-            "payment provider's network behaviour. But every one of them had to "
-            "answer the same four questions before going live, because the "
-            "provider is across the internet, and the internet is not reliable. "
-            "[[slnc 193]] How many times should a failed attempt be retried? "
-            "The provider wobbles: every few days it declines everything for a "
-            "fraction of a second, then is fine again. Nothing is broken and "
-            "nobody needs paging, so the right answer is to wait a moment and "
-            "ask again. But how many moments, and how long? [[slnc 165]] When "
-            "do you give up altogether? A customer will not wait forever. "
-            "[[slnc 165]] Which transport security profile do you present? "
-            "[[slnc 165]] And what do you count, and what do you call the "
-            "counters? [[slnc 220]] Four questions, four services, sixteen "
-            "answers. And here is the important part: not one of those sixteen "
-            "has anything to do with checkout, or refunds, or subscriptions, or "
-            "payouts. They are all facts about a network and a supplier's "
-            "contract. They would be identical if the shop sold bicycles. "
-            "[[slnc 193]] And nobody copied dishonestly: two competent people "
-            "reading the same documentation write almost the same twenty lines. "
-            "But once four versions exist, nothing will bring them back "
-            "together."
+            'None of the four teams wanted to become experts on the '
+            "payment provider's network. [[slnc 300]] But each had to "
+            'answer the same four questions before going live. [[slnc '
+            '600]] First: how many times should a failed attempt be '
+            'retried? [[slnc 300]] The provider sometimes declines '
+            'everything for a fraction of a second, and then is fine. '
+            '[[slnc 300]] So the right answer is to wait a moment, and '
+            'try again. [[slnc 300]] But how many times, and how long? '
+            '[[slnc 400]] Second: when do you give up altogether? [[slnc '
+            '400]] Third: which security settings does the connection '
+            'use? [[slnc 400]] And fourth: what do you count, and what do '
+            'you call the counters? [[slnc 600]] Four questions, four '
+            'services: sixteen answers. [[slnc 300]] And not one of them '
+            'is about checkout, refunds, subscriptions, or payouts. '
+            '[[slnc 300]] They are all facts about a network, and a '
+            "supplier's contract. [[slnc 500]] Nobody copied carelessly. "
+            '[[slnc 300]] But once four versions exist, nothing brings '
+            'them back together.'
         ),
     ),
     dict(
@@ -158,27 +154,23 @@ SCENES = [
   Nothing throws. Nothing is logged.
   Every test in all four services still passes.""",
         narration=(
-            "In March, the provider writes to all its merchants. Retrying ten "
-            "milliseconds after a failure does not help anybody, it says. The "
-            "failure has not had time to clear, and all you have done is spend "
-            "capacity the provider then has to ration. So from now on: at most "
-            "three attempts per payment, and wait properly between them. [[slnc "
-            "193]] The shop's platform engineer does the obvious thing. Opens "
-            "checkout, changes two lines, gets it reviewed, ships it. Then "
-            "refunds. Then marketplace payouts. Three pull requests, three "
-            "releases, one afternoon, and everybody goes home. [[slnc 220]] "
-            "Three. Not four. [[slnc 193]] Subscription billing was not "
-            "updated. And the whole pattern depends on you believing this next "
-            "sentence: nobody was careless, and nobody was even wrong. [[slnc "
-            "165]] Subscription billing runs overnight, so nobody was looking "
-            "at it that week. It lives in its own repository, and it had no "
-            "open work that sprint, so nobody opened it at all. [[slnc 193]] "
-            "There was no fourth place to look unless you already knew there "
-            "was a fourth place to look. [[slnc 193]] And nothing tells you. "
-            "Every test in all four services still passes — including "
-            "billing's, because billing tests its own copy, and its own copy is "
-            "perfectly consistent with itself. A test can only check the code "
-            "it can see."
+            'First demo: in March, the change lands three times. [[slnc '
+            '400]] The provider writes to all its customers. [[slnc 300]] '
+            'Retrying ten milliseconds after a failure does not help. '
+            '[[slnc 300]] So from now on: at most three attempts per '
+            'payment, and wait properly between them. [[slnc 600]] The '
+            "shop's engineer does the obvious thing. [[slnc 300]] Opens "
+            'checkout, changes two lines, gets it reviewed, and releases '
+            'it. [[slnc 300]] Then refunds. [[slnc 200]] Then marketplace '
+            'payouts. [[slnc 300]] Three changes, one afternoon, and '
+            'everyone goes home. [[slnc 600]] Three. [[slnc 300]] Not '
+            'four. [[slnc 500]] Subscription billing was not updated. '
+            '[[slnc 300]] And nobody was careless. [[slnc 300]] Billing '
+            'runs overnight, lives in its own code base, and had no work '
+            'planned that month. [[slnc 300]] So nobody opened it. [[slnc '
+            '500]] And nothing warns you. [[slnc 300]] Every test in all '
+            'four services still passes. [[slnc 300]] Including '
+            "billing's, because billing's own copy agrees with itself."
         ),
     ),
     dict(
@@ -198,21 +190,20 @@ public void applyPolicyReview() {
 assertTrue(!methods.contains("applyPolicyReview"),
         "the point of this project is that nobody wrote this method here");""",
         narration=(
-            "Let me show you what that looks like in the code, because it is "
-            "not what people expect. [[slnc 165]] Three of the four services "
-            "have a method that applies the provider's review. It sets the "
-            "attempts to three and the wait to two hundred milliseconds. The "
-            "same two lines in all three. [[slnc 193]] The fourth service does "
-            "not have that method. Not a wrong version of it. Not an old "
-            "version. It simply is not there. [[slnc 220]] That distinction "
-            "matters more than it sounds. If the fourth service held a wrong "
-            "value, you could imagine a tool that compares the four and "
-            "complains. An absence has nothing to compare. Nothing in any build "
-            "or any pipeline knows that a fourth file exists. [[slnc 193]] This "
-            "project has a test that asserts the method is missing, which is a "
-            "strange thing to assert. It pins the lesson. The failure we are "
-            "about to watch is not caused by bad code. It is caused by code "
-            "that was never written, in a place nobody was looking."
+            'Here is what that looks like in the code. [[slnc 400]] Three '
+            'of the four services have a method that applies the '
+            "provider's new rules. [[slnc 300]] It sets three attempts, "
+            'and a two-hundred-millisecond wait. [[slnc 600]] The fourth '
+            'service simply does not have that method. [[slnc 300]] Not a '
+            'wrong version. [[slnc 300]] Not an old version. [[slnc 300]] '
+            'It is not there at all. [[slnc 600]] That matters. [[slnc '
+            '300]] A wrong value could be spotted by comparing the four. '
+            '[[slnc 300]] But an absence has nothing to compare. [[slnc '
+            '300]] Nothing in any build knows the fourth file exists. '
+            '[[slnc 600]] One test in this project checks that the method '
+            'is missing. [[slnc 300]] The failure we are about to hear is '
+            'not caused by bad code. [[slnc 300]] It is caused by code '
+            'that was never written, in a place nobody looked.'
         ),
     ),
     dict(
@@ -234,28 +225,29 @@ assertTrue(!methods.contains("applyPolicyReview"),
     marketplace-payouts   1 attempt
     total                 13 of 12 allowed, 1 refused""",
         narration=(
-            "Three weeks later, at two in the morning, the provider has one of "
-            "its wobbles. Three hundred milliseconds of declining everything, "
-            "then it is fine again. [[slnc 193]] And here is the detail that "
-            "turns a stale copy into an incident. The contract allows the shop "
-            "twelve attempts across the whole merchant account during an event "
-            "like this — three per payment, four services, twelve. [[slnc 220]] "
-            "Subscription billing is already running, because it always is at "
-            "that hour, so it hits the wobble first. On the old policy it "
-            "retries six times, quickly, and on the sixth it gets through. Six "
-            "of the shop's twelve attempts, spent before checkout had finished "
-            "its first payment. [[slnc 165]] Then checkout pays, on three "
-            "attempts. Then refunds, on three. That is twelve. [[slnc 193]] "
-            "Marketplace payouts arrives fourth. It makes one attempt, and the "
-            "answer is not a decline — it is a refusal. A hundred and "
-            "eighty-six pounds forty does not reach the sellers. [[slnc 220]] "
-            "Now read two facts together, because this is the lesson of the "
-            "video. Subscription billing — the service with the stale copy, the "
-            "service that caused all of this — succeeded. It got its money. As "
-            "far as the billing team will ever know, that night went perfectly. "
-            "[[slnc 193]] And marketplace payouts, whose every line is correct, "
-            "which was updated in March, failed, because it happened to arrive "
-            "fourth."
+            'Second demo: two in the morning, three weeks later. [[slnc '
+            '400]] The provider has one of its wobbles. [[slnc 300]] For '
+            'three hundred milliseconds it declines everything, and then '
+            'it is fine. [[slnc 600]] Here is the detail that turns a '
+            'stale copy into an incident. [[slnc 300]] During a wobble, '
+            'the contract allows the shop twelve attempts in total. '
+            '[[slnc 300]] Three per payment, for four services. [[slnc '
+            '600]] Subscription billing is already running, so it hits '
+            'the wobble first. [[slnc 300]] Using the old rules, it '
+            'retries six times, quickly. [[slnc 300]] And on the sixth, '
+            "it gets through. [[slnc 300]] It has spent six of the shop's "
+            'twelve attempts. [[slnc 500]] Then checkout pays, using '
+            'three attempts. [[slnc 300]] Then refunds, using three. '
+            '[[slnc 300]] That makes twelve. [[slnc 500]] Marketplace '
+            'payouts arrives fourth. [[slnc 300]] It makes one attempt, '
+            'and is refused. [[slnc 300]] A hundred and eighty-six pounds '
+            'forty does not reach the sellers. [[slnc 600]] Now put two '
+            'facts together. [[slnc 300]] Subscription billing, the '
+            'service with the old rules, the one that caused this, '
+            'succeeded. [[slnc 300]] As far as its team will ever know, '
+            'the night went perfectly. [[slnc 500]] And marketplace '
+            'payouts, which is correct in every line, failed. [[slnc '
+            '300]] Because it happened to arrive fourth.'
         ),
     ),
     dict(
@@ -274,23 +266,22 @@ assertTrue(!methods.contains("applyPolicyReview"),
             "beside · same machine, one per service instance",
         ],
         narration=(
-            "So here is the pattern, in one sentence. Move the cross-cutting "
-            "concern out of the service and into a separate process that runs "
-            "beside it on the same machine. The service talks to its neighbour "
-            "on the local machine and knows nothing else. The neighbour is the "
-            "only thing that goes out to the internet. [[slnc 220]] Two phrases "
-            "are carrying that sentence, and each rules out a near miss. [[slnc "
-            "193]] Separate process. Not a library, not a base class, not a "
-            "framework you extend. And beside. Same machine, same lifecycle, "
-            "one proxy per service instance. Not a shared proxy somewhere on "
-            "the network that everything routes through; that is a different "
-            "pattern with different failure modes. [[slnc 193]] Now, the "
-            "sceptical question is: why not write a shared library? Often that "
-            "is the right answer, and we come back to it at the end. But hold "
-            "on to what it does not fix. Updating the policy means publishing a "
-            "new version and getting four teams to upgrade — the same problem "
-            "with an extra step, because the fourth team still has to open "
-            "their repository."
+            'Here is the pattern, in one sentence. [[slnc 400]] Move the '
+            'shared job out of the service, into a separate program '
+            'running beside it, on the same machine. [[slnc 300]] The '
+            'service only talks to its neighbour. [[slnc 300]] And the '
+            'neighbour, called a proxy, is the only thing that goes out '
+            'to the internet. [[slnc 600]] Two phrases matter. [[slnc '
+            '500]] Separate program. [[slnc 300]] Not a library, and not '
+            'a shared base class. [[slnc 400]] And beside. [[slnc 300]] '
+            'Same machine, started and stopped together, one proxy per '
+            'service. [[slnc 300]] Not one shared proxy somewhere on the '
+            'network. [[slnc 600]] Why not just write a shared library? '
+            '[[slnc 300]] Often, that is the right answer, and we come '
+            'back to it at the end. [[slnc 300]] But a library does not '
+            'fix this. [[slnc 300]] Changing the rules still means a new '
+            'version, and four teams upgrading. [[slnc 300]] And the '
+            'fourth team still has to open their code.'
         ),
     ),
     dict(
@@ -299,26 +290,26 @@ assertTrue(!methods.contains("applyPolicyReview"),
         title="Who Does What",
         body=None,
         narration=(
-            "Let me name the pieces; they are all small. [[slnc 165]] One "
-            "interface, called takes payments, asks two things: what is your "
-            "name, and here is a payment, please pay it. [[slnc 165]] [[slnc "
-            "193]] Four classes implement it the old way, each carrying its own "
-            "four fields and its own retry loop — the sixteen copies, in code. "
-            "[[slnc 193]] Then there is a fifth implementation, and it is "
-            "almost empty. Its pay method is one line: hand the payment to the "
-            "proxy. [[slnc 193]] The proxy is a class called sidecar. It holds "
-            "the retry loop the four services used to hold, but it does not "
-            "hold the numbers — it reads them from a configuration object. And "
-            "here is the part worth hearing twice: all four proxies read the "
-            "same configuration object. Not four equal copies. The same one. "
-            "The test checks that with an identity assertion, not an equality "
-            "one, because four equal copies would be March all over again with "
-            "better manners. [[slnc 193]] Underneath sits the payment gateway, "
-            "forty lines that fail on purpose, and it owns the call log. Every "
-            "attempt count you hear in this video is recorded by the gateway, "
-            "at the receiving end — never by a service counting its own "
-            "attempts. That is the incident in one sentence: a service's belief "
-            "about how many times it tried is exactly the thing that was wrong."
+            "Let's name the pieces. [[slnc 300]] They are all small. "
+            '[[slnc 600]] One interface, called takes payments. [[slnc '
+            '300]] It asks for a name, and it pays a payment. [[slnc '
+            '500]] Four classes implement it the old way. [[slnc 300]] '
+            'Each carries its own settings, and its own retry loop. '
+            '[[slnc 300]] Those are the sixteen copies, in code. [[slnc '
+            '500]] A fifth version is almost empty. [[slnc 300]] Its pay '
+            'method has one line: hand the payment to the proxy. [[slnc '
+            '500]] The proxy is a class called sidecar. [[slnc 300]] It '
+            'holds the retry loop the four services used to hold. [[slnc '
+            '300]] But it does not own the numbers. [[slnc 300]] It reads '
+            'them from one shared settings object. [[slnc 300]] All four '
+            'proxies read the very same object. [[slnc 300]] Not four '
+            'equal copies, which would be March all over again. [[slnc '
+            '500]] And underneath sits a payment gateway that fails on '
+            'purpose. [[slnc 300]] Every attempt count in this video is '
+            'recorded by the gateway, at the receiving end. [[slnc 300]] '
+            'Never by a service counting its own attempts. [[slnc 300]] '
+            "Because a service's belief about how often it tried is "
+            'exactly what was wrong.'
         ),
     ),
     dict(
@@ -338,22 +329,21 @@ for (int attempt = 1; attempt <= config.maxAttempts(); attempt++) {
     ...
 }""",
         narration=(
-            "This is the one piece of code worth reading closely, and I will "
-            "describe it rather than spell out syntax. [[slnc 165]] The pay "
-            "method on the service is now one line long. Take the payment, hand "
-            "it to the proxy, return what comes back. No retry loop, no attempt "
-            "counter, no wait, no certificate, no deadline. They are not hidden "
-            "elsewhere in the class. They are gone. [[slnc 220]] Next door, the "
-            "proxy holds the loop that used to exist four times. But look at "
-            "where its numbers come from. It has a field holding a "
-            "configuration object, and the comment on that field says read, not "
-            "owned. The proxy cannot change the policy; it is given the policy. "
-            "[[slnc 193]] And there is one more line in that loop I want to "
-            "point at now, so it is not a surprise later. Before every attempt, "
-            "the proxy waits one millisecond. That is the hop: the cost of "
-            "leaving your process, arriving next door, and coming back. It is "
-            "in the source deliberately, because a pattern that only shows you "
-            "its benefits is a sales pitch."
+            'Here is the code that matters, in words. [[slnc 500]] The '
+            "service's pay method is now one line long. [[slnc 300]] Hand "
+            'the payment to the proxy, and return what comes back. [[slnc '
+            '300]] No retry loop, no counter, no wait, no deadline. '
+            '[[slnc 300]] They are not hidden elsewhere. [[slnc 300]] '
+            'They are gone. [[slnc 600]] Next door, the proxy holds the '
+            'loop that used to exist four times. [[slnc 300]] But it '
+            'reads its numbers from the shared settings. [[slnc 300]] The '
+            'proxy cannot change the rules. [[slnc 300]] It is given '
+            'them. [[slnc 600]] And one more line, pointed out now so it '
+            'is no surprise later. [[slnc 300]] Before each attempt, the '
+            'proxy waits one millisecond. [[slnc 300]] That stands for '
+            'the cost of hopping to the program next door, and back. '
+            '[[slnc 300]] It is there on purpose, because showing only '
+            'the benefits would be a sales pitch.'
         ),
     ),
     dict(
@@ -376,23 +366,25 @@ for (int attempt = 1; attempt <= config.maxAttempts(); attempt++) {
   The policy was not applied four times and missed once.
   It was stated once.""",
         narration=(
-            "So let's run the same night again, with a proxy standing beside "
-            "each of the four services. [[slnc 165]] Nothing about the world "
-            "has improved. The gateway still has its bad three hundred "
-            "milliseconds. The contract still allows twelve attempts. [[slnc "
-            "193]] Subscription billing sends its payment to the proxy beside "
-            "it. The proxy makes three attempts, waiting two hundred "
-            "milliseconds and then four hundred, and on the third the wobble "
-            "has passed and the card is charged. The service never knew there "
-            "was more than one attempt. [[slnc 165]] Checkout, the same. "
-            "Refunds, the same. And marketplace payouts — which failed "
-            "completely last time — pays the sellers on its third attempt, like "
-            "everybody else. Twelve attempts of twelve allowed, nobody refused. "
-            "[[slnc 220]] Here is the sentence to take from this scene. The "
-            "policy was not applied four times and missed once. It was stated "
-            "once. [[slnc 193]] We did not make four teams more disciplined. We "
-            "removed the possibility of four copies disagreeing, by making it "
-            "impossible for there to be four."
+            'Third demo: the same night, with a proxy beside each '
+            'service. [[slnc 400]] Nothing about the world has improved. '
+            '[[slnc 300]] The provider still has its bad three hundred '
+            'milliseconds. [[slnc 300]] The contract still allows twelve '
+            'attempts. [[slnc 600]] Subscription billing hands its '
+            'payment to the proxy beside it. [[slnc 300]] The proxy makes '
+            'three attempts. [[slnc 300]] It waits two hundred '
+            'milliseconds, then four hundred. [[slnc 300]] On the third '
+            'attempt, the wobble has passed, and the card is charged. '
+            '[[slnc 300]] The service never knew there was more than one '
+            'attempt. [[slnc 500]] Checkout, the same. [[slnc 300]] '
+            'Refunds, the same. [[slnc 300]] And marketplace payouts, '
+            'which failed last time, pays the sellers on its third '
+            'attempt. [[slnc 300]] Twelve attempts, out of twelve '
+            'allowed. [[slnc 300]] Nobody refused. [[slnc 600]] The rules '
+            'were not applied four times, and missed once. [[slnc 300]] '
+            'They were stated once. [[slnc 500]] We did not make four '
+            'teams more careful. [[slnc 300]] We made it impossible for '
+            'four copies to exist.'
         ),
     ),
     dict(
@@ -413,25 +405,23 @@ for (int attempt = 1; attempt <= config.maxAttempts(); attempt++) {
   Network facts may move out. Shop facts may not.
   "Refunds are refused after ninety days" is not a proxy setting.""",
         narration=(
-            "Right — that is the pattern, and it works. Now the bill. There are "
-            "three items on it, and all three are the price of the pattern, not "
-            "mistakes made while applying it. [[slnc 193]] Item one is a table "
-            "with three rows: read all three or none. [[slnc 165]] The copies "
-            "of a cross-cutting decision fall from sixteen to four. The places "
-            "you have to edit to change one policy fall from four to one. Those "
-            "two rows are why you would do this. [[slnc 193]] The third row is "
-            "why it is not free. The number of processes to run and patch goes "
-            "from four to eight. You have doubled it. [[slnc 220]] But notice "
-            "which row scales. Add a fifth service that takes payments, and the "
-            "copies go from sixteen to twenty the old way. Beside the services, "
-            "it is still four. [[slnc 193]] One more thing belongs here, and it "
-            "is the mistake I would most like you to avoid. Retry counts, "
-            "deadlines, certificates and counters are facts about the network. "
-            "Whether a refund is allowed after ninety days is a fact about the "
-            "shop. [[slnc 165]] The day that rule lives in a proxy's "
-            "configuration file, somebody will read the whole refunds service "
-            "looking for it, and it will not be there. Nothing will throw. They "
-            "simply will not find it."
+            'That is the pattern, and it works. [[slnc 300]] Now the '
+            'bill, with three items. [[slnc 600]] Item one: counting. '
+            '[[slnc 300]] Copies of the shared rules fall from sixteen to '
+            'four. [[slnc 300]] Places to edit for one rule change fall '
+            'from four to one. [[slnc 300]] That is why you would do '
+            'this. [[slnc 500]] But programs to run and update rise from '
+            'four to eight. [[slnc 300]] You have doubled them. [[slnc '
+            '600]] Now add a fifth service that takes payments. [[slnc '
+            '300]] The old way, copies go from sixteen to twenty. [[slnc '
+            '300]] With sidecars, still four. [[slnc 600]] And one '
+            'mistake to avoid. [[slnc 300]] Retry counts, deadlines, and '
+            'security settings are facts about the network. [[slnc 300]] '
+            'Whether a refund is allowed after ninety days is a fact '
+            'about the shop. [[slnc 300]] If that business rule ends up '
+            "in a proxy's settings file, someone will search the whole "
+            'refunds service for it. [[slnc 300]] And it will not be '
+            'there.'
         ),
     ),
     dict(
@@ -451,23 +441,25 @@ for (int attempt = 1; attempt <= config.maxAttempts(); attempt++) {
   When a sidecar goes, it does not take one call with it.
   It takes every call that service makes.""",
         narration=(
-            "Item two. A healthy gateway, a healthy network, a healthy service, "
-            "and a forty-seven pound ninety-nine coffee maker waiting to be "
-            "paid for. But the proxy beside checkout failed to start after a "
-            "patch. [[slnc 193]] Connection refused. [[slnc 165]] Now look at "
-            "the number underneath, because that is the one that matters. "
-            "Attempts that reached the gateway: zero. [[slnc 193]] Not one "
-            "attempt left the machine, and the service cannot fall back on "
-            "anything: we deleted its retry code on purpose two scenes ago. "
-            "[[slnc 220]] So be honest about what happened here. You added a "
-            "dependency to every call your service makes, in order to make "
-            "those calls more reliable. [[slnc 193]] That trade is usually "
-            "worth taking: a proxy on the same machine, doing one narrow job, "
-            "fails far less often than the internet does. [[slnc 193]] But the "
-            "shape of the failure is different from the one you replaced. When "
-            "the internet has a bad moment, one call fails and the next one "
-            "might not. When a sidecar goes, it takes every call that service "
-            "makes, until somebody restarts it. Rarer, and wider."
+            'Item two: a second thing that can be down. [[slnc 400]] The '
+            'provider is fine. [[slnc 300]] The network is fine. [[slnc '
+            '300]] The service is fine. [[slnc 300]] A customer is '
+            'waiting to pay forty-seven pounds ninety-nine. [[slnc 500]] '
+            'But the proxy beside checkout failed to start after an '
+            'update. [[slnc 300]] The connection is refused. [[slnc 600]] '
+            'Attempts that reached the payment provider: zero. [[slnc '
+            '300]] Not one attempt left the machine. [[slnc 300]] And the '
+            'service cannot fall back, because we deleted its retry code '
+            'on purpose. [[slnc 600]] So be honest about what happened. '
+            '[[slnc 300]] To make every call more reliable, you added a '
+            'new dependency to every call. [[slnc 500]] That is usually '
+            'worth it. [[slnc 300]] A proxy on the same machine, doing '
+            'one small job, fails far less often than the internet. '
+            '[[slnc 500]] But the failure has a different shape. [[slnc '
+            '300]] When the internet wobbles, one call fails, and the '
+            'next may work. [[slnc 300]] When a sidecar dies, every call '
+            'that service makes fails, until someone restarts it. [[slnc '
+            '300]] Rarer, but wider.'
         ),
     ),
     dict(
@@ -489,25 +481,24 @@ for (int attempt = 1; attempt <= config.maxAttempts(); attempt++) {
   That is the arithmetic that decides whether a service mesh
   belongs in your system. Arithmetic, not taste.""",
         narration=(
-            "Item three: the smallest number in this video, and the one most "
-            "worth understanding. [[slnc 165]] The same payment, the same "
-            "policy, the same wobble, measured twice. With the retry code "
-            "inside the service: three attempts, six hundred milliseconds. With "
-            "the retry code in a proxy next door: three attempts, six hundred "
-            "and three. [[slnc 193]] Three milliseconds. One millisecond per "
-            "attempt, for crossing into the process next door and coming back. "
-            "[[slnc 220]] On a payment that already takes six hundred "
-            "milliseconds, that is nothing. You would never measure it. [[slnc "
-            "193]] But run the same arithmetic on an internal call between two "
-            "of the shop's own services — the kind that takes two milliseconds "
-            "— and one millisecond each way is a fifty per cent increase. "
-            "[[slnc 193]] And it is worse, because where every service talks "
-            "through a proxy, every hop is paid twice: once leaving the first, "
-            "once entering the second. [[slnc 220]] That is the arithmetic that "
-            "decides whether a service mesh belongs in your system. How long "
-            "does your average call take, and how many hops does it make? Six "
-            "hundred milliseconds and one hop, and this pattern is free. Two "
-            "milliseconds and six hops, and it is not."
+            'Item three: the smallest number in this video. [[slnc 500]] '
+            'The same payment, the same rules, the same wobble, measured '
+            'twice. [[slnc 300]] With the retry code inside the service: '
+            'three attempts, six hundred milliseconds. [[slnc 300]] With '
+            'the retry code in the proxy next door: three attempts, six '
+            'hundred and three. [[slnc 500]] Three milliseconds. [[slnc '
+            '300]] One per attempt, for the hop next door, and back. '
+            '[[slnc 600]] On a payment that takes six hundred '
+            'milliseconds, you would never notice. [[slnc 500]] But on an '
+            "internal call between two of the shop's own services, taking "
+            'two milliseconds, one extra millisecond is a fifty percent '
+            'increase. [[slnc 300]] And if every service talks through a '
+            'proxy, every hop is paid twice: once leaving, once arriving. '
+            '[[slnc 600]] So ask two questions about your system. [[slnc '
+            '300]] How long does a typical call take? [[slnc 300]] And '
+            'how many hops does it make? [[slnc 300]] Six hundred '
+            'milliseconds and one hop, and this pattern is free. [[slnc '
+            '300]] Two milliseconds and six hops, and it is not.'
         ),
     ),
     dict(
@@ -527,26 +518,27 @@ for (int attempt = 1; attempt <= config.maxAttempts(); attempt++) {
             "No to both → a library in your own process is cheaper.",
         ],
         narration=(
-            "And now the admission this project owes you, which you may already "
-            "have been waiting for. [[slnc 193]] Everything in this video "
-            "happened inside one Java program. And in one program, a proxy that "
-            "a service talks through is an object wrapping another object — "
-            "which is the Decorator pattern, from earlier in this course. "
-            "[[slnc 165]] The code is not new. So what makes this a different "
-            "pattern? Not the code. Where the code runs. [[slnc 193]] A "
-            "decorator is compiled into your jar, written in your language, and "
-            "it changes when your service is rebuilt. [[slnc 165]] A sidecar is "
-            "its own process. It may be written in a language nobody on your "
-            "team knows. It changes when somebody restarts it, and your service "
-            "is never opened. [[slnc 193]] That difference bought us the "
-            "one-line policy change, and it is exactly what charged us the "
-            "extra process, the extra failure and the extra millisecond. [[slnc "
-            "220]] Which gives you the two questions that decide it. Does this "
-            "concern need to change without rebuilding the service? Does it "
-            "have to work for a service written in a language your library "
-            "cannot support? [[slnc 193]] Yes to either, and it goes next door. "
-            "No to both, and a shared library in your own process is cheaper, "
-            "faster, and has one fewer thing that can fail."
+            'Now an honest admission. [[slnc 400]] Everything in this '
+            'video ran inside one Java program. [[slnc 300]] And in one '
+            'program, a proxy wrapped around a service is just one object '
+            'wrapping another. [[slnc 300]] That is the Decorator '
+            'pattern. [[slnc 600]] So what makes Sidecar different? '
+            '[[slnc 300]] Not the code. [[slnc 300]] Where the code runs. '
+            '[[slnc 500]] A decorator is built into your program, written '
+            'in your language. [[slnc 300]] It changes when your service '
+            'is rebuilt. [[slnc 500]] A sidecar is its own program. '
+            '[[slnc 300]] It may be written in a language nobody on your '
+            'team knows. [[slnc 300]] It changes when someone restarts '
+            'it, without your service ever being opened. [[slnc 600]] '
+            'That difference bought the one-place rule change. [[slnc '
+            '300]] And it also cost the extra program, the extra failure, '
+            'and the extra millisecond. [[slnc 600]] So ask two '
+            'questions. [[slnc 300]] Must this job change without '
+            'rebuilding the service? [[slnc 300]] Must it work for '
+            'services written in languages your library cannot support? '
+            '[[slnc 500]] Yes to either, and it goes next door. [[slnc '
+            '300]] No to both, and a shared library inside your program '
+            'is cheaper, faster, and one less thing to fail.'
         ),
     ),
     dict(
@@ -567,25 +559,26 @@ for (int attempt = 1; attempt <= config.maxAttempts(); attempt++) {
             "And no test inside any one service will ever tell you otherwise.",
         ],
         narration=(
-            "Four things to take away. [[slnc 165]] First, count the copies, "
-            "not the services. Four services each holding four decisions is "
-            "sixteen things that can drift. Try it on your own system: if your "
-            "biggest supplier wrote to you tomorrow, could you name every file "
-            "you would have to open? [[slnc 193]] Second, the failure lands "
-            "where the cause is not. The service that misbehaved stayed green "
-            "all night. The service that failed was correct in every line. If "
-            "you ever spend a day and a half reading a faultless service, this "
-            "is the thing to suspect. [[slnc 193]] Third, you have met this "
-            "pattern already and probably did not call it one. A log shipper "
-            "beside your application. A metrics agent on every machine. A web "
-            "server terminating encryption in front of your app. Every one of "
-            "those exists for the same reason: it is not your service's job, "
-            "and it is everybody's problem. [[slnc 193]] And fourth, the "
-            "sentence that separates this from Decorator: it is where the code "
-            "runs, not what the code is. [[slnc 165]] One warning. Everything "
-            "on this list can be got wrong without anything failing. No test "
-            "inside any one service will ever notice the four of them have "
-            "drifted apart — because from inside each one, each one is right."
+            'Here are four things to remember. [[slnc 500]] One. [[slnc '
+            '200]] Count the copies, not the services. [[slnc 300]] Four '
+            'services, each holding four decisions, is sixteen things '
+            'that can drift apart. [[slnc 300]] If your biggest supplier '
+            'changed its rules tomorrow, could you name every file you '
+            'would need to open? [[slnc 500]] Two. [[slnc 200]] The '
+            'failure lands away from the cause. [[slnc 300]] The service '
+            'that misbehaved stayed healthy all night. [[slnc 300]] The '
+            'one that failed was correct in every line. [[slnc 500]] '
+            'Three. [[slnc 200]] You have met this pattern before, maybe '
+            'without the name. [[slnc 300]] A log shipper beside your '
+            'application. [[slnc 300]] A metrics agent on every machine. '
+            '[[slnc 300]] A web server handling encryption in front of '
+            'your app. [[slnc 300]] Each exists because the job is not '
+            "your service's work, but it is everybody's problem. [[slnc "
+            '500]] Four. [[slnc 200]] What separates this from Decorator '
+            'is where the code runs, not what it is. [[slnc 600]] And one '
+            'warning. [[slnc 300]] No test inside any one service will '
+            'ever notice the four have drifted apart. [[slnc 300]] '
+            'Because from inside each one, each one is right.'
         ),
     ),
     dict(
@@ -599,17 +592,21 @@ for (int attempt = 1; attempt <= config.maxAttempts(); attempt++) {
             "Run it yourself:  ./gradlew run",
         ],
         narration=(
-            "And that is the Sidecar pattern. Put the concern that is nobody's "
-            "real work into a process that runs beside the service, so it can "
-            "be changed without opening the service at all — and pay for that "
-            "with an extra process, an extra thing that can be down, and a "
-            "millisecond on every call. [[slnc 193]] The whole project is in "
-            "the repository: the source, fifty-nine tests, the diagrams, and an "
-            "animation that plays the night out both ways. All three costs are "
-            "running code too, so you can stop the proxy yourself and watch "
-            "every call fail at once. [[slnc 165]] If this was useful, please "
-            "like the video and subscribe. Thanks very much for watching, and "
-            "I'll see you in the next one."
+            "That's the Sidecar pattern. [[slnc 400]] If you remember one "
+            'sentence, make it this one. [[slnc 300]] Put the job that is '
+            "nobody's real work into a program beside the service, so it "
+            'can change without opening the service, and pay for it with '
+            'an extra program, an extra thing that can fail, and a little '
+            'delay on every call. [[slnc 500]] The full source code, '
+            'written notes, diagrams, and an animated walkthrough are all '
+            'in the repository. [[slnc 300]] It runs offline, with '
+            'nothing installed except a Java development kit. [[slnc '
+            '500]] Here is one exercise to try. [[slnc 300]] Stop the '
+            'proxy beside checkout yourself. [[slnc 300]] And hear every '
+            'one of its calls fail at once. [[slnc 500]] If this helped, '
+            'a like really does help other people find it. [[slnc 300]] '
+            "And subscribe, if you'd like the rest of the series. [[slnc "
+            '400]] Thanks for watching.'
         ),
     ),
 ]

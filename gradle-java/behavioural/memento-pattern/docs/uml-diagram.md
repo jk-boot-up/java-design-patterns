@@ -7,54 +7,6 @@ the same object back.
 
 ![Memento pattern sequence diagram](images/uml-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-sequenceDiagram
-    actor Shopper
-    participant UI as BasketUndoDemo
-    participant History as BasketHistory
-    participant Basket
-    participant Snap as BasketSnapshot
-
-    Note over Shopper,Snap: state: 4 items, voucher SAVE5, total £65
-
-    Shopper->>UI: remove the laptop stand
-    UI->>History: record(basket, "removed the laptop stand")
-    activate History
-    History->>Basket: save("removed the laptop stand")
-    activate Basket
-    Basket->>Snap: new(lines, voucher, label)
-    Note right of Snap: List.copyOf — a copy,<br/>not a reference to the live list
-    Snap-->>Basket: snapshot
-    Basket-->>History: snapshot
-    deactivate Basket
-    Note over History: pushed onto the stack.<br/>It never looks inside.
-    deactivate History
-
-    UI->>Basket: remove("Laptop stand")
-    Note over Basket: 3 items, £31.<br/>The snapshot is untouched by this.
-
-    Shopper->>UI: press undo
-    UI->>History: undo(basket)
-    activate History
-    History->>Basket: restore(snapshot)
-    activate Basket
-    Basket->>Snap: lines()
-    Snap-->>Basket: the copied lines
-    Basket->>Snap: voucher()
-    Snap-->>Basket: "SAVE5"
-    Note over Basket: lines and voucher both put back
-    deactivate Basket
-    History-->>UI: "removed the laptop stand"
-    deactivate History
-
-    Note over Shopper,Snap: state: 4 items, voucher SAVE5, total £65
-```
-
-</details>
-
 ## Notes
 
 - **The history never opens a snapshot.** Every arrow into `BasketSnapshot`

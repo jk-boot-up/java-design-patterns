@@ -15,26 +15,27 @@ SCENES = [
         title="Hexagonal Architecture",
         body=None,
         narration=(
-            "Hello, and welcome. This video explains Hexagonal Architecture "
-            "in Java -- also called Ports and Adapters -- and it is written "
-            "and presented by Jayasekhar Konduru. [[slnc 300]] Let's start "
-            "with the plain definition. The core of an application defines "
-            "ports -- interfaces, in its own words, for whatever it needs "
-            "from the outside world. Adapters, on the outside, either "
-            "implement those ports or call in through them. Every "
-            "dependency between the core and the world outside it points "
-            "inward, into the core, never out of it. [[slnc 350]] This is "
-            "the second project in a series building the same online shop "
-            "five different ways, and it picks up exactly where the "
-            "previous one, Layered Architecture, left off -- that project "
-            "ended by admitting one honest cost: its use case still had to "
-            "name its storage class to compile. This video inverts exactly "
-            "that, and then proves the inversion twice: once by swapping "
-            "the storage underneath the core, and once by driving the same "
-            "core from somewhere completely different. [[slnc 300]] By the "
-            "end you will know the actual test to apply when you are unsure "
-            "whether something is a port or an adapter -- which is simply, "
-            "who is allowed to name whom."
+            'Hello, and welcome. [[slnc 400]] This video explains '
+            'Hexagonal Architecture, in Java. [[slnc 300]] It is also '
+            'called Ports and Adapters. [[slnc 300]] This video is '
+            'presented by Jayasekhar Konduru. [[slnc 600]] First, a '
+            'simple definition. [[slnc 300]] The core of the program says '
+            'what it needs from the outside world, as interfaces, in its '
+            'own words. [[slnc 300]] Those interfaces are called ports. '
+            '[[slnc 400]] Outside the core, adapters plug into those '
+            'ports. [[slnc 300]] Some adapters do work for the core, like '
+            'storing data. [[slnc 300]] Others call into the core, like a '
+            'web request. [[slnc 400]] And every dependency points into '
+            'the core, never out of it. [[slnc 600]] Think of the sockets '
+            'on a wall. [[slnc 300]] The wall decides the shape of the '
+            'socket. [[slnc 300]] A lamp, a kettle, or a charger just '
+            'plugs in. [[slnc 300]] You can change the lamp without '
+            'rewiring the house. [[slnc 700]] The previous video, Layered '
+            'Architecture, ended with one honest problem. [[slnc 300]] '
+            'Its use case still had to name its storage class. [[slnc '
+            '300]] This video fixes exactly that, and proves it twice. '
+            '[[slnc 400]] By the end, you will have one simple test for '
+            'telling a port from an adapter: who is allowed to name whom?'
         ),
     ),
     dict(
@@ -54,15 +55,18 @@ SCENES = [
             "somewhere to store the order, and a way to notify.",
         ],
         narration=(
-            "Same order as every project in this category, placed the same "
-            "way: check stock, take payment, store the order, notify the "
-            "customer. Ada Okafor's three hundred and eighty-two pounds "
-            "fifty. [[slnc 300]] What changes in this video is not the "
-            "feature. It is what the core is allowed to know about how "
-            "those four things actually happen. The core needs a "
-            "catalogue, a payment gateway, somewhere to store an order, and "
-            "a way to notify a customer -- four needs, stated as four "
-            "interfaces, all four written by the core itself."
+            'Here is the job. [[slnc 300]] It is the same order as every '
+            'project in this series. [[slnc 300]] A customer called Ada '
+            'Okafor buys an espresso machine, a coffee grinder, and two '
+            'bags of coffee beans, for three hundred and eighty-two '
+            'pounds fifty. [[slnc 500]] The steps are the same too. '
+            '[[slnc 300]] Check the stock, take the payment, store the '
+            'order, and notify the customer. [[slnc 500]] What changes is '
+            'how much the core knows about how those steps happen. [[slnc '
+            '400]] The core needs four things: a catalogue, a payment '
+            'gateway, somewhere to store orders, and a way to notify. '
+            '[[slnc 300]] Each one is an interface, and the core writes '
+            'all four itself.'
         ),
     ),
     dict(
@@ -78,19 +82,19 @@ SCENES = [
     // swap one, and this class must be edited.
 }""",
         narration=(
-            "Here is where this project starts, and it is not a strawman -- "
-            "it is the previous project's use case, honestly reproduced. "
-            "[[slnc 300]] This class's fields are typed as concrete "
-            "adapters: an in-memory order store, an in-memory payment "
-            "gateway, an in-memory catalogue. Not interfaces the core "
-            "declared -- the actual classes that do the storing and the "
-            "charging. [[slnc 350]] It works. It places the order "
-            "correctly. And two things follow from those field types that "
-            "would not follow from an interface. You cannot unit-test this "
-            "class without constructing all three adapters. And the moment "
-            "any one of those three classes is replaced, this file must be "
-            "opened and edited -- not because its logic changed, but "
-            "because a type it named no longer exists."
+            "Let's start with the naive version. [[slnc 300]] It is the "
+            'use case from the previous project, copied honestly. [[slnc '
+            '500]] Its fields are three concrete classes. [[slnc 300]] An '
+            'in-memory order store. [[slnc 200]] An in-memory payment '
+            'gateway. [[slnc 200]] And an in-memory product catalogue. '
+            '[[slnc 300]] Not interfaces. [[slnc 200]] The real classes '
+            'that do the work. [[slnc 500]] Does it work? [[slnc 200]] '
+            'Yes, it places the order correctly. [[slnc 400]] But two '
+            'problems follow. [[slnc 300]] One. [[slnc 200]] You cannot '
+            'test this class without building all three of those classes '
+            'first. [[slnc 300]] Two. [[slnc 200]] If any of them is '
+            'replaced, this file must be edited, even though its logic '
+            'did not change.'
         ),
     ),
     dict(
@@ -108,21 +112,21 @@ SCENES = [
             "The core never names an adapter. Either direction.",
         ],
         narration=(
-            "So here is the fix, and it is one move, stated precisely. "
-            "[[slnc 300]] Four interfaces -- a place to store orders, a way "
-            "to take payment, a catalogue, a way to notify -- all four "
-            "declared inside the core itself, in a package called core dot "
-            "port. Not in the adapter package. Inside the core. [[slnc "
-            "350]] An adapter, on the outside, either implements one of "
-            "these interfaces -- that is a driven adapter, one the core "
-            "calls -- or it holds a reference to the core's use case and "
-            "calls into it -- that is a driving adapter, one that calls the "
-            "core. [[slnc 300]] And here is the rule that makes this "
-            "precise rather than a vibe. The core never names an adapter. "
-            "Not a driven one it is calling, and not a driving one that "
-            "might be calling it. If you are ever unsure whether something "
-            "is a port or an adapter, ask exactly one question: who names "
-            "whom?"
+            'Here is the fix, and it is one single move. [[slnc 500]] The '
+            'core declares four interfaces. [[slnc 300]] Order Store, '
+            'Payment Gateway, Product Catalog, and Notifier. [[slnc 300]] '
+            'All four live inside the core, in a package called core dot '
+            'port. [[slnc 300]] Not in the adapter package. [[slnc 600]] '
+            'Outside the core, there are two kinds of adapter. [[slnc '
+            '400]] A driven adapter implements a port. [[slnc 300]] The '
+            'core calls it, for example, to store an order. [[slnc 400]] '
+            'A driving adapter calls into the core. [[slnc 300]] For '
+            'example, a web request that asks the core to place an order. '
+            '[[slnc 600]] And here is the rule. [[slnc 300]] The core '
+            'never names an adapter. [[slnc 300]] Not one it calls, and '
+            'not one that calls it. [[slnc 500]] So if you are unsure '
+            'whether something is a port or an adapter, ask one question. '
+            '[[slnc 300]] Who names whom?'
         ),
     ),
     dict(
@@ -141,21 +145,18 @@ SCENES = [
             "of the import with it.",
         ],
         narration=(
-            "I want to be precise about how small this move actually is, "
-            "because it is easy to make hexagonal architecture sound like a "
-            "bigger idea than it is. [[slnc 300]] In the layered "
-            "architecture project, the storage interface lived in the "
-            "bottom layer, called infrastructure, and the use case above it "
-            "reached down to name it. That is allowed, under layering's own "
-            "rule -- each layer may depend on the one beneath it. [[slnc "
-            "350]] Here, the exact same interface -- three methods, save, "
-            "find, describe -- lives inside the core instead. And the "
-            "adapter that used to define it now reaches up to implement it. "
-            "[[slnc 300]] Read that again, because it is the whole trick. "
-            "The interface did not change. Only which package it lives in "
-            "changed -- and with it, which direction the import points. "
-            "That is the entire distance between the project before this "
-            "one and this one."
+            "This move is smaller than it sounds, so let's be precise. "
+            '[[slnc 500]] In the layered project, the storage interface '
+            'lived in the bottom layer, called infrastructure. [[slnc '
+            '300]] The use case, above it, reached down to use it. [[slnc '
+            '300]] Layering allows that. [[slnc 500]] Here, the very same '
+            'interface, with the same three methods, lives inside the '
+            'core instead. [[slnc 300]] And the storage class, outside, '
+            'reaches in to implement it. [[slnc 600]] So the interface '
+            'itself did not change at all. [[slnc 300]] Only the package '
+            'it lives in changed. [[slnc 300]] And with it, the direction '
+            'the dependency points. [[slnc 500]] That is the whole '
+            'distance between the previous project and this one.'
         ),
     ),
     dict(
@@ -169,16 +170,19 @@ SCENES = [
   and core.port.
   it does not know HTTP, or any adapter, exists.""",
         narration=(
-            "So let's watch the real core run. A simulated HTTP request "
-            "arrives at an adapter, which calls one method on the core's "
-            "use case. [[slnc 300]] The core checks stock through the "
-            "catalogue port, charges through the payment port, saves "
-            "through the storage port, notifies through the notifier port -- "
-            "and every single one of those four names is a name the core "
-            "chose for itself. [[slnc 300]] Open the core's use case class "
-            "and count its imports. Two: the domain, and the port package. "
-            "Not one adapter. It genuinely does not know that HTTP, or any "
-            "particular way of storing an order, exists."
+            "Let's watch the real core run. [[slnc 400]] A pretend web "
+            'request arrives at an adapter. [[slnc 300]] The adapter '
+            'calls one method on the core. [[slnc 500]] The core checks '
+            'stock through the catalogue port. [[slnc 300]] It takes '
+            'payment through the payment port. [[slnc 300]] It saves the '
+            'order through the storage port. [[slnc 300]] And it notifies '
+            'the customer through the notifier port. [[slnc 400]] The '
+            'order is created, with status two hundred and one, for three '
+            'hundred and eighty-two pounds fifty. [[slnc 500]] Now think '
+            "about the core's use case class. [[slnc 300]] It imports "
+            'from only two places: the domain, and the port package. '
+            '[[slnc 300]] Not one adapter. [[slnc 400]] It truly does not '
+            'know that the web, or any particular storage, exists.'
         ),
     ),
     dict(
@@ -197,19 +201,18 @@ SCENES = [
             "    completely different. No change either.",
         ],
         narration=(
-            "Most explanations of this pattern stop here, having shown you "
-            "that storage can be swapped, and call it done. This video "
-            "insists on the other half. [[slnc 300]] Hexagonal "
-            "architecture is usually taught as being entirely about "
-            "databases -- swap the driven side, storage, and the core does "
-            "not change. That is real, and it is half the claim. [[slnc "
-            "350]] The half almost everyone skips is the driving side -- "
-            "who is allowed to call in. If the core can genuinely be called "
-            "from anywhere, that has to be demonstrated by actually calling "
-            "it from somewhere new, not merely asserted. [[slnc 300]] So "
-            "this project does both, in the same act. It swaps the storage "
-            "underneath the core, and it drives the very same core from a "
-            "caller that shares no code at all with the first one."
+            'Many explanations stop here. [[slnc 300]] They show that '
+            'storage can be swapped, and call it done. [[slnc 400]] That '
+            'is only half the story. [[slnc 500]] Hexagonal architecture '
+            'is often taught as being all about databases. [[slnc 300]] '
+            'Swap the storage, and the core does not change. [[slnc 300]] '
+            'That is true. [[slnc 500]] The other half is about who calls '
+            'into the core. [[slnc 300]] If the core can really be called '
+            'from anywhere, we should prove it, by calling it from '
+            'somewhere new. [[slnc 500]] So this project does both. '
+            '[[slnc 300]] It swaps the storage underneath the core. '
+            '[[slnc 300]] And it drives the same core from a completely '
+            'different caller.'
         ),
     ),
     dict(
@@ -223,16 +226,17 @@ SCENES = [
   called from a shape as different from
   HTTP as this project has.""",
         narration=(
-            "Here is the proof. A simulated command line -- one string, "
-            "parsed by hand -- calls the identical use case class the HTTP "
-            "adapter called two acts ago. [[slnc 300]] Same order. Same "
-            "total. And critically: the use case class was not touched to "
-            "make this possible. Its constructor takes the same four ports "
-            "either way. [[slnc 300]] This is the sentence I want you to "
-            "take from this scene. A core that can only be shown accepting "
-            "one kind of caller has not actually proven it is decoupled "
-            "from callers -- it has proven it works with the one caller "
-            "somebody happened to write first."
+            'Here is the proof. [[slnc 400]] Instead of a web request, a '
+            'pretend command line calls the core. [[slnc 300]] It is just '
+            'one line of text, read by hand. [[slnc 400]] It calls '
+            'exactly the same use case class that the web adapter called. '
+            '[[slnc 500]] The result is the same order, with the same '
+            'total. [[slnc 400]] And the use case class was not touched. '
+            '[[slnc 300]] It takes the same four ports either way. [[slnc '
+            '600]] Here is the lesson. [[slnc 300]] If a core has only '
+            'ever been called one way, it has not proven it is '
+            'independent of its callers. [[slnc 300]] It has only proven '
+            'it works with the first caller someone wrote.'
         ),
     ),
     dict(
@@ -248,16 +252,15 @@ rule.check(everything);
 // covers BOTH driven and driving
 // adapters in one sentence.""",
         narration=(
-            "One sentence covers all of this. No class in the core package "
-            "may depend on any class in the adapter package. [[slnc 300]] "
-            "Notice that one rule catches both mistakes at once -- the core "
-            "naming a driven adapter it is calling, and the core "
-            "accidentally calling back into a driving adapter that called "
-            "it. Either direction breaks the same rule, and this one test "
-            "covers both. [[slnc 300]] It runs in gradlew test alongside "
-            "everything else, and a second test widens the same rule to "
-            "the naive package on purpose, to prove it is capable of "
-            "failing."
+            'All of this fits in one rule, written as a test with a '
+            'library called ArchUnit. [[slnc 500]] No class in the core '
+            'package may depend on any class in the adapter package. '
+            '[[slnc 500]] That one rule catches two mistakes. [[slnc '
+            '300]] The core naming an adapter it calls. [[slnc 300]] And '
+            'the core calling back into an adapter that called it. [[slnc '
+            '500]] The test runs with every other test in the build. '
+            '[[slnc 400]] And a second test points the same rule at the '
+            'naive version, on purpose, to prove the rule can fail.'
         ),
     ),
     dict(
@@ -274,13 +277,14 @@ Class <...naive.core.NaivePlaceOrderService>
   depends on class
   <...adapter.persistence.InMemoryOrderStore>""",
         narration=(
-            "Here is what the build prints. Architecture violation. And "
-            "then the part that matters: it names the naive use case class, "
-            "and it names the adapter it reached for. [[slnc 350]] The "
-            "difference between a whiteboard promise and this message is "
-            "the difference the whole category is built to teach. One of "
-            "them is forgotten within a month. The other one fails a build, "
-            "by name, in under a second."
+            'So what does a failure sound like? [[slnc 400]] The build '
+            'reports an architecture violation. [[slnc 300]] It says the '
+            'rule, no core class may depend on an adapter, was broken '
+            'once. [[slnc 300]] Then it names the naive use case class, '
+            'and the in-memory order store it reached for. [[slnc 500]] A '
+            'promise on a whiteboard is forgotten within a month. [[slnc '
+            '300]] This message fails the build, by name, in under a '
+            'second.'
         ),
     ),
     dict(
@@ -298,17 +302,16 @@ Class <...naive.core.NaivePlaceOrderService>
   classes in the core : 14
   of those, never opened : 14""",
         narration=(
-            "So here is the bill, both halves counted together, because "
-            "this project's whole claim is that both are free at once. "
-            "[[slnc 300]] Storage changes from a map to an append-only log. "
-            "Separately, the calling side changes from a simulated HTTP "
-            "request to a simulated command line. [[slnc 350]] Counted from "
-            "the real files on disk: two files added, one file modified -- "
-            "the composition root, four lines total. And fourteen classes "
-            "make up the entire core. Every one of them: never opened, for "
-            "either change. [[slnc 300]] Two simultaneous swaps, on "
-            "opposite sides of the same hexagon, and the number of core "
-            "classes that had to be touched for either one is zero."
+            'Now, the big change, with both halves at once. [[slnc 500]] '
+            'On one side, storage changes from a simple map to an '
+            'append-only log. [[slnc 400]] On the other side, the caller '
+            'changes from a web request to a command line. [[slnc 500]] '
+            "Let's count what changed, from the real files. [[slnc 300]] "
+            'Two files were added. [[slnc 300]] One file was modified: '
+            'the main setup code, and only four lines of it. [[slnc 500]] '
+            'The core is fourteen classes. [[slnc 300]] Not one of them '
+            'was opened, for either change. [[slnc 500]] Two swaps, on '
+            'opposite sides of the core, and zero core classes touched.'
         ),
     ),
     dict(
@@ -325,17 +328,17 @@ Class <...naive.core.NaivePlaceOrderService>
             "    shape into the core's, and back. Real work.",
         ],
         narration=(
-            "Every project in this category has to pay a bill honestly, "
-            "and here is this one's. [[slnc 300]] Interfaces for things "
-            "with exactly one implementation. Notifier has one adapter in "
-            "this whole project. Writing an interface for a class you will "
-            "never swap is ceremony, and this project has some of it, in "
-            "the name of demonstrating the shape clearly. [[slnc 350]] And "
-            "mapping. Every driving adapter spends real code translating "
-            "its own shape -- a JSON body, a command line string -- into "
-            "what the core actually wants, and translating the answer back. "
-            "That cost is paid once per adapter, and it is genuinely "
-            "there."
+            "Every pattern has a cost, so let's name this one honestly. "
+            '[[slnc 500]] First, interfaces for things that have only one '
+            'implementation. [[slnc 300]] The Notifier has exactly one '
+            'adapter in this project. [[slnc 300]] Writing an interface '
+            'for a class you will never swap is ceremony. [[slnc 300]] '
+            'This project has some of that, to show the shape clearly. '
+            '[[slnc 500]] Second, translation. [[slnc 300]] Every driving '
+            'adapter must translate its own input, like a web body or a '
+            'line of text, into what the core wants. [[slnc 300]] And '
+            'then translate the answer back. [[slnc 300]] That is real '
+            'code, for every adapter.'
         ),
     ),
     dict(
@@ -353,18 +356,16 @@ Class <...naive.core.NaivePlaceOrderService>
             "to actually happen?",
         ],
         narration=(
-            "So the honest question this project must not dodge. For an "
-            "application that will only ever have one database and one way "
-            "of being called, is any of this worth building? [[slnc 300]] "
-            "Often, no. Four interfaces, each with exactly one "
-            "implementation that will never be swapped, is indirection "
-            "with nothing behind it but the diagram. [[slnc 350]] It is "
-            "worth it the moment a core genuinely needs more than one "
-            "caller, or more than one store, or needs to be tested without "
-            "any of its real infrastructure existing yet. The question "
-            "worth asking honestly before reaching for this: is either "
-            "swap ever actually going to happen, or am I building the "
-            "seam for a change that is never coming?"
+            'So, is this worth it for an application with one database '
+            'and one way in? [[slnc 500]] Often, no. [[slnc 300]] Four '
+            'interfaces, each with one implementation that will never '
+            'change, is extra complexity with nothing behind it. [[slnc '
+            '500]] It becomes worth it when the core truly needs more '
+            'than one caller. [[slnc 300]] Or more than one store. [[slnc '
+            '300]] Or must be tested before any real infrastructure '
+            'exists. [[slnc 500]] So ask yourself honestly. [[slnc 300]] '
+            'Will either swap ever really happen? [[slnc 300]] Or are you '
+            'building for a change that is never coming?'
         ),
     ),
     dict(
@@ -378,19 +379,20 @@ Class <...naive.core.NaivePlaceOrderService>
             "needs zero lines changed to accept it.",
         ],
         narration=(
-            "That's hexagonal architecture. [[slnc 250]] If you take one "
-            "sentence away, take this one: hexagonal architecture is not "
-            "about databases. It is about who is allowed to name whom. "
-            "[[slnc 350]] The full source, the written notes, the diagrams "
-            "and an animated walkthrough are all in the repository, running "
-            "offline with nothing installed but a Java development kit. "
-            "[[slnc 300]] If you try one exercise, try this. Write a third "
-            "driving adapter -- a console menu, a scheduled job, anything -- "
-            "and confirm that PlaceOrderService dot java needs zero lines "
-            "changed to accept it. [[slnc 300]] If this helped, a like "
-            "genuinely does help other people find it, and subscribe if "
-            "you would like the rest of the series. [[slnc 250]] Thanks for "
-            "watching, and I'll see you in the next one."
+            "That's Hexagonal Architecture. [[slnc 400]] If you remember "
+            'one sentence, make it this one. [[slnc 300]] Hexagonal '
+            'architecture is not about databases, it is about who is '
+            'allowed to name whom. [[slnc 500]] The full source code, '
+            'written notes, diagrams, and an animated walkthrough are all '
+            'in the repository. [[slnc 300]] It runs offline, with '
+            'nothing installed except a Java development kit. [[slnc '
+            '500]] Here is one exercise to try. [[slnc 300]] Write a '
+            'third driving adapter, such as a console menu or a scheduled '
+            'job. [[slnc 300]] Then check that the Place Order Service '
+            'class needs zero lines changed to accept it. [[slnc 500]] If '
+            'this helped, a like really does help other people find it. '
+            "[[slnc 300]] And subscribe, if you'd like the rest of the "
+            'series. [[slnc 400]] Thanks for watching.'
         ),
     ),
 ]

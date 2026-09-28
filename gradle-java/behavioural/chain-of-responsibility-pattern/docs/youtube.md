@@ -21,20 +21,20 @@ Learn the Chain of Responsibility design pattern in Java 21 by building the chec
 
 CHAPTERS
 00:00 Introduction
-00:53 The Scenario
-01:30 Look Closely at One Order
-02:06 The Naive Approach — Four Checks, One Method
-02:55 Why That Hurts
-03:39 The Chain of Responsibility Pattern
-04:11 An Analogy
-04:51 The Roles
-05:27 The Handler — And the Line That Is Written Once
-06:17 The Chain — And What Silence Means
-07:01 Two Links — And the One With Three Answers
-07:44 The Tests — Asserting What Did NOT Happen
-08:27 Running It
-09:18 What to Remember
-10:26 Thanks for Watching
+00:59 The Scenario
+01:39 Look Closely at One Order
+02:17 The Naive Approach — Four Checks, One Method
+03:07 Why That Hurts
+03:51 The Chain of Responsibility Pattern
+04:24 An Analogy
+05:04 The Roles
+05:40 The Handler — And the Line That Is Written Once
+06:31 The Chain — And What Silence Means
+07:17 Two Links — And the One With Three Answers
+08:02 The Tests — Asserting What Did NOT Happen
+08:50 Running It
+09:49 What to Remember
+10:53 Thanks for Watching
 
 SOURCE CODE, WRITTEN NOTES AND AN INTERACTIVE ANIMATION
 https://github.com/jk-boot-up/java-design-patterns/tree/main/gradle-java/behavioural/chain-of-responsibility-pattern
@@ -49,20 +49,20 @@ YouTube renders these as chapters only if there are at least three and the first
 
 ```
 00:00 Introduction
-00:53 The Scenario
-01:30 Look Closely at One Order
-02:06 The Naive Approach — Four Checks, One Method
-02:55 Why That Hurts
-03:39 The Chain of Responsibility Pattern
-04:11 An Analogy
-04:51 The Roles
-05:27 The Handler — And the Line That Is Written Once
-06:17 The Chain — And What Silence Means
-07:01 Two Links — And the One With Three Answers
-07:44 The Tests — Asserting What Did NOT Happen
-08:27 Running It
-09:18 What to Remember
-10:26 Thanks for Watching
+00:59 The Scenario
+01:39 Look Closely at One Order
+02:17 The Naive Approach — Four Checks, One Method
+03:07 Why That Hurts
+03:51 The Chain of Responsibility Pattern
+04:24 An Analogy
+05:04 The Roles
+05:40 The Handler — And the Line That Is Written Once
+06:31 The Chain — And What Silence Means
+07:17 Two Links — And the One With Three Answers
+08:02 The Tests — Asserting What Did NOT Happen
+08:50 Running It
+09:49 What to Remember
+10:53 Thanks for Watching
 ```
 
 ## Tags
@@ -101,4 +101,4 @@ Add a card partway through pointing at the playlist, so a viewer who arrives at 
 
 ## Runtime
 
-Approximately 10:58, narrated at 145 words per minute.
+Approximately 11:38, narrated at 145 words per minute.

@@ -21,21 +21,21 @@ Learn the Abstract Factory pattern in Java 21 by building an online store's regi
 
 CHAPTERS
 00:00 Introduction
-00:59 The Scenario
-01:37 Nine Classes, Three Legal Combinations
-02:15 The Problem
-02:49 Why That Hurts
-03:25 The Abstract Factory Pattern
-03:57 The Set Menu
-04:33 The Roles
-05:18 The Abstract Factory
-05:51 A Concrete Factory
-06:24 The Client
-06:59 What You Gain
-07:43 The Honest Cost
-08:35 Running It
-09:15 Wrap Up
-09:51 Thanks for Watching
+00:49 The Scenario
+01:24 Nine Classes, Three Legal Combinations
+02:02 The Problem
+02:30 Why That Hurts
+03:06 The Abstract Factory Pattern
+03:34 The Set Menu
+04:10 The Roles
+04:54 The Abstract Factory
+05:25 A Concrete Factory
+05:58 The Client
+06:34 What You Gain
+07:14 The Honest Cost
+08:00 Running It
+08:40 Wrap Up
+09:13 Thanks for Watching
 
 SOURCE CODE, WRITTEN NOTES AND AN INTERACTIVE ANIMATION
 https://github.com/jk-boot-up/java-design-patterns/tree/main/gradle-java/creational/abstract-factory-pattern
@@ -50,21 +50,21 @@ YouTube renders these as chapters only if there are at least three and the first
 
 ```
 00:00 Introduction
-00:59 The Scenario
-01:37 Nine Classes, Three Legal Combinations
-02:15 The Problem
-02:49 Why That Hurts
-03:25 The Abstract Factory Pattern
-03:57 The Set Menu
-04:33 The Roles
-05:18 The Abstract Factory
-05:51 A Concrete Factory
-06:24 The Client
-06:59 What You Gain
-07:43 The Honest Cost
-08:35 Running It
-09:15 Wrap Up
-09:51 Thanks for Watching
+00:49 The Scenario
+01:24 Nine Classes, Three Legal Combinations
+02:02 The Problem
+02:30 Why That Hurts
+03:06 The Abstract Factory Pattern
+03:34 The Set Menu
+04:10 The Roles
+04:54 The Abstract Factory
+05:25 A Concrete Factory
+05:58 The Client
+06:34 What You Gain
+07:14 The Honest Cost
+08:00 Running It
+08:40 Wrap Up
+09:13 Thanks for Watching
 ```
 
 ## Tags
@@ -103,4 +103,4 @@ Add a card partway through pointing at the playlist, so a viewer who arrives at 
 
 ## Runtime
 
-Approximately 10:18, narrated at 145 words per minute.
+Approximately 09:46, narrated at 145 words per minute.

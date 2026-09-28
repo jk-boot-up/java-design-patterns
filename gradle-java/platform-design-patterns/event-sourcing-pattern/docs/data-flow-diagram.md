@@ -22,33 +22,6 @@ anywhere.
 
 ![Event sourcing data flow diagram](images/data-flow-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-flowchart TD
-    Order(["a customer places an order<br/>ORD-8801, £60.00"])
-    Rule["the checkout decides<br/>one point per pound"]
-    Event["PointsAwarded<br/>customer C-5120, 60 points, order ORD-8801, 1 March"]
-    Store[("the event log<br/>append only, in order, never edited")]
-    Later["three more things happen in March<br/>25 spent · 120 earned · 15 expired"]
-    Ask(["support asks: why is the balance 140?"])
-    Fold["the fold<br/>start at zero, add every event in order"]
-    Bal(["140 points, worked out just now,<br/>and the four lines that explain it"])
-    Snap[("a snapshot<br/>the balance at event 5000, plus which code computed it")]
-    Query["a question written after the bug shipped<br/>which orders awarded points twice?"]
-    Fix(["the same log, read differently<br/>no event edited, no event deleted"])
-
-    Order --> Rule --> Event --> Store
-    Later --> Store
-    Ask --> Fold
-    Store --> Fold --> Bal
-    Snap -.-> Fold
-    Store --> Query --> Fix
-```
-
-</details>
-
 ## The three things this flow proves
 
 **Nothing flows backwards into the log.** There is no arrow from the fold, from the

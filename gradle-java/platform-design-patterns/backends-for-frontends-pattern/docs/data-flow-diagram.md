@@ -24,41 +24,6 @@ clock, which no endpoint belonging to everybody will ever be allowed to add for 
 
 ![Backends for frontends data flow diagram](images/data-flow-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-flowchart TD
-    Tap(["a customer taps a product on the phone"])
-    Old["the phone calls the shop itself<br/>5 round trips, in sequence, 1767 bytes"]
-    New["the phone calls its own backend<br/>1 round trip"]
-    Cat["catalog<br/>title, description, specification"]
-    Pri["pricing<br/>4799, as a number of pence"]
-    Inv["inventory<br/>in stock, dispatch today"]
-    Rev["reviews<br/>rating 4.6, from 218 ratings"]
-    Med["media<br/>five image URLs"]
-    Bff["mobile-bff<br/>keeps 6 fields, drops 23<br/>turns 4799 into the string £47.99<br/>joins one delivery sentence"]
-    Screen(["196 bytes, and every byte is drawn"])
-    Waste(["1767 bytes downloaded,<br/>1543 of them thrown away on arrival"])
-
-    Tap --> Old
-    Tap --> New
-    Old --> Cat
-    Old --> Pri
-    Old --> Inv
-    Old --> Rev
-    Old --> Med
-    Old --> Waste
-    New --> Bff
-    Bff --> Cat
-    Bff --> Pri
-    Bff --> Inv
-    Bff --> Rev
-    Bff --> Screen
-```
-
-</details>
-
 ## The three things this flow proves
 
 **Round trips moved rather than disappeared.** Device calls fall from five to one; internal

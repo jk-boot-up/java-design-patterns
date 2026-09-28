@@ -2,56 +2,56 @@
 
 ## 1. Microkernel
 
-Hello, and welcome. This video explains the Microkernel pattern in Java, and it is written and presented by Jayasekhar Konduru. The plain definition: a microkernel keeps a small core that only knows how to keep plugins and run them. Every feature lives in a plugin. This is another project in the architecture category, whose subject is how a whole application is arranged, and who may depend on whom. In our online store, the checkout keeps gaining features, and every one means editing the same class. By the end you will see a checkout that has to be edited for every new feature, see a core and plugins, see a plugin added and removed while running, see a broken plugin not stop the others, see the order of plugins change the price, and see the bill, which is a narrow interface and results that depend on what is installed.
+Hello, and welcome. This video explains the Microkernel pattern, in Java. This video is presented by Jayasekhar Konduru. First, a simple definition. A microkernel is a small core that knows only one thing: how to keep plugins, and run them. Every actual feature lives in a plugin. Think of a power strip. The strip itself does very little. It just gives power to whatever you plug in: a lamp, a fan, a charger. You add or remove devices without rewiring the strip. In our online store, the checkout keeps gaining new features. And every new feature means editing the same class. In this video, we move those features into plugins. We will add and remove a plugin while the shop is running, survive a broken plugin, and see why the order of plugins matters. Then we will look at the cost.
 
 ## 2. The Scenario
 
-Here is the scenario. The checkout has a member discount and a shipping fee. Now the marketing team wants gift wrap, then loyalty points, then more. The question: must we edit the checkout every time?
+Here is the scenario. The checkout already has a member discount, and a shipping fee. Now the marketing team wants gift wrap. Then loyalty points. Then more. So here is the question. Must we edit the checkout every single time?
 
 ## 3. Every Feature Inside
 
-First, every feature inside. Gift wrap is asked for, and the checkout does not support it. The total is unchanged. To add it, we must edit the checkout, test all of it again, and release all of it.
+First, the old way: every feature inside the checkout. A customer asks for gift wrap. The checkout does not support it, so the total stays the same. To add gift wrap, we must edit the checkout. Then test all of it again. Then release all of it again.
 
 ## 4. The Pattern
 
-The pattern. A small core. It knows one interface, called plugin. It keeps plugins, starts and stops them, and runs them. Every feature is a plugin.
+Now, the pattern. There is a small core. It knows exactly one interface, called Plugin. The core keeps a list of plugins. It starts them, stops them, and runs them. And every feature is a plugin.
 
 ## 5. A Core And Plugins
 
-Second, a core and plugins. The core has two plugins: member discount and shipping fee. A total of ten thousand becomes ninety five hundred. The core knows one interface, and nothing about discounts or fees.
+Second demo: a core with plugins. The core has two plugins: a member discount, and a shipping fee. An order of one hundred dollars goes in. It comes out at ninety-five dollars. The core itself knows one interface. It knows nothing about discounts or fees.
 
 ## 6. A New Feature, No Change
 
-Third, a new feature, with no change to the core. Gift wrap is registered while the system is running. It is started, and the total is ninety eight hundred. Then it is taken away again, and stopped, and the total goes back to ninety five hundred. The core was not changed.
+Third demo: a new feature, with no change to the core. While the shop is running, the gift wrap plugin is registered. It starts, and the total becomes ninety-eight dollars. Then gift wrap is removed again. It stops, and the total goes back to ninety-five dollars. The core was not changed at all.
 
 ## 7. A Plugin That Breaks
 
-Fourth, a plugin that breaks. The loyalty points plugin throws an error. The core records it, and carries on. The other plugins still ran, and the total is ninety five hundred.
+Fourth demo: a plugin that breaks. The loyalty points plugin throws an error. The core records the error, and carries on. The other plugins still run. The total is still ninety-five dollars. One broken plugin did not stop the checkout.
 
 ## 8. Order Matters
 
-Fifth, order matters. Discount then fee gives ninety five hundred. Fee then discount gives ninety four fifty. The same two plugins, and a different price. The core cannot know which is right.
+Fifth demo: the order of plugins matters. Apply the discount first, then the fee, and the total is ninety-five dollars. Apply the fee first, then the discount, and the total is ninety-four dollars fifty. The same two plugins, and a different price. And the core has no way to know which order is right. Someone has to decide that on purpose.
 
 ## 9. The Bill
 
-Last, the bill. The interface offers one thing: adjust a total. Plugins want more: the customer's country, and a line on the receipt. If the interface grows, every plugin feels it. If it does not, plugins reach around the core. And a customer's total is now decided by whichever plugins are installed, in some order.
+Finally, the cost. The plugin interface offers just one thing: adjust the total. But plugins want more. For example, the customer's country, or a line on the receipt. If the interface grows, every plugin is affected. If it does not grow, plugins start reaching around the core. And one more cost. A customer's total now depends on which plugins are installed, and in what order.
 
 ## 10. How To Recognise It
 
-How do you recognise this in code you did not write? A Plugin or Extension interface loaded by name or from a folder. ServiceLoader in Java. IDEs, browsers with extensions, and build tools with plugins. OSGi bundles and the Eclipse platform.
+How can you spot this pattern in code someone else wrote? Look for a Plugin or Extension interface, loaded by name or from a folder. In Java, look for the Service Loader class. You also meet it in everyday tools. Code editors with extensions, web browsers with add-ons, and build tools with plugins. And in systems built on OSGi, such as the Eclipse platform.
 
 ## 11. The Verdict
 
-Here is my verdict, plainly. Use a microkernel when features come and go, and different customers or teams need different sets. Keep the core tiny and the interface stable. Decide the order of plugins on purpose. Isolate a failing plugin. Do not use it for a system whose features never change.
+So, here is the verdict. Use a microkernel when features come and go. And when different customers or teams need different sets of features. Then follow four rules. One. Keep the core tiny, and the interface stable. Two. Decide the order of plugins on purpose. Three. Isolate a failing plugin, so it cannot stop the others. And four. Do not use it for a system whose features never change.
 
 ## 12. What Is Real Here
 
-The same honest admission as everywhere in this course. Everything is plain Java. Every number quoted comes from this program's own output. Nothing depends on a clock, so every run is the same.
+A quick, honest note about this demo. Everything is plain Java. Every number you heard comes from the program's own output. And nothing depends on the clock, so every run gives the same result.
 
 ## 13. When This Is Too Much
 
-So when is it too much? If the features are few and fixed, plain classes are simpler. A plugin system costs an interface, a lifecycle and a way to order things, and pays off only when the set of features truly varies.
+So, when is this too much? If there are only a few features, and they never change, plain classes are simpler. A plugin system costs an interface, a way to start and stop plugins, and a way to order them. It only pays off when the set of features really does vary.
 
 ## 14. Thanks for Watching
 
-That's Microkernel. If you take one sentence away, take this one: a microkernel puts every feature in a plugin and keeps the core small, and the price is a narrow interface and results that depend on what is installed. The full source, the written notes, the diagrams and an animated walkthrough are all in the repository, running offline with nothing installed but a Java development kit. If you try one exercise, add a plugin that rounds the total to the nearest ten cents, and decide where in the order it goes. If this helped, a like genuinely does help other people find it, and subscribe if you would like the rest of the series. Thanks for watching.
+That's the Microkernel pattern. If you remember one sentence, make it this one. A microkernel puts every feature in a plugin and keeps the core small, and the price is a narrow interface, and results that depend on what is installed. The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. Here is one exercise to try. Add a plugin that rounds the total to the nearest ten cents. Then decide where in the order it should go. If this helped, a like really does help other people find it. And subscribe, if you'd like the rest of the series. Thanks for watching.

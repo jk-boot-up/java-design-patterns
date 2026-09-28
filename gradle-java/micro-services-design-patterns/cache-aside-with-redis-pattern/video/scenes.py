@@ -12,23 +12,24 @@ SCENES = [
         key='01-poster', kind='poster', title='Cache-Aside with Redis',
         body=None,
         narration=(
-            'Hello, and welcome. This video explains the Cache-Aside '
-            'pattern in Java, using a real cache server called Redis. '
-            '[[slnc 250]] It is written and presented by Jayasekhar '
-            'Konduru. [[slnc 300]] Here is the plain definition, in '
-            'general words. Cache-aside means you ask a fast copy first. '
-            'When the copy has nothing, you fetch the real answer '
-            'yourself, and you leave a copy behind for the next person. '
-            '[[slnc 350]] Now the same thing in our online store. Every '
-            'product page needs a price, and the prices live in the '
-            'database. So the shop asks the cache for the price first. '
-            'If the cache has nothing, the shop reads the database, and '
-            'writes the price into the cache on its way back. '
-            '[[slnc 300]] By the end you will have seen a second shop '
-            'find the cache already warm, a price removed by the cache '
-            'on its own clock, one ordinary write that makes a stale '
-            'price last for ever, and fifty requests stampede the '
-            'database with nothing arranging it.'
+            'Hello, and welcome. [[slnc 400]] This video explains the '
+            'Cache-Aside pattern in Java, using a real cache server '
+            'called Redis. [[slnc 300]] This video is presented by '
+            'Jayasekhar Konduru. [[slnc 600]] First, a simple definition. '
+            '[[slnc 300]] Cache-aside means you ask a fast copy first. '
+            '[[slnc 300]] If the copy has nothing, you fetch the real '
+            'answer yourself. [[slnc 300]] And you leave a copy behind, '
+            'for the next person. [[slnc 600]] In our online store, every '
+            'product page needs a price, and prices live in the database. '
+            '[[slnc 300]] So the shop asks the cache for the price first. '
+            '[[slnc 300]] If the cache has nothing, the shop reads the '
+            'database, and writes the price into the cache on the way '
+            'back. [[slnc 500]] By the end, you will hear a second shop '
+            'find the cache already filled. [[slnc 300]] A price removed '
+            'by the cache on its own clock. [[slnc 300]] One ordinary '
+            'write that makes an old price last forever. [[slnc 300]] And '
+            'fifty requests rushing at the database, with nobody '
+            'arranging it.'
         ),
     ),
     dict(
@@ -38,17 +39,18 @@ SCENES = [
               'The shop runs as more than one', 'process, on a busy day.', '',
               'This time the cache is its own', 'program, shared by every shop.'],
         narration=(
-            'Here is the scenario. Every product page needs a price, and '
-            'the prices live in the database, which is the source of '
-            'truth. Ten products get most of the views, and their prices '
-            'rarely change. On a busy day the shop runs as more than one '
-            'process, and every one of them reads the same database. '
-            '[[slnc 300]] The hand-built twin of this project already put '
-            'a cache on the side, but that cache was a map inside the '
-            'shop\'s own program, with a clock the demo moved by hand. '
-            'This time the cache is a program of its own, shared by every '
-            'shop, with a clock nobody in the shop controls. That changes '
-            'three things.'
+            'Here is the scenario. [[slnc 400]] Every product page needs '
+            'a price. [[slnc 300]] The prices live in the database, which '
+            'holds the truth. [[slnc 300]] Ten products get most of the '
+            'views, and their prices rarely change. [[slnc 300]] On a '
+            'busy day, the shop runs as more than one program, and all of '
+            'them read the same database. [[slnc 600]] The plain Java '
+            'version of this project also used a cache. [[slnc 300]] But '
+            "that cache lived inside the shop's own program, with a clock "
+            'the demo moved by hand. [[slnc 500]] This time, the cache is '
+            'a program of its own, shared by every shop. [[slnc 300]] '
+            'With a clock that nobody in the shop controls. [[slnc 300]] '
+            'And that changes three things.'
         ),
     ),
     dict(
@@ -59,11 +61,12 @@ SCENES = [
 
   1000 database reads.""",
         narration=(
-            'First, the version without a cache. Every product page reads '
-            'the database. A thousand page views over ten popular '
-            'products cost a thousand database reads. [[slnc 250]] Only '
-            'ten different rows were ever read. The database answered '
-            'the same ten questions a hundred times each.'
+            'First, with no cache. [[slnc 400]] Every product page reads '
+            'the database. [[slnc 300]] A thousand page views, over ten '
+            'popular products, cost a thousand database reads. [[slnc '
+            '500]] Only ten different rows were ever read. [[slnc 300]] '
+            'The database answered the same ten questions, a hundred '
+            'times each.'
         ),
     ),
     dict(
@@ -73,19 +76,20 @@ SCENES = [
               'key:   product:SKU-0', 'value: 1000   (a price in pence)', '',
               'Every shop reads the same notes.'],
         narration=(
-            'Redis brings a few words with it, and each one is simpler '
-            'than it sounds. Think of a whiteboard by the door of a busy '
-            'restaurant kitchen. The recipes live in a thick book in the '
-            'office, and walking there is slow. So a cook writes the '
-            'answer on the board, and the next cook reads the board '
-            'instead of walking. [[slnc 250]] Redis is the whiteboard: '
-            'a separate program that keeps small pieces of data in '
-            'memory and answers over the network. [[slnc 250]] Each note '
-            'has a name, which Redis calls a key, and what the note says, '
-            'which Redis calls its value. Here the key is product, colon, '
-            'S K U dash zero, and the value is one thousand, a price in '
-            'pence, written as text. [[slnc 250]] And every cook in the '
-            'kitchen reads the same board.'
+            'Redis brings a few words with it, and each is simpler than '
+            'it sounds. [[slnc 500]] Think of a whiteboard by the door of '
+            'a busy restaurant kitchen. [[slnc 300]] The recipes live in '
+            'a thick book in the office, and walking there is slow. '
+            '[[slnc 300]] So one cook writes the answer on the board. '
+            '[[slnc 300]] And the next cook reads the board, instead of '
+            'walking. [[slnc 500]] Redis is the whiteboard. [[slnc 300]] '
+            'It is a separate program that keeps small pieces of data in '
+            'memory, and answers over the network. [[slnc 500]] Each note '
+            'has a name, which Redis calls a key. [[slnc 300]] And what '
+            'the note says is called its value. [[slnc 300]] Here, the '
+            "key is the product's code, and the value is its price: ten "
+            'pounds. [[slnc 500]] And every cook in the kitchen reads the '
+            'same board.'
         ),
     ),
     dict(
@@ -100,14 +104,16 @@ SCENES = [
   Redis now holds 10 keys,
   each with a 60 second expiry.""",
         narration=(
-            'Second, the pattern. The demo starts a Redis server in a '
-            'container, a small sealed box the demo switches on and off '
-            'itself. The shop asks Redis for the price first. When Redis '
-            'has nothing, that is a miss, and the shop reads the database '
-            'and writes the price into Redis, to be thrown away after '
-            'sixty seconds. [[slnc 250]] The same thousand views now cost '
-            'ten database reads. Ten misses, one for each product, and '
-            'then nine hundred and ninety hits. Redis holds ten keys.'
+            'Second demo: the pattern, with Redis. [[slnc 400]] The demo '
+            'starts Redis in a container, a small sealed box that the '
+            'demo switches on and off by itself. [[slnc 500]] The shop '
+            'asks Redis for the price first. [[slnc 300]] If Redis has '
+            'nothing, that is a miss. [[slnc 300]] So the shop reads the '
+            'database, and writes the price into Redis, to be thrown away '
+            'after sixty seconds. [[slnc 500]] The same thousand views '
+            'now cost only ten database reads. [[slnc 300]] Ten misses, '
+            'one for each product. [[slnc 300]] And nine hundred and '
+            'ninety hits. [[slnc 300]] Redis now holds ten keys.'
         ),
     ),
     dict(
@@ -124,33 +130,35 @@ SCENES = [
   price changed to 1600, key deleted once.
   copies left for any process: 0.""",
         narration=(
-            'Third, something the twin could never show. The first shop '
-            'has viewed all ten products. Then a second shop starts, as a '
-            'separate Java program with its own memory. [[slnc 250]] '
-            'Given a cache in its own memory, the way the twin had it, '
-            'its first ten views cost ten database reads. The first '
-            'shop\'s work is no use to it. Given the same Redis, its '
-            'first ten views cost no database reads at all: ten hits. '
-            '[[slnc 250]] Then Redis\'s own command-line program, a third '
-            'program, asks for the key for S K U zero, and is told one '
-            'thousand. Finally the first shop changes that price to '
-            'sixteen hundred, and deletes the key, once. No copy is left '
-            'for any process, so every shop reads the new price next time.'
+            'Third demo, and this is something the plain Java version '
+            'could never show. [[slnc 400]] The first shop has viewed all '
+            'ten products. [[slnc 300]] Then a second shop starts, as a '
+            'separate Java program, with its own memory. [[slnc 500]] '
+            'With a cache inside its own memory, its first ten views cost '
+            "ten database reads. [[slnc 300]] The first shop's work is no "
+            'use to it. [[slnc 500]] With the same Redis, its first ten '
+            'views cost no database reads at all. [[slnc 300]] Ten hits. '
+            "[[slnc 500]] Then a third program, Redis's own command-line "
+            'tool, asks for the same key. [[slnc 300]] And it is told: '
+            'ten pounds. [[slnc 500]] Finally, the first shop changes '
+            'that price to sixteen pounds, and deletes the key, once. '
+            '[[slnc 300]] No copy is left anywhere, so every shop reads '
+            'the new price next time.'
         ),
     ),
     dict(
         key='07-diagram', kind='diagram', title='Where The Price Lives',
         body=None,
         narration=(
-            'Here is the whole arrangement, in words. There are two shop '
-            'programs, one Redis, and one database. [[slnc 250]] Each '
-            'shop asks Redis first. On a miss, the shop itself reads the '
-            'database, and then writes the price into Redis. Redis never '
-            'reads the database. It only keeps what a shop gave it. '
-            '[[slnc 250]] Because Redis is its own program, every shop '
-            'sees the same entry, and one delete removes it for all of '
-            'them. [[slnc 300]] The rule to remember is this: Redis '
-            'never reads the database; each shop does.'
+            'Here is the whole setup, in words. [[slnc 400]] There are '
+            'two shop programs, one Redis, and one database. [[slnc 500]] '
+            'Each shop asks Redis first. [[slnc 300]] On a miss, the shop '
+            'itself reads the database. [[slnc 300]] Then it writes the '
+            'price into Redis. [[slnc 500]] Redis never reads the '
+            'database. [[slnc 300]] It only keeps what a shop gives it. '
+            '[[slnc 500]] Because Redis is its own program, every shop '
+            'sees the same entry. [[slnc 300]] And one delete removes it '
+            'for all of them.'
         ),
     ),
     dict(
@@ -165,17 +173,18 @@ SCENES = [
   when the time is up.
   a customer then sees 2000.""",
         narration=(
-            'Fourth, expiry. Each entry in Redis can carry a time limit. '
-            'The time an entry has left is called its time to live, and '
-            'Redis shortens that to T T L. When the time is up, Redis '
-            'removes the entry by itself. [[slnc 250]] In the demo, the '
-            'price of S K U zero is cached for two seconds. Another '
-            'system changes the price in the database to two thousand, '
-            'and does not tell the cache. So a customer still sees one '
-            'thousand. [[slnc 250]] Nobody deletes the key. The demo '
-            'only asks Redis, again and again, whether the key is still '
-            'there. When the two seconds are up, Redis removes it on its '
-            'own clock, and the next customer sees two thousand.'
+            'Fourth demo: expiry. [[slnc 400]] Each entry in Redis can '
+            'carry a time limit. [[slnc 300]] The time an entry has left '
+            'is called its time to live, or T T L. [[slnc 300]] When the '
+            'time is up, Redis removes the entry by itself. [[slnc 600]] '
+            'In the demo, one price is cached for two seconds. [[slnc '
+            '300]] Another system changes that price in the database to '
+            'twenty pounds, and does not tell the cache. [[slnc 300]] So '
+            'a customer still sees ten pounds. [[slnc 500]] Nobody '
+            'deletes the key. [[slnc 300]] The demo only keeps asking '
+            'Redis whether the key is still there. [[slnc 300]] When the '
+            'two seconds are up, Redis removes it on its own. [[slnc '
+            '300]] And the next customer sees twenty pounds.'
         ),
     ),
     dict(
@@ -188,18 +197,19 @@ SCENES = [
   2 seconds later a customer still
   sees 2000. the entry will never expire.""",
         narration=(
-            'Now the surprise, and the headline of this video. The '
-            'command that writes a key in Redis is called SET. A SET can '
-            'carry a time limit, or it can leave it out. [[slnc 250]] A '
-            'price-sync job writes the price of S K U zero back into '
-            'Redis, with a plain SET, and no time limit. Redis treats '
-            'that as a brand new value, and throws the old time limit '
-            'away. Asked how long the entry has left, Redis now says '
-            'minus one, which means never. [[slnc 250]] The database '
-            'changes the price to twenty-one hundred. Two seconds later, '
-            'as long as the first entry lived, a customer still sees two '
-            'thousand. And they will keep seeing it, until somebody '
-            'deletes the key by hand.'
+            'Now the surprise, and the headline of this video. [[slnc '
+            '400]] The command that writes a key in Redis is called SET. '
+            '[[slnc 300]] A SET can carry a time limit, or leave it out. '
+            '[[slnc 600]] A price-sync job writes the same price back '
+            'into Redis, with a plain SET, and no time limit. [[slnc '
+            '300]] Redis treats that as a brand new value. [[slnc 300]] '
+            'And it throws the old time limit away. [[slnc 500]] Asked '
+            'how long the entry has left, Redis now says minus one. '
+            '[[slnc 300]] That means never. [[slnc 600]] Then the price '
+            'in the database changes to twenty-one pounds. [[slnc 300]] '
+            'Two seconds later, customers still see twenty pounds. [[slnc '
+            '300]] And they will keep seeing it, until somebody deletes '
+            'the key by hand.'
         ),
     ),
     dict(
@@ -212,15 +222,16 @@ redis.set(key, "2000",
 redis.set(key, "2000");""",
         narration=(
             'The difference between those two writes is one argument. '
-            'The first write passes a time limit of two thousand '
-            'milliseconds, and Redis removes the entry by itself when it '
-            'runs out. The second write passes nothing, and the entry '
-            'lives for ever. [[slnc 250]] In the twin, every write set '
-            'the expiry, because the cache did it for you. In Redis, '
-            'every writer has to remember: the page that reads a price, '
-            'the price-sync job, the admin screen, the warm-up script. '
-            'One forgotten argument, and the promise that a price is '
-            'wrong only for a short time is gone.'
+            '[[slnc 400]] The first write passes a time limit of two '
+            'seconds. [[slnc 300]] So Redis removes the entry by itself, '
+            'when the time runs out. [[slnc 300]] The second write passes '
+            'nothing. [[slnc 300]] So the entry lives forever. [[slnc '
+            '600]] In the plain Java version, every write set the expiry '
+            'automatically. [[slnc 300]] In Redis, every writer has to '
+            'remember it. [[slnc 300]] The product page, the price-sync '
+            'job, the admin screen, and the warm-up script. [[slnc 500]] '
+            'Forget one argument, and the promise that a price is only '
+            'wrong for a short time is gone.'
         ),
     ),
     dict(
@@ -236,24 +247,27 @@ redis.set(key, "2000");""",
   a lock kept in Redis: 1 read.
   it expires by itself after 5 seconds.""",
         narration=(
-            'Fifth, a stampede. Fifty requests arrive at the same moment, '
-            'split across two shop instances, for S K U zero, just after '
-            'its entry has gone. A database read takes half a second. '
-            '[[slnc 250]] Every request asks Redis, finds nothing, and '
-            'goes to the database. More than forty database reads, for '
-            'one price. The exact number is up to the computer\'s thread '
-            'scheduler, so the demo describes it rather than counting it. '
-            '[[slnc 250]] The twin\'s fix lets the requests inside one '
-            'program share one read. With two instances, that gives two '
-            'reads, one per instance, because neither can see the '
-            'other\'s waiting requests. [[slnc 250]] The fix that works '
-            'across programs is a lock kept in Redis. A request writes a '
-            'lock key, but only if nobody has written it already. Redis '
-            'calls that SET with N X, and exactly one request wins. The '
-            'winner reads the database. Everybody else waits for the '
-            'price to appear in Redis. One database read. [[slnc 250]] '
-            'The lock has its own five-second time limit, so a shop that '
-            'dies holding it cannot block the others for ever.'
+            'Fifth demo: a stampede. [[slnc 400]] Fifty requests arrive '
+            'at the same moment, split across two shop programs. [[slnc '
+            '300]] All for the same product, just after its entry has '
+            'gone. [[slnc 300]] And a database read takes half a second. '
+            '[[slnc 600]] Every request asks Redis, finds nothing, and '
+            'goes to the database. [[slnc 300]] More than forty database '
+            'reads, for one price. [[slnc 300]] The exact number depends '
+            "on the computer's scheduling, so the demo does not count it "
+            'exactly. [[slnc 600]] The plain Java fix lets requests '
+            'inside one program share a single read. [[slnc 300]] With '
+            'two programs, that gives two reads, one each. [[slnc 300]] '
+            "Because neither program can see the other's waiting "
+            'requests. [[slnc 600]] The fix that works across programs is '
+            'a lock, kept in Redis. [[slnc 300]] A request writes a lock '
+            'key, but only if nobody has written it already. [[slnc 300]] '
+            'So exactly one request wins. [[slnc 300]] The winner reads '
+            'the database. [[slnc 300]] Everybody else waits for the '
+            'price to appear in Redis. [[slnc 300]] One database read. '
+            '[[slnc 500]] The lock has its own five-second time limit. '
+            '[[slnc 300]] So a shop that crashes while holding it cannot '
+            'block the others forever.'
         ),
     ),
     dict(
@@ -269,18 +283,17 @@ redis.set(key, "2000");""",
   SKU-0 held as the string 1000.
   1 container for 2 shop processes.""",
         narration=(
-            'Sixth, the bill. Redis is emptied, the way a restart with '
-            'nothing saved would leave it, and the first ten views cost '
-            'ten database reads again. The database takes the whole load '
-            'until the cache warms up. [[slnc 250]] Redis has a setting '
-            'for its size limit, called max memory, and out of the box '
-            'it is zero, which means no limit. Its rule for making room, '
-            'called the eviction policy, is no eviction, which means it '
-            'never throws anything away. A cache has to be given a size, '
-            'and told what to discard. [[slnc 250]] The price now '
-            'crosses the network as text: Redis holds S K U zero as the '
-            'string one thousand. And Redis is one more system to run, '
-            'secure and watch: one container, for two shop processes.'
+            'Sixth demo: the bill. [[slnc 400]] Redis is emptied, just as '
+            'a restart with nothing saved would leave it. [[slnc 300]] '
+            'The first ten views cost ten database reads again. [[slnc '
+            '300]] The database takes the whole load, until the cache '
+            'fills up. [[slnc 600]] Next, size. [[slnc 300]] Out of the '
+            'box, Redis has no memory limit. [[slnc 300]] And its rule '
+            'for making room is to never throw anything away. [[slnc '
+            '300]] So a cache has to be given a size, and told what to '
+            'throw away when it is full. [[slnc 600]] Also, the price now '
+            'crosses the network as text. [[slnc 300]] And Redis is one '
+            'more system to run, secure, and watch.'
         ),
     ),
     dict(
@@ -290,19 +303,21 @@ redis.set(key, "2000");""",
               'Left out: a real clock.', 'Left out: a stampede nobody arranged.', '',
               'Headline: a plain SET erases', 'the expiry. TTL -1, stale for ever.'],
         narration=(
-            'So what did the hand-built twin get right? The whole shape. '
-            'Ask the cache first. On a miss, read the database and fill '
-            'the cache. Delete the cached copy after a write. Expire '
-            'entries. Warm up again after a restart. All of that holds on '
-            'Redis, with the same figures. [[slnc 300]] What it left out '
-            'was three things. A second process: its cache was a map '
-            'inside one program, so a second shop would have spent ten '
-            'reads warming its own. A real clock: nothing expired unless '
-            'the demo said so. And a real stampede: the twin had to hold '
-            'every database read back to make one happen. [[slnc 300]] '
-            'And the headline: in the twin the expiry came with every '
-            'write. In Redis, a plain write erases it, and a stale price '
-            'lasts for ever.'
+            'So what did the plain Java version get right? [[slnc 400]] '
+            'The whole shape. [[slnc 300]] Ask the cache first. [[slnc '
+            '300]] On a miss, read the database, and fill the cache. '
+            '[[slnc 300]] Delete the cached copy after a write. [[slnc '
+            '300]] Expire entries. [[slnc 300]] And warm up again after a '
+            'restart. [[slnc 300]] All of that holds on Redis, with the '
+            'same numbers. [[slnc 600]] But it left out three things. '
+            '[[slnc 400]] A second program. [[slnc 300]] Its cache lived '
+            'inside one program, so a second shop would have warmed up '
+            'its own. [[slnc 400]] A real clock. [[slnc 300]] Nothing '
+            'expired unless the demo said so. [[slnc 400]] And a real '
+            'stampede. [[slnc 300]] It had to hold every read back, to '
+            'make one happen. [[slnc 600]] And the headline. [[slnc 300]] '
+            'In Redis, a plain write erases the expiry, and an old price '
+            'lasts forever.'
         ),
     ),
     dict(
@@ -312,15 +327,17 @@ redis.set(key, "2000");""",
               'A shared lock on a popular refill,', 'with an expiry of its own.', '',
               'A size limit before real traffic.'],
         narration=(
-            'The verdict. Put Redis on the side when several processes '
-            'need the same cached answers. [[slnc 250]] Then say four '
-            'things out loud, because Redis will not assume any of them. '
-            'Put an expiry on every write, or the entry lives for ever. '
-            'Delete the entry after every change to the database, so '
-            'every shop reads again. Guard the refill of a popular entry '
-            'with a lock every shop can see, and give that lock an expiry '
-            'of its own. [[slnc 250]] And give Redis a size limit, and a '
-            'rule for what to throw away, before it meets real traffic.'
+            'So, here is the verdict. [[slnc 400]] Put Redis to the side '
+            'when several programs need the same cached answers. [[slnc '
+            '500]] Then settle four things, because Redis will not assume '
+            'any of them. [[slnc 500]] One. [[slnc 200]] Put an expiry on '
+            'every write, or the entry lives forever. [[slnc 400]] Two. '
+            '[[slnc 200]] Delete the entry after every change to the '
+            'database. [[slnc 400]] Three. [[slnc 200]] Guard the refill '
+            'of a popular entry with a lock that every shop can see. '
+            '[[slnc 300]] And give that lock an expiry of its own. [[slnc '
+            '400]] Four. [[slnc 200]] Give Redis a size limit, and a rule '
+            'for what to throw away, before real traffic arrives.'
         ),
     ),
     dict(
@@ -330,17 +347,19 @@ redis.set(key, "2000");""",
               'Too much: one shop process.', 'A map in memory is faster.', '',
               'Too much: data that must be exact.'],
         narration=(
-            'What in this project is real? Redis version eight point ten '
-            'point two, in a container the demo starts and stops itself. '
-            'The Java client is Jedis, and the container is run by a '
-            'library called Testcontainers. The second shop is a '
-            'genuinely separate Java program, and every expiry runs on '
-            'Redis\'s own clock. The database is the one thing kept '
-            'simple, so that the cache stays the lesson. [[slnc 300]] '
-            'And when is this too much? If the shop runs as one process, '
-            'a map in its own memory is faster and costs nothing to run. '
-            'And if a price must always be exact, a cache that can be '
-            'stale is a bug, not a trade.'
+            'A quick, honest note about this demo. [[slnc 400]] Redis is '
+            'version eight point ten point two, in a container the demo '
+            'starts and stops by itself. [[slnc 300]] The Java client is '
+            'called Jedis. [[slnc 300]] The container is run by a library '
+            'called Testcontainers. [[slnc 300]] The second shop really '
+            'is a separate Java program. [[slnc 300]] And every expiry '
+            "runs on Redis's own clock. [[slnc 300]] Only the database is "
+            'kept simple, so the cache stays the lesson. [[slnc 600]] So, '
+            'when is this too much? [[slnc 300]] If the shop runs as one '
+            'program, a cache in its own memory is faster, and costs '
+            'nothing to run. [[slnc 300]] And if a price must always be '
+            'exact, a cache that can be out of date is a bug, not a '
+            'trade-off.'
         ),
     ),
     dict(
@@ -349,18 +368,18 @@ redis.set(key, "2000");""",
               'are in the repository. Try the exercises in',
               'the session guide.'],
         narration=(
-            "That's Cache-Aside with Redis. [[slnc 250]] If you take one "
-            'sentence away, take this one: the shop fills the cache, '
-            'every shop sees what it filled, and an entry expires only '
-            'if every write remembers to say so. [[slnc 350]] The full '
-            'source, the written notes, the diagrams and an animated '
-            'walkthrough are all in the repository. [[slnc 300]] If you '
-            'try one exercise, change the plain write so it keeps the '
-            'old expiry, guess what Redis will report as the time to '
-            'live, and then run it. [[slnc 300]] If this helped, a like '
-            'genuinely does help other people find it, and subscribe if '
-            'you would like the rest of the series. [[slnc 250]] Thanks '
-            'for watching.'
+            "That's Cache-Aside, with Redis. [[slnc 400]] If you remember "
+            'one sentence, make it this one. [[slnc 300]] The shop fills '
+            'the cache, every shop sees what it filled, and an entry only '
+            'expires if every write remembers to say so. [[slnc 500]] The '
+            'full source code, written notes, diagrams, and an animated '
+            'walkthrough are all in the repository. [[slnc 500]] Here is '
+            'one exercise to try. [[slnc 300]] Change the plain write so '
+            'it keeps the old expiry. [[slnc 300]] Guess what Redis will '
+            'report as the time to live, and then run it. [[slnc 500]] If '
+            'this helped, a like really does help other people find it. '
+            "[[slnc 300]] And subscribe, if you'd like the rest of the "
+            'series. [[slnc 400]] Thanks for watching.'
         ),
     ),
 ]

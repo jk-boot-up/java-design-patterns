@@ -19,19 +19,19 @@ The first two lines are what a viewer sees above the fold, so they carry the hoo
 ```
 CHAPTERS
 00:00 Introduction
-00:41 The Partner Project
-01:06 Before The First Annotation
-01:28 An Interface With No Implementation
-01:48 A Query From A Name
-02:20 Cost: A Name Can Be Wrong
-02:43 Cost: The Leak On Speed
-03:08 The Managed Entity That Leaks
-03:45 And The Swap?
-04:00 Where You Have Met This
-04:15 What Was Used
-04:27 What Is Real Here
-04:45 When This Is Too Much
-04:56 Thanks for Watching
+00:54 The Partner Project
+01:22 Before The First Annotation
+01:46 An Interface With No Implementation
+02:10 A Query From A Name
+02:43 Cost: A Name Can Be Wrong
+03:12 Cost: The Leak On Speed
+03:40 The Managed Entity That Leaks
+04:23 And The Swap?
+04:39 Where You Have Met This
+04:57 What Was Used
+05:12 What Is Real Here
+05:29 When This Is Too Much
+05:41 Thanks for Watching
 
 SOURCE CODE, WRITTEN NOTES AND AN INTERACTIVE ANIMATION
 https://github.com/jk-boot-up/java-design-patterns/tree/main/gradle-java/enterprise-design-patterns/repository-with-spring-data-pattern
@@ -46,19 +46,19 @@ YouTube renders these as chapters only if there are at least three and the first
 
 ```
 00:00 Introduction
-00:41 The Partner Project
-01:06 Before The First Annotation
-01:28 An Interface With No Implementation
-01:48 A Query From A Name
-02:20 Cost: A Name Can Be Wrong
-02:43 Cost: The Leak On Speed
-03:08 The Managed Entity That Leaks
-03:45 And The Swap?
-04:00 Where You Have Met This
-04:15 What Was Used
-04:27 What Is Real Here
-04:45 When This Is Too Much
-04:56 Thanks for Watching
+00:54 The Partner Project
+01:22 Before The First Annotation
+01:46 An Interface With No Implementation
+02:10 A Query From A Name
+02:43 Cost: A Name Can Be Wrong
+03:12 Cost: The Leak On Speed
+03:40 The Managed Entity That Leaks
+04:23 And The Swap?
+04:39 Where You Have Met This
+04:57 What Was Used
+05:12 What Is Real Here
+05:29 When This Is Too Much
+05:41 Thanks for Watching
 ```
 
 ## Tags
@@ -97,4 +97,4 @@ Add a card partway through pointing at the playlist, so a viewer who arrives at 
 
 ## Runtime
 
-Approximately 05:32, narrated at 145 words per minute.
+Approximately 06:18, narrated at 145 words per minute.

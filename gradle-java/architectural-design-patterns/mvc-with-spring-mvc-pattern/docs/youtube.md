@@ -19,21 +19,21 @@ The first two lines are what a viewer sees above the fold, so they carry the hoo
 ```
 CHAPTERS
 00:00 Introduction
-00:47 The Partner Project
-01:11 Before The First Line
-01:31 The Controller Names A View
-01:46 The Same Model, A Second View
-02:00 Computed Once
-02:13 A Sum In The View
-02:31 The Same View, Another Order
-02:47 Post, Redirect, Get
-03:02 The Verdict
-03:13 How To Recognise It
-03:23 Where You Have Met This
-03:27 What Was Used
-03:34 What Is Real Here
-03:43 When This Is Too Much
-03:53 Thanks for Watching
+00:58 The Partner Project
+01:25 Before The First Line
+01:54 The Controller Names A View
+02:11 The Same Model, A Second View
+02:36 Computed Once
+02:53 A Sum In The View
+03:15 The Same View, Another Order
+03:41 Post, Redirect, Get
+04:03 The Verdict
+04:14 How To Recognise It
+04:26 Where You Have Met This
+04:31 What Was Used
+04:41 What Is Real Here
+04:50 When This Is Too Much
+05:00 Thanks for Watching
 
 SOURCE CODE, WRITTEN NOTES AND AN INTERACTIVE ANIMATION
 https://github.com/jk-boot-up/java-design-patterns/tree/main/gradle-java/architectural-design-patterns/mvc-with-spring-mvc-pattern
@@ -48,21 +48,21 @@ YouTube renders these as chapters only if there are at least three and the first
 
 ```
 00:00 Introduction
-00:47 The Partner Project
-01:11 Before The First Line
-01:31 The Controller Names A View
-01:46 The Same Model, A Second View
-02:00 Computed Once
-02:13 A Sum In The View
-02:31 The Same View, Another Order
-02:47 Post, Redirect, Get
-03:02 The Verdict
-03:13 How To Recognise It
-03:23 Where You Have Met This
-03:27 What Was Used
-03:34 What Is Real Here
-03:43 When This Is Too Much
-03:53 Thanks for Watching
+00:58 The Partner Project
+01:25 Before The First Line
+01:54 The Controller Names A View
+02:11 The Same Model, A Second View
+02:36 Computed Once
+02:53 A Sum In The View
+03:15 The Same View, Another Order
+03:41 Post, Redirect, Get
+04:03 The Verdict
+04:14 How To Recognise It
+04:26 Where You Have Met This
+04:31 What Was Used
+04:41 What Is Real Here
+04:50 When This Is Too Much
+05:00 Thanks for Watching
 ```
 
 ## Tags
@@ -101,4 +101,4 @@ Add a card partway through pointing at the playlist, so a viewer who arrives at 
 
 ## Runtime
 
-Approximately 04:26, narrated at 145 words per minute.
+Approximately 05:35, narrated at 145 words per minute.

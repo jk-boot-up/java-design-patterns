@@ -19,20 +19,20 @@ The first two lines are what a viewer sees above the fold, so they carry the hoo
 ```
 CHAPTERS
 00:00 Introduction
-00:39 The Partner Project
-01:03 Before The First Annotation
-01:30 One Word Makes It Lazy
-01:42 The Exception
-02:08 What Is In The Field
-02:40 Fix One: Keep The Session Open
-03:24 Fix Two: Fetch It In The Same Query
-03:52 Fix Three: Ask For What You Need
-04:17 The Fix Not On The List
-04:33 Where You Have Met This
-04:49 What Was Used
-05:04 What Is Real Here
-05:23 When This Is Too Much
-05:35 Thanks for Watching
+00:51 The Partner Project
+01:17 Before The First Annotation
+01:47 One Word Makes It Lazy
+02:00 The Exception
+02:28 What Is In The Field
+02:57 Fix One: Keep The Session Open
+03:40 Fix Two: Fetch It In The Same Query
+04:09 Fix Three: Ask For What You Need
+04:36 The Fix Not On The List
+04:53 Where You Have Met This
+05:09 What Was Used
+05:27 What Is Real Here
+05:44 When This Is Too Much
+05:56 Thanks for Watching
 
 SOURCE CODE, WRITTEN NOTES AND AN INTERACTIVE ANIMATION
 https://github.com/jk-boot-up/java-design-patterns/tree/main/gradle-java/enterprise-design-patterns/lazy-load-with-hibernate-pattern
@@ -47,20 +47,20 @@ YouTube renders these as chapters only if there are at least three and the first
 
 ```
 00:00 Introduction
-00:39 The Partner Project
-01:03 Before The First Annotation
-01:30 One Word Makes It Lazy
-01:42 The Exception
-02:08 What Is In The Field
-02:40 Fix One: Keep The Session Open
-03:24 Fix Two: Fetch It In The Same Query
-03:52 Fix Three: Ask For What You Need
-04:17 The Fix Not On The List
-04:33 Where You Have Met This
-04:49 What Was Used
-05:04 What Is Real Here
-05:23 When This Is Too Much
-05:35 Thanks for Watching
+00:51 The Partner Project
+01:17 Before The First Annotation
+01:47 One Word Makes It Lazy
+02:00 The Exception
+02:28 What Is In The Field
+02:57 Fix One: Keep The Session Open
+03:40 Fix Two: Fetch It In The Same Query
+04:09 Fix Three: Ask For What You Need
+04:36 The Fix Not On The List
+04:53 Where You Have Met This
+05:09 What Was Used
+05:27 What Is Real Here
+05:44 When This Is Too Much
+05:56 Thanks for Watching
 ```
 
 ## Tags
@@ -99,4 +99,4 @@ Add a card partway through pointing at the playlist, so a viewer who arrives at 
 
 ## Runtime
 
-Approximately 06:06, narrated at 145 words per minute.
+Approximately 06:30, narrated at 145 words per minute.

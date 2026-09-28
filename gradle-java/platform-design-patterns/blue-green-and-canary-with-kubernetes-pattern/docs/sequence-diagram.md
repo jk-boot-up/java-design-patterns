@@ -6,23 +6,4 @@ Say it in words. The demo asks kubectl to patch the checkout service, so that it
 
 ![Blue-Green and Canary with Kubernetes pattern sequence diagram](images/sequence-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant D as demo
-    participant K as kubectl
-    participant A as API server
-    participant P as kube-proxy
-    D->>K: patch service, version v2
-    K->>A: new selector
-    A->>P: new endpoints
-    D->>P: request
-    P-->>D: answered by v2
-```
-
-</details>
-
 The load-bearing sentence: **the switch reaches the rules a moment after the patch, so the demo polls until it does.**

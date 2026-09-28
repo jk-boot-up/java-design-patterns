@@ -23,55 +23,6 @@ automatically a strategy that is *fast*.
 
 ![Client-side load balancing architecture diagram](images/architecture-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-flowchart TB
-    subgraph W["what the program is a model of"]
-        direction TB
-        subgraph Callers["the callers — each balances only what it can see"]
-            direction LR
-            C1["caller A<br/>CatalogClient + a LoadBalancer"]
-            C2["caller B<br/>CatalogClient + its own LoadBalancer"]
-        end
-        subgraph Cluster["the Catalog service — three copies, deliberately uneven"]
-            direction LR
-            I1["catalog-1<br/>10ms"]
-            I2["catalog-2<br/>10ms"]
-            I3["catalog-3<br/>60ms — older hardware"]
-        end
-        C1 -- "chooses, afresh, on every request" --> I1
-        C1 --> I2
-        C1 --> I3
-        C2 --> I1
-        C2 --> I2
-        C1 -. "no line here — neither caller<br/>can see the other's traffic" .- C2
-    end
-
-    subgraph J["what actually runs — one JVM, JDK 21, no network, nothing installed"]
-        direction LR
-        Demo["LoadBalancingDemo<br/>the four acts"]
-        CC["CatalogClient<br/>holds one balancer, never asks which"]
-        LB["LoadBalancer<br/>one method: choose from a list"]
-        subgraph Strat["the four strategies"]
-            direction TB
-            S1["FirstInstanceBalancer<br/>always index 0"]
-            S2["RoundRobinBalancer<br/>a counter"]
-            S3["LeastLatencyBalancer<br/>measures, then prefers"]
-            S4["RandomBalancer<br/>seedable, so tests are reproducible"]
-        end
-        Cl["CatalogCluster + RemoteCall<br/>three instances, three latencies"]
-        Clock["SimulatedClock + CallLog<br/>the timeline the demo prints"]
-        Demo --> CC --> LB --> Strat
-        CC --> Cl --> Clock
-    end
-
-    W -. "no service mesh, no proxy, no network — an interface with four implementations" .-> J
-```
-
-</details>
-
 ## What the diagram is telling you to count
 
 **Three arrows leave caller A and two leave caller B, and that is the bug in act four.**

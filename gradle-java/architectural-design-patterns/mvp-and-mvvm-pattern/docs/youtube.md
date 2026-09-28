@@ -19,19 +19,19 @@ The first two lines are what a viewer sees above the fold, so they carry the hoo
 ```
 CHAPTERS
 00:00 Introduction
-01:00 The Scenario
-01:13 The Screen Decides
-01:23 The Pattern
-01:36 A Presenter Tells A Passive View
-01:54 The View Makes No Decisions
-02:10 The View Binds To State
-02:30 Many Views, One View Model
-02:44 The Bill
-03:08 How To Recognise It
-03:28 The Verdict
-03:49 What Is Real Here
-04:02 When This Is Too Much
-04:14 Thanks for Watching
+01:03 The Scenario
+01:20 The Screen Decides
+01:36 The Pattern
+01:57 A Presenter Tells A Passive View
+02:21 The View Makes No Decisions
+02:42 The View Binds To State
+03:08 Many Views, One View Model
+03:25 The Bill
+03:57 How To Recognise It
+04:24 The Verdict
+04:49 What Is Real Here
+05:02 When This Is Too Much
+05:15 Thanks for Watching
 
 SOURCE CODE, WRITTEN NOTES AND AN INTERACTIVE ANIMATION
 https://github.com/jk-boot-up/java-design-patterns/tree/main/gradle-java/architectural-design-patterns/mvp-and-mvvm-pattern
@@ -46,19 +46,19 @@ YouTube renders these as chapters only if there are at least three and the first
 
 ```
 00:00 Introduction
-01:00 The Scenario
-01:13 The Screen Decides
-01:23 The Pattern
-01:36 A Presenter Tells A Passive View
-01:54 The View Makes No Decisions
-02:10 The View Binds To State
-02:30 Many Views, One View Model
-02:44 The Bill
-03:08 How To Recognise It
-03:28 The Verdict
-03:49 What Is Real Here
-04:02 When This Is Too Much
-04:14 Thanks for Watching
+01:03 The Scenario
+01:20 The Screen Decides
+01:36 The Pattern
+01:57 A Presenter Tells A Passive View
+02:21 The View Makes No Decisions
+02:42 The View Binds To State
+03:08 Many Views, One View Model
+03:25 The Bill
+03:57 How To Recognise It
+04:24 The Verdict
+04:49 What Is Real Here
+05:02 When This Is Too Much
+05:15 Thanks for Watching
 ```
 
 ## Tags
@@ -97,4 +97,4 @@ Add a card partway through pointing at the playlist, so a viewer who arrives at 
 
 ## Runtime
 
-Approximately 04:57, narrated at 145 words per minute.
+Approximately 05:56, narrated at 145 words per minute.

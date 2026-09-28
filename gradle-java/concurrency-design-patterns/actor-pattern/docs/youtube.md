@@ -19,19 +19,19 @@ The first two lines are what a viewer sees above the fold, so they carry the hoo
 ```
 CHAPTERS
 00:00 Introduction
-00:56 The Scenario
+00:54 The Scenario
 01:12 State That Many Threads Can Reach
-01:31 The Pattern
-01:47 State That One Actor Owns
-02:04 Ask, And Be Answered By A Message
-02:21 Nobody Can Reach In
-02:38 Let It Crash
-02:59 The Bill
-03:22 How To Recognise It
-03:43 The Verdict
-04:08 What Is Real Here
-04:21 When This Is Too Much
-04:33 Thanks for Watching
+01:34 The Pattern
+01:51 State That One Actor Owns
+02:12 Ask, And Be Answered By A Message
+02:32 Nobody Can Reach In
+02:51 Let It Crash
+03:16 The Bill
+03:44 How To Recognise It
+04:06 The Verdict
+04:36 What Is Real Here
+04:49 When This Is Too Much
+05:02 Thanks for Watching
 
 SOURCE CODE, WRITTEN NOTES AND AN INTERACTIVE ANIMATION
 https://github.com/jk-boot-up/java-design-patterns/tree/main/gradle-java/concurrency-design-patterns/actor-pattern
@@ -46,19 +46,19 @@ YouTube renders these as chapters only if there are at least three and the first
 
 ```
 00:00 Introduction
-00:56 The Scenario
+00:54 The Scenario
 01:12 State That Many Threads Can Reach
-01:31 The Pattern
-01:47 State That One Actor Owns
-02:04 Ask, And Be Answered By A Message
-02:21 Nobody Can Reach In
-02:38 Let It Crash
-02:59 The Bill
-03:22 How To Recognise It
-03:43 The Verdict
-04:08 What Is Real Here
-04:21 When This Is Too Much
-04:33 Thanks for Watching
+01:34 The Pattern
+01:51 State That One Actor Owns
+02:12 Ask, And Be Answered By A Message
+02:32 Nobody Can Reach In
+02:51 Let It Crash
+03:16 The Bill
+03:44 How To Recognise It
+04:06 The Verdict
+04:36 What Is Real Here
+04:49 When This Is Too Much
+05:02 Thanks for Watching
 ```
 
 ## Tags
@@ -97,4 +97,4 @@ Add a card partway through pointing at the playlist, so a viewer who arrives at 
 
 ## Runtime
 
-Approximately 05:12, narrated at 145 words per minute.
+Approximately 05:38, narrated at 145 words per minute.

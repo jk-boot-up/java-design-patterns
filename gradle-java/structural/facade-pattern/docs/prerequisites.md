@@ -130,7 +130,6 @@ expected.
 | `Unsupported class file major version` | Wrong JDK on `PATH` | Point `JAVA_HOME` at JDK 21 |
 | `permission denied: ./gradlew` | Wrapper not executable | `chmod +x gradlew` |
 | Wrapper download times out | Offline / proxy | Install Gradle and run `gradle build` |
-| Diagrams show as raw text | Viewer lacks Mermaid support | Open the PNGs in `docs/images/` |
 
 ## Recommended Reading Order
 

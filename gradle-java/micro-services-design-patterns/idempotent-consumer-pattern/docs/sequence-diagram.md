@@ -14,50 +14,6 @@ work, so there is no gap to die in.
 
 ![Idempotent Consumer sequence diagram](images/sequence-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant B as MessageBroker
-    participant N as NaiveNotificationConsumer
-    participant I as IdempotentNotificationConsumer
-    participant D as NotificationsDatabase
-
-    Note over B,D: a HashSet of ids, updated after the work
-
-    B->>N: handle(msg-1)
-    N->>N: is msg-1 in the set? no
-    N->>D: queue a confirmation, on its own
-    D-->>N: committed — the email is owed to the customer
-    Note over N: the process dies HERE,<br/>before msg-1 goes into the set
-    B->>N: handle(msg-1) again — the acknowledgement was lost
-    N->>N: is msg-1 in the set? no, the heap was emptied
-    N->>D: queue a confirmation, on its own
-    D-->>N: committed
-    Note over B,D: 2 confirmations for one order. Every test of this<br/>consumer passes, including the two that describe it.
-
-    Note over B,D: the id and the effect in ONE commit
-
-    B->>I: handle(msg-1)
-    I->>D: hasHandled(msg-1)?
-    D-->>I: no
-    I->>D: begin
-    I->>D: queue the confirmation — the stamp
-    I->>D: record msg-1 as handled — the name on the list
-    I->>D: commit
-    D-->>I: both rows, or neither
-
-    B->>I: handle(msg-1) again
-    I->>D: hasHandled(msg-1)?
-    D-->>I: yes
-    I--)B: ignored — one read, nothing written
-    Note over B,D: 1 confirmation. Exactly once, out of a broker<br/>that only ever promised at least once.
-```
-
-</details>
-
 ## Reading the two halves
 
 **Both consumers see exactly the same traffic.** One message, delivered twice, because the

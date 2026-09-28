@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Render one 1920x1080 PNG slide per scene for the API Gateway with Spring Cloud Gateway video."""
+"""Render one 1920x1080 PNG slide per scene for the Strangler Fig with NGINX video."""
 
 import os
 import sys
@@ -43,7 +43,7 @@ def base_slide():
 
 def footer(d, label):
     d.text((70, H - 58), label, font=f(SANS, 24), fill=(80, 94, 118))
-    d.text((W - 70, H - 58), "API Gateway with Spring Cloud Gateway  ·  Java 21",
+    d.text((W - 70, H - 58), "Strangler Fig with NGINX  ·  Java 21",
            font=f(SANS, 24), fill=(80, 94, 118), anchor="ra")
 
 
@@ -201,10 +201,49 @@ def arrow_diag_up(d, x1, y1, x2, y2, colour, width=3):
 
 
 def kind_diagram(scene, img, d):
+    """Strangler Fig with NGINX: one public address, the new service for moved routes, the old shop for the rest."""
     draw_title(d, scene["title"])
-    d.text((1920 // 2, 500), "(not used in this video)",
-           font=f(SANS, 40), fill=MUTED, anchor="ma")
 
+    left = [
+        ("One address. Two shops.", TEXT),
+        ("", TEXT),
+        ("Every request goes to NGINX.", MUTED),
+        ("A moved route has its own", MUTED),
+        ("location, sent to the new", MUTED),
+        ("service.", MUTED),
+        ("", TEXT),
+        ("Everything else falls through", MUTED),
+        ("to the old shop.", MUTED),
+    ]
+    y = 262
+    for text, colour in left:
+        d.text((110, y), text, font=f(SANS, 38), fill=colour)
+        y += 56
+
+    spine = [
+        ("customer", "only ever knows NGINX's address", CLIENT),
+        ("NGINX", "one location block per moved route", AMBER),
+        ("new service", "location ^~ /api/prices/", GREEN),
+        ("old shop", "location /  : everything else", ACCENT),
+    ]
+    x, w, h = 1080, 740, 118
+    tops = [240, 400, 560, 752]
+    for (label, sub, colour), top in zip(spine, tops):
+        box(d, x, top, w, h, label, sub, colour, label_size=34, sub_size=24)
+    cx = x + w // 2
+    arrow(d, cx, tops[0] + h, cx, tops[1], TEXT)
+    arrow(d, cx, tops[1] + h, cx, tops[2], GREEN)
+    # the old shop is reached from NGINX directly, drawn round the side so
+    # it does not read as a step after the new service
+    side = x + w + 30
+    d.line([(x + w + 2, tops[1] + h // 2), (side, tops[1] + h // 2)], fill=ACCENT, width=3)
+    d.line([(side, tops[1] + h // 2), (side, tops[3] + h // 2)], fill=ACCENT, width=3)
+    d.line([(side, tops[3] + h // 2), (x + w + 18, tops[3] + h // 2)], fill=ACCENT, width=3)
+    d.polygon([(x + w + 2, tops[3] + h // 2), (x + w + 18, tops[3] + h // 2 - 10),
+               (x + w + 18, tops[3] + h // 2 + 10)], fill=ACCENT)
+
+    d.text((W // 2, 924), "Move one route at a time. The old shop serves the rest.",
+           font=f(SANS_B, 40), fill=GOLD, anchor="ma")
 
 AUTHOR = "Jayasekhar Konduru"
 POSTER_TOP = (49, 16, 92)
@@ -276,28 +315,31 @@ def kind_poster(scene, img, d):
             fnt = f(SANS_B, fnt.size - 2)
         d.text((110, y), text, font=fnt, fill=colour)
 
-    fitted("API GATEWAY", 152, TEXT)
-    fitted("WITH SPRING CLOUD", 288, ACCENT)
+    fitted("STRANGLER FIG", 152, TEXT)
+    fitted("WITH NGINX", 288, ACCENT)
 
     d.rectangle([110, 462, 620, 472], fill=RULE)
 
     d.rounded_rectangle([110, 516, W - 110, 866], radius=26,
                         outline=ACCENT, width=4)
 
-    # No token versus a token -- both real lines from the project.
-    pill(d, 150, 556, 700, 170, RED, "no token",
-         "401 and 0 requests reached", tag="STOPPED AT THE EDGE")
-    pill(d, 1070, 556, 700, 170, GREEN, "a bearer token",
-         "200 from the service", tag="ROUTED")
+    # The same move written two ways. Real figures from this project's own
+    # output: with an old regular-expression rule in the file, a plain prefix
+    # sends 10 of 10 price requests to the old shop. Colour and the tag carry
+    # the contrast; nothing is struck through.
+    pill(d, 150, 556, 700, 170, RED, "location /api/prices/",
+         "10 of 10 still to the old shop", tag="PLAIN PREFIX")
+    pill(d, 1070, 556, 700, 170, GREEN, "location ^~ /api/prices/",
+         "10 of 10 to the new service", tag="STOP LOOKING")
 
     arrow_y = 636
     d.line([(880, arrow_y), (1010, arrow_y)], fill=TEXT, width=8)
     d.polygon([(1010, arrow_y - 22), (1010, arrow_y + 22), (1052, arrow_y)],
               fill=TEXT)
 
-    d.text((W // 2, 744), "One address, one token check.",
+    d.text((W // 2, 744), "Move one route at a time.",
            font=f(SANS_B, 44), fill=TEXT, anchor="ma")
-    d.text((W // 2, 796), "Real HTTP, real routes.",
+    d.text((W // 2, 796), "Check which rule really wins.",
            font=f(SANS_B, 44), fill=GOLD, anchor="ma")
 
     name_pill(d, 110, 896)

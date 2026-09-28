@@ -21,36 +21,6 @@ Nothing in its model tells it that all three entries are the same unwell address
 
 ![Why nginx does not wait](images/uml-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant N as nginx proxy
-    participant U as upstream group<br/>3 entries, all the same address
-    participant G as payment provider<br/>unwell until 300ms
-
-    N->>U: give me entry 1
-    U-->>N: provider.example
-    N->>G: charge, at 1ms
-    G-->>N: 503 declined
-    Note over N,U: failed — move to the next server,<br/>which nginx assumes is a different machine
-    N->>U: give me entry 2
-    U-->>N: provider.example
-    N->>G: charge, at 2ms
-    G-->>N: 503 declined
-    N->>U: give me entry 3
-    U-->>N: provider.example
-    N->>G: charge, at 3ms
-    G-->>N: 503 declined
-    N->>U: give me entry 4
-    U--xN: the list is finished
-    Note over N,G: three attempts, all inside the bad 300ms
-```
-
-</details>
-
 The design is correct for the case it was built for. In a pool of ten web servers, waiting
 before trying the ninth would make every request slower to no purpose, because the ninth
 server is a different computer and is probably fine. It stops being correct when every
@@ -65,36 +35,6 @@ Stop the old proxy, then start the new one. It reads like the obvious order and 
 wrong one.
 
 ![The swap done badly](images/uml-diagram-2.png)
-
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant Op as whoever is doing the swap
-    participant C as checkout service
-    participant P as localhost:8081
-    participant N as nginx proxy
-    participant J as java proxy
-    participant G as payment provider
-
-    Op->>N: stop
-    N-->>P: unbound
-    Note over P: nothing is listening
-    C->>P: pay ORD-4419, 3150 pence
-    P--xC: connection refused
-    Note over C: no retry code — it was deleted in §41,<br/>on purpose
-    Note over G: healthy. Never heard about this payment.
-    Op->>J: start
-    J-->>P: bound
-    C->>P: pay ORD-4420
-    P->>J: forwarded
-    J->>G: charge
-    G-->>J: charged
-```
-
-</details>
 
 The demo's sixth act is this window, held open on purpose. A healthy provider, a healthy
 network, a healthy service, and a payment that fails having reached nobody:
@@ -114,35 +54,6 @@ one finish what it is already holding. Only then stop it.
 
 ![The swap done properly](images/uml-diagram-3.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant Op as whoever is doing the swap
-    participant C as checkout service
-    participant P as localhost:8081
-    participant N as nginx proxy
-    participant J as java proxy
-
-    Op->>J: start on a spare port
-    J-->>Op: answering
-    Op->>J: send a test payment
-    J-->>Op: receipt
-    Note over Op,J: the new proxy is known good<br/>before anything depends on it
-    Op->>P: move the binding to the java proxy
-    P-->>J: bound
-    C->>P: pay
-    P->>J: forwarded
-    Note over N: still running, still holding<br/>the requests it already accepted
-    N-->>N: finishes them
-    Op->>N: stop
-    Note over Op,N: keep it installable — swapping back<br/>is the same decision in the other order
-```
-
-</details>
-
 Written out like that, the honest conclusion is that a proxy swap is a rollout rather than
 an assignment. `port.install(java)` is one line in Tier 1 because Tier 1 has one service.
 With two hundred services, the same change is a schedule, a canary, and a way back.
@@ -160,27 +71,6 @@ place where a general-purpose language gives you enough rope to get it wrong.
 So it is worth being able to see that the Java proxy did not.
 
 ![The rule both proxies obey](images/uml-diagram-4.png)
-
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant N as nginx proxy
-    participant J as java proxy
-    participant G as payment provider<br/>allowance spent
-
-    N->>G: charge, attempt 1
-    G--xN: 429 refused
-    Note over N: stops. does not try again.
-    J->>G: charge, attempt 1
-    G--xJ: 429 refused
-    Note over J: stops. does not try again.
-    Note over N,J: one attempt each, from both proxies
-```
-
-</details>
 
 A test makes the provider refuse everything and asserts that each proxy reached it exactly
 once. Three allowed attempts, one used, in both languages — because *how many times to try*

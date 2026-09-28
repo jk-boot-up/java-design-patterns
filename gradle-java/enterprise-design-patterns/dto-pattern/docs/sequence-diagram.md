@@ -6,23 +6,4 @@ Say it in words. The client asks the endpoint for customer seven. The endpoint l
 
 ![DTO pattern sequence diagram](images/sequence-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant Client
-    participant E as endpoint
-    participant M as CustomerMapper
-    participant C as Customer
-    Client->>E: GET customer 7
-    E->>M: toDto(customer)
-    M->>C: id, name, city
-    M-->>E: CustomerDto
-    E-->>Client: three fields of JSON
-```
-
-</details>
-
 The load-bearing sentence: **the record has no place to put the password hash.**

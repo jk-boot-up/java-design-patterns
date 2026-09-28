@@ -146,7 +146,6 @@ Flat rate (native):  $57.48
 | `permission denied: ./gradlew` | Wrapper not executable | `chmod +x gradlew` |
 | Wrapper download times out | Offline / proxy | Install Gradle and run `gradle build` |
 | Quoted rate looks off by a cent | Rounding mode differs from `HALF_UP` | Check `RoundingMode` in `AcmeShippingAdapter` |
-| Diagrams show as raw text | Viewer lacks Mermaid support | Open the PNGs in `docs/images/` |
 
 ## Recommended Reading Order
 

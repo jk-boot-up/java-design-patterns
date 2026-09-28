@@ -19,20 +19,20 @@ The first two lines are what a viewer sees above the fold, so they carry the hoo
 ```
 CHAPTERS
 00:00 Introduction
-01:13 The Scenario
-01:55 Version One — No Separation At All
-02:44 Three Roles
-03:40 The Shortcut
-04:46 The Whole Mechanism, In One Interface
-05:36 Classic MVC, And The MVC You Have Used
-06:40 MVP And MVVM, In One Scene
-07:46 The Rule, Written Where A Build Can Read It
-08:27 Watching It Go Red
-08:55 The Forced Change
-09:42 Both Views, Every Time
-10:18 The Bill
-11:11 When This Is Too Much
-11:49 Thanks for Watching
+01:03 The Scenario
+01:38 Version One — No Separation At All
+02:11 Three Roles
+02:54 The Shortcut
+03:49 The Whole Mechanism, In One Interface
+04:24 Classic MVC, And The MVC You Have Used
+05:10 MVP And MVVM, In One Scene
+06:00 The Rule, Written Where A Build Can Read It
+06:33 Watching It Go Red
+06:55 The Forced Change
+07:38 Both Views, Every Time
+08:06 The Bill
+08:48 When This Is Too Much
+09:13 Thanks for Watching
 
 SOURCE CODE, WRITTEN NOTES AND AN INTERACTIVE ANIMATION
 https://github.com/jk-boot-up/java-design-patterns/tree/main/gradle-java/architectural-design-patterns/mvc-pattern
@@ -47,20 +47,20 @@ YouTube renders these as chapters only if there are at least three and the first
 
 ```
 00:00 Introduction
-01:13 The Scenario
-01:55 Version One — No Separation At All
-02:44 Three Roles
-03:40 The Shortcut
-04:46 The Whole Mechanism, In One Interface
-05:36 Classic MVC, And The MVC You Have Used
-06:40 MVP And MVVM, In One Scene
-07:46 The Rule, Written Where A Build Can Read It
-08:27 Watching It Go Red
-08:55 The Forced Change
-09:42 Both Views, Every Time
-10:18 The Bill
-11:11 When This Is Too Much
-11:49 Thanks for Watching
+01:03 The Scenario
+01:38 Version One — No Separation At All
+02:11 Three Roles
+02:54 The Shortcut
+03:49 The Whole Mechanism, In One Interface
+04:24 Classic MVC, And The MVC You Have Used
+05:10 MVP And MVVM, In One Scene
+06:00 The Rule, Written Where A Build Can Read It
+06:33 Watching It Go Red
+06:55 The Forced Change
+07:38 Both Views, Every Time
+08:06 The Bill
+08:48 When This Is Too Much
+09:13 Thanks for Watching
 ```
 
 ## Tags
@@ -99,4 +99,4 @@ Add a card partway through pointing at the playlist, so a viewer who arrives at 
 
 ## Runtime
 
-Approximately 12:41, narrated at 145 words per minute.
+Approximately 10:02, narrated at 145 words per minute.

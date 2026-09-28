@@ -19,19 +19,19 @@ The first two lines are what a viewer sees above the fold, so they carry the hoo
 ```
 CHAPTERS
 00:00 Introduction
-00:37 The Partner Project
-01:03 Before The First Line
-01:27 It Opens What Demand Needs
-01:47 The Dirty Return
-02:10 What It Cannot Reset
-02:32 Exhaustion, With A Timeout
-03:04 Sizing Is Still A Guess
-03:28 What Pooling Buys
-03:52 The Verdict
-04:10 Where You Have Met This
-04:21 What Was Used
-04:32 What Is Real Here
-04:50 Thanks for Watching
+00:48 The Partner Project
+01:14 Before The First Line
+01:41 It Opens What Demand Needs
+02:01 The Dirty Return
+02:28 What It Cannot Reset
+02:53 Exhaustion, With A Timeout
+03:24 Sizing Is Still A Guess
+03:52 What Pooling Buys
+04:19 The Verdict
+04:37 Where You Have Met This
+04:50 What Was Used
+05:02 What Is Real Here
+05:18 Thanks for Watching
 
 SOURCE CODE, WRITTEN NOTES AND AN INTERACTIVE ANIMATION
 https://github.com/jk-boot-up/java-design-patterns/tree/main/gradle-java/foundational-design-patterns/object-pool-with-hikaricp-pattern
@@ -46,19 +46,19 @@ YouTube renders these as chapters only if there are at least three and the first
 
 ```
 00:00 Introduction
-00:37 The Partner Project
-01:03 Before The First Line
-01:27 It Opens What Demand Needs
-01:47 The Dirty Return
-02:10 What It Cannot Reset
-02:32 Exhaustion, With A Timeout
-03:04 Sizing Is Still A Guess
-03:28 What Pooling Buys
-03:52 The Verdict
-04:10 Where You Have Met This
-04:21 What Was Used
-04:32 What Is Real Here
-04:50 Thanks for Watching
+00:48 The Partner Project
+01:14 Before The First Line
+01:41 It Opens What Demand Needs
+02:01 The Dirty Return
+02:28 What It Cannot Reset
+02:53 Exhaustion, With A Timeout
+03:24 Sizing Is Still A Guess
+03:52 What Pooling Buys
+04:19 The Verdict
+04:37 Where You Have Met This
+04:50 What Was Used
+05:02 What Is Real Here
+05:18 Thanks for Watching
 ```
 
 ## Tags
@@ -97,4 +97,4 @@ Add a card partway through pointing at the playlist, so a viewer who arrives at 
 
 ## Runtime
 
-Approximately 05:23, narrated at 145 words per minute.
+Approximately 05:52, narrated at 145 words per minute.

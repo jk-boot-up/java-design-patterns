@@ -21,24 +21,24 @@ Learn the static factory method in Java 21 — Item 1 of Effective Java, and the
 
 CHAPTERS
 00:00 Introduction
-00:55 The Job
-01:22 The First Attempt Does Not Compile
-02:08 So Everyone Writes This Instead
-02:37 Why That Hurts
-03:21 The Static Factory Method
-04:00 A Vending Machine
-04:35 The Shape of It
-05:11 The Type Is Its Own Factory
-05:52 Freedom Two: Not to Allocate
-06:29 Freedom Three: to Choose the Class
-07:09 What the Client Looks Like
-07:37 The Same Trick on a Value Type
-08:10 You Already Use This Every Day
-09:04 Running It
-09:45 Where It Stops
-10:41 The Rest of the Family
-11:21 One Sentence to Keep
-11:52 Thanks for Watching
+00:47 The Job
+01:12 The First Attempt Does Not Compile
+01:49 So Everyone Writes This Instead
+02:22 Why That Hurts
+03:02 The Static Factory Method
+03:32 A Vending Machine
+04:01 The Shape of It
+04:31 The Type Is Its Own Factory
+05:07 Freedom Two: Not to Allocate
+05:42 Freedom Three: to Choose the Class
+06:15 What the Client Looks Like
+06:41 The Same Trick on a Value Type
+07:13 You Already Use This Every Day
+07:53 Running It
+08:39 Where It Stops
+09:23 The Rest of the Family
+09:58 One Sentence to Keep
+10:24 Thanks for Watching
 
 SOURCE CODE, WRITTEN NOTES AND AN INTERACTIVE ANIMATION
 https://github.com/jk-boot-up/java-design-patterns/tree/main/gradle-java/creational/static-factory-pattern
@@ -53,24 +53,24 @@ YouTube renders these as chapters only if there are at least three and the first
 
 ```
 00:00 Introduction
-00:55 The Job
-01:22 The First Attempt Does Not Compile
-02:08 So Everyone Writes This Instead
-02:37 Why That Hurts
-03:21 The Static Factory Method
-04:00 A Vending Machine
-04:35 The Shape of It
-05:11 The Type Is Its Own Factory
-05:52 Freedom Two: Not to Allocate
-06:29 Freedom Three: to Choose the Class
-07:09 What the Client Looks Like
-07:37 The Same Trick on a Value Type
-08:10 You Already Use This Every Day
-09:04 Running It
-09:45 Where It Stops
-10:41 The Rest of the Family
-11:21 One Sentence to Keep
-11:52 Thanks for Watching
+00:47 The Job
+01:12 The First Attempt Does Not Compile
+01:49 So Everyone Writes This Instead
+02:22 Why That Hurts
+03:02 The Static Factory Method
+03:32 A Vending Machine
+04:01 The Shape of It
+04:31 The Type Is Its Own Factory
+05:07 Freedom Two: Not to Allocate
+05:42 Freedom Three: to Choose the Class
+06:15 What the Client Looks Like
+06:41 The Same Trick on a Value Type
+07:13 You Already Use This Every Day
+07:53 Running It
+08:39 Where It Stops
+09:23 The Rest of the Family
+09:58 One Sentence to Keep
+10:24 Thanks for Watching
 ```
 
 ## Tags
@@ -109,4 +109,4 @@ Add a card partway through pointing at the playlist, so a viewer who arrives at 
 
 ## Runtime
 
-Approximately 12:18, narrated at 145 words per minute.
+Approximately 10:45, narrated at 145 words per minute.

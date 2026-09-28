@@ -6,25 +6,4 @@ Say it in words. A test registers a gateway that has already taken one charge, a
 
 ![Registry pattern sequence diagram](images/sequence-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant T1 as test one
-    participant R as Registry
-    participant T2 as test two
-    participant C as RegistryCheckout
-    T1->>R: register(gateway with 1 charge)
-    Note over R: never cleared
-    T2->>C: new RegistryCheckout()
-    T2->>C: place(10000)
-    C->>R: get(PaymentGateway)
-    R-->>C: test one's leftover gateway
-    T2->>T2: expected 1 charge, saw 2
-```
-
-</details>
-
 The load-bearing sentence: **neither test changed, and one failed, because the order changed.**

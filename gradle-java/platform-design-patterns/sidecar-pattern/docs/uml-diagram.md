@@ -19,46 +19,6 @@ refused.
 
 ![Sidecar pattern sequence diagram](images/uml-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant Bill as subscription-billing<br/>(6 attempts, 10ms)
-    participant Chk as checkout<br/>(3 attempts, 200ms)
-    participant Ref as refunds<br/>(3 attempts, 200ms)
-    participant Pay as marketplace-payouts<br/>(3 attempts, 200ms)
-    participant GW as payment gateway<br/>allowance: 12
-
-    Note over GW: 02:00 — the gateway wobbles for 300ms
-
-    Bill->>GW: charge SUB-90118 (t=0)
-    GW-->>Bill: 503 declined (1 of 12)
-    Bill->>GW: t=10
-    GW-->>Bill: 503 declined (2 of 12)
-    Bill->>GW: t=30
-    GW-->>Bill: 503 declined (3 of 12)
-    Bill->>GW: t=70
-    GW-->>Bill: 503 declined (4 of 12)
-    Bill->>GW: t=150
-    GW-->>Bill: 503 declined (5 of 12)
-    Bill->>GW: t=310
-    GW-->>Bill: charged (6 of 12)
-    Note over Bill: succeeded — dashboard green
-
-    Chk->>GW: charge ORD-4417, 3 attempts
-    GW-->>Chk: charged (9 of 12)
-    Ref->>GW: charge REF-3820, 3 attempts
-    GW-->>Ref: charged (12 of 12)
-
-    Pay->>GW: charge PAY-7741 (t=0)
-    GW--xPay: 429 refused — allowance spent
-    Note over Pay: the sellers are not paid<br/>every line of this service is correct
-```
-
-</details>
-
 The arrow to watch is the last one. It is a cross, not a dash, and it belongs to a service
 that did nothing wrong. The six arrows at the top belong to a service that succeeded. **The
 failure and the cause are in different lanes**, which is why the incident review on Monday
@@ -70,40 +30,6 @@ Every service now sends to `localhost`. The retry loop runs in the proxy, and al
 proxies read one configuration.
 
 ![Sidecar Pattern — The Same Night, With A Proxy Beside Each Service](images/uml-diagram-2.png)
-
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant Bill as subscription-billing
-    box rgb(30,41,59) same machine
-    participant SC1 as sidecar
-    end
-    participant Cfg as SidecarConfig<br/>maxAttempts=3, backoff=200ms
-    participant GW as payment gateway<br/>allowance: 12
-
-    Note over SC1,Cfg: read once, at start-up
-    Cfg-->>SC1: 3 attempts, 200ms, TLS1.3
-
-    Note over GW: 02:00 — the same 300ms wobble
-
-    Bill->>SC1: send SUB-90118
-    SC1->>GW: attempt 1 (t=1)
-    GW-->>SC1: 503 declined
-    SC1->>GW: attempt 2 (t=202)
-    GW-->>SC1: 503 declined
-    SC1->>GW: attempt 3 (t=603)
-    GW-->>SC1: charged
-    SC1-->>Bill: receipt, 3 attempts
-
-    Note over Bill: the service never knew<br/>there was more than one attempt
-
-    Note over GW: checkout, refunds and payouts<br/>do exactly the same: 3 each<br/>12 of 12 used, 0 refused
-```
-
-</details>
 
 Two things to notice, and neither of them is the happy ending.
 
@@ -119,33 +45,6 @@ drawn.
 
 ![Sidecar Pattern — The Bill, Part One: The Proxy Is Down](images/uml-diagram-3.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant Chk as checkout
-    box rgb(76,29,29) same machine
-    participant SC as sidecar (not running)
-    end
-    participant GW as payment gateway<br/>(perfectly healthy)
-
-    Note over GW: nothing is wrong out here
-
-    Chk->>SC: send ORD-4418
-    SC--xChk: connection refused to localhost
-
-    Note over Chk: no retry code left — we deleted it<br/>attempts that reached the gateway: 0
-
-    Chk->>SC: send ORD-4419
-    SC--xChk: connection refused to localhost
-    Chk->>SC: send ORD-4420
-    SC--xChk: connection refused to localhost
-```
-
-</details>
-
 There is no arrow to the gateway on this diagram at all. That empty right-hand side is the
 cost: the request never left the machine, and the service has nothing left to fall back on
 because the fallback was the thing we moved out.
@@ -158,36 +57,6 @@ network's, it is rarer and wider.
 
 ![Sidecar Pattern — The Bill, Part Two: The Hop](images/uml-diagram-4.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant Chk as checkout
-    participant SC as sidecar
-    participant GW as payment gateway
-
-    Note over Chk,GW: retry code inside the service — 600ms
-
-    Note over Chk,GW: retry code in the proxy — 603ms
-
-    Chk->>SC: +1ms
-    SC->>GW: attempt 1
-    GW-->>SC: 503
-    SC->>SC: wait 200ms
-    Chk->>SC: +1ms
-    SC->>GW: attempt 2
-    GW-->>SC: 503
-    SC->>SC: wait 400ms
-    Chk->>SC: +1ms
-    SC->>GW: attempt 3
-    GW-->>SC: charged
-    SC-->>Chk: receipt
-```
-
-</details>
-
 One millisecond per attempt, three milliseconds on this call. On a payment that already
 takes six hundred, that is nothing. On an internal call that takes two milliseconds it is a
 fifty per cent increase — and in a system where every service talks through a proxy, every
@@ -199,43 +68,6 @@ is arithmetic, not taste.
 ## 5. The Only Difference From Decorator
 
 ![Sidecar Pattern — The Only Difference From Decorator](images/uml-diagram-5.png)
-
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant App as service code
-
-    box rgb(30,58,95) one process, one jar, one language
-    participant Dec as RetryingDecorator
-    end
-    participant GW1 as payment gateway
-
-    App->>Dec: pay(payment)
-    Dec->>GW1: charge
-    GW1-->>Dec: charged
-    Dec-->>App: receipt
-    Note over App,Dec: change the policy → rebuild,<br/>retest and redeploy the service
-
-    participant App2 as service code
-    box rgb(30,58,95) process A
-    participant Svc as (nothing but the call)
-    end
-    box rgb(120,53,15) process B — any language
-    participant SC as sidecar
-    end
-    participant GW2 as payment gateway
-
-    App2->>SC: pay → localhost
-    SC->>GW2: charge
-    GW2-->>SC: charged
-    SC-->>App2: receipt
-    Note over App2,SC: change the policy → restart the proxy<br/>the service is not opened
-```
-
-</details>
 
 The arrows are the same shape in both halves. The boxes are not.
 

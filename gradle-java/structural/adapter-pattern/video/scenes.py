@@ -17,20 +17,22 @@ SCENES = [
         title="The Adapter Pattern",
         body=None,
         narration=(
-            "Hello, and welcome. This video explains the Adapter pattern in Java, "
-            "and it is written and presented by Jayasekhar Konduru. [[slnc 300]] "
-            "Let's start with the simple definition. The adapter pattern wraps a "
-            "class whose interface you cannot change inside one that has the "
-            "interface you want. Your code goes on calling the interface it "
-            "expects, the adapter does the translating, and the awkward original "
-            "is touched by exactly one class in your codebase. [[slnc 350]] "
-            "That's the idea in a sentence — making two interfaces that were "
-            "never designed for each other work together anyway. The rest of the "
-            "video does it properly, by building a real working Java project: a "
-            "checkout flow that needs shipping rates from a third-party S D K "
-            "with completely different units. [[slnc 250]] By the end you'll know "
-            "how to isolate an incompatible interface behind one class, and how "
-            "to write that class yourself."
+            'Hello, and welcome. [[slnc 400]] This video explains the '
+            'Adapter pattern, in Java. [[slnc 300]] This video is '
+            'presented by Jayasekhar Konduru. [[slnc 600]] First, a '
+            'simple definition. [[slnc 300]] An adapter wraps a class you '
+            'cannot change, inside a class with the shape you want. '
+            '[[slnc 300]] Your code keeps calling the shape it expects. '
+            '[[slnc 300]] The adapter does the translating. [[slnc 300]] '
+            'And the awkward original is touched by just one class in '
+            'your code. [[slnc 600]] Think of a travel plug adapter. '
+            '[[slnc 300]] Your charger and the wall socket never change. '
+            '[[slnc 300]] A small adapter in between makes them fit. '
+            '[[slnc 700]] In our online store, checkout needs shipping '
+            "prices from another company's toolkit, which uses completely "
+            'different units. [[slnc 500]] By the end, you will know how '
+            'to hide a mismatched interface behind one class, and how to '
+            'write that class yourself.'
         ),
     ),
     dict(
@@ -47,13 +49,15 @@ SCENES = [
             "  Acme Shipping — weight in pounds, price in integer cents",
         ],
         narration=(
-            "So, imagine checkout for an online store. [[slnc 250]] Checkout "
-            "needs a shipping rate for an order, given a destination ZIP code and "
-            "a weight in kilograms, and it wants a price back in dollars. That's "
-            "the shape the rest of the codebase already uses everywhere. "
-            "[[slnc 300]] And the only carrier available is a third-party S D K, "
-            "Acme Shipping. It works in pounds, not kilograms, and it returns a "
-            "price in integer cents, not dollars."
+            'Here is the scenario. [[slnc 400]] Checkout needs a shipping '
+            'price for an order. [[slnc 300]] It gives a delivery zip '
+            'code, and a weight in kilograms. [[slnc 300]] And it wants '
+            'the price back in dollars. [[slnc 300]] That is the shape '
+            'the rest of the code already uses. [[slnc 600]] But the only '
+            'carrier available is a toolkit from another company, called '
+            'Acme Shipping. [[slnc 300]] It works in pounds of weight, '
+            'not kilograms. [[slnc 300]] And it returns the price in '
+            'whole cents, not dollars.'
         ),
     ),
     dict(
@@ -67,12 +71,12 @@ SCENES = [
             "Naively, every caller converts units itself, every time.",
         ],
         narration=(
-            "Look closely and the two shapes just don't line up. [[slnc 250]] "
-            "Checkout wants to call something like quoteRate, pass a ZIP code and "
-            "a weight in kilograms, and get dollars back. Acme's S D K gives you "
-            "fetchCostInCents, taking pounds, returning cents. [[slnc 300]] "
-            "Naively, every place in the codebase that needs a rate ends up doing "
-            "its own unit conversion, by hand, every single time."
+            'The two shapes just do not match. [[slnc 500]] Checkout '
+            'wants to ask for a quote, with a zip code and kilograms, and '
+            "get dollars back. [[slnc 300]] Acme's toolkit takes pounds, "
+            'and returns cents. [[slnc 600]] So, done naively, every part '
+            'of the code that needs a price does its own unit conversion, '
+            'by hand, every time.'
         ),
     ),
     dict(
@@ -92,13 +96,14 @@ SCENES = [
 
 //  NaiveShippingEstimator repeats this exact conversion independently.""",
         narration=(
-            "So here's the naive approach. [[slnc 250]] NaiveCheckoutService "
-            "multiplies kilograms by two point two oh four six two to get "
-            "pounds, calls Acme's S D K directly, then divides the returned "
-            "cents by a hundred to get dollars. [[slnc 300]] And here's the "
-            "problem. NaiveShippingEstimator, an entirely separate class "
-            "elsewhere in the codebase, repeats this exact same conversion "
-            "independently — copy-pasted, not shared."
+            'Here is the naive approach. [[slnc 400]] The naive checkout '
+            'multiplies kilograms by two point two oh four six two, to '
+            "get pounds. [[slnc 300]] It calls Acme's toolkit directly. "
+            '[[slnc 300]] Then it divides the cents by a hundred, to get '
+            'dollars. [[slnc 600]] And here is the problem. [[slnc 300]] '
+            'A completely separate class, a shipping estimator, repeats '
+            'exactly the same conversion. [[slnc 300]] Copied and pasted, '
+            'not shared.'
         ),
     ),
     dict(
@@ -112,14 +117,16 @@ SCENES = [
             "✗   Nothing here is a bug — the waste is structural",
         ],
         narration=(
-            "And that does real damage as the system grows. [[slnc 250]] The "
-            "pounds-per-kilogram constant and the cents-to-dollars division get "
-            "copy-pasted into every class that needs a rate. Every one of those "
-            "callers is coupled to Acme's exact method name and parameter order. "
-            "[[slnc 300]] Switch carriers, or Acme changes their S D K, and every "
-            "caller needs to change, one at a time. [[slnc 250]] None of this is "
-            "a bug — both naive classes compute a correct rate. The waste is "
-            "structural: one mechanical conversion, scattered everywhere."
+            'That does real damage as the system grows. [[slnc 500]] The '
+            'conversion numbers get copied into every class that needs a '
+            'price. [[slnc 300]] Every one of those classes depends on '
+            "Acme's exact method name, and the order of its inputs. "
+            '[[slnc 500]] Switch to another carrier, or let Acme change '
+            'its toolkit, and every one of those classes must change, one '
+            'by one. [[slnc 600]] And none of this is a bug. [[slnc 300]] '
+            'Both naive classes calculate the correct price. [[slnc 300]] '
+            'The waste is in the structure: one simple conversion, '
+            'scattered everywhere.'
         ),
     ),
     dict(
@@ -136,12 +143,12 @@ SCENES = [
             "one class translates, so nothing else has to.",
         ],
         narration=(
-            "The adapter pattern fixes exactly this. [[slnc 250]] In Gang of "
-            "Four terms, adapter converts the interface of a class into another "
-            "interface clients expect, letting classes work together that "
-            "couldn't otherwise, because of incompatible interfaces. [[slnc 300]] "
-            "In plain language? One class translates, so nothing else in the "
-            "codebase ever has to."
+            'The Adapter pattern fixes exactly this. [[slnc 400]] The '
+            'classic book on design patterns, by the authors known as the '
+            'Gang of Four, describes it like this. [[slnc 300]] Convert '
+            'the interface of a class into another interface that clients '
+            'expect. [[slnc 600]] In plain words: one class translates, '
+            'so nothing else has to.'
         ),
     ),
     dict(
@@ -158,14 +165,16 @@ SCENES = [
             "One small translator. Two things that were never designed together.",
         ],
         narration=(
-            "Here's how to remember it forever. Think about traveling with a "
-            "laptop charger. [[slnc 250]] Your charger has UK prongs, the wall "
-            "socket has US slots. You don't rewire the charger, and you "
-            "certainly don't rewire the wall. [[slnc 300]] You plug a small "
-            "adapter in between, and its entire job is translating one physical "
-            "shape into the other. Neither the charger nor the socket ever "
-            "changes. [[slnc 250]] One small translator, sitting between two "
-            "things that were never designed together."
+            'Here is how to remember it. [[slnc 300]] Think about '
+            'travelling with a laptop charger. [[slnc 500]] Your charger '
+            'has a British plug. [[slnc 300]] The wall socket is '
+            'American. [[slnc 300]] You do not rewire the charger. [[slnc '
+            '300]] And you certainly do not rewire the wall. [[slnc 500]] '
+            'You plug a small adapter in between. [[slnc 300]] Its whole '
+            'job is to turn one shape into the other. [[slnc 300]] '
+            'Neither the charger nor the socket ever changes. [[slnc '
+            '600]] One small translator, between two things that were '
+            'never designed to fit.'
         ),
     ),
     dict(
@@ -174,16 +183,17 @@ SCENES = [
         title="The Four Roles",
         body=None,
         narration=(
-            "Every adapter setup has four roles. [[slnc 200]] The target, "
-            "ShippingRateProvider, the interface clients already expect. The "
-            "adaptee, AcmeShippingSdk, the existing incompatible class we don't "
-            "control. The adapter, AcmeShippingAdapter, which implements the "
-            "target and holds the adaptee. And the client, CheckoutService, "
-            "which only ever depends on the target interface. [[slnc 350]] "
-            "Here's the single most important idea in this whole video. "
-            "AcmeShippingAdapter is the only class in the entire codebase that "
-            "imports AcmeShippingSdk. Every other class only ever sees "
-            "ShippingRateProvider."
+            'Every adapter has four roles. [[slnc 500]] The target: the '
+            'interface checkout already expects, called the shipping rate '
+            "provider. [[slnc 300]] The adaptee: Acme's toolkit, the "
+            'mismatched class we cannot change. [[slnc 300]] The adapter: '
+            "the Acme shipping adapter, which offers the target's shape, "
+            "and holds Acme's toolkit inside. [[slnc 300]] And the "
+            'client: the checkout service, which only ever talks to the '
+            'target. [[slnc 600]] Here is the most important idea in this '
+            'video. [[slnc 300]] The adapter is the only class in the '
+            "whole code that knows Acme's toolkit exists. [[slnc 300]] "
+            'Every other class only sees the shipping rate provider.'
         ),
     ),
     dict(
@@ -200,11 +210,12 @@ public final class AcmeShippingSdk {
     }
 }""",
         narration=(
-            "This is the target, ShippingRateProvider. [[slnc 250]] It's "
-            "declared entirely in checkout's own terms — kilograms in, dollars "
-            "out. [[slnc 300]] And this is the adaptee, AcmeShippingSdk. Pounds "
-            "in, integer cents out, a method called fetchCostInCents. It's a "
-            "shape checkout never asked for, and one we don't control."
+            'Here is the target, the shipping rate provider. [[slnc 400]] '
+            "It is written entirely in checkout's own terms. [[slnc 300]] "
+            'Kilograms in, dollars out. [[slnc 600]] And here is the '
+            "adaptee, Acme's toolkit. [[slnc 300]] Pounds in, whole cents "
+            'out. [[slnc 300]] A shape checkout never asked for, and one '
+            'we cannot change.'
         ),
     ),
     dict(
@@ -226,12 +237,13 @@ public final class AcmeShippingSdk {
     }
 }""",
         narration=(
-            "And this is the adapter, AcmeShippingAdapter. [[slnc 250]] It "
-            "implements ShippingRateProvider and holds an AcmeShippingSdk by "
-            "composition. [[slnc 300]] quoteRate converts kilograms to pounds, "
-            "calls the S D K, then converts the returned cents back to dollars. "
-            "Every unit conversion in this entire project happens right here, "
-            "exactly once."
+            'And here is the adapter. [[slnc 400]] It offers the shipping '
+            "rate provider's shape, and keeps Acme's toolkit inside it. "
+            '[[slnc 600]] When asked for a quote, it converts kilograms '
+            "to pounds. [[slnc 300]] It calls Acme's toolkit. [[slnc "
+            '300]] Then it converts the cents back to dollars. [[slnc '
+            '500]] Every unit conversion in this whole project happens '
+            'right here, exactly once.'
         ),
     ),
     dict(
@@ -247,13 +259,14 @@ CheckoutService checkoutB = new CheckoutService(flat);
 checkoutA.totalWithShipping(subtotal, "94107", 3.5);   // adapted
 checkoutB.totalWithShipping(subtotal, "94107", 3.5);   // native, no adapting at all""",
         narration=(
-            "And here's the client, CheckoutService. [[slnc 250]] It's "
-            "constructed with a ShippingRateProvider — sometimes that's an "
-            "adapted AcmeShippingAdapter, sometimes it's a FlatRateShippingProvider "
-            "written natively, with no adapting involved at all. [[slnc 300]] "
-            "CheckoutService's own code never changes between the two. It "
-            "genuinely cannot tell an adapted implementation from a native one — "
-            "that's the whole payoff."
+            'And here is the client, the checkout service. [[slnc 400]] '
+            'It is given a shipping rate provider. [[slnc 300]] Sometimes '
+            'that is the Acme adapter. [[slnc 300]] Sometimes it is a '
+            'flat-rate provider, written in the right shape from the '
+            'start, with no adapting at all. [[slnc 600]] The checkout '
+            'code never changes between the two. [[slnc 300]] It cannot '
+            'tell an adapted provider from a native one. [[slnc 300]] And '
+            'that is the whole payoff.'
         ),
     ),
     dict(
@@ -274,14 +287,17 @@ Quoted rate: $13.48
 NaiveCheckoutService:    $13.48
 NaiveShippingEstimator:  $13.48""",
         narration=(
-            "When we run the project, checkout produces a total with either "
-            "provider, no branching in sight. [[slnc 250]] The isolated "
-            "quoteRate call shows exactly what's happening under the hood: "
-            "three point five kilograms goes in, Acme sees pounds, and thirteen "
-            "dollars forty eight comes back out. [[slnc 300]] And down at the "
-            "bottom, the naive classes produce the exact same number — they "
-            "aren't wrong, they're just duplicated, and coupled directly to a "
-            "shape that belongs behind one seam."
+            "Let's run the project. [[slnc 400]] Checkout calculates a "
+            'total with either provider, with no special cases. [[slnc '
+            '300]] With Acme, through the adapter: sixty-three dollars '
+            'forty-six. [[slnc 300]] With the flat rate: fifty-seven '
+            'dollars forty-eight. [[slnc 600]] Looking inside one quote: '
+            'three and a half kilograms goes in. [[slnc 300]] Acme sees '
+            'pounds. [[slnc 300]] And thirteen dollars forty-eight comes '
+            'back out. [[slnc 600]] And the naive classes give exactly '
+            'the same number. [[slnc 300]] They are not wrong. [[slnc '
+            '300]] They are just duplicated, and tied to a shape that '
+            'belongs behind one class.'
         ),
     ),
     dict(
@@ -300,15 +316,17 @@ NaiveShippingEstimator:  $13.48""",
             "Bridge designs two hierarchies so they never have to.",
         ],
         narration=(
-            "So, to recap. Use adapter when an existing interface doesn't "
-            "match what your code already expects, and you can't or shouldn't "
-            "change either side. [[slnc 300]] Keep the adapter a pure "
-            "translator — no new behavior, no caching, no retry logic. Anything "
-            "beyond translation belongs in a decorator, not here. [[slnc 350]] "
-            "And if you remember one sentence from today, make it this one. "
-            "Adapter reconciles two interfaces that already exist and disagree. "
-            "Bridge designs two hierarchies from the start so they never have "
-            "to agree on more than one seam."
+            'So, to recap. [[slnc 400]] Use an adapter when an existing '
+            'interface does not match what your code expects. [[slnc '
+            '300]] And you cannot, or should not, change either side. '
+            '[[slnc 600]] Keep the adapter a pure translator. [[slnc '
+            '300]] No new behaviour, no caching, and no retries. [[slnc '
+            '300]] Anything beyond translating belongs in a different '
+            'pattern, the Decorator. [[slnc 600]] And one comparison '
+            'worth knowing. [[slnc 300]] An adapter fixes two interfaces '
+            'that already exist, and disagree. [[slnc 300]] The Bridge '
+            'pattern designs two sides from the start, so they never need '
+            'fixing.'
         ),
     ),
     dict(
@@ -322,14 +340,19 @@ NaiveShippingEstimator:  $13.48""",
             "Full source code, notes and an animation are in the repository.",
         ],
         narration=(
-            "And that's the adapter pattern. [[slnc 300]] If you got "
-            "something out of this, do give it a thumbs up, and subscribe. It "
-            "genuinely helps the channel, and it's what makes more of these "
-            "possible. [[slnc 250]] And if there's a pattern you'd like me to "
-            "cover next, drop it in the comments. I read every one. [[slnc "
-            "250]] All the source code, the written notes and an interactive "
-            "animation are in the repository. Thanks for watching, and I'll "
-            "see you in the next one."
+            "That's the Adapter pattern. [[slnc 400]] If you remember one "
+            'sentence, make it this one. [[slnc 300]] An adapter is one '
+            'small translator, so the rest of your code never has to know '
+            'about a mismatched interface. [[slnc 500]] The full source '
+            'code, written notes, diagrams, and an animated walkthrough '
+            'are all in the repository. [[slnc 300]] It runs offline, '
+            'with nothing installed except a Java development kit. [[slnc '
+            '500]] Here is one exercise to try. [[slnc 300]] Add a second '
+            'carrier, with yet another set of units. [[slnc 300]] And '
+            'notice that checkout does not change at all. [[slnc 500]] If '
+            'this helped, a like really does help other people find it. '
+            "[[slnc 300]] And subscribe, if you'd like the rest of the "
+            'series. [[slnc 400]] Thanks for watching.'
         ),
     ),
 ]

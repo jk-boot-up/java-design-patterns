@@ -19,19 +19,19 @@ The first two lines are what a viewer sees above the fold, so they carry the hoo
 ```
 CHAPTERS
 00:00 Introduction
-00:59 The Scenario
-01:18 A Class For Each Kind
+00:56 The Scenario
+01:15 A Class For Each Kind
 01:33 The Pattern
-01:44 A Type That Is Data
-01:59 A New Kind At Run Time
-02:13 Change The Type, Change Every Product
-02:27 A Type That Inherits
-02:38 The Bill
-03:06 How To Recognise It
-03:28 The Verdict
-03:47 What Is Real Here
-03:59 When This Is Too Much
-04:13 Thanks for Watching
+01:46 A Type That Is Data
+02:04 A New Kind At Run Time
+02:23 Change The Type, Change Every Product
+02:41 A Type That Inherits
+02:58 The Bill
+03:32 How To Recognise It
+03:59 The Verdict
+04:18 What Is Real Here
+04:32 When This Is Too Much
+04:47 Thanks for Watching
 
 SOURCE CODE, WRITTEN NOTES AND AN INTERACTIVE ANIMATION
 https://github.com/jk-boot-up/java-design-patterns/tree/main/gradle-java/foundational-design-patterns/type-object-pattern
@@ -46,19 +46,19 @@ YouTube renders these as chapters only if there are at least three and the first
 
 ```
 00:00 Introduction
-00:59 The Scenario
-01:18 A Class For Each Kind
+00:56 The Scenario
+01:15 A Class For Each Kind
 01:33 The Pattern
-01:44 A Type That Is Data
-01:59 A New Kind At Run Time
-02:13 Change The Type, Change Every Product
-02:27 A Type That Inherits
-02:38 The Bill
-03:06 How To Recognise It
-03:28 The Verdict
-03:47 What Is Real Here
-03:59 When This Is Too Much
-04:13 Thanks for Watching
+01:46 A Type That Is Data
+02:04 A New Kind At Run Time
+02:23 Change The Type, Change Every Product
+02:41 A Type That Inherits
+02:58 The Bill
+03:32 How To Recognise It
+03:59 The Verdict
+04:18 What Is Real Here
+04:32 When This Is Too Much
+04:47 Thanks for Watching
 ```
 
 ## Tags
@@ -97,4 +97,4 @@ Add a card partway through pointing at the playlist, so a viewer who arrives at 
 
 ## Runtime
 
-Approximately 04:55, narrated at 145 words per minute.
+Approximately 05:29, narrated at 145 words per minute.

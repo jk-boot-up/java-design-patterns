@@ -6,23 +6,4 @@ Say it in words. The caller calls with connection, and hands over a piece of wor
 
 ![Execute Around pattern sequence diagram](images/sequence-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant C as caller
-    participant P as pool
-    participant W as the work
-    C->>P: withConnection(work)
-    P->>P: open a connection
-    P->>W: run(connection)
-    W-->>P: failed
-    P->>P: close, in finally
-    P-->>C: the failure
-```
-
-</details>
-
 The load-bearing sentence: **the closing happens whatever the work does.**

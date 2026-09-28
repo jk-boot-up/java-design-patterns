@@ -17,20 +17,22 @@ SCENES = [
         title="The Factory Method Pattern",
         body=None,
         narration=(
-            "Hello, and welcome. This video explains the Factory Method pattern "
-            "in Java, and it is written and presented by Jayasekhar Konduru. "
-            "[[slnc 300]] Let's start with the simple definition. The factory "
-            "method pattern moves the creation of an object into a method that "
-            "subclasses override. A base class writes down the steps that never "
-            "change and calls that method wherever a new object is needed, so "
-            "each subclass decides which class gets created without a line of the "
-            "surrounding code changing. [[slnc 350]] That's the idea in a "
-            "sentence. It has a reputation for being confusing, and honestly I "
-            "think that's only the way it usually gets explained, so the rest of "
-            "the video does it properly, by building a real working Java project: "
-            "the delivery step of an online store. [[slnc 250]] By the end you'll "
-            "know what a factory method is, why it exists, and how to write one "
-            "yourself."
+            'Hello, and welcome. [[slnc 400]] This video explains the '
+            'Factory Method pattern, in Java. [[slnc 300]] This video is '
+            'presented by Jayasekhar Konduru. [[slnc 600]] First, a '
+            'simple definition. [[slnc 300]] The Factory Method pattern '
+            'moves the creation of an object into a method that '
+            'subclasses override. [[slnc 400]] A base class writes the '
+            'steps that never change. [[slnc 300]] Wherever it needs a '
+            'new object, it calls that method. [[slnc 300]] So each '
+            'subclass decides which class gets created, and the '
+            'surrounding code never changes. [[slnc 600]] Think of a '
+            "coffee chain's recipe card. [[slnc 300]] Head office writes "
+            'every step, but leaves, make the drink, blank. [[slnc 300]] '
+            'Each branch fills in its own drink. [[slnc 700]] In this '
+            'video, we build the delivery step of an online store. [[slnc '
+            '500]] By the end, you will know what a factory method is, '
+            'why it exists, and how to write one yourself.'
         ),
     ),
     dict(
@@ -49,13 +51,16 @@ SCENES = [
             "But every tier runs the same shipping workflow.",
         ],
         narration=(
-            "So, imagine you're building an online store. A customer checks out, "
-            "and picks a delivery tier. [[slnc 250]] Standard goes by post, takes "
-            "five days. Express flies overnight. Same day goes out on a bike. And "
-            "international crosses a border. [[slnc 250]] Four different "
-            "carriers, four different prices, four different delivery dates. "
-            "[[slnc 300]] But here's the detail that matters. Every single one of "
-            "them runs the same shipping workflow around that carrier."
+            'Here is the scenario. [[slnc 400]] A customer checks out, '
+            'and picks a delivery option. [[slnc 500]] Standard delivery '
+            'goes by post, and takes five days. [[slnc 300]] Express '
+            'flies overnight, and takes two days. [[slnc 300]] Same day '
+            'goes out on a bike. [[slnc 300]] And international crosses a '
+            'border, and takes nine days. [[slnc 500]] Four different '
+            'carriers, with different prices, and different delivery '
+            'dates. [[slnc 500]] But here is the important detail. [[slnc '
+            '300]] Every one of them runs the same shipping steps around '
+            'its carrier.'
         ),
     ),
     dict(
@@ -72,13 +77,15 @@ SCENES = [
             "Only step 3 differs between tiers.",
         ],
         narration=(
-            "Look at what shipping actually involves. [[slnc 250]] First, we "
-            "check the order really has some weight to it. Then we log that we're "
-            "preparing the parcel. Then we hand it over to the carrier. And "
-            "finally we log the tracking number and the promised date. [[slnc "
-            "300]] Steps one, two and four are identical for every tier. Forever. "
-            "Only step three, the hand over, is different. [[slnc 300]] Hold on "
-            "to that, because it's the whole reason this pattern exists."
+            "Let's list what shipping involves. [[slnc 400]] Step one: "
+            'check the order really has some weight. [[slnc 300]] Step '
+            'two: log that we are preparing the parcel. [[slnc 300]] Step '
+            'three: hand it to the carrier. [[slnc 300]] Step four: log '
+            'the tracking number, and the promised date. [[slnc 600]] '
+            'Steps one, two, and four are identical for every delivery '
+            'option. [[slnc 300]] Only step three, the hand-over, is '
+            'different. [[slnc 500]] Remember that, because it is the '
+            'whole reason this pattern exists.'
         ),
     ),
     dict(
@@ -102,12 +109,12 @@ SCENES = [
     return courier.dispatch(order);
 }""",
         narration=(
-            "So here's the naive version. And honestly, it's what most of us "
-            "would write first. [[slnc 250]] One shipping method, with a chain of "
-            "if and else sitting right in the middle of it. [[slnc 250]] The "
-            "workflow is in there. The choosing is in there. They're tangled "
-            "together in the same method, and you can't read one without reading "
-            "the other."
+            'Here is the naive version, and it is what most of us would '
+            'write first. [[slnc 500]] One shipping method, with a chain '
+            'of if statements in the middle, choosing the carrier by '
+            'name. [[slnc 500]] The shared steps are in there. [[slnc '
+            '300]] The choosing is in there. [[slnc 300]] They are '
+            'tangled together, and you cannot read one without the other.'
         ),
     ),
     dict(
@@ -122,15 +129,17 @@ SCENES = [
             "✗   You cannot test the workflow apart from the choosing",
         ],
         narration=(
-            "Now. We're launching drone delivery on Monday. Which file do you "
-            "open? [[slnc 300]] This one. The one that already ships real "
-            "parcels, for four tiers, today. And every edit to working code is a "
-            "chance to break something that was perfectly fine. [[slnc 300]] And "
-            "it gets worse. If international also needs a customs check, you now "
-            "need a second if chain on the same string, and those two have to "
-            "stay in step with each other. [[slnc 250]] A partner team can't add "
-            "a tier at all. And you can never test the shared workflow separately "
-            "from the choosing, because they're one method."
+            'Now, drone delivery launches on Monday. [[slnc 300]] Which '
+            'file do you open? [[slnc 500]] This one. [[slnc 300]] The '
+            'one that already ships real parcels, for four delivery '
+            'options, today. [[slnc 300]] And every edit to working code '
+            'is a chance to break something. [[slnc 500]] It gets worse. '
+            '[[slnc 300]] If international also needs a customs check, '
+            'you need a second if chain, on the same name. [[slnc 300]] '
+            'And the two chains must always stay in step. [[slnc 500]] A '
+            'partner team cannot add a delivery option at all. [[slnc '
+            '300]] And you cannot test the shared steps without the '
+            'choosing, because they are one method.'
         ),
     ),
     dict(
@@ -148,14 +157,15 @@ SCENES = [
             "leave a hole in the workflow, and let a subclass fill it.",
         ],
         narration=(
-            "The factory method fixes exactly this. [[slnc 250]] The Gang of Four "
-            "define it as, define an interface for creating an object, but let "
-            "subclasses decide which class to instantiate. [[slnc 250]] Now that "
-            "sentence is precise. It's also exactly why the pattern confuses "
-            "people. [[slnc 300]] So here it is in plain language. You write the "
-            "workflow once, and you leave a hole in the middle of it. Then you "
-            "let a subclass fill in that hole. [[slnc 250]] That's it. That's the "
-            "entire pattern."
+            'The Factory Method fixes exactly this. [[slnc 400]] Here is '
+            'its definition, from the famous Gang of Four book. [[slnc '
+            '300]] Define an interface for creating an object, but let '
+            'subclasses decide which class to create. [[slnc 500]] That '
+            'is precise, but it confuses many people. [[slnc 500]] So '
+            'here it is in plain words. [[slnc 300]] Write the steps '
+            'once, and leave a gap in the middle. [[slnc 300]] Then let a '
+            'subclass fill in that gap. [[slnc 300]] That is the whole '
+            'pattern.'
         ),
     ),
     dict(
@@ -173,15 +183,18 @@ SCENES = [
             "Head office never learns what matcha is.",
         ],
         narration=(
-            "Here's how to remember it forever. Think about a coffee shop chain. "
-            "[[slnc 250]] Head office writes the recipe card for serving a hot "
-            "drink. Step one, greet the customer. Step two, make the drink. Step "
-            "three, put a lid on it, call out the name, hand it over. [[slnc "
-            "300]] Steps one and three are identical in every branch in the "
-            "world, and head office owns them. Step two is deliberately left "
-            "blank. [[slnc 250]] The Tokyo branch makes matcha. The Rome branch "
-            "makes espresso. And head office never learns what matcha even is. It "
-            "only knows that whatever comes back can have a lid put on it."
+            'Here is an easy way to remember it: a coffee shop chain. '
+            '[[slnc 500]] Head office writes the recipe card for serving '
+            'a hot drink. [[slnc 300]] Step one: greet the customer. '
+            '[[slnc 300]] Step two: make the drink. [[slnc 300]] Step '
+            'three: put a lid on, call out the name, and hand it over. '
+            '[[slnc 500]] Steps one and three are the same in every '
+            'branch in the world. [[slnc 300]] Step two is left blank, on '
+            'purpose. [[slnc 500]] The Tokyo branch makes matcha. [[slnc '
+            '300]] The Rome branch makes espresso. [[slnc 300]] And head '
+            'office never needs to know what matcha is. [[slnc 300]] It '
+            'only knows that whatever comes back can have a lid put on '
+            'it.'
         ),
     ),
     dict(
@@ -190,15 +203,17 @@ SCENES = [
         title="The Four Roles",
         body=None,
         narration=(
-            "Every factory method has four roles. [[slnc 200]] First, the "
-            "product, which is our Courier interface. Second, the concrete "
-            "products, our four carrier classes. Third, the creator, and that's "
-            "Delivery Service, the abstract class that owns the workflow and "
-            "declares the factory method. And fourth, the concrete creators, our "
-            "four delivery tiers, each one answering a single question. Which "
-            "courier. [[slnc 350]] And here's the most important idea in the "
-            "whole video. The parent class writes the call. The child class "
-            "decides what comes back."
+            'Every factory method has four roles. [[slnc 500]] First, the '
+            'product: our Courier interface. [[slnc 300]] Second, the '
+            'concrete products: the four carrier classes. [[slnc 300]] '
+            'Third, the creator: an abstract class called Delivery '
+            'Service. [[slnc 300]] It owns the shared steps, and declares '
+            'the factory method. [[slnc 300]] Fourth, the concrete '
+            'creators: the four delivery options. [[slnc 300]] Each one '
+            'answers a single question: which courier? [[slnc 600]] And '
+            'here is the most important idea in the video. [[slnc 300]] '
+            'The parent class makes the call. [[slnc 300]] The child '
+            'class decides what comes back.'
         ),
     ),
     dict(
@@ -220,12 +235,14 @@ SCENES = [
 
 //  It has no idea a delivery tier exists.""",
         narration=(
-            "Let's look at some code. This is the air courier. [[slnc 250]] "
-            "Notice how small it is. How ordinary. It knows its own name, its own "
-            "tracking prefix, its own speed, and its own pricing. [[slnc 250]] "
-            "And it has absolutely no idea that a delivery tier exists, or that "
-            "three other carriers exist. Which is deliberate. [[slnc 200]] The "
-            "other three carriers follow exactly the same shape."
+            "Let's look at one product: the air courier. [[slnc 400]] "
+            'Notice how small, and ordinary, it is. [[slnc 300]] It knows '
+            'its own name, SkyLink Air. [[slnc 300]] Its own tracking '
+            'prefix, its own speed of two days, and its own pricing. '
+            '[[slnc 500]] And it has no idea that delivery options exist, '
+            'or that three other carriers exist. [[slnc 300]] That is '
+            'deliberate. [[slnc 400]] The other three carriers follow '
+            'exactly the same shape.'
         ),
     ),
     dict(
@@ -250,15 +267,18 @@ SCENES = [
     }
 }""",
         narration=(
-            "And this is the heart of it. [[slnc 250]] Read the ship method, and "
-            "label every line as either shared, or varies. The guard is shared. "
-            "The two log lines are shared. [[slnc 250]] There's exactly one line "
-            "that varies, and it's the call to create courier. [[slnc 300]] Now "
-            "look at the top of the class. Create courier is abstract. It has no "
-            "body. So the parent class has written a call that it cannot answer "
-            "itself. [[slnc 300]] And notice that ship is marked final. A "
-            "subclass may change which courier gets used, and nothing else. Not "
-            "the guard. Not the logging. Not the order of the steps."
+            'And this is the heart of it: the Delivery Service class. '
+            '[[slnc 500]] Go through its ship method, step by step, and '
+            'label each step shared, or varying. [[slnc 300]] The weight '
+            'check is shared. [[slnc 300]] The two log lines are shared. '
+            '[[slnc 300]] Exactly one line varies: the call to create '
+            'courier. [[slnc 600]] And create courier is abstract. [[slnc '
+            '300]] It has no body. [[slnc 300]] So the parent class makes '
+            'a call that it cannot answer itself. [[slnc 500]] Notice too '
+            'that the ship method is marked final. [[slnc 300]] A '
+            'subclass may change which courier is used, and nothing else. '
+            '[[slnc 300]] Not the check, not the logging, and not the '
+            'order of the steps.'
         ),
     ),
     dict(
@@ -280,14 +300,18 @@ SCENES = [
 //  All four look exactly like this.
 //  There is no switch anywhere in this project.""",
         narration=(
-            "And here's an entire delivery tier. Six lines. [[slnc 250]] It picks "
-            "a courier, it names itself, and that's all it does. All four tiers "
-            "look exactly like this. [[slnc 300]] Now go and search the whole "
-            "project for the word switch. There isn't one. Search for an if "
-            "statement testing a tier name. There isn't one of those either. "
-            "[[slnc 300]] The decision that used to be a branch is now a class. "
-            "And choosing a class is something Java's own method dispatch does "
-            "for us, for free."
+            'Here is an entire delivery option: Express Delivery. [[slnc '
+            '400]] It is six lines long. [[slnc 300]] Its create courier '
+            'method returns a new air courier. [[slnc 300]] And it names '
+            'itself, Express. [[slnc 300]] That is all it does. [[slnc '
+            '500]] All four delivery options look exactly like this. '
+            '[[slnc 500]] Search the whole project for a switch '
+            'statement. [[slnc 300]] There is none. [[slnc 300]] Search '
+            'for an if statement that tests a delivery name. [[slnc 300]] '
+            'There is none of those either. [[slnc 500]] The decision '
+            'that used to be a branch is now a class. [[slnc 300]] And '
+            'choosing a class is something Java already does for us, for '
+            'free.'
         ),
     ),
     dict(
@@ -304,16 +328,18 @@ SCENES = [
             "Factory Method removed the switch entirely.",
         ],
         narration=(
-            "So what did that actually buy us? [[slnc 250]] Monday's drone "
-            "delivery is now a new file, and we never touch an existing class. "
-            "That's the Open Closed Principle genuinely satisfied, not just "
-            "talked about. [[slnc 250]] The weight guard is written once, and it "
-            "protects every tier that will ever exist, including ones written "
-            "next year, by somebody else. A separate team can ship a tier in "
-            "their own jar. And if a subclass forgets to override the factory "
-            "method, it won't even compile. [[slnc 350]] Now compare that to its "
-            "simpler cousin. A simple factory moves the switch into one file. A "
-            "factory method removes the switch entirely."
+            "So what did that buy us? [[slnc 500]] Monday's drone "
+            'delivery is now one new file. [[slnc 300]] No existing class '
+            'is touched. [[slnc 300]] That is the Open Closed Principle, '
+            'really working. [[slnc 500]] The weight check is written '
+            'once, and it protects every delivery option that will ever '
+            'exist. [[slnc 300]] Another team can add a delivery option '
+            'in their own library. [[slnc 300]] And if a subclass forgets '
+            'to provide a courier, it will not even compile. [[slnc 600]] '
+            'Compare that with its simpler cousin. [[slnc 300]] A simple '
+            'factory moves the switch statement into one file. [[slnc '
+            '300]] A factory method removes the switch statement '
+            'entirely.'
         ),
     ),
     dict(
@@ -330,13 +356,16 @@ Express: preparing ORD-2001 for Edinburgh via SkyLink Air
 SkyLink Air: booking ORD-2001 onto tonight's flight
 Express: booked SL-832C886D, arriving in 2 day(s)""",
         narration=(
-            "When we run the project, you can watch it happen. Here are two of "
-            "the four tiers, shipping the very same order. [[slnc 250]] Look at "
-            "the first and last line of each block. Same shape, same wording, "
-            "same workflow. [[slnc 250]] Only the middle line, the one the "
-            "carrier itself printed, is different. And so are the price and the "
-            "delivery date. [[slnc 300]] That's the pattern working. One shared "
-            "workflow, running completely different carriers."
+            "Let's run the demo. [[slnc 400]] Two of the delivery options "
+            'ship the very same order, to Edinburgh. [[slnc 500]] Each '
+            'begins with the same line: preparing the order. [[slnc 300]] '
+            'And each ends with the same line: booked, with a tracking '
+            'number and a delivery date. [[slnc 500]] Only the middle '
+            'line is different, printed by the carrier itself. [[slnc '
+            '300]] Royal Post drops it into the postal network. [[slnc '
+            "300]] SkyLink Air books it onto tonight's flight. [[slnc "
+            '500]] One shared set of steps, running completely different '
+            'carriers.'
         ),
     ),
     dict(
@@ -356,18 +385,20 @@ Express: booked SL-832C886D, arriving in 2 day(s)""",
             "Factory Method chooses with inheritance.",
         ],
         narration=(
-            "So, to recap. Use a factory method when you've got a workflow that's "
-            "shared, with one step that varies, and that step creates an object. "
-            "[[slnc 300]] Keep the return type abstract. The moment your creator "
-            "says it returns an air courier, all that coupling you just removed "
-            "comes straight back. [[slnc 250]] Never call the factory method from "
-            "a constructor, because the subclass fields aren't ready yet. [[slnc "
-            "300]] And be honest with yourself. If the only difference between "
-            "your subclasses is one call to new, then a plain supplier passed "
-            "into the constructor may be all you need. Don't go building a "
-            "hierarchy just to avoid a two line switch. [[slnc 350]] And if you "
-            "remember one sentence from today, make it this one. A simple factory "
-            "chooses with a switch. A factory method chooses with inheritance."
+            'So, to recap. [[slnc 400]] Use a factory method when you '
+            'have shared steps, with one step that varies, and that step '
+            "creates an object. [[slnc 500]] Keep the method's return "
+            'type abstract. [[slnc 300]] The moment it promises a '
+            'specific carrier class, the coupling comes straight back. '
+            '[[slnc 500]] Never call the factory method from a '
+            'constructor. [[slnc 300]] The subclass is not fully ready at '
+            'that point. [[slnc 500]] And be honest with yourself. [[slnc '
+            '300]] If the only difference between subclasses is one new '
+            'object, simply passing in a supplier may be enough. [[slnc '
+            '300]] Do not build a class hierarchy just to avoid a '
+            'two-line switch. [[slnc 600]] And one sentence to remember. '
+            '[[slnc 300]] A simple factory chooses with a switch. [[slnc '
+            '300]] A factory method chooses with inheritance.'
         ),
     ),
     dict(
@@ -381,13 +412,16 @@ Express: booked SL-832C886D, arriving in 2 day(s)""",
             "Full source code, notes and an animation are in the repository.",
         ],
         narration=(
-            "And that's the factory method. [[slnc 300]] If you got something out "
-            "of this, do give it a thumbs up, and subscribe. It genuinely helps "
-            "the channel, and it's what makes more of these possible. [[slnc "
-            "250]] And if there's a pattern you'd like me to cover next, drop it "
-            "in the comments. I read every one. [[slnc 250]] All the source code, "
-            "the written notes and an interactive animation are in the "
-            "repository. Thanks for watching, and I'll see you in the next one."
+            "That's the Factory Method pattern. [[slnc 400]] If you "
+            'remember one sentence, make it this one. [[slnc 300]] Write '
+            'the shared steps once, leave a gap, and let each subclass '
+            'fill it. [[slnc 500]] The full source code, written notes, '
+            'diagrams, and an animated walkthrough are all in the '
+            'repository. [[slnc 500]] If there is a pattern you would '
+            'like to see covered, suggest it in the comments. [[slnc '
+            '500]] If this helped, a like really does help other people '
+            "find it. [[slnc 300]] And subscribe, if you'd like the rest "
+            'of the series. [[slnc 400]] Thanks for watching.'
         ),
     ),
 ]

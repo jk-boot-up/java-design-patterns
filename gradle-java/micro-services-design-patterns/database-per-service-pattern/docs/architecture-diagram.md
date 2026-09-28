@@ -24,55 +24,6 @@ here only so the rule is visible in a project small enough to read.
 
 ![Database per Service architecture diagram](images/architecture-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-flowchart TB
-    subgraph W["what the program is a model of"]
-        direction LR
-        subgraph Before["the shared schema — one cabinet, two departments"]
-            direction TB
-            OT1["the Orders team"]
-            CT1["the Catalog team"]
-            DB1["one schema<br/>orders and products, joined in one query<br/>foreign keys hold, the join cannot forget a name"]
-            OT1 -- "SELECT ... JOIN products" --> DB1
-            CT1 -- "ALTER TABLE products RENAME COLUMN" --> DB1
-            CT1 -. "correct migration, green tests,<br/>and somebody else's page is dead" .-> OT1
-        end
-        subgraph After["one database each — and a conversation instead of a join"]
-            direction TB
-            OS["Orders service<br/>owns orders, knows skus, knows no names"]
-            CS["Catalog service<br/>owns products, free to rename anything"]
-            DB2["Orders database"]
-            DB3["Catalog database"]
-            OS --> DB2
-            CS --> DB3
-            OS -- "namesFor(a list of skus) — one call, not one per row" --> CS
-            OS -. "no line to the Catalog database, ever" .-x DB3
-        end
-    end
-
-    subgraph J["what actually runs — one JVM, JDK 21, no database, nothing installed"]
-        direction LR
-        Demo["DatabasePerServiceDemo<br/>the five acts"]
-        SS["SharedSchema<br/>the comparison — and read it generously"]
-        OD["OrderDatabase"]
-        CD["CatalogDatabase"]
-        NYD["NotYourDataException<br/>stands in for a permissions error"]
-        OHP["OrderHistoryPage<br/>the assembly the join used to do for free"]
-        Clock["SimulatedClock + CallLog<br/>exact, free network latency"]
-        Demo --> SS
-        Demo --> OD --> NYD
-        Demo --> CD --> NYD
-        Demo --> OHP --> Clock
-    end
-
-    W -. "no Docker, no Postgres — rows in maps, and a column is a map key" .-> J
-```
-
-</details>
-
 ## What the diagram is telling you to count
 
 **One arrow on the left where the right has three.** The shared schema answers the order

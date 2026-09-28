@@ -19,19 +19,19 @@ The first two lines are what a viewer sees above the fold, so they carry the hoo
 ```
 CHAPTERS
 00:00 Introduction
-00:41 The Scenario
-01:02 Active Record Works
-01:31 The Cost
-01:57 A Shape It Cannot Say
-02:27 The Pattern
-02:46 What The Customer Looks Like
-03:15 The Bill: A Class Per Entity
-03:37 The Bill: A Silent Field
-04:02 The Toy Database
-04:25 Where You Have Met This
-04:44 What Is Real Here
-05:05 When This Is Too Much
-05:26 Thanks for Watching
+00:51 The Scenario
+01:10 Active Record Works
+01:36 The Cost
+02:05 A Shape It Cannot Say
+02:35 The Pattern
+02:58 What The Customer Looks Like
+03:25 The Bill: A Class Per Entity
+03:51 The Bill: A Silent Field
+04:18 The Toy Database
+04:38 Where You Have Met This
+05:02 What Is Real Here
+05:24 When This Is Too Much
+05:46 Thanks for Watching
 
 SOURCE CODE, WRITTEN NOTES AND AN INTERACTIVE ANIMATION
 https://github.com/jk-boot-up/java-design-patterns/tree/main/gradle-java/enterprise-design-patterns/data-mapper-pattern
@@ -46,19 +46,19 @@ YouTube renders these as chapters only if there are at least three and the first
 
 ```
 00:00 Introduction
-00:41 The Scenario
-01:02 Active Record Works
-01:31 The Cost
-01:57 A Shape It Cannot Say
-02:27 The Pattern
-02:46 What The Customer Looks Like
-03:15 The Bill: A Class Per Entity
-03:37 The Bill: A Silent Field
-04:02 The Toy Database
-04:25 Where You Have Met This
-04:44 What Is Real Here
-05:05 When This Is Too Much
-05:26 Thanks for Watching
+00:51 The Scenario
+01:10 Active Record Works
+01:36 The Cost
+02:05 A Shape It Cannot Say
+02:35 The Pattern
+02:58 What The Customer Looks Like
+03:25 The Bill: A Class Per Entity
+03:51 The Bill: A Silent Field
+04:18 The Toy Database
+04:38 Where You Have Met This
+05:02 What Is Real Here
+05:24 When This Is Too Much
+05:46 Thanks for Watching
 ```
 
 ## Tags
@@ -97,4 +97,4 @@ Add a card partway through pointing at the playlist, so a viewer who arrives at 
 
 ## Runtime
 
-Approximately 06:05, narrated at 145 words per minute.
+Approximately 06:24, narrated at 145 words per minute.

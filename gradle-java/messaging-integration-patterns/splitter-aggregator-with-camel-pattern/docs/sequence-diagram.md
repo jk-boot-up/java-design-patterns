@@ -6,27 +6,6 @@ Say it in words. One order for three products arrives at the store. Camel's spli
 
 ![Splitter and Aggregator with Camel sequence diagram](images/sequence-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant S as Camel split
-    participant W as warehouses
-    participant A as Camel aggregate
-    participant T as deadline checker
-    S->>W: shipment 1, shipment 2, shipment 3
-    W->>A: shipment 1 from Leeds
-    W->>A: shipment 2 from Reading
-    Note over W: Glasgow is closed and its shipment stops here
-    A-->>A: 2 of 3 held, count not met
-    T->>A: 600 ms have passed
-    A-->>A: send out 2 of 3, missing Glasgow, completed by timeout
-```
-
-</details>
-
 The load-bearing sentence: **an aggregator with only a count will wait for ever, so the deadline is not a nicety, it is the other half of the pattern.**
 
 For the rejected designs and the rest of the failure modes, see [`uml-diagram.md`](uml-diagram.md).

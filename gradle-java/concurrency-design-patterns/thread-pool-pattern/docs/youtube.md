@@ -19,19 +19,19 @@ The first two lines are what a viewer sees above the fold, so they carry the hoo
 ```
 CHAPTERS
 00:00 Introduction
-00:56 The Scenario, Continued
-01:31 Naive One — A Thread Per Order, Again
-01:59 Naive Two — The Queue Nobody Chose
-02:44 The Pattern: Two Bounds, Not One
-03:14 The Queue At Capacity — And No Patience For It
-04:01 Sizing Is A Real Decision, Both Directions
-04:35 Pool Starvation — A Deadlock At Any Size
-05:26 The Same Harness, Proven Again
-06:15 What The Scheduler Really Does
-06:55 Java's Answer — And What It Does Not Answer
-07:47 The Bill
-08:28 When This Is Too Much
-08:55 Thanks for Watching
+00:53 The Scenario, Continued
+01:17 Naive One — A Thread Per Order, Again
+01:39 Naive Two — The Queue Nobody Chose
+02:17 The Pattern: Two Bounds, Not One
+02:41 The Queue At Capacity — And No Patience For It
+03:10 Sizing Is A Real Decision, Both Directions
+03:37 Pool Starvation — A Deadlock At Any Size
+04:15 The Same Harness, Proven Again
+04:51 What The Scheduler Really Does
+05:19 Java's Answer — And What It Does Not Answer
+06:01 The Bill
+06:24 When This Is Too Much
+06:49 Thanks for Watching
 
 SOURCE CODE, WRITTEN NOTES AND AN INTERACTIVE ANIMATION
 https://github.com/jk-boot-up/java-design-patterns/tree/main/gradle-java/concurrency-design-patterns/thread-pool-pattern
@@ -46,19 +46,19 @@ YouTube renders these as chapters only if there are at least three and the first
 
 ```
 00:00 Introduction
-00:56 The Scenario, Continued
-01:31 Naive One — A Thread Per Order, Again
-01:59 Naive Two — The Queue Nobody Chose
-02:44 The Pattern: Two Bounds, Not One
-03:14 The Queue At Capacity — And No Patience For It
-04:01 Sizing Is A Real Decision, Both Directions
-04:35 Pool Starvation — A Deadlock At Any Size
-05:26 The Same Harness, Proven Again
-06:15 What The Scheduler Really Does
-06:55 Java's Answer — And What It Does Not Answer
-07:47 The Bill
-08:28 When This Is Too Much
-08:55 Thanks for Watching
+00:53 The Scenario, Continued
+01:17 Naive One — A Thread Per Order, Again
+01:39 Naive Two — The Queue Nobody Chose
+02:17 The Pattern: Two Bounds, Not One
+02:41 The Queue At Capacity — And No Patience For It
+03:10 Sizing Is A Real Decision, Both Directions
+03:37 Pool Starvation — A Deadlock At Any Size
+04:15 The Same Harness, Proven Again
+04:51 What The Scheduler Really Does
+05:19 Java's Answer — And What It Does Not Answer
+06:01 The Bill
+06:24 When This Is Too Much
+06:49 Thanks for Watching
 ```
 
 ## Tags
@@ -97,4 +97,4 @@ Add a card partway through pointing at the playlist, so a viewer who arrives at 
 
 ## Runtime
 
-Approximately 09:43, narrated at 145 words per minute.
+Approximately 07:27, narrated at 145 words per minute.

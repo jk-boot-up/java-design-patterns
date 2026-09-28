@@ -10,32 +10,35 @@ SCENES = [
         key='01-poster', kind='poster', title='Two-Phase Termination',
         body=None,
         narration=(
-            'Hello, and welcome. This video explains the Two-Phase '
-            'Termination pattern in Java, and it is written and presented '
-            'by Jayasekhar Konduru. [[slnc 300]] The plain definition: '
-            'two phase termination stops a thread in two steps. First the '
-            'thread is asked to stop, and it finishes what it is doing, '
-            'and tidies up. Then the caller waits for it to end, for a '
-            'limited time. [[slnc 350]] This is another project in the '
-            'concurrency category, whose subject is how threads share '
-            'work and state without corrupting either. In our online '
-            'store, the job is shutting down the order worker without '
-            'losing or damaging an order. [[slnc 300]] By the end you '
-            'will see a worker stopped mid-order and leave the order half '
-            'written, see it asked to stop and finish the order, see a '
-            'sleeping worker need waking, see cleanup run on the way out, '
-            'see a worker that will not stop, and see the bill, which is '
-            'the orders still waiting.'
+            'Hello, and welcome. [[slnc 400]] This video explains the '
+            'Two-Phase Termination pattern, in Java. [[slnc 300]] This '
+            'video is presented by Jayasekhar Konduru. [[slnc 600]] '
+            'First, a simple definition. [[slnc 300]] Two-phase '
+            'termination stops a thread in two steps. [[slnc 300]] First, '
+            'the thread is asked to stop. [[slnc 300]] It finishes what '
+            'it is doing, and tidies up. [[slnc 300]] Second, the caller '
+            'waits for it to end, but only for a limited time. [[slnc '
+            '600]] Think of closing a shop for the night. [[slnc 300]] '
+            'You lock the front door to new customers. [[slnc 300]] Then '
+            'you let the people inside finish paying, before you switch '
+            'off the lights. [[slnc 700]] In our online store, we must '
+            'shut down the order worker, without losing or damaging an '
+            'order. [[slnc 500]] In this video, a worker stopped suddenly '
+            'leaves an order half written. [[slnc 300]] Then a worker '
+            'asked politely finishes it. [[slnc 300]] We will wake a '
+            'sleeping worker, run cleanup on the way out, and meet a '
+            'worker that will not stop. [[slnc 300]] And then the cost.'
         ),
     ),
     dict(
         key='02-scenario', kind='bullets', title='The Scenario',
         body=['The order worker writes each order', 'as three lines.', '', 'The shop is shut down for an', 'upgrade.', '', 'The worker is in the middle of', 'an order.', '', 'How do we stop it?'],
         narration=(
-            'Here is the scenario. The order worker writes each order as '
-            'three lines. The shop is shut down for an upgrade, and the '
-            'worker is in the middle of an order. [[slnc 300]] The '
-            'question: how do we stop it?'
+            'Here is the scenario. [[slnc 400]] The order worker writes '
+            'each order as three lines in a ledger. [[slnc 400]] The shop '
+            'is being shut down for an upgrade. [[slnc 300]] And the '
+            'worker is in the middle of an order. [[slnc 500]] So here is '
+            'the question. [[slnc 300]] How do we stop it?'
         ),
     ),
     dict(
@@ -47,21 +50,23 @@ SCENES = [
 
   left half written: true.""",
         narration=(
-            'First, pull the plug. The shop shuts down, and closes the '
-            'ledger, while order one is half written. Only line one was '
-            'written. The worker tries to write line two, and finds the '
-            'ledger closed. The order is left half written, with a line '
-            'one, and no line two or three.'
+            'First, the crude way: pull the plug. [[slnc 400]] The shop '
+            'shuts down, and closes the ledger, while order one is half '
+            'written. [[slnc 500]] Only line one was written. [[slnc '
+            '300]] The worker tries to write line two, and finds the '
+            'ledger closed. [[slnc 500]] So order one is left half '
+            'written. [[slnc 300]] A line one, with no line two or three.'
         ),
     ),
     dict(
         key='04-pattern', kind='bullets', title='The Pattern',
         body=['Phase one: ask it to stop.', '', 'It finishes what it is doing,', 'tidies up, and ends.', '', 'Phase two: wait for it to end,', 'for a limited time.', '', 'Then decide what to do if it', 'did not.'],
         narration=(
-            'The pattern. Phase one: ask the thread to stop. It finishes '
-            'what it is doing, tidies up, and ends. Phase two: wait for '
-            'it to end, for a limited time. Then decide what to do if it '
-            'did not.'
+            'Now, the pattern, in two phases. [[slnc 500]] Phase one: ask '
+            'the thread to stop. [[slnc 300]] It finishes what it is '
+            'doing, tidies up, and ends. [[slnc 500]] Phase two: wait for '
+            'it to end, for a limited time. [[slnc 300]] Then decide what '
+            'to do, if it did not.'
         ),
     ),
     dict(
@@ -74,11 +79,14 @@ SCENES = [
 
   half written: false.""",
         narration=(
-            'Second, ask it to stop, and let it finish. Stop is requested '
-            'while order one is half written, and order two is waiting. '
-            'The worker finishes order one, all three lines, and starts '
-            'nothing else. It ends. Three lines in the ledger, all of '
-            "order one's, none of order two's. Nothing is half written."
+            'Second demo: ask it to stop, and let it finish. [[slnc 400]] '
+            'The stop request arrives while order one is half written. '
+            '[[slnc 300]] And order two is waiting. [[slnc 500]] The '
+            'worker finishes order one, all three lines. [[slnc 300]] '
+            'Then it starts nothing new, and ends. [[slnc 500]] The '
+            'ledger holds three lines, all from order one. [[slnc 300]] '
+            'None from order two. [[slnc 300]] And nothing is half '
+            'written.'
         ),
     ),
     dict(
@@ -90,11 +98,13 @@ SCENES = [
   a flag and an interrupt:
   it ends.""",
         narration=(
-            'Third, a worker that is asleep. A stop request that only '
-            'sets a flag does nothing to a worker that is waiting for an '
-            'order. It is still waiting. The same request, with an '
-            'interrupt to wake it, and the worker ends. A flag is not '
-            'enough for a thread that is not looking at it.'
+            'Third demo: a worker that is asleep. [[slnc 400]] The worker '
+            'is waiting for an order to arrive. [[slnc 500]] A stop '
+            'request that only sets a flag does nothing. [[slnc 300]] The '
+            'worker is still asleep, and never looks at the flag. [[slnc '
+            '500]] The same request, plus an interrupt to wake the worker '
+            'up, and the worker ends. [[slnc 400]] A flag is not enough '
+            'for a thread that is not looking at it.'
         ),
     ),
     dict(
@@ -107,10 +117,11 @@ SCENES = [
   block: it runs however the
   worker ends.""",
         narration=(
-            'Fourth, tidy up on the way out. The worker is interrupted '
-            'while it is waiting. Did its cleanup run? Yes. The cleanup '
-            'is in a finally block, so it runs however the worker ends: '
-            'finished, interrupted, or failed.'
+            'Fourth demo: tidy up on the way out. [[slnc 400]] The worker '
+            'is interrupted while it is waiting. [[slnc 300]] Did its '
+            'cleanup run? [[slnc 300]] Yes. [[slnc 500]] The cleanup sits '
+            'in a finally block. [[slnc 300]] So it runs however the '
+            'worker ends. [[slnc 300]] Finished, interrupted, or failed.'
         ),
     ),
     dict(
@@ -125,12 +136,14 @@ SCENES = [
   there is no safe way to force
   it.""",
         narration=(
-            'Fifth, a worker that will not stop. It is stuck in something '
-            'that ignores the request. After waiting two hundred '
-            'milliseconds, it has not ended, and is still alive. That is '
-            'why phase two has a time limit. What happens next is a '
-            'decision: report it, wait longer, or restart the process. '
-            'Java gives no safe way to force a thread to stop.'
+            'Fifth demo: a worker that will not stop. [[slnc 400]] It is '
+            'stuck inside something that ignores the stop request. [[slnc '
+            '500]] After waiting two hundred milliseconds, it has not '
+            'ended. [[slnc 300]] It is still alive. [[slnc 500]] That is '
+            'why phase two has a time limit. [[slnc 300]] What happens '
+            'next is a decision. [[slnc 300]] Report it, wait longer, or '
+            'restart the whole program. [[slnc 400]] Java gives no safe '
+            'way to force a thread to stop.'
         ),
     ),
     dict(
@@ -146,74 +159,83 @@ SCENES = [
   it took as long as the order in
   progress.""",
         narration=(
-            'Last, the bill. The worker was stopped with five orders '
-            'still waiting: one finished, five pending. Those five were '
-            'accepted from customers, and have not been done. A stop '
-            'needs a policy: finish them first, hand them to another '
-            'worker, or save them. And shutting down took as long as the '
-            'order in progress. Stopping is never instant.'
+            'Finally, the cost. [[slnc 400]] The worker was stopped with '
+            'five orders still waiting. [[slnc 300]] One order was '
+            'finished, and five are still pending. [[slnc 500]] Those '
+            'five were accepted from customers, and have not been done. '
+            '[[slnc 300]] So a stop needs a policy. [[slnc 300]] Finish '
+            'them first, hand them to another worker, or save them for '
+            'later. [[slnc 500]] And shutting down took as long as the '
+            'order in progress. [[slnc 300]] Stopping is never instant.'
         ),
     ),
     dict(
         key='10-recognise', kind='bullets', title='How To Recognise It',
         body=['A volatile boolean stopRequested', 'checked at the top of a loop.', '', 'ExecutorService.shutdown()', 'followed by', '', 'Thread.interrupt() followed by', 'Thread.join(timeout).'],
         narration=(
-            'How do you recognise this in code you did not write? A '
-            'volatile boolean stopRequested checked at the top of a loop. '
-            'ExecutorService.shutdown() followed by '
-            'awaitTermination(timeout, unit). Thread.interrupt() followed '
-            'by Thread.join(timeout). Shutdown hooks and '
-            'graceful-shutdown settings in servers and frameworks.'
+            'How can you spot this in code someone else wrote? [[slnc '
+            '400]] Look for a volatile flag, like stop requested, checked '
+            "at the top of a loop. [[slnc 300]] Look for an executor's "
+            'shutdown, followed by await termination with a time limit. '
+            "[[slnc 300]] Look for a thread's interrupt, followed by join "
+            'with a time limit. [[slnc 300]] And look for graceful '
+            'shutdown settings in servers and frameworks.'
         ),
     ),
     dict(
         key='11-verdict', kind='bullets', title='The Verdict',
         body=['Stop threads in two phases: ask,', 'then wait with a limit. Let a', 'worker finish the unit of work it', 'is in, and check for the request', 'between units. Wake it if it may', 'be waiting. Put cleanup in a', 'finally block. Decide what happens', 'to the queued work, and to a', 'worker that does not end. Never'],
         narration=(
-            'Here is my verdict, plainly. Stop threads in two phases: '
-            'ask, then wait with a limit. Let a worker finish the unit of '
-            'work it is in, and check for the request between units. Wake '
-            'it if it may be waiting. Put cleanup in a finally block. '
-            'Decide what happens to the queued work, and to a worker that '
-            'does not end. Never force-stop a thread.'
+            'So, here is the verdict. [[slnc 400]] Stop threads in two '
+            'phases: ask, and then wait, with a time limit. [[slnc 500]] '
+            'Let a worker finish the piece of work it is doing. [[slnc '
+            '300]] And check for the stop request between pieces. [[slnc '
+            '300]] Wake it up, if it might be waiting. [[slnc 300]] Put '
+            'cleanup in a finally block. [[slnc 300]] Decide what happens '
+            'to the queued work, and to a worker that does not end. '
+            '[[slnc 400]] And never force a thread to stop.'
         ),
     ),
     dict(
         key='12-real', kind='bullets', title='What Is Real Here',
         body=['Everything is plain Java.', '', 'Every number quoted comes from', "this program's own output.", '', 'Nothing depends on a clock,', 'so every run is the same.'],
         narration=(
-            'The same honest admission as everywhere in this course. '
-            'Everything is plain Java. Every number quoted comes from '
-            "this program's own output. Nothing depends on a clock, so "
-            'every run is the same.'
+            'A quick, honest note about this demo. [[slnc 300]] '
+            'Everything is plain Java. [[slnc 300]] Every number you '
+            "heard comes from the program's own output. [[slnc 300]] And "
+            'nothing depends on the clock, so every run gives the same '
+            'result.'
         ),
     ),
     dict(
         key='13-too-much', kind='bullets', title='When This Is Too Much',
         body=['For a thread that holds no state', 'and whose work can be repeated,', 'stopping at once is fine, and a', 'daemon thread can simply be left.', 'The pattern matters where a stop', 'can damage something.'],
         narration=(
-            'So when is it too much? For a thread that holds no state and '
-            'whose work can be repeated, stopping at once is fine, and a '
-            'daemon thread can simply be left. The pattern matters where '
-            'a stop can damage something.'
+            'So, when is this too much? [[slnc 400]] For a thread that '
+            'holds nothing important, and whose work can simply be '
+            'repeated, stopping at once is fine. [[slnc 300]] A '
+            'background daemon thread can just be left to end with the '
+            'program. [[slnc 400]] This pattern matters wherever a sudden '
+            'stop could damage something.'
         ),
     ),
     dict(
         key='14-outro', kind='outro', title='Thanks for Watching',
         body=['Full source, notes, diagrams and an animated walkthrough', 'are in the repository. Try the exercises in', 'the session guide.'],
         narration=(
-            "That's Two-Phase Termination. [[slnc 250]] If you take one "
-            'sentence away, take this one: two-phase termination stops a '
-            'thread by asking and then waiting, and the price is that '
-            'stopping takes as long as the work in progress. [[slnc 350]] '
-            'The full source, the written notes, the diagrams and an '
-            'animated walkthrough are all in the repository, running '
-            'offline with nothing installed but a Java development kit. '
-            '[[slnc 300]] If you try one exercise, make the worker finish '
-            'its queued orders before stopping, and decide how long it '
-            'may take. [[slnc 300]] If this helped, a like genuinely does '
-            'help other people find it, and subscribe if you would like '
-            'the rest of the series. [[slnc 250]] Thanks for watching.'
+            "That's Two-Phase Termination. [[slnc 400]] If you remember "
+            'one sentence, make it this one. [[slnc 300]] Two-phase '
+            'termination stops a thread by asking, and then waiting, and '
+            'the price is that stopping takes as long as the work in '
+            'progress. [[slnc 500]] The full source code, written notes, '
+            'diagrams, and an animated walkthrough are all in the '
+            'repository. [[slnc 500]] Here is one exercise to try. [[slnc '
+            '300]] Make the worker finish all its queued orders before it '
+            'stops. [[slnc 300]] And decide how long it should be allowed '
+            'to take. [[slnc 500]] If this helped, a like really does '
+            'help other people find it. [[slnc 300]] And subscribe, if '
+            "you'd like the rest of the series. [[slnc 400]] Thanks for "
+            'watching.'
         ),
     ),
 ]

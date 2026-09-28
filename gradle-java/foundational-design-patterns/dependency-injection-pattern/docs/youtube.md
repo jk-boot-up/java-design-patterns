@@ -19,19 +19,19 @@ The first two lines are what a viewer sees above the fold, so they carry the hoo
 ```
 CHAPTERS
 00:00 Introduction
-00:55 The Argument So Far
+00:50 The Argument So Far
 01:21 The Signature Is The List
-01:52 Wired By Hand
-02:25 Three Forms
-03:06 A Container, Written Here
-03:34 The Bill: It Fails At Start-Up
-04:09 Also On The Bill
-04:33 The Progression
-04:55 The Verdict
-05:10 How To Recognise It
-05:40 What Is Real Here
-05:58 When This Is Too Much
-06:07 Thanks for Watching
+01:51 Wired By Hand
+02:26 Three Forms
+03:08 A Container, Written Here
+03:39 The Bill: It Fails At Start-Up
+04:16 Also On The Bill
+04:41 The Progression
+05:03 The Verdict
+05:21 How To Recognise It
+05:48 What Is Real Here
+06:06 When This Is Too Much
+06:15 Thanks for Watching
 
 SOURCE CODE, WRITTEN NOTES AND AN INTERACTIVE ANIMATION
 https://github.com/jk-boot-up/java-design-patterns/tree/main/gradle-java/foundational-design-patterns/dependency-injection-pattern
@@ -46,19 +46,19 @@ YouTube renders these as chapters only if there are at least three and the first
 
 ```
 00:00 Introduction
-00:55 The Argument So Far
+00:50 The Argument So Far
 01:21 The Signature Is The List
-01:52 Wired By Hand
-02:25 Three Forms
-03:06 A Container, Written Here
-03:34 The Bill: It Fails At Start-Up
-04:09 Also On The Bill
-04:33 The Progression
-04:55 The Verdict
-05:10 How To Recognise It
-05:40 What Is Real Here
-05:58 When This Is Too Much
-06:07 Thanks for Watching
+01:51 Wired By Hand
+02:26 Three Forms
+03:08 A Container, Written Here
+03:39 The Bill: It Fails At Start-Up
+04:16 Also On The Bill
+04:41 The Progression
+05:03 The Verdict
+05:21 How To Recognise It
+05:48 What Is Real Here
+06:06 When This Is Too Much
+06:15 Thanks for Watching
 ```
 
 ## Tags
@@ -97,4 +97,4 @@ Add a card partway through pointing at the playlist, so a viewer who arrives at 
 
 ## Runtime
 
-Approximately 06:46, narrated at 145 words per minute.
+Approximately 06:52, narrated at 145 words per minute.

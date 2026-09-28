@@ -19,20 +19,20 @@ The first two lines are what a viewer sees above the fold, so they carry the hoo
 ```
 CHAPTERS
 00:00 Introduction
-00:41 The Partner Project
-01:03 Before The First Annotation
-01:26 No Transaction
-01:48 One Annotation
-02:18 The Checked Exception
-02:46 rollbackFor
-03:07 A Flush Nobody Wrote
-03:37 The Annotation That Does Nothing
-04:11 Why These Surprise People
-04:28 Where You Have Met This
-04:41 What Was Used
-04:57 What Is Real Here
-05:14 When This Is Too Much
-05:24 Thanks for Watching
+00:46 The Partner Project
+01:12 Before The First Annotation
+01:35 No Transaction
+01:58 One Annotation
+02:31 The Checked Exception
+03:01 rollbackFor
+03:21 A Flush Nobody Wrote
+03:53 The Annotation That Does Nothing
+04:31 Why These Surprise People
+04:49 Where You Have Met This
+05:04 What Was Used
+05:19 What Is Real Here
+05:34 When This Is Too Much
+05:45 Thanks for Watching
 
 SOURCE CODE, WRITTEN NOTES AND AN INTERACTIVE ANIMATION
 https://github.com/jk-boot-up/java-design-patterns/tree/main/gradle-java/enterprise-design-patterns/unit-of-work-with-spring-pattern
@@ -47,20 +47,20 @@ YouTube renders these as chapters only if there are at least three and the first
 
 ```
 00:00 Introduction
-00:41 The Partner Project
-01:03 Before The First Annotation
-01:26 No Transaction
-01:48 One Annotation
-02:18 The Checked Exception
-02:46 rollbackFor
-03:07 A Flush Nobody Wrote
-03:37 The Annotation That Does Nothing
-04:11 Why These Surprise People
-04:28 Where You Have Met This
-04:41 What Was Used
-04:57 What Is Real Here
-05:14 When This Is Too Much
-05:24 Thanks for Watching
+00:46 The Partner Project
+01:12 Before The First Annotation
+01:35 No Transaction
+01:58 One Annotation
+02:31 The Checked Exception
+03:01 rollbackFor
+03:21 A Flush Nobody Wrote
+03:53 The Annotation That Does Nothing
+04:31 Why These Surprise People
+04:49 Where You Have Met This
+05:04 What Was Used
+05:19 What Is Real Here
+05:34 When This Is Too Much
+05:45 Thanks for Watching
 ```
 
 ## Tags
@@ -99,4 +99,4 @@ Add a card partway through pointing at the playlist, so a viewer who arrives at 
 
 ## Runtime
 
-Approximately 05:58, narrated at 145 words per minute.
+Approximately 06:20, narrated at 145 words per minute.

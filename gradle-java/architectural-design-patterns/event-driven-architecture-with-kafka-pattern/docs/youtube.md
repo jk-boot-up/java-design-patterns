@@ -19,21 +19,21 @@ The first two lines are what a viewer sees above the fold, so they carry the hoo
 ```
 CHAPTERS
 00:00 Introduction
-01:02 The Partner Project
-01:24 Before The First Line
-01:48 Calling And Waiting
-02:01 Telling The Log
-02:15 A Service That Is Down
-02:34 A New Reader
-02:49 Not The Same Instant
-03:08 The Bill
-03:31 The Verdict
-03:48 How To Recognise It
-04:02 Where You Have Met This
-04:11 What Was Used
-04:18 What Is Real Here
-04:33 When This Is Too Much
-04:44 Thanks for Watching
+01:03 The Partner Project
+01:33 Before The First Line
+02:09 Calling And Waiting
+02:25 Telling The Log
+02:47 A Service That Is Down
+03:13 A New Reader
+03:33 Not The Same Instant
+03:58 The Bill
+04:29 The Verdict
+04:54 How To Recognise It
+05:15 Where You Have Met This
+05:26 What Was Used
+05:35 What Is Real Here
+05:53 When This Is Too Much
+06:06 Thanks for Watching
 
 SOURCE CODE, WRITTEN NOTES AND AN INTERACTIVE ANIMATION
 https://github.com/jk-boot-up/java-design-patterns/tree/main/gradle-java/architectural-design-patterns/event-driven-architecture-with-kafka-pattern
@@ -48,21 +48,21 @@ YouTube renders these as chapters only if there are at least three and the first
 
 ```
 00:00 Introduction
-01:02 The Partner Project
-01:24 Before The First Line
-01:48 Calling And Waiting
-02:01 Telling The Log
-02:15 A Service That Is Down
-02:34 A New Reader
-02:49 Not The Same Instant
-03:08 The Bill
-03:31 The Verdict
-03:48 How To Recognise It
-04:02 Where You Have Met This
-04:11 What Was Used
-04:18 What Is Real Here
-04:33 When This Is Too Much
-04:44 Thanks for Watching
+01:03 The Partner Project
+01:33 Before The First Line
+02:09 Calling And Waiting
+02:25 Telling The Log
+02:47 A Service That Is Down
+03:13 A New Reader
+03:33 Not The Same Instant
+03:58 The Bill
+04:29 The Verdict
+04:54 How To Recognise It
+05:15 Where You Have Met This
+05:26 What Was Used
+05:35 What Is Real Here
+05:53 When This Is Too Much
+06:06 Thanks for Watching
 ```
 
 ## Tags
@@ -101,4 +101,4 @@ Add a card partway through pointing at the playlist, so a viewer who arrives at 
 
 ## Runtime
 
-Approximately 05:21, narrated at 145 words per minute.
+Approximately 06:45, narrated at 145 words per minute.

@@ -23,21 +23,24 @@ SCENES = [
         title="API Gateway",
         body=None,
         narration=(
-            "Hello, and welcome. This video explains the API Gateway pattern in "
-            "Java, and it is written and presented by Jayasekhar Konduru. "
-            "[[slnc 300]] Let's start with the simple definition. An API gateway "
-            "means putting one service in front of all the others, so that a "
-            "client makes a single call instead of five and only has to know one "
-            "address. The gateway takes that one request, asks whichever services "
-            "it needs, joins their answers together, and sends back one reply. "
-            "[[slnc 350]] That's the idea in a sentence. The rest of the video "
-            "does it properly, by building a real working Java project: the "
-            "product page of an online shop, which is made out of four different "
-            "services' worth of information. [[slnc 250]] By the end you'll know "
-            "why one call beats five even when five calls work perfectly, what a "
-            "gateway is allowed to do and the one thing it must never start "
-            "doing, and how deciding in advance which services matter is what "
-            "keeps a shop selling on the day one of them stops answering."
+            'Hello, and welcome. [[slnc 400]] This video explains the A P '
+            'I Gateway pattern, in Java. [[slnc 300]] This video is '
+            'presented by Jayasekhar Konduru. [[slnc 600]] First, a '
+            'simple definition. [[slnc 300]] An A P I gateway is one '
+            'service placed in front of all the others. [[slnc 300]] So a '
+            'client makes a single call, instead of five, and only needs '
+            'to know one address. [[slnc 300]] The gateway asks whichever '
+            'services it needs, joins their answers, and sends back one '
+            'reply. [[slnc 600]] Think of a hotel reception desk. [[slnc '
+            '300]] You do not phone housekeeping, the restaurant, and the '
+            'concierge separately. [[slnc 300]] You ring reception, and '
+            'reception deals with the rest. [[slnc 700]] In our online '
+            'store, the product page is built from four different '
+            'services. [[slnc 500]] By the end, you will know why one '
+            'call beats four, even when four calls work perfectly. [[slnc '
+            '300]] What a gateway must never start doing. [[slnc 300]] '
+            'And how deciding in advance which services matter keeps the '
+            'shop selling when one of them stops answering.'
         ),
     ),
     dict(
@@ -58,22 +61,20 @@ SCENES = [
             "It works. Every test passes.",
         ],
         narration=(
-            "So, imagine an online shop with a mobile app, and one screen in that "
-            "app: the product page for an espresso machine. [[slnc 250]] To draw "
-            "that page you need four different pieces of information, and in a "
-            "shop built out of services, they belong to four different owners. "
-            "[[slnc 300]] The name and the description come from the catalog "
-            "service. The price comes from the pricing service, because prices "
-            "change for reasons that have nothing to do with the product "
-            "description. Whether the machine is in stock comes from the inventory "
-            "service. And the row of suggestions along the bottom — customers also "
-            "bought — comes from a recommendations service. [[slnc 350]] The "
-            "obvious thing to write is an app that makes four calls and puts the "
-            "four answers together on the screen. And I want to be fair to that "
-            "design: it works. It returns the right page. Every test you would "
-            "think to write for it passes. [[slnc 300]] The trouble with it is "
-            "invisible in the code, and it only shows up in two places: the clock, "
-            "and the day something goes wrong."
+            "Here is the scenario. [[slnc 400]] The shop's mobile app has "
+            'a product page for an espresso machine. [[slnc 300]] To draw '
+            'it, the app needs four pieces of information, owned by four '
+            'services. [[slnc 500]] The name and description come from '
+            'the catalog service. [[slnc 300]] The price comes from the '
+            'pricing service. [[slnc 300]] Whether it is in stock comes '
+            'from the inventory service. [[slnc 300]] And the row of '
+            'suggestions, customers also bought, comes from a '
+            'recommendations service. [[slnc 500]] The obvious design is '
+            'an app that makes four calls, and puts the answers together. '
+            '[[slnc 300]] To be fair, it works. [[slnc 300]] It shows the '
+            'right page, and every test passes. [[slnc 500]] Its problems '
+            'only show up on the clock, and on the day something goes '
+            'wrong.'
         ),
     ),
     dict(
@@ -95,23 +96,20 @@ SCENES = [
             "and you ship a new app — and wait for people to install it.",
         ],
         narration=(
-            "Let's put numbers on it. [[slnc 250]] A round trip from a phone on a "
-            "train to a data centre and back costs somewhere around two hundred "
-            "milliseconds, and most of that is not the work — it is the distance, "
-            "the radio, and setting up a secure connection. [[slnc 300]] Four "
-            "calls, one after another, is eight hundred milliseconds of a shopper "
-            "looking at a half-drawn screen. [[slnc 300]] Second cost. Every one "
-            "of those four services has to satisfy itself that the caller is a "
-            "signed-in shopper, so the access token is checked four times for one "
-            "page. That is four copies of the same security decision, in four "
-            "codebases, which is four chances for one of them to be subtly "
-            "different from the others. [[slnc 350]] And the third cost is the one "
-            "that bites hardest later. The app knows four addresses. So when the "
-            "pricing service is split in two, or moved, or renamed, the thing that "
-            "has to change is the app on the phone — and you cannot deploy a "
-            "phone. You publish a new version and then wait months for people to "
-            "install it, while the old version keeps calling an address you wanted "
-            "to retire."
+            "Let's put numbers on it. [[slnc 400]] A round trip from a "
+            'phone on a train to a data centre takes about two hundred '
+            'milliseconds. [[slnc 300]] Most of that is distance and '
+            'radio, not work. [[slnc 500]] Four calls, one after another, '
+            'is eight hundred milliseconds. [[slnc 300]] Eight hundred '
+            'milliseconds of a shopper staring at a half-drawn screen. '
+            '[[slnc 500]] Second, each service must check that the caller '
+            'is a signed-in shopper. [[slnc 300]] So the access token is '
+            'checked four times, for one page, in four different '
+            'codebases. [[slnc 500]] Third, the app knows four addresses. '
+            '[[slnc 300]] So when a service is moved or split, the app on '
+            'the phone must change. [[slnc 300]] And you cannot simply '
+            'update a phone. [[slnc 300]] You release a new version, and '
+            'wait months for people to install it.'
         ),
     ),
     dict(
@@ -131,20 +129,19 @@ SCENES = [
 // and no line of it says which answers the page needs
 // and which it could manage without.""",
         narration=(
-            "The naive app in this project is called naive mobile app, and its "
-            "product page method is four lines of ordinary Java. [[slnc 300]] It "
-            "asks the catalog service for the product, the pricing service for the "
-            "price, the inventory service for the stock flag, and the "
-            "recommendations service for the suggestions. Then it builds one page "
-            "object out of the four answers and returns it. [[slnc 350]] Nothing "
-            "in that method is badly written. What is wrong with it is what is "
-            "missing from it. [[slnc 300]] There is no line anywhere in it that "
-            "says which of those four answers the page genuinely needs and which "
-            "it could manage without. All four are called the same way, so all "
-            "four are treated as equally important — and a method that treats them "
-            "equally will fail whenever any one of them fails. [[slnc 300]] The "
-            "suggestions row is now load-bearing. Nobody decided that. It is just "
-            "what four calls in a row in the same try block means."
+            "The naive app's product page method is four ordinary lines "
+            'of Java. [[slnc 400]] Ask catalog for the product. [[slnc '
+            '300]] Ask pricing for the price. [[slnc 300]] Ask inventory '
+            'for the stock. [[slnc 300]] Ask recommendations for the '
+            'suggestions. [[slnc 300]] Then build one page from the four '
+            'answers. [[slnc 500]] Nothing is badly written. [[slnc 300]] '
+            'What is wrong is what is missing. [[slnc 500]] There is no '
+            'line saying which answers the page truly needs, and which it '
+            'could live without. [[slnc 300]] All four are called the '
+            'same way, so all four are treated as equally important. '
+            '[[slnc 300]] So the page fails whenever any one of them '
+            'fails. [[slnc 500]] The suggestions row has become '
+            'essential, and nobody decided that.'
         ),
     ),
     dict(
@@ -167,25 +164,22 @@ SCENES = [
             "    Nobody chose that. It is what the code means.",
         ],
         narration=(
-            "Let's be precise, because it is five separate costs. [[slnc 300]] "
-            "One. The waiting adds up, and it adds up on the worst link in the "
-            "system. Calls inside a data centre cost a few milliseconds; calls "
-            "from a phone cost hundreds. Four of them is the shopper's whole "
-            "patience. [[slnc 300]] Two. The token is checked four times, in four "
-            "different codebases, for one page view. [[slnc 300]] Three. The "
-            "client is coupled to the shape of the back end. Every time the "
-            "services are reorganised, the phone app has to learn the new "
-            "arrangement, and the phone app is the slowest thing in the company to "
-            "change. [[slnc 300]] Four. Every kind of client repeats the same "
-            "work. The web site joins those four answers, the app joins them, the "
-            "in-store till joins them, and a partner's integration joins them. "
-            "Four copies of one piece of assembly logic, drifting apart. [[slnc "
-            "350]] And five, which is the expensive one. When the recommendations "
-            "service stops answering, the whole product page is lost. The name "
-            "arrived. The price arrived. The stock flag arrived. All three are "
-            "thrown away, along with the error, because a feature nobody would "
-            "miss did not answer. The shopper wanted to know what an espresso "
-            "machine costs, and now they cannot find out."
+            'So what exactly is wrong? [[slnc 300]] Five separate costs. '
+            '[[slnc 500]] One. [[slnc 200]] The waiting adds up, on the '
+            "slowest link in the system: the phone's connection. [[slnc "
+            '400]] Two. [[slnc 200]] The token is checked four times, in '
+            'four codebases, for one page. [[slnc 400]] Three. [[slnc '
+            '200]] The app is tied to the layout of the back end. [[slnc '
+            '300]] Every reorganisation means changing the phone app, the '
+            'slowest thing in the company to change. [[slnc 400]] Four. '
+            '[[slnc 200]] Every kind of client repeats the same work. '
+            '[[slnc 300]] The website, the app, and the in-store till '
+            'each join the same four answers. [[slnc 400]] And five, the '
+            'expensive one. [[slnc 300]] When the recommendations service '
+            'stops answering, the whole product page is lost. [[slnc '
+            '300]] The name, price, and stock had all arrived. [[slnc '
+            '300]] And all are thrown away, because a feature nobody '
+            'would miss did not answer.'
         ),
     ),
     dict(
@@ -204,20 +198,19 @@ SCENES = [
             "The client asks once, and asks one address.",
         ],
         narration=(
-            "The pattern is usually stated something like this. Implement a "
-            "service that is the entry point into the system from the outside "
-            "world; it handles a request by routing it to the right service, or by "
-            "joining the results of calls to several services. [[slnc 350]] In "
-            "plain words: one front door. [[slnc 300]] The client asks once, and it "
-            "asks one address. Behind that door, the gateway does whatever asking "
-            "around is necessary and comes back with one answer, already in the "
-            "shape the client wanted to display. [[slnc 300]] Notice which "
-            "problems that one sentence solves. One crossing of the slow network "
-            "instead of four. One place to check the access token. One address for "
-            "the client to know. And one place where somebody can decide what "
-            "happens when a service does not answer. [[slnc 300]] That last one is "
-            "not in the definition, and it is the half of this pattern that earns "
-            "its keep."
+            'Here is the pattern, as it is usually stated. [[slnc 400]] A '
+            'service that is the entry point into the system from the '
+            'outside world. [[slnc 300]] It sends each request to the '
+            'right service, or joins the results of several. [[slnc 500]] '
+            'In plain words: one front door. [[slnc 500]] The client asks '
+            'once, at one address. [[slnc 300]] Behind that door, the '
+            'gateway does all the asking around. [[slnc 300]] And returns '
+            'one answer, already shaped the way the client wants to show '
+            'it. [[slnc 500]] That gives you one trip across the slow '
+            'network, instead of four. [[slnc 300]] One place to check '
+            'the token. [[slnc 300]] One address for the client to know. '
+            '[[slnc 300]] And one place where someone decides what '
+            'happens when a service does not answer.'
         ),
     ),
     dict(
@@ -239,25 +232,22 @@ SCENES = [
             "The moment it does, there are two prices for one room.",
         ],
         narration=(
-            "The analogy to hold on to is a hotel reception desk. [[slnc 300]] "
-            "When you are staying in a hotel and you want fresh towels and a table "
-            "in the restaurant at eight, you do not keep a separate phone number "
-            "for housekeeping and another one for the restaurant. You ring "
-            "reception, and reception deals with whoever needs dealing with. "
-            "[[slnc 350]] Look at everything that gets you. One number to "
-            "remember. That number does not change when the hotel reorganises its "
-            "departments, because reception is the thing that absorbs the "
-            "reorganisation. Reception establishes who you are once, from your room "
-            "number, rather than every department asking you separately. And your "
-            "one request becomes several internal errands that you never see. "
-            "[[slnc 350]] Now here is the part of the analogy that matters most, "
-            "and it is about restraint. Reception does not decide the room rate. "
-            "Reception does not decide whether the kitchen can do a substitution. "
-            "The moment a receptionist starts making those decisions, the hotel has "
-            "two policies for one question, and the answer you get depends on who "
-            "you happened to ask. [[slnc 300]] Keep that sentence. We will come "
-            "back to it, because it is the single most common way this pattern is "
-            "ruined in real systems."
+            'Here is the analogy to hold on to: a hotel reception desk. '
+            '[[slnc 500]] You want fresh towels, and a table in the '
+            'restaurant at eight. [[slnc 300]] You do not phone '
+            'housekeeping and the restaurant separately. [[slnc 300]] You '
+            'ring reception, and reception handles it. [[slnc 500]] One '
+            'number to remember. [[slnc 300]] It does not change when the '
+            'hotel reorganises its departments. [[slnc 300]] Reception '
+            'checks who you are once, from your room number. [[slnc 300]] '
+            'And your one request becomes several errands you never see. '
+            '[[slnc 600]] Now the most important part of the analogy: '
+            'restraint. [[slnc 300]] Reception does not decide the room '
+            'rate. [[slnc 300]] Reception does not decide what the '
+            'kitchen can cook. [[slnc 300]] The moment reception starts '
+            'making those decisions, the hotel has two policies for one '
+            'question. [[slnc 300]] Remember that, because it is the most '
+            'common way this pattern is ruined.'
         ),
     ),
     dict(
@@ -266,26 +256,20 @@ SCENES = [
         title="The Roles",
         body=None,
         narration=(
-            "So, the pieces. [[slnc 250]] At the outside edge there is the client: "
-            "the mobile app. It makes one call, over the slow network, and it knows "
-            "one address. In the project that class is called mobile app, and it "
-            "counts its own remote calls, because the number one is the first thing "
-            "worth proving. [[slnc 300]] In the middle sits the gateway itself, the "
-            "class called product page gateway. It is the only thing in the system "
-            "that knows the product page is made of four parts. [[slnc 300]] "
-            "Behind it, on the fast internal network, are the four services: "
-            "catalog, pricing, inventory and recommendations. Each one owns its own "
-            "data and knows nothing about the page. Beside them is the "
-            "authentication service, which the gateway consults once per request. "
-            "[[slnc 350]] And there is one more piece worth naming, because it does "
-            "not look like a piece: the decision, taken in advance, that "
-            "recommendations is optional and the other three are not. That is not a "
-            "class. It is a judgement about the product, written down as the one "
-            "catch block in the gateway. [[slnc 300]] Finally, kept deliberately "
-            "beside the pattern rather than inside it, is the naive mobile app — "
-            "the version that calls all four services itself. It stays in the "
-            "project so the comparison is something you can run rather than "
-            "something I assert."
+            'So here are the pieces. [[slnc 500]] On the outside is the '
+            'client: the mobile app. [[slnc 300]] It makes one call, over '
+            'the slow network, to one address. [[slnc 500]] In the middle '
+            'is the gateway, called the product page gateway. [[slnc '
+            '300]] It is the only thing that knows the page is built from '
+            'four parts. [[slnc 500]] Behind it, on the fast internal '
+            'network, are the four services: catalog, pricing, inventory, '
+            'and recommendations. [[slnc 300]] Each owns its own data, '
+            'and knows nothing about the page. [[slnc 300]] Beside them '
+            'is the sign-in service, which the gateway asks once per '
+            'request. [[slnc 500]] And one more piece, which does not '
+            'look like a piece. [[slnc 300]] The decision, made in '
+            'advance, that recommendations is optional, and the other '
+            'three are not.'
         ),
     ),
     dict(
@@ -313,30 +297,25 @@ private List<String> recommendationsOrNone(String sku) {
     }
 }""",
         narration=(
-            "The gateway class is short, and it does four things. [[slnc 300]] "
-            "First, it checks the access token once, at the edge, and gets back a "
-            "customer. Nothing behind it has to ask again. [[slnc 300]] Second, it "
-            "calls the services it needs — but over the internal network, where a "
-            "call costs about ten milliseconds rather than two hundred. [[slnc "
-            "300]] Third, it returns a single object shaped the way the page wants "
-            "to be drawn, so the app never learns four response formats. [[slnc "
-            "350]] And fourth is the interesting one. There is exactly one try and "
-            "catch in this class, and it is wrapped around exactly one call: the "
-            "recommendations call. If that service does not answer, the catch block "
-            "writes a line into the timeline saying the page is being served "
-            "degraded, and returns an empty list of suggestions. [[slnc 300]] Now "
-            "ask why that catch is not around all four calls, because the answer is "
-            "the whole pattern. Losing the suggestions costs the shopper nothing. "
-            "Losing the price would mean showing a product page with no price on "
-            "it, which is worse than showing an honest error — so a pricing failure "
-            "is allowed to travel all the way out to the client. [[slnc 350]] And "
-            "then the restraint. This class does not price anything. It does not "
-            "apply a discount, it does not decide whether a product may be sold, it "
-            "does not adjust anything it is given. It joins and it forwards. A "
-            "gateway that starts making business decisions is a service that owns "
-            "no data and makes decisions about everybody else's, and it quietly "
-            "becomes the hardest thing in the system to change. That is the "
-            "receptionist deciding the room rate."
+            'The gateway class is short, and it does four things. [[slnc '
+            '500]] First, it checks the access token once, at the front '
+            'door. [[slnc 300]] Nothing behind it needs to ask again. '
+            '[[slnc 400]] Second, it calls the services it needs, over '
+            'the fast internal network. [[slnc 300]] About ten '
+            'milliseconds each, instead of two hundred. [[slnc 400]] '
+            'Third, it returns one object, shaped exactly as the page '
+            'wants it. [[slnc 400]] Fourth, and most interesting, there '
+            'is exactly one try and catch in the class. [[slnc 300]] It '
+            'is wrapped around one call only: recommendations. [[slnc '
+            '300]] If that service does not answer, the page is served '
+            'without suggestions. [[slnc 600]] Why not wrap all four '
+            'calls? [[slnc 300]] Because losing the suggestions costs the '
+            'shopper nothing. [[slnc 300]] But losing the price would '
+            'mean a product page with no price. [[slnc 300]] That is '
+            'worse than an honest error. [[slnc 600]] And notice the '
+            'restraint. [[slnc 300]] The gateway does not change prices, '
+            'apply discounts, or decide what may be sold. [[slnc 300]] It '
+            'only joins, and forwards.'
         ),
     ),
     dict(
@@ -361,26 +340,23 @@ private List<String> recommendationsOrNone(String sku) {
     140ms ->   140ms  Gateway          DEGRADED  page served without suggestions
   page: Barista Pro Espresso Machine  £449.99  in stock  0 suggestions""",
         narration=(
-            "Now the same outage, twice, as a timeline — because with these "
-            "patterns the answer alone tells you nothing, and the order of events "
-            "tells you everything. [[slnc 350]] Without a gateway. At zero "
-            "milliseconds the app asks the catalog service, and two hundred "
-            "milliseconds later the name arrives. Then the price, at four hundred. "
-            "Then the stock flag, at six hundred. Then, at eight hundred "
-            "milliseconds, the recommendations service fails to answer, and the "
-            "exception comes out of the method. [[slnc 300]] Everything that "
-            "arrived is discarded with it. Three correct answers, thrown away "
-            "because the fourth was missing, and eight hundred milliseconds spent "
-            "to end up with nothing. [[slnc 350]] With a gateway. The token is "
-            "checked once, at a hundred milliseconds. The catalog answers at a "
-            "hundred and ten, pricing at a hundred and twenty, inventory at a "
-            "hundred and thirty — those are internal calls, so they are cheap. At a "
-            "hundred and forty the recommendations service fails, exactly as "
-            "before. [[slnc 300]] And the next line in the timeline is the gateway "
-            "writing the word degraded, and serving the page anyway. The shopper "
-            "gets the name, the price, the stock and no suggestions, in two hundred "
-            "and forty milliseconds. [[slnc 300]] Nobody tells them anything is "
-            "wrong, because from where they are standing, nothing is."
+            'Now the same outage, twice, as a timeline. [[slnc 500]] '
+            'Without a gateway. [[slnc 300]] The name arrives at two '
+            'hundred milliseconds. [[slnc 300]] The price at four '
+            'hundred. [[slnc 300]] The stock at six hundred. [[slnc 300]] '
+            'Then, at eight hundred, the recommendations service fails to '
+            'answer. [[slnc 500]] Everything that arrived is thrown away. '
+            '[[slnc 300]] Three correct answers lost, because the fourth '
+            'was missing. [[slnc 300]] Eight hundred milliseconds, to end '
+            'up with nothing. [[slnc 600]] With a gateway. [[slnc 300]] '
+            'The token is checked at one hundred milliseconds. [[slnc '
+            '300]] Catalog, pricing, and inventory answer quickly, over '
+            'the internal network. [[slnc 300]] At one hundred and forty, '
+            'recommendations fails, just as before. [[slnc 500]] And the '
+            'gateway serves the page anyway. [[slnc 300]] Name, price, '
+            'and stock, with no suggestions, in two hundred and forty '
+            "milliseconds. [[slnc 300]] From the shopper's point of view, "
+            'nothing is wrong.'
         ),
     ),
     dict(
@@ -408,25 +384,19 @@ private List<String> recommendationsOrNone(String sku) {
     assertThrows(ServiceUnavailableException.class,
             () -> naiveApp.productPage(SKU));        // pinned on purpose""",
         narration=(
-            "Twenty five tests, and the choice of what they assert is the point. "
-            "[[slnc 300]] No test in this project asserts that the product page is "
-            "correct. Both versions return the same page, so a test like that would "
-            "pass on the naive version too, and prove nothing. [[slnc 350]] Every "
-            "test asserts something only the gateway gives you. That the phone "
-            "makes one remote call, where the naive app makes four. That the token "
-            "is checked once, where the naive app checks it four times. That the "
-            "page arrives in two hundred and forty milliseconds of simulated time "
-            "against eight hundred — and because the clock is simulated, that is an "
-            "exact number rather than a measurement that varies with the machine. "
-            "[[slnc 350]] There is one test whose only job is to stop a future "
-            "change. It asserts that the price on the page is the pricing service's "
-            "answer, unmodified. The day somebody adds a discount inside the "
-            "gateway, that test goes red and asks them to put it somewhere that "
-            "owns pricing. [[slnc 300]] And one test asserts a failure, on purpose: "
-            "the naive app losing the whole page when the suggestions service is "
-            "down. It passes. Being broken is that class's entire job, and the cost "
-            "of its design should be something the build states out loud rather "
-            "than something a README claims."
+            'The project has twenty-five tests. [[slnc 300]] And what '
+            'they check is the point. [[slnc 500]] No test checks that '
+            'the product page is correct. [[slnc 300]] Both versions '
+            'build the same page, so that would prove nothing. [[slnc '
+            '500]] Instead, every test checks something only the gateway '
+            'gives you. [[slnc 300]] The phone makes one call, not four. '
+            '[[slnc 300]] The token is checked once, not four times. '
+            '[[slnc 300]] The page arrives in two hundred and forty '
+            'milliseconds, instead of eight hundred. [[slnc 500]] One '
+            'test exists only to block a future mistake. [[slnc 300]] It '
+            'checks that the price on the page is exactly the pricing '
+            "service's answer, unchanged. [[slnc 300]] The day someone "
+            'adds a discount inside the gateway, that test fails.'
         ),
     ),
     dict(
@@ -453,27 +423,25 @@ private List<String> recommendationsOrNone(String sku) {
   no page: Catalog did not answer
   the shopper is told, in 110ms, that the page cannot be shown.""",
         narration=(
-            "Running the project gives five acts. [[slnc 250]] Act one: no "
-            "gateway. Four round trips, four token checks, eight hundred "
-            "milliseconds. [[slnc 250]] Act two: with a gateway. One round trip, "
-            "one token check, two hundred and forty milliseconds, and the same "
-            "page. [[slnc 300]] Act three and act four are the outage we just "
-            "walked through: the whole page lost without a gateway, and the page "
-            "served minus one row with it. [[slnc 350]] Act five is the one I would "
-            "most like you to remember, because it is the half everybody quotes "
-            "wrongly. This time the catalog service is down — the service that "
-            "knows the product's own name — and the gateway does not degrade. It "
-            "refuses. The shopper is told, in a hundred and ten milliseconds, that "
-            "the page cannot be shown right now. [[slnc 300]] That is correct "
-            "behaviour, and it is important. A product page with no product on it "
-            "is not a degraded page, it is a blank one, and pretending otherwise "
-            "means shipping a screen that looks broken rather than an honest "
-            "message. [[slnc 300]] So a gateway is not a machine for making "
-            "failures disappear. It is the place where somebody has decided, one "
-            "service at a time, whether losing that service costs a section of the "
-            "page or the page itself. Recommendations costs a section. The name "
-            "costs the page. Making those calls is real product work, and the "
-            "pattern's value is that it gives that work somewhere to live."
+            "Let's run the demo, which has five parts. [[slnc 500]] Part "
+            'one: no gateway. [[slnc 300]] Four round trips, four token '
+            'checks, and eight hundred milliseconds. [[slnc 400]] Part '
+            'two: with a gateway. [[slnc 300]] One round trip, one token '
+            'check, two hundred and forty milliseconds, and the same '
+            'page. [[slnc 400]] Parts three and four are the outage we '
+            'just heard. [[slnc 300]] The whole page lost without a '
+            'gateway, and the page served minus one row with it. [[slnc '
+            '600]] Part five is the one most people get wrong. [[slnc '
+            '300]] This time, the catalog service is down. [[slnc 300]] '
+            "That is the service that knows the product's name. [[slnc "
+            '300]] And the gateway does not carry on. [[slnc 300]] It '
+            'refuses, and tells the shopper the page cannot be shown '
+            'right now. [[slnc 500]] That is correct. [[slnc 300]] A '
+            'product page with no product on it is not a partial page. '
+            '[[slnc 300]] It is a blank one. [[slnc 500]] A gateway is '
+            'not a machine for hiding failures. [[slnc 300]] It is where '
+            'someone has decided, service by service, what each failure '
+            'costs.'
         ),
     ),
     dict(
@@ -492,22 +460,19 @@ private List<String> recommendationsOrNone(String sku) {
             "when the app and the till want different pages.",
         ],
         narration=(
-            "So, what to take away. [[slnc 300]] An API gateway is one front door. "
-            "It buys you one network crossing instead of many, one place to check "
-            "the token, one address for the client to know, and — most valuable of "
-            "all — one place where the question of what to do when a service does "
-            "not answer has an owner. [[slnc 350]] On the comparison people always "
-            "ask about: how is this different from the facade pattern? The shapes "
-            "are the same. Facade puts one simple door in front of many classes, "
-            "inside one program. A gateway puts one door in front of many "
-            "services, across a network that loses messages and goes slow and "
-            "falls over. The structure is borrowed; what is new is that every call "
-            "behind the door can fail on its own, which is why the interesting code "
-            "in a gateway is about which failures matter. [[slnc 350]] One "
-            "variation worth knowing by name: backends for frontends. If the phone "
-            "app and the in-store till want genuinely different pages, you give "
-            "each of them its own gateway instead of building one gateway with a "
-            "flag in it. Same pattern, one per kind of client."
+            'So, what should you remember? [[slnc 400]] An A P I gateway '
+            'is one front door. [[slnc 300]] One trip across the network, '
+            'one token check, one address, and one place that owns the '
+            'decision about failures. [[slnc 600]] People often ask how '
+            'this differs from the Facade pattern. [[slnc 300]] The shape '
+            'is the same. [[slnc 300]] A facade is one door in front of '
+            'many classes, inside one program. [[slnc 300]] A gateway is '
+            'one door in front of many services, across a network that '
+            'can be slow, and can fail. [[slnc 600]] One variation worth '
+            'knowing: Backends for Frontends. [[slnc 300]] If the phone '
+            'app and the in-store till want very different pages, give '
+            'each its own gateway. [[slnc 300]] The same pattern, one '
+            'gateway per kind of client.'
         ),
     ),
     # The costs are a scene of their own rather than the tail of the summary.
@@ -532,23 +497,20 @@ private List<String> recommendationsOrNone(String sku) {
             "services, a fast connection — three calls is fine.",
         ],
         narration=(
-            "Now the honest bill, because every pattern has one. [[slnc 300]] A "
-            "gateway is one more service to deploy, monitor, scale and wake "
-            "somebody up for at three in the morning. [[slnc 300]] Every single "
-            "request goes through it, so it has to be simple and it has to be "
-            "boring. If it gets slow, everything is slow — there is no part of the "
-            "shop that routes around it. [[slnc 350]] And the worst outcome, which "
-            "is also the most common one, is the gateway that gradually fills up "
-            "with business rules. A discount here, a special case there, a little "
-            "bit of tax logic because it was convenient — until it is a bottleneck "
-            "that owns no data and that nobody dares to change. [[slnc 300]] Keep "
-            "it joining and forwarding. That is the whole discipline. [[slnc 350]] "
-            "And one last thing, which is knowing when not to. If the shop has one "
-            "client and three services, you may not need this yet. Three calls from "
-            "a web page on a fast connection is fine. [[slnc 300]] Reach for a "
-            "gateway when the clients multiply, when the network is the slow part, "
-            "or when you notice that nobody in the room can say what happens to the "
-            "product page if one service goes down."
+            'Now the honest costs. [[slnc 500]] A gateway is one more '
+            'service to run, watch, and scale. [[slnc 400]] Every request '
+            'goes through it. [[slnc 300]] So if it is slow, the whole '
+            'shop is slow. [[slnc 500]] And the worst outcome, which is '
+            'also the most common, is a gateway that slowly fills with '
+            'business rules. [[slnc 300]] A discount here, a special case '
+            'there. [[slnc 300]] Until it is a bottleneck that owns no '
+            'data, and that nobody dares to change. [[slnc 300]] Keep it '
+            'to joining, and forwarding. [[slnc 600]] And know when you '
+            'do not need one. [[slnc 300]] One client and three services, '
+            'on a fast connection, may be fine without it. [[slnc 300]] '
+            'Reach for a gateway when the clients multiply, when the '
+            'network is the slow part. [[slnc 300]] Or when nobody can '
+            'say what happens to a page if one service goes down.'
         ),
     ),
     dict(
@@ -562,20 +524,22 @@ private List<String> recommendationsOrNone(String sku) {
             "turns an honest error into a page with no price on it.",
         ],
         narration=(
-            "That's the API gateway pattern. [[slnc 250]] The full source, the "
-            "written notes, the diagrams and an animated walkthrough are all in the "
-            "repository, and everything runs offline with nothing installed but a "
-            "Java development kit — no Docker, no Spring, no message broker. "
-            "[[slnc 300]] If you try one exercise, try this one. Move the try and "
-            "catch in the gateway so that it wraps all four calls instead of one, "
-            "run the tests, and then look at what the product page now shows when "
-            "the pricing service is down. You will have turned an honest error into "
-            "a page with no price on it, and no test will have complained until you "
-            "look. [[slnc 300]] It takes two minutes, and it is the moment that "
-            "choosing which failures matter stops being advice and becomes code. "
-            "[[slnc 300]] If this helped, a like genuinely does help other people "
-            "find it, and subscribe if you would like the rest of the series. "
-            "[[slnc 250]] Thanks for watching, and I'll see you in the next one."
+            "That's the A P I Gateway pattern. [[slnc 400]] If you "
+            'remember one sentence, make it this one. [[slnc 300]] A '
+            'gateway is one front door that joins and forwards, and the '
+            'place where someone decides which failures cost a section, '
+            'and which cost the page. [[slnc 500]] The full source code, '
+            'written notes, diagrams, and an animated walkthrough are all '
+            'in the repository. [[slnc 300]] It runs offline, with '
+            'nothing installed except a Java development kit. [[slnc '
+            '500]] Here is one exercise to try. [[slnc 300]] Move the try '
+            'and catch in the gateway so it wraps all four calls. [[slnc '
+            '300]] Then stop the pricing service, and look at the page. '
+            '[[slnc 300]] You will have turned an honest error into a '
+            'page with no price on it. [[slnc 500]] If this helped, a '
+            'like really does help other people find it. [[slnc 300]] And '
+            "subscribe, if you'd like the rest of the series. [[slnc "
+            '400]] Thanks for watching.'
         ),
     ),
 ]

@@ -6,43 +6,6 @@ question through a visitor.
 
 ![Sequence diagram](images/uml-diagram.png)
 
-```mermaid
-sequenceDiagram
-    autonumber
-    actor Shipping
-    participant NKits as NaiveCategory "Kits"
-    participant NKit as NaiveBundle "Starter Kit"
-    participant Kits as Category "Kits"
-    participant Kit as Bundle "Starter Kit"
-    participant Audit as ComplianceAuditVisitor
-
-    rect rgb(255, 232, 232)
-    note over Shipping, NKit: the naive design — the report is a method on the node
-    Shipping->>NKits: auditInto(findings, "Electronics")
-    NKits->>NKit: auditInto(findings, "Electronics/Kits")
-    NKit->>NKit: if (restriction.isRestricted())
-    note right of NKit: the field was copied from NaiveProduct<br/>and is never set — so, no
-    NKit-->>NKits: nothing added
-    NKits-->>Shipping: 2 findings, kit not among them
-    end
-
-    rect rgb(232, 245, 233)
-    note over Shipping, Audit: the pattern — the report is a visitor
-    Shipping->>Kits: accept(audit)
-    Kits->>Audit: visit(Category)
-    Audit->>Audit: path.push("Kits")
-    Kits->>Kit: accept(audit)
-    Kit->>Audit: visit(Bundle)
-    note right of Audit: a different method from visit(Product),<br/>so a different rule can live in it
-    Audit->>Kit: contents()
-    Kit-->>Audit: [Phone, Case, Spare Battery Pack]
-    Audit->>Audit: record — lithium cell, from the box
-    Kits->>Audit: leave(Category)
-    Audit->>Audit: path.pop()
-    Audit-->>Shipping: 3 findings, clearForAir() == false
-    end
-```
-
 ## Reading It
 
 **The red block** is four calls, all of them correct. `NaiveCategory` loops
@@ -66,19 +29,7 @@ when it leaves.
 
 The mechanism, with nothing else in the picture:
 
-```mermaid
-sequenceDiagram
-    participant Client
-    participant Node as Product (as CatalogComponent)
-    participant Visitor as CsvExportVisitor
-
-    Client->>Node: accept(visitor)
-    note right of Client: the client knows neither<br/>the node type nor the report
-    Node->>Visitor: visit(this)
-    note right of Node: inside Product.java, `this` is a Product,<br/>so the compiler picks visit(Product)
-    Visitor-->>Node: (returns)
-    Node-->>Client: (returns)
-```
+![Uml diagram 2](images/uml-diagram-2.png)
 
 ![Double dispatch](images/double-dispatch.png)
 
@@ -96,19 +47,7 @@ never writes a type test.
 
 Where the visitor is taken, once, per report:
 
-```mermaid
-flowchart TD
-    A[accept on the root] --> B{node type?}
-    B -- Product --> P[visit&#40;Product&#41;]
-    B -- Bundle --> U[visit&#40;Bundle&#41;]
-    B -- Category --> C[visit&#40;Category&#41;]
-    C --> D[each child, in order]
-    D --> B
-    D --> L[leave&#40;Category&#41;]
-    P --> E[next node]
-    U --> E
-    L --> E
-```
+![Uml diagram 3](images/uml-diagram-3.png)
 
 ![The walk](images/walk-flow.png)
 

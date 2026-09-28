@@ -20,41 +20,6 @@ extra steps, and it fails in exactly the same way, just later and more confusing
 
 ![Service discovery data flow diagram](images/data-flow-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-flowchart TD
-    Start(["a caller needs the price of SKU-1234"])
-    Look["ask the registry — instances('Pricing')"]
-    Sweep{"any lease older<br/>than 3000ms?"}
-    Drop["EXPIRED — drop it from the list"]
-    List["a list of addresses, in registration order<br/>pricing-1, pricing-2, pricing-3"]
-    Empty{"is the list empty?"}
-    NoOne["ServiceUnavailableException<br/>'no Pricing instance is registered'<br/>an honest failure, not a hang"]
-    Try["take the next address and call it<br/>price('SKU-1234') — 10ms"]
-    Ans{"did it answer?"}
-    Stale["STALE — log it, and go on to the next<br/>the list was wrong, the caller is not stuck"]
-    More{"any addresses left?"}
-    Done(["£449.99 — and the caller never learned<br/>which machine produced it"])
-
-    Start --> Look --> Sweep
-    Sweep -- "yes" --> Drop --> List
-    Sweep -- "no" --> List
-    List --> Empty
-    Empty -- "yes" --> NoOne
-    Empty -- "no" --> Try --> Ans
-    Ans -- "yes" --> Done
-    Ans -- "no — crashed, still listed" --> Stale --> More
-    More -- "yes" --> Try
-    More -- "no" --> NoOne
-
-    Heart["every live instance<br/>heartbeat(id) on its own schedule"]
-    Heart -. "the only thing keeping a lease fresh" .-> Sweep
-```
-
-</details>
-
 ## What the picture is telling you
 
 **The lookup is at the top of every call, not at the top of the program.** That is the

@@ -6,23 +6,4 @@ Say it in words. The page asks for the orders, and Hibernate loads them, leaving
 
 ![Lazy Load with Hibernate pattern sequence diagram](images/sequence-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant Page
-    participant S as Session
-    participant P as Customer proxy
-    Page->>S: load the orders
-    S-->>Page: orders, customers are proxies
-    Page->>S: close
-    Page->>P: name()
-    P->>S: I need to select the customer
-    S-->>Page: LazyInitializationException, no session
-```
-
-</details>
-
 The load-bearing sentence: **the exception comes from where it was used, not from where it was loaded.**

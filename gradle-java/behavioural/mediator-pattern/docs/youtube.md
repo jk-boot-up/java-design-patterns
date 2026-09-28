@@ -19,19 +19,19 @@ The first two lines are what a viewer sees above the fold, so they carry the hoo
 ```
 CHAPTERS
 00:00 Introduction
-00:52 The Scenario
-01:38 Look Closely at One Click
-02:23 The Naive Approach — Everyone Wires Everyone
-03:13 Why That Hurts
-04:10 The Mediator Pattern
-04:52 An Analogy
-05:41 The Roles
-06:34 The Colleague — Notice What Is Missing
-07:18 The Mediator — The Whole Page, in One Method
-08:09 The Tests — Asserting the Structure, Not Just the Behaviour
-09:03 Running It
-09:48 What to Remember
-11:23 Thanks for Watching
+00:56 The Scenario
+01:39 Look Closely at One Click
+02:20 The Naive Approach — Everyone Wires Everyone
+03:06 Why That Hurts
+03:44 The Mediator Pattern
+04:18 An Analogy
+04:58 The Roles
+05:38 The Colleague — Notice What Is Missing
+06:12 The Mediator — The Whole Page, in One Method
+07:02 The Tests — Asserting the Structure, Not Just the Behaviour
+07:48 Running It
+08:27 What to Remember
+09:32 Thanks for Watching
 
 SOURCE CODE, WRITTEN NOTES AND AN INTERACTIVE ANIMATION
 https://github.com/jk-boot-up/java-design-patterns/tree/main/gradle-java/behavioural/mediator-pattern
@@ -46,19 +46,19 @@ YouTube renders these as chapters only if there are at least three and the first
 
 ```
 00:00 Introduction
-00:52 The Scenario
-01:38 Look Closely at One Click
-02:23 The Naive Approach — Everyone Wires Everyone
-03:13 Why That Hurts
-04:10 The Mediator Pattern
-04:52 An Analogy
-05:41 The Roles
-06:34 The Colleague — Notice What Is Missing
-07:18 The Mediator — The Whole Page, in One Method
-08:09 The Tests — Asserting the Structure, Not Just the Behaviour
-09:03 Running It
-09:48 What to Remember
-11:23 Thanks for Watching
+00:56 The Scenario
+01:39 Look Closely at One Click
+02:20 The Naive Approach — Everyone Wires Everyone
+03:06 Why That Hurts
+03:44 The Mediator Pattern
+04:18 An Analogy
+04:58 The Roles
+05:38 The Colleague — Notice What Is Missing
+06:12 The Mediator — The Whole Page, in One Method
+07:02 The Tests — Asserting the Structure, Not Just the Behaviour
+07:48 Running It
+08:27 What to Remember
+09:32 Thanks for Watching
 ```
 
 ## Tags
@@ -97,4 +97,4 @@ Add a card partway through pointing at the playlist, so a viewer who arrives at 
 
 ## Runtime
 
-Approximately 12:00, narrated at 145 words per minute.
+Approximately 10:09, narrated at 145 words per minute.

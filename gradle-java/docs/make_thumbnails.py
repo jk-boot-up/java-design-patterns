@@ -522,6 +522,9 @@ META = {
     "transactional-outbox-with-debezium": (['TRANSACTIONAL OUTBOX', 'WITH DEBEZIUM'],
                   'The outbox row was deleted. The event still went out',
                   'outbox rows: 0, events: 3'),
+    "externalised-configuration-with-spring-cloud-config": (['EXTERNAL CONFIG', 'SPRING CLOUD CONFIG'],
+                  'One refresh. Two prices',
+                  '@RefreshScope: 35, banner: 50'),
 }
 
 GROUP = {
@@ -743,6 +746,8 @@ GROUP["database-per-service-with-containers"] = "micro-services-design-patterns"
 GROUP["leader-election-with-kubernetes"] = "micro-services-design-patterns"
 
 GROUP["transactional-outbox-with-debezium"] = "micro-services-design-patterns"
+
+GROUP["externalised-configuration-with-spring-cloud-config"] = "platform-design-patterns"
 
 GROUP.update({slug: "creational" for slug in (
     "singleton-with-spring",

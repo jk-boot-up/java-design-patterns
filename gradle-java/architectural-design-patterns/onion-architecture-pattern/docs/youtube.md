@@ -19,19 +19,19 @@ The first two lines are what a viewer sees above the fold, so they carry the hoo
 ```
 CHAPTERS
 00:00 Introduction
-00:55 The Scenario
-01:13 The Core Reaches Outward
-01:24 The Pattern
-01:36 Rings, And One Rule
-02:01 Checking The Rule
-02:20 Swap The Outside
-02:39 The Inside, On Its Own
-02:58 The Bill
-03:24 How To Recognise It
-03:48 The Verdict
-04:09 What Is Real Here
-04:22 When This Is Too Much
-04:34 Thanks for Watching
+00:57 The Scenario
+01:16 The Core Reaches Outward
+01:32 The Pattern
+01:48 Rings, And One Rule
+02:15 Checking The Rule
+02:36 Swap The Outside
+03:02 The Inside, On Its Own
+03:28 The Bill
+03:58 How To Recognise It
+04:26 The Verdict
+04:47 What Is Real Here
+05:01 When This Is Too Much
+05:15 Thanks for Watching
 
 SOURCE CODE, WRITTEN NOTES AND AN INTERACTIVE ANIMATION
 https://github.com/jk-boot-up/java-design-patterns/tree/main/gradle-java/architectural-design-patterns/onion-architecture-pattern
@@ -46,19 +46,19 @@ YouTube renders these as chapters only if there are at least three and the first
 
 ```
 00:00 Introduction
-00:55 The Scenario
-01:13 The Core Reaches Outward
-01:24 The Pattern
-01:36 Rings, And One Rule
-02:01 Checking The Rule
-02:20 Swap The Outside
-02:39 The Inside, On Its Own
-02:58 The Bill
-03:24 How To Recognise It
-03:48 The Verdict
-04:09 What Is Real Here
-04:22 When This Is Too Much
-04:34 Thanks for Watching
+00:57 The Scenario
+01:16 The Core Reaches Outward
+01:32 The Pattern
+01:48 Rings, And One Rule
+02:15 Checking The Rule
+02:36 Swap The Outside
+03:02 The Inside, On Its Own
+03:28 The Bill
+03:58 How To Recognise It
+04:26 The Verdict
+04:47 What Is Real Here
+05:01 When This Is Too Much
+05:15 Thanks for Watching
 ```
 
 ## Tags
@@ -97,4 +97,4 @@ Add a card partway through pointing at the playlist, so a viewer who arrives at 
 
 ## Runtime
 
-Approximately 05:16, narrated at 145 words per minute.
+Approximately 05:57, narrated at 145 words per minute.

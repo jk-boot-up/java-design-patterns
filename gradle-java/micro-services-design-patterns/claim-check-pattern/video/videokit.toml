@@ -1,0 +1,6 @@
+# Voice for this video (AUDIO-VIDEO-SPEC.md): Kokoro, open source (Apache 2.0),
+# US female, a touch slower than normal for teaching.
+[voice]
+engine = "kokoro"
+voice = "af_bella"
+speed = 0.9

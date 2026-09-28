@@ -24,51 +24,6 @@ drawn.
 
 ![Service discovery architecture diagram](images/architecture-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-flowchart TB
-    subgraph W["what the program is a model of"]
-        direction TB
-        Client["the caller — a checkout, a gateway, anything<br/>knows the registry, knows no address"]
-        Reg["the service registry<br/>a list with a 3 second lease on every entry"]
-        subgraph Cluster["the Pricing service — three copies, and the set changes"]
-            direction LR
-            P1["pricing-1<br/>10.0.1.145:8081<br/>CRASHED, still listed"]
-            P2["pricing-2<br/>10.0.1.146:8082"]
-            P3["pricing-3<br/>10.0.1.147:8083"]
-            P4["pricing-4<br/>10.0.1.148:8084<br/>started on Black Friday morning"]
-        end
-        Client -- "lookup, before every call" --> Reg
-        Reg -- "a list of addresses, possibly wrong" --> Client
-        Client -- "try the first, then the next" --> P2
-        P1 -. "registered, then stopped heartbeating" .-> Reg
-        P2 -. "heartbeat" .-> Reg
-        P3 -. "heartbeat" .-> Reg
-        P4 -. "register on start, deregister on a clean stop" .-> Reg
-    end
-
-    subgraph J["what actually runs — one JVM, JDK 21, no network, nothing installed"]
-        direction LR
-        Demo["ServiceDiscoveryDemo<br/>the four acts"]
-        DC["DiscoveringPricingClient<br/>looks up, then works down the list"]
-        HC["HardcodedPricingClient<br/>the comparison — one address, a constant"]
-        SR["ServiceRegistry<br/>LinkedHashMap of leases<br/>LEASE_MILLIS = 3000"]
-        PC["PricingCluster<br/>the instances, and which are alive"]
-        RC["RemoteCall<br/>advances a clock, logs, answers or throws"]
-        Clock["SimulatedClock<br/>how the lease is made to expire"]
-        Demo --> DC --> SR
-        Demo --> HC
-        DC --> PC --> RC --> Clock
-        SR --> Clock
-    end
-
-    W -. "no Consul, no Eureka, no etcd, no DNS — a map and a clock" .-> J
-```
-
-</details>
-
 ## What the diagram is telling you to count
 
 **One arrow leaves the caller, and it goes to the registry.** Not to Pricing. The caller

@@ -6,22 +6,4 @@ Say it in words. The client sends a request to the gateway with a token. The tok
 
 ![API Gateway with Spring Cloud Gateway pattern sequence diagram](images/sequence-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant C as client
-    participant G as gateway
-    participant P as pricing service
-    C->>G: GET /api/pricing/products/MUG-BLUE, with a token
-    G->>G: token check, match route, strip prefix
-    G->>P: GET /products/MUG-BLUE, X-Request-Source: gateway
-    P-->>G: 200
-    G-->>C: 200
-```
-
-</details>
-
 The load-bearing sentence: **the gateway forwards one request for each client request.**

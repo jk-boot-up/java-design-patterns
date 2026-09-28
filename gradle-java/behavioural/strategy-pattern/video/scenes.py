@@ -17,20 +17,22 @@ SCENES = [
         title="The Strategy Pattern",
         body=None,
         narration=(
-            "Hello, and welcome. This video explains the Strategy pattern in "
-            "Java, and it is written and presented by Jayasekhar Konduru. [[slnc "
-            "300]] Let's start with the simple definition. The strategy pattern "
-            "turns each branch of a decision into a class of its own, behind one "
-            "shared interface. The code that needs the work done holds a strategy "
-            "and calls it, without knowing or caring which one it is holding — so "
-            "a new branch is a new class rather than a new case in a switch. "
-            "[[slnc 350]] That's the idea in a sentence, and it is how you get "
-            "rid of the big switch statement where every branch does a completely "
-            "different calculation. The rest of the video does it properly, by "
-            "building a real working Java project: delivery pricing at an online "
-            "checkout, with four different shipping rules. [[slnc 250]] By the "
-            "end you'll know how to add a fifth rule without editing a single "
-            "line of code that already works."
+            'Hello, and welcome. [[slnc 400]] This video explains the '
+            'Strategy pattern, in Java. [[slnc 300]] This video is '
+            'presented by Jayasekhar Konduru. [[slnc 600]] First, a '
+            'simple definition. [[slnc 300]] The Strategy pattern turns '
+            'each branch of a decision into its own class, behind one '
+            'shared interface. [[slnc 400]] The code that needs the work '
+            'done holds a strategy, and calls it. [[slnc 300]] It does '
+            'not know, or care, which strategy it holds. [[slnc 300]] So '
+            'a new option is a new class, not a new case in a switch '
+            'statement. [[slnc 600]] Think of getting across town. [[slnc '
+            '300]] You can walk, take the bus, or call a taxi. [[slnc '
+            '300]] You choose once, and then just go. [[slnc 700]] In '
+            'this video, we price delivery at an online checkout, using '
+            'four different shipping rules. [[slnc 500]] By the end, you '
+            'will know how to add a fifth rule without editing a single '
+            'line of code that already works.'
         ),
     ),
     dict(
@@ -48,15 +50,17 @@ SCENES = [
             "  free over £50      nothing to pay on a large enough order",
         ],
         narration=(
-            "So, imagine delivery pricing for an online store. [[slnc 250]] At "
-            "checkout, the shop has to quote a delivery charge — and the rule it "
-            "charges by is a business decision that keeps changing. [[slnc 300]] "
-            "A flat rate, the same on everything. Weight bands: under a kilo, "
-            "under five, under twenty, and over that. Distance: a base fee plus "
-            "so much per hundred miles. And a campaign rule — free delivery on "
-            "orders over fifty pounds. [[slnc 250]] All four are live at some "
-            "point. Marketing turns the free delivery campaign on for a fortnight "
-            "and off again. None of them is the rule."
+            'Here is the scenario. [[slnc 400]] At checkout, an online '
+            'shop must quote a delivery charge. [[slnc 300]] And the rule '
+            'it uses keeps changing, because it is a business decision. '
+            '[[slnc 500]] There are four rules. [[slnc 300]] A flat rate, '
+            'the same on everything. [[slnc 300]] Weight bands: under one '
+            'kilo, under five, under twenty, and above. [[slnc 300]] '
+            'Distance: a base fee, plus a charge per hundred miles. '
+            '[[slnc 300]] And a campaign rule: free delivery on orders '
+            'over fifty pounds. [[slnc 500]] Marketing switches the '
+            'campaign on for two weeks, and off again. [[slnc 300]] No '
+            'single rule is permanent.'
         ),
     ),
     dict(
@@ -76,13 +80,13 @@ SCENES = [
             "It works. Every price it produces is correct.",
         ],
         narration=(
-            "The obvious first move is an enum for the shipping method and a "
-            "switch inside the checkout code. One case per rule. [[slnc 300]] And "
-            "I want to be fair to it: this works. Every price it produces is "
-            "correct. This is what a competent developer writes first, and for "
-            "two rules that never change it is the right answer. [[slnc 250]] So "
-            "what we're about to look at isn't a bug report. It's a design "
-            "complaint."
+            'The obvious first approach is simple. [[slnc 300]] A list of '
+            'shipping methods, and a switch statement inside the checkout '
+            'code, with one case per rule. [[slnc 500]] To be fair, this '
+            'works. [[slnc 300]] Every price it produces is correct. '
+            '[[slnc 300]] For two rules that never change, it is the '
+            'right answer. [[slnc 500]] So what follows is not a bug '
+            'report. [[slnc 300]] It is a design complaint.'
         ),
     ),
     dict(
@@ -106,17 +110,19 @@ SCENES = [
 
 //  Look hard at that default. It charges nothing.""",
         narration=(
-            "So here's the naive approach. [[slnc 250]] Four unrelated pricing "
-            "policies, interleaved in one method. The weight bands, the "
-            "per-hundred-miles rounding, the campaign threshold — none of them "
-            "have anything to do with each other, and you can't read any one of "
-            "them without scrolling past the other three. [[slnc 350]] But look "
-            "hard at that default branch at the bottom. It's there because the "
-            "compiler demands the method return something, and it does the only "
-            "safe-looking thing. It charges nothing. [[slnc 300]] Add a fifth "
-            "constant to that enum — locker collection, say — forget this method "
-            "exists, and the shop starts shipping for free. No compile error. No "
-            "exception. Just a quietly wrong number on the receipt."
+            'Here is the naive version. [[slnc 400]] Four unrelated '
+            'pricing rules, mixed together in one method. [[slnc 300]] '
+            'Weight bands, distance rounding, and the campaign threshold '
+            'have nothing to do with each other. [[slnc 300]] Yet you '
+            'cannot read one without reading past the other three. [[slnc '
+            '600]] Now think about the default branch at the bottom of '
+            'the switch. [[slnc 300]] It exists because the method must '
+            'return something. [[slnc 300]] And it does the only '
+            'safe-looking thing: it charges nothing. [[slnc 500]] Add a '
+            'fifth shipping method, such as locker collection, and forget '
+            'this switch. [[slnc 300]] The shop starts delivering for '
+            'free. [[slnc 300]] No compile error, no crash, just a '
+            'quietly wrong number on the receipt.'
         ),
     ),
     dict(
@@ -131,16 +137,15 @@ SCENES = [
             "✗   Rules cannot be supplied from outside",
         ],
         narration=(
-            "And that does real damage as the system grows. [[slnc 250]] Four "
-            "unrelated policies share one method. Adding a fifth rule means "
-            "opening the one method that four working rules already depend on. "
-            "[[slnc 300]] There's no way to ask what the weight-banded rule "
-            "charges for six and a half kilos without constructing a whole "
-            "shipment and going through checkout — so the arithmetic isn't "
-            "separately testable. The default branch quietly ships for free. "
-            "[[slnc 250]] And a test, or a regional module, or a partner "
-            "integration can't introduce a pricing rule of its own without being "
-            "added to the enum first."
+            'And the damage grows with the system. [[slnc 500]] Four '
+            'unrelated rules share one method. [[slnc 300]] A fifth rule '
+            'means editing the method that four working rules depend on. '
+            '[[slnc 400]] To test one rule, like the price for six and a '
+            'half kilos, you must build a whole shipment, and go through '
+            'checkout. [[slnc 400]] The default branch quietly delivers '
+            'for free. [[slnc 400]] And no test, regional module, or '
+            'partner can add a rule of its own, without changing the '
+            'central list first.'
         ),
     ),
     dict(
@@ -157,11 +162,12 @@ SCENES = [
             "pass in the behaviour, don't branch on a flag.",
         ],
         narration=(
-            "The strategy pattern fixes exactly this. [[slnc 250]] In Gang of "
-            "Four terms, strategy defines a family of algorithms, encapsulates "
-            "each one, and makes them interchangeable — so the algorithm can vary "
-            "independently from the clients that use it. [[slnc 300]] In plain "
-            "language? Pass in the behaviour. Don't branch on a flag."
+            'The Strategy pattern fixes exactly this. [[slnc 400]] Here '
+            'is its definition, from the famous Gang of Four book. [[slnc '
+            '300]] Define a family of algorithms, put each one in its own '
+            'class, and make them interchangeable. [[slnc 500]] In plain '
+            'words: pass in the behaviour. [[slnc 300]] Do not branch on '
+            'a flag.'
         ),
     ),
     dict(
@@ -179,16 +185,19 @@ SCENES = [
             "'bus or bike?' at every street corner.",
         ],
         narration=(
-            "Here's how to remember it forever. Think about getting across town. "
-            "[[slnc 250]] You want to get from the office to the station. You can "
-            "walk, take a bus, cycle, or get a taxi. [[slnc 300]] You don't "
-            "change — same person, same starting point, same destination. What "
-            "changes is the method, and each method has its own rules: a bus has "
-            "a timetable, a taxi has a meter, a bike needs somewhere to lock up. "
-            "[[slnc 350]] And here's the bit that matters. You decide which one "
-            "once, in the morning, based on the weather and how late you are. You "
-            "do not re-decide bus or bike at every street corner. [[slnc 250]] "
-            "Pick the approach once, then just use it. That's strategy."
+            'Here is an easy way to remember it: getting across town. '
+            '[[slnc 500]] You want to get from the office to the station. '
+            '[[slnc 300]] You could walk, take a bus, cycle, or get a '
+            'taxi. [[slnc 500]] You do not change. [[slnc 300]] Same '
+            'person, same start, same destination. [[slnc 300]] What '
+            'changes is the method, and each method has its own rules. '
+            '[[slnc 300]] A bus has a timetable, a taxi has a meter, and '
+            'a bike needs somewhere to lock up. [[slnc 500]] And here is '
+            'the key point. [[slnc 300]] You decide once, in the morning, '
+            'based on the weather and how late you are. [[slnc 300]] You '
+            'do not decide again at every street corner. [[slnc 500]] '
+            'Choose the approach once, then just use it. [[slnc 300]] '
+            'That is Strategy.'
         ),
     ),
     dict(
@@ -197,17 +206,20 @@ SCENES = [
         title="The Three Roles",
         body=None,
         narration=(
-            "Every strategy setup has three roles. [[slnc 200]] The strategy "
-            "itself — here, ShippingCostRule — the one interface describing the "
-            "job to be done. The concrete strategies: flat rate, weight banded, "
-            "distance based, free over threshold. One algorithm each, knowing "
-            "nothing about checkout. And the context, CheckoutService, which "
-            "holds one rule and calls it. [[slnc 350]] Here's the single most "
-            "important idea in this whole video. CheckoutService cannot behave "
-            "differently depending on which rule it's holding, because there is "
-            "no message it can send to find out which one that is. [[slnc 250]] "
-            "The day you need an instance-of check in there, the pattern hasn't "
-            "been applied — it's just been decorated."
+            'Every Strategy design has three roles. [[slnc 500]] The '
+            'strategy is the interface for the job. [[slnc 300]] Here, it '
+            'is called Shipping Cost Rule. [[slnc 500]] The concrete '
+            'strategies are the four rules: flat rate, weight banded, '
+            'distance based, and free over a threshold. [[slnc 300]] Each '
+            'one is one algorithm, and knows nothing about checkout. '
+            '[[slnc 500]] And the context is the Checkout Service. [[slnc '
+            '300]] It holds one rule, and calls it. [[slnc 600]] Here is '
+            'the most important idea in the video. [[slnc 300]] The '
+            'checkout cannot behave differently depending on which rule '
+            'it holds. [[slnc 300]] It has no way to find out which rule '
+            "that is. [[slnc 400]] If you ever need to check the rule's "
+            'type inside the checkout, the pattern has not really been '
+            'applied.'
         ),
     ),
     dict(
@@ -225,17 +237,18 @@ public record Shipment(String destination, double weightKg,
 //  FlatRateRule reads none of those fields. That is deliberate:
 //  if costFor took just a weight, no distance rule could exist.""",
         narration=(
-            "This is the strategy, ShippingCostRule. [[slnc 250]] Two methods. "
-            "costFor does the work; name is there so the receipt can say which "
-            "policy priced it — without that, the client would need a lookup "
-            "table of display names, and that table is the switch we just deleted "
-            "growing back somewhere new. [[slnc 350]] And notice what costFor "
-            "takes: a whole Shipment. Destination, weight, distance, subtotal. "
-            "[[slnc 250]] The flat rate rule reads none of those fields, and "
-            "that's fine — it's deliberate. If costFor took just a weight, the "
-            "distance rule could not exist, and adding it would change the "
-            "interface and therefore every single implementation. Passing the "
-            "whole shipment is what makes a new rule cost exactly one class."
+            'The strategy interface has just two methods. [[slnc 400]] '
+            'Cost For works out the delivery price. [[slnc 300]] And name '
+            "gives the rule's display name, so the receipt can say which "
+            'rule priced it. [[slnc 300]] Without name, you would need a '
+            'separate table of display names, and that table is the old '
+            'switch, growing back. [[slnc 600]] Notice what Cost For '
+            'receives: the whole shipment. [[slnc 300]] Destination, '
+            'weight, distance, and order total. [[slnc 500]] The flat '
+            'rate rule uses none of those, and that is fine. [[slnc 300]] '
+            'If Cost For only received a weight, the distance rule could '
+            'not exist. [[slnc 300]] Passing the whole shipment means a '
+            'new rule costs exactly one new class.'
         ),
     ),
     dict(
@@ -257,14 +270,16 @@ public record Shipment(String destination, double weightKg,
     }
 }""",
         narration=(
-            "And this is a concrete strategy, WeightBandedRule. [[slnc 250]] The "
-            "band table is data, not code, so a pricing change is a change to a "
-            "list rather than to the algorithm. [[slnc 300]] But the thing worth "
-            "noticing is what's absent. There's no mention of distance, no "
-            "campaign threshold, no flat fee, and no checkout. This class knows "
-            "its own arithmetic and nothing else — which means it gets its own "
-            "test, and that test never has to construct an order or go anywhere "
-            "near a checkout service."
+            'Now one real strategy: the weight banded rule. [[slnc 400]] '
+            'Its price bands are data, a simple list, not code. [[slnc '
+            '300]] So changing a price means editing a list, not the '
+            'algorithm. [[slnc 500]] It goes through the bands from '
+            'lightest to heaviest, and returns the first price that fits. '
+            '[[slnc 600]] And notice what is missing. [[slnc 300]] No '
+            'distance, no campaign threshold, no flat fee, and no '
+            'checkout. [[slnc 300]] This class knows its own arithmetic, '
+            'and nothing else. [[slnc 300]] So it can be tested on its '
+            'own, without ever creating an order.'
         ),
     ),
     dict(
@@ -284,23 +299,22 @@ public record Shipment(String destination, double weightKg,
 
 //  No if. No instanceof. No enum. The switch did not move -- it is gone.""",
         narration=(
-            "And this is the context, CheckoutService. [[slnc 250]] Search this "
-            "class for the words flat, or weight, or distance, and you find "
-            "nothing. It holds a rule and it calls it. [[slnc 300]] There's no "
-            "if, no instance-of, no enum. And that's the test of whether strategy "
-            "has actually been applied: moving a switch out of this class into a "
-            "helper would just relocate the decision. Taking the behaviour as a "
-            "constructor argument removes it. [[slnc 350]] Now — somebody always "
-            "asks at this point, quite rightly: where did the branch actually "
-            "go? Something still has to turn a config value into an object. "
-            "[[slnc 250]] It goes into a small registry at the edge of the "
-            "system. And the difference isn't that it disappeared, it's what it "
-            "does and how often. The naive switch ran inside the pricing logic, "
-            "on every single quote, tangling the decision up with the arithmetic. "
-            "The registry runs once, when the shop is configured, and answers a "
-            "completely different question: which rule is in force today. In a "
-            "real store that's a database row or a feature flag — the mapping is "
-            "data, and the pricing code never sees it."
+            'Now the context, the Checkout Service. [[slnc 400]] Search '
+            'it for the words flat, weight, or distance. [[slnc 300]] You '
+            'find nothing. [[slnc 300]] It holds a rule, and calls it. '
+            '[[slnc 500]] No if statements. [[slnc 200]] No type checks. '
+            '[[slnc 200]] No list of methods. [[slnc 500]] Moving the '
+            'switch into a helper would only relocate the decision. '
+            '[[slnc 300]] Receiving the rule as a constructor argument '
+            'removes it. [[slnc 600]] People often ask: where did the '
+            'decision go? [[slnc 300]] Something still has to turn a '
+            'setting into a rule object. [[slnc 400]] It moves into a '
+            'small registry, at the edge of the system. [[slnc 300]] The '
+            'naive switch ran inside the pricing logic, on every quote. '
+            '[[slnc 300]] The registry runs once, when the shop is '
+            'configured. [[slnc 300]] It only answers one question: which '
+            'rule is in force today? [[slnc 300]] In a real shop, that '
+            'answer is a database row, or a feature flag.'
         ),
     ),
     dict(
@@ -320,16 +334,16 @@ void acceptsARuleDefinedEntirelyInThisTest() {
 
 //  Nothing in src/main knows this rule exists.""",
         narration=(
-            "Here's a subtlety worth pausing on, because it changes how you test "
-            "this. [[slnc 250]] A test that says a six and a half kilo parcel "
-            "costs twelve pounds passes against the naive design too. It tells "
-            "you the arithmetic is right, but it proves nothing at all about "
-            "whether the pattern was applied. [[slnc 350]] This one does. It "
-            "defines a pricing rule entirely inside the test — nothing in the "
-            "production source knows this rule exists — hands it to "
-            "CheckoutService, and it just works. [[slnc 250]] If somebody "
-            "quietly put the switch back tomorrow, this is the test that would "
-            "go red."
+            'Here is a subtle point about testing. [[slnc 400]] A test '
+            'saying a six and a half kilo parcel costs twelve pounds '
+            'would pass for the naive design too. [[slnc 300]] It proves '
+            'the arithmetic, but nothing about the pattern. [[slnc 500]] '
+            'This test does. [[slnc 300]] It creates a brand new pricing '
+            'rule, entirely inside the test file. [[slnc 300]] Nothing in '
+            'the main code knows it exists. [[slnc 300]] It hands the '
+            'rule to the Checkout Service, and it simply works. [[slnc '
+            '500]] If someone ever put the switch back, this is the test '
+            'that would fail.'
         ),
     ),
     dict(
@@ -349,15 +363,17 @@ Rule "campaign" -> Free over £50.00
 An unknown rule name is refused, not defaulted:
   Rejected: no shipping rule called "second-class" """,
         narration=(
-            "When we run the project, the same Cardiff parcel gets priced by "
-            "every rule in turn. [[slnc 250]] Under weight bands the delivery is "
-            "twelve pounds. Under the campaign rule the order is over fifty "
-            "pounds, so delivery is free and the total drops to sixty four. "
-            "[[slnc 300]] Same client object. Same method call. Not one line of "
-            "CheckoutService changed between those two quotes. [[slnc 300]] And "
-            "at the bottom, the thing the naive version couldn't do: an "
-            "unrecognised rule name is refused outright, rather than falling into "
-            "a default branch and shipping for free."
+            "Let's run the demo. [[slnc 400]] The same parcel, going to "
+            'Cardiff, is priced by every rule in turn. [[slnc 500]] With '
+            'weight bands, delivery costs twelve pounds. [[slnc 300]] '
+            'With the campaign rule, the order is over fifty pounds, so '
+            'delivery is free, and the total drops to sixty-four pounds. '
+            '[[slnc 500]] The same checkout object. [[slnc 200]] The same '
+            'method call. [[slnc 300]] Not one line of the checkout '
+            'changed between those two quotes. [[slnc 500]] And finally, '
+            'something the naive version could not do. [[slnc 300]] An '
+            'unknown rule name is refused outright. [[slnc 300]] It does '
+            'not fall into a default branch, and deliver for free.'
         ),
     ),
     dict(
@@ -376,21 +392,22 @@ An unknown rule name is refused, not defaulted:
             "A State object swaps itself for another as events arrive.",
         ],
         narration=(
-            "So, to recap. Use strategy when a switch branches on a type or a "
-            "mode field and each branch does real, unrelated work. [[slnc 300]] "
-            "Keep the strategies stateless, so one instance can be shared by "
-            "every concurrent order. And never let the context ask what it's "
-            "holding — the moment you write instance-of, the branch is back and "
-            "the pattern is decoration. [[slnc 250]] One honest word of warning: "
-            "four classes instead of one method is a real cost. For two rules "
-            "that will never change, the switch is genuinely the better answer. "
-            "Strategy pays for itself when the family is open-ended — and "
-            "delivery pricing really is, because marketing owns it. [[slnc 350]] "
-            "And if you remember one sentence from today, make it this one. "
-            "Strategy and State have exactly the same shape — an interface, "
-            "several implementations, a context holding one. The difference is "
-            "who chooses, and how often. Strategy's choice comes from outside and "
-            "stays put. A state object swaps itself for another as events arrive."
+            'So, to recap. [[slnc 400]] Use Strategy when a switch '
+            'branches on a type or mode, and each branch does real, '
+            'unrelated work. [[slnc 500]] Keep strategies stateless, so '
+            'one instance can be shared by every order at once. [[slnc '
+            '300]] And never let the context ask what it is holding. '
+            '[[slnc 300]] The moment it checks the type, the branch is '
+            'back. [[slnc 600]] One honest warning. [[slnc 300]] Four '
+            'classes instead of one method is a real cost. [[slnc 300]] '
+            'For two rules that never change, the switch is the better '
+            'answer. [[slnc 300]] Strategy pays off when the family of '
+            'rules keeps growing, as delivery pricing does. [[slnc 600]] '
+            'And one sentence to remember. [[slnc 300]] Strategy and '
+            'State have exactly the same shape. [[slnc 300]] The '
+            'difference is who chooses, and how often. [[slnc 300]] A '
+            'strategy is chosen from outside, and stays put. [[slnc 300]] '
+            'A state swaps itself for another, as events happen.'
         ),
     ),
     dict(
@@ -404,14 +421,16 @@ An unknown rule name is refused, not defaulted:
             "Full source code, notes and an animation are in the repository.",
         ],
         narration=(
-            "And that's the strategy pattern. [[slnc 300]] If you got something "
-            "out of this, do give it a thumbs up, and subscribe. It genuinely "
-            "helps the channel, and it's what makes more of these possible. "
-            "[[slnc 250]] And if there's a pattern you'd like me to cover next, "
-            "drop it in the comments. I read every one. [[slnc 250]] All the "
-            "source code, the written notes and an interactive animation are in "
-            "the repository. Thanks for watching, and I'll see you in the next "
-            "one."
+            "That's the Strategy pattern. [[slnc 400]] If you remember "
+            'one sentence, make it this one. [[slnc 300]] Pass in the '
+            'behaviour, instead of branching on a flag. [[slnc 500]] The '
+            'full source code, written notes, diagrams, and an animated '
+            'walkthrough are all in the repository. [[slnc 500]] If there '
+            'is a pattern you would like to see covered, suggest it in '
+            'the comments. [[slnc 500]] If this helped, a like really '
+            'does help other people find it. [[slnc 300]] And subscribe, '
+            "if you'd like the rest of the series. [[slnc 400]] Thanks "
+            'for watching.'
         ),
     ),
 ]

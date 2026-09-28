@@ -24,58 +24,6 @@ now". Both are correct, and neither could have been written by the breaker.
 
 ![Circuit breaker architecture diagram](images/architecture-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-flowchart TB
-    subgraph W["what the program is a model of"]
-        direction TB
-        Shopper["a shopper — browsing, then buying"]
-        subgraph Shop["the shop"]
-            direction TB
-            PP["product page<br/>fallback: an empty list, and say so"]
-            CO["checkout<br/>no fallback exists — refuse, and say so"]
-            B1["breaker in front of Recommendations<br/>3 consecutive failures, 5000ms wait"]
-            B2["breaker in front of Payments<br/>its own count, its own state"]
-            PP --> B1
-            CO --> B2
-        end
-        subgraph Down["dependencies that are unwell"]
-            direction LR
-            Rec["Recommendations<br/>not answering — 3000ms to find that out"]
-            Pay["Payments<br/>not answering — and nothing can stand in for it"]
-        end
-        Shopper --> PP
-        Shopper --> CO
-        B1 -- "while closed: the real call, 3000ms of nothing" --> Rec
-        B2 -- "while closed: the real call" --> Pay
-        B1 -. "while open: REFUSED in no time at all" .-> B1
-        B2 -. "while open: REFUSED in no time at all" .-> B2
-    end
-
-    subgraph J["what actually runs — one JVM, JDK 21, no network, nothing installed"]
-        direction LR
-        Demo["CircuitBreakerDemo<br/>the five acts"]
-        CB["CircuitBreaker<br/>a count, a state, a timestamp"]
-        BS["BreakerState<br/>CLOSED, OPEN, HALF_OPEN"]
-        PPS["ProductPageService<br/>hides the failure, truthfully"]
-        CS["CheckoutService<br/>refuses the sale, truthfully"]
-        Lie["PretendItWorkedCheckoutService<br/>the comparison — a receipt for money that never moved"]
-        RPS["RetryingProductPageService<br/>the comparison — nine seconds for one page"]
-        Clock["SimulatedClock + CallLog<br/>three-second timeouts that cost nothing"]
-        Demo --> PPS --> CB --> BS
-        Demo --> CS --> CB
-        Demo --> Lie
-        Demo --> RPS
-        CB --> Clock
-    end
-
-    W -. "no Resilience4j, no Hystrix, no network — a hundred lines you can read" .-> J
-```
-
-</details>
-
 ## What the diagram is telling you to count
 
 **Two breakers, two answers, and that is the design work.** A breaker is a device for

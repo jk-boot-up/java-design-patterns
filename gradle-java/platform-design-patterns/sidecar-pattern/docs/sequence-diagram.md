@@ -21,42 +21,6 @@ not import.
 
 ![Sidecar pattern sequence diagram](images/sequence-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant Customer
-    participant Checkout as CheckoutService
-    participant SC as the proxy beside it
-    participant Cfg as SidecarConfig
-    participant GW as payment provider
-
-    Note over SC,Cfg: start-up, long before any customer
-    SC->>Cfg: read the one configuration
-    Cfg-->>SC: 3 attempts, 200ms apart, TLS 1.3
-
-    Customer->>Checkout: check out, ORD-4417
-    Note over Checkout: knows a reference,<br/>an amount and localhost
-    Checkout->>SC: pay ORD-4417, 4799 pence
-
-    Note over GW: a 300ms wobble
-    SC->>GW: attempt 1, TLS 1.3, X-Service: checkout
-    GW-->>SC: 503 declined
-    SC->>GW: attempt 2
-    GW-->>SC: 503 declined
-    SC->>GW: attempt 3
-    GW-->>SC: charged, pay_ORD-4417
-
-    SC-->>Checkout: one receipt
-    Checkout-->>Customer: order confirmed
-
-    Note over Checkout: the service never learned<br/>there was more than one attempt
-```
-
-</details>
-
 ## What the order proves
 
 **The configuration is read once, at the top, by the proxy.** Move that first exchange

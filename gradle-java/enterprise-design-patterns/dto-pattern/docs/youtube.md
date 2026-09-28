@@ -19,20 +19,20 @@ The first two lines are what a viewer sees above the fold, so they carry the hoo
 ```
 CHAPTERS
 00:00 Introduction
-00:42 The Scenario
-00:56 Return The Domain Object
-01:22 The Keys Are Private Names
-01:48 The Pattern
-02:05 A DTO Payload
-02:29 A DTO Is Not A Domain Model
-02:52 Cost One: Mapping Code
-03:10 Cost Two: DTOs Multiply
-03:30 Cost Three: The Mapping Decides What Loads
-03:49 Where This Sits
-04:02 Where You Have Met This
-04:21 What Is Real Here
-04:37 When This Is Too Much
-04:52 Thanks for Watching
+00:51 The Scenario
+01:05 Return The Domain Object
+01:36 The Keys Are Private Names
+02:04 The Pattern
+02:22 A DTO Payload
+02:52 A DTO Is Not A Domain Model
+03:19 Cost One: Mapping Code
+03:48 Cost Two: DTOs Multiply
+04:10 Cost Three: The Mapping Decides What Loads
+04:32 Where This Sits
+04:49 Where You Have Met This
+05:10 What Is Real Here
+05:26 When This Is Too Much
+05:42 Thanks for Watching
 
 SOURCE CODE, WRITTEN NOTES AND AN INTERACTIVE ANIMATION
 https://github.com/jk-boot-up/java-design-patterns/tree/main/gradle-java/enterprise-design-patterns/dto-pattern
@@ -47,20 +47,20 @@ YouTube renders these as chapters only if there are at least three and the first
 
 ```
 00:00 Introduction
-00:42 The Scenario
-00:56 Return The Domain Object
-01:22 The Keys Are Private Names
-01:48 The Pattern
-02:05 A DTO Payload
-02:29 A DTO Is Not A Domain Model
-02:52 Cost One: Mapping Code
-03:10 Cost Two: DTOs Multiply
-03:30 Cost Three: The Mapping Decides What Loads
-03:49 Where This Sits
-04:02 Where You Have Met This
-04:21 What Is Real Here
-04:37 When This Is Too Much
-04:52 Thanks for Watching
+00:51 The Scenario
+01:05 Return The Domain Object
+01:36 The Keys Are Private Names
+02:04 The Pattern
+02:22 A DTO Payload
+02:52 A DTO Is Not A Domain Model
+03:19 Cost One: Mapping Code
+03:48 Cost Two: DTOs Multiply
+04:10 Cost Three: The Mapping Decides What Loads
+04:32 Where This Sits
+04:49 Where You Have Met This
+05:10 What Is Real Here
+05:26 When This Is Too Much
+05:42 Thanks for Watching
 ```
 
 ## Tags
@@ -99,4 +99,4 @@ Add a card partway through pointing at the playlist, so a viewer who arrives at 
 
 ## Runtime
 
-Approximately 05:30, narrated at 145 words per minute.
+Approximately 06:18, narrated at 145 words per minute.

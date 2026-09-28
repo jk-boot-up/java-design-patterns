@@ -5,47 +5,6 @@ method, then talks to whatever came back purely through the interface.
 
 ![Simple Factory pattern sequence diagram](images/uml-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-sequenceDiagram
-    actor Client as SimpleFactoryDemo
-    participant Checkout as CheckoutService
-    participant Factory as PaymentMethodFactory
-    participant Upi as UpiPayment
-    participant Method as PaymentMethod
-
-    Client->>Checkout: checkout(request, UPI)
-    activate Checkout
-
-    Checkout->>Factory: create(PaymentType.UPI)
-    activate Factory
-    Factory->>Upi: new UpiPayment()
-    activate Upi
-    Upi-->>Factory: instance
-    deactivate Upi
-    Factory-->>Checkout: PaymentMethod
-    deactivate Factory
-
-    Note over Checkout,Method: from here the client sees only the interface
-
-    Checkout->>Method: displayName()
-    activate Method
-    Method-->>Checkout: "UPI"
-    deactivate Method
-
-    Checkout->>Method: pay(request)
-    activate Method
-    Method-->>Checkout: PaymentReceipt
-    deactivate Method
-
-    Checkout-->>Client: PaymentReceipt
-    deactivate Checkout
-```
-
-</details>
-
 ## Notes
 
 - There are two distinct phases. **Creation** happens once, inside the

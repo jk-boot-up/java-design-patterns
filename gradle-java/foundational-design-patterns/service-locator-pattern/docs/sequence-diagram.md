@@ -6,24 +6,4 @@ Say it in words. The checkout asks the locator for the discount policy, and gets
 
 ![Service Locator pattern sequence diagram](images/sequence-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant C as LocatorCheckout
-    participant L as ServiceLocator
-    participant G as PaymentGateway
-    C->>L: find(DiscountPolicy)
-    L-->>C: policy
-    C->>L: find(PaymentGateway)
-    L-->>C: gateway
-    C->>G: charge(9000), money moves
-    C->>L: find(Notifier)
-    L-->>C: IllegalStateException, no recipe
-```
-
-</details>
-
 The load-bearing sentence: **the failure arrived in production, after the money moved, not in the build.**

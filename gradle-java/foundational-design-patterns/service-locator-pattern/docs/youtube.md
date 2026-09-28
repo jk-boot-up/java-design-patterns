@@ -20,17 +20,17 @@ The first two lines are what a viewer sees above the fold, so they carry the hoo
 CHAPTERS
 00:00 Introduction
 00:53 The Scenario
-01:09 The Advance: Recipes
-01:38 The Other Advance: Swap For A Test
-01:55 The Bill: The Compiler Says Nothing
-02:31 The Bill: Every Class Depends On It
-02:56 Where It Is Still Right
-03:25 The Verdict
-03:41 The Word Is Ask
-03:57 How To Recognise It
-04:22 What Is Real Here
-04:36 When This Is Too Much
-04:44 Thanks for Watching
+01:15 The Advance: Recipes
+01:47 The Other Advance: Swap For A Test
+02:07 The Bill: The Compiler Says Nothing
+02:43 The Bill: Every Class Depends On It
+03:09 Where It Is Still Right
+03:41 The Verdict
+03:55 The Word Is Ask
+04:14 How To Recognise It
+04:39 What Is Real Here
+04:54 When This Is Too Much
+05:04 Thanks for Watching
 
 SOURCE CODE, WRITTEN NOTES AND AN INTERACTIVE ANIMATION
 https://github.com/jk-boot-up/java-design-patterns/tree/main/gradle-java/foundational-design-patterns/service-locator-pattern
@@ -46,17 +46,17 @@ YouTube renders these as chapters only if there are at least three and the first
 ```
 00:00 Introduction
 00:53 The Scenario
-01:09 The Advance: Recipes
-01:38 The Other Advance: Swap For A Test
-01:55 The Bill: The Compiler Says Nothing
-02:31 The Bill: Every Class Depends On It
-02:56 Where It Is Still Right
-03:25 The Verdict
-03:41 The Word Is Ask
-03:57 How To Recognise It
-04:22 What Is Real Here
-04:36 When This Is Too Much
-04:44 Thanks for Watching
+01:15 The Advance: Recipes
+01:47 The Other Advance: Swap For A Test
+02:07 The Bill: The Compiler Says Nothing
+02:43 The Bill: Every Class Depends On It
+03:09 Where It Is Still Right
+03:41 The Verdict
+03:55 The Word Is Ask
+04:14 How To Recognise It
+04:39 What Is Real Here
+04:54 When This Is Too Much
+05:04 Thanks for Watching
 ```
 
 ## Tags
@@ -95,4 +95,4 @@ Add a card partway through pointing at the playlist, so a viewer who arrives at 
 
 ## Runtime
 
-Approximately 05:22, narrated at 145 words per minute.
+Approximately 05:39, narrated at 145 words per minute.

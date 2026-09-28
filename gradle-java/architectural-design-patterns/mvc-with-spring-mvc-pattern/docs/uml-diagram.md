@@ -6,19 +6,3 @@ Four sequences.
 
 ![Post Redirect Get](images/uml-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant B as browser
-    participant C as controller
-    B->>C: POST /orders
-    C-->>B: redirect to /orders/ORD-000002
-    B->>C: GET /orders/ORD-000002
-    C-->>B: the page
-```
-
-</details>
-

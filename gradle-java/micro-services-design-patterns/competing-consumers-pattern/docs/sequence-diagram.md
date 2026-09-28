@@ -6,23 +6,4 @@ Say it in words. A message is published. Consumer A takes it and charges the car
 
 ![Competing Consumers pattern sequence diagram](images/sequence-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant Q as broker
-    participant A as consumer A
-    participant B as consumer B
-    Q->>A: message 1, attempt 1
-    A->>A: charge the card
-    A--xQ: crashes, no acknowledgement
-    Q->>B: message 1, attempt 2
-    B->>B: charge the card again
-    B->>Q: acknowledge
-```
-
-</details>
-
 The load-bearing sentence: **a queue cannot give exactly once. The consumer has to.**

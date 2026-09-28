@@ -27,24 +27,25 @@ SCENES = [
         title="Event Sourcing",
         body=None,
         narration=(
-            "Hello, and welcome. This video explains the Event Sourcing design "
-            "pattern in Java, and it is written and presented by Jayasekhar "
-            "Konduru. [[slnc 300]] Let's start with the simple definition. Event "
-            "sourcing means storing the things that happened, in the order they "
-            "happened, and never changing them — and then working out the current "
-            "state by adding those things up when somebody asks. The total is not "
-            "a thing you keep. It is a thing you calculate. [[slnc 350]] Think of "
-            "a bank statement. The bank does not send you a number; it sends you a "
-            "list, with a running total down the side. The number at the bottom is "
-            "the only thing on the page you could have worked out from the rest. "
-            "[[slnc 350]] That's the idea in a sentence. The rest of the video "
-            "does it properly, by building a real working Java project: the "
-            "loyalty points scheme of an online shop, where a customer rings up "
-            "and asks why their balance is a hundred and forty. [[slnc 250]] By "
-            "the end you'll know why a stored total can never explain itself, how "
-            "a bug found three weeks late gets investigated with a query nobody "
-            "wrote in advance, and — just as importantly — the four things this "
-            "pattern will cost you, because most systems should not use it."
+            'Hello, and welcome. [[slnc 400]] This video explains the '
+            'Event Sourcing pattern, in Java. [[slnc 300]] This video is '
+            'presented by Jayasekhar Konduru. [[slnc 600]] First, a '
+            'simple definition. [[slnc 300]] Event sourcing stores the '
+            'things that happened, in order, and never changes them. '
+            '[[slnc 300]] The current state is worked out by adding those '
+            'things up, whenever someone asks. [[slnc 300]] The total is '
+            'not something you keep. [[slnc 300]] It is something you '
+            'calculate. [[slnc 600]] Think of a bank statement. [[slnc '
+            '300]] The bank does not just send you a number. [[slnc 300]] '
+            'It sends a list of payments, with a running total down the '
+            'side. [[slnc 700]] In our online store, we look at the '
+            'loyalty points scheme. [[slnc 300]] A customer rings up and '
+            'asks why their balance is a hundred and forty. [[slnc 500]] '
+            'By the end, you will know why a stored total can never '
+            'explain itself. [[slnc 300]] How a bug found three weeks '
+            'late is investigated with a question nobody planned. [[slnc '
+            '300]] And the four things this pattern costs, because most '
+            'systems should not use it.'
         ),
     ),
     dict(
@@ -66,19 +67,18 @@ SCENES = [
             "A customer rings up and asks why it is 140.",
         ],
         narration=(
-            "So, imagine an online shop with a loyalty scheme, and it is the "
-            "simplest scheme you could design. [[slnc 250]] You earn one point for "
-            "every pound you spend. You can spend those points on a later order. "
-            "And anything you have not used within twelve months expires. [[slnc "
-            "300]] The shop stores it the way almost everybody stores it: a table "
-            "with one row per customer, and the row has a number in it. Customer "
-            "C four four one seven has a hundred and forty points. [[slnc 350]] "
-            "That number is correct. I want to be really clear about that, because "
-            "I am not going to show you a broken system and then rescue it. The "
-            "row is right, it has always been right, and it will still be right in "
-            "five years. [[slnc 300]] And then one afternoon that customer rings "
-            "up and asks a question that sounds completely reasonable. Why is it a "
-            "hundred and forty?"
+            'Here is the scenario. [[slnc 400]] The shop runs a very '
+            'simple loyalty scheme. [[slnc 300]] You earn one point for '
+            'every pound you spend. [[slnc 300]] You can spend points on '
+            'a later order. [[slnc 300]] And points you have not used '
+            'within twelve months expire. [[slnc 600]] The shop stores it '
+            'the usual way. [[slnc 300]] A table, with one row per '
+            'customer, holding one number. [[slnc 300]] One customer has '
+            'a hundred and forty points. [[slnc 500]] And that number is '
+            'correct. [[slnc 300]] This is not a broken system. [[slnc '
+            '600]] Then one afternoon, the customer rings up with a '
+            'reasonable question. [[slnc 300]] Why is it a hundred and '
+            'forty?'
         ),
     ),
     dict(
@@ -94,18 +94,18 @@ SCENES = [
 // The order id reached this method and went no further.
 // So did the date.  Both are gone.""",
         narration=(
-            "Here is the method that adds points to a customer, and it is one line "
-            "long. [[slnc 250]] It takes four things: the customer, how many "
-            "points, which order earned them, and the date it happened. And then "
-            "the body of the method adds the points to the customer's total, and "
-            "stops. [[slnc 350]] Read those two halves against each other, because "
-            "this is the whole problem in miniature. Four facts arrive at that "
-            "method. One of them is used. The order number and the date reach the "
-            "code, go no further, and are dropped on the floor. [[slnc 300]] "
-            "Nobody wrote a bug. Nobody was careless. That line is what a "
-            "current-state design is: it keeps the answer and it discards the "
-            "working. [[slnc 300]] And the reason that matters is that the working "
-            "is what every interesting question is about."
+            'Here is the method that adds points to a customer. [[slnc '
+            '300]] It is one line long. [[slnc 500]] It receives four '
+            'things: the customer, the number of points, which order '
+            'earned them, and the date. [[slnc 300]] Then it adds the '
+            "points to the customer's total, and stops. [[slnc 600]] So "
+            'four facts arrive. [[slnc 300]] Only one is used. [[slnc '
+            '300]] The order number and the date reach the code, and are '
+            'simply dropped. [[slnc 500]] Nobody wrote a bug. [[slnc '
+            '300]] This is just what storing only the current state does. '
+            '[[slnc 300]] It keeps the answer, and throws away the '
+            'working. [[slnc 300]] And every interesting question is '
+            'about the working.'
         ),
     ),
     dict(
@@ -120,19 +120,17 @@ SCENES = [
   the four things that happened in March were each
   added to a number and then forgotten.""",
         narration=(
-            "So here is the first act of the demo, and it is the support agent "
-            "trying to answer that customer. [[slnc 250]] The balance is a hundred "
-            "and forty. And the entire rest of the answer is: the row says a "
-            "hundred and forty points, and how it got there was never written "
-            "down. [[slnc 350]] Four things happened to that customer in March. "
-            "Each one was added to a number, and then forgotten. There is nobody "
-            "left to ask, and there is no file to look in. [[slnc 300]] Now, the "
-            "usual response to this is to add an audit log — a second table, "
-            "written alongside the first, recording what happened. And that does "
-            "help. But hold onto one thing about it, because we will come back to "
-            "it: an audit log is a second copy of the truth. And second copies "
-            "drift. The day the two disagree, you will have no way of knowing "
-            "which one is lying."
+            'First demo: a support agent tries to answer the customer. '
+            '[[slnc 400]] The balance is a hundred and forty. [[slnc '
+            '300]] And the whole explanation is: the row says a hundred '
+            'and forty. [[slnc 300]] How it got there was never written '
+            'down. [[slnc 600]] Four things happened to this customer in '
+            'March. [[slnc 300]] Each was added to a number, and then '
+            'forgotten. [[slnc 600]] The usual fix is an audit log: a '
+            'second table, recording what happened. [[slnc 300]] That '
+            'helps. [[slnc 300]] But an audit log is a second copy of the '
+            'truth. [[slnc 300]] And copies drift apart. [[slnc 300]] '
+            'When they disagree, you cannot tell which one is wrong.'
         ),
     ),
     dict(
@@ -152,21 +150,20 @@ SCENES = [
   the information needed to tell them apart was
   overwritten by the bug itself.""",
         narration=(
-            "And now the worse story, which is the one that makes this pattern "
-            "worth paying for. [[slnc 250]] A release goes out with a bug in it: "
-            "for three weeks, every order awards its points twice. Then somebody "
-            "spots it, and the fix itself is easy — one line. [[slnc 300]] The "
-            "hard part is what comes next. Which customers were affected, and by "
-            "how much? [[slnc 300]] Look at three balances. One customer has a "
-            "hundred points, one has twenty-five, one has sixty. Which of those is "
-            "wrong? [[slnc 350]] You cannot tell, and here is why. A doubled "
-            "forty-five pound order sitting on top of an earlier ten pound one "
-            "writes the number one hundred. And one honest hundred pound order "
-            "also writes the number one hundred. The two are the same row. "
-            "[[slnc 350]] The information you would need to tell them apart was "
-            "destroyed by the bug itself, as it ran. That is the thing to sit with "
-            "for a second. The bug did not just cause damage — it erased the "
-            "evidence of the damage, every time it fired."
+            'Second demo: a worse story. [[slnc 400]] A new release has a '
+            'bug. [[slnc 300]] For three weeks, every order awards its '
+            'points twice. [[slnc 300]] Then someone spots it, and the '
+            'fix is one line. [[slnc 600]] The hard part is this. [[slnc '
+            '300]] Which customers were affected, and by how much? [[slnc '
+            '500]] Three customers have balances of a hundred, '
+            'twenty-five, and sixty. [[slnc 300]] Which of those is '
+            'wrong? [[slnc 600]] You cannot tell. [[slnc 300]] A doubled '
+            'forty-five-pound order, plus an earlier ten-pound order, '
+            'gives a hundred. [[slnc 300]] One honest hundred-pound order '
+            'also gives a hundred. [[slnc 300]] They look exactly the '
+            'same. [[slnc 600]] The bug did not just cause damage. [[slnc '
+            '300]] Every time it ran, it also erased the evidence of the '
+            'damage.'
         ),
     ),
     dict(
@@ -180,18 +177,19 @@ SCENES = [
             "Then add it up when somebody asks.",
         ],
         narration=(
-            "So here is the move. [[slnc 300]] Notice that the balance was never "
-            "something the shop was told. Nobody ever said to this system, this "
-            "customer has a hundred and forty points. What the shop was told was: "
-            "they earned sixty on the first, they spent twenty-five on the third, "
-            "they earned a hundred and twenty on the eighth, and fifteen expired on "
-            "the fourteenth. The hundred and forty is arithmetic the shop did on "
-            "those four facts, and then it threw the facts away and kept the "
-            "arithmetic. [[slnc 400]] Event sourcing is the decision to do that the "
-            "other way round. Keep the facts. Do the arithmetic when somebody asks. "
-            "[[slnc 350]] And that is the whole pattern. Everything else in this "
-            "video — every benefit, and every single one of the costs — falls out "
-            "of that one sentence."
+            'So here is the idea. [[slnc 400]] Nobody ever told this '
+            'system: the customer has a hundred and forty points. [[slnc '
+            '300]] What it was told was a list of events. [[slnc 300]] '
+            'Sixty earned on the first. [[slnc 200]] Twenty-five spent on '
+            'the third. [[slnc 200]] A hundred and twenty earned on the '
+            'eighth. [[slnc 200]] Fifteen expired on the fourteenth. '
+            '[[slnc 500]] The hundred and forty is just arithmetic done '
+            'on those facts. [[slnc 300]] And then the facts were thrown '
+            'away, and only the arithmetic kept. [[slnc 600]] Event '
+            'sourcing does it the other way round. [[slnc 300]] Keep the '
+            'facts. [[slnc 300]] Do the arithmetic when someone asks. '
+            '[[slnc 500]] Every benefit, and every cost, in this video '
+            'comes from that one sentence.'
         ),
     ),
     dict(
@@ -212,25 +210,23 @@ SCENES = [
             "        There is no balance field anywhere.",
         ],
         narration=(
-            "In practice it is three moves, and the third is the one people "
-            "struggle with. [[slnc 300]] First: make each change a fact, with a "
-            "name, in the past tense. Not add sixty to the balance, but sixty "
-            "points were awarded to this customer, on the first of March, for this "
-            "order. And the past tense is not a style preference. Award points, as "
-            "an instruction, is something that can be refused. Points were "
-            "awarded, as a fact, cannot be refused, because it already happened. "
-            "Everything in the log is the second kind. [[slnc 400]] Second: append "
-            "it to a log, and then never touch it again. The log has exactly one "
-            "way to write to it, which is to add to the end. There is no update "
-            "and there is no delete, and that absence is the design. The past does "
-            "not change, so the record of the past must not change either. "
-            "[[slnc 400]] Third, and this is the one that feels wrong at first: "
-            "the current state is not stored anywhere at all. When somebody asks "
-            "for the balance, you start at zero, walk the customer's events in "
-            "order, apply each one, and return what you end up with. Ask again a "
-            "second later, and that whole walk happens again. [[slnc 350]] It "
-            "sounds wasteful. Sometimes it genuinely is, and we will price it "
-            "properly later. But look first at what it buys you."
+            'In practice, it is three moves. [[slnc 600]] One. [[slnc '
+            '200]] Make each change a fact, with a name, in the past '
+            'tense. [[slnc 300]] Not: add sixty points. [[slnc 300]] But: '
+            'sixty points were awarded to this customer, on the first of '
+            'March, for this order. [[slnc 300]] An instruction can be '
+            'refused. [[slnc 300]] A fact cannot, because it already '
+            'happened. [[slnc 600]] Two. [[slnc 200]] Add it to the end '
+            'of a log, and never touch it again. [[slnc 300]] The log has '
+            'no update, and no delete. [[slnc 300]] The past does not '
+            'change, so the record of it must not change either. [[slnc '
+            '600]] Three, the one that feels strange at first. [[slnc '
+            '200]] The current balance is not stored anywhere. [[slnc '
+            '300]] When someone asks, start at zero, go through the '
+            "customer's events in order, and add each one. [[slnc 300]] "
+            'Ask again, and it is worked out again. [[slnc 500]] That '
+            'sounds wasteful, and sometimes it is. [[slnc 300]] But '
+            "first, let's hear what it buys."
         ),
     ),
     dict(
@@ -239,26 +235,23 @@ SCENES = [
         title="Who Does What",
         body=None,
         narration=(
-            "Let me name the parts, because there are only four and they each do "
-            "one thing. [[slnc 300]] There is the event. It is a fact — it has no "
-            "behaviour, no opinion and no logic in it. In this project there are "
-            "exactly three kinds: points awarded, points redeemed, and points "
-            "expired. Each one carries everything needed to understand it, "
-            "including the order number and the date, copied inside it rather than "
-            "pointed at, so that reading it in three years' time tells you what was "
-            "true then rather than what is true now. [[slnc 400]] There is the "
-            "event store, which is the log. It has append, and it has reads, and it "
-            "has no way to change anything. [[slnc 300]] There is the class that "
-            "turns events into a balance, and the striking thing about it is what "
-            "it does not have. Go looking for a field holding the balance and there "
-            "isn't one. Every number it gives you is worked out on the spot. "
-            "[[slnc 350]] And off to one side there is a snapshot store, which is a "
-            "cache, and which is never the truth. We will come back to it, because "
-            "it is where this pattern gets dangerous. [[slnc 300]] The caller — the "
-            "checkout — sees none of this. It talks to an interface, and it cannot "
-            "tell which of the two designs is behind it. That is deliberate: the "
-            "choice we are making is a choice about storage, not about the code "
-            "that calls it."
+            "Let's name the pieces. [[slnc 300]] There are four. [[slnc "
+            '600]] First, the event. [[slnc 300]] It is just a fact, with '
+            'no logic in it. [[slnc 300]] There are three kinds: points '
+            'awarded, points redeemed, and points expired. [[slnc 300]] '
+            'Each carries everything needed to understand it, including '
+            'the order number and the date. [[slnc 500]] Second, the '
+            'event store, which is the log. [[slnc 300]] You can add to '
+            'it, and read it, but never change it. [[slnc 500]] Third, '
+            'the class that turns events into a balance. [[slnc 300]] It '
+            'has no stored balance at all. [[slnc 300]] Every number it '
+            'gives is worked out on the spot. [[slnc 500]] Fourth, a '
+            'snapshot store. [[slnc 300]] It is a cache, and never the '
+            'truth. [[slnc 300]] We will come back to it, because it is '
+            'where this pattern gets dangerous. [[slnc 600]] Checkout, '
+            'which calls all this, cannot tell which design is behind it. '
+            '[[slnc 300]] This is a choice about storage, not about the '
+            'calling code.'
         ),
     ),
     dict(
@@ -276,22 +269,23 @@ return running;
 // 2025-03-08  earned 120 points on ORD-8907   balance 155
 // 2025-03-14  lost 15 to the expiry           balance 140""",
         narration=(
-            "This is the fold, and it is five lines. Start a running total at zero. "
-            "For each of the customer's events, add that event's effect on the "
-            "balance. Return the running total. [[slnc 350]] That loop is the "
-            "balance. There is no other balance. [[slnc 300]] And now watch what "
-            "happens when you print the same walk instead of only its answer. "
-            "[[slnc 250]] On the first of March, earned sixty points on order "
-            "eight eight oh one — balance sixty. On the third, spent twenty-five — "
-            "balance thirty-five. On the eighth, earned a hundred and twenty — "
-            "balance a hundred and fifty-five. On the fourteenth, lost fifteen "
-            "points to the twelve-month expiry — balance a hundred and forty. "
-            "[[slnc 400]] A support agent can read that down the phone. And notice "
-            "the last line especially, because where did my points go is the call "
-            "support dreads most, and here the expiry explains itself along with "
-            "everything else. [[slnc 300]] That is not a stored explanation that "
-            "somebody remembered to write. It is the sum, printing itself as it "
-            "goes."
+            'Here is how the balance is worked out, in words. [[slnc '
+            '400]] Start a running total at zero. [[slnc 300]] For each '
+            "of the customer's events, add its effect on the balance. "
+            '[[slnc 300]] Return the total. [[slnc 500]] That loop is the '
+            'balance. [[slnc 300]] There is no other balance. [[slnc '
+            '600]] Now print each step, not just the answer. [[slnc 500]] '
+            'First of March: earned sixty points. [[slnc 300]] Balance, '
+            'sixty. [[slnc 400]] Third of March: spent twenty-five. '
+            '[[slnc 300]] Balance, thirty-five. [[slnc 400]] Eighth of '
+            'March: earned a hundred and twenty. [[slnc 300]] Balance, a '
+            'hundred and fifty-five. [[slnc 400]] Fourteenth of March: '
+            'fifteen points expired. [[slnc 300]] Balance, a hundred and '
+            'forty. [[slnc 600]] A support agent can read that down the '
+            'phone. [[slnc 300]] It even explains the expiry, which is '
+            'the question support dreads most. [[slnc 300]] Nobody wrote '
+            'that explanation. [[slnc 300]] It is the sum, showing its '
+            'working.'
         ),
     ),
     dict(
@@ -308,26 +302,25 @@ return running;
   no event was edited and none was deleted. The reading
   code changed, and every balance is right again.""",
         narration=(
-            "Now back to that bug, with a log behind it this time. [[slnc 300]] The "
-            "double-awarding release ran, and it left behind two events instead of "
-            "one — and two events never look like one. [[slnc 300]] So three weeks "
-            "later somebody sits down and writes a query that did not exist when "
-            "the bug was live: group this customer's awards by order number, and "
-            "tell me about any order that earned points more than once. Order nine "
-            "thousand and one, awarded twice. [[slnc 350]] Think about what just "
-            "happened there. The question was invented after the fact, and it was "
-            "answerable, because the data it needed was already lying in the log. "
-            "Nobody predicted the question. Nobody built a table for it. [[slnc "
-            "400]] And then the repair. Count each order's award once, and the "
-            "balance is fifty-five instead of a hundred. [[slnc 300]] Here is the "
-            "line I would like you to take away from this whole video: no event was "
-            "edited, and none was deleted. Nothing was appended either. The log "
-            "before the repair and the log after it are identical. [[slnc 350]] "
-            "Because the log was never wrong. The shop really did award those "
-            "points twice — that really is what happened, and pretending otherwise "
-            "would be falsifying the record. What was wrong was the interpretation. "
-            "So the fix lives in the code that interprets, and history stays "
-            "history."
+            'Third demo: the same bug, with a log behind it. [[slnc 400]] '
+            'The buggy release recorded two award events instead of one. '
+            '[[slnc 300]] And two events never look like one. [[slnc '
+            '600]] Three weeks later, someone writes a brand new '
+            'question. [[slnc 300]] For this customer, find any order '
+            'that earned points more than once. [[slnc 300]] The answer: '
+            'order nine thousand and one, awarded twice. [[slnc 600]] '
+            'That question was invented after the fact. [[slnc 300]] And '
+            'it could be answered, because the data was already in the '
+            'log. [[slnc 300]] Nobody predicted it. [[slnc 300]] Nobody '
+            'built a table for it. [[slnc 600]] Then the repair. [[slnc '
+            "300]] Count each order's award only once, and the balance is "
+            'fifty-five, not a hundred. [[slnc 500]] And here is the key '
+            'point. [[slnc 300]] No event was edited, or deleted, or '
+            'added. [[slnc 300]] The log is exactly the same as before. '
+            '[[slnc 500]] The log was never wrong. [[slnc 300]] The shop '
+            'really did award those points twice. [[slnc 300]] What was '
+            'wrong was how the log was read. [[slnc 300]] So the fix '
+            'lives in the reading code, and history stays history.'
         ),
     ),
     dict(
@@ -345,20 +338,21 @@ return running;
   that is the fix, and it is also a second place
   a balance lives.""",
         narration=(
-            "Right. That is what you gain, and now the bill, because every pattern "
-            "has one and this one's is large. [[slnc 350]] Four events is nothing. "
-            "Five thousand is not. Folding from the beginning to answer one balance "
-            "reads all five thousand events, and it does it again every single time "
-            "anybody asks. [[slnc 300]] The fix is a snapshot: save the balance as "
-            "it stood at event five thousand, and the next read starts from there "
-            "and walks one event instead of five thousand. Same answer, three "
-            "orders of magnitude less work. [[slnc 400]] But look at what a "
-            "snapshot actually is. It is a stored balance. It is precisely the "
-            "thing this pattern set out to stop doing, brought back in through the "
-            "side door for performance. [[slnc 350]] Which is why, in this project, "
-            "a snapshot records two things about itself: which event it was taken "
-            "at, and which code computed it. That second one matters more than it "
-            "looks."
+            'That is what you gain. [[slnc 300]] Now the bill, and it is '
+            'large. [[slnc 600]] Four events is nothing. [[slnc 300]] '
+            'Five thousand is not. [[slnc 300]] Working out one balance '
+            'from the start reads all five thousand events. [[slnc 300]] '
+            'Every time anyone asks. [[slnc 600]] The fix is a snapshot. '
+            '[[slnc 300]] Save the balance as it stood at event five '
+            'thousand. [[slnc 300]] The next read starts there, and reads '
+            'one new event instead of five thousand. [[slnc 300]] Same '
+            'answer, far less work. [[slnc 600]] But notice what a '
+            'snapshot is. [[slnc 300]] It is a stored balance. [[slnc '
+            '300]] The very thing this pattern set out to stop keeping, '
+            'brought back for speed. [[slnc 500]] So in this project, '
+            'each snapshot records which event it was taken at. [[slnc '
+            '300]] And which version of the code calculated it. [[slnc '
+            '300]] That second part matters more than it seems.'
         ),
     ),
     dict(
@@ -381,21 +375,23 @@ return running;
             "The log is the truth.  A snapshot is a cache.",
         ],
         narration=(
-            "Here is how that goes wrong, and it is worth a slide of its own "
-            "because it is silent. [[slnc 300]] Suppose a snapshot gets taken while "
-            "the double-awarding interpretation is still in use. It records ninety "
-            "points. Then the repair lands, and folding the log correctly now gives "
-            "forty-five. [[slnc 350]] The log is right. The fold is right. And the "
-            "snapshot is wrong, permanently, and nothing anywhere tells you. There "
-            "is no exception, no warning, no failed test — because a wrong balance "
-            "is just a number, and numbers do not look wrong. [[slnc 400]] The cure "
-            "is blunt and it is the correct one: throw every snapshot away and add "
-            "the log up again. And you can only afford to do that because the log "
-            "kept everything. [[slnc 300]] So if you take one rule from this "
-            "section, take this one. The log is the truth. A snapshot is a cache "
-            "you are always allowed to delete. The moment anybody starts treating "
-            "a snapshot as the record, you have quietly gone back to the design "
-            "we started with, and this time with two of them."
+            'Here is how a snapshot goes wrong, silently. [[slnc 500]] '
+            'Suppose a snapshot is taken while the double-counting bug is '
+            'still in the reading code. [[slnc 300]] It records ninety '
+            'points. [[slnc 300]] Then the fix lands. [[slnc 300]] Adding '
+            'up the log correctly now gives forty-five. [[slnc 600]] The '
+            'log is right. [[slnc 300]] The adding up is right. [[slnc '
+            '300]] And the snapshot is wrong, forever, and nothing tells '
+            'you. [[slnc 300]] No error, no warning, no failed test. '
+            '[[slnc 300]] A wrong balance is just a number, and numbers '
+            'do not look wrong. [[slnc 600]] The cure is blunt, and '
+            'correct. [[slnc 300]] Throw every snapshot away, and add the '
+            'log up again. [[slnc 300]] You can only do that because the '
+            'log kept everything. [[slnc 600]] So here is the rule. '
+            '[[slnc 300]] The log is the truth. [[slnc 300]] A snapshot '
+            'is a cache you may always delete. [[slnc 300]] The moment '
+            'anyone treats a snapshot as the record, you are back where '
+            'you started.'
         ),
     ),
     dict(
@@ -417,28 +413,25 @@ return running;
             "    plainly contains two identical awards.",
         ],
         narration=(
-            "Two more costs, and both are the kind you meet years in rather than in "
-            "week one. [[slnc 350]] The first is erasure. A customer has a legal "
-            "right to be forgotten, and your log has no delete in it. The first "
-            "thing everybody reaches for is: fine, we will make an exception and "
-            "remove their events. [[slnc 300]] That does two things, and neither is "
-            "what you wanted. Their history is destroyed beyond any recovery, which "
-            "is the one thing you built this system to prevent. And a snapshot "
-            "taken last week still holds their balance and will still happily "
-            "report it — so the data you just deleted is still in the building. "
-            "[[slnc 400]] The real answers are harder. Encrypt the personal fields "
-            "inside the event and then destroy the key. Or keep the shape of the "
-            "event and blank the identity out of it. Both of those have to be "
-            "designed in before the first event is ever written, not after the "
-            "first request arrives. [[slnc 400]] The second cost is versioning. "
-            "Somebody added the order number field in twenty twenty-three. Every "
-            "event written before that does not have it, and never will, because "
-            "you cannot go back and fill in information that was not recorded. "
-            "[[slnc 350]] Which means that duplicate hunt we were so pleased with "
-            "reports zero duplicates on a stream that visibly contains two "
-            "identical awards — and reports it perfectly calmly. An event is a "
-            "schema you version and never migrate, and every reader you write from "
-            "then on carries that gap for ever."
+            'Two more costs, the kind you meet years later. [[slnc 600]] '
+            'The first is erasure. [[slnc 300]] A customer has a legal '
+            'right to be forgotten. [[slnc 300]] And the log has no '
+            'delete. [[slnc 500]] The obvious idea is: just remove their '
+            'events. [[slnc 300]] That destroys their history forever, '
+            'which the system was built to prevent. [[slnc 300]] And an '
+            'old snapshot still holds their balance, so their data is '
+            'still there. [[slnc 500]] The real answers are harder. '
+            '[[slnc 300]] Encrypt personal details inside each event, and '
+            'destroy the key when asked. [[slnc 300]] Or keep the event, '
+            'but blank out who it was. [[slnc 300]] Either way, it must '
+            'be designed in before the first event is ever written. '
+            '[[slnc 600]] The second cost is versioning. [[slnc 300]] The '
+            'order number field was only added in twenty twenty-three. '
+            '[[slnc 300]] Older events do not have it, and never will. '
+            '[[slnc 500]] So the duplicate search finds zero duplicates '
+            'in an old stream, even when two identical awards are clearly '
+            'there. [[slnc 300]] And it reports that calmly. [[slnc 300]] '
+            'Every reader you ever write carries that gap forever.'
         ),
     ),
     dict(
@@ -460,25 +453,21 @@ return running;
             "Event sourcing changes what the writes store.",
         ],
         narration=(
-            "One last thing, because these two patterns get treated as one idea "
-            "constantly, and it makes people argue about the wrong trade-off. "
-            "[[slnc 350]] C Q R S — command query responsibility segregation — "
-            "means reads and writes come from different models. In this project "
-            "there is a small class that does exactly that, with no event log "
-            "anywhere near it: writes update a row, and reads come from a second "
-            "model shaped for the screen that displays it. That is CQRS, complete, "
-            "with no event sourcing in it at all. Its own cost is drift — if the "
-            "update to the read side is lost, nothing throws, and the customer sees "
-            "an empty history next to a balance that is not zero. [[slnc 400]] And "
-            "the main class in this project is the opposite: it stores events, and "
-            "it answers reads by folding those very same events. One model. That is "
-            "event sourcing, complete, with no CQRS in it at all. [[slnc 350]] So "
-            "here are the two sentences, and they are worth memorising. CQRS "
-            "changes where reads come from. Event sourcing changes what the writes "
-            "store. [[slnc 300]] They do turn up together often, because a log is "
-            "an awkward thing to read from directly and a second model fixes that. "
-            "But often together is not the same thing, and you can have either one "
-            "without the other."
+            'One more thing, because two patterns are often confused. '
+            '[[slnc 500]] C Q R S means reads and writes come from '
+            'different models. [[slnc 300]] This project has a small '
+            'class that does exactly that, with no event log at all. '
+            '[[slnc 300]] Writes update a row, and reads come from a '
+            'second model, shaped for the screen. [[slnc 300]] That is C '
+            'Q R S, without event sourcing. [[slnc 600]] And the main '
+            'class here does the opposite. [[slnc 300]] It stores events, '
+            'and answers reads by adding up those same events. [[slnc '
+            '300]] One model. [[slnc 300]] That is event sourcing, '
+            'without C Q R S. [[slnc 600]] So here are two sentences '
+            'worth remembering. [[slnc 300]] C Q R S changes where reads '
+            'come from. [[slnc 300]] Event sourcing changes what writes '
+            'store. [[slnc 500]] They often appear together. [[slnc 300]] '
+            'But you can have either one without the other.'
         ),
     ),
     dict(
@@ -500,20 +489,18 @@ return running;
             "is the product.",
         ],
         narration=(
-            "So, when should you actually reach for this? [[slnc 300]] There is one "
-            "question, and it is not a technical one. Will anybody ever need to know "
-            "how this number got to be what it is? [[slnc 350]] A shopping basket. A "
-            "settings page. A stock level on a shelf. No — nobody is going to audit "
-            "those, and keeping the number is the right design. For those, this "
-            "pattern is a large bill for nothing, and I would push back on anyone "
-            "who proposed it. [[slnc 400]] Money. Loyalty points. Orders. Anything a "
-            "regulator or an auditor can ask you about, or anything where somebody "
-            "will one day say: prove it. There, the history is not overhead. The "
-            "history is the product, and storing only the total is the thing that "
-            "will hurt. [[slnc 350]] This is the most over-applied pattern I know "
-            "of, which is why three of the nine acts in this project are spent on "
-            "what it costs. A pattern taught without its bill is a sales pitch, and "
-            "you deserve better than a sales pitch."
+            'So, when should you use this? [[slnc 400]] Ask one question. '
+            '[[slnc 300]] Will anyone ever need to know how this number '
+            'got to be what it is? [[slnc 600]] A shopping basket, a '
+            'settings page, a stock level? [[slnc 300]] No. [[slnc 300]] '
+            'Nobody will audit those. [[slnc 300]] Keep the number. '
+            '[[slnc 300]] For those, this pattern is a large bill for '
+            'nothing. [[slnc 600]] Money, loyalty points, orders, or '
+            'anything an auditor might ask about? [[slnc 300]] Yes. '
+            '[[slnc 300]] There, the history is not overhead. [[slnc '
+            '300]] The history is the product. [[slnc 600]] This pattern '
+            'is often used where it should not be. [[slnc 300]] That is '
+            'why so much of this video is about its costs.'
         ),
     ),
     dict(
@@ -528,21 +515,22 @@ return running;
             "explain to an auditor.",
         ],
         narration=(
-            "That's event sourcing. [[slnc 250]] The full source, the written "
-            "notes, the diagrams and an animated walkthrough are all in the "
-            "repository, and everything runs offline with nothing installed but a "
-            "Java development kit — no database, no Kafka, no Docker. [[slnc 300]] "
-            "If you try one exercise, try this one. Fix the double-awarding bug the "
-            "other way: instead of changing how the log is read, append a "
-            "correcting event that takes the extra points back off. Get it working, "
-            "and then ask yourself which of the two repairs you would rather "
-            "explain to an auditor, and which you would rather explain to a "
-            "developer joining next year. [[slnc 300]] They are different answers, "
-            "and working out why they are different is the moment this pattern "
-            "stops being a technique and starts being a judgement. [[slnc 300]] If "
-            "this helped, a like genuinely does help other people find it, and "
-            "subscribe if you would like the rest of the series. [[slnc 250]] "
-            "Thanks for watching, and I'll see you in the next one."
+            "That's the Event Sourcing pattern. [[slnc 400]] If you "
+            'remember one sentence, make it this one. [[slnc 300]] Store '
+            'what happened, not the total, and work the total out when '
+            'asked, but remember that snapshots, erasure, and old events '
+            'all have a price. [[slnc 500]] The full source code, written '
+            'notes, diagrams, and an animated walkthrough are all in the '
+            'repository. [[slnc 300]] It runs offline, with nothing '
+            'installed except a Java development kit. [[slnc 500]] Here '
+            'is one exercise to try. [[slnc 300]] Fix the double-award '
+            'bug a different way. [[slnc 300]] Instead of changing how '
+            'the log is read, add a new event that takes the extra points '
+            'back. [[slnc 300]] Then ask: which repair would you rather '
+            'explain to an auditor? [[slnc 500]] If this helped, a like '
+            'really does help other people find it. [[slnc 300]] And '
+            "subscribe, if you'd like the rest of the series. [[slnc "
+            '400]] Thanks for watching.'
         ),
     ),
 ]

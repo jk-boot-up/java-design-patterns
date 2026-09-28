@@ -19,21 +19,21 @@ The first two lines are what a viewer sees above the fold, so they carry the hoo
 ```
 CHAPTERS
 00:00 Introduction
-00:56 The Partner Project
-01:22 Before The First Line
-01:46 The Pool Decides
-02:11 Exceptions
-02:42 Thread-Locals
-03:10 A Timeout Does Not Stop It
-03:31 cancel(true) Interrupts Nothing
-03:53 Composing The Page
-04:17 The Verdict
-04:34 How To Recognise It
-04:51 Where You Have Met This
-05:01 What Was Used
-05:09 What Is Real Here
-05:25 When This Is Too Much
-05:37 Thanks for Watching
+00:53 The Partner Project
+01:25 Before The First Line
+01:51 The Pool Decides
+02:18 Exceptions
+02:56 Thread-Locals
+03:29 A Timeout Does Not Stop It
+03:53 cancel(true) Interrupts Nothing
+04:18 Composing The Page
+04:48 The Verdict
+05:06 How To Recognise It
+05:26 Where You Have Met This
+05:37 What Was Used
+05:46 What Is Real Here
+06:01 When This Is Too Much
+06:12 Thanks for Watching
 
 SOURCE CODE, WRITTEN NOTES AND AN INTERACTIVE ANIMATION
 https://github.com/jk-boot-up/java-design-patterns/tree/main/gradle-java/concurrency-design-patterns/future-promise-with-spring-pattern
@@ -48,21 +48,21 @@ YouTube renders these as chapters only if there are at least three and the first
 
 ```
 00:00 Introduction
-00:56 The Partner Project
-01:22 Before The First Line
-01:46 The Pool Decides
-02:11 Exceptions
-02:42 Thread-Locals
-03:10 A Timeout Does Not Stop It
-03:31 cancel(true) Interrupts Nothing
-03:53 Composing The Page
-04:17 The Verdict
-04:34 How To Recognise It
-04:51 Where You Have Met This
-05:01 What Was Used
-05:09 What Is Real Here
-05:25 When This Is Too Much
-05:37 Thanks for Watching
+00:53 The Partner Project
+01:25 Before The First Line
+01:51 The Pool Decides
+02:18 Exceptions
+02:56 Thread-Locals
+03:29 A Timeout Does Not Stop It
+03:53 cancel(true) Interrupts Nothing
+04:18 Composing The Page
+04:48 The Verdict
+05:06 How To Recognise It
+05:26 Where You Have Met This
+05:37 What Was Used
+05:46 What Is Real Here
+06:01 When This Is Too Much
+06:12 Thanks for Watching
 ```
 
 ## Tags
@@ -101,4 +101,4 @@ Add a card partway through pointing at the playlist, so a viewer who arrives at 
 
 ## Runtime
 
-Approximately 06:14, narrated at 145 words per minute.
+Approximately 06:51, narrated at 145 words per minute.

@@ -19,20 +19,20 @@ The first two lines are what a viewer sees above the fold, so they carry the hoo
 ```
 CHAPTERS
 00:00 Introduction
-01:17 The Scenario
-02:16 Version One — No Layers At All
-03:18 Four Layers, Stacked
-04:35 The One Call That Ruins Them
-05:44 Why This Keeps Happening
-06:40 The Rule, Written Where A Build Can Read It
-07:38 Watching It Go Red
-08:32 The Forced Change
-09:35 And The One That Took The Shortcut
-10:29 What This Project Does Not Fix
-11:39 An Order That Is Not Obvious
-12:34 The Bill
-13:42 When This Is Too Much
-14:35 Thanks for Watching
+01:06 The Scenario
+01:50 Version One — No Layers At All
+02:35 Four Layers, Stacked
+03:30 The One Call That Ruins Them
+04:16 Why This Keeps Happening
+04:47 The Rule, Written Where A Build Can Read It
+05:25 Watching It Go Red
+06:00 The Forced Change
+06:44 And The One That Took The Shortcut
+07:22 What This Project Does Not Fix
+08:13 An Order That Is Not Obvious
+08:55 The Bill
+09:33 When This Is Too Much
+10:09 Thanks for Watching
 
 SOURCE CODE, WRITTEN NOTES AND AN INTERACTIVE ANIMATION
 https://github.com/jk-boot-up/java-design-patterns/tree/main/gradle-java/architectural-design-patterns/layered-architecture-pattern
@@ -47,20 +47,20 @@ YouTube renders these as chapters only if there are at least three and the first
 
 ```
 00:00 Introduction
-01:17 The Scenario
-02:16 Version One — No Layers At All
-03:18 Four Layers, Stacked
-04:35 The One Call That Ruins Them
-05:44 Why This Keeps Happening
-06:40 The Rule, Written Where A Build Can Read It
-07:38 Watching It Go Red
-08:32 The Forced Change
-09:35 And The One That Took The Shortcut
-10:29 What This Project Does Not Fix
-11:39 An Order That Is Not Obvious
-12:34 The Bill
-13:42 When This Is Too Much
-14:35 Thanks for Watching
+01:06 The Scenario
+01:50 Version One — No Layers At All
+02:35 Four Layers, Stacked
+03:30 The One Call That Ruins Them
+04:16 Why This Keeps Happening
+04:47 The Rule, Written Where A Build Can Read It
+05:25 Watching It Go Red
+06:00 The Forced Change
+06:44 And The One That Took The Shortcut
+07:22 What This Project Does Not Fix
+08:13 An Order That Is Not Obvious
+08:55 The Bill
+09:33 When This Is Too Much
+10:09 Thanks for Watching
 ```
 
 ## Tags
@@ -99,4 +99,4 @@ Add a card partway through pointing at the playlist, so a viewer who arrives at 
 
 ## Runtime
 
-Approximately 15:32, narrated at 145 words per minute.
+Approximately 10:52, narrated at 145 words per minute.

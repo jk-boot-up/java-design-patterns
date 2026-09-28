@@ -19,19 +19,19 @@ The first two lines are what a viewer sees above the fold, so they carry the hoo
 ```
 CHAPTERS
 00:00 Introduction
-00:55 The Scenario
-01:07 Pull The Plug
-01:26 The Pattern
-01:40 Ask It To Stop, And Let It Finish
-02:01 A Worker That Is Asleep
-02:19 Tidy Up On The Way Out
-02:34 A Worker That Will Not Stop
-02:57 The Bill
-03:20 How To Recognise It
-03:42 The Verdict
-04:05 What Is Real Here
-04:18 When This Is Too Much
-04:31 Thanks for Watching
+00:57 The Scenario
+01:12 Pull The Plug
+01:31 The Pattern
+01:47 Ask It To Stop, And Let It Finish
+02:09 A Worker That Is Asleep
+02:32 Tidy Up On The Way Out
+02:48 A Worker That Will Not Stop
+03:14 The Bill
+03:39 How To Recognise It
+04:02 The Verdict
+04:27 What Is Real Here
+04:40 When This Is Too Much
+04:58 Thanks for Watching
 
 SOURCE CODE, WRITTEN NOTES AND AN INTERACTIVE ANIMATION
 https://github.com/jk-boot-up/java-design-patterns/tree/main/gradle-java/concurrency-design-patterns/two-phase-termination-pattern
@@ -46,19 +46,19 @@ YouTube renders these as chapters only if there are at least three and the first
 
 ```
 00:00 Introduction
-00:55 The Scenario
-01:07 Pull The Plug
-01:26 The Pattern
-01:40 Ask It To Stop, And Let It Finish
-02:01 A Worker That Is Asleep
-02:19 Tidy Up On The Way Out
-02:34 A Worker That Will Not Stop
-02:57 The Bill
-03:20 How To Recognise It
-03:42 The Verdict
-04:05 What Is Real Here
-04:18 When This Is Too Much
-04:31 Thanks for Watching
+00:57 The Scenario
+01:12 Pull The Plug
+01:31 The Pattern
+01:47 Ask It To Stop, And Let It Finish
+02:09 A Worker That Is Asleep
+02:32 Tidy Up On The Way Out
+02:48 A Worker That Will Not Stop
+03:14 The Bill
+03:39 How To Recognise It
+04:02 The Verdict
+04:27 What Is Real Here
+04:40 When This Is Too Much
+04:58 Thanks for Watching
 ```
 
 ## Tags
@@ -97,4 +97,4 @@ Add a card partway through pointing at the playlist, so a viewer who arrives at 
 
 ## Runtime
 
-Approximately 05:12, narrated at 145 words per minute.
+Approximately 05:37, narrated at 145 words per minute.

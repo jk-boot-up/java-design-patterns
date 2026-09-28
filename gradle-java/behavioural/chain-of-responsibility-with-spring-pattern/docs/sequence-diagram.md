@@ -6,25 +6,4 @@ Say it in words. A request comes in. The chain asks the address check, which has
 
 ![Chain of Responsibility with Spring pattern sequence diagram](images/sequence-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant K as caller
-    participant C as ScreeningChain
-    participant A as address
-    participant S as stock
-    participant F as fraud
-    K->>C: screen(request)
-    C->>A: check (no opinion)
-    C->>S: check (no opinion)
-    C->>F: check
-    F-->>C: throws
-    C-->>K: REFERRED by fraud
-```
-
-</details>
-
 The load-bearing sentence: **the walker decides what a failing link means.**

@@ -6,49 +6,6 @@ rest of the workflow.
 
 ![Factory Method pattern sequence diagram](images/uml-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-sequenceDiagram
-    actor Client as FactoryMethodDemo
-    participant Service as DeliveryService
-    participant Express as ExpressDelivery
-    participant Air as AirCourier
-    participant Courier as Courier
-
-    Client->>Service: ship(order)
-    activate Service
-
-    Note over Service: guard: the order must have weight
-
-    Service->>Express: createCourier()
-    activate Express
-    Express->>Air: new AirCourier()
-    activate Air
-    Air-->>Express: instance
-    deactivate Air
-    Express-->>Service: Courier
-    deactivate Express
-
-    Note over Service,Courier: from here the creator sees only the interface
-
-    Service->>Courier: name()
-    activate Courier
-    Courier-->>Service: "SkyLink Air"
-    deactivate Courier
-
-    Service->>Courier: dispatch(order)
-    activate Courier
-    Courier-->>Service: Shipment
-    deactivate Courier
-
-    Service-->>Client: Shipment
-    deactivate Service
-```
-
-</details>
-
 ## Notes
 
 - The call to `createCourier()` goes *down* into the subclass and comes back

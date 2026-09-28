@@ -6,24 +6,4 @@ Say it in words. The application starts. The one place that wires things togethe
 
 ![Dependency Injection pattern sequence diagram](images/sequence-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant W as Wiring
-    participant C as CheckoutService
-    participant P as DiscountPolicy
-    participant G as PaymentGateway
-    participant N as Notifier
-    W->>C: new CheckoutService(policy, gateway, notifier)
-    Note over C: valid the moment it exists
-    C->>P: apply(10000)
-    C->>G: charge(9000)
-    C->>N: send("paid 9000")
-```
-
-</details>
-
 The load-bearing sentence: **the signature is the dependency list, complete and checked by the compiler.**

@@ -6,23 +6,4 @@ Say it in words. A payment asks the pool for a connection. The pool hands over a
 
 ![Object Pool with HikariCP pattern sequence diagram](images/sequence-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant P as payment
-    participant H as HikariCP
-    participant C as connection
-    P->>H: getConnection()
-    H-->>P: an idle connection
-    P->>C: insert the payment
-    P->>H: close(), which returns it
-    H->>C: reset autoCommit, readOnly, isolation
-    Note over H,C: a session variable is not reset
-```
-
-</details>
-
 The load-bearing sentence: **the pool cannot reset what it cannot see.**

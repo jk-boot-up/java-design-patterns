@@ -10,33 +10,38 @@ SCENES = [
         key='01-poster', kind='poster', title='Claim Check',
         body=None,
         narration=(
-            'Hello, and welcome. This video explains the Claim Check '
-            'pattern in Java, and it is written and presented by '
-            'Jayasekhar Konduru. [[slnc 300]] The plain definition: a '
-            'claim check stores a large payload somewhere cheap, and '
-            'sends only a small ticket through the message broker. The '
-            'receiver redeems the ticket for the payload, the way you '
-            'collect a coat. [[slnc 350]] This is another project in the '
-            'microservices category, whose subject is how many small '
-            'services stay reliable when they talk to each other. In our '
-            'online store, the big thing is an invoice PDF that has to be '
-            'sent to another service. [[slnc 300]] By the end you will '
-            'see a broker refuse a big message, see a ticket carry it '
-            'instead, see how little the broker carries, see luggage '
-            'nobody collected, see a changed payload caught by a '
-            'checksum, and see the bill, which is extra steps and a '
-            'ticket that must be hard to guess.'
+            'Hello, and welcome. [[slnc 400]] This video explains the '
+            'Claim Check pattern, in Java. [[slnc 300]] This video is '
+            'presented by Jayasekhar Konduru. [[slnc 600]] First, a '
+            'simple definition. [[slnc 300]] A claim check stores a large '
+            'item somewhere cheap. [[slnc 300]] Then it sends only a '
+            'small ticket through the message system. [[slnc 300]] The '
+            'receiver hands in the ticket, and collects the item. [[slnc '
+            '600]] Think of a cloakroom at a theatre. [[slnc 300]] You '
+            'leave your heavy coat at the counter, and get a small '
+            'numbered ticket. [[slnc 300]] You carry the ticket, not the '
+            'coat. [[slnc 300]] Later, you hand in the ticket, and get '
+            'your coat back. [[slnc 700]] In our online store, the big '
+            'item is an invoice P D F, which must go to another service. '
+            '[[slnc 500]] By the end, you will hear the message system '
+            'refuse a big message. [[slnc 300]] A ticket carry it '
+            'instead. [[slnc 300]] Items that nobody collected. [[slnc '
+            '300]] A changed item caught by a check. [[slnc 300]] And the '
+            'bill.'
         ),
     ),
     dict(
         key='02-scenario', kind='bullets', title='The Scenario',
         body=['When an order ships, the store', 'sends the invoice PDF to the', 'mailing service.', '', 'The invoice is 5000 bytes.', 'The broker takes 1000.', '', 'What do we send?'],
         narration=(
-            'Here is the scenario. When an order ships, the online store '
-            'sends the invoice, a PDF of five thousand bytes, to the '
-            'mailing service through a message broker. The broker accepts '
-            'messages of a thousand bytes. [[slnc 300]] The question: '
-            'what do we send?'
+            'Here is the scenario. [[slnc 400]] When an order ships, the '
+            'store sends the invoice to the mailing service. [[slnc 300]] '
+            'The invoice is a P D F of five thousand bytes. [[slnc 500]] '
+            'It travels through a message broker. [[slnc 300]] A broker '
+            'is a separate program that carries messages between '
+            'services. [[slnc 300]] And this broker only accepts messages '
+            'up to a thousand bytes. [[slnc 500]] So here is the '
+            'question. [[slnc 300]] What do we send?'
         ),
     ),
     dict(
@@ -49,21 +54,27 @@ SCENES = [
   the ones with no limit get
   slow.""",
         narration=(
-            'First, a message that is too big. The invoice is five '
-            'thousand bytes, and the broker refuses it: it is over its '
-            'limit of a thousand. Most brokers cap the size of a message, '
-            'and the ones that do not get slow when the messages are '
-            'large.'
+            'First demo: a message that is too big. [[slnc 400]] The '
+            "invoice is five thousand bytes. [[slnc 300]] The broker's "
+            'limit is a thousand. [[slnc 300]] So the broker refuses it. '
+            '[[slnc 500]] Most brokers limit the size of a message. '
+            '[[slnc 300]] And the ones with no limit get slow when '
+            'messages are large.'
         ),
     ),
     dict(
         key='04-pattern', kind='bullets', title='The Pattern',
         body=['Store the big thing somewhere', 'cheap.', '', 'Send a small ticket: where it is,', 'how big, and a checksum.', '', 'The receiver redeems the ticket,', 'checks it, and lets it go.'],
         narration=(
-            'The pattern. Store the big thing somewhere cheap. Send a '
-            'small ticket through the broker: where it is, how big it is, '
-            'and a checksum. The receiver redeems the ticket, checks that '
-            'it is the right thing, and then lets the storage go.'
+            'Now, the pattern. [[slnc 400]] Store the big item somewhere '
+            'cheap. [[slnc 500]] Send a small ticket through the broker. '
+            '[[slnc 300]] The ticket says where the item is, how big it '
+            'is, and carries a checksum. [[slnc 300]] A checksum is a '
+            'short fingerprint of the data, used to check it has not '
+            'changed. [[slnc 500]] The receiver hands in the ticket, and '
+            'gets the item. [[slnc 300]] It checks that the item matches '
+            'the fingerprint. [[slnc 300]] And then the storage can let '
+            'it go.'
         ),
     ),
     dict(
@@ -76,10 +87,12 @@ SCENES = [
   the receiver redeems it and
   gets 5000 identical bytes.""",
         narration=(
-            'Second, send the ticket, not the luggage. The invoice goes '
-            'into storage. The message carries a claim: an identifier, '
-            'the size, and a checksum. The receiver redeems the claim, '
-            'and gets five thousand bytes, identical to what was sent.'
+            'Second demo: send the ticket, not the luggage. [[slnc 400]] '
+            'The invoice goes into storage. [[slnc 500]] The message '
+            'carries a claim. [[slnc 300]] It holds an identifier, the '
+            'size, five thousand bytes, and a checksum. [[slnc 500]] The '
+            'receiver hands in the claim. [[slnc 300]] And gets back five '
+            'thousand bytes, identical to what was sent.'
         ),
     ),
     dict(
@@ -91,11 +104,12 @@ SCENES = [
 
   the broker moves a ticket.""",
         narration=(
-            'Third, what the broker carries. A hundred invoices of five '
-            'thousand bytes. Through a broker with no size limit: five '
-            'hundred thousand bytes. By claim: five thousand nine '
-            'hundred. The broker moves a small ticket. The storage holds '
-            'the luggage.'
+            'Third demo: how much the broker carries. [[slnc 400]] A '
+            'hundred invoices, of five thousand bytes each. [[slnc 500]] '
+            'Through a broker with no size limit, that is five hundred '
+            'thousand bytes. [[slnc 300]] With claim checks, it is five '
+            'thousand nine hundred bytes. [[slnc 500]] The broker carries '
+            'small tickets. [[slnc 300]] The storage holds the luggage.'
         ),
     ),
     dict(
@@ -109,12 +123,14 @@ SCENES = [
   the blob for this claim
   expired.""",
         narration=(
-            'Fourth, luggage nobody collected. Ten are sent, and six are '
-            'collected and deleted. Four blobs are still in storage. '
-            'After the time limit, a sweep removes them. And a slow '
-            'receiver, arriving later with its claim, finds its blob '
-            'gone. The storage needs a life span, and the receiver has to '
-            'cope with a claim that expired.'
+            'Fourth demo: luggage nobody collected. [[slnc 400]] Ten '
+            'invoices are sent. [[slnc 300]] Six are collected, and '
+            'deleted. [[slnc 300]] So four are still sitting in storage. '
+            '[[slnc 500]] After a time limit, a clean-up removes them. '
+            '[[slnc 500]] Then a slow receiver arrives, with its claim. '
+            '[[slnc 300]] And it finds that its invoice has gone. [[slnc '
+            '500]] So stored items need a life span. [[slnc 300]] And the '
+            'receiver must cope with a claim that has expired.'
         ),
     ),
     dict(
@@ -127,10 +143,12 @@ SCENES = [
   the claim's checksum is what
   makes the blob safe to trust.""",
         narration=(
-            'Fifth, is it the same luggage? One byte is changed in '
-            'storage. The receiver checks the checksum that came in the '
-            'claim, and refuses the payload. The checksum in the claim is '
-            'what makes a ticket for a blob safe to trust.'
+            'Fifth demo: is it the same luggage? [[slnc 400]] One byte of '
+            'the invoice is changed, while it sits in storage. [[slnc '
+            '500]] The receiver compares it with the checksum that came '
+            'in the claim. [[slnc 300]] They do not match, so the '
+            'receiver refuses it. [[slnc 500]] The checksum in the claim '
+            'is what makes the stored item safe to trust.'
         ),
     ),
     dict(
@@ -147,75 +165,86 @@ SCENES = [
   store-then-send can stop
   between the two.""",
         narration=(
-            'Last, the bill. One invoice now takes three storage '
-            'operations and two broker steps, where it took one. Claims '
-            'that count up let anyone holding one read the next: blob one '
-            "reads blob two's invoice. Random claims do not: a hundred "
-            'thousand guesses found none. And storing then sending can '
-            'stop between the two, leaving luggage nobody has a ticket '
-            'for.'
+            'Finally, the bill. [[slnc 400]] One invoice now takes three '
+            'storage steps and two broker steps. [[slnc 300]] Before, it '
+            'took one. [[slnc 600]] Next, the ticket numbers. [[slnc '
+            '300]] If claims simply count up, one, two, three, anyone '
+            'holding one can guess the next. [[slnc 300]] In the demo, '
+            'the holder of claim one reads the invoice for claim two. '
+            '[[slnc 500]] With random claims, a hundred thousand guesses '
+            'found nothing. [[slnc 600]] And last, storing and then '
+            'sending are two separate steps. [[slnc 300]] If the program '
+            'stops between them, the invoice sits in storage, and nobody '
+            'has a ticket for it.'
         ),
     ),
     dict(
         key='10-recognise', kind='bullets', title='How To Recognise It',
         body=['A message that holds a URL or an', 'id and a size instead of the data.', '', 'An S3 or blob storage path in an', 'SQS or Kafka message.', '', 'A ClaimCheck or Payload class in', 'an integration library.'],
         narration=(
-            'How do you recognise this in code you did not write? A '
-            'message that holds a URL or an id and a size instead of the '
-            'data. An S3 or blob storage path in an SQS or Kafka message. '
-            'A ClaimCheck or Payload class in an integration library. A '
-            'lifecycle rule that deletes objects after a number of days.'
+            'How can you spot this pattern in code someone else wrote? '
+            '[[slnc 400]] Look for a message that holds a link or an I D '
+            'and a size, instead of the data itself. [[slnc 300]] Look '
+            'for a storage path, such as an Amazon S3 location, inside a '
+            'queue message. [[slnc 300]] Look for a class called claim '
+            'check, or payload, in an integration library. [[slnc 300]] '
+            'Or a storage rule that deletes files after a number of days.'
         ),
     ),
     dict(
         key='11-verdict', kind='bullets', title='The Verdict',
         body=['Use a claim check when payloads', 'are larger than a broker should', 'carry, or when many consumers need', 'only part of the message. Make the', 'claim unguessable and carry a', 'checksum. Give stored payloads a', 'life span, sweep the ones nobody', 'collected, and handle a claim that', 'has expired. Store first, then'],
         narration=(
-            'Here is my verdict, plainly. Use a claim check when payloads '
-            'are larger than a broker should carry, or when many '
-            'consumers need only part of the message. Make the claim '
-            'unguessable and carry a checksum. Give stored payloads a '
-            'life span, sweep the ones nobody collected, and handle a '
-            'claim that has expired. Store first, then send, and expect '
-            'the orphan.'
+            'So, here is the verdict. [[slnc 400]] Use a claim check when '
+            'items are bigger than a broker should carry. [[slnc 300]] Or '
+            'when many receivers need only part of the message. [[slnc '
+            '500]] Make the claim impossible to guess, and include a '
+            'checksum. [[slnc 300]] Give stored items a life span. [[slnc '
+            '300]] Clean up the ones nobody collected. [[slnc 300]] And '
+            'handle a claim that has expired. [[slnc 500]] Store first, '
+            'then send. [[slnc 300]] And expect the occasional item with '
+            'no ticket.'
         ),
     ),
     dict(
         key='12-real', kind='bullets', title='What Is Real Here',
         body=['Everything is plain Java.', '', 'Every number quoted comes from', "this program's own output.", '', 'Nothing depends on a clock,', 'so every run is the same.'],
         narration=(
-            'The same honest admission as everywhere in this course. '
-            'Everything is plain Java. Every number quoted comes from '
-            "this program's own output. Nothing depends on a clock, so "
-            'every run is the same.'
+            'A quick, honest note about this demo. [[slnc 300]] '
+            'Everything is plain Java. [[slnc 300]] Every number you '
+            "heard comes from the program's own output. [[slnc 300]] "
+            'Nothing depends on a real clock, so every run gives the same '
+            'result.'
         ),
     ),
     dict(
         key='13-too-much', kind='bullets', title='When This Is Too Much',
         body=['If payloads are small, a claim', 'check adds two steps for nothing.', 'If the receiver needs the data at', 'once and storage is slow, the', 'ticket costs more than it saves.'],
         narration=(
-            'So when is it too much? If payloads are small, a claim check '
-            'adds two steps for nothing. If the receiver needs the data '
-            'at once and storage is slow, the ticket costs more than it '
-            'saves.'
+            'So, when is this too much? [[slnc 400]] If the messages are '
+            'small, a claim check adds two steps for nothing. [[slnc '
+            '400]] And if the receiver needs the data at once, and '
+            'storage is slow, the ticket costs more than it saves.'
         ),
     ),
     dict(
         key='14-outro', kind='outro', title='Thanks for Watching',
         body=['Full source, notes, diagrams and an animated walkthrough', 'are in the repository. Try the exercises in', 'the session guide.'],
         narration=(
-            "That's Claim Check. [[slnc 250]] If you take one sentence "
-            'away, take this one: a claim check keeps the broker light, '
-            'and the price is extra steps, expiry, and a ticket that must '
-            'be unguessable and verified. [[slnc 350]] The full source, '
-            'the written notes, the diagrams and an animated walkthrough '
-            'are all in the repository, running offline with nothing '
-            'installed but a Java development kit. [[slnc 300]] If you '
-            'try one exercise, make the sender delete the blob if '
-            'publishing the claim fails, and prove it with a broker that '
-            'refuses. [[slnc 300]] If this helped, a like genuinely does '
-            'help other people find it, and subscribe if you would like '
-            'the rest of the series. [[slnc 250]] Thanks for watching.'
+            "That's the Claim Check pattern. [[slnc 400]] If you remember "
+            'one sentence, make it this one. [[slnc 300]] A claim check '
+            'keeps the broker light, and the price is extra steps, '
+            'expiry, and a ticket that must be impossible to guess, and '
+            'checked. [[slnc 500]] The full source code, written notes, '
+            'diagrams, and an animated walkthrough are all in the '
+            'repository. [[slnc 300]] It runs offline, with nothing '
+            'installed except a Java development kit. [[slnc 500]] Here '
+            'is one exercise to try. [[slnc 300]] Make the sender delete '
+            'the stored invoice if sending the claim fails. [[slnc 300]] '
+            'Then prove it works, with a broker that refuses. [[slnc '
+            '500]] If this helped, a like really does help other people '
+            "find it. [[slnc 300]] And subscribe, if you'd like the rest "
+            'of the series. [[slnc 400]] Thanks for watching.'
         ),
     ),
 ]

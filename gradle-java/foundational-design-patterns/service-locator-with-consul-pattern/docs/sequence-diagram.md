@@ -6,27 +6,4 @@ Say it in words. The checkout wants to charge a customer. It asks the locator fo
 
 ![Service Locator with Consul pattern sequence diagram](images/sequence-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant C as LocatorCheckout
-    participant L as ConsulLocator
-    participant K as Consul
-    participant G as gateway instance
-    C->>L: find("payment-gateway")
-    L->>K: healthy instances?
-    K-->>L: gateway-1, gateway-2
-    L-->>C: gateway-2, the next in turn
-    C->>G: charge 9000
-    C->>L: find("notifier")
-    L->>K: healthy instances?
-    K-->>L: none
-    L-->>C: NoHealthyInstance
-```
-
-</details>
-
 The load-bearing sentence: **the failure arrived after the money moved, not in the build.**

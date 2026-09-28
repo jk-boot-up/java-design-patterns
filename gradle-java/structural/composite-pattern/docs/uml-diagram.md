@@ -7,43 +7,6 @@ no caller-side loop past the first call.
 
 ![Composite pattern sequence diagram](images/uml-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-sequenceDiagram
-    actor Client as CatalogDemo
-    participant Electronics as Category (Electronics)
-    participant Phone as Product (Phone)
-    participant Accessories as Category (Accessories)
-    participant Case as Product (Case)
-    participant Cables as Category (Cables)
-    participant Cable as Product (USB-C Cable)
-
-    Client->>Electronics: totalPrice()
-    activate Electronics
-    Electronics->>Phone: totalPrice()
-    Phone-->>Electronics: 599.99
-    Electronics->>Accessories: totalPrice()
-    activate Accessories
-    Accessories->>Case: totalPrice()
-    Case-->>Accessories: 19.99
-    Accessories->>Cables: totalPrice()
-    activate Cables
-    Cables->>Cable: totalPrice()
-    Cable-->>Cables: 9.99
-    Cables-->>Accessories: 9.99
-    deactivate Cables
-    Accessories-->>Electronics: 29.98 + 9.99 = 59.97 (Charger omitted for space)
-    deactivate Accessories
-    Electronics-->>Client: 599.99 + 59.97 = 659.96
-    deactivate Electronics
-
-    Note over Client,Cable: One call from the client. Every level below recurses through the same totalPrice() method.
-```
-
-</details>
-
 ## Notes
 
 - The client makes exactly **one** call, `electronics.totalPrice()`. Every

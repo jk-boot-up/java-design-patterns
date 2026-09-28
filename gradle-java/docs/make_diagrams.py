@@ -1,6 +1,11 @@
 #!/usr/bin/env python3
 """Render the Mermaid diagrams in a project's docs/ to PNG.
 
+RETIRED: the repository no longer uses Mermaid (see AUDIO-VIDEO-SPEC.md). Every
+diagram is now an image file in docs/images/, and docs/strip_mermaid.py removed
+the old source blocks, so this script finds nothing to render. It is kept only
+so the history of how those PNGs were made stays readable.
+
 Every `docs/*-diagram.md` in this repository follows the same shape: some
 prose explaining what the picture says, an `![...](images/<name>.png)` tag,
 and then the Mermaid source in a `<details>` block underneath. The PNG is what

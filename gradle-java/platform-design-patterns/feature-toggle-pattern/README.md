@@ -96,12 +96,6 @@ No framework. A hand-built project stays plain Java so the mechanism is the whol
 
 ![Sequence one](docs/images/uml-diagram.png)
 
-![Sequence two](docs/images/uml-diagram-2.png)
-
-![Sequence three](docs/images/uml-diagram-3.png)
-
-![Sequence four](docs/images/uml-diagram-4.png)
-
 ### Video
 
 Built from [`video/scenes.py`](video/scenes.py) by

@@ -10,32 +10,35 @@ SCENES = [
         key='01-poster', kind='poster', title='Anti-Corruption Layer',
         body=None,
         narration=(
-            'Hello, and welcome. This video explains the Anti-Corruption '
-            'Layer pattern in Java, and it is written and presented by '
-            'Jayasekhar Konduru. [[slnc 300]] The plain definition: an '
-            'anti-corruption layer is a translator that sits between your '
-            "own model and another system's model, so that the other "
-            "system's ideas, names and codes never leak into yours. "
-            '[[slnc 350]] This is the fifth project in the domain-driven '
-            'design category, whose subject is writing code that says '
-            'what the business says. In our online store, the thing we '
-            'have to talk to is an old inventory system that nobody is '
-            'allowed to change. [[slnc 300]] By the end you will see the '
-            "old system's codes spread through four features, see one "
-            'layer translate them once, see bad data stopped at the door, '
-            'and see the cost of the layer, which is the bill.'
+            'Hello, and welcome. [[slnc 400]] This video explains the '
+            'Anti-Corruption Layer pattern, in Java. [[slnc 300]] This '
+            'video is presented by Jayasekhar Konduru. [[slnc 600]] '
+            'First, a simple definition. [[slnc 300]] An anti-corruption '
+            'layer is a translator. [[slnc 300]] It sits between your own '
+            "model, and another system's model. [[slnc 300]] So the other "
+            "system's ideas, names, and codes never leak into yours. "
+            '[[slnc 600]] Think of an interpreter at a business meeting. '
+            '[[slnc 300]] Each side speaks its own language. [[slnc 300]] '
+            'The interpreter makes sure neither side has to learn the '
+            "other's. [[slnc 700]] In our online store, we must talk to "
+            'an old inventory system that nobody is allowed to change. '
+            "[[slnc 500]] In this video, the old system's codes spread "
+            'through four features. [[slnc 300]] Then one layer '
+            'translates them, once. [[slnc 300]] We will hear bad data '
+            'stopped at the door, and the cost of keeping the layer.'
         ),
     ),
     dict(
         key='02-scenario', kind='bullets', title='The Scenario',
         body=['Stock comes from an old system.', '', 'Every value is a string.', 'The codes are one letter.', 'It cannot be changed.', '', 'Its owners add new codes,', 'without telling anyone.', '', 'How should the shop use it?'],
         narration=(
-            'Here is the scenario. The online store gets its stock levels '
-            'from an old inventory system. It sends every value as a '
-            'string. It uses one letter codes. It cannot be changed, and '
-            'its owners add new codes now and then without telling '
-            'anyone. [[slnc 300]] The question: how should the shop use '
-            'it?'
+            'Here is the scenario. [[slnc 400]] The online store gets its '
+            'stock levels from an old inventory system. [[slnc 400]] It '
+            'sends every value as text. [[slnc 300]] It uses one-letter '
+            'codes. [[slnc 300]] It cannot be changed. [[slnc 300]] And '
+            'its owners sometimes add new codes, without telling anyone. '
+            '[[slnc 500]] So here is the question. [[slnc 300]] How '
+            'should the shop use it?'
         ),
     ),
     dict(
@@ -48,21 +51,25 @@ SCENES = [
   places in the shop that have
   learnt those codes: 4.""",
         narration=(
-            'First, their model, everywhere. The old system sends '
-            'strings. A quantity of zero zero one two. A flag of Y. A '
-            'status of A. Four features in the shop read that record '
-            'directly, so four places have each learnt what those codes '
-            'mean. It works, today.'
+            'First, the naive way: their model, everywhere. [[slnc 400]] '
+            'The old system sends text. [[slnc 300]] A quantity written '
+            'as zero zero one two. [[slnc 300]] A stock flag of Y. [[slnc '
+            '300]] And a status code of A. [[slnc 500]] Four features in '
+            'the shop read that record directly. [[slnc 300]] So four '
+            'places have each learned what those codes mean. [[slnc 300]] '
+            'It works, for today.'
         ),
     ),
     dict(
         key='04-pattern', kind='bullets', title='The Pattern',
         body=['A layer between the shop and', 'the old system.', '', 'It is the only class that knows', 'their codes.', '', "It translates into the shop's", 'own model, and refuses what it', 'cannot translate.'],
         narration=(
-            'The pattern. A layer between the shop and the old system. It '
-            'is the only class that knows the old codes. It translates '
-            "them into the shop's own model. And it refuses anything it "
-            'cannot translate, so bad data stops at the door.'
+            'Now, the pattern. [[slnc 400]] Put a layer between the shop '
+            'and the old system. [[slnc 300]] It is the only class that '
+            'knows the old codes. [[slnc 400]] It translates them into '
+            "the shop's own model. [[slnc 300]] And it refuses anything "
+            'it cannot translate. [[slnc 300]] So bad data stops at the '
+            'door.'
         ),
     ),
     dict(
@@ -74,11 +81,12 @@ SCENES = [
 
   no code crossed the layer.""",
         narration=(
-            'Second, translated once. Each old record becomes a stock '
-            'level, with a real number and a meaning. The blue mug: '
-            'twelve, in stock. The old mug: none, discontinued. The tea: '
-            'two hundred and forty, in stock. No code has crossed the '
-            'layer.'
+            'Second demo: translated, once. [[slnc 400]] Each old record '
+            'becomes a stock level, with a real number, and a clear '
+            'meaning. [[slnc 500]] The blue mug: twelve, in stock. [[slnc '
+            '300]] The old mug: none, discontinued. [[slnc 300]] The tea: '
+            'two hundred and forty, in stock. [[slnc 500]] Not a single '
+            'old code crossed the layer.'
         ),
     ),
     dict(
@@ -92,11 +100,14 @@ SCENES = [
   MUG-BLUE: quantity 12X is not
   a number.""",
         narration=(
-            'Third, bad data. The old system sends a quantity of twelve '
-            'X. The shortcut fails deep inside a report, with a number '
-            'format exception, and no mention of which item. The layer '
-            'refuses it at the door, and says: legacy data for the blue '
-            'mug, quantity twelve X is not a number.'
+            'Third demo: bad data stops at the door. [[slnc 400]] The old '
+            'system sends a quantity of twelve X. [[slnc 500]] Without '
+            'the layer, the error happens deep inside a report. [[slnc '
+            '300]] It says only that a number could not be read, and does '
+            'not say which item. [[slnc 500]] With the layer, the record '
+            'is refused at the door. [[slnc 300]] And the message says: '
+            'legacy data for the blue mug, quantity twelve X is not a '
+            'number.'
         ),
     ),
     dict(
@@ -109,11 +120,14 @@ SCENES = [
   the layer: ON_HOLD, cannot be
   bought. one decision.""",
         narration=(
-            'Fourth, the other side changes. The old system starts '
-            'sending H, for a product on hold, and tells nobody. The four '
-            'features each guess. The page says in stock. The basket lets '
-            'a customer buy it. [[slnc 300]] With the layer, there is one '
-            'decision, in one place: on hold, and it cannot be bought.'
+            'Fourth demo: the other side changes. [[slnc 400]] The old '
+            'system starts sending a new status code, H, meaning on hold. '
+            '[[slnc 300]] And it tells nobody. [[slnc 500]] Without the '
+            'layer, the four features each guess. [[slnc 300]] The '
+            'product page says, in stock. [[slnc 300]] And the basket '
+            'lets a customer buy it. [[slnc 500]] With the layer, there '
+            'is one decision, in one place. [[slnc 300]] On hold, and it '
+            'cannot be bought.'
         ),
     ),
     dict(
@@ -127,11 +141,13 @@ SCENES = [
   a new need means extending
   the layer.""",
         narration=(
-            'Fifth, the cost. The old row has seven fields, and the shop '
-            'uses four. The layer drops three: the last count date, the '
-            'warehouse and the unit. The day a feature needs one of them, '
-            "the layer has to be extended, and the shop's model with it. "
-            'That is the price of keeping the model clean.'
+            'Fifth demo: what the layer costs. [[slnc 400]] Each old '
+            'record has seven fields. [[slnc 300]] The shop uses four. '
+            '[[slnc 300]] The layer drops three: the last stock count '
+            'date, the warehouse, and the unit. [[slnc 500]] The day a '
+            'feature needs one of those, the layer must be extended. '
+            "[[slnc 300]] And the shop's model with it. [[slnc 300]] That "
+            'is the price of keeping your model clean.'
         ),
     ),
     dict(
@@ -144,35 +160,40 @@ SCENES = [
   replace the old system: one
   new adapter, nothing else.""",
         narration=(
-            'Last, what the layer protects. The shop has four '
-            'availability words of its own: in stock, out of stock, '
-            "discontinued, and on hold. The old system's words stay "
-            'behind the layer. Replace the old system, and you write one '
-            'new adapter. Nothing else changes.'
+            'Last demo: what the layer protects. [[slnc 400]] The shop '
+            'has four availability words of its own. [[slnc 300]] In '
+            'stock, out of stock, discontinued, and on hold. [[slnc 500]] '
+            "The old system's codes stay behind the layer. [[slnc 300]] "
+            'So if the old system is ever replaced, you write one new '
+            'adapter. [[slnc 300]] Nothing else in the shop changes.'
         ),
     ),
     dict(
         key='10-recognise', kind='bullets', title='How To Recognise It',
         body=['An interface in your domain and an', 'adapter class that implements it', '', 'Mapping code between two sets of', 'types with different names for the', '', "A package for the other system's", 'types that nothing but one class'],
         narration=(
-            'How do you recognise this in code you did not write? An '
-            'interface in your domain and an adapter class that '
-            'implements it against another system. Mapping code between '
-            'two sets of types with different names for the same idea. A '
-            "package for the other system's types that nothing but one "
-            'class imports. Names like LegacyXAdapter, Translator or '
-            'Facade around an old service.'
+            'How can you spot this pattern in code someone else wrote? '
+            '[[slnc 400]] Look for an interface in your own domain, with '
+            'an adapter class that implements it, by calling another '
+            'system. [[slnc 300]] Look for mapping code between two sets '
+            'of types, with different names for the same idea. [[slnc '
+            "300]] Look for a package of the other system's types, used "
+            'by only one class. [[slnc 300]] And look for names like '
+            'legacy adapter, translator, or facade, around an old '
+            'service.'
         ),
     ),
     dict(
         key='11-verdict', kind='bullets', title='The Verdict',
         body=['Use an anti-corruption layer when', 'your model must stay clean against', 'a system you do not control:', 'legacy, third-party, or a very', 'different one. Put every', 'translation in one adapter, refuse', 'what cannot be translated, and', 'list what you drop. Do not build', 'one for a system whose model'],
         narration=(
-            'Here is my verdict, plainly. Use an anti-corruption layer '
-            'when your model must stay clean against a system you do not '
-            'control: legacy, third-party, or a very different one. Put '
-            'every translation in one adapter, refuse what cannot be '
-            'translated, and list what you drop. Do not build one for a '
+            'So, here is the verdict. [[slnc 400]] Use an anti-corruption '
+            'layer when your model must stay clean, next to a system you '
+            "do not control. [[slnc 300]] An old system, a third party's "
+            'system, or one with a very different model. [[slnc 500]] Put '
+            'every translation in one adapter. [[slnc 300]] Refuse '
+            'anything that cannot be translated. [[slnc 300]] And write '
+            'down what you drop. [[slnc 500]] Do not build one for a '
             'system whose model already matches yours.'
         ),
     ),
@@ -180,38 +201,40 @@ SCENES = [
         key='12-real', kind='bullets', title='What Is Real Here',
         body=['Everything is plain Java.', '', 'Every number quoted comes from', "this program's own output.", '', 'Nothing depends on a clock,', 'so every run is the same.'],
         narration=(
-            'The same honest admission as everywhere in this course. '
-            'Everything is plain Java. Every number quoted comes from '
-            "this program's own output. Nothing depends on a clock, so "
-            'every run is the same.'
+            'A quick, honest note about this demo. [[slnc 300]] '
+            'Everything is plain Java. [[slnc 300]] Every result you '
+            "heard comes from the program's own output. [[slnc 300]] And "
+            'nothing depends on the clock, so every run gives the same '
+            'result.'
         ),
     ),
     dict(
         key='13-too-much', kind='bullets', title='When This Is Too Much',
         body=["When the other system's model", 'already matches yours, or when it', 'is small and stable, a direct call', 'is simpler. The layer earns its', 'place against a model that is', 'foreign, large or changing.'],
         narration=(
-            "So when is it too much? When the other system's model "
-            'already matches yours, or when it is small and stable, a '
-            'direct call is simpler. The layer earns its place against a '
-            'model that is foreign, large or changing.'
+            'So, when is this too much? [[slnc 400]] When the other '
+            "system's model already matches yours, or when it is small "
+            'and never changes, a direct call is simpler. [[slnc 400]] '
+            'The layer earns its place against a model that is foreign, '
+            'large, or changing.'
         ),
     ),
     dict(
         key='14-outro', kind='outro', title='Thanks for Watching',
         body=['Full source, notes, diagrams and an animated walkthrough', 'are in the repository. Try the exercises in', 'the session guide.'],
         narration=(
-            "That's Anti-Corruption Layer. [[slnc 250]] If you take one "
-            'sentence away, take this one: an anti-corruption layer keeps '
-            "someone else's ideas out of yours, at the price of a "
-            'translator you must maintain. [[slnc 350]] The full source, '
-            'the written notes, the diagrams and an animated walkthrough '
-            'are all in the repository, running offline with nothing '
-            'installed but a Java development kit. [[slnc 300]] If you '
-            'try one exercise, add a new status to the old system, and '
-            'decide what the layer should make of it. [[slnc 300]] If '
-            'this helped, a like genuinely does help other people find '
-            'it, and subscribe if you would like the rest of the series. '
-            '[[slnc 250]] Thanks for watching.'
+            "That's the Anti-Corruption Layer. [[slnc 400]] If you "
+            'remember one sentence, make it this one. [[slnc 300]] An '
+            "anti-corruption layer keeps someone else's ideas out of your "
+            'model, at the price of a translator you must maintain. '
+            '[[slnc 500]] The full source code, written notes, diagrams, '
+            'and an animated walkthrough are all in the repository. '
+            '[[slnc 500]] Here is one exercise to try. [[slnc 300]] Add a '
+            'new status code to the old system. [[slnc 300]] Then decide '
+            'what the layer should make of it. [[slnc 500]] If this '
+            'helped, a like really does help other people find it. [[slnc '
+            "300]] And subscribe, if you'd like the rest of the series. "
+            '[[slnc 400]] Thanks for watching.'
         ),
     ),
 ]

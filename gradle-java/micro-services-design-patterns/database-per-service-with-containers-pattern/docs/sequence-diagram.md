@@ -6,30 +6,6 @@ Say it in words. Customer cust-7 opens the order history page. The page first as
 
 ![Database per Service with Containers sequence diagram](images/sequence-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant P as order history page
-    participant O as Orders service
-    participant PG as Postgres orders db
-    participant C as Catalog service
-    participant M as MongoDB catalog db
-    P->>O: orders for cust-7
-    O->>PG: SELECT ... WHERE customer_id = cust-7
-    PG->>O: ord-101 SKU-KETTLE x1, ord-102 SKU-MUG x4
-    O->>P: 2 orders
-    P->>C: names for SKU-KETTLE and SKU-MUG
-    C->>M: find, _id in both skus
-    M->>C: 2 documents
-    C->>P: Stainless Steel Kettle, Blue Stoneware Mug
-    Note over P: 2 rows, 2 round trips, one to each engine
-```
-
-</details>
-
 The load-bearing sentence: **each service asks only its own engine, and the page does the join in Java, because no engine holds both halves.**
 
 For the old join tried from both sides, the delete nothing refuses, and the rollback that reaches one engine, see [`uml-diagram.md`](uml-diagram.md).

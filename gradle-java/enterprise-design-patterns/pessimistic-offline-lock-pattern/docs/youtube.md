@@ -19,19 +19,19 @@ The first two lines are what a viewer sees above the fold, so they carry the hoo
 ```
 CHAPTERS
 00:00 Introduction
-00:55 The Scenario
-01:10 Lock First, Then Edit
-01:24 The Pattern
-01:37 No Lost Update
-01:53 The Bill: Waiting
-02:06 The Bill: A Lock Nobody Let Go Of
-02:31 The Bill: Each Waiting For The Other
-02:53 How Much To Lock
-03:15 How To Recognise It
-03:36 The Verdict
-04:03 What Is Real Here
-04:16 When This Is Too Much
-04:29 Thanks for Watching
+00:51 The Scenario
+01:05 Lock First, Then Edit
+01:21 The Pattern
+01:35 No Lost Update
+01:55 The Bill: Waiting
+02:09 The Bill: A Lock Nobody Let Go Of
+02:36 The Bill: Each Waiting For The Other
+03:05 How Much To Lock
+03:30 How To Recognise It
+03:55 The Verdict
+04:25 What Is Real Here
+04:40 When This Is Too Much
+04:53 Thanks for Watching
 
 SOURCE CODE, WRITTEN NOTES AND AN INTERACTIVE ANIMATION
 https://github.com/jk-boot-up/java-design-patterns/tree/main/gradle-java/enterprise-design-patterns/pessimistic-offline-lock-pattern
@@ -46,19 +46,19 @@ YouTube renders these as chapters only if there are at least three and the first
 
 ```
 00:00 Introduction
-00:55 The Scenario
-01:10 Lock First, Then Edit
-01:24 The Pattern
-01:37 No Lost Update
-01:53 The Bill: Waiting
-02:06 The Bill: A Lock Nobody Let Go Of
-02:31 The Bill: Each Waiting For The Other
-02:53 How Much To Lock
-03:15 How To Recognise It
-03:36 The Verdict
-04:03 What Is Real Here
-04:16 When This Is Too Much
-04:29 Thanks for Watching
+00:51 The Scenario
+01:05 Lock First, Then Edit
+01:21 The Pattern
+01:35 No Lost Update
+01:55 The Bill: Waiting
+02:09 The Bill: A Lock Nobody Let Go Of
+02:36 The Bill: Each Waiting For The Other
+03:05 How Much To Lock
+03:30 How To Recognise It
+03:55 The Verdict
+04:25 What Is Real Here
+04:40 When This Is Too Much
+04:53 Thanks for Watching
 ```
 
 ## Tags
@@ -97,4 +97,4 @@ Add a card partway through pointing at the playlist, so a viewer who arrives at 
 
 ## Runtime
 
-Approximately 05:08, narrated at 145 words per minute.
+Approximately 05:30, narrated at 145 words per minute.

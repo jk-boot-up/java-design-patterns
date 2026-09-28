@@ -520,5 +520,103 @@ document.addEventListener("keydown", e => {
 setAudio(false);
 reset();
 </script>
+<!-- videokit:narration -->
+<script>
+/* videokit narration player: a Narration on/off switch and a play/pause
+   button for the current step. It watches the page's own narration text,
+   works out which step is showing, and plays audio/step-N.m4a beside the
+   page (rendered by tools/videokit; not embedded, so the page stays small).
+   If the page already plays its own clips, only the pause button is added. */
+(function () {
+  "use strict";
+  var STEPS = ["Eight products live in the warehouse system, and it will only hand them over three at a time. You ask for page zero, then page one, and you know you have finished when a page comes back empty. There is no size, and no has-more-pages. This is the shape the pattern exists to hide.", "For each product in catalogue. That is the entire call site. No page number, no stop condition, nothing to get wrong. Everything you are about to watch happens underneath this one line.", "This is what the compiler does with that line: it calls iterator once, and gets back a fresh bookmark. Look at the pages -- not one has been fetched. Asking for an iterator costs nothing.", "The loop asks: is there anything there? To answer, the iterator has to look, so it fetches page zero. This is the laziness the tests assert -- the fetch happens on the first hasNext, not when the iterator was created.", "The cotton t-shirt, twelve pounds. The iterator moves its own position along by one. Notice that the catalogue was not involved at all -- it has dropped out of the conversation, and every message from here goes to the bookmark.", "The socks, four pounds -- the cheapest thing in the shop. Two products have come out, and exactly one page has been fetched. If the customer stops looking now, the warehouse is never asked for anything else.", "Look at the bookmark: page zero, item two. That is the whole state of the walk, and every bit of it is on the iterator. The catalogue holds what is in it and nothing about who is reading. Get this split wrong and two readers share one bookmark.", "The wool scarf, eighteen pounds. Page zero is now used up, and the loop is about to ask hasNext again. What happens next is the only interesting moment in the whole pattern.", "hasNext sees it has run off the end of page zero, so it fetches page one and says yes. The loop asked one question and got one answer. It has no idea a page boundary was just crossed, and that is precisely the point.", "Lamp, mug, cushion, then page two brings the novel and the cookbook. Eight products, in order, out of a source that never once offered you all eight.", "hasNext fetches page three, gets an empty list, and returns false. The for-each loop ends. Translating that empty page into a plain no is work the caller used to do by hand, in three different places, and got wrong in two of them.", "Ask the catalogue for a second iterator and you get a second, independent position. One reader can be on page two while the other is still on page zero, because neither of them is stored on the book. That is what makes a loop inside a loop over the same catalogue simply work."];
+  var norm = function (s) { return String(s || "").replace(/\s+/g, " ").trim(); };
+  var box = document.getElementById("narration") || document.querySelector(".narration");
+  if (!box || !STEPS.length) return;
+
+  var pageOwnsAudio = !!document.getElementById("audio");
+  var current = null, step = -1, on = false;
+  try { on = localStorage.getItem("vk-narration") === "on"; } catch (e) {}
+
+  // Remember whichever clip the page (or this script) last started.
+  var realPlay = HTMLMediaElement.prototype.play;
+  HTMLMediaElement.prototype.play = function () {
+    if (current && current !== this) { try { current.pause(); } catch (e) {} }
+    current = this;
+    this.addEventListener("play", label);
+    this.addEventListener("pause", label);
+    this.addEventListener("ended", label);
+    var p = realPlay.apply(this, arguments);
+    label();
+    return p;
+  };
+
+  var bar = document.querySelector(".controls") || box.parentNode;
+  function button(id, text) {
+    var b = document.createElement("button");
+    b.id = id; b.type = "button"; b.textContent = text;
+    bar.appendChild(b);
+    return b;
+  }
+  var narrBtn = pageOwnsAudio ? null : button("vk-narration", "");
+  var stepBtn = button("vk-step-audio", "");
+  var note = document.createElement("span");
+  note.id = "vk-note";
+  note.style.cssText = "color:#94a3b8;font-size:.8rem;margin-left:8px";
+  bar.appendChild(note);
+
+  function stepFor(text) {
+    var t = norm(text);
+    for (var i = 0; i < STEPS.length; i++) {
+      var s = norm(STEPS[i]);
+      if (s && t.indexOf(s.slice(0, 60)) !== -1) return i;
+    }
+    return -1;
+  }
+  function stop() { if (current) { try { current.pause(); } catch (e) {} } current = null; label(); }
+  function play(i) {
+    if (i < 0) return;
+    var a = new Audio("audio/step-" + (i + 1) + ".m4a");
+    a.play().then(function () { note.textContent = ""; }, function (e) {
+      note.textContent = e && e.name === "NotAllowedError"
+        ? "Click Play step to hear this step."
+        : "Narration audio not found: run tools/videokit/videokit.sh animation <project>.";
+      label();
+    });
+  }
+  function label() {
+    if (narrBtn) narrBtn.textContent = (on ? "🔊 Narration: on" : "🔇 Narration: off");
+    if (narrBtn) narrBtn.setAttribute("aria-pressed", String(on));
+    var playing = current && !current.paused && !current.ended;
+    var paused = current && current.paused && !current.ended;
+    stepBtn.textContent = playing ? "⏸ Pause step" : paused ? "▶ Resume step" : "▶ Play step";
+    stepBtn.disabled = step < 0;
+  }
+
+  if (narrBtn) narrBtn.addEventListener("click", function () {
+    on = !on;
+    try { localStorage.setItem("vk-narration", on ? "on" : "off"); } catch (e) {}
+    if (on) { if (step >= 0) play(step); } else stop();
+    label();
+  });
+  stepBtn.addEventListener("click", function () {
+    if (current && !current.ended) {
+      if (current.paused) current.play(); else current.pause();
+    } else play(step);
+  });
+
+  function changed() {
+    var i = stepFor(box.textContent);
+    if (i === step) return;
+    step = i;
+    if (!pageOwnsAudio) { stop(); if (on) play(i); }
+    label();
+  }
+  new MutationObserver(changed).observe(box, { childList: true, subtree: true, characterData: true });
+  changed();
+  label();
+})();
+</script>
+<!-- /videokit:narration -->
 </body>
 </html>

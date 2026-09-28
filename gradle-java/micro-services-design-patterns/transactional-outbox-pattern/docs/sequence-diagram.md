@@ -15,53 +15,6 @@ thing that had to happen.
 
 ![Transactional Outbox sequence diagram](images/sequence-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant C as Checkout
-    participant N as NaiveOrderService
-    participant O as OrderService
-    participant D as OrderDatabase
-    participant R as OutboxRelay
-    participant B as MessageBroker
-    participant E as NotificationService
-
-    Note over C,E: the two lines everybody writes
-
-    C->>N: placeOrder(ord-8002)
-    N->>D: saveOnItsOwn(order)
-    D-->>N: committed
-    Note over N: the deploy rolls the pod HERE
-    N--)B: publish never happens
-    Note over N,E: the order is real, the customer will be charged,<br/>and nothing is left that knows a message was owed.<br/>Nothing will retry, because nothing knows.
-
-    Note over C,E: the same order, with an out-tray
-
-    C->>O: placeOrder(ord-8003)
-    O->>D: begin
-    O->>D: save the order
-    O->>D: save the out-tray message beside it
-    O->>D: commit
-    D-->>O: both rows, or neither
-    O-->>C: done — and the broker was never touched
-    Note over O,B: OrderService has no arrow to the broker at all
-
-    Note over R,E: later, a timer fires. The customer is long gone.
-
-    R->>D: which rows are unsent?
-    D-->>R: msg-ord-8003
-    R->>B: publish
-    B->>E: deliver — the customer is emailed
-    B-->>R: accepted
-    R->>D: markSent
-    Note over R,D: die anywhere in the top half and the next sweep<br/>finds the row. Die between accepted and markSent<br/>and the customer gets two emails, with the same id.
-```
-
-</details>
-
 ## Reading the two halves
 
 **The crash is in the same place in both.** After a successful database commit, before

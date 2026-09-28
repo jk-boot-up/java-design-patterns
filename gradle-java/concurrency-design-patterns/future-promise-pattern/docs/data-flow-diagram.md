@@ -5,29 +5,6 @@ or to a wrapped exception, or to a rescued hang.
 
 ![Future/Promise pattern data flow diagram](images/data-flow-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-flowchart TD
-    Submit(["three lookups submitted at once"])
-    Running["all three running concurrently"]
-    AllOk{"do all three complete normally?"}
-    Assembled(["ProductPageView assembled — act two"])
-    OneThrew{"did the failing task's get() get a timeout?"}
-    Wrapped(["ExecutionException, wrapped -- act four"])
-    TimedOut(["TimeoutException -- act five's rescue"])
-
-    Submit --> Running
-    Running --> AllOk
-    AllOk -- yes --> Assembled
-    AllOk -- no, one threw --> OneThrew
-    OneThrew -- get() had a timeout --> TimedOut
-    OneThrew -- get() saw the failure directly --> Wrapped
-```
-
-</details>
-
 ## Reading The Diagram
 
 **`Running` has exactly one arrow leaving it toward a decision, not three

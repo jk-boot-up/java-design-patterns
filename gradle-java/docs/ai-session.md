@@ -49,7 +49,7 @@ tracked file belonging to an existing project may show as modified.
 | --- | --- | --- |
 | 1 | 5 messaging and integration | committed |
 | 2 | 10 microservices | **finished, committed and pushed** 2026-09-25. Microservices README section "With real infrastructure" added; root counts now 38 microservices, 167 projects |
-| 3 | 4 platform | not started |
+| 3 | 4 platform | building 2026-09-25, all four in parallel (light stacks): distributed-tracing-with-jaeger, externalised-configuration-with-spring-cloud-config, event-sourcing-with-eventstoredb, strangler-fig-with-nginx. Brief: session scratchpad `wave3-brief.md` (wave-2 brief with §3.3 and the wave-2 projects as newest references) |
 | 4 | 9 framework versions | not started |
 
 ### Wave 1 detail

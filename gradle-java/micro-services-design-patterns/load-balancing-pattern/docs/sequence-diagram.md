@@ -16,55 +16,6 @@ them is the client spending what it learned.
 
 ![Client-side load balancing sequence diagram](images/sequence-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant C as CatalogClient
-    participant B as LeastLatencyBalancer
-    participant C1 as catalog-1
-    participant C2 as catalog-2
-    participant C3 as catalog-3
-
-    Note over B: 0ms — no measurements yet.<br/>An unmeasured instance is tried, not guessed at.
-
-    C->>B: choose(candidates)
-    B-->>C: catalog-1
-    C->>C1: productName("SKU-1234")
-    C1-->>C: Barista Pro Espresso Machine
-    C->>B: observed(catalog-1, 10ms)
-    Note over C,C1: 10ms
-
-    C->>B: choose(candidates)
-    B-->>C: catalog-2
-    C->>C2: productName("SKU-1234")
-    C2-->>C: Barista Pro Espresso Machine
-    C->>B: observed(catalog-2, 10ms)
-    Note over C,C2: 20ms
-
-    C->>B: choose(candidates)
-    B-->>C: catalog-3
-    C->>C3: productName("SKU-1234")
-    C3-->>C: Barista Pro Espresso Machine
-    C->>B: observed(catalog-3, 60ms)
-    Note over C,C3: 80ms — the one request it took<br/>to discover this box is slow
-
-    Note over B: believes 10 / 10 / 60, and nobody configured that
-
-    loop the remaining nine requests
-        C->>B: choose(candidates)
-        B-->>C: catalog-1
-        C->>C1: productName("SKU-1234")
-        C1-->>C: Barista Pro Espresso Machine
-    end
-
-    Note over C1,C3: 10 / 1 / 1 — twelve requests, 170ms
-```
-
-</details>
-
 ## Reading the timings
 
 **The first three requests cost 80ms of the 170.** Nearly half the total went on finding

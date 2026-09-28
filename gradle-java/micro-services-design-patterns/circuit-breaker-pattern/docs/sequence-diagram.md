@@ -15,56 +15,6 @@ working. At 14000ms it moves once more, deliberately, to ask a question.
 
 ![Circuit breaker sequence diagram](images/sequence-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant S as ProductPageService
-    participant B as CircuitBreaker
-    participant R as Recommendations
-    participant Log as CallLog
-
-    Note over B: 0ms — CLOSED. Calls go through,<br/>because closed is the healthy state.
-
-    S->>B: call(alsoBought)
-    B->>R: alsoBought(SKU-1234)
-    R--xB: no answer in 3000ms
-    Note over B,R: 3000ms — failure 1 of 3
-
-    S->>B: call(alsoBought)
-    B->>R: alsoBought(SKU-1234)
-    R--xB: no answer in 3000ms
-    Note over B,R: 6000ms — failure 2 of 3
-
-    S->>B: call(alsoBought)
-    B->>R: alsoBought(SKU-1234)
-    R--xB: no answer in 3000ms
-    B->>Log: note(OPENED, "3 failures in a row, not calling for 5000ms")
-    Note over B: 9000ms — OPEN
-
-    S->>B: call(alsoBought)
-    B-->>S: REFUSED, circuit open, no call made
-    S->>Log: note(DEGRADED, "page served without suggestions")
-    Note over S,B: 9000ms — still. A refusal costs nothing,<br/>so the clock does not move.
-
-    S->>B: call(alsoBought)
-    B-->>S: REFUSED
-    Note over S,R: 9000ms — and Recommendations is<br/>not troubled by any of this
-
-    Note over B: 14000ms — the wait has elapsed
-
-    S->>B: call(alsoBought)
-    B->>Log: note(HALF-OPEN, "letting one call through to test")
-    B->>R: alsoBought(SKU-1234)
-    R-->>B: SKU-2001, SKU-2002
-    B->>Log: note(CLOSED, "the probe worked, calls resume")
-    Note over S,R: 14020ms — CLOSED, and nobody<br/>deployed anything to make that happen
-```
-
-</details>
-
 ## Reading the timings
 
 **Nine seconds is the bill, and it is paid once.** Three shoppers waited three seconds each

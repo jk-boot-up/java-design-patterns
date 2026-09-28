@@ -19,19 +19,19 @@ The first two lines are what a viewer sees above the fold, so they carry the hoo
 ```
 CHAPTERS
 00:00 Introduction
-00:53 The Scenario
-01:08 A Subclass For Each Way
-01:25 The Pattern
-01:35 The Order Hands The Pricing On
-01:47 Change The Helper While It Lives
-01:58 Two Helpers At Once
-02:09 The Helper Needs To See The Order
-02:31 The Bill
-02:50 How To Recognise It
-03:12 The Verdict
-03:31 What Is Real Here
-03:44 When This Is Too Much
-03:55 Thanks for Watching
+00:52 The Scenario
+01:09 A Subclass For Each Way
+01:28 The Pattern
+01:40 The Order Hands The Pricing On
+01:56 Change The Helper While It Lives
+02:09 Two Helpers At Once
+02:23 The Helper Needs To See The Order
+02:50 The Bill
+03:13 How To Recognise It
+03:37 The Verdict
+03:59 What Is Real Here
+04:13 When This Is Too Much
+04:25 Thanks for Watching
 
 SOURCE CODE, WRITTEN NOTES AND AN INTERACTIVE ANIMATION
 https://github.com/jk-boot-up/java-design-patterns/tree/main/gradle-java/foundational-design-patterns/delegation-pattern
@@ -46,19 +46,19 @@ YouTube renders these as chapters only if there are at least three and the first
 
 ```
 00:00 Introduction
-00:53 The Scenario
-01:08 A Subclass For Each Way
-01:25 The Pattern
-01:35 The Order Hands The Pricing On
-01:47 Change The Helper While It Lives
-01:58 Two Helpers At Once
-02:09 The Helper Needs To See The Order
-02:31 The Bill
-02:50 How To Recognise It
-03:12 The Verdict
-03:31 What Is Real Here
-03:44 When This Is Too Much
-03:55 Thanks for Watching
+00:52 The Scenario
+01:09 A Subclass For Each Way
+01:28 The Pattern
+01:40 The Order Hands The Pricing On
+01:56 Change The Helper While It Lives
+02:09 Two Helpers At Once
+02:23 The Helper Needs To See The Order
+02:50 The Bill
+03:13 How To Recognise It
+03:37 The Verdict
+03:59 What Is Real Here
+04:13 When This Is Too Much
+04:25 Thanks for Watching
 ```
 
 ## Tags
@@ -97,4 +97,4 @@ Add a card partway through pointing at the playlist, so a viewer who arrives at 
 
 ## Runtime
 
-Approximately 04:36, narrated at 145 words per minute.
+Approximately 05:04, narrated at 145 words per minute.

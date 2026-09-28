@@ -6,24 +6,4 @@ Say it in words. Checkout asks the gateway to charge forty nine ninety nine. The
 
 ![Gateway pattern sequence diagram](images/sequence-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant C as Checkout
-    participant G as AcmeGateway
-    participant A as Acme client
-    C->>G: charge(4999, tok_ada)
-    G->>A: postCharge(fields)
-    A-->>G: 91, timed out
-    G->>G: log, try again
-    G->>A: postCharge(fields)
-    A-->>G: 00, AC-4999
-    G-->>C: APPROVED, AC-4999
-```
-
-</details>
-
 The load-bearing sentence: **checkout never sees a field name or a code.**

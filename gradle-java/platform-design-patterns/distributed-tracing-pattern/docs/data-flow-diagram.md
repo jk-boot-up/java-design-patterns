@@ -22,47 +22,6 @@ picture looks like — it is a property of the data.
 
 ![Distributed tracing data flow diagram](images/data-flow-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-flowchart TD
-    Click(["a customer opens a product page"])
-    Front["the front door mints a trace id<br/>and asks the sampler: keep this one?"]
-    Root["span-1 product-page<br/>parent: none"]
-    Cat["span-2 catalog<br/>parent span-1, 120ms"]
-    Pri["span-3 pricing<br/>parent span-1, 180ms"]
-    Inv["span-4 inventory<br/>parent span-1, 90ms"]
-    Recs["span-5 recommendations<br/>parent span-1, 400ms"]
-    Model["span-6 ranking-model<br/>parent span-5, 340ms"]
-    Rend["span-7 render<br/>parent span-1, 110ms"]
-    Page(["the page, 900ms after the click"])
-    Coll["the collector<br/>spans arrive separately, from each service"]
-    Fall["the waterfall<br/>indent by parent, position by start time"]
-    Self["self time<br/>a span's own time, minus its children"]
-    Drop(["discarded, and not recoverable"])
-
-    Click --> Front
-    Front -- "kept, 1 in 100" --> Root
-    Front -- "not kept, 99 in 100" --> Drop
-    Root --> Cat
-    Root --> Pri
-    Root --> Inv
-    Root --> Recs --> Model
-    Root --> Rend
-    Root --> Page
-    Cat -.-> Coll
-    Pri -.-> Coll
-    Inv -.-> Coll
-    Recs -.-> Coll
-    Model -.-> Coll
-    Rend -.-> Coll
-    Root -.-> Coll
-    Coll --> Fall --> Self
-```
-
-</details>
-
 ## The three things this flow proves
 
 **The identifier is minted once and copied everywhere.** One trace id is handed to every

@@ -17,19 +17,25 @@ SCENES = [
         title="Chain of Responsibility",
         body=None,
         narration=(
-            "Hello, and welcome. This video explains the Chain of Responsibility "
-            "pattern in Java, and it is written and presented by Jayasekhar "
-            "Konduru. [[slnc 300]] Let's start with the simple definition. You "
-            "hand a request to a line of objects, one after another, until one of "
-            "them takes it. Each one either answers, and everything stops there, "
-            "or says nothing and passes the request along. [[slnc 350]] That's the "
-            "idea in a sentence. The rest of the video does it properly, by "
-            "building a real working Java project: the checks an online store runs "
-            "before it accepts an order. Is the address deliverable, can the "
-            "warehouse pick it, what does the fraud model think, will the card "
-            "cover the total. [[slnc 250]] By the end you'll know why the order of "
-            "those checks should be something you can change, and what separates a "
-            "chain from a decorator — the pattern it is most often mistaken for."
+            'Hello, and welcome. [[slnc 400]] This video explains the '
+            'Chain of Responsibility pattern, in Java. [[slnc 300]] This '
+            'video is presented by Jayasekhar Konduru. [[slnc 600]] '
+            'First, a simple definition. [[slnc 300]] You hand a request '
+            'to a line of objects, one after another. [[slnc 300]] Each '
+            'object either answers, and the request stops there. [[slnc '
+            '300]] Or it stays quiet, and passes the request to the next '
+            'one. [[slnc 600]] Think of calling a support line. [[slnc '
+            '300]] The first person tries to help. [[slnc 300]] If they '
+            "can't, they pass you on to someone more senior. [[slnc 300]] "
+            'You make one call, and you never need to know who will '
+            'finally answer. [[slnc 700]] In our online store, every '
+            'order is checked before it is accepted. [[slnc 300]] Is the '
+            'address one we deliver to? [[slnc 200]] Is the stock '
+            'available? [[slnc 200]] Is the order risky? [[slnc 200]] And '
+            'will the card cover the total? [[slnc 500]] By the end, you '
+            'will know why the order of those checks should be easy to '
+            'change. [[slnc 300]] And how this pattern differs from the '
+            'Decorator pattern, which looks exactly the same on paper.'
         ),
     ),
     dict(
@@ -50,16 +56,20 @@ SCENES = [
             "Which checks run, and in what order, needs to change.",
         ],
         narration=(
-            "So, imagine an online shop. [[slnc 250]] Before an order is accepted "
-            "we check it four ways. Is the address somewhere a courier actually "
-            "goes. Can the warehouse pick every line in the basket. What does the "
-            "risk model think of this customer. And does the card cover the total. "
-            "[[slnc 300]] Any one of those can reject the order. If none of them "
-            "objects, we accept it. [[slnc 300]] And here is the part that "
-            "matters. Which checks run, and in what order, is something we need to "
-            "change. Trade accounts don't get a card check, because they're "
-            "invoiced at the end of the month. That one sentence is the whole "
-            "problem."
+            'Here is the scenario. [[slnc 400]] Before an online shop '
+            'accepts an order, it checks it in four ways. [[slnc 400]] '
+            'One. [[slnc 200]] Is the address somewhere a courier '
+            'actually delivers? [[slnc 300]] Two. [[slnc 200]] Can the '
+            'warehouse supply every item in the basket? [[slnc 300]] '
+            'Three. [[slnc 200]] What does the fraud model think of this '
+            'customer? [[slnc 300]] Four. [[slnc 200]] Does the card '
+            'cover the total? [[slnc 500]] Any one of those checks can '
+            'reject the order. [[slnc 300]] If none objects, the order is '
+            'accepted. [[slnc 500]] And here is the important part. '
+            '[[slnc 300]] Which checks run, and in what order, must be '
+            'easy to change. [[slnc 300]] For example, trade customers '
+            'are invoiced at the end of the month. [[slnc 300]] So they '
+            'skip the card check.'
         ),
     ),
     dict(
@@ -78,15 +88,19 @@ SCENES = [
             "Nobody decided that. It is just where the line was typed.",
         ],
         narration=(
-            "Before any code, look closely at one order. [[slnc 300]] A three "
-            "hundred and twenty nine pound monitor, on a card with a two hundred "
-            "and fifty pound limit, from an account the risk model scores ninety "
-            "two out of a hundred. [[slnc 300]] Two of our four checks would "
-            "reject this. Only one of them gets the chance, because the first "
-            "rejection ends the screening. So which one? [[slnc 250]] Whichever is "
-            "written first. [[slnc 350]] Nobody decided that. And the difference "
-            "between the two answers is the difference between telling a customer "
-            "to try another card, and telling the fraud team an account exists."
+            "Before any code, let's look closely at one order. [[slnc "
+            '400]] Someone buys a monitor for three hundred and '
+            'twenty-nine pounds. [[slnc 300]] Their card has a limit of '
+            'two hundred and fifty pounds. [[slnc 300]] And the fraud '
+            'model scores the account ninety-two out of a hundred, which '
+            'is very risky. [[slnc 500]] Two of our four checks would '
+            'reject this order. [[slnc 300]] But only one gets to speak, '
+            'because the first rejection ends the checking. [[slnc 400]] '
+            'So which one speaks? [[slnc 300]] Whichever is written '
+            'first. [[slnc 500]] Nobody decided that on purpose. [[slnc '
+            '300]] Yet it matters a lot. [[slnc 300]] It is the '
+            'difference between telling the customer to try another card, '
+            'and alerting the fraud team.'
         ),
     ),
     dict(
@@ -109,19 +123,22 @@ public Result validateTradeAccount(CheckoutRequest request) {
     return new Result(true, "nothing objected");
 }""",
         narration=(
-            "The obvious first move is one method with four checks in it and an "
-            "early return on each. [[slnc 250]] I want to be fair to this, "
-            "because the whole argument depends on it. It is short, the entire "
-            "policy is in one file, and a new joiner can tell you what it does in "
-            "thirty seconds. For a shop with one market and rules that never "
-            "change, this is the right answer. [[slnc 350]] But look at the third "
-            "line and the fourth. The card is checked above fraud. Our order is "
-            "rejected as a card problem, the customer tries another card, and it "
-            "works — because there was never anything wrong with the cards. "
-            "[[slnc 350]] And then the second method. Trade accounts are "
-            "invoiced, so somebody copied the first one and deleted the card "
-            "check. In the same edit, the address check went too. Two desks are "
-            "now on their way to Jersey."
+            'The obvious first approach is one method, with four checks, '
+            'one after another. [[slnc 300]] Each check can return early '
+            'with a rejection. [[slnc 500]] To be fair, this has real '
+            'strengths. [[slnc 300]] It is short, and the whole policy is '
+            'in one file. [[slnc 300]] For a shop with simple rules that '
+            'never change, it is the right answer. [[slnc 600]] But in '
+            'this method, the card check comes before the fraud check. '
+            '[[slnc 300]] So our risky order is rejected as a card '
+            'problem. [[slnc 300]] The customer tries another card, and '
+            'it works. [[slnc 300]] There was never anything wrong with '
+            'the cards. [[slnc 600]] Then there is a second method, for '
+            'trade customers. [[slnc 300]] Someone copied the first '
+            'method, and deleted the card check. [[slnc 300]] But in the '
+            'same edit, the address check was deleted too. [[slnc 300]] '
+            'So an order of two desks is now on its way to an island that '
+            'no courier serves.'
         ),
     ),
     dict(
@@ -142,17 +159,20 @@ public Result validateTradeAccount(CheckoutRequest request) {
             "    that have nothing to do with fraud.",
         ],
         narration=(
-            "Let's be precise, because it is four separate things. [[slnc 300]] "
-            "One. The order of the checks is welded into the method, so changing "
-            "it means editing the file the rules live in. [[slnc 300]] Two. The "
-            "answer is a yes or a no, so there is no third answer. A risk model "
-            "gives you a score, and the reason anybody pays for one is the band "
-            "in the middle — the orders a human should look at. Sixty four gets "
-            "accepted, because there is nowhere else to put it. [[slnc 300]] "
-            "Three. Variants are copies, and copies drift. We just watched that "
-            "happen. [[slnc 300]] And four. The fraud rule is the fourth "
-            "statement, so to reach it a test has to build an address, a basket "
-            "and a card that the fraud rule does not care about."
+            'So what exactly is wrong? [[slnc 300]] Four separate things. '
+            '[[slnc 500]] One. [[slnc 200]] The order of the checks is '
+            'fixed inside the method. [[slnc 300]] Changing it means '
+            'editing the file where the rules live. [[slnc 500]] Two. '
+            '[[slnc 200]] Each check can only say yes or no. [[slnc 300]] '
+            'But a fraud model gives a score, and the useful part is the '
+            'middle band. [[slnc 300]] Those are the orders a person '
+            'should review. [[slnc 300]] An order scoring sixty-four is '
+            'simply accepted, because there is no third answer. [[slnc '
+            '500]] Three. [[slnc 200]] Variations are copies, and copies '
+            'drift apart. [[slnc 300]] We just heard that happen. [[slnc '
+            '500]] And four. [[slnc 200]] To test the fraud rule, a test '
+            'must first build an address, a basket and a card, that the '
+            'fraud rule does not even care about.'
         ),
     ),
     dict(
@@ -173,15 +193,17 @@ public Result validateTradeAccount(CheckoutRequest request) {
             "and it never needs to find out.",
         ],
         narration=(
-            "Here is the definition from the Gang of Four book, and the first half "
-            "is the half everybody skips. [[slnc 250]] Avoid coupling the sender of "
-            "a request to its receiver by giving more than one object a chance to "
-            "handle the request. [[slnc 350]] The pattern is not really about "
-            "running several checks in a row. You can do that with a loop. It is "
-            "about the caller not knowing which of them will answer. [[slnc 300]] "
-            "So the move is this. Stop writing one method that knows all four "
-            "checks. Write four objects that each know one check, and none of the "
-            "others."
+            "Here is the pattern's definition, from the famous Gang of "
+            'Four book. [[slnc 400]] Avoid coupling the sender of a '
+            'request to its receiver, by giving more than one object a '
+            'chance to handle the request. [[slnc 500]] The key idea is '
+            'not just running several checks in a row. [[slnc 300]] A '
+            'simple loop can do that. [[slnc 300]] The key idea is that '
+            'the caller does not know which check will answer. [[slnc '
+            '500]] So here is the move. [[slnc 300]] Instead of one '
+            'method that knows all four checks, write four objects. '
+            '[[slnc 300]] Each one knows one check, and nothing about the '
+            'others.'
         ),
     ),
     dict(
@@ -204,17 +226,20 @@ public Result validateTradeAccount(CheckoutRequest request) {
             "And a claim nobody can approve sits in a queue forever.",
         ],
         narration=(
-            "Here's the analogy to hold on to. [[slnc 250]] An expenses claim. A "
-            "forty pound lunch receipt, and your team lead approves it. Four "
-            "thousand pounds of laptops, and your team lead cannot — that goes up "
-            "to their director. Four hundred thousand goes to the board. [[slnc "
-            "300]] Three things about that office are the pattern. You submit "
-            "once, and you don't have to know the thresholds. [[slnc 250]] "
-            "Whoever can answer, answers, and it stops there — the board never "
-            "sees your lunch receipt. [[slnc 250]] And the hierarchy is not "
-            "printed on the claim form. [[slnc 350]] The failure mode is the "
-            "pattern's too. A claim nobody is allowed to approve sits in a queue "
-            "forever."
+            'Here is an analogy to hold on to: an expenses claim at work. '
+            '[[slnc 500]] A forty pound lunch? [[slnc 200]] Your team '
+            'lead approves it. [[slnc 300]] Four thousand pounds of '
+            'laptops? [[slnc 200]] Your team lead cannot, so it goes up '
+            'to their director. [[slnc 300]] Four hundred thousand '
+            'pounds? [[slnc 200]] That goes to the board. [[slnc 500]] '
+            'Three things about that office are the pattern. [[slnc 300]] '
+            'You submit once, without knowing who can approve what. '
+            '[[slnc 300]] Whoever can answer, answers, and it stops '
+            'there. [[slnc 300]] The board never sees your lunch receipt. '
+            '[[slnc 300]] And the chain of managers is not written on the '
+            "claim form. [[slnc 500]] The pattern's risk is there too. "
+            '[[slnc 300]] A claim that nobody is allowed to approve can '
+            'sit in a queue forever.'
         ),
     ),
     dict(
@@ -223,15 +248,18 @@ public Result validateTradeAccount(CheckoutRequest request) {
         title="The Roles",
         body=None,
         narration=(
-            "So here are the pieces, and there aren't many. [[slnc 250]] The "
-            "client is the checkout. It holds one thing, a screening chain, calls "
-            "screen once, and gets back a report. [[slnc 300]] Screening chain is "
-            "the wiring. It links the handlers together, hands the order to the "
-            "first one, and then does nothing until somebody answers. [[slnc "
-            "300]] Screening handler is the abstract link: one field pointing at "
-            "the next link, and one method for subclasses to write. Underneath "
-            "sit the four checks. [[slnc 250]] And coming back out is a report: "
-            "the decision, who made it, and which links never ran."
+            'So here are the pieces, and there are only a few. [[slnc '
+            '500]] The client is the checkout. [[slnc 300]] It holds one '
+            'screening chain, calls it once, and gets back a report. '
+            '[[slnc 500]] The screening chain links the checks together. '
+            '[[slnc 300]] It hands the order to the first check, and then '
+            'waits until someone answers. [[slnc 500]] The screening '
+            'handler is the shared base class for every check. [[slnc '
+            '300]] It holds a link to the next check, and one method for '
+            'each check to fill in. [[slnc 300]] Below it sit the four '
+            'real checks. [[slnc 500]] And what comes back is a report. '
+            '[[slnc 300]] It says the decision, which check made it, and '
+            'which checks never ran.'
         ),
     ),
     dict(
@@ -258,18 +286,22 @@ public Result validateTradeAccount(CheckoutRequest request) {
     }
 }""",
         narration=(
-            "This is the whole pattern, and it's about twenty lines. [[slnc 250]] "
-            "One field, the next link. One method for subclasses to write, called "
-            "check. And one method that walks the chain, called screen. [[slnc "
-            "300]] Look at what check returns. An Optional of a decision. Empty "
-            "means: I have no opinion, pass it on. A decision means: I am "
-            "answering, and the chain stops here. Half the confusion about this "
-            "pattern is people reading returns nothing as says no. [[slnc 350]] "
-            "Now look at the word final in front of screen. In the textbook "
-            "version every handler writes its own if-and-else, and the bug "
-            "everybody hits is a handler that declines and forgets the else. The "
-            "request vanishes, with no error. [[slnc 300]] Here there is one copy "
-            "of that logic, and a link author never touches the next link at all."
+            'The whole pattern fits in about twenty lines, in the base '
+            'class. [[slnc 400]] It has one field, a link to the next '
+            'check. [[slnc 300]] One method that each check writes, '
+            'called check. [[slnc 300]] And one method that walks along '
+            'the chain, called screen. [[slnc 600]] Listen to what check '
+            'returns. [[slnc 300]] It returns an optional decision. '
+            '[[slnc 300]] Empty means: I have no opinion, pass it on. '
+            '[[slnc 300]] A decision means: I am answering, and the chain '
+            'stops here. [[slnc 300]] Returning nothing does not mean no. '
+            '[[slnc 300]] It means, not my call. [[slnc 600]] The screen '
+            'method is marked final, so no check can change it. [[slnc '
+            '300]] In textbook versions, every check writes its own '
+            'pass-along code. [[slnc 300]] And a common bug is a check '
+            'that forgets to pass the request on, so it silently '
+            'vanishes. [[slnc 300]] Here, that logic is written exactly '
+            'once, and no check ever touches the next link.'
         ),
     ),
     dict(
@@ -290,17 +322,21 @@ public Result validateTradeAccount(CheckoutRequest request) {
 new ScreeningChain("standard", Decision.approved(...), links...);
 new ScreeningChain("standard", Decision.referred(...), links...);""",
         narration=(
-            "Here's the chain itself, and two things are worth pointing at. "
-            "[[slnc 250]] The first is what isn't here. No loop over the "
-            "handlers, no index, no count. It hands the order to the first link "
-            "and doesn't see it again until somebody answers. That's what makes "
-            "reordering a wiring change. [[slnc 350]] The second is that or-else "
-            "fallback. This is the expenses claim nobody can approve — an order "
-            "really can pass every link with nobody deciding anything. [[slnc "
-            "300]] So the fallback is a constructor argument, and there is no "
-            "constructor without one. Approve by default, and you fail open. "
-            "Refer by default, and you fail closed. Same links, opposite risk "
-            "appetites, one argument apart."
+            'Now the chain itself, and two things are worth noticing. '
+            '[[slnc 500]] First, what is missing. [[slnc 300]] There is '
+            'no loop over the checks, and no counting. [[slnc 300]] The '
+            'chain hands the order to the first check, and waits for an '
+            'answer. [[slnc 300]] That is why reordering the checks is '
+            'only a wiring change. [[slnc 600]] Second, the fallback. '
+            '[[slnc 300]] An order really can pass every check, with '
+            'nobody deciding anything. [[slnc 300]] Like the expenses '
+            'claim nobody can approve. [[slnc 400]] So the chain must be '
+            'given a fallback decision when it is built. [[slnc 300]] '
+            'There is no way to build one without it. [[slnc 400]] '
+            'Approve by default, and the chain fails open. [[slnc 300]] '
+            'Refer to a person by default, and it fails closed. [[slnc '
+            '300]] The same checks, with opposite attitudes to risk, '
+            'decided by one setting.'
         ),
     ),
     dict(
@@ -319,17 +355,20 @@ if (score >= REJECT_AT) return Optional.of(Decision.rejected(name(), ...));
 if (score >= REFER_AT)  return Optional.of(Decision.referred(name(), ...));
 return Optional.empty();""",
         narration=(
-            "Two of the links, on purpose different shapes. [[slnc 250]] Address "
-            "check is the ordinary case. It rejects, and it names itself while "
-            "doing it, so the answer carries the word address in a field rather "
-            "than buried in a sentence. And when the address is fine it returns "
-            "empty — no opinion. [[slnc 300]] Fraud score check is the one with "
-            "three answers. Eighty and above, it rejects. Between fifty five and "
-            "seventy nine it refers, so a human looks at it. Below that it says "
-            "nothing. [[slnc 300]] That third answer costs the chain nothing, "
-            "because the chain never looks inside the decision. A handler stops "
-            "the chain whenever it is willing to own the answer — and the answer "
-            "does not have to be no."
+            "Let's look at two of the checks, which work differently on "
+            'purpose. [[slnc 500]] The address check is the ordinary '
+            'kind. [[slnc 300]] If the country is not one we deliver to, '
+            'it rejects the order, and names itself as the one who '
+            'decided. [[slnc 300]] If the address is fine, it returns '
+            'empty, meaning no opinion. [[slnc 600]] The fraud score '
+            'check has three possible answers. [[slnc 300]] A score of '
+            'eighty or more, and it rejects. [[slnc 300]] Between '
+            'fifty-five and seventy-nine, it refers the order to a '
+            'person. [[slnc 300]] Below that, it says nothing. [[slnc '
+            '500]] That third answer costs the chain nothing, because the '
+            'chain never looks inside a decision. [[slnc 300]] A check '
+            'stops the chain whenever it is willing to own the answer. '
+            '[[slnc 300]] And that answer does not have to be no.'
         ),
     ),
     dict(
@@ -350,17 +389,21 @@ return Optional.empty();""",
     assertEquals(List.of("fraud-score"), report.neverRan());
 }""",
         narration=(
-            "Twenty one tests, and these two make the point. [[slnc 300]] A test "
-            "that says a Jersey order gets rejected passes against the naive "
-            "method just as happily as against the chain. It proves nothing about "
-            "the pattern. [[slnc 300]] The first one asserts that a link behind a "
-            "decision never ran. Not that its answer was ignored — that it never "
-            "ran at all. That's the risk model not being called, and not being "
-            "billed for, written as an assertion. [[slnc 350]] The second is my "
-            "favourite. Same four link classes, wired with payment above fraud, "
-            "and the answer becomes the card again — the naive behaviour, "
-            "reproduced exactly. It was never wrong. It was a setting you "
-            "couldn't change without editing code."
+            'The project has twenty-one tests. [[slnc 300]] Two of them '
+            'show the pattern best. [[slnc 500]] Note that a simple test '
+            'like, an order to an island is rejected, passes for the '
+            'naive method too. [[slnc 300]] So it proves nothing about '
+            'the pattern. [[slnc 600]] The first special test checks that '
+            'a check behind the decision never ran. [[slnc 300]] Not that '
+            'its answer was ignored, but that it never ran at all. [[slnc '
+            '300]] In real life, that means the payment service was never '
+            'called, and never charged for. [[slnc 600]] The second test '
+            'uses the same four checks, but wires the card check before '
+            'the fraud check. [[slnc 300]] And the answer becomes the '
+            'card problem again, exactly like the naive method. [[slnc '
+            '400]] So the naive behaviour was not a bug in the checks. '
+            '[[slnc 300]] It was a setting that nobody could change '
+            'without editing code.'
         ),
     ),
     dict(
@@ -384,19 +427,24 @@ return Optional.empty();""",
    trade-account: address -> stock -> fraud-score
    -> REJECTED by address       no courier covers JE2 3AB""",
         narration=(
-            "Run it, and the two halves sit side by side. [[slnc 250]] Section "
-            "one is the naive method: a fraud score of ninety two reported as a "
-            "card problem, and a trade order accepted for delivery to an island "
-            "no courier serves. [[slnc 300]] Section two is the same checks as "
-            "links. Read the lines that begin never ran. On the monitor, fraud "
-            "answers and the card link never runs. On the Jersey order, three "
-            "links never ran — no warehouse query, no risk model call, nothing "
-            "billed for. [[slnc 350]] That never-ran line is the real difference "
-            "between this pattern and a validator that collects every problem. A "
-            "chain gives you one answer, from one link, and stops. [[slnc 300]] "
-            "And section four is the trade flow: the standard chain with one link "
-            "left out of the wiring. Nothing was copied, so nothing could go "
-            "missing, and Jersey is caught."
+            "Let's run the demo, and compare the two approaches. [[slnc "
+            '500]] First, the naive method. [[slnc 300]] The risky order, '
+            'with a fraud score of ninety-two, is rejected as a card '
+            'problem. [[slnc 300]] And a trade order is accepted, for '
+            'delivery to an island that no courier serves. [[slnc 600]] '
+            'Second, the same checks as a chain. [[slnc 300]] For the '
+            'monitor order, the fraud check answers, and the report says '
+            'the card check never ran. [[slnc 300]] For the island order, '
+            'the address check answers, and three checks never ran. '
+            '[[slnc 300]] No warehouse lookup, no fraud model call, and '
+            'nothing to pay for. [[slnc 600]] That never-ran list is the '
+            'real difference between a chain and a validator that '
+            'collects every problem. [[slnc 300]] A chain gives one '
+            'answer, from one check, and stops. [[slnc 500]] Finally, the '
+            'trade customers. [[slnc 300]] They use the standard chain, '
+            'with the card check simply left out of the wiring. [[slnc '
+            '300]] Nothing was copied, so nothing could go missing. '
+            '[[slnc 300]] And the island order is caught.'
         ),
     ),
     dict(
@@ -422,23 +470,26 @@ return Optional.empty();""",
             "Four checks that never change? Write the four ifs.",
         ],
         narration=(
-            "So, what to take away. [[slnc 300]] First, the confusion I promised "
-            "to clear up. Chain of responsibility and decorator have the same "
-            "class diagram. Not a similar one, the same one — so any explanation "
-            "that separates them by structure is wrong. [[slnc 350]] The "
-            "difference is one question you can ask before writing either. Does "
-            "every layer have to run? [[slnc 250]] If yes, you want a decorator, "
-            "and a layer that declined to pass the work on would be a bug. If no "
-            "— a layer might settle the matter by itself — you want a chain. "
-            "[[slnc 300]] In code that difference is one character deep. In a "
-            "decorator, the call to the next object always happens. In a handler, "
-            "it's inside an if. [[slnc 350]] Now the bill, honestly. A policy "
-            "that read top to bottom in one method now lives across four check "
-            "classes, a base class and a line of wiring. You need a report to see "
-            "who decided. And an order can reach the end unanswered. [[slnc 300]] "
-            "So if the checks and their order never change, write the four ifs. "
-            "Reach for this when the order is something you need to change "
-            "without editing any of them."
+            'So, what should you remember? [[slnc 500]] First, the '
+            'confusion promised at the start. [[slnc 300]] Chain of '
+            'Responsibility and Decorator have exactly the same class '
+            'structure. [[slnc 300]] So you cannot tell them apart by '
+            'their diagram. [[slnc 500]] Instead, ask one question. '
+            '[[slnc 300]] Does every layer have to run? [[slnc 500]] If '
+            'yes, you want a Decorator. [[slnc 300]] There, a layer that '
+            'fails to pass the work on is a bug. [[slnc 400]] If no, '
+            'because one layer might settle the matter alone, you want a '
+            'chain. [[slnc 500]] In code, the difference is tiny. [[slnc '
+            '300]] In a decorator, the call to the next object always '
+            'happens. [[slnc 300]] In a chain, that call sits inside an '
+            'if. [[slnc 600]] Now, the honest cost. [[slnc 300]] A policy '
+            'that once read top to bottom in one method is now spread '
+            'over four check classes, a base class, and some wiring. '
+            '[[slnc 300]] You need a report to see who decided. [[slnc '
+            '300]] And an order can reach the end with nobody answering. '
+            '[[slnc 500]] So if the checks and their order never change, '
+            'just write the four ifs. [[slnc 300]] Use a chain when you '
+            'need to change the order, without editing any check.'
         ),
     ),
     dict(
@@ -451,15 +502,20 @@ return Optional.empty();""",
             "one link and watches the customer get a different answer.",
         ],
         narration=(
-            "That's chain of responsibility. [[slnc 250]] The full source, the "
-            "written notes, the diagrams and an animated walkthrough are all in "
-            "the repository — including the exercise I'd most recommend. Take "
-            "the standard chain, move the payment link above the fraud link, "
-            "run the demo, and watch a customer get told something different "
-            "about the same order. [[slnc 300]] If this helped, a like "
-            "genuinely does help other people find it, and subscribe if you'd "
-            "like the rest of the behavioural series. [[slnc 250]] Thanks for "
-            "watching, and I'll see you in the next one."
+            "That's the Chain of Responsibility pattern. [[slnc 400]] If "
+            'you remember one sentence, make it this one. [[slnc 300]] A '
+            'chain passes a request along until one object is willing to '
+            'answer, so the order of the checks becomes something you can '
+            'change. [[slnc 500]] The full source code, written notes, '
+            'diagrams, and an animated walkthrough are all in the '
+            'repository. [[slnc 500]] Here is one exercise to try. [[slnc '
+            '300]] Take the standard chain, and move the card check above '
+            'the fraud check. [[slnc 300]] Run the demo, and listen to '
+            'how the customer is told something different about the very '
+            'same order. [[slnc 500]] If this helped, a like really does '
+            'help other people find it. [[slnc 300]] And subscribe, if '
+            "you'd like the rest of the series. [[slnc 400]] Thanks for "
+            'watching.'
         ),
     ),
 ]

@@ -2,64 +2,64 @@
 
 ## 1. API Gateway with Spring Cloud Gateway
 
-Hello, and welcome. This video explains the API Gateway pattern with Spring Cloud Gateway, in Java, and it is written and presented by Jayasekhar Konduru. It is the framework version of the API Gateway video. That one put one gateway in front of catalogue, pricing, inventory and recommendations, so the mobile app made one call to one address and lost nothing when a feature service went down. This one shows the same idea inside Spring Cloud Gateway. The plain definition, in short: in Spring Cloud Gateway, a gateway is a routing table of paths and services, with filters applied to each request on the way through. By the end you will see a real gateway route real HTTP to four services, strip a prefix, check a token once, and time out a slow service, then see what it does not do: merge responses, and report a dead service as a 503.
+Hello, and welcome. This video explains the API Gateway pattern, in Java, using Spring Cloud Gateway. This video is presented by Jayasekhar Konduru. First, a simple definition. An API gateway is one front door for many services. Every request comes in through that one door, and the gateway sends it on to the right service. Think of a hotel with one front desk. You don't phone the kitchen, the laundry, and the spa, one by one. You call the front desk, and they pass your request to the right place. Now, our online store. The mobile app needs four services: the catalogue, pricing, inventory, and recommendations. Without a gateway, the app has to know all four addresses. With a gateway, it knows just one. In this video, Spring Cloud Gateway is that front desk. We will watch it route real requests, check a token, and deal with a slow service. And we will see two things it does not do for you.
 
 ## 2. The Partner Project
 
-This video assumes the API Gateway video. If you have not seen it, start there. It puts one service in front of catalogue, pricing, inventory and recommendations, so the app makes one call, and it merges the four answers into one product page. This one uses the same example. It does not teach the pattern again. It shows what Spring Cloud Gateway does with it.
+Before we start, a quick note. This video has a partner: the hand-built API Gateway video. That one builds the gateway from scratch, in plain Java. It also merges four answers into one product page. If you are new to the pattern, watch that one first. Here, we keep the same online store. We won't teach the pattern again. Instead, we ask one question. What does a real framework do with it?
 
 ## 3. Before The First Line
 
-Before the first line of code, what Spring Cloud Gateway is. Spring Cloud Gateway is a gateway built on Spring. You describe routes, a path and a destination, and filters, and it forwards real HTTP requests on a reactive server. And a promise: skipping this video loses none of the pattern. The hand-built one teaches all of it.
+So, what is Spring Cloud Gateway? It is a ready-made gateway, built on Spring. You don't write the forwarding code yourself. You describe two things. Routes, which say: this path goes to that service. And filters, which change a request on its way through. It runs on a fast web server called Netty. One promise before we go on. If you skip this video, you lose none of the pattern. This one is about the tool.
 
 ## 4. One Address, Four Services
 
-First, one address. The client calls the gateway with four different paths, and each goes to a different service: catalogue, pricing, inventory and recommendations. The client knows one address. The routing table knows the rest. All of it is real HTTP over real sockets.
+Let's look at the first thing it does. One address. The app sends four requests, all to the gateway. Each one has a different path. Slash api, slash catalogue, goes to the catalogue service. Slash api, slash pricing, goes to pricing. And the same for inventory and recommendations. So the app knows one address. The gateway's routing table knows the rest. And this is not a simulation. These are real HTTP requests, over real network connections.
 
 ## 5. The Prefix Is Stripped
 
-Second, the gateway rewrites. The client asked for slash api slash pricing slash products. The pricing service was asked for only slash products. The public prefix is gone, so the services never need to know about it. A header tells them the request came through the gateway.
+Second, the gateway can change a request as it passes through. The app asked for slash api, slash pricing, slash products. But the pricing service received just slash products. Why? The front part of the path is only for the outside world. The gateway strips it off, so the services never need to know about it. It also adds a header, a small label on the request, that says: this came through the gateway.
 
 ## 6. One Token Check, For Every Route
 
-Third, one token check. Without a token, the gateway answers four hundred and one, on any route. Zero requests reach a service. With a token, the request goes through. The check is written once. In the hand built version, each service repeated it.
+Third, security. A token is like a wristband at a concert. No wristband, no entry. We send a request with no token. The gateway answers four hundred and one, which means: not allowed. We try a different route. Same answer. And here is the key number. Zero requests reached a service. The gateway stopped them all at the door. Now we add a token, and the request goes through. The important point? The check is written once, in the gateway. In the hand-built version, every service had to repeat it.
 
 ## 7. One Service Down
 
-Fourth, a service goes down. Recommendations answers with an error, and catalogue still works. The failure stays on its own route. But look at the status. It is five hundred, not five oh three. A refused connection is reported as an internal server error. To a client, that looks like a bug in the shop. Map it if the difference matters.
+Fourth, what happens when a service goes down? We stop the recommendations service. Calls to recommendations now fail. But calls to the catalogue still work. One broken service does not break the others. Now, listen carefully to the error code. The gateway answers five hundred. Not five oh three. Five hundred means: something is broken inside. Five oh three means: that service is not available right now. So the app sees what looks like a bug in the shop, when really a service is just down. If that difference matters to you, you have to map it yourself.
 
 ## 8. A Gateway Forwards
 
-Fifth, what a gateway does not do. A product page that needs three services still takes three calls, and three reach the services. The gateway forwards. It does not merge. The partner video's gateway merged four answers into one page. Here that is a separate job, for code you write.
+Fifth, something a gateway does not do. A product page needs three services. The app makes three calls. And three calls reach the services. The gateway forwards requests. It does not merge the answers. Remember the partner video? There, the gateway combined four answers into one page. With Spring Cloud Gateway, that combining is a separate job, and you write the code for it.
 
 ## 9. A Slow Service
 
-Last, a slow service. Pricing never answers. After the timeout in the settings, the gateway answers for it with a five oh four, gateway timeout. The client is not left hanging. Set that timeout on every route.
+And last, a slow service. Imagine the pricing service never answers at all. Without protection, the app would just wait, and wait. Here, the gateway has a timeout. When the time is up, it answers on the service's behalf, with five oh four, which means gateway timeout. The app gets a clear answer, instead of hanging. So, one simple rule. Set a timeout on every route.
 
 ## 10. The Verdict
 
-My verdict, plainly. Use it for routing, authentication, headers and limits at the edge. Set a timeout on every route. Decide what a dead service looks like to clients. And compose responses somewhere else, or in a filter you write.
+So, here is the verdict. Use Spring Cloud Gateway at the edge of your system. Let it do routing, token checks, headers and limits. Then remember three things. One. Set a timeout on every route. Two. Decide what a dead service should look like to the app. And three. Merging answers happens somewhere else, in code you write.
 
 ## 11. How To Recognise It
 
-How do you recognise this in code you did not write? A route locator builder with route calls. Settings under spring cloud gateway. Or a global filter bean.
+How can you spot this in code someone else wrote? Look for three clues. A route locator builder, with calls to route. Settings that start with spring cloud gateway. Or a global filter bean. See any of those, and you are looking at a gateway.
 
 ## 12. Where You Have Met This
 
-You have met this at the public edge of most Spring based platforms.
+Where have you met this before? At the front door of most Spring based platforms. Every request you send them passes through one.
 
 ## 13. What Was Used
 
-For the record. Spring Boot four point one point one. Spring Cloud twenty twenty five point one point three. Gateway five point zero point three, on Netty.
+For the record, here are the versions. Spring Boot four point one point one. Spring Cloud twenty twenty five point one point three. And the gateway itself, five point zero point three, running on Netty.
 
 ## 14. What Is Real Here
 
-The same honest admission as everywhere in this course. Everything is real: real sockets, real HTTP, and the real gateway. The four services are small JDK servers on free ports, and the slow one is held at a gate.
+A quick, honest note about this demo. Everything in it is real. Real network connections, real HTTP, and the real gateway. The four services are small Java servers, each on its own free port. And the slow service is held back on purpose, so we can watch the timeout happen.
 
 ## 15. When This Is Too Much
 
-So when is it too much? For one service, a gateway is a hop that adds nothing.
+So, when is a gateway too much? If you only have one service, a gateway is just an extra hop. It adds work, and gives you nothing back.
 
 ## 16. Thanks for Watching
 
-That's API Gateway with Spring Cloud Gateway. If you take one sentence away, take this one: Spring Cloud Gateway routes and filters real requests, and composing them is still yours to write. The full source, the written notes, the diagrams and an animated walkthrough are all in the repository. If you try one exercise, map the five hundred for a refused connection to a five oh three. If this helped, a like genuinely does help other people find it, and subscribe if you would like the rest of the series. Thanks for watching.
+That's the API Gateway pattern, with Spring Cloud Gateway. If you remember one sentence, make it this one. Spring Cloud Gateway routes and checks real requests, but merging the answers is still your job. The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. Here is one exercise to try. When a service refuses the connection, make the gateway answer five oh three, instead of five hundred. If this helped, a like really does help other people find it. And subscribe, if you'd like the rest of the series. Thanks for watching.

@@ -145,7 +145,6 @@ Expected output from `./gradlew run` (abridged — see
 | `permission denied: ./gradlew` | Wrapper not executable | `chmod +x gradlew` |
 | Wrapper download times out | Offline / proxy | Install Gradle and run `gradle build` |
 | SMS output has no `…` when you expected truncation | Combined subject+body is under 140 characters | That is correct behavior — only messages over the limit truncate |
-| Diagrams show as raw text | Viewer lacks Mermaid support | Open the PNGs in `docs/images/` |
 
 ## Recommended Reading Order
 

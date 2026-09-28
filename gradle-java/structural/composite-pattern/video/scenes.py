@@ -17,19 +17,21 @@ SCENES = [
         title="The Composite Pattern",
         body=None,
         narration=(
-            "Hello, and welcome. This video explains the Composite pattern in "
-            "Java, and it is written and presented by Jayasekhar Konduru. [[slnc "
-            "300]] Let's start with the simple definition. The composite pattern "
-            "lets you treat a single object and a whole group of objects in "
-            "exactly the same way. Both implement one interface, so a caller can "
-            "put a question to any node in a tree without knowing, or asking, "
-            "whether it is a leaf or a branch. [[slnc 350]] That's the idea in a "
-            "sentence, and it applies to anything shaped like a tree. The rest of "
-            "the video does it properly, by building a real working Java project: "
-            "an e-commerce catalog made of categories and products. [[slnc 250]] "
-            "By the end you'll know why a leaf and a branch of the same tree need "
-            "to answer to the exact same interface, and how to write one "
-            "yourself."
+            'Hello, and welcome. [[slnc 400]] This video explains the '
+            'Composite pattern, in Java. [[slnc 300]] This video is '
+            'presented by Jayasekhar Konduru. [[slnc 600]] First, a '
+            'simple definition. [[slnc 300]] The Composite pattern lets '
+            'you treat a single item, and a whole group of items, in '
+            'exactly the same way. [[slnc 300]] Both follow one shared '
+            'interface. [[slnc 300]] So you can ask any part of a tree a '
+            'question, without checking whether it is a single item or a '
+            "group. [[slnc 600]] Think of a company's organisation chart. "
+            '[[slnc 300]] Ask anyone how many people are below them, and '
+            'each can answer, whether they are an intern or a manager. '
+            '[[slnc 700]] In our online store, the catalog is a tree of '
+            'categories and products. [[slnc 500]] By the end, you will '
+            'know why a single item and a group must answer the same '
+            'questions, and how to build one yourself.'
         ),
     ),
     dict(
@@ -49,14 +51,17 @@ SCENES = [
             "We need a total price and a product count — at any depth.",
         ],
         narration=(
-            "So, imagine an online store's catalog, organised as a tree. "
-            "[[slnc 250]] Electronics contains a Phone, and a nested category "
-            "called Accessories. Accessories contains a Case and a Charger, "
-            "plus another nested category, Cables. And Cables contains one "
-            "more product, a USB-C cable. [[slnc 300]] Now we need two "
-            "numbers. The total price of everything in the tree, and how many "
-            "products it contains. And critically, the tree can be as deep as "
-            "it wants."
+            "Here is the scenario. [[slnc 400]] The store's catalog is "
+            'arranged as a tree. [[slnc 500]] The electronics category '
+            'contains a phone. [[slnc 300]] It also contains a smaller '
+            'category, called accessories. [[slnc 300]] Accessories '
+            'contains a phone case and a charger. [[slnc 300]] And inside '
+            'accessories is another category, called cables. [[slnc 300]] '
+            'Cables contains one product: a U S B C cable. [[slnc 600]] '
+            'We need two numbers. [[slnc 300]] The total price of '
+            'everything in the tree. [[slnc 300]] And how many products '
+            'it contains. [[slnc 300]] And the tree can be as deep as it '
+            'likes.'
         ),
     ),
     dict(
@@ -72,13 +77,14 @@ SCENES = [
             "A client asking for the total shouldn't care which one it has.",
         ],
         narration=(
-            "Look at the two kinds of node in this tree. A Product is a leaf. "
-            "It has no children, just a name and a price. [[slnc 250]] A "
-            "Category is a branch. It holds a list of children, and each of "
-            "those children might be a Product, or it might be another "
-            "Category, nested one level deeper. [[slnc 300]] And here's the "
-            "goal. Whatever is asking for the total price of a node shouldn't "
-            "have to care which of the two kinds it actually has."
+            'There are two kinds of item in this tree. [[slnc 500]] A '
+            'product is a leaf. [[slnc 300]] It has no children, just a '
+            'name and a price. [[slnc 500]] A category is a branch. '
+            '[[slnc 300]] It holds a list of children. [[slnc 300]] Each '
+            'child might be a product, or another category, one level '
+            'deeper. [[slnc 600]] Here is the goal. [[slnc 300]] Whatever '
+            'asks for a total price should not need to care which kind of '
+            'item it has.'
         ),
     ),
     dict(
@@ -101,14 +107,15 @@ SCENES = [
 //  productCount(Object) and print(Object, String) repeat this exact
 //  same instanceof chain, independently, one method at a time.""",
         narration=(
-            "So here's the naive approach. [[slnc 250]] totalPrice takes a "
-            "plain Object, because NaiveProduct and NaiveCategory share no "
-            "common type. So it has to ask, with instanceof, which one it "
-            "actually got, before it can do anything. [[slnc 300]] And here's "
-            "the problem. productCount and print need the exact same "
-            "question answered, so they each repeat this exact same "
-            "instanceof chain, completely independently, one method at a "
-            "time."
+            'Here is the naive approach. [[slnc 400]] Products and '
+            'categories share no common type. [[slnc 300]] So the method '
+            'that totals prices has to check which kind of item it was '
+            'given, before doing anything. [[slnc 300]] If it is a '
+            'product, return its price. [[slnc 300]] If it is a category, '
+            'add up its children. [[slnc 600]] And here is the problem. '
+            '[[slnc 300]] Counting products needs the same check. [[slnc '
+            '300]] So does printing the tree. [[slnc 300]] So each method '
+            'repeats the same type check, separately.'
         ),
     ),
     dict(
@@ -123,14 +130,14 @@ SCENES = [
             "     it has to fall back to List<Object>",
         ],
         narration=(
-            "And that does real damage as the code grows. [[slnc 250]] Every "
-            "new operation — export to J-son, say — means writing that same "
-            "instanceof chain a fourth time. [[slnc 300]] Add a new catalog "
-            "item type, a Bundle, say, and now you have to go back and touch "
-            "every single method that ever asked this question. [[slnc 250]] "
-            "And notice NaiveCategory can't even declare a properly typed "
-            "list of its children — with no shared supertype, it has to fall "
-            "back to a raw List of Object."
+            'That does real damage as the code grows. [[slnc 500]] Every '
+            'new operation, like exporting the catalog, means writing the '
+            'same type check again. [[slnc 500]] Add a new kind of '
+            'catalog item, like a bundle, and you must revisit every '
+            'method that asks the question. [[slnc 500]] And because '
+            'there is no shared type, a category cannot even say what its '
+            'children are. [[slnc 300]] It has to hold a list of anything '
+            'at all.'
         ),
     ),
     dict(
@@ -149,13 +156,15 @@ SCENES = [
             "a leaf and a branch answer to the same questions.",
         ],
         narration=(
-            "The composite pattern fixes exactly this. [[slnc 250]] In Gang "
-            "of Four terms, composite composes objects into tree structures "
-            "to represent part-whole hierarchies, and it lets clients treat "
-            "individual objects and compositions of objects uniformly. "
-            "[[slnc 300]] In plain language? A leaf and a branch answer to "
-            "the same questions, so whoever is asking never has to check "
-            "which one they've got."
+            'The Composite pattern fixes exactly this. [[slnc 400]] The '
+            'classic book on design patterns, by the authors known as the '
+            'Gang of Four, describes it like this. [[slnc 300]] Arrange '
+            'objects into tree structures, to represent parts and wholes. '
+            '[[slnc 300]] And let clients treat single objects, and '
+            'groups of objects, the same way. [[slnc 600]] In plain '
+            'words: a leaf and a branch answer the same questions. [[slnc '
+            '300]] So whoever asks never has to check which one they '
+            'have.'
         ),
     ),
     dict(
@@ -173,13 +182,13 @@ SCENES = [
             "Same question. Same interface. Different computation.",
         ],
         narration=(
-            "Here's how to remember it forever. Think about an org chart. "
-            "[[slnc 250]] Ask any employee, how many people do you manage, "
-            "including everyone below you? [[slnc 300]] An intern answers "
-            "directly. Zero. A manager asks each of their direct reports the "
-            "exact same question, and adds up the answers. [[slnc 250]] Same "
-            "question, same interface, both times. Only the computation "
-            "behind the answer is different."
+            'Here is how to remember it. [[slnc 300]] Think about an '
+            'organisation chart. [[slnc 500]] Ask anyone: how many people '
+            'do you manage, including everyone below you? [[slnc 500]] An '
+            'intern answers straight away: zero. [[slnc 300]] A manager '
+            'asks each of their team the same question, and adds up the '
+            'answers. [[slnc 600]] Same question, both times. [[slnc '
+            '300]] Only the work behind the answer is different.'
         ),
     ),
     dict(
@@ -188,16 +197,18 @@ SCENES = [
         title="The Three Roles",
         body=None,
         narration=(
-            "Every composite setup has three roles. [[slnc 200]] The "
-            "component, CatalogComponent, the shared interface both other "
-            "roles implement. The leaf, Product, which has no children and "
-            "answers about itself alone. And the composite, Category, which "
-            "holds children and answers by asking each of them, then "
-            "combining the results. [[slnc 350]] Here's the single most "
-            "important idea in this whole video. Category's children are "
-            "typed as CatalogComponent, not as Product or Category "
-            "specifically — so a Category can hold more categories, nested "
-            "as deep as you like, without a single line of code caring."
+            'Every composite has three roles. [[slnc 500]] The component: '
+            'the shared interface that both other roles follow. [[slnc '
+            '300]] Here, it is called catalog component. [[slnc 400]] The '
+            'leaf: a product. [[slnc 300]] It has no children, and '
+            'answers about itself alone. [[slnc 400]] And the composite: '
+            'a category. [[slnc 300]] It holds children, and answers by '
+            'asking each of them, then combining the results. [[slnc '
+            '600]] Here is the most important idea in this video. [[slnc '
+            "300]] A category's children are all just catalog components. "
+            '[[slnc 300]] Not specifically products, or categories. '
+            '[[slnc 300]] So a category can hold other categories, nested '
+            'as deep as you like.'
         ),
     ),
     dict(
@@ -218,13 +229,14 @@ SCENES = [
 //  Product implements this directly.
 //  Category implements this too — and also holds a List<CatalogComponent>.""",
         narration=(
-            "This is the component, CatalogComponent. [[slnc 250]] It "
-            "declares every question the tree can answer: its name, its "
-            "total price, how many products it contains, and how to print "
-            "itself. [[slnc 300]] Product implements this directly, as a "
-            "leaf. Category implements the exact same interface, but it also "
-            "holds a list of these — CatalogComponent children, not Product "
-            "children, not Category children. Just CatalogComponent."
+            'Here is the component, the catalog component interface. '
+            '[[slnc 400]] It lists every question the tree can answer. '
+            '[[slnc 300]] Its name. [[slnc 200]] Its total price. [[slnc '
+            '200]] How many products it contains. [[slnc 200]] And how to '
+            'print itself. [[slnc 600]] A product follows this interface '
+            'directly, as a leaf. [[slnc 300]] A category follows the '
+            'same interface. [[slnc 300]] But it also holds a list of '
+            'catalog components, as its children.'
         ),
     ),
     dict(
@@ -247,12 +259,13 @@ SCENES = [
     }
 }""",
         narration=(
-            "And this is the leaf, Product. [[slnc 250]] totalPrice just "
-            "returns its own price. No loop, no children to ask. This is the "
-            "base case of the recursion. [[slnc 300]] productCount always "
-            "returns exactly one, no matter how deep in the tree this "
-            "particular Product happens to sit. It doesn't know, and it "
-            "doesn't need to."
+            'Here is the leaf: a product. [[slnc 400]] Asked for its '
+            'total price, it simply returns its own price. [[slnc 300]] '
+            'No loop, and no children to ask. [[slnc 300]] This is where '
+            'the recursion stops. [[slnc 600]] Asked how many products it '
+            'contains, it always says one. [[slnc 300]] However deep in '
+            'the tree it sits. [[slnc 300]] It does not know, and does '
+            'not need to.'
         ),
     ),
     dict(
@@ -278,14 +291,15 @@ SCENES = [
     }
 }""",
         narration=(
-            "This is the heart of the pattern, Category dot totalPrice. "
-            "[[slnc 250]] It loops over its children and calls totalPrice on "
-            "each one. It never checks whether a child is a Product or "
-            "another Category. It doesn't need to — both answer to exactly "
-            "the same method. [[slnc 300]] If that child happens to be "
-            "another Category, calling totalPrice on it triggers this exact "
-            "same loop, one level further down. The recursion is happening. "
-            "It's just hidden inside one polymorphic call."
+            "Here is the heart of the pattern: a category's total price. "
+            '[[slnc 400]] It goes through its children, and asks each one '
+            'for its total price. [[slnc 300]] It never checks whether a '
+            'child is a product, or another category. [[slnc 300]] It '
+            'does not need to, because both answer the same question. '
+            '[[slnc 600]] If a child is another category, that child does '
+            'exactly the same thing, one level further down. [[slnc 300]] '
+            'The recursion is happening. [[slnc 300]] It is just hidden '
+            'inside one simple call.'
         ),
     ),
     dict(
@@ -305,14 +319,14 @@ for (CatalogComponent child : electronics.children()) {
 }
 //  child could be a Product or a Category — this loop never asks which.""",
         narration=(
-            "And here's the client, CatalogDemo, that ties it together. "
-            "[[slnc 250]] It builds the tree with a few chained add calls, "
-            "then makes exactly one call each for the total price and the "
-            "product count, at the root. [[slnc 300]] Look at the last loop. "
-            "It walks electronics' direct children and asks each one for its "
-            "total price. Some of those children are products, some are "
-            "nested categories — and this loop never asks which. That's the "
-            "whole payoff."
+            'Here is the code that ties it together. [[slnc 400]] It '
+            'builds the tree with a few add calls. [[slnc 300]] Then it '
+            'asks the top of the tree, once, for the total price. [[slnc '
+            '300]] And once for the product count. [[slnc 600]] Then it '
+            'goes through the direct children of electronics, and asks '
+            'each for its total price. [[slnc 300]] Some are products. '
+            '[[slnc 300]] Some are categories. [[slnc 300]] And the code '
+            'never asks which. [[slnc 300]] That is the whole payoff.'
         ),
     ),
     dict(
@@ -338,15 +352,15 @@ Product count: 4
 Phone -> $599.99 across 1 product(s)
 Accessories -> $59.97 across 3 product(s)""",
         narration=(
-            "When we run the project, the printed tree and the totals are "
-            "right there in the output. [[slnc 250]] Six hundred fifty nine "
-            "dollars and ninety six cents, across four products, computed by "
-            "one call at the root that quietly recursed through three levels "
-            "of nesting. [[slnc 300]] And look at the last two lines. "
-            "Accessories, a Category, answers totalPrice and productCount in "
-            "exactly the same shape as Phone, a Product, does one line "
-            "above. Same call, same client code, completely different "
-            "computation underneath."
+            "Let's run the project. [[slnc 400]] The tree is printed, "
+            'level by level. [[slnc 500]] The total price is six hundred '
+            'and fifty-nine dollars ninety-six. [[slnc 300]] Across four '
+            'products. [[slnc 300]] Worked out by one call at the top, '
+            'which quietly reached through three levels of nesting. '
+            '[[slnc 600]] Then, accessories, a category, answers the '
+            'price question in exactly the same way as the phone, a '
+            'product. [[slnc 300]] Same question, same code. [[slnc 300]] '
+            'Completely different work underneath.'
         ),
     ),
     dict(
@@ -366,16 +380,17 @@ Accessories -> $59.97 across 3 product(s)""",
             "Composite lets one thing be many things, arranged in a tree.",
         ],
         narration=(
-            "So, to recap. Use composite when your data is naturally "
-            "tree-shaped, and you want client code to treat leaves and "
-            "branches the same way. [[slnc 300]] Keep child-management "
-            "methods like add off the shared interface — a leaf has no good "
-            "way to implement them, and that's a deliberate trade-off, not an "
-            "oversight. And watch for cycles: a tree that loops turns "
-            "recursion into a stack overflow. [[slnc 350]] And if you "
-            "remember one sentence from today, make it this one. Decorator "
-            "wraps one thing in one more layer. Composite lets one thing be "
-            "many things, arranged in a tree."
+            'So, to recap. [[slnc 400]] Use a composite when your data is '
+            'shaped like a tree. [[slnc 300]] And you want code to treat '
+            'single items and groups the same way. [[slnc 600]] Keep '
+            'methods for adding children off the shared interface. [[slnc '
+            '300]] A product has no sensible way to accept children. '
+            '[[slnc 300]] That is a deliberate choice. [[slnc 500]] And '
+            'watch out for loops. [[slnc 300]] A tree that loops back on '
+            'itself will recurse forever, and crash. [[slnc 600]] And one '
+            'comparison worth knowing. [[slnc 300]] The Decorator pattern '
+            'wraps one thing in one extra layer. [[slnc 300]] A composite '
+            'lets one thing contain many things, arranged in a tree.'
         ),
     ),
     dict(
@@ -389,14 +404,20 @@ Accessories -> $59.97 across 3 product(s)""",
             "Full source code, notes and an animation are in the repository.",
         ],
         narration=(
-            "And that's the composite pattern. [[slnc 300]] If you got "
-            "something out of this, do give it a thumbs up, and subscribe. It "
-            "genuinely helps the channel, and it's what makes more of these "
-            "possible. [[slnc 250]] And if there's a pattern you'd like me to "
-            "cover next, drop it in the comments. I read every one. [[slnc "
-            "250]] All the source code, the written notes and an interactive "
-            "animation are in the repository. Thanks for watching, and I'll "
-            "see you in the next one."
+            "That's the Composite pattern. [[slnc 400]] If you remember "
+            'one sentence, make it this one. [[slnc 300]] Make single '
+            'items and groups answer the same questions, so nothing that '
+            'asks ever needs to check which it has. [[slnc 500]] The full '
+            'source code, written notes, diagrams, and an animated '
+            'walkthrough are all in the repository. [[slnc 300]] It runs '
+            'offline, with nothing installed except a Java development '
+            'kit. [[slnc 500]] Here is one exercise to try. [[slnc 300]] '
+            'Add a new question to the tree, like the most expensive '
+            'product. [[slnc 300]] And notice that the code asking the '
+            'question stays simple. [[slnc 500]] If this helped, a like '
+            'really does help other people find it. [[slnc 300]] And '
+            "subscribe, if you'd like the rest of the series. [[slnc "
+            '400]] Thanks for watching.'
         ),
     ),
 ]

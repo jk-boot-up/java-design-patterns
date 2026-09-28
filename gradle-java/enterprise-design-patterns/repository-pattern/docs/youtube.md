@@ -19,20 +19,20 @@ The first two lines are what a viewer sees above the fold, so they carry the hoo
 ```
 CHAPTERS
 00:00 Introduction
-00:43 The Scenario
-01:00 SQL In The Service
-01:27 A Schema Change
-01:46 The Pattern
-02:04 The Caller Knows Only The Interface
-02:23 Swap The Store
-02:48 Cost One: A Method Per Question
-03:19 Cost Two: The Leak
-03:44 Cost Three: The Swap Is Rarely Used
-04:04 The Toy Database
-04:15 Where You Have Met This
-04:31 What Is Real Here
-04:46 When This Is Too Much
-05:04 Thanks for Watching
+00:50 The Scenario
+01:07 SQL In The Service
+01:34 A Schema Change
+01:56 The Pattern
+02:14 The Caller Knows Only The Interface
+02:38 Swap The Store
+03:08 Cost One: A Method Per Question
+03:40 Cost Two: The Leak
+04:07 Cost Three: The Swap Is Rarely Used
+04:27 The Toy Database
+04:38 Where You Have Met This
+04:57 What Is Real Here
+05:13 When This Is Too Much
+05:30 Thanks for Watching
 
 SOURCE CODE, WRITTEN NOTES AND AN INTERACTIVE ANIMATION
 https://github.com/jk-boot-up/java-design-patterns/tree/main/gradle-java/enterprise-design-patterns/repository-pattern
@@ -47,20 +47,20 @@ YouTube renders these as chapters only if there are at least three and the first
 
 ```
 00:00 Introduction
-00:43 The Scenario
-01:00 SQL In The Service
-01:27 A Schema Change
-01:46 The Pattern
-02:04 The Caller Knows Only The Interface
-02:23 Swap The Store
-02:48 Cost One: A Method Per Question
-03:19 Cost Two: The Leak
-03:44 Cost Three: The Swap Is Rarely Used
-04:04 The Toy Database
-04:15 Where You Have Met This
-04:31 What Is Real Here
-04:46 When This Is Too Much
-05:04 Thanks for Watching
+00:50 The Scenario
+01:07 SQL In The Service
+01:34 A Schema Change
+01:56 The Pattern
+02:14 The Caller Knows Only The Interface
+02:38 Swap The Store
+03:08 Cost One: A Method Per Question
+03:40 Cost Two: The Leak
+04:07 Cost Three: The Swap Is Rarely Used
+04:27 The Toy Database
+04:38 Where You Have Met This
+04:57 What Is Real Here
+05:13 When This Is Too Much
+05:30 Thanks for Watching
 ```
 
 ## Tags
@@ -99,4 +99,4 @@ Add a card partway through pointing at the playlist, so a viewer who arrives at 
 
 ## Runtime
 
-Approximately 05:44, narrated at 145 words per minute.
+Approximately 06:09, narrated at 145 words per minute.

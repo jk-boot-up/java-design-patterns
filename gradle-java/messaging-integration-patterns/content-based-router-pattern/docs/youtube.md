@@ -19,19 +19,19 @@ The first two lines are what a viewer sees above the fold, so they carry the hoo
 ```
 CHAPTERS
 00:00 Introduction
-00:54 The Scenario
-01:16 One Channel For Everything
-01:33 The Pattern
-01:46 A Router Looks Inside
-02:09 The First Rule That Matches Wins
-02:28 Nothing Matches
-02:46 A New Route, And Nobody Else Changes
-03:05 The Bill
-03:28 How To Recognise It
-03:46 The Verdict
-04:09 What Is Real Here
-04:22 When This Is Too Much
-04:32 Thanks for Watching
+00:55 The Scenario
+01:18 One Channel For Everything
+01:38 The Pattern
+01:53 A Router Looks Inside
+02:18 The First Rule That Matches Wins
+02:41 Nothing Matches
+03:02 A New Route, And Nobody Else Changes
+03:24 The Bill
+03:53 How To Recognise It
+04:14 The Verdict
+04:39 What Is Real Here
+04:52 When This Is Too Much
+05:04 Thanks for Watching
 
 SOURCE CODE, WRITTEN NOTES AND AN INTERACTIVE ANIMATION
 https://github.com/jk-boot-up/java-design-patterns/tree/main/gradle-java/messaging-integration-patterns/content-based-router-pattern
@@ -46,19 +46,19 @@ YouTube renders these as chapters only if there are at least three and the first
 
 ```
 00:00 Introduction
-00:54 The Scenario
-01:16 One Channel For Everything
-01:33 The Pattern
-01:46 A Router Looks Inside
-02:09 The First Rule That Matches Wins
-02:28 Nothing Matches
-02:46 A New Route, And Nobody Else Changes
-03:05 The Bill
-03:28 How To Recognise It
-03:46 The Verdict
-04:09 What Is Real Here
-04:22 When This Is Too Much
-04:32 Thanks for Watching
+00:55 The Scenario
+01:18 One Channel For Everything
+01:38 The Pattern
+01:53 A Router Looks Inside
+02:18 The First Rule That Matches Wins
+02:41 Nothing Matches
+03:02 A New Route, And Nobody Else Changes
+03:24 The Bill
+03:53 How To Recognise It
+04:14 The Verdict
+04:39 What Is Real Here
+04:52 When This Is Too Much
+05:04 Thanks for Watching
 ```
 
 ## Tags
@@ -97,4 +97,4 @@ Add a card partway through pointing at the playlist, so a viewer who arrives at 
 
 ## Runtime
 
-Approximately 05:14, narrated at 145 words per minute.
+Approximately 05:45, narrated at 145 words per minute.

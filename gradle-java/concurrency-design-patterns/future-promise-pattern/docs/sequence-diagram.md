@@ -16,35 +16,6 @@ the slowest single lookup takes — not the three lookups added together.
 
 ![Future/Promise pattern sequence diagram](images/sequence-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant Page as page thread
-    participant Pool as worker pool
-    participant P as price future
-    participant S as stock future
-    participant R as rating future
-
-    Page->>Pool: submit(price lookup)
-    Pool-->>Page: price future returned immediately
-    Page->>Pool: submit(stock lookup)
-    Pool-->>Page: stock future returned immediately
-    Page->>Pool: submit(rating lookup)
-    Pool-->>Page: rating future returned immediately
-    Note over Pool: all three lookups now running at once
-    Page->>P: get()
-    P-->>Page: price, once its lookup finishes
-    Page->>S: get()
-    S-->>Page: stock, once its lookup finishes
-    Page->>R: get()
-    R-->>Page: rating, once its lookup finishes
-```
-
-</details>
-
 Say the load-bearing sentence aloud, because it is the one a picture
 cannot carry on its own: **the page thread never asks a future for its
 value until after every lookup has already been submitted — asking early

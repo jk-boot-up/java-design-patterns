@@ -156,7 +156,6 @@ Fourteen tests should pass. Open
 | `sealed`/`permits` not recognised | JDK older than 17 | Install JDK 21 |
 | `permission denied: ./gradlew` | Wrapper not executable | `chmod +x gradlew` |
 | Wrapper download times out | Offline / proxy | Install Gradle and run `gradle build` |
-| Diagrams show as raw text | Viewer lacks Mermaid support | Open the PNGs in `docs/images/` |
 
 ## Recommended Reading Order
 

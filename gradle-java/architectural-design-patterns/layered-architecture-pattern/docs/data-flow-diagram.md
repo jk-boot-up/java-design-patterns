@@ -16,35 +16,6 @@ which is why a refusal never leaves a half-placed order behind.
 
 ![Layered Architecture pattern data flow diagram](images/data-flow-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-flowchart TD
-    Req(["customer submits: cust-8801, 3 lines"])
-    Screen["CheckoutScreen<br/>turns the request into a call"]
-    Price{"does every SKU exist,<br/>with enough stock?"}
-    Refuse1["refused — 'no such product'<br/>or 'only N left'"]
-    Charge["CardNetwork.charge<br/>£382.50"]
-    Declined{"card accepted?"}
-    Refuse2["refused — 'card declined'<br/>nothing written down yet"]
-    Reduce["ProductTable.reduceStock<br/>each line"]
-    Save["OrderTable.save<br/>the Order, status PLACED"]
-    Mail["EmailServer.send<br/>confirmation to ada@example.com"]
-    Done(["PlaceOrderResult: placed, ord-1001, £382.50"])
-    Shortcut["OrderHistoryScreen «naive»<br/>reads OrderTable directly —<br/>bypasses every gate above"]
-
-    Req --> Screen --> Price
-    Price -- no --> Refuse1
-    Price -- yes --> Charge --> Declined
-    Declined -- no --> Refuse2
-    Declined -- yes --> Reduce --> Save --> Mail --> Done
-
-    Save -.->|the shortcut reads the same table,<br/>after the fact, without going through any gate| Shortcut
-```
-
-</details>
-
 ## Reading The Diagram
 
 **Every gate sits before the step it protects, never after.** Stock is

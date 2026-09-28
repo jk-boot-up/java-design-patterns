@@ -19,21 +19,21 @@ The first two lines are what a viewer sees above the fold, so they carry the hoo
 ```
 CHAPTERS
 00:00 Introduction
-00:43 The Partner Project
-01:07 Before The First Annotation
-01:35 Two Annotations
-01:49 One Persistence Context
-02:10 The Order's Customer
-02:28 Both Changes Are Kept
-02:51 The Failure Of Its Own: Two Contexts
-03:17 A Detached Change Is Not Saved
-03:40 Cost: The Context Is A Cache
-03:58 Cost: It Holds References
-04:19 Where You Have Met This
-04:34 What Was Used
-04:53 What Is Real Here
-05:11 When This Is Too Much
-05:20 Thanks for Watching
+00:52 The Partner Project
+01:18 Before The First Annotation
+01:47 Two Annotations
+02:04 One Persistence Context
+02:26 The Order's Customer
+02:48 Both Changes Are Kept
+03:14 The Failure Of Its Own: Two Contexts
+03:42 A Detached Change Is Not Saved
+04:04 Cost: The Context Is A Cache
+04:25 Cost: It Holds References
+04:48 Where You Have Met This
+05:06 What Was Used
+05:23 What Is Real Here
+05:39 When This Is Too Much
+05:50 Thanks for Watching
 
 SOURCE CODE, WRITTEN NOTES AND AN INTERACTIVE ANIMATION
 https://github.com/jk-boot-up/java-design-patterns/tree/main/gradle-java/enterprise-design-patterns/identity-map-with-jpa-pattern
@@ -48,21 +48,21 @@ YouTube renders these as chapters only if there are at least three and the first
 
 ```
 00:00 Introduction
-00:43 The Partner Project
-01:07 Before The First Annotation
-01:35 Two Annotations
-01:49 One Persistence Context
-02:10 The Order's Customer
-02:28 Both Changes Are Kept
-02:51 The Failure Of Its Own: Two Contexts
-03:17 A Detached Change Is Not Saved
-03:40 Cost: The Context Is A Cache
-03:58 Cost: It Holds References
-04:19 Where You Have Met This
-04:34 What Was Used
-04:53 What Is Real Here
-05:11 When This Is Too Much
-05:20 Thanks for Watching
+00:52 The Partner Project
+01:18 Before The First Annotation
+01:47 Two Annotations
+02:04 One Persistence Context
+02:26 The Order's Customer
+02:48 Both Changes Are Kept
+03:14 The Failure Of Its Own: Two Contexts
+03:42 A Detached Change Is Not Saved
+04:04 Cost: The Context Is A Cache
+04:25 Cost: It Holds References
+04:48 Where You Have Met This
+05:06 What Was Used
+05:23 What Is Real Here
+05:39 When This Is Too Much
+05:50 Thanks for Watching
 ```
 
 ## Tags
@@ -101,4 +101,4 @@ Add a card partway through pointing at the playlist, so a viewer who arrives at 
 
 ## Runtime
 
-Approximately 05:54, narrated at 145 words per minute.
+Approximately 06:27, narrated at 145 words per minute.

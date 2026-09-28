@@ -19,21 +19,21 @@ The first two lines are what a viewer sees above the fold, so they carry the hoo
 ```
 CHAPTERS
 00:00 Introduction
-01:00 The Partner Project
-01:25 Before The First Line
-01:48 No Lock At All
-02:10 The Mailbox
-02:31 A Call That Skips The Proxy
-02:59 A Read That Skips The Mailbox
-03:21 Errors Arrive Later
-03:38 One Worker Is A Ceiling
-04:01 The Verdict
-04:16 How To Recognise It
-04:35 Where You Have Met This
-04:43 What Was Used
-04:51 What Is Real Here
-05:06 When This Is Too Much
-05:17 Thanks for Watching
+00:55 The Partner Project
+01:22 Before The First Line
+01:47 No Lock At All
+02:12 The Mailbox
+02:35 A Call That Skips The Proxy
+03:11 A Read That Skips The Mailbox
+03:36 Errors Arrive Later
+03:57 One Worker Is A Ceiling
+04:24 The Verdict
+04:39 How To Recognise It
+04:59 Where You Have Met This
+05:09 What Was Used
+05:19 What Is Real Here
+05:33 When This Is Too Much
+05:44 Thanks for Watching
 
 SOURCE CODE, WRITTEN NOTES AND AN INTERACTIVE ANIMATION
 https://github.com/jk-boot-up/java-design-patterns/tree/main/gradle-java/concurrency-design-patterns/active-object-with-spring-pattern
@@ -48,21 +48,21 @@ YouTube renders these as chapters only if there are at least three and the first
 
 ```
 00:00 Introduction
-01:00 The Partner Project
-01:25 Before The First Line
-01:48 No Lock At All
-02:10 The Mailbox
-02:31 A Call That Skips The Proxy
-02:59 A Read That Skips The Mailbox
-03:21 Errors Arrive Later
-03:38 One Worker Is A Ceiling
-04:01 The Verdict
-04:16 How To Recognise It
-04:35 Where You Have Met This
-04:43 What Was Used
-04:51 What Is Real Here
-05:06 When This Is Too Much
-05:17 Thanks for Watching
+00:55 The Partner Project
+01:22 Before The First Line
+01:47 No Lock At All
+02:12 The Mailbox
+02:35 A Call That Skips The Proxy
+03:11 A Read That Skips The Mailbox
+03:36 Errors Arrive Later
+03:57 One Worker Is A Ceiling
+04:24 The Verdict
+04:39 How To Recognise It
+04:59 Where You Have Met This
+05:09 What Was Used
+05:19 What Is Real Here
+05:33 When This Is Too Much
+05:44 Thanks for Watching
 ```
 
 ## Tags
@@ -101,4 +101,4 @@ Add a card partway through pointing at the playlist, so a viewer who arrives at 
 
 ## Runtime
 
-Approximately 05:53, narrated at 145 words per minute.
+Approximately 06:22, narrated at 145 words per minute.

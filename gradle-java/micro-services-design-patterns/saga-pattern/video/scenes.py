@@ -46,23 +46,27 @@ SCENES = [
         title="Saga",
         body=None,
         narration=(
-            "Hello, and welcome. This video explains the saga pattern in Java, "
-            "and it is written and presented by Jayasekhar Konduru. "
-            "[[slnc 300]] Let's start with the simple definition. When one job "
-            "has to happen in several different places, and you cannot hold all "
-            "of them open until you are sure of all of them, you let each piece "
-            "finish on its own — and you write down, for each piece, the action "
-            "that cancels it out. If a later piece fails, you walk backwards "
-            "cancelling the ones that already finished. [[slnc 350]] That is "
-            "the whole mechanism, and it is about twenty lines of code. "
-            "[[slnc 300]] The rest of the video builds a real working Java "
-            "project: an online shop, and one checkout — reserve the stock, take "
-            "the payment, create the order, book the parcel, send the email. "
-            "Five steps, five different services. [[slnc 300]] And then the "
-            "courier refuses the address. [[slnc 350]] The mechanism will take "
-            "ten minutes. What the rest of this video is really about is the "
-            "three things that undoing costs you, because almost nobody "
-            "mentions them, and every one of them will find you in production."
+            'Hello, and welcome. [[slnc 400]] This video explains the '
+            'Saga pattern, in Java. [[slnc 300]] This video is presented '
+            'by Jayasekhar Konduru. [[slnc 600]] First, a simple '
+            'definition. [[slnc 300]] Sometimes one job has to happen in '
+            'several different places. [[slnc 300]] And you cannot keep '
+            'them all on hold until you are sure of all of them. [[slnc '
+            '300]] So you let each piece finish on its own. [[slnc 300]] '
+            'And for each piece, you write down the action that cancels '
+            'it. [[slnc 300]] If a later piece fails, you walk backwards, '
+            'cancelling the ones that already finished. [[slnc 600]] '
+            'Think of booking a holiday: a flight, a hotel, and a hire '
+            'car. [[slnc 300]] If the car falls through, you cancel the '
+            'hotel, then the flight. [[slnc 700]] In our online store, '
+            'one checkout has five steps, in five different services. '
+            '[[slnc 300]] Reserve the stock. [[slnc 200]] Take the '
+            'payment. [[slnc 200]] Create the order. [[slnc 200]] Book '
+            'the parcel. [[slnc 200]] Send the email. [[slnc 300]] And '
+            'then the courier refuses the address. [[slnc 500]] The '
+            'mechanism is small. [[slnc 300]] This video is really about '
+            'the three things undoing costs you, which almost nobody '
+            'mentions.'
         ),
     ),
     dict(
@@ -83,21 +87,21 @@ SCENES = [
             "So there is no single thing that can be rolled back.",
         ],
         narration=(
-            "Here is the shop, and it is worth picturing before any code. "
-            "[[slnc 300]] Somebody buys a kettle. Seventy pounds and ninety-five "
-            "pence. [[slnc 350]] For that to happen, five things have to happen. "
-            "Reserve the kettle so nobody else takes it. Take the money. Create "
-            "the order record. Book a courier to deliver it. Send the customer "
-            "an email saying it is on the way. [[slnc 350]] Now here is the part "
-            "that makes this hard. Those five things live in five different "
-            "services. Stock is one team's system with one team's database. "
-            "Payments is another, and the money actually leaves through a card "
-            "network that belongs to nobody in this building. Orders, shipping "
-            "and email are three more. [[slnc 400]] So there is no single "
-            "database sitting underneath all of that. And if there is no single "
-            "database, there is no single thing you can roll back. [[slnc 300]] "
-            "Hold on to that sentence. Everything else in this video follows "
-            "from it."
+            'Here is the shop. [[slnc 400]] Somebody buys a kettle for '
+            'seventy pounds ninety-five. [[slnc 500]] For that, five '
+            'things must happen. [[slnc 300]] Reserve the kettle, so '
+            'nobody else takes it. [[slnc 300]] Take the money. [[slnc '
+            '300]] Create the order record. [[slnc 300]] Book a courier '
+            'to deliver it. [[slnc 300]] And email the customer to say it '
+            'is on the way. [[slnc 600]] Here is what makes it hard. '
+            '[[slnc 300]] Those five things live in five different '
+            'services. [[slnc 300]] Each has its own database. [[slnc '
+            '300]] And the money actually leaves through a card network '
+            'that belongs to nobody in this building. [[slnc 600]] So '
+            'there is no single database underneath all of it. [[slnc '
+            '300]] And without a single database, there is nothing single '
+            'to roll back. [[slnc 500]] Remember that sentence. [[slnc '
+            '300]] Everything else in this video follows from it.'
         ),
     ),
     dict(
@@ -117,16 +121,16 @@ try {
     return null;
 }""",
         narration=(
-            "This is what everybody writes first, and I want to be fair to it, "
-            "because it is not stupid code. [[slnc 300]] Four calls, one after "
-            "another, all inside one try block. Reserve the stock. Charge the "
-            "card. Create the order. Book the courier. If any of that goes "
-            "wrong, catch the problem, write a line to the log, and return "
-            "nothing. [[slnc 350]] Read it out loud and it sounds responsible. "
-            "There is error handling. Nothing escapes. Nothing crashes. "
-            "[[slnc 400]] And in a code review, this passes. I have written it. "
-            "You have probably written it. [[slnc 350]] Now watch what it "
-            "actually does when the fourth call fails."
+            'Here is what everybody writes first. [[slnc 300]] And it is '
+            'not stupid code. [[slnc 600]] Four calls, one after another, '
+            'inside one try block. [[slnc 300]] Reserve the stock. [[slnc '
+            '200]] Charge the card. [[slnc 200]] Create the order. [[slnc '
+            '200]] Book the courier. [[slnc 500]] If anything goes wrong, '
+            'catch the problem, write a line to the log, and return '
+            'nothing. [[slnc 600]] It sounds responsible. [[slnc 300]] '
+            'There is error handling. [[slnc 300]] Nothing crashes. '
+            '[[slnc 300]] In a code review, this passes. [[slnc 500]] Now '
+            "let's hear what it does when the fourth call fails."
         ),
     ),
     dict(
@@ -145,22 +149,25 @@ Act 5 - the same failure, without a saga
   the customer has paid for a parcel
   that will never be sent.""",
         narration=(
-            "No courier covers the delivery address. The fourth call throws. "
-            "[[slnc 350]] So the catch runs, writes its line, and the method "
-            "returns nothing. [[slnc 400]] Now count what is actually left "
-            "behind. [[slnc 300]] The card has been charged seventy pounds and "
-            "ninety-five pence. A kettle is still reserved, so nobody else can "
-            "buy it. The order record says confirmed. And there is no parcel "
-            "and there never will be. [[slnc 400]] Say that as one sentence. "
-            "The customer has paid for something that will never arrive. "
-            "[[slnc 350]] And now the part that should genuinely worry you. "
-            "Nothing failed. No exception escaped, no alert fired, no dashboard "
-            "went red. There is one line in a log file, and it gets read three "
-            "weeks later by somebody investigating a complaint. [[slnc 400]] "
-            "In the project there are four tests covering exactly this. The "
-            "money stays taken. The stock stays reserved. The order stays "
-            "confirmed. The failure is silent. [[slnc 300]] All four of them "
-            "pass. They are passing tests that assert the shop is broken."
+            'No courier covers the delivery address. [[slnc 300]] So the '
+            'fourth call fails. [[slnc 500]] The catch runs, writes its '
+            'line, and the method returns nothing. [[slnc 600]] Now count '
+            'what is left behind. [[slnc 300]] The card has been charged '
+            'seventy pounds ninety-five. [[slnc 300]] A kettle is still '
+            'reserved, so nobody else can buy it. [[slnc 300]] The order '
+            'record says confirmed. [[slnc 300]] And there is no parcel, '
+            'and there never will be. [[slnc 600]] In one sentence: the '
+            'customer has paid for something that will never arrive. '
+            '[[slnc 600]] And here is the worrying part. [[slnc 300]] '
+            'Nothing looked wrong. [[slnc 300]] No error escaped, no '
+            'alert fired. [[slnc 300]] There is one line in a log file, '
+            'read weeks later, by someone investigating a complaint. '
+            '[[slnc 600]] The project has four tests for exactly this. '
+            '[[slnc 300]] The money stays taken. [[slnc 200]] The stock '
+            'stays reserved. [[slnc 200]] The order stays confirmed. '
+            '[[slnc 200]] The failure is silent. [[slnc 300]] All four '
+            'tests pass. [[slnc 300]] They are passing tests that prove '
+            'the shop is broken.'
         ),
     ),
     dict(
@@ -182,27 +189,27 @@ Act 5 - the same failure, without a saga
             "One slow courier, and the whole shop stops.",
         ],
         narration=(
-            "At this point, in every room I have ever taught this in, somebody "
-            "says the same three words. Just add transactional. [[slnc 400]] So "
-            "let's take that seriously, because it is the most important "
-            "misunderstanding in the subject. [[slnc 350]] That annotation "
-            "wraps your method in a database transaction on the database that "
-            "this service owns. That is genuinely all it does. It has no reach "
-            "into the stock service's database, because that is somebody else's "
-            "process on somebody else's machine. It has no reach into payments. "
-            "And it certainly has no reach over the card network, where the "
-            "money actually went. [[slnc 400]] So when the shipping call fails "
-            "and your transaction rolls back, the rollback covers whatever this "
-            "service wrote — and the seventy pounds and ninety-five pence is "
-            "still gone. [[slnc 400]] Now, there is a technology that spans all "
-            "five. It is called two-phase commit, and it genuinely works. "
-            "Almost nobody uses it for this, and the reason is worth knowing. "
-            "It works by making every participant hold a lock open while it "
-            "waits for the others to agree. So the stock table is locked while "
-            "you wait for a courier's web service to answer. One slow courier, "
-            "and under load the shop stops. [[slnc 350]] So we are not getting "
-            "a rollback. If we want the shop put back, we are going to have to "
-            "put it back ourselves."
+            'At this point, someone always says: just add the '
+            "Transactional annotation. [[slnc 400]] Let's take that "
+            'seriously. [[slnc 300]] It is the biggest misunderstanding '
+            'in this subject. [[slnc 600]] That annotation wraps your '
+            'method in a transaction, on the one database this service '
+            'owns. [[slnc 300]] That is all it does. [[slnc 300]] It '
+            "cannot reach the stock service's database. [[slnc 300]] It "
+            'cannot reach payments. [[slnc 300]] And it certainly cannot '
+            'reach the card network, where the money went. [[slnc 600]] '
+            'So when shipping fails and your transaction rolls back, only '
+            "this service's own writes are undone. [[slnc 300]] The "
+            'seventy pounds ninety-five is still gone. [[slnc 600]] There '
+            'is a technology that can span all five, called two-phase '
+            'commit. [[slnc 300]] It works. [[slnc 300]] But almost '
+            'nobody uses it for this. [[slnc 300]] It makes every service '
+            'hold a lock while it waits for the others. [[slnc 300]] So '
+            "the stock table stays locked while you wait for a courier's "
+            'website to answer. [[slnc 300]] One slow courier, and under '
+            'load, the shop stops. [[slnc 600]] So there is no rollback. '
+            '[[slnc 300]] If we want the shop put back, we must put it '
+            'back ourselves.'
         ),
     ),
     dict(
@@ -224,21 +231,22 @@ Act 5 - the same failure, without a saga
             "So you ring the hotel. Then you ring the airline.",
         ],
         narration=(
-            "Here is the same problem, away from any computer. [[slnc 350]] You "
-            "are booking a holiday over the phone. A flight, a hotel, and a "
-            "hire car. [[slnc 300]] You cannot hold all three open until you are "
-            "happy with all three. The airline will not keep a seat "
-            "unconfirmed while you ring the hotel, and the hotel will not hold "
-            "a room while you ring the car hire company. So you book them one "
-            "at a time, and each booking is final the moment you make it. "
-            "[[slnc 400]] Then the car hire company tells you they have nothing "
-            "that week. [[slnc 400]] Now. You do not have a magic button that "
-            "makes the last hour not have happened. What you have is the "
-            "cancellation policy for each thing you already booked. So you ring "
-            "the hotel and cancel the room. Then you ring the airline and "
-            "cancel the flight. [[slnc 350]] And you end up back where you "
-            "started. Approximately. [[slnc 400]] Hold on to that word "
-            "approximately, because three quarters of this video is inside it."
+            'Here is the same problem, away from any computer. [[slnc '
+            '500]] You are booking a holiday by phone: a flight, a hotel, '
+            'and a hire car. [[slnc 500]] You cannot keep all three on '
+            'hold until you are happy with all three. [[slnc 300]] The '
+            'airline will not hold a seat while you ring the hotel. '
+            '[[slnc 300]] So you book them one at a time. [[slnc 300]] '
+            'And each booking is final the moment you make it. [[slnc '
+            '600]] Then the car hire company says they have nothing that '
+            'week. [[slnc 600]] There is no magic button that undoes the '
+            "last hour. [[slnc 300]] What you have is each booking's "
+            'cancellation policy. [[slnc 300]] So you ring the hotel, and '
+            'cancel the room. [[slnc 300]] Then you ring the airline, and '
+            'cancel the flight. [[slnc 600]] And you end up back where '
+            'you started. [[slnc 300]] Approximately. [[slnc 500]] Hold '
+            'on to that word, approximately. [[slnc 300]] Most of this '
+            'video lives inside it.'
         ),
     ),
     dict(
@@ -258,23 +266,24 @@ Act 5 - the same failure, without a saga
     }
 }""",
         narration=(
-            "So here is the mechanism, and it is small. [[slnc 350]] Every step "
-            "in the checkout becomes an object with four things on it. It has a "
-            "name, so the timeline and the outcome can say which step we are "
-            "talking about. It has an execute, which is the thing it does. It "
-            "has a compensate, which is the action that cancels that out. And "
-            "it can answer one question: can this be undone at all. "
-            "[[slnc 400]] In pairs, for our shop, that is: reserve the stock, "
-            "release the stock. Take the payment, refund it. Create the order, "
-            "cancel it. Book the parcel, cancel the booking. [[slnc 350]] Now, "
-            "if that shape feels familiar, it should. An execute and an undo, "
-            "on an object, is the command pattern. There is a whole separate "
-            "video about it. The structure here is deliberately the same. "
-            "[[slnc 400]] But one difference matters more than everything else "
-            "in this video put together. A command's undo happens in memory, "
-            "and it always works. A compensation is a network call to somebody "
-            "else's service. It can be slow. It can be refused. It can fail "
-            "outright. [[slnc 300]] Remember that. We come back to it."
+            'Here is the mechanism, and it is small. [[slnc 500]] Every '
+            'step in the checkout becomes an object with four things. '
+            '[[slnc 300]] A name, so we can say which step we mean. '
+            '[[slnc 300]] An action, which does the step. [[slnc 300]] A '
+            'compensation, which is the action that cancels it. [[slnc '
+            '300]] And an answer to one question: can this step be undone '
+            'at all? [[slnc 600]] For our shop, in pairs. [[slnc 300]] '
+            'Reserve the stock, and release it. [[slnc 300]] Take the '
+            'payment, and refund it. [[slnc 300]] Create the order, and '
+            'cancel it. [[slnc 300]] Book the parcel, and cancel the '
+            'booking. [[slnc 600]] If this feels familiar, it is. [[slnc '
+            '300]] An action and an undo on an object is the Command '
+            'pattern. [[slnc 500]] But one difference matters more than '
+            "anything else in this video. [[slnc 300]] A command's undo "
+            'happens in memory, and always works. [[slnc 300]] A '
+            "compensation is a network call to someone else's service. "
+            '[[slnc 300]] It can be slow. [[slnc 300]] It can be refused. '
+            '[[slnc 300]] It can fail. [[slnc 300]] Remember that.'
         ),
     ),
     dict(
@@ -294,20 +303,20 @@ return SagaOutcome.completed(...);
 
 // unwind() iterates 'done' in reverse.""",
         narration=(
-            "And this is the orchestrator, which is the whole of the rest of "
-            "it. [[slnc 350]] Go forward through the steps. Run each one. After "
-            "each one succeeds, write it down on a list. [[slnc 300]] That list "
-            "is not a transaction and it is not holding anything open. Every "
-            "step on it is already finished and committed. The list is simply a "
-            "record of what will have to be undone if the next call goes wrong. "
-            "[[slnc 400]] If a step throws, stop going forward, and walk that "
-            "list backwards, calling the compensate on each one. [[slnc 350]] "
-            "And notice one thing that is easy to skim past. This method never "
-            "throws. It always returns an outcome object describing what "
-            "happened. There is a test called it always returns an outcome, and "
-            "it is there because a saga that can itself blow up has no way of "
-            "telling anybody what state the shop was left in — which puts you "
-            "straight back in the try block we started with."
+            'And here is the orchestrator, which is the rest of it. '
+            '[[slnc 500]] Go forward through the steps. [[slnc 300]] Run '
+            'each one. [[slnc 300]] After each one succeeds, add it to a '
+            'list. [[slnc 500]] That list is not holding anything open. '
+            '[[slnc 300]] Every step on it has already finished. [[slnc '
+            '300]] It is simply a record of what must be undone, if a '
+            'later step fails. [[slnc 600]] If a step fails, stop going '
+            'forward. [[slnc 300]] Walk the list backwards, and run each '
+            "step's compensation. [[slnc 600]] One more thing, easy to "
+            'miss. [[slnc 300]] The orchestrator never crashes. [[slnc '
+            '300]] It always returns a result describing what happened. '
+            '[[slnc 300]] Because a saga that can crash has no way to '
+            'tell anyone what state the shop was left in. [[slnc 300]] '
+            'That would put us right back at the try block.'
         ),
     ),
     dict(
@@ -316,25 +325,24 @@ return SagaOutcome.completed(...);
         title="Who Does What",
         body=None,
         narration=(
-            "Let's put the whole cast in one place. [[slnc 350]] On one side is "
-            "the design we are replacing: four calls in a try block, and a "
-            "catch that writes a log line. The courier refuses, and what it "
-            "leaves behind is seventy pounds and ninety-five pence taken, a "
-            "kettle still reserved, an order marked confirmed, and no parcel. "
-            "And an annotation on that method would not have helped, because it "
-            "only ever covered this service's own database. [[slnc 400]] On the "
-            "other side is the mechanism. A step, which is an execute paired "
-            "with a compensate and a question about whether it can be "
-            "compensated at all. An orchestrator, which runs them forward "
-            "keeping a list and then backwards undoing it, in about twenty "
-            "lines, and which never throws. And an outcome, which has three "
-            "possible values, not two — completed, compensated, and needs human "
-            "help. [[slnc 400]] And then the odd one out, sitting at the "
-            "bottom. The email service, which has no compensate at all, because "
-            "there is no unsend. That is why it has to go last. [[slnc 350]] "
-            "Underneath all of it, one line that is the honest summary of this "
-            "whole pattern. A refund is a new fact, not an erasure. The undo "
-            "can be refused. And some steps have no undo at all."
+            "Let's put all the pieces in one place. [[slnc 500]] On one "
+            'side is the design we are replacing. [[slnc 300]] Four calls '
+            'in a try block, and a catch that writes a log line. [[slnc '
+            '300]] When the courier refuses, it leaves money taken, a '
+            'kettle reserved, an order confirmed, and no parcel. [[slnc '
+            '600]] On the other side is the saga. [[slnc 300]] A step: an '
+            'action, paired with a compensation, and whether it can be '
+            'undone at all. [[slnc 300]] An orchestrator, which runs the '
+            'steps forward keeping a list, and then backwards to undo '
+            'them. [[slnc 300]] And a result, with three possible values, '
+            'not two. [[slnc 300]] Completed. [[slnc 200]] Compensated. '
+            '[[slnc 200]] And needs human help. [[slnc 600]] Then there '
+            'is the odd one out: the email service. [[slnc 300]] It has '
+            'no compensation at all, because there is no unsend. [[slnc '
+            '300]] That is why it must go last. [[slnc 600]] And one '
+            'honest summary of the whole pattern. [[slnc 300]] A refund '
+            'is a new fact, not an erasure. [[slnc 300]] An undo can be '
+            'refused. [[slnc 300]] And some steps have no undo at all.'
         ),
     ),
     dict(
@@ -352,24 +360,21 @@ return SagaOutcome.completed(...);
   no transaction spanned any of that.
   Each step committed on its own.""",
         narration=(
-            "Let's run it when nothing goes wrong, because the boring case "
-            "carries the important fact. [[slnc 350]] Stock is reserved in "
-            "thirty milliseconds. The payment takes a hundred, which is the "
-            "slowest thing here and that is realistic. The order record takes "
-            "twenty. The courier booking takes sixty. The email takes forty. "
-            "Two hundred and fifty milliseconds, one order, and a completed "
-            "outcome for seventy pounds and ninety-five pence. [[slnc 400]] "
-            "Nothing clever happened. That is the point of showing it. "
-            "[[slnc 350]] But read the last line of that output, because it is "
-            "the thing that makes everything afterwards necessary. No "
-            "transaction spanned any of that. Each step committed on its own. "
-            "[[slnc 400]] By the time the payment was taken, the stock "
-            "reservation was already final, and nothing was holding it open. By "
-            "the time the courier was called, the money had already left the "
-            "customer's account for good. [[slnc 350]] There is a test in the "
-            "project with a deliberately long name — every step is already "
-            "committed when the next one starts. It exists because that fact is "
-            "the reason compensation is the only tool available to us."
+            'First demo: when nothing goes wrong. [[slnc 300]] The boring '
+            'case carries an important fact. [[slnc 600]] The stock is '
+            'reserved in thirty milliseconds. [[slnc 300]] The payment '
+            'takes a hundred, the slowest step. [[slnc 300]] The order '
+            'record takes twenty. [[slnc 300]] The courier booking takes '
+            'sixty. [[slnc 300]] The email takes forty. [[slnc 300]] Two '
+            'hundred and fifty milliseconds, and the order is completed. '
+            '[[slnc 600]] Nothing clever happened. [[slnc 300]] But here '
+            'is the key fact. [[slnc 300]] No transaction covered any of '
+            'that. [[slnc 300]] Each step was saved on its own. [[slnc '
+            '600]] By the time the payment was taken, the stock '
+            'reservation was already final. [[slnc 300]] By the time the '
+            'courier was called, the money had already left the '
+            "customer's account for good. [[slnc 500]] That is exactly "
+            'why compensation is the only tool we have.'
         ),
     ),
     dict(
@@ -387,24 +392,26 @@ return SagaOutcome.completed(...);
   money the shop is holding: £0.00
   order state: CANCELLED""",
         narration=(
-            "Now the same refusal from the same courier, but this time through "
-            "the saga. [[slnc 350]] The first three steps run and succeed, "
-            "exactly as before. Stock reserved, money taken, order created. "
-            "Then the shipping step fails. [[slnc 350]] And the orchestrator "
-            "stops going forward, and starts walking its list in reverse. "
-            "Cancel the order. Refund the payment. Release the stock. Then an "
-            "outcome that says compensated, and the customer owes nothing. "
-            "[[slnc 400]] Twenty kettles back on the shelf out of twenty. The "
-            "shop is holding nothing. The order says cancelled. [[slnc 400]] "
-            "Now, why backwards? It is not tidiness. [[slnc 350]] Later steps "
-            "lean on earlier ones. The order has to be cancelled before the "
-            "money is refunded, because otherwise there is a moment where "
-            "finance is looking at a confirmed order with no payment against "
-            "it. And the stock reservation comes off last, because the "
-            "reservation is the thing that made every step after it legal in "
-            "the first place. [[slnc 350]] Reverse order is not neatness. It is "
-            "the only order in which each undo is safe. [[slnc 400]] So. The "
-            "shop is back where it started. [[slnc 300]] Approximately."
+            'Second demo: the same courier refusal, but through the saga. '
+            '[[slnc 500]] The first three steps succeed, just as before. '
+            '[[slnc 300]] Stock reserved, money taken, order created. '
+            '[[slnc 300]] Then the shipping step fails. [[slnc 600]] The '
+            'orchestrator stops going forward, and walks its list '
+            'backwards. [[slnc 300]] Cancel the order. [[slnc 300]] '
+            'Refund the payment. [[slnc 300]] Release the stock. [[slnc '
+            '300]] The result says: compensated. [[slnc 300]] The '
+            'customer owes nothing. [[slnc 600]] All twenty kettles are '
+            'back on the shelf. [[slnc 300]] The shop is holding no '
+            'money. [[slnc 300]] The order says cancelled. [[slnc 600]] '
+            'Why backwards? [[slnc 300]] It is not tidiness. [[slnc 300]] '
+            'Later steps depend on earlier ones. [[slnc 500]] The order '
+            'must be cancelled before the refund. [[slnc 300]] Otherwise, '
+            'for a moment, the finance team sees a confirmed order with '
+            'no payment. [[slnc 300]] And the stock reservation comes off '
+            'last, because it made every later step possible. [[slnc '
+            '500]] Reverse order is the only order in which each undo is '
+            'safe. [[slnc 600]] So the shop is back where it started. '
+            '[[slnc 300]] Approximately.'
         ),
     ),
     dict(
@@ -425,21 +432,20 @@ return SagaOutcome.completed(...);
             "The rest of this video is those three, one at a time.",
         ],
         narration=(
-            "So that is the mechanism, and we are about eight minutes in. "
-            "[[slnc 350]] If this were most explanations of the saga pattern, "
-            "it would end here. A step with an undo, an orchestrator that walks "
-            "backwards, and a happy summary. [[slnc 400]] I think that does "
-            "real damage, because everything so far is the easy half. "
-            "[[slnc 350]] There are three things that undoing costs you. "
-            "[[slnc 300]] One. The undo leaves a trace. It is not a rollback, "
-            "and calling it one is how people get surprised. [[slnc 300]] Two. "
-            "The undo is itself a network call to somebody else's service, "
-            "which means the undo can fail. [[slnc 300]] And three. Some steps "
-            "cannot be undone at all. Not badly, not expensively — not at all, "
-            "by anybody, ever. [[slnc 400]] The rest of this video is those "
-            "three, one at a time, with the demo output for each. Go and make a "
-            "cup of tea if you need one, but do not skip them, because these "
-            "are the parts that will actually find you."
+            'That is the whole mechanism. [[slnc 500]] Most explanations '
+            'of the saga pattern end here. [[slnc 300]] A step with an '
+            'undo, an orchestrator that walks backwards, and a happy '
+            'summary. [[slnc 500]] But everything so far is the easy '
+            'half. [[slnc 600]] There are three things that undoing costs '
+            'you. [[slnc 500]] One. [[slnc 200]] The undo leaves a trace. '
+            '[[slnc 300]] It is not a rollback. [[slnc 400]] Two. [[slnc '
+            "200]] The undo is itself a network call to someone else's "
+            'service. [[slnc 300]] So the undo can fail. [[slnc 400]] '
+            'Three. [[slnc 200]] Some steps cannot be undone at all, by '
+            'anybody, ever. [[slnc 600]] The rest of this video takes '
+            'those three, one at a time. [[slnc 300]] Do not skip them. '
+            '[[slnc 300]] These are the parts that will actually find '
+            'you.'
         ),
     ),
     dict(
@@ -457,25 +463,24 @@ A refund is a new fact, not an erasure.
 the customer saw the money leave and come back,
 and may well ring up to ask why.""",
         narration=(
-            "Cost number one. Go and look at the payment ledger after that "
-            "perfectly successful compensation. [[slnc 400]] It does not show "
-            "nothing. It shows two lines. A charge of seventy pounds and "
-            "ninety-five pence, and then a refund of seventy pounds and "
-            "ninety-five pence. [[slnc 400]] Two lines, not zero. The net is "
-            "zero. The history is not. [[slnc 350]] And that difference is not "
-            "an accounting detail. A rollback leaves no trace — the database "
-            "behaves as though the write never happened, and nobody outside can "
-            "tell. A compensation is a new action that cancels out an old one, "
-            "and both of them are permanently true. [[slnc 400]] Which means "
-            "the customer watched seventy pounds leave their account and come "
-            "back. They may well ring up to ask what that was. Their bank may "
-            "show it as pending for three days. The card network may keep its "
-            "fee either way. [[slnc 350]] Think back to the holiday. The "
-            "airline charged you a cancellation fee, and your statement shows a "
-            "payment and a refund rather than nothing at all. [[slnc 400]] So "
-            "here is the sentence to take away, and it is the one to quote "
-            "when somebody describes this pattern as rollback for "
-            "microservices. [[slnc 300]] Compensation is not rollback."
+            'Cost number one. [[slnc 300]] Look at the payment records '
+            'after that perfectly successful compensation. [[slnc 600]] '
+            'They do not show nothing. [[slnc 300]] They show two lines. '
+            '[[slnc 300]] A charge of seventy pounds ninety-five. [[slnc '
+            '300]] And a refund of seventy pounds ninety-five. [[slnc '
+            '500]] The total is zero. [[slnc 300]] The history is not. '
+            '[[slnc 600]] That is not an accounting detail. [[slnc 300]] '
+            'A database rollback leaves no trace. [[slnc 300]] It is as '
+            'if the write never happened. [[slnc 300]] A compensation is '
+            'a new action that cancels an old one. [[slnc 300]] And both '
+            'stay true, forever. [[slnc 600]] So the customer saw seventy '
+            'pounds leave their account, and come back. [[slnc 300]] They '
+            'may ring up to ask why. [[slnc 300]] Their bank may show it '
+            'as pending for days. [[slnc 300]] And the card network may '
+            'keep its fee either way. [[slnc 500]] Just like the holiday, '
+            'where the airline charged a cancellation fee. [[slnc 600]] '
+            'So here is the sentence to remember. [[slnc 300]] '
+            'Compensation is not rollback.'
         ),
     ),
     dict(
@@ -493,29 +498,28 @@ and may well ring up to ask why.""",
   money the shop is holding that it
   should not: £70.95""",
         narration=(
-            "Cost number two, and this is the uncomfortable one. Ask yourself "
-            "the question before I answer it. [[slnc 400]] What happens if the "
-            "refund fails? [[slnc 500]] The payment service does not answer. "
-            "The money cannot be given back. [[slnc 400]] Two things happen, "
-            "and both are deliberate. [[slnc 350]] The first is that the "
-            "unwinding carries on anyway. The refund failed, but the order is "
-            "still cancelled and the stock is still released. A saga that gave "
-            "up at the first refusal would leave more broken than it had to. "
-            "There is a test called unwinding carries on, and that is why it "
-            "exists. [[slnc 400]] The second is that the outcome says so, out "
-            "loud. This is why there are three possible outcomes and not two. "
-            "Completed. Compensated. And needs human help. [[slnc 400]] That "
-            "third one names a state that no code in this project can fix. The "
-            "shop is holding seventy pounds and ninety-five pence that it is "
-            "not entitled to, and it cannot give it back automatically. "
-            "[[slnc 400]] Now compare that with the try block from the "
-            "beginning of the video. The money is in exactly the same place. "
-            "The difference is that this version knows, and says so. "
-            "[[slnc 400]] Which puts a question back on you. In your system, "
-            "what is needs human help? It has to be something. A queue, a "
-            "ticket, a dashboard, a person whose job it is. [[slnc 350]] "
-            "Because if there is nowhere for that outcome to go, then it is "
-            "quietly the same as the log line we started with."
+            'Cost number two, and this one is uncomfortable. [[slnc 400]] '
+            'What happens if the refund fails? [[slnc 600]] The payment '
+            'service does not answer. [[slnc 300]] The money cannot be '
+            'given back. [[slnc 600]] Two things happen, and both are '
+            'deliberate. [[slnc 500]] First, the undoing carries on '
+            'anyway. [[slnc 300]] The refund failed, but the order is '
+            'still cancelled, and the stock is still released. [[slnc '
+            '300]] A saga that gave up at the first failure would leave '
+            'more broken than necessary. [[slnc 500]] Second, the result '
+            'says so, clearly. [[slnc 300]] This is why there are three '
+            'results, not two. [[slnc 300]] Completed. [[slnc 200]] '
+            'Compensated. [[slnc 200]] And needs human help. [[slnc 600]] '
+            'That third result names a problem no code can fix. [[slnc '
+            '300]] The shop is holding seventy pounds ninety-five that it '
+            'should not have. [[slnc 300]] And it cannot give it back '
+            'automatically. [[slnc 600]] Compare that with the try block '
+            'from the start. [[slnc 300]] The money is in exactly the '
+            'same place. [[slnc 300]] The difference is that this version '
+            'knows, and says so. [[slnc 600]] So, in your system, where '
+            'does needs human help go? [[slnc 300]] A queue, a ticket, a '
+            'dashboard, or a person whose job it is. [[slnc 300]] If it '
+            'goes nowhere, it is no better than that log line.'
         ),
     ),
     dict(
@@ -533,29 +537,29 @@ and may well ring up to ask why.""",
 so: steps that cannot be undone go last,
 after everything that might fail.""",
         narration=(
-            "Cost number three. [[slnc 350]] This act runs the same five steps, "
-            "with one change: the confirmation email is moved earlier, before "
-            "the courier is booked. Then the courier refuses, exactly as "
-            "before. [[slnc 400]] And everything unwinds correctly. The order "
-            "is cancelled. The money is refunded. The stock goes back on the "
-            "shelf. The code does precisely what it was written to do. "
-            "[[slnc 400]] And the customer is sitting there holding an email "
-            "that says their order is confirmed. Which it is not. "
-            "[[slnc 400]] There is no compensate that helps, because there is "
-            "no unsend. The only fix available to anybody is a second email "
-            "apologising — which is, once again, a new fact rather than an "
-            "erasure. [[slnc 350]] That is why the step interface has that "
-            "fourth method on it, the one asking whether a step can be "
-            "compensated at all. The email step answers no, the orchestrator "
-            "records it as a step it could not undo, and the saga reports needs "
-            "human help. [[slnc 400]] Nothing in the code is broken. The "
-            "sequence is. [[slnc 350]] Which gives the rule, and it is the most "
-            "practical thing in this video. Steps that cannot be undone go "
-            "last, after everything that might fail. [[slnc 400]] So go and "
-            "think about your own flows for a second. Emails. Text messages. "
-            "Push notifications. Anything that talks to a third party. Anything "
-            "a customer can see. Printing a label. Opening a barrier. "
-            "[[slnc 300]] That list is always longer than people expect."
+            'Cost number three. [[slnc 500]] This demo runs the same five '
+            'steps, with one change. [[slnc 300]] The confirmation email '
+            'is sent earlier, before the courier is booked. [[slnc 300]] '
+            'Then the courier refuses, just as before. [[slnc 600]] '
+            'Everything is undone correctly. [[slnc 300]] The order is '
+            'cancelled. [[slnc 300]] The money is refunded. [[slnc 300]] '
+            'The stock goes back on the shelf. [[slnc 600]] And the '
+            'customer is holding an email that says their order is '
+            'confirmed. [[slnc 300]] It is not. [[slnc 600]] No '
+            'compensation can help, because there is no unsend. [[slnc '
+            '300]] The only fix is a second email, apologising. [[slnc '
+            '300]] Which is, once again, a new fact, not an erasure. '
+            '[[slnc 600]] That is why each step says whether it can be '
+            'undone at all. [[slnc 300]] The email step says no. [[slnc '
+            '300]] So the saga records it, and reports: needs human help. '
+            '[[slnc 500]] Nothing in the code is broken. [[slnc 300]] The '
+            'order of the steps is. [[slnc 600]] So here is the most '
+            'practical rule in this video. [[slnc 300]] Steps that cannot '
+            'be undone go last, after everything that might fail. [[slnc '
+            '500]] Think about your own systems. [[slnc 300]] Emails, '
+            'text messages, notifications, printing a label, anything a '
+            'customer can see. [[slnc 300]] That list is always longer '
+            'than people expect.'
         ),
     ),
     dict(
@@ -569,31 +573,25 @@ after everything that might fail.""",
             "proves a refund leaves two lines and not zero.",
         ],
         narration=(
-            "That's the saga pattern. [[slnc 250]] The full source, the written "
-            "notes, the diagrams and an animated walkthrough are all in the "
-            "repository, and everything runs offline with nothing installed but "
-            "a Java development kit. [[slnc 300]] There is no message broker "
-            "and no database in this project, and that is deliberate. A broker "
-            "would add a container, a topic and several minutes to every run, "
-            "and it would teach you nothing about the actual subject, which is "
-            "what you do when you cannot roll back. [[slnc 350]] If you try one "
-            "exercise, try this one. Make a compensation fail on purpose — "
-            "there is a method on the stock service for it — and then watch "
-            "which of the other undos still run, and what the outcome says "
-            "afterwards. [[slnc 400]] And then the harder question, which no "
-            "exercise can answer for you. Take a flow you actually work on. "
-            "Write down its steps in order. Then mark the ones that genuinely "
-            "cannot be undone, and see whether any of them happen before "
-            "something that might fail. [[slnc 400]] Because the real lesson "
-            "here is this. The mechanism is a list, a loop, and a loop that "
-            "goes the other way, and you already know how to write all three. "
-            "Deciding what each undo really costs, ordering the steps so the "
-            "irreversible ones come last, and building somewhere for the "
-            "outcome that needs a person to actually go — that is the part that "
-            "needs a person. [[slnc 300]] If this helped, a like genuinely does "
-            "help other people find it, and subscribe if you would like the "
-            "rest of the series. [[slnc 250]] Thanks for watching, and I'll see "
-            "you in the next one."
+            "That's the Saga pattern. [[slnc 400]] If you remember one "
+            'sentence, make it this one. [[slnc 300]] A saga undoes '
+            'finished steps one by one, in reverse, but an undo is a new '
+            'fact, it can fail, and some steps can never be undone, so '
+            'they go last. [[slnc 500]] The full source code, written '
+            'notes, diagrams, and an animated walkthrough are all in the '
+            'repository. [[slnc 300]] It runs offline, with nothing '
+            'installed except a Java development kit. [[slnc 500]] Here '
+            'is one exercise to try. [[slnc 300]] Make a compensation '
+            'fail on purpose, using a setting on the stock service. '
+            '[[slnc 300]] Then see which other undos still run, and what '
+            'the result says. [[slnc 500]] And one question to think '
+            'about. [[slnc 300]] Take a process you work on, and list its '
+            'steps in order. [[slnc 300]] Mark the ones that can never be '
+            'undone. [[slnc 300]] Do any of them happen before something '
+            'that might fail? [[slnc 500]] If this helped, a like really '
+            'does help other people find it. [[slnc 300]] And subscribe, '
+            "if you'd like the rest of the series. [[slnc 400]] Thanks "
+            'for watching.'
         ),
     ),
 ]

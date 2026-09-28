@@ -6,32 +6,6 @@ Say it in words. Checkout has a business customer's invoice, a PDF of one and a 
 
 ![Claim Check with S3 sequence diagram](images/sequence-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant C as checkout
-    participant S as S3 bucket
-    participant Q as SQS queue
-    participant E as email service
-    C->>S: PutObject, 1500000 bytes, random key of 36 characters
-    S-->>C: stored
-    C->>Q: SendMessage, a ticket of 113 bytes
-    Note over C: back to work
-    E->>Q: ReceiveMessage
-    Q-->>E: the ticket: bucket, key, size, checksum
-    E->>S: GetObject by key
-    S-->>E: 1500000 bytes
-    Note over E: checksum matches, identical true
-    E->>S: DeleteObject
-    E->>Q: DeleteMessage
-    Note over S,Q: objects left 0, messages waiting 0
-```
-
-</details>
-
 The load-bearing sentence: **store before you send, and delete the ticket only after the luggage has been fetched and checked.**
 
 For the refusal, the overwritten key, the delete that deletes nothing and the expired luggage, see [`uml-diagram.md`](uml-diagram.md).

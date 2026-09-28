@@ -10,32 +10,33 @@ SCENES = [
         key='01-poster', kind='poster', title='Callback',
         body=None,
         narration=(
-            'Hello, and welcome. This video explains the Callback pattern '
-            'in Java, and it is written and presented by Jayasekhar '
-            'Konduru. [[slnc 300]] The plain definition: a callback is a '
-            'piece of code you hand to someone else, to be called when '
-            'something you asked for has happened. [[slnc 350]] This is '
-            'another project in the foundational category, whose subject '
-            'is how an object gets hold of another, and how small idioms '
-            'shape everyday Java. In our online store, a card payment '
-            'takes a while to be answered, and the shop must not stand '
-            'still until it is. [[slnc 300]] By the end you will see a '
-            'caller asking again and again for an answer, see it hand '
-            'over what to do and go on, see one callback told what '
-            'happened, see a failing callback not stop the gateway, see '
-            'answers arrive in another order and each callback still '
-            'right, and see the bill, which is callbacks nested inside '
-            'callbacks.'
+            'Hello, and welcome. [[slnc 400]] This video explains the '
+            'Callback pattern, in Java. [[slnc 300]] This video is '
+            'presented by Jayasekhar Konduru. [[slnc 600]] First, a '
+            'simple definition. [[slnc 300]] A callback is a piece of '
+            'code you hand to someone else. [[slnc 300]] They call it '
+            'when the thing you asked for has happened. [[slnc 600]] '
+            'Think of leaving your phone number with a shop. [[slnc 300]] '
+            'You do not stand at the counter waiting. [[slnc 300]] They '
+            'call you when your order is ready. [[slnc 700]] In our '
+            'online store, a card payment takes a while to be answered. '
+            '[[slnc 300]] And the shop must not stand still until it is. '
+            '[[slnc 500]] In this video, a caller keeps asking for an '
+            'answer, again and again. [[slnc 300]] Then it hands over '
+            'what to do, and carries on. [[slnc 300]] We will hear a '
+            'failing callback, answers arriving out of order, and the '
+            'cost of nesting callbacks.'
         ),
     ),
     dict(
         key='02-scenario', kind='bullets', title='The Scenario',
         body=['The payment gateway takes a', 'while to answer.', '', 'Meanwhile the shop has other', 'work,', '', 'and other orders to charge.', '', 'How do we hear the answer?'],
         narration=(
-            'Here is the scenario. The payment gateway takes a while to '
-            'answer a card charge. Meanwhile, the shop has other work to '
-            'do, and other orders to charge. [[slnc 300]] The question: '
-            'how do we hear the answer?'
+            'Here is the scenario. [[slnc 400]] The payment gateway takes '
+            'a while to answer a card charge. [[slnc 400]] Meanwhile, the '
+            'shop has other work to do. [[slnc 300]] And other orders to '
+            'charge. [[slnc 500]] So here is the question. [[slnc 300]] '
+            'How do we hear the answer?'
         ),
     ),
     dict(
@@ -47,18 +48,21 @@ SCENES = [
   the caller could do nothing
   else in that time.""",
         narration=(
-            'First, ask, and keep asking. The answer arrived on the fifth '
-            'look. Five looks were made, and four of them found nothing. '
-            'And the caller could do nothing else in that time.'
+            'First, the naive way: ask, and keep asking. [[slnc 400]] Is '
+            'it done yet? [[slnc 200]] Is it done yet? [[slnc 500]] The '
+            'answer arrived on the fifth look. [[slnc 300]] Four looks '
+            'found nothing. [[slnc 300]] And the caller could do nothing '
+            'else in all that time.'
         ),
     ),
     dict(
         key='04-pattern', kind='bullets', title='The Pattern',
         body=['Hand over the code to run.', '', 'Go on with other work.', '', 'When the answer is ready, the', 'other side calls your code,', 'with the result.'],
         narration=(
-            'The pattern. Hand over the code to run. Go on with other '
-            'work. When the answer is ready, the other side calls your '
-            'code, with the result.'
+            'Now, the pattern. [[slnc 400]] Hand over the code you want '
+            'run. [[slnc 300]] Carry on with other work. [[slnc 300]] '
+            'When the answer is ready, the other side calls your code, '
+            'and passes it the result.'
         ),
     ),
     dict(
@@ -70,9 +74,11 @@ SCENES = [
   then the callback runs:
   ORD-1 paid.""",
         narration=(
-            'Second, say what to do, and go on. The charge is requested, '
-            'and the caller goes on. The caller does other work. Then the '
-            'callback runs: order one, paid.'
+            'Second demo: say what to do, and carry on. [[slnc 400]] The '
+            'charge is requested, together with a callback. [[slnc 300]] '
+            'And the caller carries on straight away. [[slnc 400]] The '
+            'caller does some other work. [[slnc 300]] Then the payment '
+            'is answered, and the callback runs: order one, paid.'
         ),
     ),
     dict(
@@ -82,9 +88,11 @@ SCENES = [
   ORD-1: ship it.
   ORD-2: ask for another card.""",
         narration=(
-            'Third, what happened decides what to do. One callback, told '
-            'the result. Order one was paid: ship it. Order two was '
-            'declined: ask for another card.'
+            'Third demo: the result decides what happens. [[slnc 400]] '
+            'One callback is given the result each time. [[slnc 500]] '
+            'Order one was paid, so the callback says: ship it. [[slnc '
+            '300]] Order two was declined, so the callback says: ask for '
+            'another card.'
         ),
     ),
     dict(
@@ -98,11 +106,13 @@ SCENES = [
 
   the one who asked never sees it.""",
         narration=(
-            'Fourth, when the callback itself fails. The first callback '
-            'threw an error. The gateway went on, and order two was paid. '
-            'The error was recorded: order one, the mail server was down. '
-            'The one who asked never sees that exception, because it '
-            "happened in someone else's call."
+            'Fourth demo: when the callback itself fails. [[slnc 400]] '
+            'The first callback throws an error. [[slnc 300]] But the '
+            'gateway carries on, and order two is paid. [[slnc 500]] The '
+            'error is recorded: order one, the mail server was down. '
+            '[[slnc 500]] The code that asked for the payment never sees '
+            'that error. [[slnc 300]] Because it happened inside someone '
+            "else's call."
         ),
     ),
     dict(
@@ -116,10 +126,14 @@ SCENES = [
   ORD-1 paid.
   each is right.""",
         narration=(
-            'Fifth, answers in another order. Remembering the order in a '
-            'field: both callbacks say order two. Each callback holding '
-            'its own order id: order two paid, order one paid. The '
-            'answers came in the other order, and each is right.'
+            'Fifth demo: answers arriving in a different order. [[slnc '
+            '400]] First, a version that remembers the current order in a '
+            'shared field. [[slnc 300]] The answers arrive in reverse '
+            'order. [[slnc 300]] And both callbacks say order two. [[slnc '
+            '300]] One of them is wrong. [[slnc 500]] Now a version where '
+            'each callback carries its own order I D. [[slnc 300]] Order '
+            'two, paid. [[slnc 300]] Order one, paid. [[slnc 500]] The '
+            'answers came in a different order, and each one is right.'
         ),
     ),
     dict(
@@ -135,72 +149,79 @@ SCENES = [
   handling, and no stack shows
   who asked.""",
         narration=(
-            'Last, the bill. Pay, then reserve, then ship: three '
-            'callbacks, each inside the one before, three levels deep. '
-            'The lines run in one order, but are written in another. '
-            'Every level needs its own handling for a failure. And each '
-            'answer arrives with no stack that shows who asked.'
+            'Finally, the cost. [[slnc 400]] Pay, then reserve the stock, '
+            'then ship. [[slnc 300]] Three callbacks, each one inside the '
+            'one before, three levels deep. [[slnc 500]] The steps run in '
+            'one order, but are written in another. [[slnc 300]] Every '
+            'level needs its own failure handling. [[slnc 300]] And each '
+            'answer arrives with no trace of who originally asked.'
         ),
     ),
     dict(
         key='10-recognise', kind='bullets', title='How To Recognise It',
         body=['A parameter named onSuccess,', 'onComplete or handler.', '', 'CompletableFuture.thenAccept(...),', 'and whenComplete(...).', '', 'Event handlers in a browser or in', 'Swing, and Node.js style'],
         narration=(
-            'How do you recognise this in code you did not write? A '
-            'parameter named onSuccess, onComplete or handler. '
-            'CompletableFuture.thenAccept(...), and whenComplete(...). '
-            'Event handlers in a browser or in Swing, and Node.js style '
-            'callbacks. Consumer<Result> passed to an async method.'
+            'How can you spot this pattern in code someone else wrote? '
+            '[[slnc 400]] Look for parameters named on success, on '
+            'complete, or handler. [[slnc 300]] Look for Completable '
+            'Future methods like then accept, and when complete. [[slnc '
+            '300]] Look for event handlers, in a browser or in a desktop '
+            'app. [[slnc 300]] And look for a function passed into a '
+            'method that works in the background.'
         ),
     ),
     dict(
         key='11-verdict', kind='bullets', title='The Verdict',
         body=['Use a callback when you ask for', 'something that takes a while, and', 'want to go on. Pass the result to', 'it. Let each callback carry what', 'it needs, not read shared fields.', 'Decide who handles a failure in', 'the callback. When steps chain,', 'move to futures or an async style,', 'so the code reads in order.'],
         narration=(
-            'Here is my verdict, plainly. Use a callback when you ask for '
-            'something that takes a while, and want to go on. Pass the '
-            'result to it. Let each callback carry what it needs, not '
-            'read shared fields. Decide who handles a failure in the '
-            'callback. When steps chain, move to futures or an async '
-            'style, so the code reads in order.'
+            'So, here is the verdict. [[slnc 400]] Use a callback when '
+            'you ask for something that takes a while, and you want to '
+            'carry on. [[slnc 500]] Pass the result into the callback. '
+            '[[slnc 300]] Let each callback carry what it needs, instead '
+            'of reading shared fields. [[slnc 300]] Decide who handles a '
+            'failure inside the callback. [[slnc 500]] And when steps '
+            'start chaining together, move to futures, so the code reads '
+            'in the order it runs.'
         ),
     ),
     dict(
         key='12-real', kind='bullets', title='What Is Real Here',
         body=['Everything is plain Java.', '', 'Every number quoted comes from', "this program's own output.", '', 'Nothing depends on a clock,', 'so every run is the same.'],
         narration=(
-            'The same honest admission as everywhere in this course. '
-            'Everything is plain Java. Every number quoted comes from '
-            "this program's own output. Nothing depends on a clock, so "
-            'every run is the same.'
+            'A quick, honest note about this demo. [[slnc 300]] '
+            'Everything is plain Java. [[slnc 300]] Every result you '
+            "heard comes from the program's own output. [[slnc 300]] And "
+            'nothing depends on the clock, so every run gives the same '
+            'result.'
         ),
     ),
     dict(
         key='13-too-much', kind='bullets', title='When This Is Too Much',
         body=['For work that is quick, a plain', 'return value is simpler. For', 'chains of steps, futures or', 'coroutines read better than nested', 'callbacks.'],
         narration=(
-            'So when is it too much? For work that is quick, a plain '
-            'return value is simpler. For chains of steps, futures or '
-            'coroutines read better than nested callbacks.'
+            'So, when is this too much? [[slnc 400]] For work that is '
+            'quick, simply returning a value is easier. [[slnc 400]] And '
+            'for chains of steps, futures read much better than nested '
+            'callbacks.'
         ),
     ),
     dict(
         key='14-outro', kind='outro', title='Thanks for Watching',
         body=['Full source, notes, diagrams and an animated walkthrough', 'are in the repository. Try the exercises in', 'the session guide.'],
         narration=(
-            "That's Callback. [[slnc 250]] If you take one sentence away, "
-            'take this one: a callback lets you go on while something '
-            'takes time, and the price is code that runs out of written '
-            'order, and failures that no caller sees. [[slnc 350]] The '
-            'full source, the written notes, the diagrams and an animated '
-            'walkthrough are all in the repository, running offline with '
-            'nothing installed but a Java development kit. [[slnc 300]] '
-            'If you try one exercise, add a second callback that runs '
-            'only when the payment fails, and check that the success one '
-            'is not called. [[slnc 300]] If this helped, a like genuinely '
-            'does help other people find it, and subscribe if you would '
-            'like the rest of the series. [[slnc 250]] Thanks for '
-            'watching.'
+            "That's the Callback pattern. [[slnc 400]] If you remember "
+            'one sentence, make it this one. [[slnc 300]] A callback lets '
+            'you carry on while something takes time, and the price is '
+            'code that runs out of written order, and failures no caller '
+            'sees. [[slnc 500]] The full source code, written notes, '
+            'diagrams, and an animated walkthrough are all in the '
+            'repository. [[slnc 500]] Here is one exercise to try. [[slnc '
+            '300]] Add a second callback, which only runs when the '
+            'payment fails. [[slnc 300]] And check that the success '
+            'callback is not called. [[slnc 500]] If this helped, a like '
+            'really does help other people find it. [[slnc 300]] And '
+            "subscribe, if you'd like the rest of the series. [[slnc "
+            '400]] Thanks for watching.'
         ),
     ),
 ]

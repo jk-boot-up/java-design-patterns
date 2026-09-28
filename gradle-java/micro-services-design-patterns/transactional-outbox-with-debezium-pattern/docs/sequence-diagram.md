@@ -6,33 +6,6 @@ Say it in words. A customer checks out order ORD-1. The checkout opens one Postg
 
 ![Transactional Outbox with Debezium sequence diagram](images/sequence-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant C as checkout
-    participant P as Postgres
-    participant L as the log and slot
-    participant D as Debezium
-    participant K as Kafka order-events
-    C->>P: begin. insert order ORD-1
-    C->>P: insert outbox row ORD-1/OrderPlaced
-    C->>P: delete the outbox row
-    C->>P: commit
-    P->>L: insert, delete and commit, in the log
-    Note over C: done. no Kafka code anywhere
-    L->>D: the committed changes
-    Note over D: the router keeps the insert, drops the delete
-    D->>K: key ORD-1, header id ORD-1/OrderPlaced
-    K-->>D: accepted, on ORD-1's partition
-    D->>L: position written down and confirmed
-    Note over P,K: outbox row gone. the event is in Kafka
-```
-
-</details>
-
 The load-bearing sentence: **the checkout commits to one system only, and Debezium reads what was committed from the database's own log — so an order and its event cannot part, the row does not even need to stay in the table, and the only price is that the event may be sent twice.**
 
 For the dual write, Debezium being down, and the crash between sending and writing down, see [`uml-diagram.md`](uml-diagram.md).

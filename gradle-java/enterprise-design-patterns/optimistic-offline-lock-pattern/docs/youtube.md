@@ -19,19 +19,19 @@ The first two lines are what a viewer sees above the fold, so they carry the hoo
 ```
 CHAPTERS
 00:00 Introduction
-00:54 The Scenario
-01:11 No Lock: The Last Write Wins
-01:30 The Pattern
+00:48 The Scenario
+01:04 No Lock: The Last Write Wins
+01:26 The Pattern
 01:43 A Version On Every Row
-01:59 Reload, Reapply, Save
-02:14 The Version Is Per Row
-02:33 The Bill: A Busy Row
-02:52 The Bill: You Find Out At The End
-03:09 How To Recognise It
-03:30 The Verdict
-03:54 What Is Real Here
-04:07 When This Is Too Much
-04:18 Thanks for Watching
+02:02 Reload, Reapply, Save
+02:22 The Version Is Per Row
+02:46 The Bill: A Busy Row
+03:07 The Bill: You Find Out At The End
+03:29 How To Recognise It
+03:55 The Verdict
+04:22 What Is Real Here
+04:35 When This Is Too Much
+04:49 Thanks for Watching
 
 SOURCE CODE, WRITTEN NOTES AND AN INTERACTIVE ANIMATION
 https://github.com/jk-boot-up/java-design-patterns/tree/main/gradle-java/enterprise-design-patterns/optimistic-offline-lock-pattern
@@ -46,19 +46,19 @@ YouTube renders these as chapters only if there are at least three and the first
 
 ```
 00:00 Introduction
-00:54 The Scenario
-01:11 No Lock: The Last Write Wins
-01:30 The Pattern
+00:48 The Scenario
+01:04 No Lock: The Last Write Wins
+01:26 The Pattern
 01:43 A Version On Every Row
-01:59 Reload, Reapply, Save
-02:14 The Version Is Per Row
-02:33 The Bill: A Busy Row
-02:52 The Bill: You Find Out At The End
-03:09 How To Recognise It
-03:30 The Verdict
-03:54 What Is Real Here
-04:07 When This Is Too Much
-04:18 Thanks for Watching
+02:02 Reload, Reapply, Save
+02:22 The Version Is Per Row
+02:46 The Bill: A Busy Row
+03:07 The Bill: You Find Out At The End
+03:29 How To Recognise It
+03:55 The Verdict
+04:22 What Is Real Here
+04:35 When This Is Too Much
+04:49 Thanks for Watching
 ```
 
 ## Tags
@@ -97,4 +97,4 @@ Add a card partway through pointing at the playlist, so a viewer who arrives at 
 
 ## Runtime
 
-Approximately 04:58, narrated at 145 words per minute.
+Approximately 05:28, narrated at 145 words per minute.

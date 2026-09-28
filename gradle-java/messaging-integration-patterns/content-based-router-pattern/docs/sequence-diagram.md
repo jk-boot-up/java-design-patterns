@@ -6,21 +6,4 @@ Say it in words. An order for a gift card worth fifteen hundred pounds reaches t
 
 ![Content-Based Router pattern sequence diagram](images/sequence-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant S as sender
-    participant R as router
-    participant F as fraud review
-    S->>R: gift card, 1500.00
-    R->>R: rule 1, high value: matches
-    R->>F: send
-    Note over R: rule 2 is never tried
-```
-
-</details>
-
 The load-bearing sentence: **the order of the rules decides where a message goes.**

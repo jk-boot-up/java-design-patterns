@@ -19,19 +19,19 @@ The first two lines are what a viewer sees above the fold, so they carry the hoo
 ```
 CHAPTERS
 00:00 Introduction
-00:40 The Partner Project
-01:03 Before The First Annotation
-01:22 The Context Is The Registry
-01:48 Used Well, Or Badly
-02:23 The Failure Of Its Own
-03:08 A Registry Of Strings
-03:35 Two Of A Type
-03:54 The Verdict
-04:14 Where You Have Met This
-04:22 What Was Used
-04:30 What Is Real Here
-04:42 When This Is Too Much
-04:51 Thanks for Watching
+00:49 The Partner Project
+01:14 Before The First Annotation
+01:33 The Context Is The Registry
+02:02 Used Well, Or Badly
+02:41 The Failure Of Its Own
+03:21 A Registry Of Strings
+03:51 Two Of A Type
+04:14 The Verdict
+04:34 Where You Have Met This
+04:44 What Was Used
+04:53 What Is Real Here
+05:05 When This Is Too Much
+05:14 Thanks for Watching
 
 SOURCE CODE, WRITTEN NOTES AND AN INTERACTIVE ANIMATION
 https://github.com/jk-boot-up/java-design-patterns/tree/main/gradle-java/foundational-design-patterns/registry-with-spring-pattern
@@ -46,19 +46,19 @@ YouTube renders these as chapters only if there are at least three and the first
 
 ```
 00:00 Introduction
-00:40 The Partner Project
-01:03 Before The First Annotation
-01:22 The Context Is The Registry
-01:48 Used Well, Or Badly
-02:23 The Failure Of Its Own
-03:08 A Registry Of Strings
-03:35 Two Of A Type
-03:54 The Verdict
-04:14 Where You Have Met This
-04:22 What Was Used
-04:30 What Is Real Here
-04:42 When This Is Too Much
-04:51 Thanks for Watching
+00:49 The Partner Project
+01:14 Before The First Annotation
+01:33 The Context Is The Registry
+02:02 Used Well, Or Badly
+02:41 The Failure Of Its Own
+03:21 A Registry Of Strings
+03:51 Two Of A Type
+04:14 The Verdict
+04:34 Where You Have Met This
+04:44 What Was Used
+04:53 What Is Real Here
+05:05 When This Is Too Much
+05:14 Thanks for Watching
 ```
 
 ## Tags
@@ -97,4 +97,4 @@ Add a card partway through pointing at the playlist, so a viewer who arrives at 
 
 ## Runtime
 
-Approximately 05:25, narrated at 145 words per minute.
+Approximately 05:48, narrated at 145 words per minute.

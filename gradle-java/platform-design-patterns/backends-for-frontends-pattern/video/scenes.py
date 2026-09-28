@@ -37,31 +37,25 @@ SCENES = [
         title="Backends for Frontends",
         body=None,
         narration=(
-            "Hello, and welcome. This video explains the Backends for Frontends "
-            "design pattern in Java, and it is written and presented by "
-            "Jayasekhar Konduru. [[slnc 300]] Let's start with the simple "
-            "definition. Backends for Frontends means giving each kind of client "
-            "its own small backend service, owned by the team that owns that "
-            "client, whose only job is to turn what the system knows into the "
-            "exact shape that one screen draws. [[slnc 350]] Think of a "
-            "restaurant with one kitchen and two rooms: a dining room, "
-            "where couples settle in for two hours, and a counter by the "
-            "window for people who have twenty minutes before a train. Give both "
-            "rooms the same waiter working from one script, and that script "
-            "becomes everything either room might want — the full wine list, "
-            "where the lamb came from, the dessert menu — recited to everybody. "
-            "The couple enjoy it. The commuter misses their train. [[slnc 300]] "
-            "And notice what the fix is not. It is not a second kitchen, because "
-            "the food is the same food and a second kitchen is two places for a "
-            "recipe to live. The fix is a second waiter, who is allowed to change "
-            "his own script tomorrow morning. "
-            "[[slnc 350]] That's the idea in a sentence. The rest of the video "
-            "does it properly, by building a real working Java project: an online "
-            "shop selling one coffee maker, a phone screen that draws six things, "
-            "and a desktop page that draws fifteen. [[slnc 250]] By the end you'll know why "
-            "making the response smaller does not solve this, the one question "
-            "that separates this pattern from an API gateway, and the three ways "
-            "it costs more than it saves."
+            'Hello, and welcome. [[slnc 400]] This video explains the '
+            'Backends for Frontends pattern, in Java. [[slnc 300]] This '
+            'video is presented by Jayasekhar Konduru. [[slnc 600]] '
+            'First, a simple definition. [[slnc 300]] Each kind of client '
+            'gets its own small backend service. [[slnc 300]] It is owned '
+            'by the team that owns that client. [[slnc 300]] And its only '
+            'job is to shape the data for that one screen. [[slnc 600]] '
+            'Think of a restaurant with one kitchen and two rooms. [[slnc '
+            '300]] A dining room, where couples stay two hours, and a '
+            'counter for commuters with twenty minutes. [[slnc 300]] One '
+            'waiter with one script cannot serve both well. [[slnc 300]] '
+            'The fix is not a second kitchen. [[slnc 300]] It is a second '
+            'waiter, with his own script. [[slnc 700]] In our online '
+            'store, one coffee maker is shown on a phone screen with six '
+            'things, and a desktop page with fifteen. [[slnc 500]] By the '
+            'end, you will know why a smaller response does not solve '
+            'this. [[slnc 300]] The one question that separates this '
+            'pattern from an A P I gateway. [[slnc 300]] And three ways '
+            'it costs more than it saves.'
         ),
     ),
     dict(
@@ -83,23 +77,18 @@ SCENES = [
             "They disagree about what a product is.",
         ],
         narration=(
-            "So, imagine an online shop, and imagine it sells one copper coffee "
-            "maker. We are going to look at that one product for the whole of "
-            "this video. [[slnc 300]] On a phone, the product screen draws six "
-            "things: the title, the price, one photograph, a star rating, the "
-            "number of ratings behind that star, and one line saying when "
-            "the parcel will arrive. Six. That is all that fits on a screen four "
-            "inches tall. [[slnc 300]] On a desktop, the same product fills a "
-            "page with fifteen. The title and the price, yes, but also the "
-            "full description, a specification table, five photographs, and three "
-            "written reviews. [[slnc 350]] Underneath both of them sit five "
-            "services: catalog, pricing, inventory, reviews, and "
-            "recommendations, which builds the strip of other things you "
-            "might like. [[slnc 350]] Now here is the situation, and it is worth "
-            "sitting with. Neither screen is wrong. The phone team is being "
-            "reasonable and the desktop team is being reasonable. They simply "
-            "disagree about what a product is — and everything in this video "
-            "comes out of that disagreement."
+            'Here is the scenario. [[slnc 400]] An online shop sells a '
+            'copper coffee maker. [[slnc 500]] On a phone, the product '
+            'screen shows six things. [[slnc 300]] The title, the price, '
+            'one photo, a star rating, the number of ratings, and when it '
+            'will arrive. [[slnc 500]] On a desktop, the same product '
+            'shows fifteen things. [[slnc 300]] Including a full '
+            'description, a specification table, five photos, and three '
+            'written reviews. [[slnc 500]] Underneath sit five services: '
+            'catalog, pricing, inventory, reviews, and recommendations. '
+            '[[slnc 600]] Neither screen is wrong. [[slnc 300]] The two '
+            'teams simply disagree about what a product is. [[slnc 300]] '
+            'And everything in this video comes from that disagreement.'
         ),
     ),
     dict(
@@ -122,21 +111,16 @@ SCENES = [
   Five round trips before a single pixel — and in sequence, because
   the later calls need the earlier answers.""",
         narration=(
-            "The first design is the one shops arrive at by accident, and it "
-            "arrives by accident because it is nobody's decision. Each service "
-            "owns its own data and publishes its own endpoint, so the phone just "
-            "asks all five of them. [[slnc 300]] Five requests out, five "
-            "answers back, every one of them across the "
-            "customer's own mobile connection. [[slnc 350]] And they cannot "
-            "happen all at once. You cannot ask pricing about a product until the "
-            "catalog has said which product it is, so the calls go one after "
-            "another. Five waits, end to end, before a single pixel can be "
-            "drawn. [[slnc 300]] On office wifi nobody notices. On a train, each "
-            "one is a wait of its own. [[slnc 350]] And look at the "
-            "arithmetic on the way in. Seventeen hundred and sixty-seven bytes "
-            "land on the phone, carrying twenty-nine fields, and six of them "
-            "reach the screen. That is wasteful — but hold onto the five, not the "
-            "bytes, because the five is what actually hurts here."
+            'First demo: the phone calls every service itself. [[slnc '
+            '400]] Each service has its own endpoint, so the phone asks '
+            "all five. [[slnc 300]] Five requests, over the customer's "
+            'own mobile connection. [[slnc 500]] And they must happen one '
+            'after another. [[slnc 300]] Five waits before anything '
+            'appears on screen. [[slnc 300]] On a train, each one is '
+            'slow. [[slnc 500]] About seventeen hundred bytes arrive, '
+            'with twenty-nine fields. [[slnc 300]] And only six are '
+            'shown. [[slnc 300]] But the real pain here is the five '
+            'calls, not the bytes.'
         ),
     ),
     dict(
@@ -157,20 +141,17 @@ SCENES = [
   But one endpoint publishes one document, and that document has
   to satisfy the fussiest client it has.""",
         narration=(
-            "So the shop does the obvious thing. It puts one endpoint in front of "
-            "the five services, and every client calls that. [[slnc 300]] And "
-            "this genuinely helps. One round trip instead of five, which is the "
-            "expensive part gone, and I want to be fair to it: the pattern we end "
-            "up with keeps that improvement rather than replacing it. [[slnc "
-            "350]] But one endpoint publishes one document. And that document has "
-            "to satisfy every client the shop has, which means over time it grows "
-            "into everything that anybody has ever needed. The union of all the "
-            "screens. [[slnc 350]] So seventeen hundred and fifty-five bytes "
-            "arrive on the phone. Two hundred and twelve of them are drawn. "
-            "Fifteen hundred and forty-three are thrown away the moment they "
-            "arrive — eighty-seven per cent of what the customer's connection was "
-            "asked to carry. [[slnc 300]] Now, that number looks like the "
-            "problem. It is about to turn out not to be."
+            'Second demo: one endpoint for everybody. [[slnc 400]] The '
+            'shop puts one endpoint in front of the five services, and '
+            'every client calls it. [[slnc 300]] One round trip instead '
+            'of five. [[slnc 300]] That is a real win, and the final '
+            'pattern keeps it. [[slnc 500]] But one endpoint returns one '
+            'document for every client. [[slnc 300]] So it grows to hold '
+            'everything any screen ever needed. [[slnc 500]] About '
+            'seventeen hundred bytes reach the phone. [[slnc 300]] Only '
+            'about two hundred are shown. [[slnc 300]] Eighty-seven '
+            'percent is thrown away. [[slnc 500]] That looks like the '
+            'problem. [[slnc 300]] It is about to turn out not to be.'
         ),
     ),
     dict(
@@ -188,19 +169,16 @@ SCENES = [
   If this were a story about payload size,
   it would end on this slide.""",
         narration=(
-            "Because there is an obvious fix, and it works completely. [[slnc "
-            "300]] Let the client say which fields it wants. Add a list of field "
-            "names to the query string, and the endpoint sends back only those. "
-            "Seventeen hundred and fifty-five bytes becomes two hundred and "
-            "twelve. [[slnc 350]] That is the same saving the finished pattern "
-            "gets, achieved with one query parameter, no new services to run, "
-            "nothing to deploy and no architecture diagram. [[slnc 400]] So I "
-            "want to say this as plainly as I can, because it is the most useful "
-            "sentence in this video. If Backends for Frontends were about payload "
-            "size, the story would end here. It would not be a pattern. It would "
-            "be a query parameter. [[slnc 300]] People do stop here. They add the "
-            "parameter, they measure the bytes, they write it up, and they believe "
-            "they have applied the pattern. And then the next request comes in."
+            'Because there is an obvious fix, and it works. [[slnc 400]] '
+            'Let the client list the fields it wants, in the request. '
+            '[[slnc 300]] Seventeen hundred bytes becomes about two '
+            'hundred. [[slnc 500]] No new services, nothing to deploy. '
+            '[[slnc 600]] So here is the most useful sentence in this '
+            'video. [[slnc 300]] If this pattern were about payload size, '
+            'the story would end here. [[slnc 300]] It would just be a '
+            'query parameter. [[slnc 500]] People stop here, and think '
+            'they have applied the pattern. [[slnc 300]] Then the next '
+            'request arrives.'
         ),
     ),
     dict(
@@ -220,23 +198,19 @@ SCENES = [
             "   five other clients also receive, so it joins their queue",
         ],
         narration=(
-            "The phone team wants one line of text under the price. Free "
-            "delivery, arrives Friday. [[slnc 300]] That sentence does not exist "
-            "in any service, and it cannot, because it is not a fact — it is "
-            "three facts joined together and written out in English. Ask "
-            "inventory whether the item is in stock. Ask the delivery rules what "
-            "that means for tomorrow. Look at the clock. Then write the "
-            "sentence the designer asked for. [[slnc 350]] That is half an hour "
-            "of work. It is a small method. [[slnc 400]] But it is a "
-            "new field on a shared endpoint, and that document is "
-            "also received by five other clients. So it is not half an hour of "
-            "work any more. It is a change to a contract, which needs a review "
-            "and a place in a queue, behind work that has nothing to "
-            "do with the phone. [[slnc 350]] The phone team could have written it "
-            "in an afternoon. They wait five weeks. [[slnc 350]] And that is the "
-            "real problem. It is not a technical failure — every service here is "
-            "well built. It is an organisational failure with a technical cause, "
-            "and it is the one this pattern removes."
+            'The phone team wants one line under the price. [[slnc 300]] '
+            'Free delivery, arrives Friday. [[slnc 500]] That sentence '
+            'exists in no service. [[slnc 300]] It joins three facts: '
+            "whether it is in stock, the delivery rules, and today's "
+            'date. [[slnc 300]] Then it writes them as a sentence. [[slnc '
+            '500]] That is half an hour of work. [[slnc 600]] But it is a '
+            'new field on a shared endpoint, which five other clients '
+            'also receive. [[slnc 300]] So it becomes a contract change, '
+            "with a review, and a place in someone else's queue. [[slnc "
+            '500]] The phone team waits five weeks. [[slnc 600]] That is '
+            'the real problem. [[slnc 300]] Not a technical failure, but '
+            'an organisational one. [[slnc 300]] And it is the one this '
+            'pattern removes.'
         ),
     ),
     dict(
@@ -254,23 +228,19 @@ SCENES = [
             "shape · and nothing but the shape",
         ],
         narration=(
-            "Here, then, is the pattern, in one sentence. Give each frontend its "
-            "own backend, owned by the team that owns the screen, whose only job "
-            "is to turn what the shop knows into the exact shape that one screen "
-            "draws. [[slnc 400]] Three words in that sentence are carrying it, "
-            "and each one rules out a near miss, so let me pull them apart. "
-            "[[slnc 350]] Each. More than one. If you put a single box in front "
-            "of your services and every client calls it, you have built a "
-            "gateway, which is a fine thing to build and is not this. [[slnc "
-            "350]] Own. The team that draws the screen changes the backend. If "
-            "the platform team owns something called the mobile API, you have "
-            "recreated the five-week queue and given it a nicer name. Ownership "
-            "is not a detail of this pattern. It is most of the value. [[slnc "
-            "350]] And shape. Only the shape. Which fields, in what order, "
-            "formatted how, joined from where. Not rules, not policy, not "
-            "arithmetic the shop believes. [[slnc 300]] That third word is the "
-            "one that gets broken, and breaking it is the first item on the bill "
-            "later in this video."
+            'Here is the pattern, in one sentence. [[slnc 300]] Give each '
+            'frontend its own backend, owned by the team that owns the '
+            'screen, whose only job is to shape the data for that screen. '
+            '[[slnc 600]] Three words matter. [[slnc 500]] Each. [[slnc '
+            '200]] There must be more than one. [[slnc 300]] A single box '
+            'in front of everything is a gateway, not this. [[slnc 500]] '
+            "Own. [[slnc 200]] The screen's team changes the backend. "
+            '[[slnc 300]] If another team owns it, you have rebuilt the '
+            'five-week queue. [[slnc 500]] Shape. [[slnc 200]] Only the '
+            'shape: which fields, in what order, and how they are '
+            'written. [[slnc 300]] Not business rules. [[slnc 300]] '
+            'Breaking that third word is the first cost, later in this '
+            'video.'
         ),
     ),
     dict(
@@ -279,30 +249,20 @@ SCENES = [
         title="Who Does What",
         body=None,
         narration=(
-            "Let me name the pieces, because they are all small and there are "
-            "only a handful that matter. [[slnc 300]] At the centre is an "
-            "interface called client backend. It says two things: what client am "
-            "I for, and give me the product screen for this product. [[slnc 350]] "
-            "Two classes implement it — the phone's backend and the "
-            "desktop's — and both of them are "
-            "live, at the same time, in production, answering the same question "
-            "differently on purpose. [[slnc 350]] That is unusual. Most of the "
-            "time an interface with two implementations means you will pick one: "
-            "this store today, that store tomorrow. Not here. Neither is the "
-            "fallback and nobody will ever choose "
-            "between them, because the phone always talks to the first and the "
-            "desktop always talks to the second. Two arrows pointing at one "
-            "interface is not a detail here. It is the pattern "
-            "itself. [[slnc 350]] Underneath both sits the shop: the five "
-            "services. Both backends can reach all of it, so "
-            "neither has anything the other cannot get. What differs is only what "
-            "each one chooses to send on. [[slnc 350]] Then there is a class "
-            "called screens, which is two lists of field names — the six the phone "
-            "draws and the fifteen the desktop draws. That is the ruler. "
-            "Everywhere this project says the word waste, it means not on one of "
-            "those two lists. [[slnc 300]] And off to one side, connected to "
-            "nothing, sit the chatty phone and the shared endpoint: the two "
-            "designs this pattern replaces."
+            "Let's name the pieces. [[slnc 500]] At the centre is one "
+            'interface, called client backend. [[slnc 300]] It says which '
+            'client it is for, and returns the product screen for a '
+            "product. [[slnc 500]] Two classes implement it: the phone's "
+            "backend, and the desktop's. [[slnc 300]] And both run at the "
+            'same time, answering the same question differently, on '
+            'purpose. [[slnc 300]] Neither is a fallback. [[slnc 300]] '
+            'The phone always talks to one, and the desktop always talks '
+            'to the other. [[slnc 500]] Underneath both are the five shop '
+            'services. [[slnc 300]] Both backends can reach all of them. '
+            '[[slnc 300]] They only differ in what they choose to send. '
+            '[[slnc 500]] Then there are two lists of fields: the six the '
+            'phone shows, and the fifteen the desktop shows. [[slnc 300]] '
+            'Those lists define what counts as waste.'
         ),
     ),
     dict(
@@ -325,25 +285,21 @@ return Doc.of(
     "ratingCount", reviews.number("count"),
     "delivery",    deliveryPromise(stock, clock));       // the 5-week field""",
         narration=(
-            "This is the one piece of code worth reading closely, and I will "
-            "describe it rather than spell out the syntax. [[slnc 300]] The "
-            "phone's backend receives one request. It then makes four calls, "
-            "inside the data centre: catalog, pricing, inventory, reviews. [[slnc "
-            "300]] And it does not call recommendations at all — not because "
-            "recommendations is slow, but because this screen has no "
-            "related-products strip, so that data has nowhere to go. A "
-            "backend that knows exactly one screen can make that decision. A "
-            "shared endpoint never can. [[slnc 400]] Then it builds six flat "
-            "fields, and two are worth stopping on. [[slnc 300]] The "
-            "price. Pricing returned the number four thousand seven hundred and "
-            "ninety-nine — pence, as an integer, which is the right way for a "
-            "pricing service to hold money. What the phone is sent is the text: "
-            "pound sign, forty-seven, point, ninety-nine. That conversion happened "
-            "in a process the phone team can correct this afternoon, rather than "
-            "inside an app customers will still be running in two years. "
-            "[[slnc 350]] And the last line is the delivery promise. Four "
-            "lines of code, in the phone team's own repository, in the phone "
-            "team's own deployment. That is the field they waited five weeks for."
+            "Here is the phone's backend, in words. [[slnc 400]] It "
+            'receives one request. [[slnc 300]] Then it makes four calls '
+            'inside the data centre: catalog, pricing, inventory, and '
+            'reviews. [[slnc 300]] It does not call recommendations at '
+            'all, because the phone screen has nowhere to show them. '
+            '[[slnc 300]] Only a backend that knows one screen can make '
+            'that choice. [[slnc 600]] Then it builds six simple fields. '
+            '[[slnc 500]] The price arrives from pricing as a whole '
+            'number of pence. [[slnc 300]] The phone is sent ready-made '
+            'text: forty-seven pounds ninety-nine. [[slnc 300]] So the '
+            'phone team can change that formatting this afternoon, not in '
+            'an app update. [[slnc 500]] And the last field is the '
+            'delivery sentence. [[slnc 300]] Four lines of code, in the '
+            "phone team's own project. [[slnc 300]] The field they waited "
+            'five weeks for.'
         ),
     ),
     dict(
@@ -365,24 +321,21 @@ return Doc.of(
 
   Same five services underneath. Different shape.""",
         narration=(
-            "So here are the two documents, and because they are the heart of "
-            "this let me read them to you rather than leave them on the screen. "
-            "[[slnc 300]] The phone is sent six fields. The title, Copper Filter "
-            "Coffee Maker, one litre. The price, as text, forty-seven pounds "
-            "ninety-nine. One image, the three-hundred-and-twenty-pixel "
-            "one, because that is what a phone needs. A rating of four point six. "
-            "A rating count of two hundred and eighteen. And the delivery "
-            "sentence: free delivery, arrives on the eighteenth. [[slnc 400]] The "
-            "desktop is sent fifteen — everything the phone got, plus the "
-            "description, the specification, five images rather than one, and "
-            "three written reviews. [[slnc 350]] Now compare the delivery field "
-            "across the two, because this is the part people try to tidy up. The "
-            "phone was given a whole sentence. The desktop was given the bare "
-            "date. [[slnc 300]] That is not an inconsistency. "
-            "The desktop page has a delivery panel with its own layout, so it "
-            "wants the parts and will write its own sentence. Two backends over "
-            "the same data, disagreeing about the shape of a product, is not the "
-            "pattern going wrong. It is the pattern working."
+            'Here are the two documents, read aloud. [[slnc 500]] The '
+            'phone gets six fields. [[slnc 300]] The title: Copper Filter '
+            'Coffee Maker, one litre. [[slnc 300]] The price: forty-seven '
+            'pounds ninety-nine. [[slnc 300]] One small image. [[slnc '
+            '300]] A rating of four point six, from two hundred and '
+            'eighteen ratings. [[slnc 300]] And a sentence: free '
+            'delivery, arrives on the eighteenth. [[slnc 600]] The '
+            'desktop gets fifteen fields. [[slnc 300]] Everything the '
+            'phone got, plus the description, the specification, five '
+            'images, and three reviews. [[slnc 600]] Notice the delivery '
+            'field. [[slnc 300]] The phone gets a whole sentence. [[slnc '
+            '300]] The desktop gets just the date, because its page '
+            'writes its own sentence. [[slnc 500]] Two backends '
+            'disagreeing about the shape of a product is not a mistake. '
+            '[[slnc 300]] It is the pattern working.'
         ),
     ),
     dict(
@@ -402,25 +355,17 @@ return Doc.of(
   The work did not go away.
   It moved onto a network where a call costs nothing.""",
         narration=(
-            "Here are the three designs measured side by side, and I am going to "
-            "ignore the byte column for a moment, because the two columns to the "
-            "right of it are the honest ones. [[slnc 350]] The calls made from "
-            "the phone, across the customer's own connection, go five, then one, "
-            "then one. [[slnc 300]] The calls made inside the shop go five, then "
-            "five, then four. [[slnc 400]] So the work did not go away. Nothing "
-            "was eliminated. Four round trips moved off a mobile network, where "
-            "each one might cost a tenth of a second on a train, and onto a "
-            "data-centre network, where a call costs well under a millisecond. "
-            "This pattern relocates cost; it does not "
-            "delete it. [[slnc 350]] And now the bytes, because they are still "
-            "good. The phone's own document is a hundred and ninety-six bytes "
-            "against the shared endpoint's seventeen hundred and fifty-five. "
-            "Eighty-nine per cent less. [[slnc 300]] One more thing, and it "
-            "matters if you are thinking about your own system. Those four "
-            "internal calls happen one after another in this project. A real "
-            "backend would fire them off together and wait once. So everything "
-            "you have heard so far understates the benefit rather than "
-            "overstating it."
+            'Now the three designs, side by side. [[slnc 500]] Calls made '
+            "from the phone, over the customer's connection: five, then "
+            'one, then one. [[slnc 300]] Calls made inside the shop: '
+            'five, then five, then four. [[slnc 600]] So the work did not '
+            'disappear. [[slnc 300]] Four slow trips over a mobile '
+            'network moved into the data centre, where each call takes '
+            'well under a millisecond. [[slnc 300]] The pattern moves '
+            'cost. [[slnc 300]] It does not delete it. [[slnc 600]] And '
+            "the bytes are still good. [[slnc 300]] The phone's own "
+            'document is under two hundred bytes. [[slnc 300]] About '
+            'eighty-nine percent smaller than the shared one.'
         ),
     ),
     dict(
@@ -441,31 +386,23 @@ return Doc.of(
   A backend for a frontend may hold the shape. Anything the shop
   would still believe with every client switched off belongs behind it.""",
         narration=(
-            "So that is the pattern, and it works. Now the bill, because there "
-            "are three items on it, and all three are the price of the pattern "
-            "rather than mistakes made while applying it. [[slnc 350]] Item one. "
-            "The pricing team reviews the discount rule and adds a condition: a "
-            "higher price may only be advertised as a saving if it was genuinely "
-            "in force for long enough first. Otherwise you could put the price up "
-            "on Monday and advertise a discount on Tuesday. [[slnc 300]] This "
-            "product's price went up eleven days ago, which does not qualify, and "
-            "both backends are told so. [[slnc 350]] The desktop reads the "
-            "current rule and claims nothing. [[slnc "
-            "300]] The phone's backend runs a copy of that rule, taken before the "
-            "review. It does the subtraction, and it advertises twelve pounds "
-            "off. [[slnc 400]] Same product, same price, same second, and one of "
-            "those two screens is making a claim the shop is not allowed to make. "
-            "[[slnc 350]] Now, listen to what is not happening. Nothing throws. "
-            "Nothing is logged. Both backends have tests and both sets pass. The "
-            "copy is not careless — it was correct when it was written, and it is "
-            "wrong only in relation to a decision taken "
-            "months later by people with no reason to know it existed. "
-            "[[slnc 350]] The only person who can see the problem is a customer "
-            "with both screens open. [[slnc 300]] So here is the rule, and it is "
-            "the thing to write down from this video. A backend for a frontend "
-            "may hold the shape. Anything the shop would still believe with every "
-            "client switched off belongs behind it — tax, discounts, stock "
-            "allocation, what a price means."
+            'That is the pattern, and it works. [[slnc 300]] Now the '
+            'bill, with three items. [[slnc 600]] Item one. [[slnc 300]] '
+            'The pricing team changes the discount rule. [[slnc 300]] A '
+            'higher price may only be advertised as a saving if it was in '
+            "force long enough first. [[slnc 300]] This product's price "
+            'went up eleven days ago, which does not qualify. [[slnc '
+            '600]] The desktop uses the current rule, and claims no '
+            "saving. [[slnc 300]] But the phone's backend has its own old "
+            'copy of the rule. [[slnc 300]] So it advertises twelve '
+            'pounds off. [[slnc 600]] Same product, same moment, and one '
+            'screen makes a claim the shop is not allowed to make. [[slnc '
+            '300]] Nothing fails. [[slnc 300]] Both sets of tests pass. '
+            '[[slnc 600]] So here is the rule to remember. [[slnc 300]] A '
+            'backend for a frontend may hold the shape. [[slnc 300]] '
+            'Anything the shop would still believe with every screen '
+            'switched off belongs behind it. [[slnc 300]] Tax, discounts, '
+            'stock, and what a price means.'
         ),
     ),
     dict(
@@ -486,25 +423,21 @@ return Doc.of(
   "what does this screen need?"      -> a backend for that frontend
   "is this request allowed in?"      -> in front of all of them""",
         narration=(
-            "Item two, and it is the confusion this pattern is most often lost "
-            "in. [[slnc 300]] There are four things every request needs done to "
-            "it, whoever sent it. Verify the customer's token. Refuse traffic "
-            "over the rate limit. Terminate the encryption. Write the "
-            "access log. [[slnc 350]] The nearest place to put any of those is "
-            "inside whichever backend you happen to have open. Do that, and it is "
-            "four jobs times two backends — eight copies of work that is "
-            "identical by definition. [[slnc 300]] Put a gateway in front and it "
-            "is four, and it stays four however many backends you add. In the "
-            "project, the method that counts those four takes no argument, "
-            "and that absence is the whole answer. [[slnc 400]] So here is the "
-            "question that settles every argument about whether something is a "
-            "gateway or a backend for a frontend. Ask what the code answers. "
-            "[[slnc 300]] If it answers, what does this screen need — it belongs "
-            "in a backend for that frontend. If it answers, is this request "
-            "allowed in at all — it belongs in front of all of them. [[slnc 350]] "
-            "A gateway is about entry. A backend for a frontend is about shape. "
-            "They are neighbours, they are often deployed together, and they are "
-            "not the same pattern."
+            'Item two: where do the shared jobs go? [[slnc 500]] Every '
+            'request needs four things done, whoever sent it. [[slnc '
+            "300]] Check the customer's login. [[slnc 200]] Refuse too "
+            'much traffic. [[slnc 200]] Handle the encryption. [[slnc '
+            '200]] And write the access log. [[slnc 600]] Put those '
+            'inside each backend, and there are eight copies across two '
+            'backends. [[slnc 300]] Put a gateway in front, and there are '
+            'four, however many backends you add. [[slnc 600]] So here is '
+            'the question that settles it. [[slnc 300]] What does this '
+            'code answer? [[slnc 300]] If it answers: what does this '
+            'screen need? [[slnc 300]] It belongs in a backend for that '
+            'frontend. [[slnc 300]] If it answers: is this request '
+            'allowed in at all? [[slnc 300]] It belongs in a gateway in '
+            'front of all of them. [[slnc 500]] A gateway is about entry. '
+            '[[slnc 300]] A backend for a frontend is about shape.'
         ),
     ),
     dict(
@@ -527,24 +460,20 @@ return Doc.of(
   on-call rota, an upgrade whenever a shop service changes, and
   one more process to look at during an incident.""",
         narration=(
-            "Item three, and this is the one that turns a good idea into a "
-            "department. [[slnc 300]] The shop has six clients. A phone app, a "
-            "desktop store, a tablet app, a smart television app, an in-store "
-            "kiosk, and a nightly feed for a partner. One backend each would be "
-            "six. [[slnc 350]] But look at them properly. The tablet shows the "
-            "phone's six fields in a wider column — it disagrees about nothing, "
-            "so it is the same backend and a different stylesheet. The kiosk is "
-            "the desktop page with the basket hidden. The partner feed is not a "
-            "screen at all; it is a file, once a night. [[slnc 300]] Three of the "
-            "six genuinely disagree about what a product is. Three do not. [[slnc "
-            "400]] So the test is not the device, and — this one catches people — "
-            "it is not the team either. [[slnc 350]] And the reason to be "
-            "strict about it is that every extra backend costs something every "
-            "week for as long as it exists. A pipeline. A "
-            "place in the on-call rota. A dependency upgrade every time one "
-            "of the shop's services changes. And one more process somebody has to "
-            "read during an incident at three in the morning. [[slnc "
-            "350]] Two backends is a pattern. Nine is a department."
+            'Item three: how many is too many? [[slnc 500]] The shop has '
+            'six clients. [[slnc 300]] A phone app, a desktop store, a '
+            'tablet app, a smart television app, an in-store kiosk, and a '
+            'nightly partner feed. [[slnc 600]] But the tablet shows the '
+            "phone's six fields in a wider column. [[slnc 300]] So it "
+            "shares the phone's backend. [[slnc 300]] The kiosk is the "
+            'desktop page, with the basket hidden. [[slnc 300]] And the '
+            'partner feed is not a screen at all. [[slnc 500]] Only three '
+            'of the six really disagree about what a product is. [[slnc '
+            '600]] Every extra backend costs something every week. [[slnc '
+            '300]] A build pipeline, an on-call rota, upgrades, and one '
+            'more thing to read during a night-time incident. [[slnc '
+            '500]] Two backends is a pattern. [[slnc 300]] Nine is a '
+            'department.'
         ),
     ),
     dict(
@@ -565,23 +494,20 @@ return Doc.of(
             "And no test you can write will notice when you get this wrong.",
         ],
         narration=(
-            "Four things to take away. [[slnc 300]] First, the question that "
-            "identifies this pattern in the wild: is the endpoint named after a "
-            "resource, or after a screen? Slash products slash four four one "
-            "seven belongs to everybody, and therefore to nobody in particular. "
-            "Slash phone slash product screen belongs to one team, and that team "
-            "can add a field to it this week. [[slnc 350]] Second, the saving is "
-            "not bytes. It is whose queue you are standing in. If somebody says "
-            "they applied this pattern and the evidence is a payload "
-            "measurement, they may well have added a query parameter. [[slnc "
-            "350]] Third, shape goes inside the backend and anything the shop "
-            "believes goes behind it. The test is one sentence: would this still "
-            "be true with every client switched off? [[slnc 350]] Fourth, one backend per genuine "
-            "disagreement about what a product is. Not per device. Not per team. "
-            "[[slnc 350]] And one warning to leave you with. Every one of those "
-            "four can be got wrong without anything failing. There is no test you "
-            "can write inside either backend that notices the two of them have "
-            "drifted apart, because from inside each one, each one is right."
+            'Here are four things to remember. [[slnc 500]] One. [[slnc '
+            '200]] Is the endpoint named after a resource, or after a '
+            'screen? [[slnc 300]] An endpoint for products belongs to '
+            'everybody, and so to nobody. [[slnc 300]] An endpoint for '
+            "the phone's product screen belongs to one team. [[slnc 400]] "
+            'Two. [[slnc 200]] The saving is not bytes. [[slnc 300]] It '
+            'is whose queue you are standing in. [[slnc 400]] Three. '
+            '[[slnc 200]] Shape goes inside the backend. [[slnc 300]] '
+            'Anything the shop believes goes behind it. [[slnc 400]] '
+            'Four. [[slnc 200]] One backend per real disagreement about '
+            'what a product is. [[slnc 300]] Not per device, and not per '
+            'team. [[slnc 600]] And one warning. [[slnc 300]] All four '
+            'can go wrong without anything failing. [[slnc 300]] Because '
+            'from inside each backend, each one is right.'
         ),
     ),
     dict(
@@ -595,16 +521,19 @@ return Doc.of(
             "Run it yourself:  ./gradlew run",
         ],
         narration=(
-            "And that is Backends for Frontends. Each screen gets its own "
-            "backend, owned by the team that draws the screen, and it holds the "
-            "shape and nothing else. [[slnc 350]] The whole project is in the "
-            "repository — the source, forty-six tests, the diagrams, and an "
-            "interactive animation that shrinks the document one step at a time. "
-            "All three costs are in there as running code too, so you can watch "
-            "the two backends disagree and then fix it by changing one line. "
-            "[[slnc 300]] If this was useful, please like the video and "
-            "subscribe. Thanks very much for watching, and I'll see you in the "
-            "next one."
+            "That's the Backends for Frontends pattern. [[slnc 400]] If "
+            'you remember one sentence, make it this one. [[slnc 300]] '
+            'Each screen gets its own backend, owned by the team that '
+            'draws the screen, and it holds the shape, and nothing else. '
+            '[[slnc 500]] The full source code, written notes, diagrams, '
+            'and an animated walkthrough are all in the repository. '
+            '[[slnc 300]] All three costs are there as running code, too. '
+            '[[slnc 500]] Here is one exercise to try. [[slnc 300]] '
+            "Update the phone backend's copy of the discount rule. [[slnc "
+            '300]] Then check that both screens agree again. [[slnc 500]] '
+            'If this helped, a like really does help other people find '
+            "it. [[slnc 300]] And subscribe, if you'd like the rest of "
+            'the series. [[slnc 400]] Thanks for watching.'
         ),
     ),
 ]

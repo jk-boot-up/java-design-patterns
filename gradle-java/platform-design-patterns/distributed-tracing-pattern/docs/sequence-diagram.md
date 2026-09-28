@@ -24,43 +24,6 @@ were going to ask.
 
 ![Distributed Tracing pattern sequence diagram](images/sequence-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant Customer
-    participant Page as product-page
-    participant Sampler
-    participant Recs as recommendations
-    participant Model as ranking-model
-    participant Trace as the collected trace
-
-    Customer->>Page: GET /product/A-2231
-    Page->>Sampler: record this one?
-    Sampler-->>Page: yes — decided once, here
-    Note over Page: root span-1, trace-4f2a
-
-    Page->>Page: catalog, child of span-1, 120ms
-    Page->>Page: pricing, child of span-1, 180ms
-    Page->>Page: inventory, child of span-1, 90ms
-
-    Page->>Recs: fetch strip, carrying trace-4f2a / span-1
-    Note over Recs: span-5, child of the page
-    Recs->>Model: score, carrying trace-4f2a / span-5
-    Note over Model: span-6, child of recommendations<br/>340ms
-    Model-->>Recs: done
-    Recs-->>Page: done, 400ms
-
-    Page->>Page: render, child of span-1, 110ms
-    Page-->>Customer: 200 OK after 900ms
-    Page->>Trace: 7 spans, one trace id
-    Note over Trace: ranking-model is 37% of the request —<br/>computed afterwards, by subtraction
-```
-
-</details>
-
 ## What the order proves
 
 **Every call carries the caller's context, and that is all the propagation there is.** The

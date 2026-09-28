@@ -223,6 +223,7 @@ ORDER = [
     ("micro-services-design-patterns", "database-per-service-with-containers"),
     ("micro-services-design-patterns", "leader-election-with-kubernetes"),
     ("micro-services-design-patterns", "transactional-outbox-with-debezium"),
+    ("platform-design-patterns", "externalised-configuration-with-spring-cloud-config"),
 ]
 
 # Demos that mint an identifier per run, so their output is not byte-stable.
@@ -388,6 +389,7 @@ NAMES = {
     "database-per-service-with-containers": 'Database per Service with Containers',
     "leader-election-with-kubernetes": 'Leader Election with Kubernetes',
     "transactional-outbox-with-debezium": 'Transactional Outbox with Debezium',
+    "externalised-configuration-with-spring-cloud-config": 'Externalised Configuration with Spring Cloud Config',
 }
 
 # ---------------------------------------------------------------------------
@@ -7376,6 +7378,33 @@ requirements=[
 ],
 ),
 
+"externalised-configuration-with-spring-cloud-config": dict(
+purpose="""
+Show externalised configuration with a real Spring Cloud Config Server reading a git repository: the free-delivery threshold served over HTTP by commit; a new commit served at once while the running shop still quotes the old value; a refresh that changes it without a restart; one running shop left with two thresholds, because the checkout is refresh-scoped and the banner copied its value at startup; a bad value that the refresh accepts and every quote then fails on; and a server that is down, with fail-fast and optional clients behaving differently.
+""",
+nongoals=[
+    'Not a re-teaching of Externalised Configuration. The partner project owns the pattern; this one names it in its first paragraph.',
+    'Not a Spring Cloud tutorial. Only the config server, its git backend, the refresh endpoint, refresh scope and fail-fast are introduced, as they appear.',
+],
+problem="""
+Externalised Configuration read its settings from outside the code, in one process. With a config server, settings live in git and are served over HTTP; a running shop only sees a change when it refreshes, and only in the beans that are refresh-scoped.
+
+**What this project must deliver:** served configuration, the lag before a refresh, a refresh without a restart, the stale banner, a bad value, and a missing server.
+""",
+roles=[
+    ('The demo', '`SpringCloudConfigDemo`'),
+    ('The server', '`ConfigServerProcess` and the git `ConfigRepository`'),
+    ('The shop', '`Shop`, its refresh-scoped checkout and its startup-time banner'),
+],
+requirements=[
+    '**The config server is real,** a second Java process serving a git repository the demo creates; no container is needed.',
+    "**Every value is the server's own,** reported with the commit it came from.",
+    '**Waits are bounded polls.** No test contains a fixed sleep.',
+    '**Every process the demo starts is stopped,** and the temporary repository is deleted.',
+    '**Dependencies are explained.** `docs/dependencies.md` says what Spring Boot and Spring Cloud bring in and why.',
+],
+),
+
 }
 
 
@@ -7604,11 +7633,10 @@ def build_md(group, slug, f):
     ]:
         A("| %s | %s |" % (doc, job))
     A("")
-    A("Both Mermaid diagrams are committed as source *and* rendered PNG. The PNG\n"
-      "is what the README embeds, because GitHub's Mermaid rendering cannot be\n"
-      "relied on at these diagrams' size; the source is what gets edited.\n"
-      "Regenerating after an edit is mandatory — a diagram that disagrees with\n"
-      "the code is worse than no diagram.\n")
+    A("Every diagram is an image file in `docs/images/` (PNG or SVG); Mermaid is\n"
+      "not used. The README and the HTML pages embed those images. Updating the\n"
+      "image after a code change is mandatory — a diagram that disagrees with the\n"
+      "code is worse than no diagram.\n")
     A("---\n")
 
     A("## 5. Video quality specification\n")

@@ -35,29 +35,26 @@ SCENES = [
         title="Distributed Tracing",
         body=None,
         narration=(
-            "Hello, and welcome. This video explains the Distributed Tracing "
-            "design pattern in Java, and it is written and presented by "
-            "Jayasekhar Konduru. [[slnc 300]] Let's start with the simple "
-            "definition. Distributed tracing means giving one customer request a "
-            "single identifier, and then having every piece of work done for that "
-            "request record two things: how long it took, and which piece of work "
-            "asked for it. [[slnc 350]] Think of a hospital. You arrive at "
-            "reception and you are given a wristband, and that wristband follows "
-            "you to X-ray, to the blood test, to the consultant. Every department "
-            "writes on their own form, but every form carries your number, so "
-            "afterwards somebody can put your whole afternoon back together in "
-            "order. [[slnc 300]] And notice the second half. Each form also says "
-            "who sent you — reception sent you to X-ray, X-ray sent you for "
-            "bloods. That is the bit that turns a pile of forms into a story. "
-            "[[slnc 350]] That's the idea in a sentence. The rest of the video "
-            "does it properly, by building a real working Java project: an online "
-            "shop with a product page that takes nine hundred milliseconds, four "
-            "healthy services that all contributed to it, and nobody able to say "
-            "which one is at fault. [[slnc 250]] By the end you'll know why "
-            "merged logs cannot answer that question no matter how much you add "
-            "to them, the one piece of arithmetic that names the culprit, and the "
-            "three ways this pattern quietly stops telling you the truth without "
-            "ever raising an error."
+            'Hello, and welcome. [[slnc 400]] This video explains the '
+            'Distributed Tracing pattern, in Java. [[slnc 300]] This '
+            'video is presented by Jayasekhar Konduru. [[slnc 600]] '
+            'First, a simple definition. [[slnc 300]] Distributed tracing '
+            'gives one customer request a single I D. [[slnc 300]] Then '
+            'every piece of work done for that request records two '
+            'things. [[slnc 300]] How long it took. [[slnc 200]] And '
+            'which piece of work asked for it. [[slnc 600]] Think of a '
+            'hospital. [[slnc 300]] At reception you get a wristband with '
+            'a number. [[slnc 300]] It follows you to X-ray, to the blood '
+            "test, and to the doctor. [[slnc 300]] Each department's form "
+            'carries your number, and says who sent you. [[slnc 300]] So '
+            'afterwards, someone can rebuild your whole afternoon, in '
+            'order. [[slnc 700]] In our online store, a product page '
+            'takes nine hundred milliseconds. [[slnc 300]] Four healthy '
+            'services helped build it, and nobody can say which one is '
+            'slow. [[slnc 500]] By the end, you will know why merged logs '
+            'cannot answer that. [[slnc 300]] The one subtraction that '
+            'names the culprit. [[slnc 300]] And three ways this pattern '
+            'quietly stops telling the truth.'
         ),
     ),
     dict(
@@ -78,19 +75,18 @@ SCENES = [
             "Which one is slow?",
         ],
         narration=(
-            "So, imagine an online shop. A customer opens the page for one "
-            "product, and the page takes nine hundred milliseconds to come back. "
-            "That is slow enough to feel. [[slnc 300]] Four services contributed "
-            "to that page. Catalog looked the product up. Pricing worked out what "
-            "to charge. Inventory checked there was stock. And recommendations "
-            "built the strip of other things the customer might like. [[slnc "
-            "300]] Now here is the situation, and it is worth sitting with for a "
-            "moment. All four of those services are up. All four are responding. "
-            "All four are writing logs, and all of those logs are correct. "
-            "Nothing is broken, nothing is alerting, and nobody in the building "
-            "can tell you which of the four spent the nine hundred milliseconds. "
-            "[[slnc 350]] There is exactly one measurement in this picture, and "
-            "it is the complaint."
+            'Here is the scenario. [[slnc 400]] A customer opens the page '
+            'for one product. [[slnc 300]] It takes nine hundred '
+            'milliseconds, slow enough to notice. [[slnc 500]] Four '
+            'services helped build that page. [[slnc 300]] Catalog looked '
+            'up the product. [[slnc 300]] Pricing worked out the price. '
+            '[[slnc 300]] Inventory checked the stock. [[slnc 300]] And '
+            'recommendations built a list of other things to buy. [[slnc '
+            '600]] All four services are up. [[slnc 300]] All four are '
+            'writing logs, and all the logs are correct. [[slnc 300]] '
+            'Nothing is broken, and nothing is alerting. [[slnc 300]] But '
+            'nobody can say which service spent the nine hundred '
+            'milliseconds.'
         ),
     ),
     dict(
@@ -113,20 +109,20 @@ SCENES = [
 
   Four correct timestamps. No valid subtraction between any two.""",
         narration=(
-            "So let's do the obvious thing and go and read the logs. Every "
-            "service writes them, and an aggregator has merged all four together "
-            "in time order. [[slnc 300]] Two customers happen to be on the site "
-            "at the same moment, which is not a coincidence you have to arrange — "
-            "it is a Tuesday. So there are two lines saying pricing started a "
-            "quote, and two lines saying pricing finished one. [[slnc 350]] Now "
-            "answer the question. How long did pricing take? [[slnc 400]] Take "
-            "the first finish away from the first start and the answer is a "
-            "hundred and eighty milliseconds. Take the second finish instead and "
-            "the answer is two hundred and twenty. Both of those look entirely "
-            "reasonable, and one of them is one customer's start subtracted from "
-            "another customer's finish. [[slnc 350]] Every one of those four "
-            "timestamps is correct. There is no valid subtraction between any two "
-            "of them, and nothing on any line tells you which pairs with which."
+            "So let's read the logs. [[slnc 400]] All four services write "
+            'them, and a tool has merged them, in time order. [[slnc '
+            '500]] Two customers happen to be on the site at the same '
+            'moment. [[slnc 300]] That is normal. [[slnc 300]] So there '
+            'are two lines saying pricing started a quote. [[slnc 300]] '
+            'And two lines saying pricing finished one. [[slnc 600]] Now: '
+            'how long did pricing take? [[slnc 500]] Match the first '
+            'finish with the first start, and it is a hundred and eighty '
+            'milliseconds. [[slnc 300]] Match the other finish, and it is '
+            'two hundred and twenty. [[slnc 300]] Both look reasonable. '
+            "[[slnc 300]] But one of them subtracts one customer's start "
+            "from another customer's finish. [[slnc 500]] Every timestamp "
+            'is correct. [[slnc 300]] And nothing tells you which lines '
+            'belong together.'
         ),
     ),
     dict(
@@ -148,19 +144,17 @@ SCENES = [
             "The missing thing is not detail. It is an identifier.",
         ],
         narration=(
-            "The instinct at this point is to log harder. So let's take that "
-            "seriously and try it. [[slnc 300]] Add the thread name. That works "
-            "right up until the work moves onto another thread, which it will, "
-            "and which is going to come back and bite us later in this video. "
-            "[[slnc 250]] Add the name of the machine or the pod. Both customers "
-            "were served by the same one, so that tells you nothing. Add the "
-            "product id. Both customers were looking at the same product. Add the "
-            "size of the response — different for each, and completely "
-            "meaningless. [[slnc 350]] Every suggestion fails the same test, and "
-            "the test is worth saying slowly. You need something that is the same "
-            "across everything done for one request, and different for the next "
-            "request. [[slnc 300]] None of those fields is that. So the missing "
-            "thing is not more detail. It is an identifier."
+            "The natural reaction is to log more. [[slnc 300]] So let's "
+            'try it. [[slnc 500]] Add the thread name. [[slnc 300]] That '
+            'fails as soon as the work moves to another thread. [[slnc '
+            '400]] Add the machine name. [[slnc 300]] Both customers were '
+            'served by the same machine. [[slnc 400]] Add the product. '
+            '[[slnc 300]] Both customers viewed the same product. [[slnc '
+            '600]] Every idea fails the same test. [[slnc 300]] You need '
+            'something that is the same for everything done for one '
+            'request. [[slnc 300]] And different for the next request. '
+            '[[slnc 500]] So what is missing is not more detail. [[slnc '
+            '300]] It is an I D.'
         ),
     ),
     dict(
@@ -178,21 +172,20 @@ SCENES = [
             "is not designed. It is derived.",
         ],
         narration=(
-            "Here, then, is the pattern, and it is two sentences. [[slnc 300]] "
-            "Give one customer request one identifier, minted at the front door "
-            "and carried by everything that happens because of it. That is called "
-            "the trace id. [[slnc 350]] Then have every individual unit of work "
-            "record four things: what it was, when it started, how long it "
-            "lasted, and — this is the one that matters — the identifier of the "
-            "unit of work that asked for it. One of those records is called a "
-            "span, and that last field is called the parent span id. [[slnc "
-            "400]] The first sentence makes the logs readable, because you can "
-            "filter them down to one customer. The second sentence is what makes "
-            "them an answer. [[slnc 300]] Because once every span knows what "
-            "caused it, the shape of the request is not something anybody has to "
-            "design or draw. It is already in the data, and it can be worked out "
-            "afterwards by anybody, with no cooperation from the services that "
-            "produced it."
+            'Here is the pattern, in two parts. [[slnc 500]] First, give '
+            'each customer request one I D, created at the front door. '
+            '[[slnc 300]] Everything that happens because of that request '
+            'carries it. [[slnc 300]] That is called the trace I D. '
+            '[[slnc 600]] Second, every piece of work records four '
+            'things. [[slnc 300]] What it was. [[slnc 200]] When it '
+            'started. [[slnc 200]] How long it lasted. [[slnc 200]] And '
+            'the I D of the piece of work that asked for it. [[slnc 500]] '
+            'Each of those records is called a span. [[slnc 300]] And '
+            'that last field is called the parent. [[slnc 600]] The first '
+            'part lets you filter the logs down to one customer. [[slnc '
+            '300]] The second part turns them into an answer. [[slnc '
+            '300]] Because once every span knows its parent, the shape of '
+            'the whole request can be rebuilt afterwards, by anyone.'
         ),
     ),
     dict(
@@ -214,21 +207,20 @@ SCENES = [
             "Move 3 is one argument. It is also the whole difference.",
         ],
         narration=(
-            "In practice that is three moves. [[slnc 300]] Move one. The first "
-            "service to see the request makes up an identifier and passes it on "
-            "with every call it makes. In this project that travels as a little "
-            "value holding two strings: the trace id, and the id of the span "
-            "doing the calling. Two strings. Everything else is bookkeeping. "
-            "[[slnc 350]] Move two. Each unit of work opens a span when it starts "
-            "and closes it when it finishes. The closing is load-bearing, because "
-            "the duration is not known until the work is over, so the span is "
-            "only recorded on the way out. A span that is opened and never closed "
-            "does not appear at all. [[slnc 350]] Move three, and this is the one "
-            "people get wrong. When one service calls another, the nested span "
-            "must be started from the calling service's own context, not from the "
-            "page's. [[slnc 250]] That is one argument in one method call, and it "
-            "is the entire difference between a useful trace and a misleading "
-            "one. We will see exactly why in a few minutes."
+            'In practice, that is three moves. [[slnc 500]] Move one. '
+            '[[slnc 200]] The first service creates an I D, and passes it '
+            'on with every call it makes. [[slnc 300]] It travels as two '
+            'small values: the trace I D, and the I D of the span doing '
+            'the calling. [[slnc 500]] Move two. [[slnc 200]] Each piece '
+            'of work opens a span when it starts, and closes it when it '
+            'finishes. [[slnc 300]] The span is only recorded when it '
+            'closes, because only then is its length known. [[slnc 300]] '
+            'A span that is never closed does not appear at all. [[slnc '
+            '500]] Move three, the one people get wrong. [[slnc 200]] '
+            'When one service calls another, the new span must be started '
+            "from the caller's own span. [[slnc 300]] Not from the "
+            "page's. [[slnc 300]] That one choice is the difference "
+            'between a useful trace and a misleading one.'
         ),
     ),
     dict(
@@ -237,22 +229,19 @@ SCENES = [
         title="Who Does What",
         body=None,
         narration=(
-            "Let me name the pieces, because there are only six of them and they "
-            "are all small. [[slnc 300]] A trace context is two strings that "
-            "travel with the request. A span is one recorded unit of work: a "
-            "name, a start, a duration, and the id of its parent. A tracer hands "
-            "out spans and times them against a clock. [[slnc 350]] A trace is "
-            "the whole collection of spans for one request, and it is where the "
-            "arithmetic lives — which span is the root, which spans are whose "
-            "children, and how much time each span spent on its own work. [[slnc "
-            "300]] Then there is the drawing, which reads a trace and produces "
-            "text, and which the trace has never heard of. That one-way "
-            "relationship is worth noticing. There is no layout object anywhere "
-            "in this project and no notion of a view. The picture is a rendering "
-            "of the parent field and nothing else. [[slnc 350]] And the sixth "
-            "piece is the merged log, which is connected to nothing at all, "
-            "because it is not part of the pattern. It is the thing the pattern "
-            "replaces."
+            "Let's name the pieces. [[slnc 300]] There are six, and they "
+            'are all small. [[slnc 600]] A trace context: the two I Ds '
+            'that travel with the request. [[slnc 300]] A span: one piece '
+            'of work, with a name, a start, a length, and a parent. '
+            '[[slnc 300]] A tracer: it hands out spans, and times them. '
+            '[[slnc 500]] A trace: all the spans for one request. [[slnc '
+            '300]] It does the arithmetic: which span is the first, which '
+            'spans belong to which, and how much time each spent on its '
+            'own work. [[slnc 500]] A drawing, which turns a trace into a '
+            'picture. [[slnc 300]] The picture is built only from the '
+            'parent field. [[slnc 500]] And the sixth piece is the merged '
+            'log. [[slnc 300]] It is not part of the pattern. [[slnc '
+            '300]] It is what the pattern replaces.'
         ),
     ),
     dict(
@@ -274,21 +263,20 @@ try (Tracer.Scope recommendations =
 // pass `request` instead, and the arithmetic still closes.
 // It is just no longer true.""",
         narration=(
-            "This is the one piece of code worth reading closely, and I will "
-            "describe it rather than spell out the syntax. [[slnc 300]] The page "
-            "opens a span called recommendations, and it starts that span from the "
-            "page's own context — so recommendations becomes the page's child. "
-            "Correct. [[slnc 350]] Then, inside it, a second span is opened for "
-            "the ranking model. And the context handed to that second call is not "
-            "the page's. It is recommendations' own context, taken from the scope "
-            "that was just opened. So the model becomes recommendations' child, "
-            "and sits one level deeper. [[slnc 400]] Now here is the thing to "
-            "hold onto. If you passed the page's context there instead, the "
-            "program would still run. The total would still be nine hundred "
-            "milliseconds. Every number would still add up. The trace would still "
-            "have exactly one root and no orphans. [[slnc 300]] And the answer it "
-            "gave you would be wrong. A trace can be completely self-consistent "
-            "and false, and that idea is the most useful thing in this video."
+            'Here is the one piece of code that matters, in words. [[slnc '
+            '500]] The page opens a span called recommendations. [[slnc '
+            "300]] It starts it from the page's own span. [[slnc 300]] So "
+            'recommendations becomes a child of the page. [[slnc 600]] '
+            'Inside it, a second span is opened, for the ranking model. '
+            "[[slnc 300]] And this one is started from recommendations' "
+            "span, not the page's. [[slnc 300]] So the ranking model is a "
+            'child of recommendations, one level deeper. [[slnc 600]] Now '
+            'here is the key point. [[slnc 300]] If you started it from '
+            "the page's span by mistake, the program would still run. "
+            '[[slnc 300]] The total would still be nine hundred '
+            'milliseconds. [[slnc 300]] Everything would still add up. '
+            '[[slnc 300]] And the answer would be wrong. [[slnc 500]] A '
+            'trace can be perfectly consistent, and still false.'
         ),
     ),
     dict(
@@ -308,19 +296,17 @@ try (Tracer.Scope recommendations =
 Six spans name a parent. One does not.
 That one is the front door.""",
         narration=(
-            "So let's run it. One page load now produces seven spans, and I am "
-            "going to read you the parent column, because that column is the "
-            "pattern. [[slnc 300]] Catalog says its parent is span one. Pricing "
-            "says span one. Inventory says span one. Render says span one. "
-            "Recommendations says span one. [[slnc 250]] The ranking model is the "
-            "odd one out: its parent is span five, which is recommendations. "
-            "[[slnc 350]] And the last line, the product page itself, has no "
-            "parent at all. Exactly one span per request has no parent, and that "
-            "is the front door. It is called the root. [[slnc 300]] Now, nothing "
-            "here is a picture yet. This is a flat list, and the order it came "
-            "out in is not even the order things happened. But that column has "
-            "enough in it to rebuild the request exactly as it was, and that is "
-            "what happens next."
+            "Let's run it. [[slnc 300]] One page load now produces seven "
+            "spans. [[slnc 300]] Here is each span's parent. [[slnc 500]] "
+            "Catalog's parent is span one, the page. [[slnc 300]] So are "
+            'pricing, inventory, render, and recommendations. [[slnc '
+            '500]] The ranking model is the odd one out. [[slnc 300]] Its '
+            'parent is span five: recommendations. [[slnc 500]] And the '
+            'page itself has no parent at all. [[slnc 300]] Exactly one '
+            'span per request has no parent. [[slnc 300]] It is called '
+            'the root. [[slnc 600]] This is still just a list. [[slnc '
+            '300]] But it holds enough to rebuild the whole request, '
+            'exactly as it happened.'
         ),
     ),
     dict(
@@ -341,23 +327,22 @@ That one is the front door.""",
 Nobody designed this shape. Nobody configured it.
 Indentation is the parent field. Position is the start time.""",
         narration=(
-            "Here is the same seven spans, drawn. And because a picture is no use "
-            "to you if you are listening rather than watching, let me describe it "
-            "properly. [[slnc 300]] The top line is the page, and its bar runs "
-            "the full width, because it is the whole nine hundred milliseconds. "
-            "[[slnc 250]] Indented one level under it, four bars sit side by "
-            "side, left to right, in the order they happened: catalog for a "
-            "hundred and twenty milliseconds at the very start, pricing for a "
-            "hundred and eighty, inventory for ninety, and then recommendations "
-            "for four hundred, which is by far the widest of the four. Finally "
-            "render, a hundred and ten, tucked against the right-hand edge. "
-            "[[slnc 350]] And indented one level deeper again, inside "
-            "recommendations, sits the ranking model at three hundred and forty. "
-            "[[slnc 350]] Now the important part. Nobody designed that shape. "
-            "Nobody configured it. The indentation is the parent field, and the "
-            "position of each bar is its start time. That is all. When you open a "
-            "hosted tracing tool and see a picture like this, you are not looking "
-            "at something the tool invented. You are looking at your own data."
+            'Here are the same seven spans, drawn as a picture called a '
+            "waterfall. [[slnc 300]] Let's describe it in words. [[slnc "
+            '600]] The top line is the page. [[slnc 300]] Its bar runs '
+            'the full nine hundred milliseconds. [[slnc 500]] One level '
+            'below it, the bars appear in order, left to right. [[slnc '
+            '300]] Catalog, a hundred and twenty milliseconds, right at '
+            'the start. [[slnc 300]] Pricing, a hundred and eighty. '
+            '[[slnc 300]] Inventory, ninety. [[slnc 300]] '
+            'Recommendations, four hundred, by far the widest. [[slnc '
+            '300]] And render, a hundred and ten, at the end. [[slnc '
+            '500]] One level deeper, inside recommendations, sits the '
+            'ranking model: three hundred and forty. [[slnc 600]] Nobody '
+            'designed that shape. [[slnc 300]] The indenting comes from '
+            'the parent field. [[slnc 300]] The position comes from the '
+            'start time. [[slnc 300]] When a tracing tool shows a picture '
+            'like this, it is showing your own data.'
         ),
     ),
     dict(
@@ -377,25 +362,25 @@ Indentation is the parent field. Position is the start time.""",
 
   340 + 180 + 120 + 110 + 90 + 60  =  900ms""",
         narration=(
-            "And now the arithmetic, which is one subtraction and is the whole "
-            "trick. [[slnc 300]] A span's duration is how long it lasted. Its "
-            "self time is its duration minus however long its children lasted — "
-            "in other words, the time it was actually working rather than "
-            "waiting. [[slnc 350]] Apply that to the page. It lasted the full "
-            "nine hundred milliseconds, so on total time it is the biggest thing "
-            "in the trace, and it always will be, in every trace you ever look "
-            "at. Its self time is zero. It did nothing. It waited. [[slnc 400]] "
-            "If that feels slippery, think of a manager whose day is eight hours "
-            "long and who spent all eight of them in meetings run by other "
-            "people. Their day is the longest on the team. Their own work is "
-            "zero. [[slnc 350]] Recommendations lasted four hundred milliseconds "
-            "and is charged only sixty, because three hundred and forty of them "
-            "belong to the model it called. And the top of the ranking is the "
-            "ranking model itself, at three hundred and forty milliseconds — "
-            "thirty-seven per cent of what the customer waited for. [[slnc 300]] "
-            "That is the question from the start of this video, answered. And "
-            "notice when it was answered: afterwards, by subtraction, from data "
-            "nobody had to know in advance they would need."
+            'Now the arithmetic. [[slnc 300]] It is one subtraction, and '
+            "it is the whole trick. [[slnc 600]] A span's length is how "
+            'long it lasted. [[slnc 300]] Its self time is its length, '
+            'minus the length of its children. [[slnc 300]] In other '
+            'words, the time it was working, not waiting. [[slnc 600]] '
+            'Apply that to the page. [[slnc 300]] It lasted the full nine '
+            'hundred milliseconds, so it always looks biggest. [[slnc '
+            '300]] But its self time is zero. [[slnc 300]] It did '
+            'nothing. [[slnc 300]] It waited. [[slnc 500]] Think of a '
+            "manager whose whole day was spent in other people's "
+            'meetings. [[slnc 300]] The longest day on the team, and no '
+            'work of their own. [[slnc 600]] Recommendations lasted four '
+            'hundred milliseconds. [[slnc 300]] But only sixty were its '
+            'own. [[slnc 300]] The other three hundred and forty belong '
+            'to the ranking model. [[slnc 500]] So the ranking model is '
+            'the top of the list. [[slnc 300]] Three hundred and forty '
+            "milliseconds, thirty-seven percent of the customer's wait. "
+            '[[slnc 500]] The question from the start is answered, by '
+            'subtraction, afterwards.'
         ),
     ),
     dict(
@@ -416,27 +401,25 @@ Indentation is the parent field. Position is the start time.""",
   one root.  no orphans.  900ms fully accounted for.
   and the service responsible is not on the diagram at all.""",
         narration=(
-            "So that is the pattern, and it works. Now the bill, because there "
-            "are three items on it, and all three are the price of the pattern "
-            "rather than mistakes made while applying it. [[slnc 350]] Item one. "
-            "Recommendations is a well-behaved service in every respect but one: "
-            "it never opens a span of its own. It still receives the trace "
-            "context and still forwards it faithfully to the ranking model. So "
-            "nothing errors and nothing warns. [[slnc 350]] Listen to what "
-            "happens to the shape. There are now six spans instead of seven, and "
-            "the ranking model has moved up a level: it is indented directly "
-            "under the page, as though the page called it, which nothing in the "
-            "code does. [[slnc 300]] And the four hundred milliseconds did not "
-            "disappear. Sixty of them landed on the parent, so the page now "
-            "appears to do sixty milliseconds of its own work. It does none. "
-            "[[slnc 400]] Now check this trace the way you would check any trace. "
-            "It has one root. It has no orphans. Every millisecond is accounted "
-            "for. By every test you would think to run, it is healthy — and the "
-            "service actually responsible is not on the diagram at all. Somebody "
-            "spends the afternoon reading the page renderer. [[slnc 300]] That is "
-            "why partial instrumentation is worse than none. None tells you "
-            "nothing. Partial tells you something false, confidently, with a "
-            "diagram."
+            'That is the pattern, and it works. [[slnc 300]] Now the '
+            'bill, with three items. [[slnc 600]] Item one: a service '
+            'that opens no span. [[slnc 300]] Recommendations never '
+            'records a span of its own. [[slnc 300]] But it still passes '
+            'the trace I D on to the ranking model. [[slnc 300]] So '
+            'nothing fails, and nothing warns. [[slnc 600]] Listen to '
+            'what happens. [[slnc 300]] Now there are six spans, not '
+            'seven. [[slnc 300]] The ranking model appears directly under '
+            'the page, as if the page called it. [[slnc 300]] Nothing in '
+            'the code does that. [[slnc 500]] And sixty milliseconds land '
+            'on the page. [[slnc 300]] So the page now seems to do sixty '
+            'milliseconds of its own work. [[slnc 300]] It does none. '
+            '[[slnc 600]] By every check you might run, this trace looks '
+            'healthy. [[slnc 300]] But the service really responsible is '
+            'missing. [[slnc 300]] And someone spends the afternoon '
+            'investigating the page instead. [[slnc 500]] That is why '
+            'partial tracing is worse than none. [[slnc 300]] None tells '
+            'you nothing. [[slnc 300]] Partial tells you something false, '
+            'with confidence.'
         ),
     ),
     dict(
@@ -458,27 +441,23 @@ Indentation is the parent field. Position is the start time.""",
   product-page            |============================================|   400ms   0ms of it its own
     recommendations       |============================================|   400ms""",
         narration=(
-            "Item two, and this is the one that catches everybody. [[slnc 300]] "
-            "The recommendations call is moved onto a worker thread, so the page "
-            "can get on with other things while it runs. Perfectly sensible "
-            "change. [[slnc 300]] But the trace context is being kept in a "
-            "thread-local — a variable whose value is private to each thread. The "
-            "page's thread has one. The worker thread has never had one. So the "
-            "worker asks for the context and is handed nothing, and it opens its "
-            "span with no parent. [[slnc 350]] The result is two roots in one "
-            "trace: the page on one line, and recommendations on another, both "
-            "four hundred milliseconds, neither one inside the other. Four "
-            "hundred milliseconds of work belonging to nobody. No exception. No "
-            "warning. [[slnc 400]] And the fix is one line, moved earlier. Read "
-            "the context on the thread that actually has it, and hand it to the "
-            "task as an ordinary value, because a value does not care which "
-            "thread reads it. [[slnc 300]] Same two spans, same four hundred "
-            "milliseconds, and now one root with recommendations indented "
-            "underneath it where it belongs. The broken version and the working "
-            "version are the same code with one line in a different place. "
-            "[[slnc 250]] So here is something to do this week. Find one place in "
-            "your own codebase where work is handed to an executor or a future, "
-            "and check whether anything traced happens inside it."
+            'Item two: one line in the wrong place. [[slnc 500]] The '
+            'recommendations call is moved onto a separate worker thread. '
+            '[[slnc 300]] So the page can do other things while it runs. '
+            '[[slnc 300]] A sensible change. [[slnc 600]] But the trace I '
+            'D is kept in a variable that belongs to one thread only. '
+            "[[slnc 300]] The page's thread has it. [[slnc 300]] The "
+            "worker thread never did. [[slnc 300]] So the worker's span "
+            'has no parent. [[slnc 600]] Now there are two roots in one '
+            'trace. [[slnc 300]] The page, and recommendations, side by '
+            'side. [[slnc 300]] Four hundred milliseconds of work that '
+            'belong to nobody. [[slnc 300]] No error. [[slnc 300]] No '
+            'warning. [[slnc 600]] The fix is to move one line earlier. '
+            '[[slnc 300]] Read the trace I D on the thread that has it. '
+            '[[slnc 300]] And hand it to the worker as an ordinary value. '
+            '[[slnc 500]] Now there is one root, with recommendations '
+            'under it, where it belongs. [[slnc 300]] The broken and '
+            'working versions differ by one line, in a different place.'
         ),
     ),
     dict(
@@ -499,24 +478,23 @@ Indentation is the parent field. Position is the start time.""",
 
   The way out: tail sampling. Hold the spans. Decide at the end.""",
         narration=(
-            "Item three, and this one is about money. [[slnc 300]] A thousand "
-            "requests a second, at six spans each, is roughly half a billion "
-            "spans a day. Nobody pays to store that, so the front door keeps one "
-            "trace in a hundred and throws the rest away. [[slnc 350]] A million "
-            "requests today leaves ten thousand traces kept and nine hundred and "
-            "ninety thousand gone. And then a customer complains about one "
-            "specific page load — request number eight hundred and sixty-two "
-            "thousand, one hundred and forty-four. [[slnc 300]] It was not kept. "
-            "It is gone, and it is not recoverable, and it was thrown away at the "
-            "front door, at the only moment in the whole request when nothing "
-            "whatsoever was known about it. [[slnc 400]] That is the honest "
-            "trade. A one per cent sample answers 'recommendations is slow on "
-            "average' perfectly well, and cannot answer 'why was this one slow' "
-            "at all. [[slnc 300]] The way out is called tail sampling. Hold the "
-            "spans in memory, let the request finish, and then decide to keep the "
-            "trace if it was slow or if it failed. The decision moves from the "
-            "front door to after the fact, which is the only place it can be made "
-            "well."
+            'Item three: a decision made too early. [[slnc 500]] Storing '
+            'every span is expensive. [[slnc 300]] So the front door '
+            'keeps only one trace in every hundred. [[slnc 300]] And '
+            'throws the rest away. [[slnc 600]] Out of a million requests '
+            'today, ten thousand traces are kept. [[slnc 300]] Nine '
+            'hundred and ninety thousand are gone. [[slnc 500]] Then a '
+            'customer complains about one particular slow page. [[slnc '
+            '300]] Its trace was not kept. [[slnc 300]] It is gone for '
+            'good. [[slnc 300]] It was thrown away at the front door, '
+            'before anyone knew it would be slow. [[slnc 600]] So a one '
+            'percent sample can tell you recommendations is slow on '
+            'average. [[slnc 300]] But it cannot tell you why this one '
+            'request was slow. [[slnc 600]] The way out is called tail '
+            'sampling. [[slnc 300]] Hold the spans briefly, let the '
+            'request finish, and then keep the trace if it was slow, or '
+            'if it failed. [[slnc 300]] The decision moves to the end, '
+            'the only place it can be made well.'
         ),
     ),
     dict(
@@ -538,22 +516,22 @@ Indentation is the parent field. Position is the start time.""",
             "Most teams try to make logs answer all three.",
         ],
         narration=(
-            "Three things to take away, and then one boundary worth drawing. "
-            "[[slnc 300]] First: a trace id makes a log readable, and a parent "
-            "span id makes it an answer. If you only do the first, you get "
-            "filtering, which is genuinely useful and is not this pattern. "
-            "[[slnc 300]] Second: self time, not total time. The longest span in "
-            "any trace is the request itself, and it is always innocent. [[slnc "
-            "300]] Third: the context dies at boundaries — threads, queues, "
-            "scheduled jobs, anything asynchronous. Pass it as an ordinary value "
-            "and never trust a thread-local to make the trip. [[slnc 350]] And "
-            "the boundary. Tracing is one of three things, alongside logs and "
-            "metrics, and they answer three different questions. Logs answer "
-            "'what was the error message'. Metrics answer 'how does today compare "
-            "with yesterday'. Traces answer 'where did the time go in this one "
-            "request'. [[slnc 300]] Most teams try to make logs do all three, "
-            "which is exactly the situation we started this video in — four "
-            "correct logs and no answer."
+            'Here are three things to remember. [[slnc 500]] One. [[slnc '
+            '200]] A trace I D makes the logs readable. [[slnc 300]] A '
+            'parent I D turns them into an answer. [[slnc 400]] Two. '
+            '[[slnc 200]] Look at self time, not total time. [[slnc 300]] '
+            'The longest span is always the request itself, and it is '
+            'always innocent. [[slnc 400]] Three. [[slnc 200]] The trace '
+            'I D gets lost at boundaries: threads, queues, and scheduled '
+            'jobs. [[slnc 300]] Pass it as an ordinary value. [[slnc '
+            '600]] And one boundary worth knowing. [[slnc 300]] Tracing '
+            'is one of three tools, with logs and metrics. [[slnc 300]] '
+            'Logs answer: what was the error? [[slnc 300]] Metrics '
+            'answer: how does today compare with yesterday? [[slnc 300]] '
+            'Traces answer: where did the time go, in this one request? '
+            '[[slnc 500]] Many teams try to make logs do all three. '
+            '[[slnc 300]] That is exactly where this video started: four '
+            'correct logs, and no answer.'
         ),
     ),
     dict(
@@ -567,16 +545,21 @@ Indentation is the parent field. Position is the start time.""",
             "Run it yourself:  ./gradlew run",
         ],
         narration=(
-            "And that is distributed tracing. One identifier for the request, one "
-            "parent for every piece of work, and a subtraction that turns the "
-            "result into an answer. [[slnc 350]] The whole project is in the "
-            "repository — the source, eighty-two tests, the diagrams, and an "
-            "interactive animation that builds the waterfall up one span at a "
-            "time. Both sides of every failure are in there too, so you can run "
-            "the broken version and the working one and compare them yourself. "
-            "[[slnc 300]] If this was useful, please like the video and "
-            "subscribe. Thanks very much for watching, and I'll see you in the "
-            "next one."
+            "That's the Distributed Tracing pattern. [[slnc 400]] If you "
+            'remember one sentence, make it this one. [[slnc 300]] One I '
+            'D for the request, one parent for every piece of work, and a '
+            'subtraction that turns them into an answer. [[slnc 500]] The '
+            'full source code, written notes, diagrams, and an animated '
+            'walkthrough are all in the repository. [[slnc 300]] It runs '
+            'offline, with nothing installed except a Java development '
+            'kit. [[slnc 300]] Both the broken and the working version of '
+            'every failure are there to run. [[slnc 500]] Here is one '
+            'exercise to try. [[slnc 300]] Find one place in your own '
+            'code where work is handed to another thread. [[slnc 300]] '
+            'And check whether the trace I D makes the trip. [[slnc 500]] '
+            'If this helped, a like really does help other people find '
+            "it. [[slnc 300]] And subscribe, if you'd like the rest of "
+            'the series. [[slnc 400]] Thanks for watching.'
         ),
     ),
 ]

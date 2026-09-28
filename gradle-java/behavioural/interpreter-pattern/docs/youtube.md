@@ -19,19 +19,19 @@ The first two lines are what a viewer sees above the fold, so they carry the hoo
 ```
 CHAPTERS
 00:00 Introduction
-00:52 The Scenario
-01:39 Two Copies, Two Bugs, No Exceptions
-02:37 The Naive Approach — Every Rule Is a Branch
-03:20 Why That Hurts
-04:31 The Interpreter Pattern
-05:21 An Analogy
-06:05 The Roles
-07:06 Two Kinds of Class, and That Is All
-07:57 The Tree Can Explain Itself — and Refuse a Typo
-09:00 The Tests — Asserting the Grammar, Not Just the Answer
-10:08 Running It
-11:02 What to Remember
-12:37 Thanks for Watching
+00:57 The Scenario
+01:37 Two Copies, Two Bugs, No Exceptions
+02:31 The Naive Approach — Every Rule Is a Branch
+03:05 Why That Hurts
+03:52 The Interpreter Pattern
+04:30 An Analogy
+05:04 The Roles
+05:47 Two Kinds of Class, and That Is All
+06:27 The Tree Can Explain Itself — and Refuse a Typo
+07:18 The Tests — Asserting the Grammar, Not Just the Answer
+08:02 Running It
+08:50 What to Remember
+09:53 Thanks for Watching
 
 SOURCE CODE, WRITTEN NOTES AND AN INTERACTIVE ANIMATION
 https://github.com/jk-boot-up/java-design-patterns/tree/main/gradle-java/behavioural/interpreter-pattern
@@ -46,19 +46,19 @@ YouTube renders these as chapters only if there are at least three and the first
 
 ```
 00:00 Introduction
-00:52 The Scenario
-01:39 Two Copies, Two Bugs, No Exceptions
-02:37 The Naive Approach — Every Rule Is a Branch
-03:20 Why That Hurts
-04:31 The Interpreter Pattern
-05:21 An Analogy
-06:05 The Roles
-07:06 Two Kinds of Class, and That Is All
-07:57 The Tree Can Explain Itself — and Refuse a Typo
-09:00 The Tests — Asserting the Grammar, Not Just the Answer
-10:08 Running It
-11:02 What to Remember
-12:37 Thanks for Watching
+00:57 The Scenario
+01:37 Two Copies, Two Bugs, No Exceptions
+02:31 The Naive Approach — Every Rule Is a Branch
+03:05 Why That Hurts
+03:52 The Interpreter Pattern
+04:30 An Analogy
+05:04 The Roles
+05:47 Two Kinds of Class, and That Is All
+06:27 The Tree Can Explain Itself — and Refuse a Typo
+07:18 The Tests — Asserting the Grammar, Not Just the Answer
+08:02 Running It
+08:50 What to Remember
+09:53 Thanks for Watching
 ```
 
 ## Tags
@@ -97,4 +97,4 @@ Add a card partway through pointing at the playlist, so a viewer who arrives at 
 
 ## Runtime
 
-Approximately 13:17, narrated at 145 words per minute.
+Approximately 10:35, narrated at 145 words per minute.

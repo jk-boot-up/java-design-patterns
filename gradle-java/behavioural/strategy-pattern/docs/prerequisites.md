@@ -157,7 +157,6 @@ Rule "flat" -> Flat rate
 | Pound signs print as `?` or mojibake | Console is not UTF-8 | `chcp 65001` on Windows, or set `-Dfile.encoding=UTF-8` |
 | `no shipping rule called "..."` | A rule name that is not registered | Use one of `flat`, `weight`, `distance`, `campaign` — the failure is deliberate, see `ShippingRules` |
 | Distance prices look one unit high | Part-hundreds round **up** by design | Read `DistanceBasedRule` and its test |
-| Diagrams show as raw text | Viewer lacks Mermaid support | Open the PNGs in `docs/images/` |
 
 ## Recommended Reading Order
 

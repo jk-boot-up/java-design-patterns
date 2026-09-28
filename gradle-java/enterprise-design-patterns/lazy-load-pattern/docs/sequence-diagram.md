@@ -6,23 +6,4 @@ Say it in words. The page asks the list for twenty orders. The list runs one que
 
 ![Lazy Load pattern sequence diagram](images/sequence-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant Page
-    participant L as OrderList
-    participant DB as database
-    Page->>L: lazy()
-    L->>DB: select all orders
-    loop for each of the 20 orders
-        L->>DB: select the customer
-    end
-    L-->>Page: 20 lines, 21 queries
-```
-
-</details>
-
 The load-bearing sentence: **one query for the list, and then one more for every row in it.**

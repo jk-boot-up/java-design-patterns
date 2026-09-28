@@ -2,56 +2,56 @@
 
 ## 1. Aggregate
 
-Hello, and welcome. This video explains the Aggregate pattern in Java, and it is written and presented by Jayasekhar Konduru. The plain definition: an aggregate is a small cluster of objects that is treated as one unit. It has one root, which is the only way in, so the rules that span the cluster cannot be broken from outside. This is the second project in the domain-driven design category, whose subject is writing code that says what the business says. In our online store, the cluster is an order and its lines. By the end you will see an order break every one of its own rules when anyone can reach inside it, then see one root guard them all, why it refers to other aggregates only by id, how it is saved whole, and how drawing it too big goes wrong.
+Hello, and welcome. This video explains the Aggregate pattern, in Java. This video is presented by Jayasekhar Konduru. First, a simple definition. An aggregate is a small group of objects that is treated as one unit. It has one main object, called the root, which is the only way in. So the rules that cover the whole group cannot be broken from outside. Think of a bank teller's window. You cannot reach into the vault yourself. Every deposit and withdrawal goes through the teller, who checks the rules. In our online store, the group is an order, and its lines. In this video, an order breaks all its own rules, when anyone can reach inside it. Then one root guards them all. We will hear why it refers to other groups only by I D, how it is saved as a whole, and how drawing it too big goes wrong.
 
 ## 2. The Scenario
 
-Here is the scenario. In the online store, an order has lines. And there are rules that span the lines. A line holds between one and ten of an item. An item appears on one line only. The total may not pass a thousand pounds. And a placed order cannot change. The question: who enforces them?
+Here is the scenario. In our online store, an order has lines. And some rules cover all the lines together. A line holds between one and ten of an item. Each item appears on only one line. The total may not go over one thousand pounds. And once an order is placed, it cannot change. So here is the question. Who enforces these rules?
 
 ## 3. A Loose Order
 
-First, a loose order. It is a list with public fields. A line of minus three mugs goes in. The same machine goes on two lines. The total comes to nearly six thousand pounds, far over the limit. And a line is added after the order was placed. Every rule is true only in the head of whoever wrote the caller.
+First, a loose order. It is just a list, with public fields. A line of minus three mugs goes in. The same machine goes on two separate lines. The total reaches nearly six thousand pounds, far over the limit. And a line is added after the order was placed. All of it is accepted. Every rule exists only in the head of whoever wrote the calling code.
 
 ## 4. The Pattern
 
-The pattern. One root, the order. Its lines cannot be reached, or even built, except through it. Every rule that spans the lines lives in the root, so there is exactly one place to look. And it refers to other aggregates, like the customer, by id only.
+Now, the pattern. There is one root: the Order. Its lines cannot be reached, or even created, except through it. Every rule that covers the lines lives in the root. So there is exactly one place to look. And other aggregates, such as the customer, are referred to by I D only.
 
 ## 5. The Root Guards The Rules
 
-Second, the same operations through the root. Nought mugs is refused. Eleven mugs is refused. Six mugs are fine, but five more of the same would make eleven, and that is refused too. A total over a thousand pounds is refused. A change after placing is refused, and an empty order cannot be placed. Six rules, each enforced, all in one class.
+Second demo: the same actions, through the root. Zero mugs is refused. Eleven mugs is refused. Six mugs is fine. But five more of the same mug would make eleven, so that is refused too. A total over one thousand pounds is refused. A change after placing the order is refused. And an empty order cannot be placed. Six rules, each enforced, all in one class.
 
 ## 6. There Is Only One Door
 
-Third, one door. The list of lines, seen from outside, is read only. Trying to clear it throws. And an order line has no public constructor, so no line can exist that the order has not checked.
+Third demo: there is only one door. From outside, the list of lines is read-only. Trying to clear it throws an error. And an order line has no public constructor. So no line can exist that the order has not checked.
 
 ## 7. Other Aggregates By Id
 
-Fourth, other aggregates by id. Three orders that hold the whole customer object load the customer three times. Three that hold only a customer id load none. The customer is a different aggregate, with its own rules and its own saves. An order should know who, not carry them.
+Fourth demo: other aggregates, by I D. Three orders that each hold the whole customer object load the customer three times. Three orders that only hold a customer I D load it no times at all. The customer is a separate aggregate, with its own rules, and its own saves. An order should know who the customer is, not carry the customer around.
 
 ## 8. Saved Whole, Or Not At All
 
-Fifth, saved whole. Two clerks read the same order, and each add a line. Clerk A saves, and it is accepted. Clerk B saves, and is refused, because the order changed since it was read. The order is read whole, changed whole and saved whole. So an order with half of one clerk's change cannot exist.
+Fifth demo: saved whole, or not at all. Two clerks read the same order, and each adds a line. Clerk A saves, and it is accepted. Clerk B saves, and it is refused, because the order changed since B read it. The order is read whole, changed whole, and saved whole. So an order with only half of one clerk's change can never exist.
 
 ## 9. An Aggregate Drawn Too Big
 
-Last, the bill. Suppose the aggregate is the customer and all their orders. Two clerks change two different orders. The second save is refused, because both changed the customer. That is a false conflict. With one aggregate per order, both saves go through. The boundary is a choice, and drawing it too wide costs you real contention.
+Finally, the cost of drawing it too big. Suppose the aggregate is the customer, together with all their orders. Two clerks change two different orders. The second save is refused, because both changed the same customer aggregate. That is a false conflict. With one aggregate per order, both saves go through. The boundary is a choice. And drawing it too wide costs you real conflicts.
 
 ## 10. How To Recognise It
 
-How do you recognise this in code you did not write? A class with private collections and methods that add to them. A read only view returned instead of the list itself. A repository that saves the order, and never a line. And other aggregates held by id.
+How can you spot this pattern in code someone else wrote? Look for a class with private collections, and methods that add to them. Look for a read-only view being returned, instead of the list itself. Look for a repository that saves the whole order, and never a single line. And look for other aggregates held by I D.
 
 ## 11. The Verdict
 
-Here is my verdict, plainly. Draw the aggregate around what must be consistent together, and no wider. Make one class the root, and the only way in. Keep the rules in it. Refer to other aggregates by id. And save and load the whole thing.
+So, here is the verdict. Draw the aggregate around what must stay consistent together, and no wider. Make one class the root, and the only way in. Keep the rules inside it. Refer to other aggregates by I D. And save and load the whole thing, together.
 
 ## 12. What Is Real Here
 
-The same honest admission as everywhere in this course. Everything is plain Java. The stores are in memory, and the version check is a real check. The two clerks are two loads, one after the other, so every run is the same.
+A quick, honest note about this demo. Everything is plain Java. The storage is in memory, and the version check is a real check. The two clerks load one after the other, so every run gives the same result.
 
 ## 13. When This Is Too Much
 
-So when is it too much? For a plain record with no rules across its parts, a single class is enough. An aggregate earns its place when rules span several objects.
+So, when is this too much? For a simple record with no rules across its parts, a single class is enough. An aggregate earns its place when rules cover several objects together.
 
 ## 14. Thanks for Watching
 
-That's Aggregate. If you take one sentence away, take this one: an aggregate is where a rule lives, and where a save begins and ends. The full source, the written notes, the diagrams and an animated walkthrough are all in the repository, running offline with nothing installed but a Java development kit. If you try one exercise, add a rule that an order can hold at most five different items, and see which class changes. If this helped, a like genuinely does help other people find it, and subscribe if you would like the rest of the series. Thanks for watching.
+That's the Aggregate pattern. If you remember one sentence, make it this one. An aggregate is where a rule lives, and where a save begins and ends. The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. Here is one exercise to try. Add a rule that an order can hold at most five different items. Then notice which class had to change. If this helped, a like really does help other people find it. And subscribe, if you'd like the rest of the series. Thanks for watching.

@@ -119,11 +119,10 @@ never need to jump forward.
 | `thumbnail.png` | The image to upload |
 | `spec.md` / `spec.html` | This document |
 
-Both Mermaid diagrams are committed as source *and* rendered PNG. The PNG
-is what the README embeds, because GitHub's Mermaid rendering cannot be
-relied on at these diagrams' size; the source is what gets edited.
-Regenerating after an edit is mandatory — a diagram that disagrees with
-the code is worse than no diagram.
+Every diagram is an image file in `docs/images/` (PNG or SVG); Mermaid is
+not used. The README and the HTML pages embed those images. Updating the
+image after a code change is mandatory — a diagram that disagrees with the
+code is worse than no diagram.
 
 ---
 
@@ -171,7 +170,7 @@ watches the second one. It must run in this order:
 | Stream start | Both streams at exactly 0.000 s | Otherwise the video track starts 21 ms late and players show black at 0:00 |
 | Narration | macOS `say`, voice Samantha, 145 wpm | The pace educational YouTube converges on for technical material |
 | Inter-scene pause | 0.9 s of appended silence | So slides do not snap past the moment a sentence ends |
-| Runtime | ~10:19 over 15 scenes, 147 subtitle cues |  |
+| Runtime | ~10:18 over 15 scenes, 140 subtitle cues |  |
 
 ### 5.3 The two defects this pipeline exists to prevent
 
@@ -284,8 +283,8 @@ uploading is copy-and-paste rather than reconstruction. Seven sections
 are required:
 
 1. **Title** — the exact string, ≤ 60 characters so search does not
-   truncate it, leading with the pattern name. Currently *"not yet generated"*,
-   17 characters. The suffix after the dash names the worked e-commerce scenario, so the title says what the viewer will actually watch rather than only which pattern it is about.
+   truncate it, leading with the pattern name. Currently *"Clean Architecture in Java - Which Way Does It Point?"*,
+   53 characters. The suffix after the dash names the worked e-commerce scenario, so the title says what the viewer will actually watch rather than only which pattern it is about.
 2. **Description** — first two lines carry the hook, because that is what
    shows above the fold; then what the video covers, the chapters, the
    repository link, the prerequisites.
@@ -333,8 +332,8 @@ version, which governs all fourteen projects, is in
 - [ ] `docs/youtube.md` has all seven sections, and its chapter timings match the current `.srt`.
 - [ ] `video/README.md` describes the pipeline as it actually is.
 
-Last verified: all eleven items pass. The delivered MP4 measures -16.02 LUFS
-integrated, -3.93 dBTP true peak, and both streams start at 0.000.
+Last verified: all eleven items pass. The delivered MP4 measures -16.08 LUFS
+integrated, -1.23 dBTP true peak, and both streams start at 0.000.
 
 ---
 

@@ -6,24 +6,4 @@ Say it in words. A browser sends a get for an order. The controller finds the or
 
 ![MVC with Spring MVC pattern sequence diagram](images/sequence-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant B as browser
-    participant C as controller
-    participant S as store
-    participant M as OrderSummary
-    participant V as template
-    B->>C: GET /orders/ORD-000001
-    C->>S: find
-    C->>M: of(order)
-    C->>V: view name summary, with the summary
-    V-->>B: HTML page
-```
-
-</details>
-
 The load-bearing sentence: **the controller names a view and never draws it.**

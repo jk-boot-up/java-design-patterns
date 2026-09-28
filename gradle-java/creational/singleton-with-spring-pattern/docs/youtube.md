@@ -19,21 +19,21 @@ The first two lines are what a viewer sees above the fold, so they carry the hoo
 ```
 CHAPTERS
 00:00 Introduction
-00:51 The Partner Project
-01:14 Before The First Line
-01:34 One Bean, Shared
-01:55 Nothing Stops new
-02:12 One Per Container
-02:30 A Scope Change
-02:50 When Is It Built?
-03:10 Shared Means Shared By Threads
-03:33 The Verdict
-03:45 How To Recognise It
-04:00 Where You Have Met This
-04:09 What Was Used
-04:17 What Is Real Here
-04:29 When This Is Too Much
-04:39 Thanks for Watching
+00:53 The Partner Project
+01:18 Before The First Line
+01:38 One Bean, Shared
+02:01 Nothing Stops new
+02:21 One Per Container
+02:41 A Scope Change
+03:04 When Is It Built?
+03:29 Shared Means Shared By Threads
+03:58 The Verdict
+04:12 How To Recognise It
+04:28 Where You Have Met This
+04:38 What Was Used
+04:48 What Is Real Here
+04:58 When This Is Too Much
+05:08 Thanks for Watching
 
 SOURCE CODE, WRITTEN NOTES AND AN INTERACTIVE ANIMATION
 https://github.com/jk-boot-up/java-design-patterns/tree/main/gradle-java/creational/singleton-with-spring-pattern
@@ -48,21 +48,21 @@ YouTube renders these as chapters only if there are at least three and the first
 
 ```
 00:00 Introduction
-00:51 The Partner Project
-01:14 Before The First Line
-01:34 One Bean, Shared
-01:55 Nothing Stops new
-02:12 One Per Container
-02:30 A Scope Change
-02:50 When Is It Built?
-03:10 Shared Means Shared By Threads
-03:33 The Verdict
-03:45 How To Recognise It
-04:00 Where You Have Met This
-04:09 What Was Used
-04:17 What Is Real Here
-04:29 When This Is Too Much
-04:39 Thanks for Watching
+00:53 The Partner Project
+01:18 Before The First Line
+01:38 One Bean, Shared
+02:01 Nothing Stops new
+02:21 One Per Container
+02:41 A Scope Change
+03:04 When Is It Built?
+03:29 Shared Means Shared By Threads
+03:58 The Verdict
+04:12 How To Recognise It
+04:28 Where You Have Met This
+04:38 What Was Used
+04:48 What Is Real Here
+04:58 When This Is Too Much
+05:08 Thanks for Watching
 ```
 
 ## Tags
@@ -101,4 +101,4 @@ Add a card partway through pointing at the playlist, so a viewer who arrives at 
 
 ## Runtime
 
-Approximately 05:11, narrated at 145 words per minute.
+Approximately 05:42, narrated at 145 words per minute.

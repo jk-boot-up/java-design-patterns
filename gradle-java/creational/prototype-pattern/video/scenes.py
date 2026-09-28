@@ -25,20 +25,21 @@ SCENES = [
         title="Prototype Pattern",
         body=None,
         narration=(
-            "Hello, and welcome. This video explains the Prototype pattern in "
-            "Java, and it is written and presented by Jayasekhar Konduru. [[slnc "
-            "300]] Let's start with the simple definition. The prototype pattern "
-            "makes a new object by copying one that already exists, rather than "
-            "building it from nothing. You keep a fully configured instance to "
-            "hand and, whenever you need another, you ask that instance for a "
-            "copy of itself and change only the parts that differ. [[slnc 350]] "
-            "That's the idea in a sentence, and it answers a question that "
-            "neither builder nor a static factory method actually solves. The "
-            "rest of the video does it properly, by building a real working Java "
-            "project: a marketplace product listing, in Java twenty one. [[slnc "
-            "250]] And along the way we'll take a hard look at Java's own built- "
-            "in attempt at this, clone, and why Effective Java spends a whole "
-            "chapter warning you off it."
+            'Hello, and welcome. [[slnc 400]] This video explains the '
+            'Prototype pattern, in Java. [[slnc 300]] This video is '
+            'presented by Jayasekhar Konduru. [[slnc 600]] First, a '
+            'simple definition. [[slnc 300]] The Prototype pattern makes '
+            'a new object by copying one that already exists, instead of '
+            'building it from nothing. [[slnc 400]] You keep one fully '
+            'set-up example to hand. [[slnc 300]] When you need another, '
+            'you ask it for a copy of itself. [[slnc 300]] Then you '
+            'change only the parts that differ. [[slnc 600]] Think of a '
+            'photocopier. [[slnc 300]] You start from a finished page, '
+            'and get an independent copy instantly. [[slnc 700]] In this '
+            'video, we copy product listings in an online marketplace. '
+            "[[slnc 500]] Along the way, we look closely at Java's "
+            'built-in copy method, called clone. [[slnc 300]] And why the '
+            'book Effective Java warns you away from it.'
         ),
     ),
     dict(
@@ -55,16 +56,16 @@ SCENES = [
             "Now they want the same earbuds in white. And in blue.",
         ],
         narration=(
-            "So here's the job. A seller lists wireless earbuds, in black. "
-            "Getting that one listing right is real work — picking a "
-            "category from the taxonomy, writing description text that "
-            "satisfies the compliance rules, choosing a shipping profile, "
-            "setting a return window and a warranty that match the "
-            "category's policy. [[slnc 250]] "
-            "Now they want the same earbuds in white. And then in blue. "
-            "Nothing about the category, the compliance text, the shipping "
-            "profile, the return window or the warranty changed. Only the "
-            "sku, the title, and one attribute did."
+            'Here is the job. [[slnc 400]] A seller lists wireless '
+            'earbuds, in black. [[slnc 500]] Getting that one listing '
+            'right is real work. [[slnc 300]] Choosing a category. [[slnc '
+            '200]] Writing a description that meets the rules. [[slnc '
+            '200]] Choosing a shipping profile. [[slnc 200]] And setting '
+            'a return window and a warranty. [[slnc 500]] Now the seller '
+            'wants the same earbuds in white. [[slnc 300]] And then in '
+            'blue. [[slnc 500]] The category, description, shipping, '
+            'returns, and warranty are all unchanged. [[slnc 300]] Only '
+            'the product code, the title, and the colour are different.'
         ),
     ),
     dict(
@@ -79,14 +80,14 @@ ProductListing white = new ProductListing("EARBUD-WHT", "Wireless Earbuds (White
         longDescription, "Electronics", "Acme Audio", Money.pounds(59.99),
         List.of("white-1.jpg"), Map.of("color", "White"), standardShipping, 30, 12);""",
         narration=(
-            "So you write it out, twice. Look at these two calls side by "
-            "side. Eleven arguments each, and only two or three of them "
-            "actually differ between black and white. [[slnc 300]] "
-            "Everything else — the description, the category, the brand, "
-            "the price, the shipping profile, the return window, the "
-            "warranty — is copied, character for character, between calls. "
-            "Add a blue variant, and it gets pasted a third time. Fix a typo "
-            "in that description, and every call site needs the same edit."
+            'So you write it out twice, using the constructor. [[slnc '
+            '400]] Each call has eleven arguments. [[slnc 300]] And only '
+            'two or three of them differ between black and white. [[slnc '
+            '500]] Everything else is copied, word for word, between the '
+            'calls. [[slnc 300]] The description, category, brand, price, '
+            'shipping, returns, and warranty. [[slnc 500]] Add a blue '
+            'version, and it is pasted a third time. [[slnc 300]] Fix a '
+            'typo in the description, and every copy needs the same fix.'
         ),
     ),
     dict(
@@ -103,16 +104,17 @@ ProductListing white = new ProductListing("EARBUD-WHT", "Wireless Earbuds (White
 // copy.getImages().add("extra.jpg");
 // ...now original.getImages() has it too — same List, two names""",
         narration=(
-            "Java already ships a way to copy an object, so why not use it? "
-            "Implements Cloneable, override clone, call super dot clone. "
-            "[[slnc 300]] "
-            "Effective Java, item thirteen, spends an entire chapter on why "
-            "this disappoints almost everyone who tries it. Clone is "
-            "protected, so you have to re-expose it. It throws a checked "
-            "exception that can never actually fire. And worst of all, "
-            "super dot clone copies fields shallowly — mutate the "
-            "quote-unquote copy's image list, and the original's list "
-            "changes too, silently, because they were always the same list."
+            'Java already has a way to copy objects, so why not use it? '
+            '[[slnc 400]] You implement the Cloneable interface, and '
+            'override the clone method. [[slnc 500]] The book Effective '
+            'Java spends a whole chapter explaining why this disappoints '
+            'almost everyone. [[slnc 500]] The clone method is protected, '
+            'so you must make it public yourself. [[slnc 300]] It '
+            'declares an error that can never actually happen. [[slnc '
+            '300]] And worst of all, it copies fields shallowly. [[slnc '
+            "500]] So if you add a picture to the copy's image list, the "
+            "original's list changes too. [[slnc 300]] Silently. [[slnc "
+            '300]] Because they were always the same list.'
         ),
     ),
     dict(
@@ -128,16 +130,15 @@ ProductListing white = new ProductListing("EARBUD-WHT", "Wireless Earbuds (White
             "The object is fine. Both ways of duplicating it are the problem.",
         ],
         narration=(
-            "So neither attempt actually works. "
-            "[[slnc 300]] "
-            "Typing every variant out by hand means the shared fields get "
-            "re-typed, and re-typed, and eventually one of them drifts. And "
-            "reaching for Cloneable trades that problem for a worse one — a "
-            "protected method you have to re-expose, an exception that means "
-            "nothing, and a shallow copy that silently links two objects "
-            "that should be independent. [[slnc 300]] "
-            "Notice what isn't wrong, though. Product listing itself is "
-            "fine. It's how you duplicate one that's the problem."
+            'So neither approach works. [[slnc 500]] Typing every version '
+            'out by hand means the shared details get retyped again and '
+            'again. [[slnc 300]] And eventually, one of them drifts. '
+            '[[slnc 500]] Using Cloneable swaps that problem for a worse '
+            'one. [[slnc 300]] A method you must expose yourself, an '
+            'error that means nothing, and a shallow copy that silently '
+            'links two objects. [[slnc 500]] Notice that the product '
+            'listing itself is fine. [[slnc 300]] The problem is how you '
+            'duplicate one.'
         ),
     ),
     dict(
@@ -154,14 +155,12 @@ ProductListing white = new ProductListing("EARBUD-WHT", "Wireless Earbuds (White
             "and produce new ones by copying it and changing what differs.",
         ],
         narration=(
-            "The fix has a name, and it's a genuine Gang of Four pattern. "
-            "Specify the kinds of objects to create using a prototypical "
-            "instance, and create new objects by copying this prototype. "
-            "[[slnc 300]] "
-            "In plain words? Instead of describing how to build an object "
-            "from nothing every single time, you keep one fully-assembled "
-            "example around, and you produce new ones by copying it and "
-            "changing only what's actually different."
+            'The fix is a pattern from the famous Gang of Four book. '
+            '[[slnc 400]] Specify the kinds of objects to create using an '
+            'example instance, and create new objects by copying that '
+            'example. [[slnc 500]] In plain words: keep one fully '
+            'assembled example around. [[slnc 300]] And make new ones by '
+            'copying it, and changing only what is different.'
         ),
     ),
     dict(
@@ -179,16 +178,16 @@ ProductListing white = new ProductListing("EARBUD-WHT", "Wireless Earbuds (White
             "That's a prototype. Not instructions. An actual finished example.",
         ],
         narration=(
-            "Think about the difference between a blueprint and a "
-            "photocopier. A blueprint tells you how to build something from "
-            "raw materials, every single time, from scratch — that's what a "
-            "constructor is. [[slnc 300]] "
-            "A photocopier is completely different. It starts from an "
-            "already-finished page, and hands you an independent copy, "
-            "instantly. You can scribble all over your copy, and the "
-            "original sitting on the glass doesn't change. [[slnc 250]] "
-            "That's a prototype. Not a set of instructions — an actual, "
-            "already-finished example you clone from."
+            'Think about the difference between a blueprint and a '
+            'photocopier. [[slnc 500]] A blueprint tells you how to build '
+            'something from raw materials, every single time. [[slnc '
+            '300]] That is what a constructor is. [[slnc 500]] A '
+            'photocopier is different. [[slnc 300]] It starts from a '
+            'finished page, and hands you an independent copy, instantly. '
+            '[[slnc 300]] You can scribble all over your copy, and the '
+            'original on the glass does not change. [[slnc 500]] That is '
+            'a prototype. [[slnc 300]] Not instructions, but a finished '
+            'example you copy from.'
         ),
     ),
     dict(
@@ -197,15 +196,14 @@ ProductListing white = new ProductListing("EARBUD-WHT", "Wireless Earbuds (White
         title="The Shape of It",
         body=None,
         narration=(
-            "So here's the shape of it. Product listing implements a "
-            "one-method interface, Prototype of T, whose only method is "
-            "copy. [[slnc 300]] "
-            "Call copy on an existing listing, and you get back a second, "
-            "fully independent listing with the same state. A listing "
-            "registry sits alongside it — a named shelf of templates that "
-            "hands back a fresh copy whenever a caller asks for a key, "
-            "rather than the caller having to hold a reference to the "
-            "original at all."
+            'So here is the shape of it. [[slnc 400]] The product listing '
+            'class implements a small interface called Prototype. [[slnc '
+            '300]] It has just one method, called copy. [[slnc 500]] Call '
+            'copy on an existing listing, and you get back a second, '
+            'fully independent listing, with the same details. [[slnc '
+            '500]] Alongside it sits a listing registry. [[slnc 300]] It '
+            'is a named shelf of templates. [[slnc 300]] Ask it for a '
+            'template by name, and it hands back a fresh copy.'
         ),
     ),
     dict(
@@ -220,14 +218,13 @@ ProductListing white = new ProductListing("EARBUD-WHT", "Wireless Earbuds (White
 // no checked exception that can never fire
 // no shallow-copy-by-default surprise""",
         narration=(
-            "Here's the whole interface. One method, unchecked, public by "
-            "construction. [[slnc 300]] "
-            "Compare it against Cloneable from scene four. Nothing to "
-            "re-expose from a protected superclass method. Nothing to catch "
-            "that can never actually be thrown. And critically, no default "
-            "implementation at all — because only the concrete type knows "
-            "which of its own fields need a real copy, and which can just "
-            "be shared."
+            'Here is the whole Prototype interface: one method, called '
+            'copy. [[slnc 500]] Compare it with Cloneable. [[slnc 300]] '
+            'Nothing protected to expose. [[slnc 300]] No error to catch '
+            'that can never happen. [[slnc 500]] And no automatic copying '
+            'at all. [[slnc 300]] Because only the real class knows which '
+            'of its fields need a true copy, and which can simply be '
+            'shared.'
         ),
     ),
     dict(
@@ -246,14 +243,15 @@ public ProductListing copy() {
             images, attributes, shippingProfile, returnWindowDays, warrantyMonths);
 }""",
         narration=(
-            "Now look at copy itself. There's no copying logic inside it at "
-            "all — it just calls the constructor again, passing its own "
-            "fields straight through. [[slnc 300]] "
-            "That works because the constructor already builds a brand new "
-            "array list and a brand new linked hash map, every single time "
-            "it runs, to protect any caller who hands it a list or a map. "
-            "Copy gets that protection for free. One piece of defensive "
-            "copying code, doing double duty."
+            'Now look at the copy method itself. [[slnc 400]] There is no '
+            'special copying logic inside it. [[slnc 300]] It simply '
+            'calls the constructor again, passing in its own details. '
+            '[[slnc 500]] That works because the constructor already '
+            'creates a brand new image list, and a brand new attribute '
+            'map, every time it runs. [[slnc 300]] It does that to '
+            'protect any caller who hands it a list. [[slnc 500]] So copy '
+            'gets that protection for free. [[slnc 300]] One piece of '
+            'protective code, doing two jobs.'
         ),
     ),
     dict(
@@ -266,16 +264,15 @@ this.shippingProfile = shippingProfile;   // passed straight through, never copi
 
 // master.shippingProfile() == whiteVariant.shippingProfile()  -> true""",
         narration=(
-            "But not every field gets that deep-copy treatment. Shipping "
-            "profile is passed straight through, unchanged — the original "
-            "and the copy end up holding the exact same instance. "
-            "[[slnc 300]] "
-            "That's only safe because shipping profile is a record. "
-            "Immutable, no setters, nothing can change it out from under "
-            "either listing. This is the real design work in this pattern — "
-            "not the mechanical 'call the constructor again' part, but "
-            "deciding, field by field, what deserves a fresh copy and what's "
-            "safe to share."
+            'But not every field gets a fresh copy. [[slnc 400]] The '
+            'shipping profile is passed straight through. [[slnc 300]] '
+            'The original and the copy share the very same shipping '
+            'profile object. [[slnc 500]] That is only safe because the '
+            'shipping profile can never change. [[slnc 300]] It is a '
+            'record, with no setters. [[slnc 600]] This is the real '
+            'design work in this pattern. [[slnc 300]] Not calling the '
+            'constructor again. [[slnc 300]] But deciding, field by '
+            'field, what needs a fresh copy, and what is safe to share.'
         ),
     ),
     dict(
@@ -291,12 +288,16 @@ white.images().add("earbuds-white-1.jpg");
 
 // master is untouched — its images and attributes were never the same List/Map""",
         narration=(
-            "So this is what calling it actually looks like. Five lines, "
-            "instead of an eleven-argument constructor call repeating eight "
-            "values that never changed. [[slnc 300]] "
-            "And master, the original, is completely untouched. White's "
-            "attributes and white's images are its own independent map and "
-            "list — never the same objects master is holding."
+            'Here is what copying and adjusting looks like. [[slnc 400]] '
+            'Copy the black master listing. [[slnc 300]] Set the new '
+            'product code. [[slnc 300]] Set the new title, wireless '
+            'earbuds, white. [[slnc 300]] Change the colour to white. '
+            '[[slnc 300]] And replace the pictures. [[slnc 500]] Five '
+            'short steps, instead of an eleven-argument call, repeating '
+            'eight values that never changed. [[slnc 500]] And the master '
+            'listing is completely untouched. [[slnc 300]] The white '
+            'listing has its own independent colour details, and its own '
+            'list of pictures.'
         ),
     ),
     dict(
@@ -313,15 +314,16 @@ white.images().add("earbuds-white-1.jpg");
 
 // registry.create("earbuds-template") — twice — returns two independent instances""",
         narration=(
-            "The Gang of Four book names one more variant of this, "
-            "sometimes called a prototype manager — a registry of templates, "
-            "keyed by name, for when the set of templates is decided at "
-            "runtime rather than known in the caller's source code. "
-            "[[slnc 300]] "
-            "Look closely at create. It never writes new product listing "
-            "anywhere. It only ever calls copy on whatever was registered "
-            "under that key. Call it twice with the same key, and you get "
-            "back two separate, independently-mutable instances."
+            'The Gang of Four book also describes a registry of '
+            'templates, sometimes called a prototype manager. [[slnc '
+            '300]] It is useful when the set of templates is decided '
+            'while the program runs. [[slnc 500]] Its create method looks '
+            'up a template by name. [[slnc 300]] If there is none, it '
+            'refuses, and names the missing key. [[slnc 300]] Otherwise, '
+            'it returns a copy of the template. [[slnc 500]] Notice it '
+            'never builds a listing from scratch. [[slnc 300]] It only '
+            'ever copies. [[slnc 300]] Ask for the same name twice, and '
+            'you get two separate, independent listings.'
         ),
     ),
     dict(
@@ -339,16 +341,15 @@ shippingProfile is the same instance: true
 registry copies are independent instances: true
 Rejected: no listing template registered under: does-not-exist""",
         narration=(
-            "Let's run it, and see the whole story on one screen. "
-            "[[slnc 250]] "
-            "A master listing, and a white variant cloned and tweaked from "
-            "it. Proof that master's own images are untouched after the "
-            "clone. Proof that the shipping profile really is the same "
-            "instance on both. [[slnc 300]] "
-            "And down at the bottom, the registry handing back two "
-            "independent instances from one key, and a lookup on a key that "
-            "was never registered, rejected with a clear message before any "
-            "listing was ever cloned."
+            "Let's run the demo. [[slnc 500]] First, a master listing, "
+            'and a white version copied and adjusted from it. [[slnc '
+            "500]] The master's own pictures are unchanged after the "
+            'copy. [[slnc 300]] And the shipping profile really is the '
+            'same shared object in both. [[slnc 500]] Then the registry '
+            'hands back two independent listings, from one name. [[slnc '
+            '500]] And finally, a request for a name that was never '
+            'registered. [[slnc 300]] It is refused with a clear message, '
+            'before any listing is copied.'
         ),
     ),
     dict(
@@ -365,18 +366,18 @@ Rejected: no listing template registered under: does-not-exist""",
             "    from outside the caller's own code.",
         ],
         narration=(
-            "Now the honest part. Every pattern has a ceiling. "
-            "[[slnc 300]] "
-            "Deep-copy judgment doesn't come for free. Every mutable field a "
-            "concrete prototype adds is one more thing its author has to "
-            "remember to deep-copy in the constructor — miss one, and copy "
-            "silently produces two listings sharing a list, which is exactly "
-            "the bug this pattern exists to prevent. [[slnc 250]] "
-            "Copy also isn't validation. It reproduces whatever state the "
-            "original had, valid or not. And a registry trades a "
-            "compile-time constructor name for a runtime string key — "
-            "convenient when the set of templates truly is decided "
-            "elsewhere, a needless failure mode otherwise."
+            'Now the honest part. [[slnc 300]] Every pattern has limits. '
+            '[[slnc 500]] First, deciding what to copy takes care. [[slnc '
+            '300]] Every changeable field a class adds is one more thing '
+            'its author must remember to copy properly. [[slnc 300]] Miss '
+            'one, and copies silently share a list. [[slnc 300]] Exactly '
+            'the bug this pattern exists to prevent. [[slnc 500]] Second, '
+            'copying is not checking. [[slnc 300]] A copy reproduces the '
+            "original's state, whether it was valid or not. [[slnc 500]] "
+            'Third, a registry swaps a class name the compiler can check, '
+            'for a text key that is only checked at run time. [[slnc '
+            '300]] Use a registry only when the templates really are '
+            'decided elsewhere.'
         ),
     ),
     dict(
@@ -393,17 +394,16 @@ Rejected: no listing template registered under: does-not-exist""",
             "the patterns compose rather than compete.",
         ],
         narration=(
-            "So where does prototype sit next to the other creational "
-            "patterns? [[slnc 250]] "
-            "Static factory answers 'give me one that does this'. Builder "
-            "answers 'which pieces, assembled in what order, for one "
-            "object'. Abstract factory answers 'which whole matching set'. "
-            "And prototype answers a question none of the others do: 'I "
-            "already have one of these — how do I get another that's almost "
-            "the same?' [[slnc 300]] "
-            "And they compose. A template registered in a listing registry "
-            "might well have been assembled with a builder before it was "
-            "ever registered."
+            'So how does Prototype relate to the other creational '
+            'patterns? [[slnc 500]] A static factory answers: give me one '
+            'that does this. [[slnc 300]] A builder answers: which '
+            'pieces, in what order, for one object. [[slnc 300]] An '
+            'abstract factory answers: which whole matching set. [[slnc '
+            '300]] And Prototype answers a question none of the others '
+            'do. [[slnc 300]] I already have one, so how do I get another '
+            'that is almost the same? [[slnc 500]] And they work '
+            'together. [[slnc 300]] A template stored in a registry might '
+            'well have been built with a builder in the first place.'
         ),
     ),
     dict(
@@ -416,18 +416,17 @@ Rejected: no listing template registered under: does-not-exist""",
             "it — and decide, field by field, what \"copy\" should mean.",
         ],
         narration=(
-            "If you keep one sentence from all of this, keep this one. "
-            "[[slnc 300]] "
-            "When you already have one fully-assembled object and need "
-            "another that's almost the same, copy it instead of rebuilding "
-            "it from scratch — and decide, field by field, what copy should "
-            "mean: a fresh copy for anything mutable, a shared reference for "
-            "anything that can't change. [[slnc 350]] "
-            "There's a full set of notes in the project, an animated "
-            "walkthrough you can step through at your own pace, and a "
-            "session plan if you fancy teaching this to somebody else. Go "
-            "add a mutable field of your own to product listing, and watch "
-            "copy need zero changes to keep working."
+            'If you keep one sentence from this video, keep this one. '
+            '[[slnc 400]] When you already have one fully assembled '
+            'object, and need another that is almost the same, copy it '
+            'instead of rebuilding it. [[slnc 300]] And decide, field by '
+            'field, what copy should mean. [[slnc 300]] A fresh copy for '
+            'anything that can change. [[slnc 300]] A shared reference '
+            'for anything that cannot. [[slnc 600]] The project has full '
+            'notes, an animated walkthrough, and a teaching plan. [[slnc '
+            '300]] Try adding a new changeable field to the product '
+            'listing. [[slnc 300]] And notice that the copy method needs '
+            'no changes at all.'
         ),
     ),
     dict(
@@ -441,15 +440,13 @@ Rejected: no listing template registered under: does-not-exist""",
             "Full source code, notes and diagrams are in the repository.",
         ],
         narration=(
-            "And that's the prototype pattern. [[slnc 300]] "
-            "If you got something out of this, do give it a thumbs up, and "
-            "subscribe. It genuinely helps the channel, and it's what makes "
-            "more of these possible. [[slnc 250]] "
-            "And if there's a pattern you'd like me to cover next, drop it "
-            "in the comments. I read every one. [[slnc 250]] "
-            "All the source code, the written notes and the diagrams are in "
-            "the repository. Thanks for watching, and I'll see you in the "
-            "next one."
+            "That's the Prototype pattern. [[slnc 400]] The full source "
+            'code, written notes, and diagrams are all in the repository. '
+            '[[slnc 500]] If there is a pattern you would like to see '
+            'covered, suggest it in the comments. [[slnc 500]] If this '
+            'helped, a like really does help other people find it. [[slnc '
+            "300]] And subscribe, if you'd like the rest of the series. "
+            '[[slnc 400]] Thanks for watching.'
         ),
     ),
 ]

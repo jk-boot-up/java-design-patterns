@@ -21,36 +21,6 @@ deliberately different documents.
 
 ![Backends for Frontends pattern sequence diagram](images/sequence-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant Phone as phone app
-    participant MB as MobileBff
-    participant Shop as the shop's services
-    participant WB as WebBff
-    participant Desk as desktop store
-
-    Phone->>MB: GET /phone/product-screen/4417
-    MB->>Shop: catalog: product 4417
-    MB->>Shop: pricing: 4799 pence
-    MB->>Shop: reviews: 4.6 from 218
-    MB->>Shop: delivery: in stock, free over £35
-    Note over MB: joins stock, rules and the clock<br/>into one delivery sentence, and turns<br/>4799 pence into the text £47.99
-    MB-->>Phone: 6 fields, 196 bytes
-
-    Desk->>WB: GET /desktop/product-page/4417
-    WB->>Shop: the same four questions
-    Note over WB: keeps the description,<br/>the specification, five images<br/>and three reviews
-    WB-->>Desk: 15 fields
-
-    Note over MB,WB: one shop, two shapes,<br/>each owned by the team that owns the screen
-```
-
-</details>
-
 ## What the order proves
 
 **One arrow leaves the device; four leave the backend.** The work did not disappear — it

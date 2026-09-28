@@ -19,19 +19,19 @@ The first two lines are what a viewer sees above the fold, so they carry the hoo
 ```
 CHAPTERS
 00:00 Introduction
-00:45 The Partner Project
-01:08 Before The First Line
-01:38 The Locator Asks Consul
-02:05 The Genuine Advance
-02:30 The Old Costs Return
-03:04 A New Cost: A Stale Cache
-03:38 The Alternative: Be Given
-04:15 The Verdict
-04:34 How To Recognise It
-04:56 Where You Have Met This
-05:11 What Is Real Here
-05:26 When This Is Too Much
-05:36 Thanks for Watching
+00:58 The Partner Project
+01:19 Before The First Line
+01:45 The Locator Asks Consul
+02:15 The Genuine Advance
+02:41 The Old Costs Return
+03:16 A New Cost: A Stale Cache
+03:50 The Alternative: Be Given
+04:28 The Verdict
+04:48 How To Recognise It
+05:13 Where You Have Met This
+05:29 What Is Real Here
+05:45 When This Is Too Much
+05:55 Thanks for Watching
 
 SOURCE CODE, WRITTEN NOTES AND AN INTERACTIVE ANIMATION
 https://github.com/jk-boot-up/java-design-patterns/tree/main/gradle-java/foundational-design-patterns/service-locator-with-consul-pattern
@@ -46,19 +46,19 @@ YouTube renders these as chapters only if there are at least three and the first
 
 ```
 00:00 Introduction
-00:45 The Partner Project
-01:08 Before The First Line
-01:38 The Locator Asks Consul
-02:05 The Genuine Advance
-02:30 The Old Costs Return
-03:04 A New Cost: A Stale Cache
-03:38 The Alternative: Be Given
-04:15 The Verdict
-04:34 How To Recognise It
-04:56 Where You Have Met This
-05:11 What Is Real Here
-05:26 When This Is Too Much
-05:36 Thanks for Watching
+00:58 The Partner Project
+01:19 Before The First Line
+01:45 The Locator Asks Consul
+02:15 The Genuine Advance
+02:41 The Old Costs Return
+03:16 A New Cost: A Stale Cache
+03:50 The Alternative: Be Given
+04:28 The Verdict
+04:48 How To Recognise It
+05:13 Where You Have Met This
+05:29 What Is Real Here
+05:45 When This Is Too Much
+05:55 Thanks for Watching
 ```
 
 ## Tags
@@ -97,4 +97,4 @@ Add a card partway through pointing at the playlist, so a viewer who arrives at 
 
 ## Runtime
 
-Approximately 06:10, narrated at 145 words per minute.
+Approximately 06:32, narrated at 145 words per minute.

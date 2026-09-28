@@ -21,19 +21,19 @@ Learn the Iterator design pattern in Java 21 by building the product catalogue o
 
 CHAPTERS
 00:00 Introduction
-00:46 The Scenario
-01:23 Look Closely at One Method
-02:05 The Naive Approach — Three Methods, Three Page Loops
-02:47 Why That Hurts
-03:32 The Iterator Pattern
-04:13 An Analogy
-04:53 The Roles
-05:40 The Aggregate — Notice What Is Missing
-06:21 The Iterator — The Only Page Loop in the Project
-07:14 The Tests — Asserting What Was NOT Fetched
-08:03 Running It
-08:46 What to Remember
-09:46 Thanks for Watching
+00:49 The Scenario
+01:24 Look Closely at One Method
+02:03 The Naive Approach — Three Methods, Three Page Loops
+02:39 Why That Hurts
+03:16 The Iterator Pattern
+03:57 An Analogy
+04:32 The Roles
+05:15 The Aggregate — Notice What Is Missing
+05:52 The Iterator — The Only Page Loop in the Project
+06:43 The Tests — Asserting What Was NOT Fetched
+07:27 Running It
+08:06 What to Remember
+08:52 Thanks for Watching
 
 SOURCE CODE, WRITTEN NOTES AND AN INTERACTIVE ANIMATION
 https://github.com/jk-boot-up/java-design-patterns/tree/main/gradle-java/behavioural/iterator-pattern
@@ -48,19 +48,19 @@ YouTube renders these as chapters only if there are at least three and the first
 
 ```
 00:00 Introduction
-00:46 The Scenario
-01:23 Look Closely at One Method
-02:05 The Naive Approach — Three Methods, Three Page Loops
-02:47 Why That Hurts
-03:32 The Iterator Pattern
-04:13 An Analogy
-04:53 The Roles
-05:40 The Aggregate — Notice What Is Missing
-06:21 The Iterator — The Only Page Loop in the Project
-07:14 The Tests — Asserting What Was NOT Fetched
-08:03 Running It
-08:46 What to Remember
-09:46 Thanks for Watching
+00:49 The Scenario
+01:24 Look Closely at One Method
+02:03 The Naive Approach — Three Methods, Three Page Loops
+02:39 Why That Hurts
+03:16 The Iterator Pattern
+03:57 An Analogy
+04:32 The Roles
+05:15 The Aggregate — Notice What Is Missing
+05:52 The Iterator — The Only Page Loop in the Project
+06:43 The Tests — Asserting What Was NOT Fetched
+07:27 Running It
+08:06 What to Remember
+08:52 Thanks for Watching
 ```
 
 ## Tags
@@ -99,4 +99,4 @@ Add a card partway through pointing at the playlist, so a viewer who arrives at 
 
 ## Runtime
 
-Approximately 10:22, narrated at 145 words per minute.
+Approximately 09:30, narrated at 145 words per minute.

@@ -19,21 +19,21 @@ The first two lines are what a viewer sees above the fold, so they carry the hoo
 ```
 CHAPTERS
 00:00 Introduction
-00:51 The Partner Project
-01:13 Before The First Line
-01:34 The Rules Are Text
-02:00 The Language Came Free
-02:17 Two Kinds Of Typo
-02:37 The Language Can Reach The Program
-03:00 Missing Values
-03:16 Parsed Once
-03:33 The Verdict
-03:46 How To Recognise It
-03:58 Where You Have Met This
-04:06 What Was Used
-04:14 What Is Real Here
-04:24 When This Is Too Much
-04:32 Thanks for Watching
+01:02 The Partner Project
+01:25 Before The First Line
+01:48 The Rules Are Text
+02:20 The Language Came Free
+02:40 Two Kinds Of Typo
+03:07 The Language Can Reach The Program
+03:36 Missing Values
+03:57 Parsed Once
+04:21 The Verdict
+04:36 How To Recognise It
+04:52 Where You Have Met This
+05:03 What Was Used
+05:13 What Is Real Here
+05:24 When This Is Too Much
+05:33 Thanks for Watching
 
 SOURCE CODE, WRITTEN NOTES AND AN INTERACTIVE ANIMATION
 https://github.com/jk-boot-up/java-design-patterns/tree/main/gradle-java/behavioural/interpreter-with-spel-pattern
@@ -48,21 +48,21 @@ YouTube renders these as chapters only if there are at least three and the first
 
 ```
 00:00 Introduction
-00:51 The Partner Project
-01:13 Before The First Line
-01:34 The Rules Are Text
-02:00 The Language Came Free
-02:17 Two Kinds Of Typo
-02:37 The Language Can Reach The Program
-03:00 Missing Values
-03:16 Parsed Once
-03:33 The Verdict
-03:46 How To Recognise It
-03:58 Where You Have Met This
-04:06 What Was Used
-04:14 What Is Real Here
-04:24 When This Is Too Much
-04:32 Thanks for Watching
+01:02 The Partner Project
+01:25 Before The First Line
+01:48 The Rules Are Text
+02:20 The Language Came Free
+02:40 Two Kinds Of Typo
+03:07 The Language Can Reach The Program
+03:36 Missing Values
+03:57 Parsed Once
+04:21 The Verdict
+04:36 How To Recognise It
+04:52 Where You Have Met This
+05:03 What Was Used
+05:13 What Is Real Here
+05:24 When This Is Too Much
+05:33 Thanks for Watching
 ```
 
 ## Tags
@@ -101,4 +101,4 @@ Add a card partway through pointing at the playlist, so a viewer who arrives at 
 
 ## Runtime
 
-Approximately 05:06, narrated at 145 words per minute.
+Approximately 06:11, narrated at 145 words per minute.

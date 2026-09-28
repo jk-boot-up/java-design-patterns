@@ -25,21 +25,22 @@ SCENES = [
         title="Builder Pattern",
         body=None,
         narration=(
-            "Hello, and welcome. This video explains the Builder pattern in Java, "
-            "and it is written and presented by Jayasekhar Konduru. [[slnc 300]] "
-            "Let's start with the simple definition. The builder pattern "
-            "constructs an object one piece at a time. Instead of a constructor "
-            "taking a long list of arguments, you call a named method for each "
-            "part you want to set, in whatever order suits you, and then one "
-            "final method that validates the lot and hands back the finished "
-            "object. [[slnc 350]] That's the idea in a sentence. It's in the "
-            "original Gang of Four book, and it's also item two in Effective "
-            "Java, and by the end you'll know exactly why both books claim it. "
-            "The rest of the video does it properly, by building a real working "
-            "Java project: a purchase order in an online store, in Java 21, "
-            "picking up right where the static factory method left off. [[slnc "
-            "250]] And you'll see the two of them compose, because one of them "
-            "returns the other."
+            'Hello, and welcome. [[slnc 400]] This video explains the '
+            'Builder pattern, in Java. [[slnc 300]] This video is '
+            'presented by Jayasekhar Konduru. [[slnc 600]] First, a '
+            'simple definition. [[slnc 300]] The Builder pattern creates '
+            'an object one piece at a time. [[slnc 300]] Instead of a '
+            'constructor with a long list of arguments, you call a named '
+            'method for each part you want. [[slnc 300]] In any order. '
+            '[[slnc 300]] Then one final method checks everything, and '
+            'hands back the finished object. [[slnc 600]] Think of '
+            'ordering at a sandwich counter. [[slnc 300]] You name the '
+            'bread, then each filling, one at a time. [[slnc 300]] And '
+            "they only make it when you say, that's everything. [[slnc "
+            '700]] In this video, we build a purchase order for an online '
+            'store. [[slnc 500]] By the end, you will know why two famous '
+            'books both recommend this pattern. [[slnc 300]] And how it '
+            'works together with a static factory method.'
         ),
     ),
     dict(
@@ -58,14 +59,15 @@ SCENES = [
             "•  a coupon code, priority shipping, and a free-text note",
         ],
         narration=(
-            "So here's the job. We're building a purchase order. Two things "
-            "about it are always true. It needs an order id and a customer id, "
-            "and it needs at least one item and a shipping address. "
-            "[[slnc 250]] "
-            "But on top of that, there are five completely independent optional "
-            "pieces. Gift wrap, which can carry a message. A coupon code. "
-            "Priority shipping. And a free-text note. Any order might have none "
-            "of those, or all of them, in any combination."
+            'Here is the job: building a purchase order. [[slnc 500]] Two '
+            'things are always required. [[slnc 300]] An order I D and a '
+            'customer I D. [[slnc 300]] And at least one item, with a '
+            'shipping address. [[slnc 500]] On top of that, there are '
+            'five independent, optional extras. [[slnc 300]] Gift '
+            'wrapping. [[slnc 200]] A gift message. [[slnc 200]] A coupon '
+            'code. [[slnc 200]] Priority shipping. [[slnc 200]] And a '
+            'free-text note. [[slnc 500]] Any order might have none of '
+            'those, or all of them, in any combination.'
         ),
     ),
     dict(
@@ -79,14 +81,15 @@ SCENES = [
 new PurchaseOrder("ORD-9001", "CUST-100", items, home,
         true, "Happy birthday!", "WELCOME10", false, null);""",
         narration=(
-            "So you write the constructor everyone starts with. Nine "
-            "parameters, one for every fact this order might need. "
-            "[[slnc 300]] "
-            "Now look at the call underneath it, and tell me, quickly, is this "
-            "the priority order, or the gift order? You have to count commas "
-            "and cross-check against the parameter list to know. And there are "
-            "two booleans in there. Swap them by accident, and the compiler "
-            "says absolutely nothing."
+            'So you write the constructor everyone starts with. [[slnc '
+            '300]] Nine parameters, one for every fact this order might '
+            'need. [[slnc 500]] Now imagine reading a call to it. [[slnc '
+            '300]] Nine values in a row, separated by commas. [[slnc '
+            '300]] Is this a priority order, or a gift order? [[slnc '
+            '300]] You have to count commas, and check against the '
+            'parameter list, to know. [[slnc 500]] And there are two '
+            'true-or-false values in there. [[slnc 300]] Swap them by '
+            'accident, and the compiler says nothing at all.'
         ),
     ),
     dict(
@@ -102,15 +105,15 @@ public PurchaseOrder(..., String couponCode) { ... }
 Effective Java calls this the telescoping constructor pattern —
 and it names it as the problem, not the solution.""",
         narration=(
-            "The next instinct is to add smaller constructors on top, one for "
-            "the common cases. But look what happens. A gift order without "
-            "priority needs one overload. A gift order with a coupon needs "
-            "another. Every new combination either needs a brand new overload, "
-            "or you fall back to the nine-parameter one anyway. "
-            "[[slnc 300]] "
-            "Effective Java actually has a name for this. The telescoping "
-            "constructor pattern. And it's named as the chapter's cautionary "
-            "tale, not as something to reach for."
+            'The next idea is to add shorter constructors, for the common '
+            'cases. [[slnc 400]] But then a gift order without priority '
+            'needs one version. [[slnc 300]] A gift order with a coupon '
+            'needs another. [[slnc 300]] Every new combination needs a '
+            'brand new constructor. [[slnc 300]] Or you fall back to the '
+            'nine-parameter one anyway. [[slnc 500]] The book Effective '
+            'Java has a name for this: the telescoping constructor. '
+            '[[slnc 300]] And it is named as a warning, not as something '
+            'to copy.'
         ),
     ),
     dict(
@@ -127,21 +130,18 @@ and it names it as the problem, not the solution.""",
             "The type is fine. The way in is the problem.",
         ],
         narration=(
-            "And that costs you, in five specific ways. "
-            "[[slnc 300]] "
-            "One. The call site stops saying what it means. "
-            "Two. Most calls are mostly null, or mostly false, because most "
-            "orders don't use most of the options. "
-            "Three. The parameter order is completely arbitrary, and nothing "
-            "in the language enforces it. "
-            "Four. Every new option widens the constructor, and every existing "
-            "caller has to be touched, even the ones that never wanted the new "
-            "option. "
-            "And five, the one people miss: there is nowhere to put a rule like "
-            "'a gift message implies gift wrap'. A constructor just assigns "
-            "fields. [[slnc 300]] "
-            "But notice, again, what isn't wrong. The type itself is fine. "
-            "It's the way in that's the problem."
+            'And that costs you in five ways. [[slnc 500]] One. [[slnc '
+            '200]] The calling code no longer says what it means. [[slnc '
+            '300]] Two. [[slnc 200]] Most calls are full of nulls, and '
+            'false values, because most orders use few options. [[slnc '
+            '300]] Three. [[slnc 200]] The order of the parameters is '
+            'arbitrary, and nothing enforces it. [[slnc 300]] Four. '
+            '[[slnc 200]] Every new option widens the constructor, and '
+            'touches every caller. [[slnc 300]] Five. [[slnc 200]] There '
+            'is nowhere to put a rule like, a gift message means the '
+            'order must be gift wrapped. [[slnc 300]] A constructor just '
+            'stores values. [[slnc 500]] Notice that the purchase order '
+            'itself is fine. [[slnc 300]] The problem is the way in.'
         ),
     ),
     dict(
@@ -162,18 +162,14 @@ and it names it as the problem, not the solution.""",
             "described from two directions.",
         ],
         narration=(
-            "The fix has a name, and this time it really is a Gang of Four "
-            "pattern. Separate the construction of a complex object from its "
-            "representation, so the same construction process can create "
-            "different representations. [[slnc 300]] "
-            "In plain words? You decide the object a piece at a time, in "
-            "whatever order suits you, and it only gets checked for "
-            "completeness the moment you say you're done. [[slnc 300]] "
-            "And it's also item two in Effective Java. Same technique, "
-            "described from two angles — one as a design pattern for building "
-            "complex objects, the other as the fix for the telescoping "
-            "constructor we just saw. Both books are talking about the same "
-            "code."
+            'The fix is a pattern from the famous Gang of Four book. '
+            '[[slnc 400]] Separate the construction of a complex object '
+            'from its representation, so the same process can create '
+            'different results. [[slnc 500]] In plain words: build the '
+            'object one piece at a time, in any order. [[slnc 300]] And '
+            'check it is complete only when you say you are done. [[slnc '
+            '500]] It is also item two in the book Effective Java. [[slnc '
+            '300]] Both books describe the same code, from two angles.'
         ),
     ),
     dict(
@@ -191,18 +187,17 @@ and it names it as the problem, not the solution.""",
             "You build it up. They check it's complete when you're done.",
         ],
         narration=(
-            "Think about ordering at a made-to-order sandwich counter. You "
-            "don't shout the entire order through the hatch in one go. "
-            "[[slnc 300]] "
-            "You say the bread. Then a filling. Then another. Then maybe some "
-            "extras, and you only mention the ones you actually want — nobody "
-            "says 'no pickles, no mustard, no onions' for every topping that "
-            "isn't there. And crucially, they don't start making the sandwich "
-            "until you say 'that's everything'. [[slnc 300]] "
-            "If you say that with no fillings at all, they can quite "
-            "reasonably say no. That's the whole shape of a builder. You "
-            "build it up, a piece at a time, and completeness only gets "
-            "checked at the very end."
+            'Here is an analogy: a made-to-order sandwich counter. [[slnc '
+            '500]] You do not shout your whole order through the hatch at '
+            'once. [[slnc 300]] You name the bread. [[slnc 300]] Then a '
+            'filling. [[slnc 200]] Then another. [[slnc 300]] Then any '
+            'extras you want. [[slnc 300]] You never list all the '
+            'toppings you do not want. [[slnc 500]] And they do not start '
+            "making it until you say, that's everything. [[slnc 400]] If "
+            'you say that with no fillings at all, they can refuse. '
+            '[[slnc 500]] That is exactly the shape of a builder. [[slnc '
+            '300]] Build it up piece by piece, and check it only at the '
+            'end.'
         ),
     ),
     dict(
@@ -211,16 +206,18 @@ and it names it as the problem, not the solution.""",
         title="The Shape of It",
         body=None,
         narration=(
-            "So here's the shape of it. There's exactly one door in: "
-            "PurchaseOrder dot builder, taking the two facts every order "
-            "truly needs. That hands back a Builder. [[slnc 300]] "
-            "Every chainable method on that Builder returns the very same "
-            "Builder, so the calls read as one flowing statement. And only "
-            "the final build call does two things at once: it checks the "
-            "order is actually complete, and it constructs the immutable "
-            "PurchaseOrder. [[slnc 300]] "
-            "PurchaseOrder's own constructor is private. The Builder is the "
-            "only path in, from anywhere outside this class."
+            'So here is the shape of it. [[slnc 400]] There is exactly '
+            'one way in. [[slnc 300]] A static method called builder, on '
+            'the purchase order class, which takes the two required I Ds. '
+            '[[slnc 300]] It hands back a Builder object. [[slnc 500]] '
+            'Every method on the Builder returns that same Builder. '
+            '[[slnc 300]] So the calls can be chained, one after another, '
+            'in a single statement. [[slnc 500]] Only the final build '
+            'method does two things. [[slnc 300]] It checks the order is '
+            'complete. [[slnc 300]] And it creates the finished, '
+            'unchangeable purchase order. [[slnc 500]] The purchase '
+            "order's own constructor is private. [[slnc 300]] The Builder "
+            'is the only way to create one.'
         ),
     ),
     dict(
@@ -239,14 +236,15 @@ public static final class Builder {
     // ...five more optional fields, no constructor arguments at all
 }""",
         narration=(
-            "Here's the code. The two facts that are always required — order "
-            "id, and customer id — are the only two arguments the Builder's "
-            "constructor takes, and that constructor is private, reached only "
-            "through the static builder method. [[slnc 300]] "
-            "Every optional piece, by contrast, starts at a sensible default "
-            "and has no constructor argument at all. There's nothing to skip "
-            "past, because there was never a positional slot for it in the "
-            "first place."
+            'Here is how the code handles required and optional parts. '
+            '[[slnc 500]] The two facts that are always required, the '
+            "order I D and the customer I D, are the Builder's only "
+            'constructor arguments. [[slnc 300]] And you reach that '
+            'constructor through the static builder method. [[slnc 500]] '
+            'Every optional piece starts with a sensible default. [[slnc '
+            '300]] It has no constructor argument at all. [[slnc 300]] So '
+            'there is nothing to skip past, because there was never a '
+            'position for it.'
         ),
     ),
     dict(
@@ -268,14 +266,15 @@ public Builder priority() {
 //         .shippingAddress(home)
 //         .priority()""",
         narration=(
-            "Every method follows the same shape: set one piece, then return "
-            "this. Returning the same builder is what lets the next call "
-            "chain straight off the end of it, with no temporary variable "
-            "anywhere. [[slnc 300]] "
-            "And look at that call underneath. Compare it to the "
-            "nine-parameter constructor from scene three. You don't have to "
-            "ask which argument is which any more — every piece announces "
-            "itself by name, in whatever order you happened to write it."
+            'Every Builder method follows the same shape. [[slnc 300]] '
+            'Set one piece, then return the Builder itself. [[slnc 500]] '
+            'Returning the same Builder is what lets the next call chain '
+            'straight on. [[slnc 500]] So creating an order reads like a '
+            'sentence. [[slnc 300]] Builder, add a mug, add a book, set '
+            'the shipping address, mark it priority, and build. [[slnc '
+            '500]] Compare that with the nine-parameter constructor. '
+            '[[slnc 300]] Now every piece announces itself by name, in '
+            'whatever order you wrote it.'
         ),
     ),
     dict(
@@ -288,14 +287,14 @@ public Builder priority() {
     return this;
 }""",
         narration=(
-            "Here's the part a plain bag of setters could never give you. "
-            "Setting a gift message also sets gift wrapped to true, because a "
-            "gift message on a box that isn't wrapped makes no sense in this "
-            "domain. [[slnc 300]] "
-            "And that rule lives in exactly one place. Not repeated at every "
-            "call site, not left to a comment saying 'remember to also wrap "
-            "it' — it's enforced, once, inside the one method that can enforce "
-            "it."
+            'Here is something a plain set of setters could never give '
+            'you. [[slnc 500]] Setting a gift message also marks the '
+            'order as gift wrapped. [[slnc 300]] Because a gift message '
+            'on an unwrapped box makes no sense. [[slnc 500]] And that '
+            'rule lives in exactly one place. [[slnc 300]] Not repeated '
+            'at every call. [[slnc 300]] Not left to a comment that says, '
+            'remember to wrap it. [[slnc 300]] It is enforced once, '
+            'inside the one method that can enforce it.'
         ),
     ),
     dict(
@@ -312,13 +311,17 @@ public Builder priority() {
     return new PurchaseOrder(this);
 }""",
         narration=(
-            "And this is the moment completeness gets checked. Not "
-            "addItem, not shippingAddress — build. [[slnc 300]] "
-            "Why can't an earlier method check this instead? Because "
-            "addItem has no way of knowing whether you're about to call "
-            "shippingAddress next, or whether you're finished. Only build "
-            "marks the moment you've declared yourself done, so it's the only "
-            "method that can honestly ask 'is this actually complete?'"
+            'And this is the moment the order is checked for '
+            'completeness. [[slnc 300]] Not when an item is added, and '
+            'not when the address is set. [[slnc 300]] Only in build. '
+            '[[slnc 500]] If there are no items, build refuses, saying a '
+            'purchase order needs at least one item. [[slnc 300]] If '
+            'there is no address, it refuses, saying a purchase order '
+            "needs a shipping address. [[slnc 500]] Why can't an earlier "
+            'method check this? [[slnc 300]] Because adding an item '
+            'cannot know whether you are about to add more, or whether '
+            'you are finished. [[slnc 300]] Only build marks the moment '
+            'you say you are done.'
         ),
     ),
     dict(
@@ -336,13 +339,15 @@ PurchaseOrder second = builder.addItem(book).build();
 
 // first items: 1, second items: 2""",
         narration=(
-            "One more detail, easy to miss and important. The constructor "
-            "takes List dot copyOf of the builder's items — a snapshot, not "
-            "the same list. [[slnc 300]] "
-            "So keep the same builder around, add another item, and build a "
-            "second order from it. The first order you built does not "
-            "silently gain the new item. It already took its own copy. The "
-            "product stops watching the builder the instant build returns."
+            'One more detail, easy to miss, and important. [[slnc 400]] '
+            'When build creates the order, it takes a copy of the '
+            "Builder's list of items. [[slnc 300]] A snapshot, not the "
+            'same list. [[slnc 500]] So imagine keeping the same Builder, '
+            'adding another item, and building a second order. [[slnc '
+            '300]] The first order has one item. [[slnc 300]] The second '
+            'has two. [[slnc 300]] The first order did not silently gain '
+            'the new item. [[slnc 500]] Once build returns, the order no '
+            'longer depends on the Builder at all.'
         ),
     ),
     dict(
@@ -361,15 +366,17 @@ PurchaseOrder second = builder.addItem(book).build();
 
 // touches only Builder's public methods — never PurchaseOrder's fields""",
         narration=(
-            "The Gang of Four book gives builder a fourth role, a Director, "
-            "usually its own interface and class, whose whole job is to know "
-            "fixed recipes for common configurations. [[slnc 300]] "
-            "In idiomatic Java, that's usually just a static method, and "
-            "that's exactly what PurchaseOrderPresets is here. Look closely: "
-            "expressOrder never touches a PurchaseOrder field, or the "
-            "constructor. It only ever calls Builder's public methods. Which "
-            "means PurchaseOrder can change its private representation "
-            "tomorrow, and not one preset has to change with it."
+            'The Gang of Four book describes one more role, called the '
+            'Director. [[slnc 300]] Its job is to know fixed recipes for '
+            'common orders. [[slnc 500]] In everyday Java, a director is '
+            'usually just a static method. [[slnc 300]] Here, a class '
+            'called Purchase Order Presets has a method called express '
+            'order. [[slnc 300]] It sets the address, marks it priority, '
+            'adds a same-day shipping note, and adds the items. [[slnc '
+            "500]] Notice that the preset only ever uses the Builder's "
+            "public methods. [[slnc 300]] So the purchase order's private "
+            'details can change tomorrow, and not one preset needs to '
+            'change.'
         ),
     ),
     dict(
@@ -389,16 +396,18 @@ first items: 1, second items: 2
 Rejected: a purchase order needs at least one item
 Rejected: a purchase order needs a shipping address""",
         narration=(
-            "Let's run it, and see the whole story on one screen. "
-            "[[slnc 250]] "
-            "One order built by hand, with a gift message and a coupon "
-            "chained straight on. Three presets, each reading exactly like "
-            "what it configures. The reused-builder proof, one order with one "
-            "item, the next with two, neither reaching into the other. "
-            "[[slnc 300]] "
-            "And at the bottom, two orders rejected on purpose — one with no "
-            "items, one with no address — both caught as IllegalStateException "
-            "before a single PurchaseOrder object was ever created."
+            "Let's run the demo. [[slnc 500]] First, one order built by "
+            'hand, with a gift message and a coupon. [[slnc 300]] It is '
+            'gift wrapped automatically, because it has a message. [[slnc '
+            '500]] Then three presets: a gift order, a standard order, '
+            'and an express order. [[slnc 300]] Each one does exactly '
+            'what its name says. [[slnc 500]] Then the reused Builder. '
+            '[[slnc 300]] The first order has one item, and the second '
+            'has two. [[slnc 300]] Neither affects the other. [[slnc '
+            '500]] And finally, two orders are rejected on purpose. '
+            '[[slnc 300]] One with no items, and one with no address. '
+            '[[slnc 300]] Both are caught before any purchase order is '
+            'ever created.'
         ),
     ),
     dict(
@@ -414,21 +423,18 @@ Rejected: a purchase order needs a shipping address""",
             "    LineItem and Address here are plain records, on purpose.",
         ],
         narration=(
-            "Now the honest part. Every pattern has a ceiling. "
-            "[[slnc 300]] "
-            "A builder is a second object. Briefly, for every PurchaseOrder "
-            "you build, a Builder exists too. For an order placed a few times "
-            "a second, that's nothing. For something constructed millions of "
-            "times in a hot loop, it's a real allocation to weigh. "
-            "[[slnc 250]] "
-            "It's also more typing, for a type that has nothing to decide. "
-            "And the required fields don't disappear — the Builder's own "
-            "constructor still takes them positionally, it's just a much "
-            "shorter list. [[slnc 300]] "
-            "Which is exactly why LineItem and Address in this project are "
-            "plain records, with ordinary public constructors. Two or three "
-            "required fields, no options, no rules between them — a builder "
-            "there would be ceremony around a non-problem."
+            'Now the honest part. [[slnc 300]] Every pattern has limits. '
+            '[[slnc 500]] First, a builder is an extra object. [[slnc '
+            '300]] For every order you build, a Builder exists briefly '
+            'too. [[slnc 300]] For an order placed a few times a second, '
+            'that costs nothing. [[slnc 300]] For something created '
+            'millions of times in a tight loop, it is worth thinking '
+            'about. [[slnc 500]] Second, it is more code to write, for a '
+            'type with few choices to make. [[slnc 500]] That is why this '
+            "project's line items and addresses are plain records, with "
+            'ordinary constructors. [[slnc 300]] Two or three required '
+            'values, and no options. [[slnc 300]] A builder there would '
+            'be ceremony for no reason.'
         ),
     ),
     dict(
@@ -445,19 +451,18 @@ Rejected: a purchase order needs a shipping address""",
             "PurchaseOrder.builder(...) is itself a static factory method.",
         ],
         narration=(
-            "So where does builder sit next to the other creational patterns? "
-            "[[slnc 250]] "
-            "Static factory answers 'give me one that does this', with no "
-            "factory class at all. Simple factory moves 'which one?' into a "
-            "helper with a switch. Abstract factory answers 'which whole "
-            "matching set?', one choice producing several related objects. "
-            "And builder answers a different question entirely: not which "
-            "object, but which pieces, assembled in what order, for one "
-            "object. [[slnc 300]] "
-            "And here's the nice part. They're not rivals. PurchaseOrder dot "
-            "builder is itself a static factory method — it just happens to "
-            "return something whose whole job is collecting more information "
-            "before it builds anything."
+            'So how does the Builder relate to the other creational '
+            'patterns? [[slnc 500]] A static factory method answers: give '
+            'me one that does this. [[slnc 300]] A simple factory '
+            'answers: which one? using a helper with a switch. [[slnc '
+            '300]] An abstract factory answers: which whole matching set? '
+            '[[slnc 300]] And a builder answers a different question. '
+            '[[slnc 300]] Not which object, but which pieces, for one '
+            'object, built up gradually. [[slnc 500]] And they are not '
+            'rivals. [[slnc 300]] The builder method on the purchase '
+            'order is itself a static factory method. [[slnc 300]] It '
+            'just returns something that collects more information, '
+            'before building anything.'
         ),
     ),
     dict(
@@ -471,16 +476,14 @@ Rejected: a purchase order needs a shipping address""",
             "you say you are done.",
         ],
         narration=(
-            "If you keep one sentence from all of this, keep this one. "
-            "[[slnc 300]] "
-            "A constructor makes you decide the whole object in one call. A "
-            "builder lets you decide it a piece at a time, and checks it is "
-            "complete only when you say you are done. [[slnc 350]] "
-            "There's a full set of notes in the project, an animated "
-            "walkthrough you can step through at your own pace, and a "
-            "session plan if you fancy teaching this to somebody else. Go add "
-            "an option of your own to PurchaseOrder. That's the best way to "
-            "make it stick."
+            'If you keep one sentence from this video, keep this one. '
+            '[[slnc 400]] A constructor makes you decide the whole object '
+            'in one call. [[slnc 300]] A builder lets you decide it one '
+            'piece at a time, and checks it is complete only when you say '
+            'you are done. [[slnc 600]] The project has full notes, an '
+            'animated walkthrough, and a teaching plan. [[slnc 300]] Try '
+            'adding an option of your own to the purchase order. [[slnc '
+            '300]] That is the best way to make it stick.'
         ),
     ),
     dict(
@@ -494,15 +497,13 @@ Rejected: a purchase order needs a shipping address""",
             "Full source code, notes and diagrams are in the repository.",
         ],
         narration=(
-            "And that's the builder pattern. [[slnc 300]] "
-            "If you got something out of this, do give it a thumbs up, and "
-            "subscribe. It genuinely helps the channel, and it's what makes "
-            "more of these possible. [[slnc 250]] "
-            "And if there's a pattern you'd like me to cover next, drop it in "
-            "the comments. I read every one. [[slnc 250]] "
-            "All the source code, the written notes and the diagrams are in "
-            "the repository. Thanks for watching, and I'll see you in the "
-            "next one."
+            "That's the Builder pattern. [[slnc 400]] The full source "
+            'code, written notes, and diagrams are all in the repository. '
+            '[[slnc 500]] If there is a pattern you would like to see '
+            'covered, suggest it in the comments. [[slnc 500]] If this '
+            'helped, a like really does help other people find it. [[slnc '
+            "300]] And subscribe, if you'd like the rest of the series. "
+            '[[slnc 400]] Thanks for watching.'
         ),
     ),
 ]

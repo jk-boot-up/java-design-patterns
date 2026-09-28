@@ -7,32 +7,6 @@ Five sequences over the same page. Throughout: Orders answers in **30ms**, Catal
 
 ![Sequential versus composed](images/uml-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant S as Shopper
-    participant C as SequentialComposer
-    participant O as Orders
-    participant Cat as Catalog
-    participant Sh as Shipping
-
-    S->>C: pageFor(ord-3001)
-    C->>O: fetch — leaves at 0ms
-    O-->>C: order — back at 30ms
-    C->>Cat: namesFor — leaves at 30ms
-    Cat-->>C: names — back at 90ms
-    C->>Sh: statusFor — leaves at 90ms
-    Sh-->>C: delivery — back at 210ms
-    C-->>S: the page, after 210ms
-
-    Note over C,Sh: Shipping only needed the order id, which arrived at 30ms.<br/>It waited 60ms for Catalog's answer and never used it.
-```
-
-</details>
-
 Thirty plus sixty plus a hundred and twenty. The page costs the **sum**.
 
 The line worth staring at is the third call. Shipping needs the order id and nothing
@@ -42,39 +16,6 @@ Catalog anyway, because that is what a sequence of statements does.
 ## Act Two: The Same Calls, Sent Together
 
 ![Act Two: The Same Calls, Sent Together](images/uml-diagram-2.png)
-
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant S as Shopper
-    participant C as OrderDetailsComposer
-    participant F as Fanout
-    participant O as Orders
-    participant Cat as Catalog
-    participant Sh as Shipping
-
-    S->>C: pageFor(ord-3001)
-    C->>O: fetch — leaves at 0ms
-    O-->>C: order — back at 30ms
-
-    Note over C,F: only now are the skus known
-
-    C->>F: add("catalog"), add("shipping"), awaitAll()
-    par both leave at 30ms
-        F->>Cat: namesFor(skus)
-        Cat-->>F: names — back at 90ms
-    and
-        F->>Sh: statusFor(orderId)
-        Sh-->>F: delivery — back at 150ms
-    end
-    F-->>C: GATHERED — 2 calls in 120ms, 0 failed
-    C-->>S: the page, after 150ms
-```
-
-</details>
 
 Thirty, then the slower of sixty and one hundred and twenty. The page costs the
 **maximum**.
@@ -92,40 +33,6 @@ together, is the real shape of most composed pages.
 
 ![Act Three: Shipping Is Down](images/uml-diagram-3.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant S as Shopper
-    participant C as OrderDetailsComposer
-    participant F as Fanout
-    participant O as Orders
-    participant Cat as Catalog
-    participant Sh as Shipping
-
-    C->>O: fetch
-    O-->>C: order — 30ms
-
-    par
-        F->>Cat: namesFor(skus)
-        Cat-->>F: names — 90ms
-    and
-        F->>Sh: statusFor(orderId)
-        Sh--xF: ServiceUnavailableException
-    end
-
-    Note over F: the failure is parked on the branch,<br/>the fan-out does not fall over
-
-    C->>F: delivery.valueOr(DeliveryStatus.unknown())
-    C-->>S: page + missing: [delivery status]
-
-    Note over S,Sh: the sequential version threw away the order<br/>and the names it had already received
-```
-
-</details>
-
 The same outage, two completely different outcomes. The sequential composer throws,
 and with it goes the order and the product names that had already arrived —
 `itLosesWorkAlreadyDone` asserts that loss. The composed page shows what the shopper
@@ -137,28 +44,6 @@ The mechanism is one `catch` inside `Branch.run`, and one choice of accessor:
 ## Act Four: Orders Is Down
 
 ![Act Four: Orders Is Down](images/uml-diagram-4.png)
-
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant S as Shopper
-    participant C as OrderDetailsComposer
-    participant O as Orders
-    participant Cat as Catalog
-
-    S->>C: pageFor(ord-3001)
-    C->>O: fetch
-    O--xC: ServiceUnavailableException
-    C--xS: ServiceUnavailableException — no page
-
-    Note over C,Cat: Catalog was never called: 0 calls
-    Note over S,O: a page with no order on it is not a partial page,<br/>it is a blank one
-```
-
-</details>
 
 This is the classification working in the other direction, and it is **correct
 behaviour rather than a gap in the pattern**. Orders is required. Without it there is
@@ -173,30 +58,6 @@ composer that will eventually show somebody a page about nothing.
 ## Act Five: What Three Dependencies Do To Availability
 
 ![Act Five: What Three Dependencies Do To Availability](images/uml-diagram-5.png)
-
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant P as the page
-    participant O as Orders 99.9%
-    participant Cat as Catalog 99.9%
-    participant Sh as Shipping 99.9%
-
-    P->>O: needs an answer
-    P->>Cat: needs an answer
-    P->>Sh: needs an answer
-
-    Note over P,Sh: up only when ALL THREE are up at the same moment
-    Note over P: 0.999 × 0.999 × 0.999 = 99.700%<br/>129.5 minutes down a month
-
-    Note over P,Sh: make Catalog and Shipping optional
-    Note over P: 99.900% — 43.2 minutes down a month
-```
-
-</details>
 
 Not a sequence so much as an argument drawn as one, because the shape is the point:
 three arrows out, and the page only works when every one of them comes back.

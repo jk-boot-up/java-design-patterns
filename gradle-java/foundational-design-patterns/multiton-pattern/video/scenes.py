@@ -10,32 +10,35 @@ SCENES = [
         key='01-poster', kind='poster', title='Multiton',
         body=None,
         narration=(
-            'Hello, and welcome. This video explains the Multiton pattern '
-            'in Java, and it is written and presented by Jayasekhar '
-            'Konduru. [[slnc 300]] The plain definition: a multiton is a '
-            'singleton with a key. It keeps exactly one instance for each '
-            'key, and hands back that same instance every time the key is '
-            'asked for. [[slnc 350]] This is another project in the '
-            'foundational category, whose subject is how an object gets '
-            'hold of another, and how small idioms shape everyday Java. '
-            'In our online store, there is one warehouse for each region, '
-            'and every part of the shop must agree about which warehouse '
-            'is which. [[slnc 300]] By the end you will see two copies of '
-            'one warehouse disagree, see one warehouse per region, see '
-            'the parts of the shop agree, see unknown regions refused, '
-            'see two threads make two warehouses without a lock and one '
-            'with an atomic create, and see the bill, which is leaked '
-            'state and instances that live forever.'
+            'Hello, and welcome. [[slnc 400]] This video explains the '
+            'Multiton pattern, in Java. [[slnc 300]] This video is '
+            'presented by Jayasekhar Konduru. [[slnc 600]] First, a '
+            'simple definition. [[slnc 300]] A multiton is like a '
+            'singleton, but with a key. [[slnc 300]] It keeps exactly one '
+            'instance for each key. [[slnc 300]] And it hands back that '
+            'same instance every time the key is asked for. [[slnc 600]] '
+            "Think of a hotel's key cabinet. [[slnc 300]] There is "
+            'exactly one hook for each room number. [[slnc 300]] Ask for '
+            'room twelve, and you always get the same key. [[slnc 700]] '
+            'In our online store, there is one warehouse for each region. '
+            '[[slnc 300]] And every part of the shop must agree about '
+            'which warehouse is which. [[slnc 500]] In this video, two '
+            'copies of one warehouse disagree. [[slnc 300]] Then there is '
+            'one warehouse per region, and everyone agrees. [[slnc 300]] '
+            'We will hear unknown regions refused, a race between two '
+            'threads, and then the cost.'
         ),
     ),
     dict(
         key='02-scenario', kind='bullets', title='The Scenario',
         body=['Warehouses in the UK, the EU', 'and the US.', '', 'Many parts of the shop reserve', 'stock.', '', 'All of them must see the same', 'stock for a region.', '', 'How do they share it?'],
         narration=(
-            'Here is the scenario. The shop has a warehouse in the UK, '
-            'one in the EU, and one in the US. Many parts of the shop '
-            'reserve stock, and all of them must see the same stock for a '
-            'region. [[slnc 300]] The question: how do they share it?'
+            'Here is the scenario. [[slnc 400]] The shop has a warehouse '
+            'in the UK, one in the EU, and one in the US. [[slnc 400]] '
+            'Many parts of the shop reserve stock. [[slnc 300]] And all '
+            'of them must see the same stock for a region. [[slnc 500]] '
+            'So here is the question. [[slnc 300]] How do they share each '
+            'warehouse?'
         ),
     ),
     dict(
@@ -49,19 +52,24 @@ SCENES = [
   two beliefs about one
   warehouse.""",
         narration=(
-            'First, a new one each time. Two callers each made a UK '
-            'warehouse. They are not the same object. One has stock '
-            'ninety, the other a hundred. The shop now believes two '
-            'different things about one warehouse.'
+            'First, the naive way: a new warehouse object each time. '
+            '[[slnc 400]] Two callers each create a UK warehouse. [[slnc '
+            '300]] They are not the same object. [[slnc 500]] One has a '
+            'stock of ninety. [[slnc 300]] The other has a stock of one '
+            'hundred. [[slnc 500]] The shop now believes two different '
+            'things about one real warehouse.'
         ),
     ),
     dict(
         key='04-pattern', kind='bullets', title='The Pattern',
         body=['A private constructor.', '', 'A map from key to instance.', '', 'Ask for a key: you get the one', 'instance for it, made the first', 'time it is asked for.'],
         narration=(
-            'The pattern. A private constructor. A map from key to '
-            'instance. Ask for a key, and you get the one instance for '
-            'it, made the first time it is asked for.'
+            'Now, the pattern. [[slnc 400]] The warehouse class has a '
+            'private constructor. [[slnc 300]] So nobody outside can '
+            'create one. [[slnc 500]] It keeps a map, from each region to '
+            'its one warehouse. [[slnc 300]] Ask for a region, and you '
+            'get the one warehouse for it. [[slnc 300]] It is created the '
+            'first time that region is asked for.'
         ),
     ),
     dict(
@@ -71,9 +79,10 @@ SCENES = [
   EU: a different one.
   created so far: 2.""",
         narration=(
-            'Second, one per region. Asked for the UK twice, it is the '
-            'same object. Asked for the EU, it is a different one. '
-            'Created so far: two.'
+            'Second demo: one warehouse per region. [[slnc 400]] Ask for '
+            'the UK twice, and you get the same object. [[slnc 300]] Ask '
+            'for the EU, and you get a different one. [[slnc 500]] '
+            'Warehouses created so far: two.'
         ),
     ),
     dict(
@@ -83,9 +92,11 @@ SCENES = [
   another part sees 90.
   the EU warehouse has 100.""",
         narration=(
-            'Third, shared, so they agree. One part of the shop reserved '
-            'ten in the UK. Another part, asking for the UK, sees stock '
-            'ninety. The EU warehouse has a hundred.'
+            'Third demo: shared, so everyone agrees. [[slnc 400]] One '
+            'part of the shop reserves ten items in the UK. [[slnc 300]] '
+            'Another part asks for the UK warehouse, and sees a stock of '
+            'ninety. [[slnc 500]] And the EU warehouse still has one '
+            'hundred.'
         ),
     ),
     dict(
@@ -95,8 +106,10 @@ SCENES = [
   no warehouse in MARS.
   instances held: 3.""",
         narration=(
-            'Fourth, a fixed set of keys. Asked for Mars, it is refused: '
-            'no warehouse in Mars. Instances held: three.'
+            'Fourth demo: a fixed set of keys. [[slnc 400]] Someone asks '
+            'for a warehouse on Mars. [[slnc 300]] It is refused: there '
+            'is no warehouse in Mars. [[slnc 500]] Warehouses held: '
+            'three.'
         ),
     ),
     dict(
@@ -110,11 +123,14 @@ SCENES = [
   8 threads: same object.
   created: 1.""",
         narration=(
-            'Fifth, two threads, one region. Look first, create second, '
-            'with no lock: both threads looked before either created. Not '
-            'the same object, and two were created. With an atomic create '
-            'if absent, eight threads at once get the same object, and '
-            'one is created.'
+            'Fifth demo: two threads, one region. [[slnc 400]] First, the '
+            'careless way. [[slnc 300]] Look in the map first, and create '
+            'second, with no lock. [[slnc 300]] Both threads look before '
+            'either one creates. [[slnc 300]] So two warehouses are '
+            'created, and they are not the same object. [[slnc 600]] Now '
+            'the careful way: an atomic, create if absent. [[slnc 300]] '
+            'Eight threads ask at once. [[slnc 300]] They all get the '
+            'same object. [[slnc 300]] And exactly one is created.'
         ),
     ),
     dict(
@@ -129,71 +145,78 @@ SCENES = [
   any code can reach any
   warehouse.""",
         narration=(
-            'Last, the bill. One test reserved thirty. The next test '
-            'starts, and asks for the UK: stock seventy, not a hundred. '
-            'State leaks from one test to the next. The instances live as '
-            'long as the program does, and nothing ever lets one go. And '
-            'any code can reach any warehouse from anywhere, so who '
-            'changed the stock is hard to say.'
+            'Finally, the cost. [[slnc 400]] One test reserves thirty '
+            'items. [[slnc 300]] The next test starts, and asks for the '
+            'UK warehouse. [[slnc 300]] Its stock is seventy, not one '
+            'hundred. [[slnc 500]] State leaks from one test into the '
+            'next. [[slnc 300]] The warehouses live as long as the '
+            'program does. [[slnc 300]] Nothing ever lets one go. [[slnc '
+            '500]] And any code, anywhere, can reach any warehouse. '
+            '[[slnc 300]] So finding out who changed the stock is hard.'
         ),
     ),
     dict(
         key='10-recognise', kind='bullets', title='How To Recognise It',
         body=['A static Map of instances and a', 'getInstance(key) method.', '', 'ConcurrentHashMap.computeIfAbsent', 'used to create on demand.', '', 'Currency.getInstance(code), Locale', 'constants and Charset.forName.'],
         narration=(
-            'How do you recognise this in code you did not write? A '
-            'static Map of instances and a getInstance(key) method. '
-            'ConcurrentHashMap.computeIfAbsent used to create on demand. '
-            'Currency.getInstance(code), Locale constants and '
-            'Charset.forName. Enums, which are a multiton the language '
-            'provides.'
+            'How can you spot this pattern in code someone else wrote? '
+            '[[slnc 400]] Look for a static map of instances, and a get '
+            'instance method that takes a key. [[slnc 300]] Look for a '
+            "concurrent map's compute if absent, used to create on "
+            'demand. [[slnc 300]] In Java itself, look at Currency get '
+            'instance, and Charset for name. [[slnc 300]] And enums, '
+            'which are a multiton built into the language.'
         ),
     ),
     dict(
         key='11-verdict', kind='bullets', title='The Verdict',
         body=['Use a multiton when there must be', 'exactly one object for each of a', 'small fixed set of keys. Create', 'with an atomic create-if-absent.', 'Give tests a way to reset. And', 'prefer passing the object in, when', 'you can, so that the sharing is', 'visible.'],
         narration=(
-            'Here is my verdict, plainly. Use a multiton when there must '
-            'be exactly one object for each of a small fixed set of keys. '
-            'Create with an atomic create-if-absent. Give tests a way to '
-            'reset. And prefer passing the object in, when you can, so '
-            'that the sharing is visible.'
+            'So, here is the verdict. [[slnc 400]] Use a multiton when '
+            'there must be exactly one object, for each of a small, fixed '
+            'set of keys. [[slnc 500]] Create the objects with an atomic, '
+            'create if absent. [[slnc 300]] Give tests a way to reset. '
+            '[[slnc 300]] And when you can, prefer passing the object in. '
+            '[[slnc 300]] So that the sharing is visible.'
         ),
     ),
     dict(
         key='12-real', kind='bullets', title='What Is Real Here',
         body=['Everything is plain Java.', '', 'Every number quoted comes from', "this program's own output.", '', 'Nothing depends on a clock,', 'so every run is the same.'],
         narration=(
-            'The same honest admission as everywhere in this course. '
-            'Everything is plain Java. Every number quoted comes from '
-            "this program's own output. Nothing depends on a clock, so "
-            'every run is the same.'
+            'A quick, honest note about this demo. [[slnc 300]] '
+            'Everything is plain Java. [[slnc 300]] Every number you '
+            "heard comes from the program's own output. [[slnc 300]] And "
+            'nothing depends on the clock, so every run gives the same '
+            'result.'
         ),
     ),
     dict(
         key='13-too-much', kind='bullets', title='When This Is Too Much',
         body=['If an enum can name the fixed set,', 'use an enum. If the object can be', 'passed in, pass it in. A multiton', 'is global state with a key.'],
         narration=(
-            'So when is it too much? If an enum can name the fixed set, '
-            'use an enum. If the object can be passed in, pass it in. A '
-            'multiton is global state with a key.'
+            'So, when is this too much? [[slnc 400]] If an enum can name '
+            'the fixed set, use an enum. [[slnc 300]] If the object can '
+            'be passed in, pass it in. [[slnc 400]] A multiton is global '
+            'state, with a key.'
         ),
     ),
     dict(
         key='14-outro', kind='outro', title='Thanks for Watching',
         body=['Full source, notes, diagrams and an animated walkthrough', 'are in the repository. Try the exercises in', 'the session guide.'],
         narration=(
-            "That's Multiton. [[slnc 250]] If you take one sentence away, "
-            'take this one: a multiton gives exactly one instance for '
-            'each key, and the price is global state that outlives every '
-            'test. [[slnc 350]] The full source, the written notes, the '
-            'diagrams and an animated walkthrough are all in the '
-            'repository, running offline with nothing installed but a '
-            'Java development kit. [[slnc 300]] If you try one exercise, '
-            'add a fourth region, and confirm that nothing else changes. '
-            '[[slnc 300]] If this helped, a like genuinely does help '
-            'other people find it, and subscribe if you would like the '
-            'rest of the series. [[slnc 250]] Thanks for watching.'
+            "That's the Multiton pattern. [[slnc 400]] If you remember "
+            'one sentence, make it this one. [[slnc 300]] A multiton '
+            'gives exactly one instance for each key, and the price is '
+            'global state that outlives every test. [[slnc 500]] The full '
+            'source code, written notes, diagrams, and an animated '
+            'walkthrough are all in the repository. [[slnc 500]] Here is '
+            'one exercise to try. [[slnc 300]] Add a fourth region. '
+            '[[slnc 300]] And confirm that nothing else in the shop has '
+            'to change. [[slnc 500]] If this helped, a like really does '
+            'help other people find it. [[slnc 300]] And subscribe, if '
+            "you'd like the rest of the series. [[slnc 400]] Thanks for "
+            'watching.'
         ),
     ),
 ]

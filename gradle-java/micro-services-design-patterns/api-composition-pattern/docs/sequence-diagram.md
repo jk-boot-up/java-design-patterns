@@ -14,57 +14,6 @@ and then does not use it. That wasted wait is the entire subject of the lower ha
 
 ![API Composition sequence diagram](images/sequence-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant P as the order details page
-    participant Q as SequentialOrderDetailsComposer
-    participant K as OrderDetailsComposer
-    participant O as Orders
-    participant C as Catalog
-    participant S as Shipping
-
-    Note over P,S: one after another — three lines of ordinary Java, and no bug in it
-
-    P->>Q: detailsFor(ord-101)
-    Q->>O: order(ord-101)
-    O-->>Q: 2 lines, skus and money
-    Note over Q,O: 0ms to 30ms
-
-    Q->>C: namesFor(the skus)
-    C-->>Q: 2 names
-    Note over Q,C: 30ms to 90ms
-
-    Q->>S: deliveryStatus(ord-101)
-    S-->>Q: out for delivery
-    Note over Q,S: 90ms to 210ms — and Shipping waited sixty<br/>milliseconds for an answer it never needed
-    Q-->>P: the page, at 210ms
-
-    Note over P,S: the same three calls, composed
-
-    P->>K: detailsFor(ord-101)
-    K->>O: order(ord-101)
-    O-->>K: 2 lines, skus and money
-    Note over K,O: 0ms to 30ms — first, because only Orders<br/>knows which skus are on the order
-
-    par both leave at the same instant
-        K->>C: namesFor(the skus)
-        C-->>K: 2 names at 90ms
-    and
-        K->>S: deliveryStatus(ord-101)
-        S-->>K: out for delivery at 150ms
-    end
-    Note over K,S: GATHERED — 2 calls in 120ms, 0 failed
-
-    K-->>P: the same page, at 150ms
-    Note over P,S: 30, then the slower of 60 and 120.<br/>Sequential costs the sum. Parallel costs the maximum.
-```
-
-</details>
-
 ## Reading the timings
 
 **210 against 150, and the difference is entirely waiting.** Not work — both versions make

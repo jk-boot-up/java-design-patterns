@@ -105,10 +105,6 @@ See [`docs/dependencies.md`](docs/dependencies.md).
 
 ![Sequence two](docs/images/uml-diagram-2.png)
 
-![Sequence three](docs/images/uml-diagram-3.png)
-
-![Sequence four](docs/images/uml-diagram-4.png)
-
 ### Video
 
 Built from [`video/scenes.py`](video/scenes.py) by

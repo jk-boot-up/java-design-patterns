@@ -2,64 +2,64 @@
 
 ## 1. Identity Map with JPA
 
-Hello, and welcome. This video explains the Identity Map pattern inside J P A, in Java, and it is written and presented by Jayasekhar Konduru. It is the framework version of the Identity Map video. That one built the pattern by hand. This one shows the very same customer and order inside J P A, where you did not write the map. The plain definition, in short: keep one object for each database row, for as long as one session lasts. By the end you will see why loading the same customer twice gives the same object, why two sessions give two objects, and what happens to a change made to an object whose session has closed.
+Hello, and welcome. This video explains the Identity Map pattern, in Java, using J P A, Java's standard for storing objects in databases. This video is presented by Jayasekhar Konduru. First, a simple definition. An identity map keeps one object for each database row, for as long as one session lasts. Think of a hotel's key desk. While you are staying, there is one key for your room. Ask again, and you are handed the same key, not a new one. This is the framework version of the Identity Map video, with the same customer and order. We will hear why loading the same customer twice gives the same object. Why two sessions give two objects. And what happens to a change made to an object whose session has closed.
 
 ## 2. The Partner Project
 
-This video assumes the Identity Map video. If you have not seen it, start there. It builds an identity map by hand, from plain Java, and shows why one row should be one object. This one uses the very same customer, number seven, and the very same order, number one hundred. It does not teach the pattern again. It shows what J P A does with it.
+Before we start, a quick note. This video has a partner: the hand-built Identity Map video. That one builds the map by hand, in plain Java, and shows why one row should be one object. Here, we use the very same customer, number seven, and the very same order, number one hundred. We will not teach the pattern again. Instead, we ask what J P A does with it.
 
 ## 3. Before The First Annotation
 
-Before the first annotation, two new things. Hibernate is the most widely used implementation of J P A. You mark your classes, and it turns operations on them into S Q L. H two is a database that runs inside the test, in memory, so nothing needs installing. And a promise: skipping this video loses none of the pattern. The hand-built one teaches all of it. This one only shows you where you have already met it.
+Two things are new in this project. First, Hibernate, the most widely used implementation of J P A. You mark your classes with annotations, and it turns work on those objects into database commands. Second, H2, a database that runs in memory, inside the test, so nothing needs installing. And one promise. If you skip this video, you lose none of the pattern. This one only shows you where you have already met it.
 
 ## 4. Two Annotations
 
-The customer class from the partner project gets two annotations. At entity says this class is stored. At id says which field is its identity. Nothing else about the class changed. Not one line of the logic.
+The customer class from the partner project gets two annotations. At Entity says: this class is stored in the database. At Id says: this field is its identity. Nothing else about the class changed. Not one line of its logic.
 
 ## 5. One Persistence Context
 
-Here is the moment. Ask the entity manager for customer seven, twice. Are the two the same object? True. And only one S Q L statement was issued. That is the identity map from the last project. You did not write it. It is called the persistence context, and every entity manager has one.
+First demo, and here is the key moment. Ask the entity manager for customer seven, twice. Are the two the same object? Yes. And only one database query was made. That is the identity map from the hand-built project. You did not write it. It is called the persistence context, and every entity manager has one.
 
 ## 6. The Order's Customer
 
-Load order one hundred, and ask it for its customer. Then ask for customer seven by id. Same object again. True. And one S Q L statement for the whole lot: the order and its customer, fetched once. Everything you saw in the hand-built project, now done for you.
+Second demo: the order's customer. Load order one hundred, and ask it for its customer. Then ask for customer seven by I D. The same object again. And just one database query for all of it: the order, and its customer, fetched once. Everything from the hand-built project, now done for you.
 
 ## 7. Both Changes Are Kept
 
-Now the bug from the hand-built project. One route moves her to York. Another changes her email. In the hand-built version, without a map, one of those changes vanished. Here, both are kept. There is only one object, so the second change cannot overwrite the first. And at commit, Hibernate writes a single update carrying both.
+Third demo: both changes are kept. Remember the bug from the hand-built project? One route moves the customer to York. Another changes her email. Without a map, one of those changes vanished. Here, both are kept. There is only one object, so the second change cannot overwrite the first. And when the transaction commits, Hibernate writes one single update, carrying both changes.
 
 ## 8. The Failure Of Its Own: Two Contexts
 
-Now the failure of this project's own. The map belongs to one persistence context. Open a second one, and ask for customer seven. It has its own map. Is it the same object as the first context's? False. Equal by I D, but two objects. Each is free to disagree. The problem from the hand-built project, back again, just by opening a second context.
+Fourth demo: this project's own failure, two contexts. The map belongs to one persistence context. Open a second one, and ask for customer seven again. It has its own map. Is it the same object as the first context's? No. Equal by I D, but two separate objects, each free to disagree. The problem from the hand-built project is back, just by opening a second context.
 
 ## 9. A Detached Change Is Not Saved
 
-And worse. Close a context, and every object it loaded is detached. Change one. Move the customer to nowhere in particular. Then open a new context and look at the stored address. Still twelve Mill Lane, Leeds. The change was silently not saved. Nothing tracks a detached object. And there was no error at all.
+And worse. When a context closes, every object it loaded becomes detached. Now change a detached customer's address. Then open a new context, and look at the stored address. It still says twelve Mill Lane, Leeds. The change was silently not saved. Nothing tracks a detached object. And there was no error at all.
 
 ## 10. Cost: The Context Is A Cache
 
-The costs are the partner's, in framework clothes. First, the context is a cache. Another context commits a new email. This one still sees the old one, because it has no reason to look. The cure is refresh, which reloads the object from the database.
+Fifth demo: the context is a cache. Another context saves a new email address for the customer. This context still sees the old one. It has no reason to look again. The cure is a method called refresh, which reloads the object from the database. After refresh, it sees the new email.
 
 ## 11. Cost: It Holds References
 
-Second cost. The context holds every entity it loads. After loading one thousand customers, it holds one thousand entities, until clear is called. So its scope matters. In a Spring application the context normally lives for one transaction, or one request, which is why it does not grow forever.
+Last demo: the context holds on to everything. After loading one thousand customers, the context holds all one thousand. Until a method called clear is called. So how long a context lives really matters. In a Spring application, it normally lives for one transaction, or one request. That is why it does not grow forever.
 
 ## 12. Where You Have Met This
 
-This is where you have already met it. Every J P A developer has used an identity map without knowing it. If a second find ever did not hit the database, or an entity failed to pick up another transaction's change, this was the reason.
+Where have you met this before? Every J P A developer has used an identity map, often without knowing it. If a second lookup ever did not touch the database, this was why. And if an entity ever failed to see another transaction's change, this was why too.
 
 ## 13. What Was Used
 
-For the record. Hibernate O R M seven point four point five, and H two two point four point two forty. The versions come from Spring Boot four point one point one's bill of materials, so they are ones that release was tested together. Spring Boot itself is not used in this video.
+For the record, here are the versions. Hibernate seven point four point five. And H2 two point four point two forty. These versions come from Spring Boot four point one point one's list of tested libraries. But Spring Boot itself is not used here.
 
 ## 14. What Is Real Here
 
-The same honest admission as everywhere in this course, and for once it is short. Everything here is real. The persistence context is Hibernate's. The S Q L counts come from Hibernate's own statistics. The only stand-in is the database, which is H two in memory.
+A quick, honest note about this demo. Everything here is real. The persistence context is Hibernate's own. And the query counts come from Hibernate's own statistics. The only stand-in is the database, which is H2, in memory.
 
 ## 15. When This Is Too Much
 
-So when is it too much? If you use J P A, you already have it, and cannot turn it off. The lesson is simply knowing it is there.
+So, when is this too much? If you use J P A, you already have an identity map, and you cannot turn it off. The lesson is simply knowing that it is there.
 
 ## 16. Thanks for Watching
 
-That's the Identity Map, in J P A. If you take one sentence away, take this one: the persistence context is an identity map, and it belongs to one entity manager. The full source, the written notes, the diagrams and an animated walkthrough are all in the repository. If you try one exercise, use merge to save the detached change, and look at what it returns. If this helped, a like genuinely does help other people find it, and subscribe if you would like the rest of the series. Thanks for watching.
+That's the Identity Map, in J P A. If you remember one sentence, make it this one. The persistence context is an identity map, and it belongs to one entity manager. The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. Here is one exercise to try. Use the merge method to save the detached change. And look closely at what merge returns. If this helped, a like really does help other people find it. And subscribe, if you'd like the rest of the series. Thanks for watching.

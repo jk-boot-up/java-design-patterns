@@ -6,62 +6,12 @@ Two steps where the naive client had one. The extra step is the point.
 
 ![Service Discovery pattern sequence diagram](images/uml-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant C as DiscoveringPricingClient
-    participant R as ServiceRegistry
-    participant P1 as pricing-1
-    participant P2 as pricing-2
-    participant P3 as pricing-3
-
-    Note over P1,P3: each instance registered itself at startup
-
-    C->>R: instances("Pricing")
-    R-->>C: [pricing-1, pricing-2, pricing-3]
-    Note over C,R: asked again on the next call, too
-
-    C->>P1: price("SKU-1234")
-    P1-->>C: £449.99
-    Note over C,P1: 10ms — first on the list, nothing clever
-```
-
-</details>
-
 ## The Deployment: An Instance Leaves Politely
 
 `pricing-1` is taken out of service by a rolling deployment. It deregisters on the
 way out, so the list is true before the first call that would have hit it.
 
 ![The deployment: an instance leaves politely](images/uml-diagram-2.png)
-
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant D as Deployment
-    participant P1 as pricing-1
-    participant R as ServiceRegistry
-    participant C as DiscoveringPricingClient
-    participant P2 as pricing-2
-
-    D->>P1: shut down
-    P1->>R: deregister("pricing-1")
-    Note over R: takes effect at once
-
-    C->>R: instances("Pricing")
-    R-->>C: [pricing-2, pricing-3]
-    C->>P2: price("SKU-1234")
-    P2-->>C: £449.99
-    Note over C,P2: the shopper never noticed a deployment happened
-```
-
-</details>
 
 ## The Crash: A Stale Entry, And What Saves It
 
@@ -70,101 +20,15 @@ confidently. The client survives anyway.
 
 ![The crash: a stale entry, and what saves it](images/uml-diagram-3.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant P1 as pricing-1
-    participant R as ServiceRegistry
-    participant C as DiscoveringPricingClient
-    participant P2 as pricing-2
-    participant Log as CallLog
-
-    P1--xP1: process dies
-    Note over P1,R: no message is sent —<br/>a crashed process cannot send one
-
-    C->>R: instances("Pricing")
-    R-->>C: [pricing-1, pricing-2]
-    Note over R: still believes pricing-1 is alive
-
-    C->>P1: price("SKU-1234")
-    P1--xC: ServiceUnavailableException
-    C->>Log: note(STALE, "pricing-1 is not answering")
-
-    C->>P2: price("SKU-1234")
-    P2-->>C: £449.99
-    Note over C,P2: 15ms instead of 10ms.<br/>A stale entry cost five milliseconds,<br/>not an outage.
-```
-
-</details>
-
 ## The Lease Expiring
 
 Nobody calls anything here. Time simply passes, and the registry stops lying.
 
 ![The lease expiring](images/uml-diagram-4.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant Clock as SimulatedClock
-    participant P2 as pricing-2
-    participant R as ServiceRegistry
-
-    Note over R: pricing-1 crashed at 0ms.<br/>pricing-2 is alive and heartbeating.
-
-    P2->>R: heartbeat("pricing-2")
-    Clock->>Clock: advance(1000)
-    R-->>R: instances("Pricing") → 2
-    P2->>R: heartbeat("pricing-2")
-    Clock->>Clock: advance(1000)
-    R-->>R: instances("Pricing") → 2
-    P2->>R: heartbeat("pricing-2")
-    Clock->>Clock: advance(1000)
-    R-->>R: instances("Pricing") → 2
-    P2->>R: heartbeat("pricing-2")
-    Clock->>Clock: advance(1000)
-
-    R-->>R: instances("Pricing")
-    Note over R: pricing-1's last heartbeat is now<br/>more than LEASE_MILLIS old
-    R->>R: EXPIRED pricing-1 missed its heartbeats
-    R-->>R: → 1
-```
-
-</details>
-
 ## The Comparison: No Registry At All
 
 ![The comparison: no registry at all](images/uml-diagram-5.png)
-
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant C as HardcodedPricingClient
-    participant P1 as pricing-1
-    participant P2 as pricing-2
-    participant P3 as pricing-3
-
-    C->>P1: price("SKU-1234")
-    P1-->>C: £449.99
-    Note over C,P1: correct, fast, and fine — for now
-
-    Note over P1: stopped by a deployment
-
-    C->>P1: price("SKU-1234")
-    P1--xC: ServiceUnavailableException
-    Note over C,P3: pricing-2 and pricing-3 are up.<br/>The client cannot reach either.<br/>It has no second name to try.
-```
-
-</details>
 
 ## Notes
 

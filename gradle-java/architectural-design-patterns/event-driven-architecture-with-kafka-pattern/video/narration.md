@@ -2,64 +2,64 @@
 
 ## 1. Event-Driven Architecture with Kafka
 
-Hello, and welcome. This video explains the Event-Driven Architecture pattern with Apache Kafka, in Java, and it is written and presented by Jayasekhar Konduru. It is the framework version of the Event-Driven Architecture video. That one showed services that write facts to an append only log, and read it at their own pace. It showed a service that is down catching up, a new reader replaying history, briefly wrong stock, and a duplicate delivery absorbed by a check. This one shows the same idea inside Apache Kafka. The plain definition, in short: with Kafka, the log is a topic on a broker, and each service reads it as a consumer group that the broker remembers. By the end you will see an order lost because shipping was down, see the order service send to a real broker, see a service catch up from its remembered offset, see a new reader replay history, see the system briefly inconsistent, and see the bill, which is duplicates and a broker to run.
+Hello, and welcome. This video explains the Event-Driven Architecture pattern, in Java, using Apache Kafka. This video is presented by Jayasekhar Konduru. First, a simple definition. In an event-driven system, services do not call each other. They write facts, called events, to a shared log, and each service reads that log at its own pace. With Kafka, that log is called a topic, and it lives on a server called a broker. The broker also remembers how far each reading service has got. Think of a library that keeps a bookmark for every reader. You can leave for a week, come back, and carry on from the right page. This is the framework version of the Event-Driven Architecture video. We keep the same online store, and watch a real Kafka broker do the work. We will lose an order the old way, then send events to Kafka, catch up after an outage, replay history, and finally, look at the cost.
 
 ## 2. The Partner Project
 
-This video assumes the Event-Driven Architecture video. If you have not seen it, start there. It writes facts to a log, and shows readers at their own pace, a reader that was down catching up, and a new reader replaying history. This one uses the same example. It does not teach the pattern again. It shows what Apache Kafka does with it.
+Before we start, a quick note. This video has a partner: the hand-built Event-Driven Architecture video. That one builds the log itself, in plain Java. It shows readers working at their own pace, a reader catching up, and a new reader replaying history. If you are new to the pattern, watch that one first. Here, we keep the same example. We won't teach the pattern again. Instead, we ask what a real tool, Kafka, does with it.
 
 ## 3. Before The First Line
 
-Before the first line of code, what Apache Kafka is. Kafka is a system that keeps a log of events on a server, called a broker. Producers add events to a topic. Consumers read the topic, and the broker remembers how far each group of consumers has read. And a promise: skipping this video loses none of the pattern. The hand-built one teaches all of it.
+So, what is Apache Kafka? Kafka keeps a log of events on a server, called a broker. Programs that write events are called producers. They add events to a topic. Programs that read events are called consumers. Consumers work in named groups, and the broker remembers how far each group has read. To run the demo, you need Docker running, because the broker runs in a container. Without Docker, the demo tells you so, and stops. And one promise. If you skip this video, you lose none of the pattern. This one is about the tool.
 
 ## 4. Calling And Waiting
 
-First, calling each other. The order service calls shipping, and waits. Shipping is down. The order is not accepted. A customer lost an order because a service they never see was down.
+First, the old way: services calling each other. The order service calls shipping, and waits for an answer. But shipping is down. So the order is not accepted. A customer just lost their order, because of a service they never even see.
 
 ## 5. Telling The Log
 
-Second, telling the log. The order service sends the event to Kafka, which gives it offset zero, and it finishes. It has no reference to inventory or shipping. Both read the topic, and both see the order.
+Second demo: telling the log. The order service sends its event to Kafka. Kafka stores it at position zero, called offset zero. And the order service is finished. It knows nothing about inventory or shipping. Inventory reads the topic, and sees the order. Shipping reads the same topic, and sees it too.
 
 ## 6. A Service That Is Down
 
-Third, a service that is down. Shipping read the first order, and then went down. Three more orders were accepted. Shipping is three events behind, as the broker counts it. Shipping came back and caught up, from where it stopped. It has now planned four orders, and is none behind.
+Third demo: a service that is down. Shipping reads the first order, and then goes down. Three more orders arrive, and all three are accepted. The broker reports that shipping is three events behind. This gap is called lag. Then shipping comes back. The broker remembers exactly where it stopped. So shipping carries on from there, and plans all four orders. Now the lag is zero.
 
 ## 7. A New Reader
 
-Fourth, a new reader. Analytics is added after two orders. It reads the topic from the start, and sees both. The order service was not touched. Kafka keeps the events, so a new service can be built from history.
+Fourth demo: a new reader. After two orders have been placed, we add a brand new service: analytics. It reads the topic from the very beginning. So it sees both earlier orders. And the order service was not changed at all. Kafka keeps the events, so a new service can be built from history.
 
 ## 8. Not The Same Instant
 
-Fifth, not the same instant. The order is accepted, and stock in the warehouse is still ten. It should be nine. After inventory reads the topic, it is nine. For a moment, the two disagree. The system is eventually consistent, not consistent at every instant.
+Fifth demo: things do not happen at the same instant. An order is accepted. But the stock count still says ten. It should say nine. A moment later, inventory reads the event, and the count becomes nine. For that short moment, the two services disagree. This is called eventual consistency. The system becomes correct, but not at every single instant.
 
 ## 9. The Bill
 
-Last, the bill. The same event is delivered twice, as Kafka may after a missed commit. Without a duplicate check, stock is eight. With one, it is nine, which is right. The flow of an order is now spread over several services, so to see it, you read the topic, not one piece of code. And a broker is another system to run.
+Finally, the cost. Kafka can deliver the same event twice, for example when a reader crashes before saving its place. Without a duplicate check, the stock drops twice, to eight. That is wrong. With a duplicate check, it stays at nine, which is right. Second, the journey of one order is now spread across several services. To follow it, you read the topic, not one piece of code. And third, the broker is one more system you have to run.
 
 ## 10. The Verdict
 
-My verdict, plainly. Use a broker when services must not depend on each other being up, and when new services will come. Give each service its own group. Expect readers to be behind, and design for it. Make every reader safe to repeat. And watch the lag.
+So, here is the verdict. Use a broker when services must not depend on each other being up, and when new services will join later. Then follow four rules. One. Give each service its own consumer group. Two. Expect readers to be behind, and design for it. Three. Make every reader safe to run twice on the same event. And four. Watch the lag.
 
 ## 11. How To Recognise It
 
-How do you recognise this in code you did not write? KafkaProducer and KafkaConsumer, or @KafkaListener. A group.id for each service. Lag dashboards, and kafka-consumer-groups.sh.
+How can you spot this in code someone else wrote? Look for the Kafka Producer and Kafka Consumer classes. Or a method marked with the at Kafka Listener annotation. Look for a group I D setting for each service. And look for dashboards that show lag, or the Kafka consumer groups command line tool.
 
 ## 12. Where You Have Met This
 
-You have met this in most large event-driven systems: order pipelines, activity feeds and change data capture.
+Where have you met this before? In most large event-driven systems. Order pipelines, activity feeds, and systems that copy database changes to other services.
 
 ## 13. What Was Used
 
-For the record. Apache Kafka, 4.3.1. Docker, 24 or later.
+For the record, here are the versions. Apache Kafka, four point three point one. And Docker, version twenty-four or later.
 
 ## 14. What Is Real Here
 
-The same honest admission as everywhere in this course. Everything is real: a real broker in a container, real offsets, and real consumer groups. Each act uses its own one partition topic, so the counts are exact.
+A quick, honest note about this demo. Everything in it is real. A real broker, running in a container, with real offsets, and real consumer groups. Each demo uses its own topic, with a single partition, so every count you heard is exact.
 
 ## 15. When This Is Too Much
 
-So when is it too much? For a small system where all parts are always up together, a direct call is simpler. A broker is a system to run, and to understand.
+So, when is this too much? In a small system where every part is always up together, a direct call is simpler. A broker is another system to run, and another system to understand.
 
 ## 16. Thanks for Watching
 
-That's Event-Driven Architecture with Kafka. If you take one sentence away, take this one: Kafka keeps the log and each service's place in it, and the price is a broker to run, and readers that may see an event twice. The full source, the written notes, the diagrams and an animated walkthrough are all in the repository. If you try one exercise, add a third reader for a loyalty service, and read the topic from the start. If this helped, a like genuinely does help other people find it, and subscribe if you would like the rest of the series. Thanks for watching.
+That's Event-Driven Architecture with Kafka. If you remember one sentence, make it this one. Kafka keeps the log, and each service's place in it, and the price is a broker to run, and readers that may see an event twice. The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. Here is one exercise to try. Add a third reader, for a loyalty points service. And have it read the topic from the very start. If this helped, a like really does help other people find it. And subscribe, if you'd like the rest of the series. Thanks for watching.

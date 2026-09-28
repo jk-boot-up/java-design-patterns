@@ -10,44 +10,48 @@ SCENES = [
         key='01-poster', kind='poster', title='Prototype with Spring',
         body=None,
         narration=(
-            'Hello, and welcome. This video explains the Prototype '
-            'pattern with Spring Boot, in Java, and it is written and '
-            'presented by Jayasekhar Konduru. [[slnc 300]] It is the '
-            'framework version of the Prototype video. That one copied a '
-            'fully assembled product listing into variants, deciding '
-            'field by field what a copy means, and kept a registry of '
-            'templates. This one shows the same idea inside Spring Boot. '
-            '[[slnc 350]] The plain definition, in short: in Spring, a '
-            'prototype is a scope. Every request for the bean builds a '
-            'new one from its definition. [[slnc 300]] By the end you '
-            'will see the listing as a prototype-scoped bean, then see '
-            'the three ways it surprises people: it is not a copy of an '
-            'edited draft, it is built only once inside a singleton, and '
-            'Spring never destroys it.'
+            'Hello, and welcome. [[slnc 400]] This video explains the '
+            'Prototype pattern, in Java, using Spring Boot. [[slnc 300]] '
+            'This video is presented by Jayasekhar Konduru. [[slnc 600]] '
+            'First, a simple definition. [[slnc 300]] The Prototype '
+            'pattern makes new objects by copying an existing example. '
+            '[[slnc 500]] In Spring, prototype is also the name of a '
+            'scope. [[slnc 300]] Every time you ask for a '
+            'prototype-scoped bean, Spring builds a new one from its '
+            'definition. [[slnc 600]] Think of a cookie cutter. [[slnc '
+            '300]] Every press makes a fresh cookie of the same shape. '
+            '[[slnc 300]] But icing one cookie does not ice the next. '
+            '[[slnc 700]] This is the framework version of the Prototype '
+            'video, with the same product listings. [[slnc 400]] We will '
+            'make the listing a prototype-scoped bean. [[slnc 300]] Then '
+            'we will hear three surprises. [[slnc 300]] It is not a copy '
+            'of your edited draft, it is built only once inside a '
+            'singleton, and Spring never cleans it up.'
         ),
     ),
     dict(
         key='02-partner', kind='bullets', title='The Partner Project',
         body=['Prototype, the hand-built video,', 'copies a finished product listing', 'into variants.', '', 'It decided field by field what a', 'copy means, and kept a registry.', '', 'If you have not seen it, start there.'],
         narration=(
-            'This video assumes the Prototype video. If you have not seen '
-            'it, start there. It copies a finished product listing into '
-            'variants, decides field by field what a copy means, and '
-            'keeps a registry of templates. [[slnc 300]] This one uses '
-            'the same example. It does not teach the pattern again. It '
-            'shows what Spring Boot does with it.'
+            'Before we start, a quick note. [[slnc 300]] This video has a '
+            'partner: the hand-built Prototype video. [[slnc 400]] That '
+            'one copies a finished product listing into variants. [[slnc '
+            '300]] It decides field by field what a copy means, and keeps '
+            'a registry of templates. [[slnc 500]] If you are new to the '
+            'pattern, watch that one first. [[slnc 400]] Here, we ask '
+            'what Spring Boot does with the same idea.'
         ),
     ),
     dict(
         key='03-dependencies', kind='bullets', title='Before The First Line',
         body=['One thing is new: Spring Boot.', '', 'Its prototype scope builds a new', 'bean on every request.', '', 'Skipping this video loses none', 'of the pattern.'],
         narration=(
-            'Before the first line of code, what Spring Boot is. Spring '
-            'is a framework whose core is a container that creates your '
-            'objects. It has a prototype scope, which builds a new bean '
-            'for every request. [[slnc 300]] And a promise: skipping this '
-            'video loses none of the pattern. The hand-built one teaches '
-            'all of it.'
+            'One thing is new in this project: Spring Boot. [[slnc 400]] '
+            'At its heart, Spring is a container that creates your '
+            'objects. [[slnc 400]] It has a prototype scope, which builds '
+            'a new bean for every request. [[slnc 500]] And one promise. '
+            '[[slnc 300]] If you skip this video, you lose none of the '
+            'pattern. [[slnc 300]] This one is about the tool.'
         ),
     ),
     dict(
@@ -56,9 +60,10 @@ SCENES = [
   same object: false.
   both are titled Untitled.""",
         narration=(
-            'First, the scope. Ask the container for a listing twice, and '
-            'you get two different objects. Both are untitled, straight '
-            'from the definition.'
+            'First demo: a new one each time. [[slnc 400]] Ask the '
+            'container for a listing, twice. [[slnc 300]] You get two '
+            'different objects. [[slnc 300]] Both are titled untitled, '
+            'straight from the definition.'
         ),
     ),
     dict(
@@ -67,9 +72,11 @@ SCENES = [
   a: Blue Mug, 2 images.
   b: Untitled, 1 image.""",
         narration=(
-            'Second, they are independent. Give one a title and an extra '
-            'image. The other still says untitled, with one image. So far '
-            'this looks like the pattern.'
+            'Second demo: they are independent. [[slnc 400]] Give the '
+            'first listing a title, blue mug, and an extra picture. '
+            '[[slnc 300]] The second listing still says untitled, with '
+            'one picture. [[slnc 500]] So far, this looks exactly like '
+            'the pattern.'
         ),
     ),
     dict(
@@ -81,12 +88,13 @@ SCENES = [
   asked the draft to copy():
   Blue Mug, 2 images.""",
         narration=(
-            'Third, the difference that matters. Edit a draft, then ask '
-            'the container for another listing. You get an untitled one. '
-            'The container builds from the definition, not from your '
-            "draft. [[slnc 300]] Only the draft's own copy method carries "
-            'the edits. Spring gives you the scope. The copy is still '
-            'your job.'
+            'Third demo: the difference that matters. [[slnc 400]] Edit a '
+            'draft listing, then ask the container for another. [[slnc '
+            '300]] You get an untitled one. [[slnc 500]] The container '
+            'builds from the definition, not from your draft. [[slnc '
+            "300]] Only the draft's own copy method carries your edits "
+            'across. [[slnc 500]] Spring gives you the scope. [[slnc '
+            '300]] Copying is still your job.'
         ),
     ),
     dict(
@@ -98,11 +106,14 @@ SCENES = [
   first caller's title:
   Blue Mug.""",
         narration=(
-            'Fourth, the classic trap. A singleton takes a prototype in '
-            'its constructor. The constructor runs once, so the listing '
-            'is built once. Every call returns the same object. [[slnc '
-            '300]] One caller sets a title, and the next caller sees it. '
-            'The bean is a prototype in name only.'
+            'Fourth demo: the classic trap. [[slnc 400]] A singleton '
+            'receives a prototype listing in its constructor. [[slnc '
+            '300]] But the constructor only runs once. [[slnc 300]] So '
+            'the listing is built only once. [[slnc 500]] Every call '
+            'returns the same listing. [[slnc 300]] One caller sets the '
+            'title to blue mug. [[slnc 300]] And the next caller sees '
+            'blue mug too. [[slnc 500]] The bean is a prototype in name '
+            'only.'
         ),
     ),
     dict(
@@ -112,9 +123,11 @@ SCENES = [
   the second caller sees:
   Untitled.""",
         narration=(
-            'Fifth, the fix. Inject an object provider, and ask it each '
-            'time. Every call builds a new listing. The second caller '
-            'sees an untitled one.'
+            'Fifth demo: the fix. [[slnc 400]] Instead of the listing '
+            'itself, the singleton receives an Object Provider. [[slnc '
+            '300]] And it asks the provider for a listing each time it '
+            'needs one. [[slnc 500]] Now every call builds a new listing. '
+            '[[slnc 300]] And the second caller sees an untitled one.'
         ),
     ),
     dict(
@@ -126,79 +139,88 @@ SCENES = [
   the singleton's destroy
   method ran 1 time.""",
         narration=(
-            'Last, cleanup. Build three listings, and close the '
-            "container. None of the three is destroyed. The singleton's "
-            'destroy method runs once. [[slnc 300]] Spring builds a '
-            'prototype and lets go of it. If yours holds a file or a '
-            'connection, closing it is your job.'
+            'Last demo: nobody cleans up. [[slnc 400]] Three listings are '
+            'built. [[slnc 300]] Then the container is closed. [[slnc '
+            '500]] None of the three listings is cleaned up. [[slnc 300]] '
+            "But the singleton's clean-up method does run, once. [[slnc "
+            '500]] Spring builds a prototype, and then lets go of it. '
+            '[[slnc 300]] If yours holds a file, or a connection, closing '
+            'it is your job.'
         ),
     ),
     dict(
         key='10-verdict', kind='bullets', title='The Verdict',
         body=['Prototype scope for fresh objects.', '', 'A provider inside singletons.', '', 'Your own copy for edited drafts.', '', 'Clean up after it yourself.'],
         narration=(
-            'My verdict, plainly. Use the prototype scope for a fresh '
-            'object. Ask for it through a provider inside a singleton. '
-            'Copy an edited draft with a copy method of your own. And '
-            'clean up after it yourself.'
+            'So, here is the verdict. [[slnc 400]] Use the prototype '
+            'scope when you want a fresh object. [[slnc 300]] Inside a '
+            'singleton, ask for it through a provider. [[slnc 300]] Copy '
+            'an edited draft with a copy method of your own. [[slnc 300]] '
+            'And clean up after it yourself.'
         ),
     ),
     dict(
         key='11-recognise', kind='bullets', title='How To Recognise It',
         body=['@Scope prototype on a class.', '', 'An ObjectProvider in a constructor.', '', 'getBean in a loop.'],
         narration=(
-            'How do you recognise this in code you did not write? A scope '
-            'annotation naming prototype. An object provider in a '
-            'constructor. Or get bean, called in a loop.'
+            'How can you spot this in code someone else wrote? [[slnc '
+            '400]] Look for a scope annotation that says prototype. '
+            '[[slnc 300]] An Object Provider passed into a constructor. '
+            '[[slnc 300]] Or get bean, called inside a loop.'
         ),
     ),
     dict(
         key='12-met', kind='bullets', title='Where You Have Met This',
         body=['Per-request helpers, stateful', 'builders and command objects.', '', 'Any bean marked prototype.'],
         narration=(
-            'You have met this in per request helpers, stateful builders '
-            'and command objects. Any bean marked prototype.'
+            'Where have you met this before? [[slnc 300]] In helpers '
+            'created fresh for each request, builders that hold state, '
+            'and command objects. [[slnc 300]] Any bean marked prototype.'
         ),
     ),
     dict(
         key='13-versions', kind='bullets', title='What Was Used',
         body=['Spring Boot 4.1.1.', '', 'No web server, no database,', 'no web starter.'],
         narration=(
-            'For the record. Spring Boot four point one point one. No web '
-            'server, no database, and no web starter.'
+            'For the record, here are the versions. [[slnc 300]] Spring '
+            'Boot four point one point one. [[slnc 300]] No web server, '
+            'no database, and no web library.'
         ),
     ),
     dict(
         key='14-real', kind='bullets', title='What Is Real Here',
         body=["Everything is real: Spring's", 'container and its scopes.', '', 'Nothing here depends on timing.'],
         narration=(
-            'The same honest admission as everywhere in this course. '
-            "Everything is real: Spring's container and its scopes. "
-            'Nothing here depends on timing.'
+            "A quick, honest note about this demo. [[slnc 300]] Spring's "
+            'container, and its scopes, are real. [[slnc 300]] And '
+            'nothing here depends on timing.'
         ),
     ),
     dict(
         key='15-too-much', kind='bullets', title='When This Is Too Much',
         body=['If the object is cheap and has no', 'state to configure, new is simpler', 'than a scope.'],
         narration=(
-            'So when is it too much? If the object is cheap and has no '
-            'state to configure, new is simpler than a scope.'
+            'So, when is this too much? [[slnc 400]] If the object is '
+            'cheap, and has nothing to configure, simply creating it with '
+            'new is easier than a scope.'
         ),
     ),
     dict(
         key='16-outro', kind='outro', title='Thanks for Watching',
         body=['Full source, notes, diagrams and an animated walkthrough', 'are in the repository. Inject a listing into a second', 'singleton and predict what its callers see.'],
         narration=(
-            "That's Prototype with Spring. [[slnc 250]] If you take one "
-            "sentence away, take this one: Spring's prototype is a new "
-            'bean from the definition, not a copy of a draft. [[slnc '
-            '350]] The full source, the written notes, the diagrams and '
-            'an animated walkthrough are all in the repository. [[slnc '
-            '300]] If you try one exercise, inject a listing into a '
-            'second singleton, and predict what its callers see. [[slnc '
-            '300]] If this helped, a like genuinely does help other '
-            'people find it, and subscribe if you would like the rest of '
-            'the series. [[slnc 250]] Thanks for watching.'
+            "That's Prototype with Spring. [[slnc 400]] If you remember "
+            "one sentence, make it this one. [[slnc 300]] Spring's "
+            'prototype is a new bean built from its definition, not a '
+            'copy of your draft. [[slnc 500]] The full source code, '
+            'written notes, diagrams, and an animated walkthrough are all '
+            'in the repository. [[slnc 500]] Here is one exercise to try. '
+            '[[slnc 300]] Inject a listing into a second singleton. '
+            '[[slnc 300]] And predict what its callers will see, before '
+            'you run it. [[slnc 500]] If this helped, a like really does '
+            'help other people find it. [[slnc 300]] And subscribe, if '
+            "you'd like the rest of the series. [[slnc 400]] Thanks for "
+            'watching.'
         ),
     ),
 ]

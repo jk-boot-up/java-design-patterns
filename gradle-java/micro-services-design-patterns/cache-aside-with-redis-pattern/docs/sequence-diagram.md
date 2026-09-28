@@ -6,34 +6,6 @@ Say it in words. The first shop is asked for the price of product SKU-0. It asks
 
 ![Cache-Aside with Redis sequence diagram](images/sequence-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant A as first shop
-    participant R as Redis
-    participant D as database
-    participant B as second shop
-    A->>R: GET product:SKU-0
-    R-->>A: nothing
-    A->>D: read SKU-0
-    D-->>A: 1000
-    A->>R: SET product:SKU-0 1000, expires in 60 s
-    B->>R: GET product:SKU-0
-    R-->>B: 1000, no database read
-    A->>D: change SKU-0 to 1600
-    A->>R: DEL product:SKU-0
-    B->>R: GET product:SKU-0
-    R-->>B: nothing
-    B->>D: read SKU-0
-    D-->>B: 1600
-    B->>R: SET product:SKU-0 1600, expires in 60 s
-```
-
-</details>
-
 The load-bearing sentence: **Redis never fetches anything itself; each shop reads the database on a miss and leaves the answer where every other shop can see it.**
 
 For the expiry, the plain write, the stampede and the lock, see [`uml-diagram.md`](uml-diagram.md).

@@ -6,24 +6,4 @@ Say it in words. The caller calls place on the service, and Spring's proxy takes
 
 ![Unit of Work with Spring pattern sequence diagram](images/sequence-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant Caller
-    participant P as Spring proxy
-    participant B as the bean
-    participant DB as H2
-    Caller->>P: place()
-    P->>P: begin transaction
-    P->>B: place()
-    B->>B: change objects, nothing written yet
-    B-->>P: returns, or throws
-    P->>DB: commit, or rollback
-```
-
-</details>
-
 The load-bearing sentence: **the annotation hides the mechanism, and the mechanism still has rules.**

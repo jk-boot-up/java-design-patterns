@@ -6,23 +6,4 @@ Say it in words. Two pickers each call take, find the inbox empty, and wait. An 
 
 ![Guarded Suspension pattern sequence diagram](images/sequence-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant A as picker A
-    participant I as inbox
-    participant B as picker B
-    A->>I: take: empty, wait
-    B->>I: take: empty, wait
-    Note over I: an order is put in, notifyAll
-    A->>I: woken, check: an order, take it
-    B->>I: woken, check: empty
-    B->>I: wait again
-```
-
-</details>
-
 The load-bearing sentence: **the guard is checked again after every wake.**

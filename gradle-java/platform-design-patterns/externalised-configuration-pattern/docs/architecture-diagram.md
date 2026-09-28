@@ -23,49 +23,6 @@ second, undocumented way to make things happen.
 
 ![Externalised configuration architecture diagram](images/architecture-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-flowchart TB
-    subgraph T1["Tier 1 — one JVM, JDK 21 only, no network"]
-        direction TB
-        Demo["FreeDeliveryDemo<br/>the nine acts"]
-        Hard["HardCodedCheckout<br/>the threshold is a constant"]
-        Conf["ConfiguredCheckout<br/>reads the threshold inside every quote"]
-        Trust["TrustingSettings<br/>parses, and believes what it is told"]
-        Guard["GuardedSettings<br/>typed, ranged, logged, falls back"]
-        Src["ConfigSource<br/>the interface the shop depends on"]
-        Server["ConfigServer<br/>a map, plus a clock and a goOffline flag"]
-        Log["ChangeLog<br/>who changed what, and when"]
-        Pipe["ReleasePipeline<br/>the two hours and fifteen minutes"]
-        Demo --> Hard
-        Demo --> Conf
-        Conf --> Trust
-        Conf --> Guard
-        Trust --> Src
-        Guard --> Src
-        Src --> Server
-        Server --> Log
-        Hard -.-> Pipe
-    end
-
-    subgraph T2["Tier 2 — real/, two JVM processes, no Docker"]
-        direction LR
-        Repo["config-repo/<br/>a directory of YAML files"]
-        CS["config-server<br/>Spring Boot 4.1.1<br/>Spring Cloud Config Server 2025.1.3<br/>port 8888"]
-        Shop["checkout-service<br/>Spring Boot 4.1.1<br/>@RefreshScope + @Validated<br/>port 8080"]
-        Ref(["POST /actuator/refresh"])
-        Repo --> CS
-        CS -- "the threshold, over HTTP" --> Shop
-        Ref --> Shop
-    end
-
-    T1 -. "the same nine acts, against a real config server" .-> T2
-```
-
-</details>
-
 ## What the diagram is telling you to count
 
 **One arrow into the shop, from one interface.** Everything the shop knows about where its

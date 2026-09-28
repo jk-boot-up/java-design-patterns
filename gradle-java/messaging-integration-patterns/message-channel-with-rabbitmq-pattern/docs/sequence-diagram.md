@@ -6,30 +6,6 @@ Say it in words. Checkout sends one pick order, for order number one, to the bro
 
 ![Message Channel with RabbitMQ sequence diagram](images/sequence-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant C as checkout
-    participant B as RabbitMQ queue
-    participant P1 as first picker
-    participant P2 as second picker
-    C->>B: send ORD-1, then carry on selling
-    Note over B: nobody is listening, the broker holds it
-    P1->>B: ready for work
-    B->>P1: ORD-1, the broker keeps a copy
-    Note over P1: crashes before saying done
-    B-->>B: connection gone, put ORD-1 back, marked as seen before
-    P2->>B: ready for work
-    B->>P2: ORD-1, seen before: true
-    P2->>B: done
-    B-->>B: forget ORD-1. deliveries 2, picked 1, waiting 0
-```
-
-</details>
-
 The load-bearing sentence: **a broker forgets a message only when the receiver says it is done, so a crash costs a second delivery, never a lost order.**
 
 For the restart, the full channel and the rest of the failure modes, see [`uml-diagram.md`](uml-diagram.md).

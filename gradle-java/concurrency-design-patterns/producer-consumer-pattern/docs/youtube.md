@@ -19,20 +19,20 @@ The first two lines are what a viewer sees above the fold, so they carry the hoo
 ```
 CHAPTERS
 00:00 Introduction
-01:07 The Scenario
-01:37 Naive One — The Checkout Thread Packs Itself
-02:08 Naive Two — A Thread Per Order
-03:02 The Pattern: A Bound, Chosen On Purpose
-03:36 The Queue At Capacity, Forced Rather Than Hoped For
-04:19 Two Shutdowns, And They Are Not The Same Event
-05:02 Clean Shutdown
-05:23 Abrupt Shutdown
-05:48 Why Nothing In This Project Sleeps
-06:32 The Harness's Own Proof
-07:17 What The Scheduler Really Does
-08:10 The Bill
-08:53 When This Is Too Much
-09:20 Thanks for Watching
+01:02 The Scenario
+01:31 Naive One — The Checkout Thread Packs Itself
+01:57 Naive Two — A Thread Per Order
+02:40 The Pattern: A Bound, Chosen On Purpose
+03:06 The Queue At Capacity, Forced Rather Than Hoped For
+03:38 Two Shutdowns, And They Are Not The Same Event
+04:10 Clean Shutdown
+04:25 Abrupt Shutdown
+04:45 Why Nothing In This Project Sleeps
+05:17 The Harness's Own Proof
+05:54 What The Scheduler Really Does
+06:24 The Bill
+06:59 When This Is Too Much
+07:21 Thanks for Watching
 
 SOURCE CODE, WRITTEN NOTES AND AN INTERACTIVE ANIMATION
 https://github.com/jk-boot-up/java-design-patterns/tree/main/gradle-java/concurrency-design-patterns/producer-consumer-pattern
@@ -47,20 +47,20 @@ YouTube renders these as chapters only if there are at least three and the first
 
 ```
 00:00 Introduction
-01:07 The Scenario
-01:37 Naive One — The Checkout Thread Packs Itself
-02:08 Naive Two — A Thread Per Order
-03:02 The Pattern: A Bound, Chosen On Purpose
-03:36 The Queue At Capacity, Forced Rather Than Hoped For
-04:19 Two Shutdowns, And They Are Not The Same Event
-05:02 Clean Shutdown
-05:23 Abrupt Shutdown
-05:48 Why Nothing In This Project Sleeps
-06:32 The Harness's Own Proof
-07:17 What The Scheduler Really Does
-08:10 The Bill
-08:53 When This Is Too Much
-09:20 Thanks for Watching
+01:02 The Scenario
+01:31 Naive One — The Checkout Thread Packs Itself
+01:57 Naive Two — A Thread Per Order
+02:40 The Pattern: A Bound, Chosen On Purpose
+03:06 The Queue At Capacity, Forced Rather Than Hoped For
+03:38 Two Shutdowns, And They Are Not The Same Event
+04:10 Clean Shutdown
+04:25 Abrupt Shutdown
+04:45 Why Nothing In This Project Sleeps
+05:17 The Harness's Own Proof
+05:54 What The Scheduler Really Does
+06:24 The Bill
+06:59 When This Is Too Much
+07:21 Thanks for Watching
 ```
 
 ## Tags
@@ -99,4 +99,4 @@ Add a card partway through pointing at the playlist, so a viewer who arrives at 
 
 ## Runtime
 
-Approximately 10:07, narrated at 145 words per minute.
+Approximately 07:59, narrated at 145 words per minute.

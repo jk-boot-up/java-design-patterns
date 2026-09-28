@@ -15,43 +15,6 @@ any explanation of this pattern that skips past that is selling something.
 
 ![Database per Service sequence diagram](images/sequence-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant P as the order history page
-    participant S as SharedSchema
-    participant O as Orders service
-    participant OD as Orders database
-    participant C as Catalog service
-
-    Note over P,S: before — one cabinet, and one look in a drawer
-
-    P->>S: orders joined to products, for cust-7
-    S-->>P: 2 finished rows, names included
-    Note over P,S: 1 database round trip.<br/>The join cannot forget a name, and a foreign key<br/>guarantees the product row is there to join to.
-
-    Note over P,C: after — one database each
-
-    P->>O: ordersFor(cust-7)
-    O->>OD: QUERY
-    OD-->>O: 2 orders
-    O-->>P: 2 orders, skus but no names
-    Note over P,O: 10ms
-
-    P->>P: collect the skus — SKU-KETTLE, SKU-MUG
-    P->>C: namesFor(both skus)
-    C-->>P: 2 names in one call
-    Note over P,C: 20ms — one call for the page,<br/>not one call per row
-
-    P->>P: ASSEMBLED — stitch the two answers together
-    Note over P,C: the same 2 rows, for 2 service calls<br/>and a piece of code that did not exist before
-```
-
-</details>
-
 ## Reading the timings
 
 **Ten milliseconds became twenty, and one call became two.** That is the honest headline.

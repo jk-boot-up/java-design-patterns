@@ -19,20 +19,20 @@ The first two lines are what a viewer sees above the fold, so they carry the hoo
 ```
 CHAPTERS
 00:00 Introduction
-00:38 The Partner Project
-01:01 Before The First Annotation
-01:22 One Annotation Per Class
-01:36 The Same Graph
-01:51 What Each Annotation Replaced
-02:13 A Missing Bean
-02:42 A Circular Dependency
-03:00 Field Injection
-03:25 What The Magic Costs
-03:47 The Verdict
-03:59 Where You Have Met This
-04:09 What Was Used
-04:18 What Is Real Here
-04:30 Thanks for Watching
+00:51 The Partner Project
+01:16 Before The First Annotation
+01:36 One Annotation Per Class
+01:51 The Same Graph
+02:11 What Each Annotation Replaced
+02:37 A Missing Bean
+03:06 A Circular Dependency
+03:27 Field Injection
+03:56 What The Magic Costs
+04:21 The Verdict
+04:36 Where You Have Met This
+04:47 What Was Used
+04:58 What Is Real Here
+05:09 Thanks for Watching
 
 SOURCE CODE, WRITTEN NOTES AND AN INTERACTIVE ANIMATION
 https://github.com/jk-boot-up/java-design-patterns/tree/main/gradle-java/foundational-design-patterns/dependency-injection-with-spring-pattern
@@ -47,20 +47,20 @@ YouTube renders these as chapters only if there are at least three and the first
 
 ```
 00:00 Introduction
-00:38 The Partner Project
-01:01 Before The First Annotation
-01:22 One Annotation Per Class
-01:36 The Same Graph
-01:51 What Each Annotation Replaced
-02:13 A Missing Bean
-02:42 A Circular Dependency
-03:00 Field Injection
-03:25 What The Magic Costs
-03:47 The Verdict
-03:59 Where You Have Met This
-04:09 What Was Used
-04:18 What Is Real Here
-04:30 Thanks for Watching
+00:51 The Partner Project
+01:16 Before The First Annotation
+01:36 One Annotation Per Class
+01:51 The Same Graph
+02:11 What Each Annotation Replaced
+02:37 A Missing Bean
+03:06 A Circular Dependency
+03:27 Field Injection
+03:56 What The Magic Costs
+04:21 The Verdict
+04:36 Where You Have Met This
+04:47 What Was Used
+04:58 What Is Real Here
+05:09 Thanks for Watching
 ```
 
 ## Tags
@@ -99,4 +99,4 @@ Add a card partway through pointing at the playlist, so a viewer who arrives at 
 
 ## Runtime
 
-Approximately 05:03, narrated at 145 words per minute.
+Approximately 05:46, narrated at 145 words per minute.

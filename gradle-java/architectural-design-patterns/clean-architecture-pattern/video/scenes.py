@@ -17,26 +17,24 @@ SCENES = [
         title="Clean Architecture",
         body=None,
         narration=(
-            "Hello, and welcome. This video explains Clean Architecture in "
-            "Java, and it is written and presented by Jayasekhar Konduru. "
-            "[[slnc 300]] Let's start with the plain definition. Concentric "
-            "circles -- entities at the centre, use cases around them, "
-            "interface adapters around those, frameworks and drivers on "
-            "the outside -- with one rule, stated once. Source code "
-            "dependencies point only inward. [[slnc 350]] This is the "
-            "fourth project in a series building the same online shop five "
-            "different ways, and I want to be upfront about something "
-            "before we start. This is a close relative of the previous "
-            "project, Hexagonal Architecture, and pretending otherwise "
-            "would be dishonest. What is genuinely new here, and what this "
-            "video actually spends its time on: a use case's own boundary, "
-            "not folded into one undifferentiated outside. The moment "
-            "control and dependency point in opposite directions, shown in "
-            "code rather than described. And the largest forced change in "
-            "this whole category -- adding two new things at once, not "
-            "swapping one. [[slnc 300]] By the end you will have seen the "
-            "single trick this entire pattern rests on, stated as one "
-            "sentence you can hold in your head with the screen off."
+            'Hello, and welcome. [[slnc 400]] This video explains Clean '
+            'Architecture, in Java. [[slnc 300]] This video is presented '
+            'by Jayasekhar Konduru. [[slnc 600]] First, a simple '
+            'definition. [[slnc 300]] Clean Architecture arranges a '
+            'program in rings, like the layers of an onion. [[slnc 300]] '
+            'The most important rules sit in the middle. [[slnc 300]] The '
+            'technical details sit on the outside. [[slnc 400]] And there '
+            'is one rule. [[slnc 300]] Code may only depend on things '
+            'further in. [[slnc 300]] Never on things further out. [[slnc '
+            '700]] Think of a castle. [[slnc 300]] The treasure is in the '
+            'keep, at the centre. [[slnc 300]] The walls and the gates '
+            'are outside it. [[slnc 300]] You can rebuild a gate without '
+            'touching the treasure. [[slnc 700]] In this video, we apply '
+            'that to an online shop that places an order. [[slnc 300]] It '
+            'is a close relative of Hexagonal Architecture, and we will '
+            'say plainly what is new. [[slnc 400]] By the end, you will '
+            'know the one trick the whole pattern rests on, in a single '
+            'sentence.'
         ),
     ),
     dict(
@@ -56,16 +54,18 @@ SCENES = [
             "somewhere to store, and a way to notify.",
         ],
         narration=(
-            "Same order as every project in this category. Check stock, "
-            "take payment, store the order, notify the customer. Ada "
-            "Okafor's three hundred and eighty-two pounds fifty. [[slnc "
-            "300]] What is different in this video is how many named rings "
-            "sit between the entity at the centre and the class that "
-            "actually calls out to the network. Four needs -- a "
-            "catalogue, a payment gateway, somewhere to store an order, a "
-            "way to notify -- stated as four interfaces, all four declared "
-            "by the use case itself, exactly as the project before this "
-            "one taught you to expect."
+            'Here is the job. [[slnc 300]] It is the same order as every '
+            'project in this series. [[slnc 300]] A customer called Ada '
+            'Okafor buys an espresso machine, a coffee grinder, and two '
+            'bags of coffee beans. [[slnc 300]] The total is three '
+            'hundred and eighty-two pounds fifty. [[slnc 500]] To place '
+            'that order, the program needs four things. [[slnc 300]] A '
+            'catalogue, to check stock. [[slnc 200]] A payment gateway, '
+            'to take the money. [[slnc 200]] Somewhere to store the '
+            'order. [[slnc 200]] And a way to notify the customer. [[slnc '
+            '500]] Each of those four needs is written as an interface. '
+            '[[slnc 300]] And the use case itself, the code that places '
+            'the order, owns all four.'
         ),
     ),
     dict(
@@ -81,15 +81,18 @@ SCENES = [
     // two circles further out than it should reach.
 }""",
         narration=(
-            "Here is where this project starts. A class that calls itself "
-            "a use case, with a constructor typed as three concrete "
-            "gateway classes -- not the interfaces the real use case "
-            "declares. [[slnc 300]] It works. It places the order "
-            "correctly. And it reaches straight through the interface-"
-            "adapters ring it is supposed to sit inside of, to name "
-            "classes that live two rings further out. Testing it means "
-            "constructing all three gateways first, and swapping any one "
-            "of them means opening and editing this file."
+            "Let's start with the naive version. [[slnc 400]] It is a "
+            'class that calls itself a use case. [[slnc 300]] But its '
+            'constructor asks for three concrete classes: an in-memory '
+            'order store, an in-memory product list, and an in-memory '
+            'payment gateway. [[slnc 300]] Not interfaces. [[slnc 200]] '
+            'Real, specific classes. [[slnc 500]] Does it work? [[slnc '
+            '200]] Yes. It places the order correctly. [[slnc 400]] The '
+            'problem is where it reaches. [[slnc 300]] It sits near the '
+            'centre, but it names classes from the outer rings. [[slnc '
+            '400]] So to test it, you must build all three of those '
+            'classes first. [[slnc 300]] And to swap any one of them, you '
+            'must open and edit this file.'
         ),
     ),
     dict(
@@ -107,19 +110,22 @@ SCENES = [
             "Not mostly. Never outward. At any boundary.",
         ],
         narration=(
-            "Four rings. Entities at the centre -- an order, a price, a "
-            "product, true whether or not anything outside is even "
-            "running. Use cases around them -- the interactor, and the "
-            "boundary interfaces it declares for whatever it needs. "
-            "Interface adapters around those -- controllers translating a "
-            "request into the use case's own input shape, gateways "
-            "translating the use case's boundary calls into real storage. "
-            "And frameworks and drivers on the outside -- in this project, "
-            "just the composition root. [[slnc 350]] And one rule, which "
-            "is the entire architecture stated as a sentence: source code "
-            "dependencies point only inward. Not mostly inward. Never "
-            "outward, at any boundary, for any reason you will have "
-            "thought of at eleven o'clock on a Friday."
+            'Now, the four rings, from the inside out. [[slnc 500]] Ring '
+            'one, at the centre: entities. [[slnc 300]] These are the '
+            'business nouns, like an order, a price, and a product. '
+            '[[slnc 300]] They are true even if nothing else is running. '
+            '[[slnc 500]] Ring two: use cases. [[slnc 300]] This is the '
+            'code that does the job, like placing an order. [[slnc 300]] '
+            'It declares interfaces for everything it needs. [[slnc 500]] '
+            'Ring three: interface adapters. [[slnc 300]] Controllers '
+            'bring requests in. [[slnc 300]] Gateways take calls out, to '
+            'real storage. [[slnc 500]] Ring four, on the outside: '
+            'frameworks and drivers. [[slnc 300]] In this project, that '
+            'is just the main method that wires everything together. '
+            '[[slnc 600]] And the one rule. [[slnc 300]] Code may only '
+            'depend on things further in. [[slnc 300]] Not mostly. [[slnc '
+            '200]] Always. [[slnc 300]] Even late on a Friday, when a '
+            'shortcut looks tempting.'
         ),
     ),
     dict(
@@ -137,21 +143,20 @@ SCENES = [
             "about being the most over-applied pattern here.",
         ],
         narration=(
-            "I promised to be honest about the overlap, so let me name it "
-            "precisely rather than wave at it. [[slnc 300]] Same centre, "
-            "same rule about which way a dependency may point. What is "
-            "actually different: one boundary becomes three named rings, "
-            "because the translation work between a use case's own shapes "
-            "and the outside world is a distinct job, worth its own ring. "
-            "[[slnc 350]] The dependency-inversion moment is shown as two "
-            "directions disagreeing, in real code, on screen, rather than "
-            "left as a diagram. The forced change adds two new things at "
-            "once instead of swapping one -- proving the architecture "
-            "scales by addition, not only by substitution. [[slnc 300]] "
-            "And the fourth difference is this project's own honesty about "
-            "being the most over-applied pattern in the category, which "
-            "gets its own section later, with real numbers rather than a "
-            "warning label."
+            'Is this just Hexagonal Architecture again? [[slnc 400]] '
+            'Partly, yes. [[slnc 300]] The centre is the same, and so is '
+            'the rule about which way dependencies point. [[slnc 500]] '
+            'But there are four real differences. [[slnc 400]] One. '
+            '[[slnc 200]] The single outside world of Hexagonal is split '
+            'into named rings. [[slnc 300]] Translating between the use '
+            'case and the outside world is treated as its own job, with '
+            'its own ring. [[slnc 400]] Two. [[slnc 200]] We will see the '
+            'key idea, called dependency inversion, happen in real code, '
+            'not just in a picture. [[slnc 400]] Three. [[slnc 200]] The '
+            'big change later in this video adds two new things at once, '
+            'instead of swapping one. [[slnc 400]] And four. [[slnc 200]] '
+            'This pattern is used far more often than it should be. '
+            '[[slnc 300]] So later on, we will count its real cost.'
         ),
     ),
     dict(
@@ -165,14 +170,19 @@ SCENES = [
   and usecases. main() wired four gateways to it
   by hand -- no container anywhere in this project.""",
         narration=(
-            "A simulated HTTP request arrives at a controller, which calls "
-            "one method on the use case's own boundary interface. [[slnc "
-            "300]] Open the interactor and count its imports. Two: "
-            "entities, and its own package, use cases. Not one adapter. "
-            "And the composition root -- main -- reached into the "
-            "outermost ring for four concrete gateways and handed them to "
-            "this interactor by hand, in about twenty lines. No "
-            "annotation, no container, nothing invisible."
+            'Now the proper version, running. [[slnc 400]] A pretend web '
+            'request arrives at a controller. [[slnc 300]] The controller '
+            "calls one method on the use case's own interface. [[slnc "
+            '300]] The order is created, with status two hundred and one, '
+            'and a total of three hundred and eighty-two pounds fifty. '
+            '[[slnc 500]] Now think about the use case class itself. '
+            '[[slnc 300]] It imports from only two places: the entities, '
+            'and its own use-case package. [[slnc 300]] Not a single '
+            'adapter. [[slnc 500]] So who connects it to the real '
+            'gateways? [[slnc 300]] The main method does. [[slnc 300]] It '
+            'creates four real gateways, and hands them to the use case, '
+            'by hand. [[slnc 300]] About twenty lines of code. [[slnc '
+            '200]] No framework, and nothing hidden.'
         ),
     ),
     dict(
@@ -188,21 +198,23 @@ SCENES = [
 // CONTROL flows OUT, to the real class.
 // The DEPENDENCY points IN, at this interface.""",
         narration=(
-            "This is the single most valuable thing in this video, so I "
-            "am going to say it slowly. [[slnc 300]] The interactor calls "
-            "orders dot save. Orders is typed as OrderRepository -- an "
-            "interface, declared right here, in the use case's own "
-            "package. The class that really keeps a map of orders lives "
-            "two rings further out, and reaches up to implement that "
-            "interface. [[slnc 350]] Now watch the two directions "
-            "separately. Control -- what actually runs when this line "
-            "executes -- flows outward, landing in that outer class's "
-            "code. The dependency -- what type must exist on this file's "
-            "classpath for it to compile at all -- points inward, at an "
-            "interface the inner ring owns. [[slnc 300]] Control flows out. "
-            "The dependency points in. Those are two different questions, "
-            "with two different answers, and letting them disagree is the "
-            "entire trick this architecture is built on."
+            "This is the most important idea in the video, so let's go "
+            'slowly. [[slnc 500]] The use case calls orders dot save. '
+            '[[slnc 300]] Here, orders is an interface called Order '
+            'Repository. [[slnc 300]] That interface is declared in the '
+            "use case's own package, in the inner ring. [[slnc 400]] The "
+            'class that really stores orders lives two rings further out. '
+            '[[slnc 300]] It implements that interface. [[slnc 600]] Now, '
+            'ask two separate questions. [[slnc 400]] First question. '
+            '[[slnc 200]] When this line runs, where does the program go? '
+            '[[slnc 300]] Outward, into the outer class. [[slnc 300]] '
+            'That is the direction of control. [[slnc 500]] Second '
+            'question. [[slnc 200]] What must exist for this file to '
+            'compile? [[slnc 300]] Only the interface, which lives in the '
+            'inner ring. [[slnc 300]] So the dependency points inward. '
+            '[[slnc 600]] Control flows out. [[slnc 300]] The dependency '
+            'points in. [[slnc 400]] Letting those two directions '
+            'disagree is the whole trick of this architecture.'
         ),
     ),
     dict(
@@ -220,19 +232,18 @@ SCENES = [
             "invisibly could not teach what watching it does.",
         ],
         narration=(
-            "One deliberate choice this project makes, worth defending "
-            "directly. There is no dependency injection container "
-            "anywhere in this project. [[slnc 300]] The whole object graph "
-            "is assembled in main, by hand, in about twenty lines -- reach "
-            "into the outermost ring for a concrete gateway class, hand it "
-            "to an interactor that only ever asks for an interface. [[slnc "
-            "350]] Watching those twenty lines is where dependency "
-            "inversion stops being a diagram and becomes something you "
-            "can point at. An annotation that did the same wiring "
-            "invisibly could not teach that moment -- it would simply make "
-            "it disappear. If you want to see this same graph assembled by "
-            "a container instead, there is a companion project that does "
-            "exactly that, and nothing else."
+            'One choice in this project deserves an explanation. [[slnc '
+            '400]] There is no dependency injection framework here at '
+            'all. [[slnc 500]] Instead, the main method builds everything '
+            'by hand, in about twenty lines. [[slnc 300]] It takes a real '
+            'gateway from the outer ring. [[slnc 300]] And it hands it to '
+            'a use case that only knows the interface. [[slnc 500]] Why '
+            'do it by hand? [[slnc 300]] Because you can read those '
+            'twenty lines, and see the inversion happen. [[slnc 300]] A '
+            'framework annotation would do the same wiring invisibly, and '
+            'the lesson would disappear with it. [[slnc 500]] If you want '
+            'to see the same program wired by a framework instead, there '
+            'is a companion project that does exactly that.'
         ),
     ),
     dict(
@@ -248,16 +259,20 @@ SCENES = [
   PlaceOrderInteractor.java: zero lines changed.
   CheckoutController.java: zero lines changed.""",
         narration=(
-            "So here is the largest forced change in the category, and "
-            "notice the word: added, not swapped. [[slnc 300]] A batch "
-            "controller, reading CSV rows the way a nightly import would. "
-            "A file-backed order store, a structurally different way of "
-            "keeping an order than a map ever was. Both added at the same "
-            "time, both new files. [[slnc 350]] And the original path -- "
-            "the HTTP controller, the in-memory store -- is still sitting "
-            "there, still working, completely untouched. This is not a "
-            "replacement. It is proof that the architecture scales by "
-            "addition, which is the harder and more useful claim."
+            'Now, the biggest change in this series. [[slnc 400]] And '
+            'listen for the word: we add, we do not swap. [[slnc 500]] '
+            'First new thing: a batch controller. [[slnc 300]] It reads '
+            'orders from rows of a file, the way a nightly import would. '
+            '[[slnc 400]] Second new thing: a store that keeps orders in '
+            'a flat file, instead of in memory. [[slnc 400]] Both are '
+            'added at the same time, as new files. [[slnc 500]] And the '
+            'original path, the web controller and the in-memory store, '
+            'is still there, and still works. [[slnc 400]] The imported '
+            'order comes through, for two hundred and forty-nine pounds. '
+            '[[slnc 400]] And the use case file? [[slnc 200]] Zero lines '
+            'changed. [[slnc 300]] The web controller? [[slnc 200]] Zero '
+            'lines changed. [[slnc 400]] The architecture grew by adding, '
+            'which is the harder and more useful promise.'
         ),
     ),
     dict(
@@ -271,14 +286,15 @@ lines changed   : 5
 classes in entities + use cases : 15
 of those, never opened          : 15""",
         narration=(
-            "Counted from the real files on disk: two files added, one "
-            "file modified -- the composition root, five lines. [[slnc "
-            "300]] Fifteen classes make up entities and use cases "
-            "together. Every one of them: never opened, for either "
-            "addition. There is a test in this project called Both Added "
-            "At Once, and it does not narrate this claim -- it runs both "
-            "paths, the original and the new one, in the same test run, "
-            "and asserts both succeed."
+            "Let's count exactly what changed. [[slnc 400]] Two files "
+            'were added: the batch controller, and the file-based store. '
+            '[[slnc 300]] One file was modified: the main method, and '
+            'only five lines of it. [[slnc 500]] Together, the entities '
+            'and the use cases are fifteen classes. [[slnc 300]] Not one '
+            'of those fifteen was opened for either change. [[slnc 500]] '
+            'And this is not just a claim. [[slnc 300]] A test in the '
+            'project runs both paths, the old one and the new one, in the '
+            'same run. [[slnc 300]] And it checks that both succeed.'
         ),
     ),
     dict(
@@ -295,16 +311,18 @@ of those, never opened          : 15""",
     .whereLayer("UseCases")
         .mayOnlyBeAccessedByLayers("Adapters");""",
         narration=(
-            "The previous two projects in this category wrote their rule "
-            "as noClasses dot that dot should. This one uses ArchUnit's "
-            "own purpose-built API for exactly this shape -- named layers, "
-            "and one sentence for who may reach whom. [[slnc 300]] Three "
-            "layers, declared by package. Entities may be reached by use "
-            "cases and adapters, but reach neither. Use cases may be "
-            "reached by adapters, but reach only entities. [[slnc 300]] "
-            "One test, three layers, the entire concentric rule -- and a "
-            "second test widens an equivalent rule to the naive package "
-            "and asserts it fails, naming the class that broke it."
+            'How do we stop someone breaking the rule by accident? [[slnc '
+            '400]] We turn the rule into a test, using a library called '
+            'ArchUnit. [[slnc 500]] The test names three layers, by '
+            'package. [[slnc 300]] Entities, use cases, and adapters. '
+            '[[slnc 400]] Then it says who may use whom. [[slnc 300]] '
+            'Entities may be used by use cases and by adapters, but they '
+            'use neither. [[slnc 300]] Use cases may be used by adapters, '
+            'but they only use entities. [[slnc 500]] One test holds the '
+            'whole ring rule. [[slnc 400]] And a second test points the '
+            'same rule at the naive version from the start. [[slnc 300]] '
+            'That test is expected to fail, and to name the class that '
+            'broke the rule.'
         ),
     ),
     dict(
@@ -318,12 +336,14 @@ of those, never opened          : 15""",
   <...adapters.gateway
     .InMemoryOrderRepository>""",
         narration=(
-            "Here is what the build prints. It names the naive interactor, "
-            "and it names the gateway it reached for. [[slnc 350]] That "
-            "message is the entire product of this category. Not a "
-            "diagram on a wiki page that nobody has opened since "
-            "onboarding -- a sentence a build produces, unprompted, the "
-            "moment the rule stops being true."
+            'So what does a failure sound like? [[slnc 400]] The build '
+            'reports an architecture violation. [[slnc 300]] It names the '
+            'naive use case class. [[slnc 300]] And it names the '
+            'in-memory order store that the class reached out for. [[slnc '
+            '500]] That message is the real product of this whole series. '
+            '[[slnc 300]] Not a diagram on a wiki page that nobody reads. '
+            '[[slnc 300]] A clear sentence from the build, the moment the '
+            'rule stops being true.'
         ),
     ),
     dict(
@@ -342,17 +362,19 @@ of those, never opened          : 15""",
             "This is the most over-applied pattern here.",
         ],
         narration=(
-            "Every project in this category has to pay a bill honestly, "
-            "and this one's is the largest. [[slnc 300]] Count the files "
-            "for one feature. Two data-transfer objects, four boundary "
-            "interfaces, one interactor, two controllers, four gateways. "
-            "Fourteen files, for placing an order. [[slnc 350]] A simple "
-            "CRUD screen built this way ends up with more interfaces than "
-            "behaviour, and this is, honestly, the most over-applied "
-            "pattern in the entire category. It costs real files, real "
-            "indirection, and a whole team that has to understand the "
-            "rule together, or it quietly decays into folders with "
-            "impressive names and nothing enforcing any of them."
+            'Every pattern has a cost, and this one has the biggest bill '
+            "in the series. [[slnc 500]] Let's count the files for this "
+            'one feature, placing an order. [[slnc 300]] Two data '
+            'transfer objects. [[slnc 200]] Four boundary interfaces. '
+            '[[slnc 200]] One use case. [[slnc 200]] Two controllers. '
+            '[[slnc 200]] And four gateways. [[slnc 300]] Fourteen files, '
+            'to place an order. [[slnc 500]] A simple screen that just '
+            'reads and writes records would end up with more interfaces '
+            'than actual behaviour. [[slnc 400]] Honestly, this is the '
+            'most over-used pattern in the series. [[slnc 300]] And '
+            'without a team that understands the rule, it slowly decays '
+            'into folders with impressive names, and nothing enforcing '
+            'them.'
         ),
     ),
     dict(
@@ -368,16 +390,16 @@ of those, never opened          : 15""",
             "than that.",
         ],
         narration=(
-            "So when does fourteen files for one feature pay for itself? "
-            "[[slnc 300]] Long-lived systems. More than one delivery "
-            "mechanism, or more than one data source, genuinely -- not "
-            "hypothetically. A domain worth protecting from whichever "
-            "framework is fashionable this year. [[slnc 350]] And when "
-            "does it not? Almost everything smaller than that. If you "
-            "cannot name a second delivery mechanism or a second data "
-            "source that is actually going to exist, you are building the "
-            "seam for a change that is never coming, and paying fourteen "
-            "files for the privilege."
+            'So when are fourteen files worth it? [[slnc 400]] For '
+            'systems that will live for many years. [[slnc 300]] For '
+            'systems with more than one way in, or more than one place to '
+            'store data, for real, not just in theory. [[slnc 300]] And '
+            'for business rules worth protecting from whatever framework '
+            'is popular this year. [[slnc 500]] And when is it not worth '
+            'it? [[slnc 300]] Almost everything smaller than that. [[slnc '
+            '400]] If you cannot name a second way in, or a second data '
+            'store, that will actually exist, you are paying fourteen '
+            'files for a change that will never come.'
         ),
     ),
     dict(
@@ -391,19 +413,20 @@ of those, never opened          : 15""",
             "needs zero lines changed to accept it.",
         ],
         narration=(
-            "That's Clean Architecture. [[slnc 250]] If you take one "
-            "sentence away, take this one: control flows outward; the "
-            "dependency points inward; letting those two disagree is the "
-            "whole of the pattern. [[slnc 350]] The full source, the "
-            "written notes, the diagrams and an animated walkthrough are "
-            "all in the repository, running offline with nothing "
-            "installed but a Java development kit. [[slnc 300]] If you "
-            "try one exercise, try this. Add a third delivery mechanism of "
-            "your own, and confirm that the use case layer needs zero "
-            "lines changed to accept it. [[slnc 300]] If this helped, a "
-            "like genuinely does help other people find it, and subscribe "
-            "if you would like the rest of the series. [[slnc 250]] Thanks "
-            "for watching, and I'll see you in the next one."
+            "That's Clean Architecture. [[slnc 400]] If you remember one "
+            'sentence, make it this one. [[slnc 300]] Control flows '
+            'outward, the dependency points inward, and letting those two '
+            'disagree is the whole pattern. [[slnc 500]] The full source '
+            'code, written notes, diagrams, and an animated walkthrough '
+            'are all in the repository. [[slnc 300]] It runs offline, '
+            'with nothing installed except a Java development kit. [[slnc '
+            '500]] Here is one exercise to try. [[slnc 300]] Add a third '
+            'way into the program, of your own. [[slnc 300]] Then check '
+            'that the use case layer needs zero lines changed to accept '
+            'it. [[slnc 500]] If this helped, a like really does help '
+            "other people find it. [[slnc 300]] And subscribe, if you'd "
+            'like the rest of the series. [[slnc 400]] Thanks for '
+            'watching.'
         ),
     ),
 ]

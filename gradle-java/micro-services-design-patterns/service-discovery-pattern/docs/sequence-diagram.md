@@ -16,40 +16,6 @@ number out loud because the instinct is to fear a much larger one.
 
 ![Service discovery sequence diagram](images/sequence-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant C as DiscoveringPricingClient
-    participant R as ServiceRegistry
-    participant P1 as pricing-1
-    participant P2 as pricing-2
-    participant Log as CallLog
-
-    Note over P1: 0ms — the process dies
-    P1--xP1: crash
-    Note over P1,R: nothing is sent, because a dying<br/>process does not get a turn
-
-    C->>R: instances("Pricing")
-    R-->>C: pricing-1, pricing-2
-    Note over C,R: 0ms — two offered, one of them dead,<br/>and the registry is not lying on purpose
-
-    C->>P1: price("SKU-1234")
-    P1--xC: ServiceUnavailableException
-    C->>Log: note(STALE, "pricing-1 was on the list but is not answering")
-    Note over C,P1: 5ms — the list was wrong and<br/>the caller is not stuck
-
-    C->>P2: price("SKU-1234")
-    P2-->>C: £449.99
-    Note over C,P2: 15ms — the shopper sees a price
-
-    Note over R: still lists 2 instances.<br/>It stops doing so at 4000ms, when<br/>pricing-1's lease runs out.
-```
-
-</details>
-
 ## Reading the timings
 
 **0ms to 15ms, and one wasted call inside it.** The successful path is 10ms. The stale

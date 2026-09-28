@@ -2,56 +2,56 @@
 
 ## 1. Value Object
 
-Hello, and welcome. This video explains the Value Object pattern in Java, and it is written and presented by Jayasekhar Konduru. The plain definition: a value object is a small object that is defined entirely by what it holds, is never changed after it is made, and cannot be made wrong in the first place. This is the first project in the domain-driven design category, whose subject is writing code that says what the business says. In our online store, the first thing to get right is money. By the end you will see money as a bare number go wrong four ways, then see one small type close every one of them, and hear when I would not use it.
+Hello, and welcome. This video explains the Value Object pattern, in Java. This video is presented by Jayasekhar Konduru. First, a simple definition. A value object is a small object defined entirely by what it holds. It never changes after it is made. And it cannot be made wrong in the first place. Think of a banknote. One ten pound note is as good as any other ten pound note. You do not care which one you hold, only what it is worth. In our online store, the first thing to get right is money. In this video, money as a bare number goes wrong in four ways. Then one small type fixes every one of them. And we will hear when not to use it.
 
 ## 2. The Scenario
 
-Here is the scenario. The online store adds up prices, in pounds and in dollars. It shares a bill between people, and it stores each customer's email address. The question: what should a price be? A number? A number and a string? Or something of its own?
+Here is the scenario. The online store adds up prices, in pounds, and in dollars. It splits a bill between several people. And it stores each customer's email address. So here is the question. What should a price be? A number? A number and some text? Or something of its own?
 
 ## 3. Money As A Double
 
-First, money as a double. Three stamps at one pound ten come to three point three, followed by a long tail of zeros and a three. Point one plus point two is not point three. And ten pounds added to ten dollars comes to twenty, with no complaint at all. The number has no idea what it is a number of.
+First, money as a plain decimal number, a double. Three stamps at one pound ten each should cost three pounds thirty. But the result is three point three, followed by a long tail of zeros and a three. Point one plus point two is not exactly point three. And ten pounds plus ten dollars comes to twenty, with no complaint at all. The number has no idea what it is a number of.
 
 ## 4. The Pattern
 
-The pattern. A money object that holds whole pence and a currency, together, as one thing. It never changes: every operation returns a new one. It refuses to be built wrong. And it refuses to be added to money in another currency. Everything else in this video is a consequence of those four sentences.
+Now, the pattern. A Money object that holds whole pence, and a currency, together, as one thing. It never changes. Every operation returns a new Money. It refuses to be created with bad data. And it refuses to be added to money in another currency. Everything else in this video follows from those four rules.
 
 ## 5. Money As A Value
 
-Second, the same sum with a value. Whole pence, times three, is exactly three pounds thirty. And ten pounds plus ten dollars is refused, with a message that says why. The amount and its currency travel together, so they cannot be separated.
+Second demo: the same sums, with a value object. One hundred and ten pence, times three, is exactly three pounds thirty. And ten pounds plus ten dollars is refused. The message says: cannot combine pounds with dollars. The amount and its currency travel together, so they can never be separated.
 
 ## 6. Equal By Value
 
-Third, equality. Three separate objects, each five pounds, in a set. The set holds one, because a value object is equal to any other with the same contents. A class that compares by identity keeps all three. And five pounds is not equal to five dollars, as it should be.
+Third demo: equal by value. Three separate Money objects, each worth five pounds, are put into a set. The set holds just one. Because a value object is equal to any other with the same contents. A class that compares objects by identity would keep all three. And five pounds is not equal to five dollars, exactly as it should be.
 
 ## 7. Never Changed
 
-Fourth, never changed. Two orders share one price object, and it can be changed. Order B takes five pounds off. Order A now costs fifteen pounds, and nobody touched order A. With values, order B's discount makes a new amount. Order A still pays twenty pounds. Sharing is safe, because nothing can change.
+Fourth demo: never changed. Two orders share one price object, and that object can be changed. Order B takes five pounds off. Now order A costs fifteen pounds too, and nobody touched order A. With value objects, order B's discount creates a new amount. Order A still costs twenty pounds. Sharing is safe, because nothing can change.
 
 ## 8. Valid From The Start
 
-Fifth, valid from the start. Three methods take an email as a string. Two check it. The third, written last, does not, and a bad address is stored. An email address type checks once, when it is made. If you are holding one, it is valid. No method that receives one ever needs to check again. That is the same lesson as the null object.
+Fifth demo: valid from the start. Three methods receive an email address as plain text. Two of them check it. The third, written last, does not. So a bad address gets stored. An Email Address type checks the address once, when it is created. If you are holding one, it is valid. No method that receives one ever needs to check it again.
 
 ## 9. Splitting Is A Decision
 
-Last, splitting. Ten pounds three ways, rounded, is three thirty three, three times, which is nine ninety nine. A penny vanished. Allocation gives the odd penny to the first share. Three thirty four, three thirty three, three thirty three, which is exactly ten pounds. Somebody has to decide who gets the odd penny. Now that rule lives in one place.
+Last demo: splitting is a decision. Split ten pounds three ways, rounding each share. You get three pounds thirty-three, three times. That adds up to nine ninety-nine. A penny has vanished. Money's allocate method gives the odd penny to the first share. Three thirty-four, three thirty-three, and three thirty-three. Exactly ten pounds. Someone has to decide who gets the odd penny. Now that rule lives in one place.
 
 ## 10. How To Recognise It
 
-How do you recognise this in code you did not write? A record, or a final class, with no setters. A constructor that throws on bad input. Methods that return a new instance, such as plus, or with name. And the Java time classes and big decimal, which are value objects the language gave you.
+How can you spot this pattern in code someone else wrote? Look for a record, or a final class, with no setters. A constructor that throws an error on bad input. Methods that return a new object, such as plus, or with name. And Java's own date and time classes, and Big Decimal, which are value objects built into the language.
 
 ## 11. The Verdict
 
-Here is my verdict, plainly. Use a value object where a raw type hides a meaning: money, an email address, a date range, a quantity with a unit. Make it a record, check it in the constructor, and give it the operations that belong to it. And do not wrap every string.
+So, here is the verdict. Use a value object wherever a plain type hides a meaning. Money, an email address, a date range, or a quantity with a unit. Make it a record. Check its data in the constructor. And give it the operations that belong to it. But do not wrap every string.
 
 ## 12. What Is Real Here
 
-The same honest admission as everywhere in this course. Everything is plain Java. The floating point error and the lost penny are real output, not staged. Nothing here uses a clock, so every run is the same.
+A quick, honest note about this demo. Everything is plain Java. The decimal error, and the lost penny, are real output, not staged. And nothing here uses the clock, so every run gives the same result.
 
 ## 13. When This Is Too Much
 
-So when is it too much? For a value that means nothing beyond its raw type, like a loop counter, a wrapper is noise. It earns its place where mistakes are expensive, and where rules exist.
+So, when is this too much? For a value that means nothing beyond its plain type, like a loop counter, a wrapper is just noise. A value object earns its place where mistakes are expensive, and where rules exist.
 
 ## 14. Thanks for Watching
 
-That's Value Object. If you take one sentence away, take this one: a value object makes the wrong thing impossible to say, instead of something every caller must remember to avoid. The full source, the written notes, the diagrams and an animated walkthrough are all in the repository, running offline with nothing installed but a Java development kit. If you try one exercise, write a quantity type that refuses a negative number. If this helped, a like genuinely does help other people find it, and subscribe if you would like the rest of the series. Thanks for watching.
+That's the Value Object pattern. If you remember one sentence, make it this one. A value object makes the wrong thing impossible to say, instead of something every caller must remember to avoid. The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. Here is one exercise to try. Write a Quantity type. And make it refuse a negative number. If this helped, a like really does help other people find it. And subscribe, if you'd like the rest of the series. Thanks for watching.

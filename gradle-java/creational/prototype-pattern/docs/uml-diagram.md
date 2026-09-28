@@ -5,41 +5,6 @@ independent copy, which is then tweaked without touching the original.
 
 ![Prototype pattern sequence diagram](images/uml-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-sequenceDiagram
-    actor Client as ProductListingDemo
-    participant Master as master:ProductListing
-    participant Copy as whiteVariant:ProductListing
-
-    Note over Client,Master: master is already fully assembled — sku, images, attributes, shipping
-
-    Client->>Master: copy()
-    activate Master
-    Master->>Copy: new ProductListing(sku, title, ..., images, attributes, shippingProfile, ...)
-    activate Copy
-    Note right of Copy: constructor deep-copies images and attributes<br/>into fresh List/Map — shippingProfile is passed through unchanged
-    Copy-->>Master: instance
-    deactivate Copy
-    Master-->>Client: whiteVariant
-    deactivate Master
-
-    Client->>Copy: setSku("EARBUD-WHT")
-    Client->>Copy: setTitle("Wireless Earbuds (White)")
-    Client->>Copy: attributes().put("color", "White")
-    Client->>Copy: images().clear() / images().add(...)
-
-    Note over Client,Master: master.images() and master.attributes() are untouched —<br/>they were never the same List/Map as whiteVariant's
-
-    Client->>Master: shippingProfile()
-    Client->>Copy: shippingProfile()
-    Note over Client,Copy: both calls return the exact same ShippingProfile instance —<br/>safe because it is immutable
-```
-
-</details>
-
 ## Notes
 
 - The interesting work happens inside the `copy()` call, before it even

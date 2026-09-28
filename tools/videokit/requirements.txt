@@ -1,0 +1,7 @@
+# The voice model (Kokoro, Apache 2.0) and audio I/O.
+kokoro-onnx>=0.4
+soundfile>=0.12
+numpy>=2
+# What every project's make_slides.py imports.
+pillow>=10
+matplotlib>=3.8

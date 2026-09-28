@@ -25,20 +25,21 @@ SCENES = [
         title="Singleton Pattern",
         body=None,
         narration=(
-            "Hello, and welcome. This video explains the Singleton pattern in "
-            "Java, and it is written and presented by Jayasekhar Konduru. [[slnc "
-            "300]] Let's start with the simple definition. The singleton pattern "
-            "guarantees that a class has exactly one instance, and gives every "
-            "caller one well-known way of reaching it. The class takes control of "
-            "its own creation, so however you ask — and we'll see some determined "
-            "ways of asking — you cannot get a second one. [[slnc 350]] That's "
-            "the idea in a sentence. It's the smallest pattern in the Gang of "
-            "Four book, and the one Java developers reach for the most casually. "
-            "The rest of the video does it properly, by building a real working "
-            "Java project: an order-number sequencer for an online store, in Java "
-            "twenty one. [[slnc 250]] And along the way we'll watch a private "
-            "constructor get called anyway — twice — by two attacks that "
-            "Effective Java's favourite singleton shape is immune to."
+            'Hello, and welcome. [[slnc 400]] This video explains the '
+            'Singleton pattern, in Java. [[slnc 300]] This video is '
+            'presented by Jayasekhar Konduru. [[slnc 600]] First, a '
+            'simple definition. [[slnc 300]] The Singleton pattern '
+            'guarantees that a class has exactly one instance. [[slnc '
+            '300]] And it gives every caller one well-known way to reach '
+            'it. [[slnc 400]] The class controls its own creation, so no '
+            'matter how you ask, you cannot get a second one. [[slnc '
+            "600]] Think of a country's official clock. [[slnc 300]] "
+            'Everyone sets their watch from the same one. [[slnc 300]] '
+            'Two official clocks would cause confusion. [[slnc 700]] In '
+            'this video, we build an order number generator for an online '
+            'store. [[slnc 500]] And we will watch a private constructor '
+            'get called anyway, twice, by two tricks. [[slnc 300]] Then '
+            'we will see the one Java shape that stops both.'
         ),
     ),
     dict(
@@ -55,14 +56,15 @@ SCENES = [
             "Two different customers must never receive the same number.",
         ],
         narration=(
-            "So here's the job. Every checkout on our marketplace needs an "
-            "order number — ORD-000001, ORD-000002, and so on — handed out "
-            "in strict sequence, no gaps, no repeats. [[slnc 250]] "
-            "Checkout issues them. So does the admin console, when support "
-            "staff raise a manual order. So does a background job replaying "
-            "a failed payment. All three have to draw from the same "
-            "counter, or two different customers can end up with the same "
-            "order number."
+            'Here is the job. [[slnc 400]] Every checkout in our store '
+            'needs an order number. [[slnc 300]] Order one, order two, '
+            'order three, and so on. [[slnc 300]] In strict sequence, '
+            'with no gaps, and no repeats. [[slnc 500]] Checkout creates '
+            'order numbers. [[slnc 300]] So does the admin console, when '
+            'support staff raise an order by hand. [[slnc 300]] So does a '
+            'background job, retrying a failed payment. [[slnc 500]] All '
+            'three must use the same counter. [[slnc 300]] Otherwise, two '
+            'different customers could receive the same order number.'
         ),
     ),
     dict(
@@ -80,14 +82,16 @@ SCENES = [
 // in CheckoutService:      new OrderSequenceGenerator().nextOrderNumber();  // ORD-000001
 // in AdminConsoleService:  new OrderSequenceGenerator().nextOrderNumber();  // ORD-000001 — collision""",
         narration=(
-            "Reasonable-looking class. The problem shows up the moment two "
-            "different parts of the system each construct their own. "
-            "[[slnc 300]] "
-            "Checkout builds one, admin console builds another, and each "
-            "new OrderSequenceGenerator starts its own counter at zero. "
-            "There's nothing wrong with the class itself — the bug is that "
-            "the language lets anyone construct as many of it as they "
-            "like, when the rule is exactly one, ever."
+            'Here is a reasonable-looking generator class. [[slnc 300]] '
+            'It holds a counter, and each call adds one, and returns the '
+            'next order number. [[slnc 500]] The problem appears when two '
+            'parts of the system each create their own generator. [[slnc '
+            '300]] Checkout creates one, and the admin console creates '
+            'another. [[slnc 300]] Each one starts its own counter at '
+            'zero. [[slnc 300]] So both hand out order number one. [[slnc '
+            '500]] The class itself is fine. [[slnc 300]] The bug is that '
+            'anyone can create as many as they like, when the rule is '
+            'exactly one.'
         ),
     ),
     dict(
@@ -106,12 +110,14 @@ SCENES = [
     }
 }""",
         narration=(
-            "The textbook fix takes new away from callers and hands back "
-            "one shared instance instead. Private constructor, static "
-            "field, public getInstance. [[slnc 300]] "
-            "Every caller now goes through getInstance, and under normal "
-            "use it really does return the same object every time. Private "
-            "means private... or does it?"
+            'The textbook fix takes creation away from callers. [[slnc '
+            '400]] Make the constructor private. [[slnc 300]] Keep the '
+            'one instance in a static field. [[slnc 300]] And add a '
+            'public method, called get instance, that returns it. [[slnc '
+            '500]] Now every caller goes through get instance. [[slnc '
+            '300]] And in normal use, it really does return the same '
+            'object every time. [[slnc 500]] Private means private. '
+            '[[slnc 300]] Or does it?'
         ),
     ),
     dict(
@@ -125,13 +131,15 @@ LegacyOrderSequenceGenerator forged = ctor.newInstance();   // succeeds
 
 // forged != LegacyOrderSequenceGenerator.getInstance()  -> true, a second instance exists""",
         narration=(
-            "Reflection can call a private constructor directly. Get "
-            "declared constructor, set accessible true, new instance — and "
-            "it just works. [[slnc 300]] "
-            "'Private' is a compile-time convention the compiler checks, "
-            "not an absolute the J V M enforces at runtime. Frameworks and "
-            "testing tools use exactly this trick for legitimate reasons, "
-            "and they never asked this class's permission first."
+            "First trick: reflection. [[slnc 400]] Java's reflection "
+            'features can find a private constructor, switch off its '
+            'protection, and call it. [[slnc 300]] And it simply works. '
+            '[[slnc 500]] A second generator now exists, separate from '
+            'the shared one. [[slnc 500]] Private is a rule the compiler '
+            'checks. [[slnc 300]] It is not something Java enforces while '
+            'the program runs. [[slnc 300]] Frameworks and testing tools '
+            'use this very trick, for good reasons, without asking the '
+            'class.'
         ),
     ),
     dict(
@@ -146,13 +154,14 @@ Object roundTripped = new ObjectInputStream(
 
 // roundTripped != LegacyOrderSequenceGenerator.getInstance()  -> true, another second instance""",
         narration=(
-            "Second attack, no reflection needed at all. Java's default "
-            "serialization never calls a constructor — it rebuilds an "
-            "object's fields straight from bytes. [[slnc 300]] "
-            "Serialize the shared instance, deserialize it, and what comes "
-            "back is a brand-new object, counter reset to zero, silently. "
-            "Two separate holes, in a class that was written specifically "
-            "to prevent a second instance from ever existing."
+            "Second trick, with no reflection needed. [[slnc 400]] Java's "
+            'built-in serialization can save an object as bytes, and '
+            'rebuild it later. [[slnc 300]] And when it rebuilds, it '
+            'never calls a constructor. [[slnc 500]] So save the shared '
+            'generator, and read it back. [[slnc 300]] What comes back is '
+            'a brand new object, with its counter reset to zero. [[slnc '
+            '300]] Silently. [[slnc 500]] Two separate holes, in a class '
+            'written specifically to prevent a second instance.'
         ),
     ),
     dict(
@@ -169,15 +178,15 @@ Object roundTripped = new ObjectInputStream(
             "and give every caller the same well-known way to reach it.",
         ],
         narration=(
-            "The Gang of Four's definition is short. Ensure a class only "
-            "has one instance, and provide a global point of access to it. "
-            "[[slnc 300]] "
-            "In plain words? Make it impossible to construct more than one "
-            "of this class, and give every caller in the program the same "
-            "well-known way to reach the instance that does exist. The "
-            "question this project actually answers is narrower, though: "
-            "which Java shape makes that impossible, and which shapes only "
-            "look like they do."
+            "Here is the pattern's definition, from the famous Gang of "
+            'Four book. [[slnc 400]] Ensure a class has only one '
+            'instance, and provide a global point of access to it. [[slnc '
+            '500]] In plain words: make it impossible to create more than '
+            'one. [[slnc 300]] And give every caller the same, well-known '
+            'way to reach it. [[slnc 500]] The real question this project '
+            'answers is: which Java shape truly makes a second one '
+            'impossible? [[slnc 300]] And which shapes only look like '
+            'they do?'
         ),
     ),
     dict(
@@ -186,16 +195,15 @@ Object roundTripped = new ObjectInputStream(
         title="The Shape of It",
         body=None,
         narration=(
-            "So here's the shape of it. OrderSequenceGenerator is a "
-            "single-element enum — instance is a constant the J V M "
-            "creates exactly once, during class loading, before any "
-            "caller's code can even reference it. [[slnc 300]] "
-            "Three guarantees come with that for free: the J V M's "
-            "class-loading is thread-safe by the language specification, "
-            "reflection is barred outright from calling an enum's "
-            "constructor, and enum deserialization resolves by name "
-            "against the existing constant instead of building a new "
-            "object."
+            'Here is the shape of the answer. [[slnc 400]] The order '
+            'number generator becomes an enum, with a single value, '
+            'called INSTANCE. [[slnc 500]] Java creates that value '
+            'exactly once, when the class is loaded, before any caller '
+            'can even reach it. [[slnc 500]] That gives three guarantees, '
+            'for free. [[slnc 300]] Loading a class is thread-safe, by '
+            "Java's own rules. [[slnc 300]] Reflection is forbidden from "
+            'creating enum values. [[slnc 300]] And reading an enum back '
+            'from bytes returns the existing value, not a new one.'
         ),
     ),
     dict(
@@ -214,15 +222,16 @@ Object roundTripped = new ObjectInputStream(
 
 // no constructor to call, no getInstance(), no null check, no lock""",
         narration=(
-            "That is the entire singleton. No private constructor to "
-            "remember to write, no getInstance method, no null check, no "
-            "lock. [[slnc 300]] "
-            "Constructor dot new instance on an enum throws "
-            "IllegalArgumentException — the reflection A P I refuses "
-            "outright, no defensive code required here. And serializing "
-            "instance and reading it back hands you the exact same "
-            "instance, because the language defines an enum's serialized "
-            "form as its name, not its fields."
+            'That is the entire singleton. [[slnc 300]] An enum with one '
+            'value, holding a counter, and a method that returns the next '
+            'order number. [[slnc 500]] No private constructor to '
+            'remember. [[slnc 300]] No get instance method. [[slnc 300]] '
+            'No null check. [[slnc 300]] No lock. [[slnc 500]] Try the '
+            'reflection trick, and Java refuses outright: it cannot '
+            'reflectively create enum objects. [[slnc 300]] Try the '
+            'serialization trick, and you get back the very same '
+            'instance. [[slnc 300]] Because Java saves an enum by its '
+            'name, not by its fields.'
         ),
     ),
     dict(
@@ -238,15 +247,16 @@ public String nextOrderNumber() {
 // counter++ on a plain int: two threads can read the same value and both increment it
 // counter.incrementAndGet(): one atomic operation, no lost updates, ever""",
         narration=(
-            "One detail that only matters once you've actually solved the "
-            "instance problem. [[slnc 250]] "
-            "Now that there truly is exactly one instance, it's reachable "
-            "from every thread in the program at once, so the state it "
-            "carries has to be safe to mutate concurrently. Counter plus "
-            "plus on a plain int is a read, then a write — two threads can "
-            "interleave and lose an increment. Increment and get on an "
-            "atomic long is a single atomic operation. No two callers can "
-            "ever collide on the same number."
+            'One more detail, which only matters once there truly is one '
+            'instance. [[slnc 500]] Now every thread in the program can '
+            'reach that one generator, at the same time. [[slnc 300]] So '
+            'its counter must be safe to change from many threads. [[slnc '
+            '500]] Adding one to a plain number is really two steps: read '
+            'it, then write it. [[slnc 300]] Two threads can both read '
+            'the same value, and one increase is lost. [[slnc 500]] So '
+            'the counter is an Atomic Long. [[slnc 300]] Its increment is '
+            'one indivisible step. [[slnc 300]] So no two callers can '
+            'ever get the same order number.'
         ),
     ),
     dict(
@@ -276,15 +286,15 @@ forged == legacyFirst: false
 == Breaking it: serialization ==
 legacyRoundTripped == legacyFirst: false""",
         narration=(
-            "Let's run it, and see the whole story on one screen. "
-            "[[slnc 250]] "
-            "The enum issues order numbers, rejects the reflection attack "
-            "with a clear exception, and comes back as the exact same "
-            "instance after a serialization round trip. [[slnc 300]] "
-            "Then the legacy class — identical to callers under normal "
-            "use — falls to both of the exact same attacks. Same two lines "
-            "of attacking code, run against two classes that look "
-            "identical from the outside, with opposite outcomes."
+            "Let's run the demo. [[slnc 500]] The enum hands out order "
+            'one, then order two. [[slnc 300]] The reflection trick is '
+            'rejected, with a clear error. [[slnc 300]] And after saving '
+            'and reading back, it is still the exact same instance. '
+            '[[slnc 500]] Then the classic private-constructor version. '
+            '[[slnc 300]] In normal use, it looks identical. [[slnc 300]] '
+            'But it falls to both tricks. [[slnc 500]] The same two '
+            'tricks, used against two classes that look identical from '
+            'outside, with opposite results.'
         ),
     ),
     dict(
@@ -299,18 +309,18 @@ legacyRoundTripped == legacyFirst: false""",
             "✓  Reach for it only when the domain genuinely requires exactly one.",
         ],
         narration=(
-            "Now the honest part. Every pattern has a ceiling, and this "
-            "one's is real. [[slnc 300]] "
-            "A singleton is global mutable state dressed up in a pattern "
-            "name — any code anywhere can reach INSTANCE, and there's no "
-            "clean way to give one test its own counter. It hides a "
-            "dependency, too: a method calling INSTANCE inside its body "
-            "doesn't show that dependency in its signature the way a "
-            "parameter would. [[slnc 250]] "
-            "And the moment the system needs a separate sequence per "
-            "storefront or per warehouse, 'exactly one for the whole J V "
-            "M' is precisely the wrong guarantee — no amount of tuning "
-            "fixes that, the pattern itself has to go."
+            'Now the honest part. [[slnc 300]] This pattern has real '
+            'limits. [[slnc 500]] A singleton is global, changeable '
+            'state, with a pattern name. [[slnc 300]] Any code anywhere '
+            'can reach it. [[slnc 300]] And there is no clean way to give '
+            'each test its own counter. [[slnc 500]] It also hides a '
+            'dependency. [[slnc 300]] A method that uses the singleton '
+            'inside its body does not show that in its parameters. [[slnc '
+            '500]] And if the business later needs a separate sequence '
+            'for each shop, or each warehouse, exactly one for the whole '
+            'program is the wrong promise. [[slnc 300]] Then the pattern '
+            'itself has to go. [[slnc 500]] Use it only when the business '
+            'truly requires exactly one.'
         ),
     ),
     dict(
@@ -326,16 +336,16 @@ legacyRoundTripped == legacyFirst: false""",
             "The other three control how an object is built. Singleton controls how many.",
         ],
         narration=(
-            "So where does singleton sit next to the other creational "
-            "patterns? [[slnc 250]] "
-            "Prototype answers 'I have one, get me another.' Builder "
-            "answers 'which pieces, assembled in what order.' Abstract "
-            "factory answers 'which whole matching set.' Singleton is the "
-            "odd one out — it says nothing about assembly at all, and "
-            "controls how many instances exist, full stop. [[slnc 300]] "
-            "It's also the one most often reached for to solve a different "
-            "problem — 'I don't want to pass this object around' — which "
-            "dependency injection solves without the global-state cost."
+            'So how does the Singleton relate to the other creational '
+            'patterns? [[slnc 500]] Prototype answers: I have one, get me '
+            'another. [[slnc 300]] Builder answers: which pieces, in what '
+            'order. [[slnc 300]] Abstract Factory answers: which whole '
+            'matching set. [[slnc 500]] Singleton is the odd one out. '
+            '[[slnc 300]] It says nothing about how an object is built. '
+            '[[slnc 300]] It only controls how many exist. [[slnc 500]] '
+            'It is also often used to solve a different problem: I do not '
+            'want to pass this object around. [[slnc 300]] Dependency '
+            'injection solves that, without the cost of global state.'
         ),
     ),
     dict(
@@ -348,18 +358,15 @@ legacyRoundTripped == legacyFirst: false""",
             "one Java singleton shape that closes both holes, for free.",
         ],
         narration=(
-            "If you keep one sentence from all of this, keep this one. "
-            "[[slnc 300]] "
-            "A private constructor is a promise the compiler checks, not "
-            "one the J V M enforces at runtime — reflection and "
-            "serialization can both break it. A single-element enum is the "
-            "one Java singleton shape that closes both holes, for free, "
-            "with no extra code. [[slnc 350]] "
-            "There's a full set of notes in the project, an animated "
-            "walkthrough you can step through at your own pace, and a "
-            "session plan if you fancy teaching this to somebody else. Go "
-            "add a readResolve method to the legacy class, and watch "
-            "exactly one of the two attacks start failing."
+            'If you keep one sentence from this video, keep this one. '
+            '[[slnc 400]] A private constructor is a promise the compiler '
+            'checks, not one Java enforces while the program runs. [[slnc '
+            '300]] A single-value enum is the one Java singleton shape '
+            'that closes both holes, for free. [[slnc 600]] The project '
+            'has full notes, an animated walkthrough, and a teaching '
+            'plan. [[slnc 300]] Try adding a read resolve method to the '
+            'classic version. [[slnc 300]] And listen for which one of '
+            'the two tricks stops working.'
         ),
     ),
     dict(
@@ -373,15 +380,13 @@ legacyRoundTripped == legacyFirst: false""",
             "Full source code, notes and diagrams are in the repository.",
         ],
         narration=(
-            "And that's the singleton pattern. [[slnc 300]] "
-            "If you got something out of this, do give it a thumbs up, and "
-            "subscribe. It genuinely helps the channel, and it's what "
-            "makes more of these possible. [[slnc 250]] "
-            "And if there's a pattern you'd like me to cover next, drop it "
-            "in the comments. I read every one. [[slnc 250]] "
-            "All the source code, the written notes and the diagrams are "
-            "in the repository. Thanks for watching, and I'll see you in "
-            "the next one."
+            "That's the Singleton pattern. [[slnc 400]] The full source "
+            'code, written notes, and diagrams are all in the repository. '
+            '[[slnc 500]] If there is a pattern you would like to see '
+            'covered, suggest it in the comments. [[slnc 500]] If this '
+            'helped, a like really does help other people find it. [[slnc '
+            "300]] And subscribe, if you'd like the rest of the series. "
+            '[[slnc 400]] Thanks for watching.'
         ),
     ),
 ]

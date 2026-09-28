@@ -6,29 +6,6 @@ Say it in words. The shop posts an order to the broker's shop exchange with the 
 
 ![Content-Based Router with Camel pattern sequence diagram](images/sequence-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant S as the shop
-    participant B as RabbitMQ
-    participant C as Camel route
-    participant M as manual review
-    S->>B: post a subscription order, label orders
-    B->>C: hand it to the route
-    C->>C: question 1, high value: no
-    C->>C: question 2, digital: no
-    C->>C: question 3, express: no
-    C->>C: question 4, physical: no
-    C->>M: the otherwise branch
-    C->>B: handled, remove it from the orders queue
-    Note over C,B: with no otherwise branch this last step still happens, and the order is gone
-```
-
-</details>
-
 The load-bearing sentence: **a message that no question claims is only kept if the route says where to keep it.**
 
 For the other sequences — the order of the questions deciding the destination, the failing branch, and the question added without touching anybody else — see [`uml-diagram.md`](uml-diagram.md).

@@ -16,34 +16,6 @@ again now gets the answer zero.
 
 ![Read–Write Lock pattern sequence diagram](images/sequence-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant Main as Test thread
-    participant Lock as ReentrantReadWriteLock
-    participant R1 as reader 1
-    participant R2 as reader 2
-    participant R3 as reader 3
-    participant R4 as reader 4
-
-    R1->>Lock: readLock().lock()
-    R2->>Lock: readLock().lock()
-    R3->>Lock: readLock().lock()
-    R4->>Lock: readLock().lock()
-    Note over Main: CountDownLatch confirms all four now hold the read lock
-    Main->>Lock: getReadLockCount()
-    Lock-->>Main: 4 -- reported by the lock itself, not inferred
-    Main->>R1: open the shared gate
-    Note over R1,R4: all four release the read lock
-    Main->>Lock: getReadLockCount()
-    Lock-->>Main: 0
-```
-
-</details>
-
 Say the load-bearing sentence aloud, because it is the one a picture
 cannot carry on its own: **"four readers at once" is not asserted because
 four threads were started — it is asserted because the lock's own

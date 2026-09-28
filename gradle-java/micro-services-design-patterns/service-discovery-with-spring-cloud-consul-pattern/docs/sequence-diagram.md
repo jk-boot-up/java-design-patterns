@@ -6,26 +6,4 @@ Say it in words. A copy of Pricing starts and registers with Consul, with a heal
 
 ![Service Discovery with Spring Cloud Consul pattern sequence diagram](images/sequence-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant P as pricing-2
-    participant C as Consul
-    participant K as client
-    P->>C: register, with a health check
-    C->>P: check: passing
-    P--xP: crashes
-    K->>C: healthy copies?
-    C-->>K: pricing-2 (stale)
-    K->>P: request fails
-    C->>P: check: no answer, critical
-    K->>C: healthy copies?
-    C-->>K: without pricing-2
-```
-
-</details>
-
 The load-bearing sentence: **the list is only as fresh as the last check.**

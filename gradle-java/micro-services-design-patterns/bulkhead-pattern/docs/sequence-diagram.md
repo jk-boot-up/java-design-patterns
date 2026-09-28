@@ -17,48 +17,6 @@ through anyway.
 
 ![Bulkhead sequence diagram](images/sequence-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant F as SupplierFeed
-    participant C as Checkout
-    participant SP as the shared pool — 4 threads
-    participant FB as the feed bulkhead — 2 threads
-    participant CB as the checkout bulkhead — 2 threads
-
-    Note over F,SP: one shared pool, and the shop stops selling
-
-    F->>SP: submit feed-1
-    SP-->>F: started on shared-worker
-    F->>SP: submit feed-2
-    SP-->>F: started on shared-worker
-    F->>SP: submit feed-3
-    SP-->>F: started on shared-worker
-    F->>SP: submit feed-4
-    SP-->>F: started on shared-worker
-    Note over SP: all four threads now held,<br/>waiting on a partner API that is not answering
-
-    C->>SP: submit checkout
-    Note over C,SP: no reply, and no line in the timeline.<br/>Checkout is not broken — it never started.<br/>Still waiting after 300ms, and the shopper has gone.
-
-    Note over F,CB: the same instant, partitioned
-
-    F->>FB: submit feed-1, feed-2
-    FB-->>F: both started on feed-worker
-    F->>FB: submit feed-3, feed-4
-    Note over FB: 2 threads busy, 2 jobs queued.<br/>Just as stuck as before — a test asserts it.
-
-    C->>CB: submit checkout
-    CB-->>C: started on checkout-worker
-    CB-->>C: finished — paid ORD-5001
-    Note over C,CB: milliseconds, on threads the feed<br/>was never able to reach
-```
-
-</details>
-
 ## Reading the timings
 
 **The upper half has no checkout line, and that is the finding.** Failures that leave no

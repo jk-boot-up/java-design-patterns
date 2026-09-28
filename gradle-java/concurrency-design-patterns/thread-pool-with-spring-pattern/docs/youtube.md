@@ -19,21 +19,21 @@ The first two lines are what a viewer sees above the fold, so they carry the hoo
 ```
 CHAPTERS
 00:00 Introduction
-00:53 The Partner Project
-01:16 Before The First Line
-01:38 What You Get By Default
-02:07 @Async Moves The Work
-02:23 The Unbounded Queue
-02:44 Bound It
-03:04 The Annotation That Does Nothing
-03:23 Pool Starvation
-03:43 The Verdict
-03:57 How To Recognise It
-04:15 Where You Have Met This
-04:26 What Was Used
-04:34 What Is Real Here
-04:49 When This Is Too Much
-04:58 Thanks for Watching
+00:56 The Partner Project
+01:21 Before The First Line
+01:45 What You Get By Default
+02:11 @Async Moves The Work
+02:29 The Unbounded Queue
+02:52 Bound It
+03:14 The Annotation That Does Nothing
+03:37 Pool Starvation
+04:04 The Verdict
+04:20 How To Recognise It
+04:40 Where You Have Met This
+04:53 What Was Used
+05:02 What Is Real Here
+05:15 When This Is Too Much
+05:26 Thanks for Watching
 
 SOURCE CODE, WRITTEN NOTES AND AN INTERACTIVE ANIMATION
 https://github.com/jk-boot-up/java-design-patterns/tree/main/gradle-java/concurrency-design-patterns/thread-pool-with-spring-pattern
@@ -48,21 +48,21 @@ YouTube renders these as chapters only if there are at least three and the first
 
 ```
 00:00 Introduction
-00:53 The Partner Project
-01:16 Before The First Line
-01:38 What You Get By Default
-02:07 @Async Moves The Work
-02:23 The Unbounded Queue
-02:44 Bound It
-03:04 The Annotation That Does Nothing
-03:23 Pool Starvation
-03:43 The Verdict
-03:57 How To Recognise It
-04:15 Where You Have Met This
-04:26 What Was Used
-04:34 What Is Real Here
-04:49 When This Is Too Much
-04:58 Thanks for Watching
+00:56 The Partner Project
+01:21 Before The First Line
+01:45 What You Get By Default
+02:11 @Async Moves The Work
+02:29 The Unbounded Queue
+02:52 Bound It
+03:14 The Annotation That Does Nothing
+03:37 Pool Starvation
+04:04 The Verdict
+04:20 How To Recognise It
+04:40 Where You Have Met This
+04:53 What Was Used
+05:02 What Is Real Here
+05:15 When This Is Too Much
+05:26 Thanks for Watching
 ```
 
 ## Tags
@@ -101,4 +101,4 @@ Add a card partway through pointing at the playlist, so a viewer who arrives at 
 
 ## Runtime
 
-Approximately 05:33, narrated at 145 words per minute.
+Approximately 06:01, narrated at 145 words per minute.

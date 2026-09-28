@@ -17,23 +17,22 @@ SCENES = [
         title="Thread Pool",
         body=None,
         narration=(
-            "Hello, and welcome. This video explains the Thread Pool "
-            "pattern in Java, and it is written and presented by "
-            "Jayasekhar Konduru. [[slnc 300]] The plain definition: a "
-            "fixed, small number of worker threads is created once and "
-            "reused for every task handed to it, pulling from a queue "
-            "whose own capacity is also chosen on purpose. [[slnc 350]] "
-            "This is the second project in the concurrency category, and "
-            "it picks up exactly where the first one left off. That "
-            "project built a bounded queue and one packer thread; this "
-            "one asks what happens the moment there is more than one "
-            "packer, and shows that a fixed number of workers, on its "
-            "own, is only half the fix. [[slnc 300]] By the end you will "
-            "know why the JDK's own default thread pool factory hides an "
-            "unbounded queue, you will have watched a genuine deadlock "
-            "that a fixed pool can reach at any size, and you will know "
-            "exactly what Java's virtual threads do and do not change "
-            "about any of it."
+            'Hello, and welcome. [[slnc 400]] This video explains the '
+            'Thread Pool pattern, in Java. [[slnc 300]] This video is '
+            'presented by Jayasekhar Konduru. [[slnc 600]] First, a '
+            'simple definition. [[slnc 300]] A thread pool creates a '
+            'small, fixed number of worker threads once. [[slnc 300]] '
+            'Then it reuses them for every task. [[slnc 300]] Tasks wait '
+            "in a queue, and that queue's size limit is also chosen on "
+            'purpose. [[slnc 600]] Think of a taxi rank with ten taxis. '
+            '[[slnc 300]] The same ten cars carry passenger after '
+            'passenger. [[slnc 300]] And the waiting line has a limit, '
+            'too. [[slnc 700]] In our online store, a team of packers '
+            'handles incoming orders. [[slnc 500]] By the end, you will '
+            "know why Java's most popular pool factory hides a queue with "
+            'no limit. [[slnc 300]] You will hear a real deadlock that a '
+            'pool of any size can reach. [[slnc 300]] And you will know '
+            "what Java's virtual threads do, and do not, change."
         ),
     ),
     dict(
@@ -51,16 +50,14 @@ SCENES = [
             "packers, and how many orders may wait for them.",
         ],
         narration=(
-            "Same shop, same orders, same packing step. Last time, "
-            "exactly one packer thread did all the work, pulling from a "
-            "bounded queue. [[slnc 300]] This time, the packer becomes a "
-            "team -- more than one worker thread, sharing the work. And a "
-            "team, it turns out, needs two separate decisions, not one: "
-            "how many packers are on shift, and how many orders are "
-            "allowed to wait for them before somebody says no. [[slnc "
-            "300]] Losing track of that second bound is this whole "
-            "video's first lesson, and it is easier to lose than it "
-            "sounds."
+            'Here is the scenario. [[slnc 400]] Orders arrive at '
+            'checkout, and a packing step handles each one. [[slnc 500]] '
+            'Now the packing is done by a team of worker threads, sharing '
+            'the work. [[slnc 400]] And a team needs two separate '
+            'decisions, not one. [[slnc 300]] How many packers are on '
+            'shift. [[slnc 300]] And how many orders may wait for them, '
+            'before someone says no. [[slnc 500]] Forgetting that second '
+            "limit is this video's first lesson."
         ),
     ),
     dict(
@@ -75,14 +72,13 @@ SCENES = [
   stack until its order is packed --
   nothing caps how many pile up.""",
         narration=(
-            "The first naive version is not new -- it is the identical "
-            "failure the last video measured, seen from the packing "
-            "team's side this time. Every order gets its own brand new "
-            "thread. [[slnc 300]] Two thousand real threads, created in "
-            "under a hundred milliseconds. Fast, and completely "
-            "unbounded -- exactly the number from last time, quoted "
-            "again here on purpose, because act six is going to put a "
-            "very different number right next to it."
+            'First, the naive way: a new thread for every order. [[slnc '
+            '400]] Two thousand real threads are created in under a '
+            'hundred milliseconds. [[slnc 300]] About forty-nine '
+            'microseconds each. [[slnc 500]] Fast, but completely '
+            'unlimited. [[slnc 300]] Every thread stays alive, holding '
+            'its own memory, until its order is packed. [[slnc 300]] '
+            'Nothing limits how many pile up.'
         ),
     ),
     dict(
@@ -99,19 +95,18 @@ SCENES = [
   backlog waiting behind the 2 busy
   workers: 500""",
         narration=(
-            "Here is the fix most people reach for, and it looks right. "
-            "Executors dot new Fixed Thread Pool of two: exactly two "
-            "worker threads, created once, reused for everything. "
-            "[[slnc 300]] Watch what happens underneath it, though. Both "
-            "workers are confirmed busy -- parked deliberately, so this "
-            "is certain, not guessed -- and five hundred more orders are "
-            "submitted on top. Every single one is accepted immediately. "
-            "[[slnc 350]] That factory method hands its two workers an "
-            "unbounded queue, with no argument anywhere to change it. "
-            "Five hundred orders are now waiting, invisibly, and nothing "
-            "printed that number until this demo went looking for it on "
-            "purpose. A fixed worker count is not the same promise as a "
-            "fixed pool."
+            'Here is the fix most people reach for, and it looks right. '
+            "[[slnc 400]] Java's new Fixed Thread Pool, with two workers. "
+            '[[slnc 300]] Exactly two threads, created once, and reused. '
+            '[[slnc 500]] But listen to what happens underneath. [[slnc '
+            '300]] Both workers are proven to be busy. [[slnc 300]] Then '
+            'five hundred more orders are submitted. [[slnc 300]] Every '
+            'single one is accepted immediately. [[slnc 500]] That '
+            'factory gives its workers a queue with no limit, and no way '
+            'to change it. [[slnc 300]] Five hundred orders are now '
+            'waiting, invisibly. [[slnc 300]] And nothing reported it, '
+            'until this demo went looking. [[slnc 500]] A fixed number of '
+            'workers is not the same as a fixed pool.'
         ),
     ),
     dict(
@@ -129,15 +124,13 @@ SCENES = [
             "Neither one is a number the JDK picked for you.",
         ],
         narration=(
-            "So here is the actual pattern, and it is one sentence with "
-            "two halves. A fixed number of worker threads, created once "
-            "and reused -- that part the naive version already had "
-            "right. And a queue with its own fixed capacity, standing "
-            "in front of them, refusing work once it is full. [[slnc "
-            "300]] Both numbers are arguments you choose, not defaults "
-            "the JDK chose for you three versions ago. That is the "
-            "entire difference between this pattern and the trap in the "
-            "previous scene."
+            'So here is the real pattern, in two halves. [[slnc 500]] '
+            'First, a fixed number of worker threads, created once, and '
+            'reused. [[slnc 300]] The naive version already got that part '
+            'right. [[slnc 500]] Second, a queue in front of them, with '
+            'its own fixed limit. [[slnc 300]] Once it is full, it '
+            'refuses new work. [[slnc 500]] Both numbers are choices you '
+            'make. [[slnc 300]] Not defaults someone else chose for you.'
         ),
     ),
     dict(
@@ -153,19 +146,15 @@ SCENES = [
   REJECTED on the spot -- no patience
   window, no room""",
         narration=(
-            "One worker this time, and a queue capacity of three, both "
-            "forced the same careful way the last video forced its own "
-            "queue -- the worker parked deliberately, confirmed busy by "
-            "a latch, before a single real order goes in. Three orders "
-            "fill the queue exactly to its bound. [[slnc 300]] A fourth "
-            "is submitted, and here is the detail worth pausing on. "
-            "Last video's bounded queue offered a hundred and fifty "
-            "milliseconds of patience before giving up. This pool has "
-            "none. The moment every worker is busy and the queue is "
-            "full, the rejection happens synchronously, on the calling "
-            "thread, before the submit call even returns. There is no "
-            "waiting, no retrying, nothing free -- if you want a "
-            "patience window here, you write it yourself, on top."
+            'Third demo: a full queue, and no patience. [[slnc 400]] This '
+            'time there is one worker, and a queue that holds three. '
+            '[[slnc 300]] The worker is held busy on purpose, and a latch '
+            'confirms it. [[slnc 300]] Then three orders fill the queue '
+            'exactly. [[slnc 500]] A fourth order is submitted. [[slnc '
+            '300]] And it is refused instantly, before the submit call '
+            'even returns. [[slnc 500]] There is no waiting period, and '
+            'no retry. [[slnc 300]] If you want the caller to wait a '
+            'little before giving up, you must write that yourself.'
         ),
     ),
     dict(
@@ -183,16 +172,14 @@ SCENES = [
             "There is no size that is free.",
         ],
         narration=(
-            "Choosing how many workers to run is a real decision, and it "
-            "is wrong in both directions. [[slnc 300]] Too few, and the "
-            "backlog from act two happens -- five hundred orders "
-            "queued, silently, before anyone thinks to ask why the "
-            "shop feels slow. [[slnc 300]] Too many, and each idle "
-            "worker is still a thread holding a stack for nothing, the "
-            "exact cost act one measured, just capped at a number "
-            "somebody has to pick. There is no size here that is free -- "
-            "only a size chosen on purpose, the same two words this "
-            "whole pattern keeps coming back to."
+            'Choosing how many workers to run is a real decision, and it '
+            'can be wrong both ways. [[slnc 500]] Too few, and orders '
+            'pile up silently, like the five hundred we just heard, '
+            'before anyone asks why the shop feels slow. [[slnc 500]] Too '
+            'many, and every idle worker still holds its own memory, for '
+            'nothing. [[slnc 300]] The same cost as a thread per order, '
+            'just capped. [[slnc 500]] There is no free size. [[slnc '
+            '300]] Only a size chosen on purpose.'
         ),
     ),
     dict(
@@ -210,21 +197,19 @@ SCENES = [
   by a demonstration timeout -- left
   alone, this never resolves""",
         narration=(
-            "Now a failure that has nothing to do with either bound "
-            "being too small. A task running inside a pool of exactly "
-            "one worker submits a second task to that very same pool, "
-            "and then waits for its result. [[slnc 300]] Think about "
-            "what has to happen for that wait to end. Some worker has to "
-            "pick up the second task. There is exactly one worker, and "
-            "it is the one doing the waiting. The second task can never "
-            "be scheduled -- not eventually, not with a bigger queue, "
-            "not ever. [[slnc 350]] This demo rescues itself with a "
-            "timeout so it can finish and tell you what happened, but "
-            "that timeout is not the pool's patience -- it is only the "
-            "demonstration's own escape hatch. Left alone, a real "
-            "service in this state hangs until somebody notices every "
-            "thread reads as busy while doing nothing at all, which is a "
-            "far worse debugging session than a failed test."
+            'Fourth demo: a failure that has nothing to do with the '
+            'limits. [[slnc 400]] A pool has exactly one worker. [[slnc '
+            '300]] A task running on that worker submits a second task to '
+            'the same pool. [[slnc 300]] Then it waits for the second '
+            "task's result. [[slnc 600]] Think about what must happen for "
+            'that wait to end. [[slnc 300]] Some worker must run the '
+            'second task. [[slnc 300]] But there is only one worker, and '
+            'it is the one waiting. [[slnc 300]] So the second task can '
+            'never run. [[slnc 300]] Not eventually, not with a bigger '
+            'queue, not ever. [[slnc 500]] This is called pool '
+            'starvation. [[slnc 300]] The demo rescues itself with a '
+            'timeout, just to report what happened. [[slnc 300]] A real '
+            'service would simply hang.'
         ),
     ),
     dict(
@@ -242,20 +227,17 @@ Runnable decrement = () -> {
 // two threads, same code: result is always 9.
 // (two decrements. one is lost. every run.)""",
         narration=(
-            "This project's determinism does not come from a new "
-            "mechanism -- it is the same three harness pieces from the "
-            "first video, copied unchanged, proven again here before "
-            "anything else relies on them. [[slnc 300]] The smallest "
-            "proof: two threads each read a shared stock count of ten, "
-            "meet at a rendezvous that will not release either one until "
-            "both have arrived, and only then write back what they read, "
-            "minus one. [[slnc 350]] Run it twenty times, and the answer "
-            "is nine, twenty times -- never eight, because both threads "
-            "are provably standing on the same stale read before either "
-            "one writes. The pool-starvation deadlock a moment ago "
-            "needed none of this forcing, and that is worth noticing: "
-            "one worker waiting on itself has exactly one outcome, on "
-            "every scheduler, with nothing to force at all."
+            'How does the demo make its results repeatable? [[slnc 400]] '
+            'With the same small tools used across these concurrency '
+            'videos. [[slnc 500]] For example, two threads each read a '
+            'shared stock count of ten. [[slnc 300]] Then they meet at a '
+            'meeting point, which releases neither until both have '
+            'arrived. [[slnc 300]] Only then does each write back what it '
+            'read, minus one. [[slnc 500]] Run it twenty times, and the '
+            'answer is nine, twenty times. [[slnc 300]] Never eight. '
+            '[[slnc 500]] Interestingly, the starvation deadlock needed '
+            'no forcing at all. [[slnc 300]] One worker waiting on itself '
+            'has only one possible outcome.'
         ),
     ),
     dict(
@@ -273,18 +255,14 @@ Runnable decrement = () -> {
             "to choose which worker runs which task, and when.",
         ],
         narration=(
-            "The same honest admission the first video made, required "
-            "again here. Almost every number in this video is bought by "
-            "pinning one specific interleaving with a gate or a latch -- "
-            "the real scheduler is free to hand any queued task to "
-            "either worker, in whatever order it likes. [[slnc 300]] "
-            "Pool starvation is the one exception worth naming directly. "
-            "It needed no forcing at all, because a pool of exactly one "
-            "worker waiting on itself has exactly one possible outcome, "
-            "regardless of what the scheduler does with anything else in "
-            "the program. A passing test elsewhere in this project "
-            "proves the forced interleaving behaves as shown -- not that "
-            "every schedule does."
+            'A quick, honest note about this demo. [[slnc 400]] Almost '
+            'every result was made repeatable by pinning one timing on '
+            'purpose, with a gate or a latch. [[slnc 300]] Everywhere '
+            'else, the operating system is free to run any task on any '
+            'worker, in any order. [[slnc 500]] Pool starvation is the '
+            'exception. [[slnc 300]] It needs no forcing, because it '
+            'happens on every possible schedule. [[slnc 500]] Elsewhere, '
+            'a passing test proves the forced timing, not every timing.'
         ),
     ),
     dict(
@@ -301,21 +279,19 @@ Runnable decrement = () -> {
   a pool still bounds a resource,
   not a thread count""",
         narration=(
-            "One more comparison, and the numbers do the talking. The "
-            "exact same flood of two thousand threads from act one, run "
-            "again with Java 21's virtual threads instead of platform "
-            "ones. [[slnc 300]] Eleven milliseconds, against ninety "
-            "eight. A virtual thread does not hold a dedicated operating "
-            "system thread the whole time it exists, only while it is "
-            "actually running unblocked, which is why creating a huge "
-            "number of them barely registers. [[slnc 350]] Here is the "
-            "honest limit of that number, though. It says nothing about "
-            "act three's pool. A downstream resource with ten "
-            "connections available still has ten, whether a handful of "
-            "platform threads or a million virtual ones are asking for "
-            "one. Cheap thread creation retires the old argument for "
-            "pooling threads purely to avoid that cost -- it does not "
-            "retire the pool itself."
+            "Fifth demo: Java's virtual threads. [[slnc 400]] The same "
+            'two thousand threads as the first demo, but using Java '
+            "twenty-one's virtual threads. [[slnc 500]] Eleven "
+            'milliseconds, compared with ninety-eight. [[slnc 300]] A '
+            'virtual thread only uses a real operating system thread '
+            'while it is actually running. [[slnc 300]] So creating huge '
+            'numbers of them is cheap. [[slnc 600]] But here is the '
+            'honest limit. [[slnc 300]] Suppose a database allows only '
+            'ten connections. [[slnc 300]] It still allows ten, whether a '
+            'handful of threads, or a million virtual threads, are '
+            'asking. [[slnc 500]] Cheap threads remove one old reason for '
+            'pooling. [[slnc 300]] They do not remove the need to limit a '
+            'shared resource.'
         ),
     ),
     dict(
@@ -332,18 +308,13 @@ Runnable decrement = () -> {
             "Sizing the pool has no free answer, either way.",
         ],
         narration=(
-            "Every project in this category pays a bill honestly, and "
-            "here is this one's. [[slnc 300]] Rejection has no patience "
-            "window built in -- it happens the instant the pool is full, "
-            "in the caller's own thread, or it does not happen at all. "
-            "If a real service wants to wait a little before giving up, "
-            "that waiting is code somebody has to write on top. [[slnc "
-            "300]] Nesting a submit-and-wait inside the very pool "
-            "already running the outer task is a deadlock waiting for "
-            "the wrong day -- it happens on every schedule, at every "
-            "pool size, the moment that nesting occurs. [[slnc 300]] And "
-            "sizing the pool, in both directions, has no free answer "
-            "either -- there is only a size chosen on purpose."
+            'Here are the costs, all in one place. [[slnc 500]] A refusal '
+            'has no waiting period built in. [[slnc 300]] It happens the '
+            'instant the pool is full, or not at all. [[slnc 500]] A task '
+            'that waits on another task in its own pool can deadlock. '
+            '[[slnc 300]] At any pool size, whenever that nesting '
+            'happens. [[slnc 500]] And choosing the pool size has no free '
+            'answer, in either direction.'
         ),
     ),
     dict(
@@ -360,14 +331,13 @@ Runnable decrement = () -> {
             "will never use is ceremony with nothing to bound.",
         ],
         narration=(
-            "So when does this pattern actually earn its place? [[slnc "
-            "300]] Worth it the moment more than one worker genuinely "
-            "helps -- CPU-bound work that can run in parallel, or "
-            "blocking I-O work under Java's traditional platform-thread "
-            "model, where thread creation cost is real money. [[slnc "
-            "300]] Not worth it for a single background task that runs "
-            "once and finishes. A pool sized for concurrency it will "
-            "never use is ceremony with nothing left to bound."
+            'So, when is this pattern worth it? [[slnc 400]] When more '
+            'than one worker truly helps. [[slnc 300]] Heavy calculations '
+            'that can run in parallel. [[slnc 300]] Or waiting on files '
+            'and networks, using traditional threads, where creating '
+            'threads really costs something. [[slnc 500]] It is not worth '
+            'it for a single background task that runs once. [[slnc 300]] '
+            'A pool sized for work it will never do is just ceremony.'
         ),
     ),
     dict(
@@ -381,21 +351,18 @@ Runnable decrement = () -> {
             "before you run it.",
         ],
         narration=(
-            "That's Thread Pool. [[slnc 250]] If you take one sentence "
-            "away, take this one: a fixed number of workers is only half "
-            "the pattern -- the queue behind them needs a bound too, or "
-            "you have simply moved where the unbounded growth happens. "
-            "[[slnc 350]] The full source, the written notes, the "
-            "diagrams and an animated walkthrough are all in the "
-            "repository, running offline with nothing installed but a "
-            "Java development kit. [[slnc 300]] If you try one exercise, "
-            "try this. Change the pool-starvation demo's worker count "
-            "from one to two, predict what happens before you run it, "
-            "and then check whether you were right. [[slnc 300]] If this "
-            "helped, a like genuinely does help other people find it, "
-            "and subscribe if you would like the rest of the series. "
-            "[[slnc 250]] Thanks for watching, and I'll see you in the "
-            "next one."
+            "That's the Thread Pool pattern. [[slnc 400]] If you remember "
+            'one sentence, make it this one. [[slnc 300]] A fixed number '
+            'of workers is only half the pattern, because the queue '
+            'behind them needs a limit too. [[slnc 500]] The full source '
+            'code, written notes, diagrams, and an animated walkthrough '
+            'are all in the repository. [[slnc 500]] Here is one exercise '
+            'to try. [[slnc 300]] Change the starvation demo from one '
+            'worker to two. [[slnc 300]] Predict what will happen, before '
+            'you run it. [[slnc 300]] Then check whether you were right. '
+            '[[slnc 500]] If this helped, a like really does help other '
+            "people find it. [[slnc 300]] And subscribe, if you'd like "
+            'the rest of the series. [[slnc 400]] Thanks for watching.'
         ),
     ),
 ]

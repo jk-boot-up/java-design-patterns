@@ -6,23 +6,4 @@ Say it in words. Test A asks the shared context for the checkout and places an o
 
 ![Registry with Spring pattern sequence diagram](images/sequence-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant A as test A
-    participant C as cached context
-    participant G as gateway singleton
-    participant B as test B
-    A->>C: getBean(InjectedCheckout).place(10000)
-    C->>G: charge(9000)
-    B->>C: getBean(RecordingGateway)
-    C-->>B: the same singleton
-    B->>B: sees [9000], passes only after A
-```
-
-</details>
-
 The load-bearing sentence: **the registry done well still shares whatever it holds.**

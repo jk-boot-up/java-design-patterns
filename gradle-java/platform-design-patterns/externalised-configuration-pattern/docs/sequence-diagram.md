@@ -23,42 +23,6 @@ Monday at a quarter to eleven — for a promotion that was meant to run over the
 
 ![Externalised Configuration pattern sequence diagram](images/sequence-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant Customer
-    participant Checkout as ConfiguredCheckout
-    participant Reader as GuardedSettings
-    participant Server as ConfigServer
-    participant Log as ChangeLog
-    participant Marketing
-
-    Customer->>Checkout: quote ORD-7102, goods £48.00
-    Checkout->>Reader: money(delivery.freeOver)
-    Reader->>Server: lookup delivery.freeOver
-    Server-->>Reader: not set
-    Note over Reader: fall back to the declared<br/>default of £50.00
-    Reader-->>Checkout: £50.00, the default
-    Checkout-->>Customer: delivery £4.99, threshold £50.00
-
-    Marketing->>Server: set delivery.freeOver to "35"
-    Server->>Log: Fri 16:30:04, was (not set), now "35", by marketing
-    Note over Server: no rebuild, no redeploy, no restart
-
-    Customer->>Checkout: quote ORD-7102 again, goods £48.00
-    Checkout->>Reader: money(delivery.freeOver)
-    Reader->>Server: lookup delivery.freeOver
-    Server-->>Reader: the text "35"
-    Note over Reader: money? yes.<br/>between £5 and £200? yes.<br/>remember £35.00 as the last good value
-    Reader-->>Checkout: £35.00, from the config server
-    Checkout-->>Customer: FREE delivery, threshold £35.00
-```
-
-</details>
-
 ## What the order proves
 
 **The read is inside the quote.** Step two is the entire pattern. Move that lookup into

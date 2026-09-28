@@ -21,23 +21,23 @@ Learn the prototype pattern in Java 21 — a Gang of Four creational pattern for
 
 CHAPTERS
 00:00 Introduction
-00:54 The Job
-01:30 The Repeated Eleven-Argument Call
-02:04 The Cloneable Trap
-02:41 Why That Hurts
-03:13 The Prototype Pattern
-03:40 A Photocopier, Not a Blueprint
-04:14 The Shape of It
-04:42 One Method, No Baggage
-05:08 copy() Reuses the Constructor
-05:37 Deep Copy vs. Shared Reference
-06:08 Cloning and Tweaking
-06:29 The Registry
-06:59 Running It
-07:28 Where It Stops
-08:09 How It Relates to the Others
-08:42 One Sentence to Keep
-09:21 Thanks for Watching
+00:49 The Job
+01:20 The Repeated Eleven-Argument Call
+01:47 The Cloneable Trap
+02:22 Why That Hurts
+02:50 The Prototype Pattern
+03:12 A Photocopier, Not a Blueprint
+03:42 The Shape of It
+04:09 One Method, No Baggage
+04:29 copy() Reuses the Constructor
+04:58 Deep Copy vs. Shared Reference
+05:27 Cloning and Tweaking
+05:56 The Registry
+06:30 Running It
+06:59 Where It Stops
+07:39 How It Relates to the Others
+08:11 One Sentence to Keep
+08:45 Thanks for Watching
 
 SOURCE CODE, WRITTEN NOTES AND AN INTERACTIVE ANIMATION
 https://github.com/jk-boot-up/java-design-patterns/tree/main/gradle-java/creational/prototype-pattern
@@ -52,23 +52,23 @@ YouTube renders these as chapters only if there are at least three and the first
 
 ```
 00:00 Introduction
-00:54 The Job
-01:30 The Repeated Eleven-Argument Call
-02:04 The Cloneable Trap
-02:41 Why That Hurts
-03:13 The Prototype Pattern
-03:40 A Photocopier, Not a Blueprint
-04:14 The Shape of It
-04:42 One Method, No Baggage
-05:08 copy() Reuses the Constructor
-05:37 Deep Copy vs. Shared Reference
-06:08 Cloning and Tweaking
-06:29 The Registry
-06:59 Running It
-07:28 Where It Stops
-08:09 How It Relates to the Others
-08:42 One Sentence to Keep
-09:21 Thanks for Watching
+00:49 The Job
+01:20 The Repeated Eleven-Argument Call
+01:47 The Cloneable Trap
+02:22 Why That Hurts
+02:50 The Prototype Pattern
+03:12 A Photocopier, Not a Blueprint
+03:42 The Shape of It
+04:09 One Method, No Baggage
+04:29 copy() Reuses the Constructor
+04:58 Deep Copy vs. Shared Reference
+05:27 Cloning and Tweaking
+05:56 The Registry
+06:30 Running It
+06:59 Where It Stops
+07:39 How It Relates to the Others
+08:11 One Sentence to Keep
+08:45 Thanks for Watching
 ```
 
 ## Tags
@@ -107,4 +107,4 @@ Add a card partway through pointing at the playlist, so a viewer who arrives at 
 
 ## Runtime
 
-Approximately 09:47, narrated at 145 words per minute.
+Approximately 09:05, narrated at 145 words per minute.

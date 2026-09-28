@@ -16,60 +16,6 @@ decides whether the shop gets paid is whether any attempt is still to come by th
 
 ![Sidecar with a Java proxy sequence diagram](images/sequence-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant C as checkout service
-    participant P as localhost:8081
-    participant N as nginx proxy
-    participant J as java proxy
-    participant G as payment provider
-
-    Note over G: unwell until 300ms, then healthy
-
-    rect rgb(60, 30, 30)
-    Note over C,G: yesterday — the nginx proxy is on the port
-    C->>P: pay ORD-4418, 4799 pence
-    P->>N: whatever is bound answers
-    N->>G: attempt 1 at 1ms
-    G-->>N: declined
-    N->>G: attempt 2 at 2ms
-    G-->>N: declined
-    N->>G: attempt 3 at 3ms
-    G-->>N: declined
-    N-->>P: out of attempts
-    P-->>C: NOT PAID
-    Note over N,G: three attempts, first to last 2ms
-    end
-
-    rect rgb(30, 40, 60)
-    Note over C,J: the swap — port.install(java)
-    Note over C,P: the service is not rebuilt, not restarted, not told
-    end
-
-    rect rgb(25, 55, 35)
-    Note over C,G: today — the java proxy is on the port
-    C->>P: pay ORD-4418, 4799 pence
-    P->>J: whatever is bound answers
-    J->>G: attempt 1 at 1ms
-    G-->>J: declined
-    J-->>J: wait 200ms
-    J->>G: attempt 2 at 202ms
-    G-->>J: declined
-    J-->>J: wait 400ms
-    J->>G: attempt 3 at 603ms
-    G-->>J: charged
-    J-->>P: receipt pay_ORD-4418
-    P-->>C: paid, 3 attempts, 603ms waiting
-    Note over J,G: three attempts, first to last 602ms
-    end
-```
-
-</details>
-
 ## What to look at, in order
 
 **The first two arrows are identical in both halves.** The service sends the same

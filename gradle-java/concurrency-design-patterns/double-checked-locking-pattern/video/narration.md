@@ -2,56 +2,56 @@
 
 ## 1. Double-Checked Locking
 
-Hello, and welcome. This video explains the Double-Checked Locking pattern in Java, and it is written and presented by Jayasekhar Konduru. The plain definition: double checked locking creates a shared object lazily. It checks for the object first without a lock, and only takes the lock, and checks again, when it looks missing. This is another project in the concurrency category, whose subject is how threads share work and state without corrupting either. In our online store, the shared thing that is expensive to build is the price list. By the end you will see two threads each build the price list, see the lock-every-time fix and its cost, see the double check take the lock once, see why the field must be volatile, see the simplest correct way, and see the bill, which is that it is ceremony with one way to be subtly wrong.
+Hello, and welcome. This video explains the Double-Checked Locking pattern, in Java. This video is presented by Jayasekhar Konduru. First, a simple definition. Double-checked locking creates a shared object only when it is first needed. It checks for the object first, without a lock. Only if the object looks missing does it take the lock, and check again. Think of the last person leaving an office. You glance at the lights on the way out. Only if they look on, do you walk back and check properly before switching them off. In our online store, the price list is expensive to build. In this video, two threads will build it twice. We will try locking every time, then checking twice. We will hear why one field must be volatile, and the simplest correct way to do it. And then the cost.
 
 ## 2. The Scenario
 
-Here is the scenario. The price list is expensive to build, so the shop builds it the first time anyone asks. Many threads ask, and the first few may ask at the same moment. The question: how do we build it exactly once?
+Here is the scenario. The shop's price list is expensive to build. So the shop builds it the first time anyone asks for it. Many threads ask for it. And the first few may ask at exactly the same moment. So here is the question. How do we build it exactly once?
 
 ## 3. Check, Then Create
 
-First, check, then create. Two threads ask for the shared price list at the same moment, before it exists. Both see that it is missing. Both build one. Two price lists were built, and each thread holds a different one. One of them is thrown away, and the expensive build was done twice.
+First, the naive way: check, then create. Two threads ask for the price list at the same moment, before it exists. Both see that it is missing. So both build one. Two price lists were built. And each thread holds a different one. One is thrown away, and the expensive work was done twice.
 
 ## 4. The Pattern
 
-The pattern. Look for the object, without a lock. If it is missing, take the lock. Then look again, in case someone else built it while you waited. Only then, build it. Once it is built, nobody takes the lock again.
+Now, the pattern. First, look for the object, without a lock. If it is missing, take the lock. Then look again, in case another thread built it while you were waiting. Only then, build it. Once it exists, nobody takes the lock again.
 
 ## 5. Lock Every Time
 
-Second, lock every time. The same two threads, with the lock taken on every call: one is built. That is correct. But a thousand calls, long after the price list was built, take the lock a thousand times. Every caller waits its turn, to be told something that never changes.
+Second demo: lock every time. The same two threads, but now every call takes the lock. Only one price list is built. That is correct. But then a thousand calls arrive, long after the price list exists. And the lock is taken a thousand times. Every caller waits its turn, just to be told something that never changes.
 
 ## 6. Check, Lock, Check Again
 
-Third, check, lock, check again. The same race builds one. The second thread waited for the lock, looked again, and found it already built. And a thousand calls take the lock once. After that, no call waits for anyone.
+Third demo: check, lock, and check again. The same race builds just one price list. The second thread waited for the lock. Then it looked again, and found the list already built. And a thousand calls take the lock only once. After that, no call waits for anyone.
 
 ## 7. Why It Must Be Volatile
 
-Fourth, why the field must be volatile. It is. Without it, the Java memory model lets one thread see the reference before it sees the object fully built. That failure cannot be produced on demand. It depends on the processor and the compiler. So it is not demonstrated here. A test guards the rule instead.
+Fourth: why the field must be marked volatile. In this project, it is. Without volatile, Java's memory rules allow a strange thing. One thread could see the reference to the price list, before the price list is fully built. That failure cannot be produced on demand. It depends on the processor and the compiler. So it is not demonstrated here. Instead, a test checks that the field stays volatile.
 
 ## 8. The Simplest Correct Way
 
-Fifth, the simplest correct way. Before anyone asks, nothing is built. After two calls, one is built, and both got the same one. The JVM builds a class's static state once, when the class is first used. There is no lock to write, and no volatile to forget.
+Fifth demo: the simplest correct way, called the holder idiom. Before anyone asks, nothing is built. After two calls, one is built, and both callers got the same one. How? Java builds a class's static data once, when the class is first used. So the price list sits in a small holder class, and Java does the rest. There is no lock to write, and no volatile to forget.
 
 ## 9. The Bill
 
-Last, the bill. The double checked version is twenty nine lines. The holder is ten. Double checked locking is ceremony with one way to be subtly wrong. It earns its place only where the holder idiom cannot be used, for example, when creation needs an argument. And an uncontended lock is cheap. Measure before deciding the lock on every call is a problem.
+Finally, the cost. The double-checked version is twenty-nine lines. The holder version is ten. Double-checked locking is ceremony, with one way to be quietly wrong. It only earns its place where the holder cannot be used. For example, when building the object needs an argument. And remember, a lock that nobody else is holding is cheap. Measure before deciding that locking on every call is a problem.
 
 ## 10. How To Recognise It
 
-How do you recognise this in code you did not write? A volatile static field, an if (x == null), a synchronized block, and another if (x == null). A private static nested Holder class with one field. Lazy<T> and Suppliers.memoize in libraries. A comment that says why the field is volatile.
+How can you spot this in code someone else wrote? Look for a volatile static field, an if statement checking for null, a synchronized block, and then the same null check again. Look for a small private static class called Holder, with one field. Look for helpers like Lazy, or memoize, in libraries. And look for a comment explaining why the field is volatile.
 
 ## 11. The Verdict
 
-Here is my verdict, plainly. Prefer the class holder idiom, or an enum, for a lazy shared object. If creation needs an argument or can fail and be retried, use double-checked locking, with a volatile field, a local variable, and a test that guards the volatile. If you have not measured the lock as a problem, take the lock on every call.
+So, here is the verdict. For a shared object built on first use, prefer the holder idiom, or an enum. If building the object needs an argument, or can fail and be retried, use double-checked locking. With a volatile field, a local variable, and a test that guards the volatile. And if you have not measured the lock as a problem, simply take the lock on every call.
 
 ## 12. What Is Real Here
 
-The same honest admission as everywhere in this course. Everything is plain Java. Every number quoted comes from this program's own output. Nothing depends on a clock, so every run is the same.
+A quick, honest note about this demo. Everything is plain Java. Every number you heard comes from the program's own output. And nothing depends on the clock, so every run gives the same result.
 
 ## 13. When This Is Too Much
 
-So when is it too much? Nearly always. Most lazy initialisation can use a holder, an eager static, or a lock on every call, and the cost of a wrong double check is a bug you cannot reproduce.
+So, when is this too much? Nearly always. Most objects built on first use can use a holder, an eagerly built static, or a lock on every call. And a wrong double check causes a bug you cannot reproduce.
 
 ## 14. Thanks for Watching
 
-That's Double-Checked Locking. If you take one sentence away, take this one: double-checked locking saves the lock after the build, and costs a rule you can break without seeing it. The full source, the written notes, the diagrams and an animated walkthrough are all in the repository, running offline with nothing installed but a Java development kit. If you try one exercise, remove the volatile keyword and explain why a test cannot fail, and what that means. If this helped, a like genuinely does help other people find it, and subscribe if you would like the rest of the series. Thanks for watching.
+That's Double-Checked Locking. If you remember one sentence, make it this one. Double-checked locking saves the lock after the object is built, and costs a rule you can break without ever seeing it fail. The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. Here is one exercise to try. Remove the volatile keyword. Then explain why no test can fail, and what that means for your code. If this helped, a like really does help other people find it. And subscribe, if you'd like the rest of the series. Thanks for watching.

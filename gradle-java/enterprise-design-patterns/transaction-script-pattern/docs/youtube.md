@@ -19,19 +19,19 @@ The first two lines are what a viewer sees above the fold, so they carry the hoo
 ```
 CHAPTERS
 00:00 Introduction
-00:52 The Scenario
-01:10 One Request, One Procedure
-01:27 The Pattern
-01:40 One Transaction
-01:57 A Second Script Copies The Rule
-02:17 Share A Procedure
-02:31 The Bill: Growth
-02:51 Where A Script Is Right
-03:09 How To Recognise It
-03:32 The Verdict
-03:56 What Is Real Here
-04:09 When This Is Too Much
-04:19 Thanks for Watching
+00:53 The Scenario
+01:12 One Request, One Procedure
+01:29 The Pattern
+01:43 One Transaction
+02:03 A Second Script Copies The Rule
+02:27 Share A Procedure
+02:44 The Bill: Growth
+03:08 Where A Script Is Right
+03:28 How To Recognise It
+03:55 The Verdict
+04:21 What Is Real Here
+04:34 When This Is Too Much
+04:46 Thanks for Watching
 
 SOURCE CODE, WRITTEN NOTES AND AN INTERACTIVE ANIMATION
 https://github.com/jk-boot-up/java-design-patterns/tree/main/gradle-java/enterprise-design-patterns/transaction-script-pattern
@@ -46,19 +46,19 @@ YouTube renders these as chapters only if there are at least three and the first
 
 ```
 00:00 Introduction
-00:52 The Scenario
-01:10 One Request, One Procedure
-01:27 The Pattern
-01:40 One Transaction
-01:57 A Second Script Copies The Rule
-02:17 Share A Procedure
-02:31 The Bill: Growth
-02:51 Where A Script Is Right
-03:09 How To Recognise It
-03:32 The Verdict
-03:56 What Is Real Here
-04:09 When This Is Too Much
-04:19 Thanks for Watching
+00:53 The Scenario
+01:12 One Request, One Procedure
+01:29 The Pattern
+01:43 One Transaction
+02:03 A Second Script Copies The Rule
+02:27 Share A Procedure
+02:44 The Bill: Growth
+03:08 Where A Script Is Right
+03:28 How To Recognise It
+03:55 The Verdict
+04:21 What Is Real Here
+04:34 When This Is Too Much
+04:46 Thanks for Watching
 ```
 
 ## Tags
@@ -97,4 +97,4 @@ Add a card partway through pointing at the playlist, so a viewer who arrives at 
 
 ## Runtime
 
-Approximately 04:59, narrated at 145 words per minute.
+Approximately 05:22, narrated at 145 words per minute.

@@ -13,55 +13,6 @@ hundred and fifty milliseconds is the entire subject of this project.
 
 ![Saga sequence diagram](images/sequence-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant N as NaiveCheckoutService
-    participant G as SagaOrchestrator
-    participant St as StockService
-    participant P as PaymentService
-    participant O as OrderService
-    participant Sh as ShippingService
-
-    Note over N,Sh: four calls in a try block — and every test of it passes
-
-    N->>St: reserve stock
-    St-->>N: res-1, committed
-    N->>P: take payment
-    P-->>N: chg-1, committed, £70.95 gone
-    N->>O: create order
-    O-->>N: CONFIRMED, committed
-    N->>Sh: schedule shipment
-    Sh--)N: no courier covers the address
-    Note over N: caught, logged, returns null
-    Note over N,Sh: nothing is undone. The card is charged, the kettle is<br/>off the shelf, the order says CONFIRMED, nothing will ship.
-
-    Note over G,Sh: the same four calls, with a list kept as it goes
-
-    G->>St: reserve stock
-    St-->>G: res-1, committed — 0 to 30ms
-    G->>P: take payment
-    P-->>G: chg-1, committed — 30 to 130ms
-    G->>O: create order
-    O-->>G: ord-9002, committed — 130 to 150ms
-    G->>Sh: schedule shipment
-    Sh--)G: no courier covers the address — at 180ms
-    Note over G: stop, and walk the list backwards
-
-    G->>O: cancel order
-    O-->>G: cancelled — 180 to 200ms
-    G->>P: refund chg-1
-    P-->>G: ref-2, a SECOND entry — 200 to 300ms
-    G->>St: release res-1
-    St-->>G: released — 300 to 330ms
-    Note over G,Sh: COMPENSATED at 330ms — the customer owes nothing.<br/>Order before payment, because finance must never see<br/>a confirmed order with no money against it.
-```
-
-</details>
-
 ## Reading the timings
 
 **The forward halves are identical.** Same four calls, same order, same commits, same

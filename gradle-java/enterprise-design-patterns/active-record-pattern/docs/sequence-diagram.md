@@ -6,25 +6,4 @@ Say it in words. The caller creates an order for customer one and adds a line. I
 
 ![Active Record pattern sequence diagram](images/sequence-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant C as caller
-    participant O as Order
-    participant T as orders table
-    C->>O: new Order(1), addLine
-    C->>O: save()
-    O->>T: insert(row)
-    T-->>O: id 1
-    C->>O: Order.find(1)
-    O->>T: find(1)
-    T-->>O: row
-    O-->>C: an Order
-```
-
-</details>
-
 The load-bearing sentence: **there is nothing between the object and the table.**

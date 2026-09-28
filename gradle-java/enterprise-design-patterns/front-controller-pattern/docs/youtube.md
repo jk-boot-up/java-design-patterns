@@ -19,19 +19,19 @@ The first two lines are what a viewer sees above the fold, so they carry the hoo
 ```
 CHAPTERS
 00:00 Introduction
-00:59 The Scenario
-01:16 Every Handler Looks After Itself
-01:35 The Pattern
-01:52 One Entry Point
-02:11 Routes In One Table
-02:25 Everything Is Logged
-02:41 Failures Are Handled Once
-02:58 The Bill: One Door
-03:16 How To Recognise It
-03:38 The Verdict
-04:02 What Is Real Here
-04:15 When This Is Too Much
-04:28 Thanks for Watching
+00:56 The Scenario
+01:14 Every Handler Looks After Itself
+01:39 The Pattern
+01:58 One Entry Point
+02:22 Routes In One Table
+02:43 Everything Is Logged
+03:03 Failures Are Handled Once
+03:22 The Bill: One Door
+03:43 How To Recognise It
+04:06 The Verdict
+04:31 What Is Real Here
+04:44 When This Is Too Much
+04:58 Thanks for Watching
 
 SOURCE CODE, WRITTEN NOTES AND AN INTERACTIVE ANIMATION
 https://github.com/jk-boot-up/java-design-patterns/tree/main/gradle-java/enterprise-design-patterns/front-controller-pattern
@@ -46,19 +46,19 @@ YouTube renders these as chapters only if there are at least three and the first
 
 ```
 00:00 Introduction
-00:59 The Scenario
-01:16 Every Handler Looks After Itself
-01:35 The Pattern
-01:52 One Entry Point
-02:11 Routes In One Table
-02:25 Everything Is Logged
-02:41 Failures Are Handled Once
-02:58 The Bill: One Door
-03:16 How To Recognise It
-03:38 The Verdict
-04:02 What Is Real Here
-04:15 When This Is Too Much
-04:28 Thanks for Watching
+00:56 The Scenario
+01:14 Every Handler Looks After Itself
+01:39 The Pattern
+01:58 One Entry Point
+02:22 Routes In One Table
+02:43 Everything Is Logged
+03:03 Failures Are Handled Once
+03:22 The Bill: One Door
+03:43 How To Recognise It
+04:06 The Verdict
+04:31 What Is Real Here
+04:44 When This Is Too Much
+04:58 Thanks for Watching
 ```
 
 ## Tags
@@ -97,4 +97,4 @@ Add a card partway through pointing at the playlist, so a viewer who arrives at 
 
 ## Runtime
 
-Approximately 05:05, narrated at 145 words per minute.
+Approximately 05:36, narrated at 145 words per minute.

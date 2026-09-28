@@ -19,19 +19,19 @@ The first two lines are what a viewer sees above the fold, so they carry the hoo
 ```
 CHAPTERS
 00:00 Introduction
-01:09 What This Video Owns, And What It Does Not
-01:48 What Spring Actually Does
-02:31 What This Project Installs
-03:12 Recognition: @Bean Is Those Twenty Lines
-04:09 Seven Beans, The Same Seven Objects
-04:34 The Forced Change Still Costs Nothing Extra
-04:55 Hand-Wiring Fails At Compile Time
-05:27 Container Wiring Fails At Startup
-06:03 Why The Container Cannot See It Coming
-06:40 The Cost, Honestly Priced
-07:18 When This Is Worth The Extra Dependency
-07:52 What This Project Deliberately Skips
-08:26 Thanks for Watching
+01:02 What This Video Owns, And What It Does Not
+01:29 What Spring Actually Does
+02:09 What This Project Installs
+02:40 Recognition: @Bean Is Those Twenty Lines
+03:35 Seven Beans, The Same Seven Objects
+03:58 The Forced Change Still Costs Nothing Extra
+04:20 Hand-Wiring Fails At Compile Time
+04:47 Container Wiring Fails At Startup
+05:21 Why The Container Cannot See It Coming
+05:50 The Cost, Honestly Priced
+06:24 When This Is Worth The Extra Dependency
+06:50 What This Project Deliberately Skips
+07:13 Thanks for Watching
 
 SOURCE CODE, WRITTEN NOTES AND AN INTERACTIVE ANIMATION
 https://github.com/jk-boot-up/java-design-patterns/tree/main/gradle-java/architectural-design-patterns/clean-architecture-with-spring-pattern
@@ -46,19 +46,19 @@ YouTube renders these as chapters only if there are at least three and the first
 
 ```
 00:00 Introduction
-01:09 What This Video Owns, And What It Does Not
-01:48 What Spring Actually Does
-02:31 What This Project Installs
-03:12 Recognition: @Bean Is Those Twenty Lines
-04:09 Seven Beans, The Same Seven Objects
-04:34 The Forced Change Still Costs Nothing Extra
-04:55 Hand-Wiring Fails At Compile Time
-05:27 Container Wiring Fails At Startup
-06:03 Why The Container Cannot See It Coming
-06:40 The Cost, Honestly Priced
-07:18 When This Is Worth The Extra Dependency
-07:52 What This Project Deliberately Skips
-08:26 Thanks for Watching
+01:02 What This Video Owns, And What It Does Not
+01:29 What Spring Actually Does
+02:09 What This Project Installs
+02:40 Recognition: @Bean Is Those Twenty Lines
+03:35 Seven Beans, The Same Seven Objects
+03:58 The Forced Change Still Costs Nothing Extra
+04:20 Hand-Wiring Fails At Compile Time
+04:47 Container Wiring Fails At Startup
+05:21 Why The Container Cannot See It Coming
+05:50 The Cost, Honestly Priced
+06:24 When This Is Worth The Extra Dependency
+06:50 What This Project Deliberately Skips
+07:13 Thanks for Watching
 ```
 
 ## Tags
@@ -97,4 +97,4 @@ Add a card partway through pointing at the playlist, so a viewer who arrives at 
 
 ## Runtime
 
-Approximately 09:08, narrated at 145 words per minute.
+Approximately 07:53, narrated at 145 words per minute.

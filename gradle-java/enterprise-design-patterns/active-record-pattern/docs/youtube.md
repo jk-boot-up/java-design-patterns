@@ -19,19 +19,19 @@ The first two lines are what a viewer sees above the fold, so they carry the hoo
 ```
 CHAPTERS
 00:00 Introduction
-00:50 The Scenario
-01:07 A Record That Saves Itself
-01:24 The Pattern
-01:37 Finders On The Class
-01:53 The Rules Are On The Record
-02:09 The Bill: A Rule That Needs The Table
-02:30 The Bill: The Class Is The Table
-02:44 The Bill: Queries You Cannot See
-03:01 How To Recognise It
-03:19 The Verdict
-03:42 What Is Real Here
-03:55 When This Is Too Much
-04:07 Thanks for Watching
+00:53 The Scenario
+01:12 A Record That Saves Itself
+01:29 The Pattern
+01:45 Finders On The Class
+02:02 The Rules Are On The Record
+02:20 The Bill: A Rule That Needs The Table
+02:44 The Bill: The Class Is The Table
+03:00 The Bill: Queries You Cannot See
+03:20 How To Recognise It
+03:41 The Verdict
+04:08 What Is Real Here
+04:21 When This Is Too Much
+04:34 Thanks for Watching
 
 SOURCE CODE, WRITTEN NOTES AND AN INTERACTIVE ANIMATION
 https://github.com/jk-boot-up/java-design-patterns/tree/main/gradle-java/enterprise-design-patterns/active-record-pattern
@@ -46,19 +46,19 @@ YouTube renders these as chapters only if there are at least three and the first
 
 ```
 00:00 Introduction
-00:50 The Scenario
-01:07 A Record That Saves Itself
-01:24 The Pattern
-01:37 Finders On The Class
-01:53 The Rules Are On The Record
-02:09 The Bill: A Rule That Needs The Table
-02:30 The Bill: The Class Is The Table
-02:44 The Bill: Queries You Cannot See
-03:01 How To Recognise It
-03:19 The Verdict
-03:42 What Is Real Here
-03:55 When This Is Too Much
-04:07 Thanks for Watching
+00:53 The Scenario
+01:12 A Record That Saves Itself
+01:29 The Pattern
+01:45 Finders On The Class
+02:02 The Rules Are On The Record
+02:20 The Bill: A Rule That Needs The Table
+02:44 The Bill: The Class Is The Table
+03:00 The Bill: Queries You Cannot See
+03:20 How To Recognise It
+03:41 The Verdict
+04:08 What Is Real Here
+04:21 When This Is Too Much
+04:34 Thanks for Watching
 ```
 
 ## Tags
@@ -97,4 +97,4 @@ Add a card partway through pointing at the playlist, so a viewer who arrives at 
 
 ## Runtime
 
-Approximately 04:48, narrated at 145 words per minute.
+Approximately 05:14, narrated at 145 words per minute.

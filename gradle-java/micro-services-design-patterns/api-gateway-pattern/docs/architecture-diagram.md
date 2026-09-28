@@ -24,51 +24,6 @@ knowledge by accident.
 
 ![API Gateway pattern architecture diagram](images/architecture-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-flowchart TB
-    subgraph W["what the program is a model of"]
-        direction TB
-        Phone["the shop's mobile app<br/>on a phone, on a train"]
-        subgraph DC["the data centre — a trust boundary, not just a distance"]
-            direction TB
-            GW["ProductPageGateway<br/>one token check, four calls, one page"]
-            Auth["AuthService<br/>checks the token, once, at the edge"]
-            subgraph SVC["the four services — no client reaches these directly"]
-                direction LR
-                Cat["Catalog<br/>the name"]
-                Pri["Pricing<br/>the price"]
-                Inv["Inventory<br/>in stock or not"]
-                Rec["Recommendations<br/>also bought — optional"]
-            end
-            GW --> Auth
-            GW -- "10ms" --> Cat
-            GW -- "10ms" --> Pri
-            GW -- "10ms" --> Inv
-            GW -- "10ms, may fail without losing the page" --> Rec
-        end
-        Phone -- "one call, 200ms" --> GW
-    end
-
-    subgraph J["what actually runs — one JVM, JDK 21, no network, nothing installed"]
-        direction LR
-        Demo["ProductPageDemo<br/>the four acts"]
-        App["MobileApp / NaiveMobileApp<br/>the two versions being compared"]
-        RC["RemoteCall<br/>advances a clock, writes a log line, answers or throws"]
-        Clock["SimulatedClock<br/>time the tests move by hand"]
-        Log["CallLog<br/>the timeline the demo prints"]
-        Demo --> App --> RC
-        RC --> Clock
-        RC --> Log
-    end
-
-    W -. "every arrow in the upper half is one RemoteCall in the lower half" .-> J
-```
-
-</details>
-
 ## What the diagram is telling you to count
 
 **One line crosses the data centre boundary, not four.** That is the whole saving, and it

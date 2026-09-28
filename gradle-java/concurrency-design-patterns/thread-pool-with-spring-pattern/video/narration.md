@@ -2,64 +2,64 @@
 
 ## 1. Thread Pool with Spring
 
-Hello, and welcome. This video explains the Thread Pool pattern with Spring Boot, in Java, and it is written and presented by Jayasekhar Konduru. It is the framework version of the Thread Pool video. That one built a bounded thread pool by hand, and showed its costs: an unbounded queue is a trap, a refusal needs a decision, and a pool can starve itself. This one shows the same idea inside Spring Boot. The plain definition, in short: run work on a small set of threads that are created once and reused, so a burst of work cannot create a burst of threads. By the end you will see the pool Spring Boot gives you when you configure nothing, watch its queue grow without a bound, bound it and read the real refusal, and meet two failures that belong to Spring: an annotation that silently does nothing, and a pool that starves itself.
+Hello, and welcome. This video explains the Thread Pool pattern, in Java, using Spring Boot. This video is presented by Jayasekhar Konduru. First, a simple definition. A thread pool runs work on a small set of threads that are created once, and reused. So a burst of work cannot create a burst of threads. Think of a restaurant with a fixed team of waiters. A rush of customers does not hire new waiters on the spot. The customers wait for a free one. This is the framework version of the Thread Pool video, with the same order packing. We will hear the pool Spring Boot gives you when you configure nothing, and watch its queue grow without limit. Then we will limit it, and hear a real refusal. And we will meet two failures that belong to Spring: an annotation that silently does nothing, and a pool that starves itself.
 
 ## 2. The Partner Project
 
-This video assumes the Thread Pool video. If you have not seen it, start there. It builds a bounded pool by hand, and shows three costs: an unbounded queue is a trap, a refusal needs a decision, and a pool can starve itself. This one uses the same example. It does not teach the pattern again. It shows what Spring Boot does with it.
+Before we start, a quick note. This video has a partner: the hand-built Thread Pool video. That one builds a limited pool by hand. And it shows three costs: a queue with no limit is a trap, a refusal needs a decision, and a pool can starve itself. If you are new to the pattern, watch that one first. Here, we ask what Spring Boot does with the same idea.
 
 ## 3. Before The First Line
 
-Before the first line of code, what Spring Boot is. Spring is a framework whose core is a container that creates and wires your objects. Its async annotation sends a method to a thread pool it creates and owns, and the pool's size and queue are settings. And a promise: skipping this video loses none of the pattern. The hand-built one teaches all of it.
+One thing is new in this project: Spring Boot. At its heart, Spring is a container that creates and connects your objects. Its at Async annotation sends a method to a thread pool that Spring creates and owns. The pool's size and queue are just settings. And one promise. If you skip this video, you lose none of the pattern. This one is about the tool.
 
 ## 4. What You Get By Default
 
-Start with no settings at all. Add the enable async annotation, and nothing else. What pool do you get? A thread pool task executor. Core threads: eight. Max threads: two billion, one hundred and forty-seven million. Queue capacity: the same number. Eight workers, and a queue with no bound. That is the partner video's unbounded queue trap, and here it is not a mistake somebody made. It is the default.
+First demo: what you get by default. Add the enable async annotation, and no settings at all. What pool do you get? Eight core threads. A maximum of more than two billion threads. And a queue that holds more than two billion tasks. In practice, that is eight workers, and a queue with no limit. The trap from the hand-built video is not someone's mistake here. It is the default.
 
 ## 5. @Async Moves The Work
 
-Now the annotation. Call the packing method, marked async. The caller is the main thread. The work ran on a thread called task one. A different thread. One annotation replaced the whole hand-written pool class from the last video.
+Second demo: at Async moves the work. We call the packing method, which is marked at Async. The caller is the main thread. The work runs on a different thread, called task one. One annotation replaced the whole hand-written pool class from the other video.
 
 ## 6. The Unbounded Queue
 
-Now make the workers busy. All eight are stuck on a slow step, held at a gate. A thousand more orders arrive. All thousand wait in the queue. Rejected: zero. Nobody was told. Submitting never blocks and never refuses, so the backlog just grows, until it is a heap dump instead of a decision.
+Third demo: the queue with no limit. All eight workers are made busy, held on a slow step. Then a thousand more orders arrive. All one thousand wait in the queue. How many were refused? Zero. Nobody was told anything. Submitting never waits, and never refuses. So the backlog just grows, until the application runs out of memory.
 
 ## 7. Bound It
 
-Now bound it, with three settings: two threads, and a queue of three. Two orders are running, and three are waiting. The sixth order: a task rejected exception, thrown to the caller, at once. That is a decision. The caller learns the pool is full, instead of a queue growing in silence.
+Fourth demo: add a limit. Three settings: two threads, and a queue that holds three. Two orders are running. Three are waiting. Then a sixth order arrives. It is refused at once, with a Task Rejected exception. That is a decision. The caller learns that the pool is full, instead of a queue growing in silence.
 
 ## 8. The Annotation That Does Nothing
 
-A failure that is Spring's own. One method calls another async method, on the same object, through this. It ran on main, the caller's own thread. Async works through a proxy, exactly as the transactional annotation does. A call on this skips the proxy, and nothing complains.
+Fifth demo: the annotation that does nothing. One method calls the at Async packing method on the same object, directly, through this. The packing ran on the main thread, the caller's own thread. Not on the pool. And nothing complained. At Async works through a proxy that Spring wraps around the object. A call on this skips the proxy completely.
 
 ## 9. Pool Starvation
 
-Last failure. One thread. The packing task asks the same pool to print a label, and waits for the answer. The label task is queued behind the packing task, which is waiting for it. It starves. This demo is rescued by a timeout, so it can tell you. The same deadlock as the hand-built video.
+Last demo: pool starvation. The pool has one thread. The packing task asks the same pool to print a label, and waits for the answer. But the label task is queued behind the packing task. And the packing task is waiting for the label. So the label task never gets a thread. The demo is rescued by a timeout, so it can tell you what happened. It is the same deadlock as in the hand-built video.
 
 ## 10. The Verdict
 
-My verdict, plainly. Set the pool explicitly. Bound the queue. Decide what a refusal means. And never wait on your own pool. Do not rely on the default executor for anything that can back up.
+So, here is the verdict. Configure the pool yourself. Put a limit on the queue. Decide what a refusal should mean. Never make a task wait on its own pool. And do not rely on the default pool for any work that can pile up.
 
 ## 11. How To Recognise It
 
-How do you recognise this in code you did not write? Enable async, and methods marked async. Settings that begin spring dot task dot execution dot pool. A task rejected exception in a stack trace. And a service method that returns a completable future.
+How can you spot this in code someone else wrote? Look for the enable async annotation, and methods marked at Async. Look for settings starting with spring dot task dot execution dot pool. Look for a Task Rejected exception in an error report. And a service method that returns a Completable Future.
 
 ## 12. Where You Have Met This
 
-You have met this in every async method, and in Spring Boot's application task executor. Scheduled tasks and asynchronous event listeners use the same kind of pool.
+Where have you met this before? In every at Async method, and in Spring Boot's application task executor. Scheduled tasks and asynchronous event listeners use the same kind of pool.
 
 ## 13. What Was Used
 
-For the record. Spring Boot four point one point one. No web server, no database, and no web starter.
+For the record, here are the versions. Spring Boot four point one point one. No web server, no database, and no web library.
 
 ## 14. What Is Real Here
 
-The same honest admission as everywhere in this course, and short. Everything is real: Spring's executor, its defaults, and its exceptions. Every wait is a latch or a gate, so every count is the same on every run.
+A quick, honest note about this demo. Spring's thread pool, its defaults, and its errors are all real. Every wait uses a latch or a gate, so every count is the same on every run.
 
 ## 15. When This Is Too Much
 
-So when is it too much? For work that is already fast, or that must finish before the caller continues, a thread pool is only overhead.
+So, when is this too much? For work that is already fast, or work that must finish before the caller continues, a thread pool is only overhead.
 
 ## 16. Thanks for Watching
 
-That's Thread Pool with Spring. If you take one sentence away, take this one: a thread pool you did not configure is a thread pool with a queue that never says no. The full source, the written notes, the diagrams and an animated walkthrough are all in the repository. If you try one exercise, turn on virtual threads, and print whether the work runs on one, and think about what the pool became. If this helped, a like genuinely does help other people find it, and subscribe if you would like the rest of the series. Thanks for watching.
+That's Thread Pool with Spring. If you remember one sentence, make it this one. A thread pool you did not configure has a queue that never says no. The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. Here is one exercise to try. Turn on virtual threads in the settings. Print whether the work now runs on one. And think about what the pool has become. If this helped, a like really does help other people find it. And subscribe, if you'd like the rest of the series. Thanks for watching.

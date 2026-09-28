@@ -17,22 +17,25 @@ SCENES = [
         title="The State Pattern",
         body=None,
         narration=(
-            "Hello, and welcome. This video explains the State pattern in Java, "
-            "and it is written and presented by Jayasekhar Konduru. [[slnc 300]] "
-            "Let's start with the simple definition. The state pattern gives "
-            "every state of an object its own class, and has the object delegate "
-            "to whichever one it is currently in. What is allowed is then decided "
-            "by which class is present, rather than by checks somebody wrote "
-            "against a status field — and an operation that makes no sense in a "
-            "state is simply absent from it. [[slnc 350]] That's the idea in a "
-            "sentence. The rest of the video does it properly, by building a real "
-            "working Java project: an online store where an order moves from "
-            "placed, to paid, to packed, to shipped, to delivered, with "
-            "cancellations and refunds hanging off the side. [[slnc 250]] By the "
-            "end you'll know why a refusal should be the absence of code rather "
-            "than a check somebody remembered to write, exactly what separates "
-            "state from strategy — the pattern it shares a class diagram with — "
-            "and when you should not use it at all."
+            'Hello, and welcome. [[slnc 400]] This video explains the '
+            'State pattern, in Java. [[slnc 300]] This video is presented '
+            'by Jayasekhar Konduru. [[slnc 600]] First, a simple '
+            'definition. [[slnc 300]] The State pattern gives every state '
+            'of an object its own class. [[slnc 300]] The object then '
+            'hands each request to whichever state it is currently in. '
+            '[[slnc 400]] So what is allowed depends on which state class '
+            'is present, not on checks someone wrote against a status '
+            'field. [[slnc 300]] And an action that makes no sense in a '
+            'state is simply missing from it. [[slnc 600]] Think of a '
+            'vending machine. [[slnc 300]] With no coins in it, pressing '
+            'a button does nothing. [[slnc 300]] With a pound fifty in '
+            'it, the same button gives you a drink. [[slnc 700]] In this '
+            'video, an online order moves from placed, to paid, to '
+            'packed, to shipped, to delivered, with cancellations and '
+            'refunds along the way. [[slnc 500]] By the end, you will '
+            'know why a refusal should be missing code, not a remembered '
+            'check. [[slnc 300]] How State differs from Strategy. [[slnc '
+            '300]] And when not to use it.'
         ),
     ),
     dict(
@@ -52,15 +55,16 @@ SCENES = [
             "The answer to every one of them depends on where it is.",
         ],
         narration=(
-            "So, imagine an online shop. [[slnc 250]] An order moves through a "
-            "small, well understood lifecycle: placed, paid, packed, shipped, "
-            "delivered. Two more states end the story — cancelled and refunded — "
-            "and once an order reaches either of those, nothing more happens to "
-            "it. [[slnc 300]] Six things can be asked of an order: pay, pack, "
-            "ship, deliver, cancel and refund. And the answer to every single one "
-            "of them depends on where the order currently is. [[slnc 300]] That "
-            "sentence is the entire problem, and every design in this video is an "
-            "attempt to write it down without repeating yourself."
+            'Here is the scenario. [[slnc 400]] An order moves through a '
+            'simple lifecycle. [[slnc 300]] Placed, then paid, then '
+            'packed, then shipped, then delivered. [[slnc 400]] Two more '
+            'states end the story: cancelled, and refunded. [[slnc 300]] '
+            'Once an order reaches either of those, nothing more happens '
+            'to it. [[slnc 500]] Six things can be asked of an order. '
+            '[[slnc 300]] Pay, pack, ship, deliver, cancel, and refund. '
+            '[[slnc 400]] And the answer to every one depends on where '
+            'the order is right now. [[slnc 500]] That sentence is the '
+            'whole problem.'
         ),
     ),
     dict(
@@ -80,17 +84,16 @@ SCENES = [
             "It is four different pieces of work, and one refusal.",
         ],
         narration=(
-            "Before we write any code, look closely at one row of that table: "
-            "cancel. [[slnc 300]] Cancelling a placed order moves no money at "
-            "all, because none has been taken. Cancelling a paid order refunds "
-            "the customer. Cancelling a packed order refunds the customer and "
-            "puts the stock back on the shelf, because somebody has already taped "
-            "a box shut. And cancelling a shipped order is not a thing you can "
-            "do — the goods are on a van, and the shop has nothing to put back. "
-            "[[slnc 350]] So that row is not one rule with a permission check in "
-            "front of it. It is four genuinely different pieces of work plus a "
-            "refusal, and any design that treats it as one method with a guard is "
-            "already losing information."
+            "Before any code, let's look closely at one action: cancel. "
+            '[[slnc 500]] Cancelling a placed order moves no money, '
+            'because none was taken. [[slnc 300]] Cancelling a paid order '
+            'refunds the customer. [[slnc 300]] Cancelling a packed order '
+            'refunds the customer and puts the stock back on the shelf, '
+            'because a box has already been packed. [[slnc 300]] And a '
+            'shipped order cannot be cancelled at all. [[slnc 300]] The '
+            'goods are already on a van. [[slnc 600]] So cancel is not '
+            'one rule with a permission check in front of it. [[slnc '
+            '300]] It is several different jobs, plus a refusal.'
         ),
     ),
     dict(
@@ -114,23 +117,22 @@ public void refund(String reason) {
     ledger.refund(total);          // a cancel already refunded
 }""",
         narration=(
-            "The obvious first move is a status field and a check at the top of "
-            "each method. [[slnc 250]] I want to be fair to this. It is short, it "
-            "needs no vocabulary, the whole lifecycle is in one file, and a new "
-            "reader can find every rule by scrolling. For a machine this size, an "
-            "enum and a map of permitted transitions is often the right answer, "
-            "and I'll come back to that at the end. [[slnc 350]] The problem is "
-            "not the enum. The problem is that the rules are now written down "
-            "once per method, and each copy is phrased in whichever direction its "
-            "author found natural. Look at these two. The first is a blocklist. "
-            "The second is an allowlist. [[slnc 300]] Cancel was written as: "
-            "anything that has not arrived yet can be cancelled. It reads "
-            "sensibly. It also quietly includes shipped, because shipped is not "
-            "on that list — so a parcel that is on a van gets refunded. [[slnc "
-            "300]] And refund originally accepted only delivered, until support "
-            "asked for cancelled to be added so they could sort out cancelled "
-            "orders. But a cancel has already refunded. So that line pays the "
-            "customer a second time."
+            'The obvious first approach is a status field, and a check at '
+            'the top of each method. [[slnc 500]] To be fair, this is '
+            'short, simple, and the whole lifecycle is in one file. '
+            '[[slnc 300]] For small machines, a status list and a table '
+            'of allowed moves is often the right answer. [[slnc 600]] The '
+            'problem is that the rules get written once per method. '
+            '[[slnc 300]] And each copy is phrased however its author '
+            'found natural. [[slnc 500]] The cancel check was written as: '
+            'anything that has not arrived yet can be cancelled. [[slnc '
+            '300]] That sounds sensible. [[slnc 300]] But it quietly '
+            'includes shipped orders. [[slnc 300]] So a parcel that is '
+            'already on a van gets refunded. [[slnc 500]] The refund '
+            'check had a different history. [[slnc 300]] Support asked '
+            'for cancelled orders to be refundable too. [[slnc 300]] But '
+            'cancelling had already refunded the customer. [[slnc 300]] '
+            'So that change pays the customer a second time.'
         ),
     ),
     dict(
@@ -151,18 +153,18 @@ public void refund(String reason) {
             "and reachable from everything that is not the UI.",
         ],
         narration=(
-            "And here is what makes it genuinely nasty. [[slnc 250]] There is a "
-            "third copy of the same rules, written for the screen — a switch that "
-            "returns which buttons to draw. That copy is correct. It says a "
-            "shipped order can only be delivered. [[slnc 300]] So the cancel "
-            "button is never drawn. Nobody clicking around the application can "
-            "reach the bug. Everybody who looks at it believes the rule is "
-            "enforced. And the endpoint takes the call anyway, from a script, "
-            "from a retry, from an integration, from a support tool. [[slnc 350]] "
-            "None of these three is a mistake anybody would make while looking at "
-            "the whole lifecycle at once. They happen precisely because nobody "
-            "ever is — the lifecycle is not written down anywhere. It only exists "
-            "as the intersection of six conditionals."
+            'And here is what makes it truly nasty. [[slnc 400]] There is '
+            'a third copy of the same rules, used to decide which buttons '
+            'to show on screen. [[slnc 300]] That copy is correct. [[slnc '
+            '300]] It says a shipped order can only be delivered. [[slnc '
+            '500]] So the cancel button never appears. [[slnc 300]] '
+            'Nobody clicking around the app can reach the bug. [[slnc '
+            '300]] Everyone believes the rule is enforced. [[slnc 400]] '
+            'But the server still accepts a cancel request, from a '
+            'script, a retry, or a support tool. [[slnc 500]] Nobody made '
+            'these mistakes while looking at the whole lifecycle. [[slnc '
+            '300]] They happened because the lifecycle is never written '
+            'down in one place.'
         ),
     ),
     dict(
@@ -180,16 +182,17 @@ public void refund(String reason) {
             "Write one state for all methods.",
         ],
         narration=(
-            "The Gang of Four put it like this: allow an object to alter its "
-            "behavior when its internal state changes. The object will appear to "
-            "change its class. [[slnc 350]] Hold on to that last sentence, "
-            "because it is doing all the work. Not — the object has a status "
-            "field. The object appears to change its class. A shipped order and a "
-            "placed order are the same Java object, but they accept different "
-            "messages and do different things with them, which is exactly what "
-            "being a different class would mean. [[slnc 300]] In plain language: "
-            "stop writing one method for all states, and start writing one state "
-            "for all methods. Give the condition a type."
+            "Here is the pattern's definition, from the famous Gang of "
+            'Four book. [[slnc 400]] Allow an object to change its '
+            'behaviour when its internal state changes. [[slnc 300]] The '
+            'object will appear to change its class. [[slnc 600]] That '
+            'last sentence does all the work. [[slnc 300]] A shipped '
+            'order and a placed order are the same Java object. [[slnc '
+            '300]] But they accept different requests, and do different '
+            'things with them. [[slnc 300]] Exactly as if they were '
+            'different classes. [[slnc 500]] In plain words: stop writing '
+            'one method that handles every state. [[slnc 300]] Instead, '
+            'write one class per state, that handles every method.'
         ),
     ),
     dict(
@@ -210,18 +213,19 @@ public void refund(String reason) {
             "It got there because of what it just did.",
         ],
         narration=(
-            "Here's the picture I'd keep in your head. [[slnc 250]] A vending "
-            "machine with no coins in it, and the same vending machine holding a "
-            "pound fifty. Same machine, same buttons — and pressing the same "
-            "button does something completely different. [[slnc 300]] You would "
-            "not describe that machine as having a mode integer. You would say it "
-            "is waiting for money, or that it is ready to vend. Those are "
-            "conditions with names, and the buttons that do nothing in one of "
-            "them are the ones that work in the other. [[slnc 350]] And notice "
-            "the last bit, because it is the part that separates this from "
-            "Strategy: nobody chooses the machine's condition from outside. It "
-            "arrives there because of what it just did. A coin went in. A can "
-            "came out."
+            'Here is the picture to keep in your head: a vending machine. '
+            '[[slnc 500]] One machine has no coins in it. [[slnc 300]] '
+            'The same machine, a moment later, holds a pound fifty. '
+            '[[slnc 300]] Same machine, same buttons. [[slnc 300]] But '
+            'pressing a button does something completely different. '
+            '[[slnc 500]] You would not say the machine has a mode '
+            'number. [[slnc 300]] You would say it is waiting for money, '
+            'or ready to sell. [[slnc 300]] Those are named conditions. '
+            '[[slnc 500]] And notice this, because it separates State '
+            "from Strategy. [[slnc 300]] Nobody chooses the machine's "
+            'condition from outside. [[slnc 300]] It gets there because '
+            'of what just happened. [[slnc 300]] A coin went in. [[slnc '
+            '200]] A drink came out.'
         ),
     ),
     dict(
@@ -230,17 +234,19 @@ public void refund(String reason) {
         title="The Roles",
         body=None,
         narration=(
-            "So here are the pieces. [[slnc 250]] Order is the context. It holds "
-            "one state, it forwards every request to that state, and it contains "
-            "no conditional that mentions a status anywhere. [[slnc 300]] "
-            "OrderState is the interface. It declares all six requests. And then "
-            "there are seven concrete states — placed, paid, packed, shipped, "
-            "delivered, cancelled and refunded — each one holding everything that "
-            "is true about that point in the lifecycle. [[slnc 300]] Look at the "
-            "shape of that diagram, because I want you to notice something "
-            "uncomfortable: it is indistinguishable from a Strategy diagram. A "
-            "context, an interface, some implementations. If I removed the names "
-            "you could not tell which pattern this is. We'll come back to that."
+            'So here are the pieces. [[slnc 500]] The Order is called the '
+            'context. [[slnc 300]] It holds one current state, and passes '
+            'every request to it. [[slnc 300]] It contains no if '
+            'statements about status at all. [[slnc 500]] Order State is '
+            'the interface. [[slnc 300]] It declares all six requests. '
+            '[[slnc 500]] Then there are seven real states: placed, paid, '
+            'packed, shipped, delivered, cancelled, and refunded. [[slnc '
+            '300]] Each one holds everything that is true at that point '
+            'in the lifecycle. [[slnc 600]] And here is something '
+            'uncomfortable. [[slnc 300]] This design looks exactly like '
+            'the Strategy pattern. [[slnc 300]] A context, an interface, '
+            'and some implementations. [[slnc 300]] We will come back to '
+            'how they differ.'
         ),
     ),
     dict(
@@ -261,20 +267,21 @@ public void refund(String reason) {
     default void refund(Order order, String reason) { throw refuse("refund"); }
 }""",
         narration=(
-            "This is the single most important decision in the project. [[slnc "
-            "250]] Every request on the interface has a body, and every one of "
-            "those bodies throws. [[slnc 300]] Which means a state does not list "
-            "what it forbids. It lists what it allows, by overriding, and "
-            "everything else refuses on its own without a line of code being "
-            "written. [[slnc 350]] Think about what that does to the failure "
-            "mode. In the enum version, forgetting to mention a state in a guard "
-            "opens a transition — which is exactly how shipped became "
-            "cancellable. Here, forgetting to override closes one. The mistake "
-            "you make when you are not paying attention now points the safe way. "
-            "[[slnc 300]] And the refusal builds its own message out of the "
-            "state's allowed actions, so the explanation can never go stale: "
-            "cannot refund a shipped order — the only thing it will accept is "
-            "deliver."
+            'This is the most important decision in the project. [[slnc '
+            '500]] Every request on the interface has a default body. '
+            '[[slnc 300]] And every default body refuses the request. '
+            '[[slnc 500]] So a state does not list what it forbids. '
+            '[[slnc 300]] It only lists what it allows, by overriding '
+            'those methods. [[slnc 300]] Everything else refuses by '
+            'itself. [[slnc 600]] Think about what that does to mistakes. '
+            '[[slnc 300]] In the status field version, forgetting a check '
+            'opens a door. [[slnc 300]] That is exactly how shipped '
+            'orders became cancellable. [[slnc 400]] Here, forgetting to '
+            'override closes a door. [[slnc 300]] The careless mistake '
+            'now points the safe way. [[slnc 500]] And the refusal '
+            "message is built from the state's allowed actions. [[slnc "
+            '300]] For example: cannot refund a shipped order, the only '
+            'thing it will accept is deliver.'
         ),
     ),
     dict(
@@ -299,18 +306,20 @@ void transitionTo(OrderState next, String action, String detail) {
     state = next;
 }""",
         narration=(
-            "And here is what is left of the order itself. [[slnc 250]] Every "
-            "public method is one line: forward the request to whatever state we "
-            "are holding. Order does not know there are seven states. It does not "
-            "know what order they come in. There is not one if statement in it "
-            "that mentions a status. [[slnc 300]] What it does own is the audit "
-            "trail. A refusal is caught on the way past, written into the "
-            "history, and rethrown — so, somebody tried to cancel this after it "
-            "shipped is recorded whether or not it worked, which is exactly the "
-            "line you want when you are reading a support ticket. [[slnc 300]] "
-            "And notice that transitionTo is package private. From outside, an "
-            "order's state changes only as a consequence of asking it to do "
-            "something. You cannot set it."
+            'Now, what is left of the Order itself? [[slnc 400]] Every '
+            'public method is one line. [[slnc 300]] It passes the '
+            'request to the current state. [[slnc 400]] The order does '
+            'not know there are seven states. [[slnc 300]] It does not '
+            'know their sequence. [[slnc 300]] And there is not one if '
+            'statement about status in it. [[slnc 600]] What the order '
+            'does own is the history. [[slnc 300]] When a request is '
+            'refused, the refusal is recorded, and then passed on. [[slnc '
+            '300]] So a line like, someone tried to cancel this after it '
+            'shipped, is always recorded. [[slnc 300]] That is exactly '
+            'what you want when reading a support ticket. [[slnc 500]] '
+            "And from outside, nobody can simply set an order's state. "
+            '[[slnc 300]] It only changes as a result of asking the order '
+            'to do something.'
         ),
     ),
     dict(
@@ -337,22 +346,20 @@ public void cancel(Order order, String reason) {
             + "must refuse delivery or return it");
 }""",
         narration=(
-            "Now, this is the slide that decides whether the pattern was worth "
-            "it. [[slnc 250]] If the states differed only in which calls they "
-            "allowed, this would be an over-engineered enum and you should not do "
-            "it. [[slnc 300]] They don't. Cancel in the paid state gives the "
-            "money back. Cancel in the packed state gives the money back and puts "
-            "the stock back, because a box has been taped shut since then. Three "
-            "different bodies for one word — and in the enum version those are "
-            "three branches of one method that were, at some point, one branch. "
-            "The day somebody merges them because they look nearly the same, the "
-            "stock stops going back on the shelf. [[slnc 350]] And the shipped "
-            "state overrides cancel too, but only in order to refuse it with a "
-            "better reason than the default would have given. The default would "
-            "have said, the only thing it will accept is deliver. True, and "
-            "useless to a support agent. This says: it is already with the "
-            "courier. When a refusal has a reason worth telling a human, write it "
-            "down."
+            'This part decides whether the pattern is worth it. [[slnc '
+            '500]] If the states only differed in which requests they '
+            'allowed, this would be over-engineering. [[slnc 300]] But '
+            'they differ in real work. [[slnc 500]] Cancel, in the paid '
+            'state, gives the money back. [[slnc 300]] Cancel, in the '
+            'packed state, gives the money back, and also puts the stock '
+            'back on the shelf. [[slnc 400]] In the status field version, '
+            'those were branches of one method. [[slnc 300]] The day '
+            'someone merges them, because they look nearly the same, the '
+            'stock stops going back. [[slnc 600]] The shipped state also '
+            'overrides cancel, but only to refuse it with a better '
+            'reason. [[slnc 300]] It says: this order is already with the '
+            'courier. [[slnc 300]] When a refusal has a reason worth '
+            'telling a person, write it down.'
         ),
     ),
     dict(
@@ -382,19 +389,19 @@ void theSameScenarioIsRefusedByTheStateVersion() {
     assertEquals(1, order.ledger().refundCount());
 }""",
         narration=(
-            "The tests are where the argument stops being rhetoric. [[slnc 250]] "
-            "The first one passes. What it asserts is the bug: pay, cancel, "
-            "refund, and the shop has paid the customer twice. That test is green "
-            "because that is genuinely what the code does. [[slnc 300]] And every "
-            "one of those is paired with the identical scenario run through the "
-            "state version, where the same three calls end in a refusal and the "
-            "ledger still shows exactly one refund. Two tests, same story, "
-            "different endings. [[slnc 350]] There is one more I like even "
-            "better. It walks all seven states and all six actions — forty two "
-            "combinations — and checks that asking the order what buttons to draw "
-            "predicts, every single time, whether the call actually throws. In "
-            "the naive version that test cannot pass, and the reason it cannot is "
-            "the bug."
+            'The tests are where the argument becomes proof. [[slnc 500]] '
+            'The first test passes, and what it checks is the bug. [[slnc '
+            '300]] Pay, cancel, then refund, and the shop has paid the '
+            'customer twice. [[slnc 300]] It passes, because that is '
+            'really what the naive code does. [[slnc 500]] Next to it, '
+            'the same steps run through the State version. [[slnc 300]] '
+            "The refund is refused, and the shop's ledger shows exactly "
+            'one refund. [[slnc 600]] And one more test is even better. '
+            '[[slnc 300]] It tries all seven states with all six actions, '
+            'forty-two combinations. [[slnc 300]] For each one, it checks '
+            'that the buttons shown on screen exactly predict whether the '
+            'action is accepted. [[slnc 300]] The naive version can never '
+            'pass that test, and the reason is its bug.'
         ),
     ),
     dict(
@@ -418,18 +425,19 @@ void theSameScenarioIsRefusedByTheStateVersion() {
     PAID       [pack, cancel]       DELIVERED  [refund]
     PACKED     [ship, cancel]       REFUNDED   []""",
         narration=(
-            "Run it, and the two halves sit side by side. [[slnc 250]] Section "
-            "one is the status field: the screen offering only deliver, the "
-            "endpoint accepting cancel anyway, and a ledger that ends up ninety "
-            "seven pounds and forty nine pence short of zero over two refunds. "
-            "That is real money, and it left because of one condition in a chain "
-            "somebody copied. [[slnc 300]] Section three is the same two requests "
-            "through the state version. Both refused, with reasons a human can "
-            "read, and both recorded in the history. [[slnc 300]] And section "
-            "four prints the buttons for every state. That list comes from the "
-            "same class that holds the methods — so unlike the naive version, the "
-            "screen and the endpoint cannot disagree, because there is only one "
-            "of them now."
+            "Let's run the demo. [[slnc 500]] First, the status field "
+            'version. [[slnc 300]] The screen shows only a deliver '
+            'button. [[slnc 300]] But the server accepts a cancel anyway, '
+            'and then a refund. [[slnc 300]] The shop ends up '
+            'ninety-seven pounds and forty-nine pence out of pocket, over '
+            'two refunds. [[slnc 300]] That is real money, lost to one '
+            'copied condition. [[slnc 500]] Now the same two requests '
+            'through the State version. [[slnc 300]] Both are refused, '
+            'with reasons a person can read. [[slnc 300]] And both are '
+            'recorded in the history. [[slnc 500]] Finally, the demo '
+            'lists the buttons for every state. [[slnc 300]] That list '
+            'comes from the same classes that hold the behaviour. [[slnc '
+            '300]] So the screen and the server can never disagree again.'
         ),
     ),
     dict(
@@ -451,29 +459,25 @@ void theSameScenarioIsRefusedByTheStateVersion() {
             "Use it when the BEHAVIOUR varies, not just the permissions.",
         ],
         narration=(
-            "So, what to take away. [[slnc 300]] First, the confusion I promised "
-            "to clear up. State and strategy have the same class diagram. Not a "
-            "similar one — the same one. Any explanation that tries to "
-            "distinguish them by structure is wrong, because there is no "
-            "structural difference to find. [[slnc 300]] The difference is intent "
-            "and control. A strategy is chosen by the caller and does not change "
-            "itself: the checkout picks a shipping calculator, and that "
-            "calculator does its sum forever unaware that any other calculator "
-            "exists. A state is entered as a consequence of what the object did, "
-            "and states hand control to one another — paid state's pack method "
-            "ends by making the order a packed state. A state names its "
-            "successors, and that reference is why the two are not "
-            "interchangeable. [[slnc 350]] Now the bill, honestly. Seven classes "
-            "where there was one enum. And the transition table no longer exists "
-            "anywhere you can read it — it is distributed across seven files, one "
-            "arrow at a time. In the enum version you could see the whole "
-            "lifecycle in one switch, in ten seconds. That is a real loss. "
-            "[[slnc 300]] So do not reach for this every time you see a status "
-            "field. If every state's version of a method is the same body behind "
-            "a different guard, you wanted the enum and a map of permitted "
-            "transitions. Reach for this when the behaviour varies by state and "
-            "not merely the permission — when cancelling a paid order and "
-            "cancelling a packed one do genuinely different work, as they do here."
+            'So, what should you remember? [[slnc 500]] First, State and '
+            'Strategy have exactly the same class structure. [[slnc 300]] '
+            'You cannot tell them apart by their diagram. [[slnc 500]] '
+            'The difference is who is in control. [[slnc 300]] A strategy '
+            'is chosen by the caller, and never changes itself. [[slnc '
+            '300]] For example, the checkout picks a shipping calculator, '
+            'and it just does its sum. [[slnc 400]] A state is entered '
+            'because of what the object just did. [[slnc 300]] And states '
+            'hand control to each other. [[slnc 300]] When the paid state '
+            'packs an order, it moves the order into the packed state. '
+            '[[slnc 600]] Now the honest cost. [[slnc 300]] Seven '
+            'classes, where there used to be one list of statuses. [[slnc '
+            '300]] And the full table of moves is no longer in one place. '
+            '[[slnc 300]] It is spread across seven files. [[slnc 300]] '
+            'That is a real loss. [[slnc 500]] So do not use this for '
+            'every status field. [[slnc 300]] If each state only differs '
+            'in permission, use a status list and a table of allowed '
+            'moves. [[slnc 300]] Use the State pattern when the actual '
+            'work differs by state, as it does here.'
         ),
     ),
     dict(
@@ -486,17 +490,19 @@ void theSameScenarioIsRefusedByTheStateVersion() {
             "RETURN_REQUESTED state to both versions, and counts the edits.",
         ],
         narration=(
-            "That's the state pattern. [[slnc 250]] The full source, the "
-            "written notes, the diagrams and an animated walkthrough are all in "
-            "the repository — including the exercise I would most recommend: "
-            "add a return requested state between delivered and refunded, first "
-            "to the state version and then to the enum, and count what you have "
-            "to edit in each. In one of them it is a new file and one existing "
-            "class. In the other it is six chains of conditionals and a switch. "
-            "[[slnc 300]] If this helped, a like genuinely does help other "
-            "people find it, and subscribe if you would like the rest of the "
-            "behavioural series. [[slnc 250]] Thanks for watching, and I'll see "
-            "you in the next one."
+            "That's the State pattern. [[slnc 400]] If you remember one "
+            'sentence, make it this one. [[slnc 300]] Give each state its '
+            'own class, so that a forbidden action is simply code that '
+            'does not exist. [[slnc 500]] The full source code, written '
+            'notes, diagrams, and an animated walkthrough are all in the '
+            'repository. [[slnc 500]] Here is one exercise to try. [[slnc '
+            '300]] Add a return requested state, between delivered and '
+            'refunded. [[slnc 300]] Add it to the State version, and then '
+            'to the status field version. [[slnc 300]] And count how many '
+            'places you had to edit in each. [[slnc 500]] If this helped, '
+            'a like really does help other people find it. [[slnc 300]] '
+            "And subscribe, if you'd like the rest of the series. [[slnc "
+            '400]] Thanks for watching.'
         ),
     ),
 ]

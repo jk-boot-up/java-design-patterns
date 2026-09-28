@@ -6,22 +6,4 @@ Say it in words. A feature asks the gateway for the stock of the tea. The adapte
 
 ![Anti-Corruption Layer pattern sequence diagram](images/sequence-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant F as feature
-    participant A as adapter, the layer
-    participant L as old system
-    F->>A: stockOf("TEA-050")
-    A->>L: fetch
-    L-->>A: 0240, Y, A
-    A->>A: parse, translate
-    A-->>F: StockLevel(240, IN_STOCK)
-```
-
-</details>
-
 The load-bearing sentence: **the feature never sees a code.**

@@ -5,42 +5,6 @@ attacks, and the classic private-constructor shape falling to both.
 
 ![Singleton pattern sequence diagram](images/uml-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-sequenceDiagram
-    actor Client as OrderSequenceGeneratorDemo
-    participant Good as OrderSequenceGenerator (enum)
-    participant Legacy as LegacyOrderSequenceGenerator
-
-    Note over Client,Good: JVM created INSTANCE once, during class loading
-
-    Client->>Good: INSTANCE.nextOrderNumber()
-    Good-->>Client: "ORD-000001"
-
-    Client->>Good: reflection: getDeclaredConstructor(String, int)
-    Client->>Good: constructor.newInstance("FORGED", 99)
-    Good-->>Client: throws IllegalArgumentException
-
-    Client->>Good: serialize INSTANCE, then deserialize
-    Good-->>Client: same INSTANCE reference back
-
-    Note over Client,Legacy: getInstance() looks identical to callers — until attacked
-
-    Client->>Legacy: getInstance()
-    Legacy-->>Client: the shared instance
-
-    Client->>Legacy: reflection: getDeclaredConstructor()
-    Client->>Legacy: constructor.newInstance()
-    Legacy-->>Client: a second, independent instance
-
-    Client->>Legacy: serialize the shared instance, then deserialize
-    Legacy-->>Client: a third, independent instance
-```
-
-</details>
-
 ## Notes
 
 - The two flows are drawn together deliberately: the calls a well-behaved

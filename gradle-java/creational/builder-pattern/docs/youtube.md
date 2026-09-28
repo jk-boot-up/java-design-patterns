@@ -21,24 +21,24 @@ Learn the builder pattern in Java 21 — a Gang of Four pattern *and* item two o
 
 CHAPTERS
 00:00 Introduction
-00:57 The Job
-01:26 The Constructor With Nine Parameters
-01:51 Telescoping Constructors
-02:22 Why That Hurts
-03:08 The Builder Pattern
-03:49 A Made-to-Order Sandwich Counter
-04:27 The Shape of It
-05:02 Required Facts, Optional Pieces
-05:30 One Method, One Piece
-05:58 A Rule That Lives in One Place
-06:23 Checked Only When You Say You're Done
-06:48 The Product Stops Watching the Builder
-07:14 The Director, the Java Way
-07:49 Running It
-08:21 Where It Stops
-09:10 How It Relates to the Others
-09:53 One Sentence to Keep
-10:23 Thanks for Watching
+00:49 The Job
+01:17 The Constructor With Nine Parameters
+01:44 Telescoping Constructors
+02:12 Why That Hurts
+02:50 The Builder Pattern
+03:18 A Made-to-Order Sandwich Counter
+03:48 The Shape of It
+04:26 Required Facts, Optional Pieces
+04:53 One Method, One Piece
+05:22 A Rule That Lives in One Place
+05:48 Checked Only When You Say You're Done
+06:21 The Product Stops Watching the Builder
+06:50 The Director, the Java Way
+07:26 Running It
+08:03 Where It Stops
+08:41 How It Relates to the Others
+09:18 One Sentence to Keep
+09:43 Thanks for Watching
 
 SOURCE CODE, WRITTEN NOTES AND AN INTERACTIVE ANIMATION
 https://github.com/jk-boot-up/java-design-patterns/tree/main/gradle-java/creational/builder-pattern
@@ -53,24 +53,24 @@ YouTube renders these as chapters only if there are at least three and the first
 
 ```
 00:00 Introduction
-00:57 The Job
-01:26 The Constructor With Nine Parameters
-01:51 Telescoping Constructors
-02:22 Why That Hurts
-03:08 The Builder Pattern
-03:49 A Made-to-Order Sandwich Counter
-04:27 The Shape of It
-05:02 Required Facts, Optional Pieces
-05:30 One Method, One Piece
-05:58 A Rule That Lives in One Place
-06:23 Checked Only When You Say You're Done
-06:48 The Product Stops Watching the Builder
-07:14 The Director, the Java Way
-07:49 Running It
-08:21 Where It Stops
-09:10 How It Relates to the Others
-09:53 One Sentence to Keep
-10:23 Thanks for Watching
+00:49 The Job
+01:17 The Constructor With Nine Parameters
+01:44 Telescoping Constructors
+02:12 Why That Hurts
+02:50 The Builder Pattern
+03:18 A Made-to-Order Sandwich Counter
+03:48 The Shape of It
+04:26 Required Facts, Optional Pieces
+04:53 One Method, One Piece
+05:22 A Rule That Lives in One Place
+05:48 Checked Only When You Say You're Done
+06:21 The Product Stops Watching the Builder
+06:50 The Director, the Java Way
+07:26 Running It
+08:03 Where It Stops
+08:41 How It Relates to the Others
+09:18 One Sentence to Keep
+09:43 Thanks for Watching
 ```
 
 ## Tags
@@ -109,4 +109,4 @@ Add a card partway through pointing at the playlist, so a viewer who arrives at 
 
 ## Runtime
 
-Approximately 10:49, narrated at 145 words per minute.
+Approximately 10:04, narrated at 145 words per minute.

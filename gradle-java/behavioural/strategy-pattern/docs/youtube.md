@@ -21,20 +21,20 @@ Learn the Strategy design pattern in Java 21 by pricing delivery for an online s
 
 CHAPTERS
 00:00 Introduction
-00:54 The Scenario
-01:31 The Obvious First Move
-01:56 The Naive Approach — Four Rules, One Method
-02:39 Why That Hurts
-03:15 The Strategy Pattern
-03:36 Remember It With Getting Across Town
-04:19 The Three Roles
-05:03 The Strategy — One Small Interface
-05:47 A Concrete Strategy — It Knows Only Its Own Arithmetic
-06:19 The Context — Search It for the Word 'Weight'
-07:27 The Test That Actually Proves It
-08:02 Running It
-08:37 Wrap Up
-09:39 Thanks for Watching
+00:52 The Scenario
+01:26 The Obvious First Move
+01:48 The Naive Approach — Four Rules, One Method
+02:29 Why That Hurts
+02:58 The Strategy Pattern
+03:16 Remember It With Getting Across Town
+03:56 The Three Roles
+04:40 The Strategy — One Small Interface
+05:19 A Concrete Strategy — It Knows Only Its Own Arithmetic
+05:52 The Context — Search It for the Word 'Weight'
+06:43 The Test That Actually Proves It
+07:14 Running It
+07:51 Wrap Up
+08:43 Thanks for Watching
 
 SOURCE CODE, WRITTEN NOTES AND AN INTERACTIVE ANIMATION
 https://github.com/jk-boot-up/java-design-patterns/tree/main/gradle-java/behavioural/strategy-pattern
@@ -49,20 +49,20 @@ YouTube renders these as chapters only if there are at least three and the first
 
 ```
 00:00 Introduction
-00:54 The Scenario
-01:31 The Obvious First Move
-01:56 The Naive Approach — Four Rules, One Method
-02:39 Why That Hurts
-03:15 The Strategy Pattern
-03:36 Remember It With Getting Across Town
-04:19 The Three Roles
-05:03 The Strategy — One Small Interface
-05:47 A Concrete Strategy — It Knows Only Its Own Arithmetic
-06:19 The Context — Search It for the Word 'Weight'
-07:27 The Test That Actually Proves It
-08:02 Running It
-08:37 Wrap Up
-09:39 Thanks for Watching
+00:52 The Scenario
+01:26 The Obvious First Move
+01:48 The Naive Approach — Four Rules, One Method
+02:29 Why That Hurts
+02:58 The Strategy Pattern
+03:16 Remember It With Getting Across Town
+03:56 The Three Roles
+04:40 The Strategy — One Small Interface
+05:19 A Concrete Strategy — It Knows Only Its Own Arithmetic
+05:52 The Context — Search It for the Word 'Weight'
+06:43 The Test That Actually Proves It
+07:14 Running It
+07:51 Wrap Up
+08:43 Thanks for Watching
 ```
 
 ## Tags
@@ -101,4 +101,4 @@ Add a card partway through pointing at the playlist, so a viewer who arrives at 
 
 ## Runtime
 
-Approximately 10:06, narrated at 145 words per minute.
+Approximately 09:13, narrated at 145 words per minute.

@@ -5,47 +5,6 @@ facade coordinates all four subsystems in the correct order.
 
 ![Facade pattern sequence diagram](images/uml-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-sequenceDiagram
-    actor Client as FacadeDemo
-    participant Facade as OrderFacade
-    participant Inv as InventoryService
-    participant Pay as PaymentService
-    participant Ship as ShippingService
-    participant Notify as NotificationService
-
-    Client->>Facade: placeOrder(OrderRequest)
-    activate Facade
-
-    Facade->>Inv: reserveStock(productId, quantity)
-    activate Inv
-    Inv-->>Facade: true
-    deactivate Inv
-
-    Facade->>Pay: charge(customerId, amount)
-    activate Pay
-    Pay-->>Facade: paymentId
-    deactivate Pay
-
-    Facade->>Ship: scheduleShipment(orderId, address)
-    activate Ship
-    Ship-->>Facade: trackingId
-    deactivate Ship
-
-    Facade->>Notify: sendOrderConfirmation(customerId, orderId, trackingId)
-    activate Notify
-    Notify-->>Facade: void
-    deactivate Notify
-
-    Facade-->>Client: OrderConfirmation(orderId, paymentId, trackingId)
-    deactivate Facade
-```
-
-</details>
-
 ## Notes
 
 - The client (`FacadeDemo`) makes a **single call** to `OrderFacade`; it

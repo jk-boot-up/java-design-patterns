@@ -15,45 +15,6 @@ leaving them done as well would make the mess strictly worse.
 
 ![Saga data flow diagram](images/data-flow-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-flowchart TD
-    Start(["place order for cust-7, £70.95"])
-    Next{"is there another step?"}
-    Run["run the step — it commits immediately<br/>and is visible to everybody at once"]
-    OK{"did it succeed?"}
-    Push["add it to the list of steps that succeeded"]
-    Done(["COMPLETED — ord-9001, nothing to undo"])
-
-    Back{"anything left in the list?"}
-    Pop["take the LAST one that succeeded"]
-    Can{"can this step be compensated at all?"}
-    NoComp["nothing to do — there is no unsend<br/>record it and keep going"]
-    Comp["compensate — a NEW action across the wire,<br/>not a rollback of an old one"]
-    CompOK{"did the undo succeed?"}
-    Note["record the step it could not undo<br/>and CARRY ON unwinding the rest"]
-    Clean(["COMPENSATED — the customer owes nothing"])
-    Human(["NEEDS_HUMAN_HELP — naming the step that failed<br/>the shop is holding money it should not,<br/>and no code here can fix it"])
-
-    Start --> Next
-    Next -- "yes" --> Run --> OK
-    OK -- "yes" --> Push --> Next
-    Next -- "no" --> Done
-    OK -- "no — refused or unavailable" --> Back
-
-    Back -- "yes" --> Pop --> Can
-    Can -- "no" --> NoComp --> Back
-    Can -- "yes" --> Comp --> CompOK
-    CompOK -- "yes" --> Back
-    CompOK -- "no" --> Note --> Back
-    Back -- "empty, nothing was recorded" --> Clean
-    Back -- "empty, something was recorded" --> Human
-```
-
-</details>
-
 ## What the picture is telling you
 
 **There is no arrow that unwinds a step which never ran.** The list only contains steps

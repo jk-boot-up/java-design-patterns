@@ -19,19 +19,19 @@ The first two lines are what a viewer sees above the fold, so they carry the hoo
 ```
 CHAPTERS
 00:00 Introduction
-00:52 The Scenario
-01:11 The Provider's Client, Everywhere
-01:29 The Pattern
-01:46 One Door
-02:01 Tests That Never Leave The Process
-02:19 One Place For The Network's Habits
-02:39 Another Provider, The Same Shop
-02:54 The Bill: What The Door Cannot Say
-03:17 How To Recognise It
-03:39 The Verdict
-04:07 What Is Real Here
-04:20 When This Is Too Much
-04:32 Thanks for Watching
+00:51 The Scenario
+01:13 The Provider's Client, Everywhere
+01:34 The Pattern
+01:51 One Door
+02:10 Tests That Never Leave The Process
+02:29 One Place For The Network's Habits
+02:50 Another Provider, The Same Shop
+03:08 The Bill: What The Door Cannot Say
+03:36 How To Recognise It
+04:00 The Verdict
+04:30 What Is Real Here
+04:43 When This Is Too Much
+04:59 Thanks for Watching
 
 SOURCE CODE, WRITTEN NOTES AND AN INTERACTIVE ANIMATION
 https://github.com/jk-boot-up/java-design-patterns/tree/main/gradle-java/enterprise-design-patterns/gateway-pattern
@@ -46,19 +46,19 @@ YouTube renders these as chapters only if there are at least three and the first
 
 ```
 00:00 Introduction
-00:52 The Scenario
-01:11 The Provider's Client, Everywhere
-01:29 The Pattern
-01:46 One Door
-02:01 Tests That Never Leave The Process
-02:19 One Place For The Network's Habits
-02:39 Another Provider, The Same Shop
-02:54 The Bill: What The Door Cannot Say
-03:17 How To Recognise It
-03:39 The Verdict
-04:07 What Is Real Here
-04:20 When This Is Too Much
-04:32 Thanks for Watching
+00:51 The Scenario
+01:13 The Provider's Client, Everywhere
+01:34 The Pattern
+01:51 One Door
+02:10 Tests That Never Leave The Process
+02:29 One Place For The Network's Habits
+02:50 Another Provider, The Same Shop
+03:08 The Bill: What The Door Cannot Say
+03:36 How To Recognise It
+04:00 The Verdict
+04:30 What Is Real Here
+04:43 When This Is Too Much
+04:59 Thanks for Watching
 ```
 
 ## Tags
@@ -97,4 +97,4 @@ Add a card partway through pointing at the playlist, so a viewer who arrives at 
 
 ## Runtime
 
-Approximately 05:12, narrated at 145 words per minute.
+Approximately 05:36, narrated at 145 words per minute.

@@ -19,19 +19,19 @@ The first two lines are what a viewer sees above the fold, so they carry the hoo
 ```
 CHAPTERS
 00:00 Introduction
-00:53 The Scenario
-01:06 Open, Use, Close, By Hand
-01:20 The Pattern
-01:32 The Caller Gives The Work
-01:48 Getting An Answer Out
-01:58 All Or Nothing
-02:15 The Same Shape, For Measuring
-02:27 The Bill
-02:50 How To Recognise It
-03:13 The Verdict
-03:36 What Is Real Here
-03:49 When This Is Too Much
-04:02 Thanks for Watching
+00:52 The Scenario
+01:05 Open, Use, Close, By Hand
+01:23 The Pattern
+01:36 The Caller Gives The Work
+01:52 Getting An Answer Out
+02:06 All Or Nothing
+02:30 The Same Shape, For Measuring
+02:46 The Bill
+03:14 How To Recognise It
+03:41 The Verdict
+04:05 What Is Real Here
+04:20 When This Is Too Much
+04:34 Thanks for Watching
 
 SOURCE CODE, WRITTEN NOTES AND AN INTERACTIVE ANIMATION
 https://github.com/jk-boot-up/java-design-patterns/tree/main/gradle-java/foundational-design-patterns/execute-around-pattern
@@ -46,19 +46,19 @@ YouTube renders these as chapters only if there are at least three and the first
 
 ```
 00:00 Introduction
-00:53 The Scenario
-01:06 Open, Use, Close, By Hand
-01:20 The Pattern
-01:32 The Caller Gives The Work
-01:48 Getting An Answer Out
-01:58 All Or Nothing
-02:15 The Same Shape, For Measuring
-02:27 The Bill
-02:50 How To Recognise It
-03:13 The Verdict
-03:36 What Is Real Here
-03:49 When This Is Too Much
-04:02 Thanks for Watching
+00:52 The Scenario
+01:05 Open, Use, Close, By Hand
+01:23 The Pattern
+01:36 The Caller Gives The Work
+01:52 Getting An Answer Out
+02:06 All Or Nothing
+02:30 The Same Shape, For Measuring
+02:46 The Bill
+03:14 How To Recognise It
+03:41 The Verdict
+04:05 What Is Real Here
+04:20 When This Is Too Much
+04:34 Thanks for Watching
 ```
 
 ## Tags
@@ -97,4 +97,4 @@ Add a card partway through pointing at the playlist, so a viewer who arrives at 
 
 ## Runtime
 
-Approximately 04:42, narrated at 145 words per minute.
+Approximately 05:12, narrated at 145 words per minute.

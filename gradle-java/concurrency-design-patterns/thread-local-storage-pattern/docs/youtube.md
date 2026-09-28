@@ -19,19 +19,19 @@ The first two lines are what a viewer sees above the fold, so they carry the hoo
 ```
 CHAPTERS
 00:00 Introduction
-00:56 The Scenario
-01:12 Hand It Down
-01:30 The Pattern
-01:42 A Value That Belongs To The Thread
-01:57 Each Thread Has Its Own
-02:14 A Thread That Is Reused
-02:38 A New Thread Starts Empty
-03:00 The Bill
-03:20 How To Recognise It
-03:27 The Verdict
-03:52 What Is Real Here
-04:05 When This Is Too Much
-04:18 Thanks for Watching
+00:55 The Scenario
+01:16 Hand It Down
+01:36 The Pattern
+01:50 A Value That Belongs To The Thread
+02:07 Each Thread Has Its Own
+02:27 A Thread That Is Reused
+02:58 A New Thread Starts Empty
+03:27 The Bill
+03:50 How To Recognise It
+04:13 The Verdict
+04:41 What Is Real Here
+04:54 When This Is Too Much
+05:08 Thanks for Watching
 
 SOURCE CODE, WRITTEN NOTES AND AN INTERACTIVE ANIMATION
 https://github.com/jk-boot-up/java-design-patterns/tree/main/gradle-java/concurrency-design-patterns/thread-local-storage-pattern
@@ -46,19 +46,19 @@ YouTube renders these as chapters only if there are at least three and the first
 
 ```
 00:00 Introduction
-00:56 The Scenario
-01:12 Hand It Down
-01:30 The Pattern
-01:42 A Value That Belongs To The Thread
-01:57 Each Thread Has Its Own
-02:14 A Thread That Is Reused
-02:38 A New Thread Starts Empty
-03:00 The Bill
-03:20 How To Recognise It
-03:27 The Verdict
-03:52 What Is Real Here
-04:05 When This Is Too Much
-04:18 Thanks for Watching
+00:55 The Scenario
+01:16 Hand It Down
+01:36 The Pattern
+01:50 A Value That Belongs To The Thread
+02:07 Each Thread Has Its Own
+02:27 A Thread That Is Reused
+02:58 A New Thread Starts Empty
+03:27 The Bill
+03:50 How To Recognise It
+04:13 The Verdict
+04:41 What Is Real Here
+04:54 When This Is Too Much
+05:08 Thanks for Watching
 ```
 
 ## Tags
@@ -97,4 +97,4 @@ Add a card partway through pointing at the playlist, so a viewer who arrives at 
 
 ## Runtime
 
-Approximately 04:59, narrated at 145 words per minute.
+Approximately 05:48, narrated at 145 words per minute.

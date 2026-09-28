@@ -19,19 +19,19 @@ The first two lines are what a viewer sees above the fold, so they carry the hoo
 ```
 CHAPTERS
 00:00 Introduction
-00:57 The Scenario
-01:12 One Big Step
-01:24 The Pattern
-01:36 Stages With Waiting Lines
-01:50 The Slowest Stage Sets The Pace
-02:08 Widen Only The Slow Stage
-02:23 A Limit On Each Line
-02:46 The Bill
-03:09 How To Recognise It
-03:29 The Verdict
-03:48 What Is Real Here
-04:01 When This Is Too Much
-04:16 Thanks for Watching
+00:54 The Scenario
+01:13 One Big Step
+01:28 The Pattern
+01:42 Stages With Waiting Lines
+02:01 The Slowest Stage Sets The Pace
+02:22 Widen Only The Slow Stage
+02:42 A Limit On Each Line
+03:13 The Bill
+03:42 How To Recognise It
+04:13 The Verdict
+04:38 What Is Real Here
+04:53 When This Is Too Much
+05:10 Thanks for Watching
 
 SOURCE CODE, WRITTEN NOTES AND AN INTERACTIVE ANIMATION
 https://github.com/jk-boot-up/java-design-patterns/tree/main/gradle-java/architectural-design-patterns/pipe-and-filter-architecture-pattern
@@ -46,19 +46,19 @@ YouTube renders these as chapters only if there are at least three and the first
 
 ```
 00:00 Introduction
-00:57 The Scenario
-01:12 One Big Step
-01:24 The Pattern
-01:36 Stages With Waiting Lines
-01:50 The Slowest Stage Sets The Pace
-02:08 Widen Only The Slow Stage
-02:23 A Limit On Each Line
-02:46 The Bill
-03:09 How To Recognise It
-03:29 The Verdict
-03:48 What Is Real Here
-04:01 When This Is Too Much
-04:16 Thanks for Watching
+00:54 The Scenario
+01:13 One Big Step
+01:28 The Pattern
+01:42 Stages With Waiting Lines
+02:01 The Slowest Stage Sets The Pace
+02:22 Widen Only The Slow Stage
+02:42 A Limit On Each Line
+03:13 The Bill
+03:42 How To Recognise It
+04:13 The Verdict
+04:38 What Is Real Here
+04:53 When This Is Too Much
+05:10 Thanks for Watching
 ```
 
 ## Tags
@@ -97,4 +97,4 @@ Add a card partway through pointing at the playlist, so a viewer who arrives at 
 
 ## Runtime
 
-Approximately 04:57, narrated at 145 words per minute.
+Approximately 05:49, narrated at 145 words per minute.

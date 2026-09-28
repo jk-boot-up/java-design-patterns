@@ -19,20 +19,20 @@ The first two lines are what a viewer sees above the fold, so they carry the hoo
 ```
 CHAPTERS
 00:00 Introduction
-00:46 The Scenario
-01:02 A Connection Per Payment
-01:19 The Pattern: A Pool
-01:46 Now, The Bill
-01:58 Cost One: It Is Slower
-02:30 How This Was Measured
-03:06 Cost Two: A Dirty Return
-03:31 Cost Three: A Leak
-03:53 Cost Four: Sizing Is A Guess
-04:18 The Verdict
-04:42 How To Recognise It
-05:05 What Is Real Here
-05:25 When This Is Too Much
-05:31 Thanks for Watching
+00:54 The Scenario
+01:09 A Connection Per Payment
+01:24 The Pattern: A Pool
+01:51 Now, The Bill
+02:05 Cost One: It Is Slower
+02:40 How This Was Measured
+03:09 Cost Two: A Dirty Return
+03:40 Cost Three: A Leak
+04:03 Cost Four: Sizing Is A Guess
+04:30 The Verdict
+04:52 How To Recognise It
+05:18 What Is Real Here
+05:37 When This Is Too Much
+05:43 Thanks for Watching
 
 SOURCE CODE, WRITTEN NOTES AND AN INTERACTIVE ANIMATION
 https://github.com/jk-boot-up/java-design-patterns/tree/main/gradle-java/foundational-design-patterns/object-pool-pattern
@@ -47,20 +47,20 @@ YouTube renders these as chapters only if there are at least three and the first
 
 ```
 00:00 Introduction
-00:46 The Scenario
-01:02 A Connection Per Payment
-01:19 The Pattern: A Pool
-01:46 Now, The Bill
-01:58 Cost One: It Is Slower
-02:30 How This Was Measured
-03:06 Cost Two: A Dirty Return
-03:31 Cost Three: A Leak
-03:53 Cost Four: Sizing Is A Guess
-04:18 The Verdict
-04:42 How To Recognise It
-05:05 What Is Real Here
-05:25 When This Is Too Much
-05:31 Thanks for Watching
+00:54 The Scenario
+01:09 A Connection Per Payment
+01:24 The Pattern: A Pool
+01:51 Now, The Bill
+02:05 Cost One: It Is Slower
+02:40 How This Was Measured
+03:09 Cost Two: A Dirty Return
+03:40 Cost Three: A Leak
+04:03 Cost Four: Sizing Is A Guess
+04:30 The Verdict
+04:52 How To Recognise It
+05:18 What Is Real Here
+05:37 When This Is Too Much
+05:43 Thanks for Watching
 ```
 
 ## Tags
@@ -99,4 +99,4 @@ Add a card partway through pointing at the playlist, so a viewer who arrives at 
 
 ## Runtime
 
-Approximately 06:09, narrated at 145 words per minute.
+Approximately 06:18, narrated at 145 words per minute.

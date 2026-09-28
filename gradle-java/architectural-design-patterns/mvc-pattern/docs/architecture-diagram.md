@@ -11,55 +11,6 @@ down to application; every real view has a line only to the model.
 
 ![MVC pattern architecture diagram](images/architecture-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-flowchart TB
-    Root["PlaceAnOrderDemo<br/>composition root"]
-
-    subgraph C["controller"]
-        Ctrl["OrderSummaryController"]
-    end
-
-    subgraph M["model"]
-        Model["OrderSummaryModel"]
-    end
-
-    subgraph V["view"]
-        Screen["ScreenSummaryView"]
-        Email["EmailConfirmationView"]
-    end
-
-    subgraph App["application"]
-        Svc["PlaceOrderService"]
-    end
-
-    subgraph Infra["infrastructure"]
-        Orders["OrderTable"]
-        Products["ProductTable"]
-    end
-
-    subgraph N["naive.view — outside the real architecture"]
-        Rounded["RoundedEmailView"]
-    end
-
-    Root -.->|wires model, controller and views| C
-    Root -.-> V
-
-    Ctrl -->|places the order| Svc
-    Ctrl -->|reads the saved order| Orders
-    Ctrl -.->|builds| Model
-    Ctrl -->|hands the model to| Screen
-    Ctrl -->|hands the model to| Email
-    Screen -.->|reads only| Model
-    Email -.->|reads only| Model
-
-    Rounded -->|skips the model —<br/>the rule this project enforces| Products
-```
-
-</details>
-
 ## Reading The Diagram
 
 **Every real view has exactly one arrow, and it points at the model.**

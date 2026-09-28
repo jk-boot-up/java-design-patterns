@@ -15,22 +15,24 @@ SCENES = [
         title="Future/Promise",
         body=None,
         narration=(
-            "Hello, and welcome. This video explains the Future and "
-            "Promise pattern in Java, and it is written and presented by "
-            "Jayasekhar Konduru. [[slnc 300]] The plain definition: each "
-            "unit of work is submitted and immediately returns a handle "
-            "to a result that does not exist yet, so independent work "
-            "can run at once instead of one call waiting out the last "
-            "before it even starts. [[slnc 350]] This is the third "
-            "project in the concurrency category, and it answers a "
-            "question the first two left open: once work is handed to a "
-            "queue or a pool, how does the caller ever find out what "
-            "happened? [[slnc 300]] By the end you will know exactly "
-            "which half of a Future and Promise is the reader's and "
-            "which is the writer's, you will have watched an exception "
-            "surface with a stack trace that does not contain the line "
-            "that caused it, and you will know why asking a task to "
-            "cancel is a request, never a guarantee."
+            'Hello, and welcome. [[slnc 400]] This video explains the '
+            'Future and Promise pattern, in Java. [[slnc 300]] This video '
+            'is presented by Jayasekhar Konduru. [[slnc 600]] First, a '
+            'simple definition. [[slnc 300]] When you start a piece of '
+            'work, you immediately get back a handle to a result that '
+            'does not exist yet. [[slnc 300]] That handle is called a '
+            'future. [[slnc 400]] So independent pieces of work can run '
+            'at the same time, instead of each one waiting for the last. '
+            '[[slnc 600]] Think of a coffee shop buzzer. [[slnc 300]] You '
+            'order, and get a buzzer straight away. [[slnc 300]] You sit '
+            'down, and the buzzer tells you when your coffee is ready. '
+            '[[slnc 700]] In our online store, a product page needs three '
+            'separate lookups. [[slnc 500]] By the end, you will know '
+            'which half of this pattern belongs to the reader, and which '
+            'to the writer. [[slnc 300]] You will hear an error whose '
+            'report does not mention the line that caused it. [[slnc '
+            '300]] And you will learn why cancelling a task is only a '
+            'request.'
         ),
     ),
     dict(
@@ -49,17 +51,15 @@ SCENES = [
             "for each other anyway?",
         ],
         narration=(
-            "Here is the scenario. A product page needs three things "
-            "before it can render: the price, the stock count, and a "
-            "review score. Each one is a genuine catalogue lookup, and "
-            "this video measures each of them at two hundred "
-            "milliseconds. [[slnc 300]] Here is the detail worth sitting "
-            "with. None of the three depends on either of the other two. "
-            "Price does not need the stock count. The review score does "
-            "not care what the price is. [[slnc 300]] So the question "
-            "this whole video answers is simple: if they do not depend "
-            "on each other, why would the code that fetches them make "
-            "them wait for each other anyway?"
+            'Here is the scenario. [[slnc 400]] A product page needs '
+            'three things before it can appear. [[slnc 300]] The price, '
+            'the stock count, and a review score. [[slnc 400]] Each is a '
+            'real lookup, and each takes about two hundred milliseconds. '
+            '[[slnc 500]] Here is the key detail. [[slnc 300]] None of '
+            'the three depends on the others. [[slnc 300]] The price does '
+            'not need the stock count. [[slnc 300]] The review score does '
+            'not care about the price. [[slnc 500]] So why would the code '
+            'make them wait for each other?'
         ),
     ),
     dict(
@@ -73,12 +73,13 @@ SCENES = [
   none depending on the others, paid
   for one after another anyway.""",
         narration=(
-            "The naive version calls all three, one after another, "
-            "waiting each one out fully before starting the next. "
-            "[[slnc 300]] Six hundred and nineteen milliseconds. Three "
-            "lookups, at two hundred milliseconds apiece, simply added "
-            "together -- for work that a moment's thought shows has no "
-            "reason to be serial at all."
+            'First, the naive version. [[slnc 400]] It calls all three '
+            'lookups, one after another. [[slnc 300]] It waits for each '
+            'to finish before starting the next. [[slnc 500]] The page '
+            'takes six hundred and nineteen milliseconds. [[slnc 300]] '
+            'Three lookups of two hundred milliseconds each, simply added '
+            'together. [[slnc 300]] For work that has no reason to wait '
+            'at all.'
         ),
     ),
     dict(
@@ -91,13 +92,13 @@ SCENES = [
   rendered in 208ms -- roughly one
   lookup's cost, not three.""",
         narration=(
-            "Here is the fix, and it is one sentence. Each lookup is "
-            "submitted and immediately returns a handle to a result that "
-            "does not exist yet -- a Future. All three are submitted "
-            "before the page asks any of them for a value. [[slnc 300]] "
-            "Two hundred and eight milliseconds. Not the sum of three "
-            "lookups -- roughly the cost of the single slowest one, "
-            "because all three were genuinely running at the same time."
+            'Now the fix, in one sentence. [[slnc 400]] Each lookup is '
+            'started, and immediately returns a future. [[slnc 300]] All '
+            'three are started before the page asks any of them for its '
+            'value. [[slnc 500]] The page now takes two hundred and eight '
+            'milliseconds. [[slnc 300]] Not the sum of three lookups. '
+            '[[slnc 300]] Roughly the time of the slowest one, because '
+            'all three really ran at the same time.'
         ),
     ),
     dict(
@@ -115,16 +116,16 @@ SCENES = [
             "complete(value), once its own work is done.",
         ],
         narration=(
-            "Before the next demo, one distinction worth making "
-            "explicit, because it is genuinely easy to conflate. Java's "
-            "CompletableFuture is both halves of this pattern at once. "
-            "[[slnc 300]] The Future is the reader's half. Whoever holds "
-            "it calls get, and blocks until a value shows up -- and does "
-            "not need to know who produces that value, or how. [[slnc "
-            "300]] The Promise is the writer's half. Whoever holds it "
-            "calls complete, once its own work is genuinely done -- and "
-            "does not need to know who is reading, or whether anyone is "
-            "reading at all."
+            'Before the next demo, one important distinction. [[slnc '
+            "400]] Java's Completable Future holds both halves of this "
+            'pattern at once. [[slnc 300]] That is why they are easy to '
+            "mix up. [[slnc 500]] The future is the reader's half. [[slnc "
+            '300]] Whoever holds it calls get, and waits until a value '
+            'appears. [[slnc 300]] It does not need to know who produces '
+            "the value. [[slnc 500]] The promise is the writer's half. "
+            '[[slnc 300]] Whoever holds it calls complete, once its work '
+            'is done. [[slnc 300]] It does not need to know who is '
+            'reading, or whether anyone is.'
         ),
     ),
     dict(
@@ -138,14 +139,15 @@ SCENES = [
   the reader thread was blocked on
   the future until it did.""",
         narration=(
-            "Here is that split, made deliberately explicit, on two "
-            "separate threads. A reader thread creates a fresh future "
-            "and immediately calls get, blocking. A writer thread, "
-            "started at the same moment, does its own work and then "
-            "calls complete on that exact same object. [[slnc 300]] The "
-            "reader thread unblocks the instant the writer calls "
-            "complete -- one piece of code completing exactly what "
-            "another piece is waiting on."
+            'Third demo: the two halves, on two separate threads. [[slnc '
+            '400]] A reader thread creates a future, and immediately '
+            'calls get. [[slnc 300]] So it waits. [[slnc 400]] At the '
+            'same moment, a writer thread does its own work. [[slnc 300]] '
+            'Then it calls complete on that very same object, with the '
+            'price: one hundred and twenty-nine pounds ninety-nine. '
+            '[[slnc 500]] The reader wakes up the instant the writer '
+            'completes it. [[slnc 300]] One piece of code fills in '
+            'exactly what another piece is waiting for.'
         ),
     ),
     dict(
@@ -161,17 +163,16 @@ SCENES = [
   the call site that submitted this
   task appears nowhere above.""",
         narration=(
-            "Now the first honest cost. A task that throws does not "
-            "throw where it was called. It throws, silently, on "
-            "whatever worker thread happened to run it -- and the "
-            "failure only surfaces later, wrapped, when something calls "
-            "get. [[slnc 300]] Look closely at the stack trace this "
-            "produces. It belongs entirely to the worker thread. The "
-            "line of code that actually submitted the doomed task is "
-            "not on it, and cannot be -- because a stack trace is "
-            "captured on one thread, at one moment, and the thread that "
-            "submitted this task was somewhere else entirely when it "
-            "failed."
+            'Now the first honest cost. [[slnc 400]] A task that fails '
+            'does not fail where it was started. [[slnc 300]] It fails '
+            'quietly, on whichever worker thread ran it. [[slnc 300]] The '
+            'error only appears later, wrapped up, when someone calls '
+            "get. [[slnc 500]] And the error's stack trace belongs "
+            'entirely to the worker thread. [[slnc 300]] The line of code '
+            'that started the task is not in it. [[slnc 300]] It cannot '
+            'be, because a stack trace records one thread, at one moment. '
+            '[[slnc 300]] And the thread that started the task was '
+            'somewhere else entirely when it failed.'
         ),
     ),
     dict(
@@ -188,14 +189,16 @@ SCENES = [
   not time out -- it just never
   returns.""",
         narration=(
-            "Second honest cost. A task that never completes leaves a "
-            "bare get call blocked for as long as the calling thread is "
-            "willing to wait -- which, by default, is forever. [[slnc "
-            "300]] This demo rescues itself with a two hundred "
-            "millisecond timeout, purely so it can finish and tell you "
-            "what happened. That timeout is not a nicety sitting on top "
-            "of get -- for a task that genuinely never finishes, it is "
-            "the only thing standing between waiting and hanging."
+            'The second honest cost. [[slnc 400]] A task that never '
+            'finishes leaves a plain get call waiting for as long as the '
+            'thread is willing. [[slnc 300]] And by default, that is '
+            'forever. [[slnc 500]] This demo protects itself with a two '
+            'hundred millisecond timeout, so it can finish, and report '
+            'what happened. [[slnc 300]] It timed out after about two '
+            'hundred and five milliseconds. [[slnc 500]] That timeout is '
+            'not a nice extra. [[slnc 300]] For a task that never '
+            'finishes, it is the only difference between waiting, and '
+            'hanging forever.'
         ),
     ),
     dict(
@@ -212,14 +215,15 @@ SCENES = [
   carried on -- cancel asked; the
   task said no.""",
         narration=(
-            "Third honest cost, and the one that surprises people most. "
-            "Future dot cancel with true interrupts the thread running "
-            "the task. It does not stop the task. [[slnc 300]] This "
-            "demo's task catches every interrupt sent its way and simply "
-            "carries on -- the exact anti-pattern real code sometimes "
-            "writes by accident. Cancel reports true. The task runs to "
-            "completion anyway. Cancellation asked; the task said no, "
-            "and nothing forced it to listen."
+            'The third honest cost surprises people most. [[slnc 400]] '
+            'Calling cancel with true interrupts the thread running the '
+            'task. [[slnc 300]] But it does not stop the task. [[slnc '
+            '500]] In this demo, the task catches every interruption, and '
+            'simply carries on. [[slnc 300]] Real code sometimes does '
+            'this by accident. [[slnc 500]] Cancel reports success. '
+            '[[slnc 300]] And the task runs to the end anyway. [[slnc '
+            '300]] Cancel asked, the task said no, and nothing forced it '
+            'to listen.'
         ),
     ),
     dict(
@@ -235,15 +239,15 @@ SCENES = [
             "the fourth or fifth chained step.",
         ],
         narration=(
-            "One more cost, briefly, because it matters without needing "
-            "its own demo. CompletableFuture's callback methods -- then "
-            "apply, then compose, then combine -- let results chain "
-            "together without ever calling get. [[slnc 300]] They are "
-            "genuinely powerful in a small example, and genuinely "
-            "unreadable by the fourth or fifth chained step -- each "
-            "level adds another closure, another indentation, another "
-            "place an exception quietly disappears if the matching "
-            "handler is forgotten at that one level."
+            'One more cost, briefly. [[slnc 400]] Completable Future has '
+            'methods like then apply, then compose, and then combine. '
+            '[[slnc 300]] They let results flow from one step to the '
+            'next, without ever calling get. [[slnc 500]] In a small '
+            'example, they are powerful. [[slnc 300]] But by the fourth '
+            'or fifth step, they become hard to read. [[slnc 300]] Each '
+            'step adds another nested function. [[slnc 300]] And another '
+            'place where an error can quietly disappear, if a handler is '
+            'forgotten.'
         ),
     ),
     dict(
@@ -261,15 +265,16 @@ Runnable decrement = () -> {
 // two threads, same code: result is always 9.
 // (two decrements. one is lost. every run.)""",
         narration=(
-            "This project's determinism is not a new mechanism -- it is "
-            "the same three harness pieces from the first video, copied "
-            "unchanged, proven again here. [[slnc 300]] Two threads each "
-            "read a shared stock count of ten, meet at a rendezvous that "
-            "will not release either one until both have arrived, and "
-            "only then write back what they read, minus one. [[slnc "
-            "350]] Run it twenty times, and the answer is nine, twenty "
-            "times -- never eight -- because both threads are provably "
-            "standing on the same stale read before either one writes."
+            'How does the demo make its results repeatable? [[slnc 400]] '
+            'With the same small tools used across these concurrency '
+            'videos. [[slnc 500]] For example: two threads each read a '
+            'shared stock count of ten. [[slnc 300]] Then they meet at a '
+            'meeting point, which releases neither until both have '
+            'arrived. [[slnc 300]] Only then does each write back what it '
+            'read, minus one. [[slnc 500]] Run it twenty times, and the '
+            'answer is nine, twenty times, never eight. [[slnc 300]] '
+            'Because both threads are proven to hold the same old value '
+            'before either writes.'
         ),
     ),
     dict(
@@ -286,18 +291,14 @@ Runnable decrement = () -> {
             "this project does not pin something directly.",
         ],
         narration=(
-            "The same honest admission every project in this category "
-            "makes. Every deterministic outcome you have watched is "
-            "bought by pinning one specific fact on purpose -- that a "
-            "lookup has genuinely started, that a gate will never open, "
-            "that a task has begun the very loop being demonstrated. "
-            "[[slnc 300]] The real JVM scheduler chooses freely "
-            "everywhere this project does not pin something directly -- "
-            "which worker picks up which submitted lookup first, and in "
-            "what order. A passing test here proves the forced scenario "
-            "behaves as shown -- not that Future and Promise are safe "
-            "under every possible schedule a busier machine might "
-            "produce."
+            'A quick, honest note about this demo. [[slnc 400]] Every '
+            'repeatable result was made repeatable on purpose. [[slnc '
+            '300]] A lookup is proven to have started. [[slnc 300]] A '
+            'gate is set never to open. [[slnc 300]] A task is proven to '
+            'be inside its loop. [[slnc 500]] Everywhere else, the '
+            'operating system decides freely which thread runs when. '
+            '[[slnc 300]] So a passing test proves the forced scene, not '
+            'every possible timing.'
         ),
     ),
     dict(
@@ -313,16 +314,15 @@ Runnable decrement = () -> {
             "cancel() is a request a task is free to ignore.",
         ],
         narration=(
-            "Every project in this category pays a bill honestly, and "
-            "here is this one's, gathered in one place. [[slnc 300]] "
-            "Exceptions move -- surfacing wrapped, later, with a stack "
-            "trace that never contains the line that submitted the "
-            "doomed task. [[slnc 300]] A bare get with no timeout is not "
-            "a long wait -- it is a hang, indistinguishable from one "
-            "until something outside the call itself intervenes. [[slnc "
-            "300]] And cancel is a request, not a command -- a task has "
-            "to actually check for it and choose to stop, and plenty of "
-            "real code forgets to."
+            'Here are the costs, gathered in one place. [[slnc 500]] One. '
+            '[[slnc 200]] Errors move. [[slnc 300]] They appear later, '
+            'wrapped up, and their stack trace never includes the line '
+            'that started the task. [[slnc 500]] Two. [[slnc 200]] A '
+            'plain get with no timeout is not a long wait. [[slnc 300]] '
+            'It can be a hang. [[slnc 500]] Three. [[slnc 200]] Cancel is '
+            'a request, not a command. [[slnc 300]] A task must check for '
+            'it, and choose to stop. [[slnc 300]] Plenty of real code '
+            'forgets.'
         ),
     ),
     dict(
@@ -338,15 +338,13 @@ Runnable decrement = () -> {
             "result. There is nothing to overlap.",
         ],
         narration=(
-            "So when does this pattern actually earn its place? [[slnc "
-            "300]] The moment two or more units of work are genuinely "
-            "independent and each takes real, measurable time -- exactly "
-            "this video's three catalogue lookups. [[slnc 300]] Not "
-            "worth it for two calls that are already fast, or for two "
-            "calls where the second genuinely needs the first's result. "
-            "There is nothing to overlap, and a Future around work that "
-            "was never going to run concurrently with anything is "
-            "ceremony with no payoff behind it."
+            'So, when is this pattern worth it? [[slnc 400]] When two or '
+            'more pieces of work are truly independent, and each takes '
+            'real, measurable time. [[slnc 300]] Exactly like this '
+            "video's three lookups. [[slnc 500]] It is not worth it for "
+            'calls that are already fast. [[slnc 300]] Or when the second '
+            "call needs the first call's result. [[slnc 300]] Then there "
+            'is nothing to overlap.'
         ),
     ),
     dict(
@@ -360,21 +358,19 @@ Runnable decrement = () -> {
             "actually run it.",
         ],
         narration=(
-            "That's Future and Promise. [[slnc 250]] If you take one "
-            "sentence away, take this one: a Future is a promise about "
-            "when a value will be ready, never a promise about whether "
-            "the work producing it can be stopped once it has started. "
-            "[[slnc 350]] The full source, the written notes, the "
-            "diagrams and an animated walkthrough are all in the "
-            "repository, running offline with nothing installed but a "
-            "Java development kit. [[slnc 300]] If you try one exercise, "
-            "try this. Remove the timeout from act five's get call, "
-            "read the code carefully, and think hard about what would "
-            "happen before you actually run it. [[slnc 300]] If this "
-            "helped, a like genuinely does help other people find it, "
-            "and subscribe if you would like the rest of the series. "
-            "[[slnc 250]] Thanks for watching, and I'll see you in the "
-            "next one."
+            "That's the Future and Promise pattern. [[slnc 400]] If you "
+            'remember one sentence, make it this one. [[slnc 300]] A '
+            'future promises when a value will be ready, but never that '
+            'the work behind it can be stopped. [[slnc 500]] The full '
+            'source code, written notes, diagrams, and an animated '
+            'walkthrough are all in the repository. [[slnc 500]] Here is '
+            'one exercise to try. [[slnc 300]] Remove the timeout from '
+            "the hanging demo's get call. [[slnc 300]] Read the code "
+            'carefully, and work out what would happen, before you run '
+            'it. [[slnc 500]] If this helped, a like really does help '
+            "other people find it. [[slnc 300]] And subscribe, if you'd "
+            'like the rest of the series. [[slnc 400]] Thanks for '
+            'watching.'
         ),
     ),
 ]

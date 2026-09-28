@@ -31,23 +31,25 @@ SCENES = [
         title="Load Balancing",
         body=None,
         narration=(
-            "Hello, and welcome. This video explains the client-side Load "
-            "Balancing pattern in Java, and it is written and presented by "
-            "Jayasekhar Konduru. [[slnc 300]] Let's start with the simple "
-            "definition. When a service runs as several identical copies, "
-            "somebody has to decide which copy each request goes to. Client-side "
-            "load balancing means the caller makes that decision itself, fresh, "
-            "on every single request — and because the caller makes it, the "
-            "decision can be swapped out without touching anything else. "
-            "[[slnc 350]] That's the idea in a sentence. The rest of the video "
-            "does it properly, by building a real working Java project: an online "
-            "shop whose catalog service runs as three copies, one of which is on "
-            "older, slower hardware. [[slnc 250]] By the end you'll know why "
-            "sending every request to the first copy on the list is fast, "
-            "correct, and still has to go; why taking fair turns is not the same "
-            "as being quick; and — the part that usually gets skipped — the two "
-            "ways this pattern goes wrong even when every caller is behaving "
-            "perfectly."
+            'Hello, and welcome. [[slnc 400]] This video explains the '
+            'client-side Load Balancing pattern, in Java. [[slnc 300]] '
+            'This video is presented by Jayasekhar Konduru. [[slnc 600]] '
+            'First, a simple definition. [[slnc 300]] When a service runs '
+            'as several identical copies, something must decide which '
+            'copy each request goes to. [[slnc 300]] Client-side load '
+            'balancing means the caller makes that decision itself, '
+            'fresh, on every request. [[slnc 300]] And because the rule '
+            'is kept in one replaceable place, it can be swapped without '
+            'touching anything else. [[slnc 600]] Think of a row of '
+            'supermarket tills. [[slnc 300]] You look along the row, pick '
+            'the shortest queue, and join it. [[slnc 700]] In our online '
+            'store, the catalog service runs as three copies. [[slnc '
+            '300]] And one of them is on older, slower hardware. [[slnc '
+            '500]] By the end, you will know why sending every request to '
+            'the first copy works, and still has to go. [[slnc 300]] Why '
+            'taking fair turns is not the same as being quick. [[slnc '
+            '300]] And two ways this pattern goes wrong, even when every '
+            'caller behaves perfectly.'
         ),
     ),
     dict(
@@ -69,23 +71,20 @@ SCENES = [
             "Which of the three does it ask?",
         ],
         narration=(
-            "Here is the situation. [[slnc 250]] The shop's catalog service — the "
-            "thing that knows what a product is called and what it costs — is busy "
-            "enough that one copy of it is not sensible any more. So it runs as "
-            "three. Same program, started three times, on three machines. "
-            "[[slnc 300]] Two of those machines answer a question in about ten "
-            "milliseconds. The third takes sixty, because it is older hardware "
-            "that nobody has got round to replacing. That difference is going to "
-            "matter enormously, and notice that it is not a fault. Nothing is "
-            "broken. One box is just slower than the others, which is true of "
-            "almost every real cluster. [[slnc 350]] The important thing about the "
-            "three is that they are interchangeable. Ask any of them for a product "
-            "name and you get the same product name, because what an espresso "
-            "machine is called does not depend on which machine you happen to ask. "
-            "[[slnc 350]] And that is exactly what creates the problem. When "
-            "everything gives the same answer, there is no right one to pick — but "
-            "something still has to pick. So: which of the three does the checkout "
-            "ask?"
+            "Here is the scenario. [[slnc 400]] The shop's catalog "
+            'service knows what each product is called, and what it '
+            'costs. [[slnc 300]] It is busy, so it runs as three copies '
+            'of the same program, on three machines. [[slnc 600]] Two of '
+            'those machines answer in about ten milliseconds. [[slnc '
+            '300]] The third takes sixty, because it is older hardware. '
+            '[[slnc 300]] Nothing is broken. [[slnc 300]] One machine is '
+            'simply slower, which is true of almost every real system. '
+            '[[slnc 600]] The three copies are interchangeable. [[slnc '
+            '300]] Ask any of them for a product name, and you get the '
+            'same answer. [[slnc 500]] And that creates the problem. '
+            '[[slnc 300]] When every copy gives the same answer, there is '
+            'no right one to pick. [[slnc 300]] But something still has '
+            'to pick. [[slnc 300]] So which copy does checkout ask?'
         ),
     ),
     dict(
@@ -102,19 +101,17 @@ SCENES = [
 
 // no bug, no slowness, no failing test, nothing to notice""",
         narration=(
-            "The obvious answer is to take the first one on the list, and I want "
-            "to be fair to it, because almost nobody chooses this on purpose. "
-            "[[slnc 300]] You ask who is available, you get back a list, and you "
-            "use the first thing in it. In the project that lives in a class "
-            "called first instance balancer, and the whole of it is one line: "
-            "return the first candidate. [[slnc 350]] There is no bug in that "
-            "line. It returns the correct product name every time. It is not slow. "
-            "It has no configuration to get wrong. [[slnc 300]] And here is the "
-            "thing that makes it genuinely dangerous rather than merely wrong: "
-            "there is a whole test file in this project written against it, and "
-            "every test in that file passes. [[slnc 350]] So keep that in mind as "
-            "we take it apart. What goes wrong here is not a mistake somebody "
-            "made. It is three lines that nobody ever thought of as a decision."
+            'The obvious answer is: take the first one on the list. '
+            '[[slnc 300]] Almost nobody chooses this on purpose. [[slnc '
+            '500]] You ask which copies are available, you get a list, '
+            'and you use the first. [[slnc 300]] In the project, the '
+            'whole rule is one line: return the first one. [[slnc 600]] '
+            'There is no bug in that line. [[slnc 300]] It always returns '
+            'the correct product name. [[slnc 300]] It is not slow. '
+            '[[slnc 300]] And every test written against it passes. '
+            '[[slnc 600]] So keep this in mind. [[slnc 300]] What goes '
+            'wrong here is not a mistake. [[slnc 300]] It is a decision '
+            'nobody realised they were making.'
         ),
     ),
     dict(
@@ -133,23 +130,20 @@ SCENES = [
   wasteful: the shop is paying for three instances and using one,
   and when catalog-1 falls over it takes every request with it.""",
         narration=(
-            "So let's run it. Twelve requests, through the take-the-first "
-            "strategy. [[slnc 300]] Catalog one gets twelve requests. That is one "
-            "hundred percent of them. Catalog two gets nothing and catalog three "
-            "gets nothing. [[slnc 350]] And now the number that makes this lesson "
-            "difficult to teach: the twelve requests took one hundred and twenty "
-            "milliseconds in total, and that is going to turn out to be the "
-            "fastest number in this entire video. [[slnc 400]] Let that sit for a "
-            "moment, because it is the opposite of what you expect from the bad "
-            "version of a pattern. Nothing failed. Nothing was slow. Nothing timed "
-            "out. Every answer was correct and arrived promptly. [[slnc 350]] The "
-            "costs are all outside the program, which is precisely why nobody "
-            "notices them. Two machines are being billed, monitored, patched and "
-            "backed up, and they are doing nothing at all. The headroom the shop "
-            "thinks it bought does not exist, because the traffic is not actually "
-            "spread over three boxes. And when catalog one falls over, everything "
-            "falls over, with two perfectly healthy machines sitting a couple of "
-            "metres away."
+            'First demo: twelve requests, always to the first copy. '
+            '[[slnc 400]] Catalog one gets all twelve requests. [[slnc '
+            '300]] Catalog two gets none. [[slnc 300]] Catalog three gets '
+            'none. [[slnc 600]] And the twelve requests took a hundred '
+            'and twenty milliseconds in total. [[slnc 300]] That will '
+            'turn out to be the fastest result in this whole video. '
+            '[[slnc 600]] Nothing failed. [[slnc 300]] Nothing was slow. '
+            '[[slnc 300]] Every answer was correct. [[slnc 600]] The '
+            'costs are all outside the program, which is why nobody '
+            'notices them. [[slnc 300]] Two machines are paid for, and do '
+            'nothing. [[slnc 300]] The spare capacity the shop thinks it '
+            'bought does not exist. [[slnc 300]] And when catalog one '
+            'falls over, everything falls over. [[slnc 300]] While two '
+            'healthy machines sit idle.'
         ),
     ),
     dict(
@@ -171,23 +165,22 @@ SCENES = [
             "itself with a failing test.",
         ],
         narration=(
-            "Let me be concrete about the damage, because a hundred and twenty "
-            "milliseconds hides all of it. [[slnc 300]] First, money. Three "
-            "machines are on the bill and one is doing the work. [[slnc 250]] "
-            "Second, and worse, the safety you thought you had bought is "
-            "imaginary. The shop believes it can survive losing a machine. In fact "
-            "it can survive losing two particular machines and not the third. "
-            "[[slnc 300]] Third, the blast radius. When the busy box goes down, a "
-            "hundred percent of requests go down with it. A rolling restart — an "
-            "ordinary Tuesday afternoon deployment — is a full outage rather than a "
-            "third of one. [[slnc 350]] And then the reason this survives code "
-            "review for years. In a test environment there is usually one instance "
-            "of everything. With one instance, take-the-first and take-turns "
-            "produce exactly the same behaviour, request for request. They are "
-            "indistinguishable. [[slnc 350]] So the sentence to take away is this: "
-            "a concentration problem does not announce itself with a failing test. "
-            "It announces itself on the night one machine dies, which is a very "
-            "expensive time to find out."
+            "Let's be clear about the damage. [[slnc 500]] First, money. "
+            '[[slnc 300]] Three machines are on the bill, and one does '
+            'the work. [[slnc 500]] Second, the safety is imaginary. '
+            '[[slnc 300]] The shop believes it can survive losing a '
+            'machine. [[slnc 300]] But it cannot survive losing catalog '
+            'one. [[slnc 500]] Third, the damage when it fails. [[slnc '
+            '300]] When the busy machine goes down, every request goes '
+            'down with it. [[slnc 300]] An ordinary release, restarting '
+            'machines one by one, becomes a full outage. [[slnc 600]] And '
+            'here is why it survives code review for years. [[slnc 300]] '
+            'In a test environment, there is usually only one copy of '
+            'everything. [[slnc 300]] With one copy, taking the first and '
+            'taking turns behave exactly the same. [[slnc 600]] So '
+            'remember this. [[slnc 300]] A problem like this never shows '
+            'up as a failing test. [[slnc 300]] It shows up on the night '
+            'one machine dies.'
         ),
     ),
     dict(
@@ -207,22 +200,24 @@ SCENES = [
             "can and cannot see.",
         ],
         narration=(
-            "The pattern is usually stated something like this. A client that has "
-            "several interchangeable instances to choose from hands the choice to a "
-            "replaceable policy, and makes that choice again on every request. "
-            "[[slnc 350]] In plain words: don't take the first one, and put the "
-            "choosing somewhere you can change it. [[slnc 300]] Two things in that "
-            "are doing real work. [[slnc 250]] The first is replaceable. The rule "
-            "for picking becomes an object, so you can swap take-turns for "
-            "prefer-the-fast-one without editing the code that makes the request. "
-            "[[slnc 300]] The second is on every request. This is not a setting "
-            "you read at startup. It is a decision, remade twelve times in twelve "
-            "requests, which is what lets it react to a machine that got slow five "
-            "seconds ago. [[slnc 350]] And then there is a third part, which is "
-            "not in most statements of the pattern and which this video will spend "
-            "real time on: be honest about what one caller can see. Every caller "
-            "here is choosing well, on its own, with no bugs — and we will watch "
-            "them collectively get it wrong anyway."
+            'Here is the pattern, as it is usually stated. [[slnc 400]] A '
+            'caller with several interchangeable copies to choose from '
+            'hands the choice to a replaceable rule. [[slnc 300]] And it '
+            'makes that choice again, on every request. [[slnc 500]] In '
+            'plain words: do not just take the first one. [[slnc 300]] '
+            'Put the choosing somewhere you can change it. [[slnc 600]] '
+            'Two words in that do real work. [[slnc 500]] The first is '
+            'replaceable. [[slnc 300]] The rule for picking becomes its '
+            'own object. [[slnc 300]] So you can swap one rule for '
+            'another without editing the code that makes the request. '
+            '[[slnc 500]] The second is every request. [[slnc 300]] It is '
+            'not a setting read at startup. [[slnc 300]] It is a decision '
+            'made again each time, so it can react to a machine that got '
+            'slow five seconds ago. [[slnc 600]] And there is a third '
+            'part, which most descriptions leave out. [[slnc 300]] Be '
+            'honest about what one caller can see. [[slnc 300]] Later, '
+            'every caller will choose well on its own, and together they '
+            'will still get it wrong.'
         ),
     ),
     dict(
@@ -244,22 +239,22 @@ SCENES = [
             "standing at the head of all six queues.",
         ],
         narration=(
-            "Here is the everyday version, and it has nothing to do with "
-            "computers. [[slnc 250]] You are in a supermarket. Six tills are open. "
-            "Nobody is directing anybody. You look along the row, you pick the "
-            "queue that looks shortest, and you join it. [[slnc 350]] Three things "
-            "just happened, and all three are the pattern. [[slnc 250]] You chose. "
-            "No member of staff assigned you a till. The decision was made at your "
-            "end, by you. [[slnc 300]] You chose using what you could see, which "
-            "was queue length — not who the fastest cashier is, and not whether "
-            "the person at the front has forty items and a coupon problem. Your "
-            "information was local and incomplete, and you used it anyway because "
-            "it was better than nothing. [[slnc 300]] And you will choose again "
-            "next week, from scratch. You have not written down which till is best. "
-            "[[slnc 350]] Now picture the other supermarket, the one where a member "
-            "of staff stands at the head of all six queues and tells each shopper "
-            "where to go. Hold onto that person. They are going to come back at the "
-            "end of this video, and they are going to win an argument."
+            'Here is the everyday version. [[slnc 400]] You are in a '
+            'supermarket, with six tills open. [[slnc 300]] Nobody '
+            'directs anybody. [[slnc 300]] You look along the row, pick '
+            'the shortest queue, and join it. [[slnc 600]] Three things '
+            'just happened, and all three are the pattern. [[slnc 500]] '
+            'You chose. [[slnc 300]] No member of staff assigned you a '
+            'till. [[slnc 500]] You chose using what you could see: the '
+            'length of each queue. [[slnc 300]] Not which cashier is '
+            'fastest, or who has a trolley full of shopping. [[slnc 300]] '
+            'Your information was partial, but better than nothing. '
+            '[[slnc 500]] And next week, you will choose again, from '
+            'scratch. [[slnc 600]] Now picture another supermarket. '
+            '[[slnc 300]] One member of staff stands at the front of all '
+            'six queues, and tells each shopper where to go. [[slnc 300]] '
+            'Remember that person. [[slnc 300]] They come back at the end '
+            'of this video, and they win an argument.'
         ),
     ),
     dict(
@@ -268,30 +263,25 @@ SCENES = [
         title="The Roles",
         body=None,
         narration=(
-            "So, the pieces. [[slnc 250]] On the left is the caller: the class in "
-            "the project is called catalog client. It asks the cluster who is "
-            "available, hands that list to the balancer it happens to be holding, "
-            "calls whichever instance comes back, and then reports how long that "
-            "took. That is the entire class. It contains no rule for picking at "
-            "all. [[slnc 350]] In the middle is the load balancer itself, which is "
-            "an interface with one real method. You give it a list of candidates "
-            "and it gives you back one of them. One method, four different answers, "
-            "depending on which implementation you passed in. [[slnc 300]] If that "
-            "shape sounds familiar, it should: this is the Strategy pattern. Same "
-            "structure, interchangeable implementations, a caller that never asks "
-            "which one it is holding. What is new here is the subject matter. The "
-            "thing being chosen is a machine, the choice is remade on every "
-            "request, and the chooser knows something the network does not. "
-            "[[slnc 350]] Below the interface there is a second method, called "
-            "observed, and it has a default empty body. It is how the caller "
-            "reports back how long a call took. It is empty by default because "
-            "taking turns does not care how long anything took, and a strategy that "
-            "does not learn should not be forced to write an empty method to say "
-            "so. [[slnc 350]] And on the right are the four strategies: take the "
-            "first, take turns, prefer the fastest, and pick at random. Notice the "
-            "arrows all run leftwards, into the interface. Not one of them points "
-            "at another strategy, and not one points at another client. That second "
-            "absence is the pattern's ceiling, and we will come back to it."
+            "Let's name the pieces. [[slnc 500]] First, the caller, "
+            'called the catalog client. [[slnc 300]] It asks which copies '
+            'are available. [[slnc 300]] It hands that list to its '
+            'balancer. [[slnc 300]] It calls whichever copy comes back. '
+            '[[slnc 300]] Then it reports how long that took. [[slnc '
+            '300]] That is all. [[slnc 300]] It contains no rule for '
+            'picking. [[slnc 600]] Second, the load balancer itself. '
+            '[[slnc 300]] You give it a list of copies, and it gives you '
+            'back one of them. [[slnc 300]] There are four different '
+            'versions of it. [[slnc 500]] If that sounds familiar, it is '
+            'the Strategy pattern. [[slnc 300]] Interchangeable rules, '
+            'and a caller that never asks which one it holds. [[slnc '
+            '500]] The balancer also has a way to be told how long each '
+            'call took. [[slnc 300]] Rules that do not learn simply '
+            'ignore it. [[slnc 600]] Third, the four rules. [[slnc 300]] '
+            'Take the first. [[slnc 200]] Take turns. [[slnc 200]] Prefer '
+            'the fastest. [[slnc 200]] And pick at random. [[slnc 500]] '
+            'None of them knows about any other caller. [[slnc 300]] And '
+            "that limit is the pattern's ceiling, as we will see."
         ),
     ),
     dict(
@@ -310,22 +300,20 @@ SCENES = [
 
 // ask who's up, choose, call, report back how long it took""",
         narration=(
-            "This is the caller, and it is the punchline of the whole design, so "
-            "it is worth going through slowly. [[slnc 300]] Line one: ask the "
-            "cluster which instances are available right now. Not at startup — "
-            "right now, on this request. [[slnc 250]] Line two: hand that list to "
-            "the balancer and get one instance back. [[slnc 250]] Then note the "
-            "time, call the instance you were given, and tell the balancer how many "
-            "milliseconds it took. [[slnc 350]] Now the question to ask about this "
-            "method is: where is the policy? [[slnc 300]] There isn't any. There is "
-            "no if statement about which instance is fastest, no counter, no "
-            "configuration, nothing that knows one machine from another. Swapping "
-            "take-turns for prefer-the-fastest changes not one character in this "
-            "file. [[slnc 350]] That is the property the pattern is buying, and it "
-            "is worth saying what it costs you in exchange: the behaviour of your "
-            "system is now somewhere other than where you read about the request. "
-            "To know which machine gets called, you have to go and look at what was "
-            "passed into the constructor."
+            "Here is the caller's code, step by step. [[slnc 500]] First, "
+            'ask which copies are available, right now, on this request. '
+            '[[slnc 300]] Second, hand that list to the balancer, and get '
+            'one copy back. [[slnc 300]] Then note the time, call that '
+            'copy, and tell the balancer how many milliseconds it took. '
+            '[[slnc 600]] Now ask: where is the rule for picking? [[slnc '
+            "500]] There isn't one. [[slnc 300]] No check for which copy "
+            'is fastest. [[slnc 300]] No counter. [[slnc 300]] Nothing '
+            'that knows one machine from another. [[slnc 300]] Swapping '
+            'one rule for another changes nothing in this code. [[slnc '
+            '600]] That is what the pattern buys. [[slnc 300]] And here '
+            'is the cost. [[slnc 300]] To know which machine gets called, '
+            'you must look at which rule was passed in when the caller '
+            'was created.'
         ),
     ),
     dict(
@@ -343,25 +331,25 @@ SCENES = [
 
   // the whole strategy: candidates.get(Math.floorMod(next++, size))""",
         narration=(
-            "The first real strategy is take turns, which everybody calls "
-            "round-robin. It is a counter and a remainder: keep a number, add one "
-            "to it each time, and use it to step along the list. That is the whole "
-            "implementation. [[slnc 350]] Run the same twelve requests through it "
-            "and the split is four, four, four. Thirty-three percent each. "
-            "Perfectly, arithmetically even. [[slnc 300]] And it took three hundred "
-            "and twenty milliseconds, against a hundred and twenty for the version "
-            "we said was bad. [[slnc 400]] It is nearly three times slower, and it "
-            "is the thing you should ship. [[slnc 350]] So let's say plainly what "
-            "happened, because this is the single most useful sentence in the "
-            "video: fair is not the same as fast. [[slnc 300]] Round-robin sent a "
-            "third of the shop's traffic to the slowest machine the shop owns. It "
-            "did that because it does not know what slow means. It was never told, "
-            "it never measured anything, and it cannot tell a sixty millisecond box "
-            "from a ten millisecond one. [[slnc 350]] What it bought in exchange is "
-            "worth the time: all three machines are now in use, so the headroom is "
-            "real, and losing any one of them costs you a third of your capacity "
-            "instead of all of it. That is why, despite the number on the screen, "
-            "round-robin is still the sensible default."
+            'Second demo: take turns. [[slnc 300]] This is usually called '
+            'round-robin. [[slnc 500]] It is simply a counter. [[slnc '
+            '300]] Add one each time, and use it to step along the list. '
+            '[[slnc 600]] Twelve requests, and the split is four, four, '
+            'and four. [[slnc 300]] Perfectly even. [[slnc 500]] And it '
+            'took three hundred and twenty milliseconds. [[slnc 300]] '
+            'Against a hundred and twenty for the version we called bad. '
+            '[[slnc 600]] It is nearly three times slower. [[slnc 300]] '
+            'And it is still the one you should ship. [[slnc 600]] Here '
+            'is the most useful sentence in this video. [[slnc 300]] Fair '
+            'is not the same as fast. [[slnc 500]] Round-robin sent a '
+            'third of the traffic to the slowest machine. [[slnc 300]] '
+            'Because it does not know what slow means. [[slnc 300]] It '
+            'never measures anything. [[slnc 600]] But look at what it '
+            'bought. [[slnc 300]] All three machines are now used. [[slnc '
+            '300]] So the spare capacity is real. [[slnc 300]] And losing '
+            'one machine costs a third of the capacity, not all of it. '
+            '[[slnc 300]] That is why round-robin is still the sensible '
+            'default.'
         ),
     ),
     dict(
@@ -379,23 +367,22 @@ SCENES = [
             .orElseThrow();
 }""",
         narration=(
-            "The clever strategy is prefer whichever instance has been fastest so "
-            "far. It keeps a running average of how long each instance has taken "
-            "for this caller, and it picks the lowest. [[slnc 300]] But look at "
-            "what comes before the picking. There is a loop that says: if there is "
-            "any instance here that I have never called, call that one. "
-            "[[slnc 350]] Ask yourself why that loop has to exist. [[slnc 300]] "
-            "Because a balancer that has never called catalog three has no opinion "
-            "about catalog three, and the dangerous thing is not having no opinion "
-            "— it is quietly inventing one. Without that loop, an instance that has "
-            "never been tried either looks infinitely slow and is never tried, or "
-            "looks infinitely fast and is hammered. Both are the balancer trusting "
-            "a measurement it never took, which is just taking turns with extra "
-            "confidence. [[slnc 350]] So the rule is: measure before you judge. "
-            "Every instance gets exactly one request to prove itself, and after "
-            "that it is on its record. [[slnc 300]] There is a test in the project "
-            "whose name is simply that — least latency measures before it judges — "
-            "and if you delete this loop, that is the test that goes red."
+            'The clever rule is: prefer whichever copy has been fastest '
+            'so far. [[slnc 300]] It keeps an average time for each copy, '
+            'and picks the lowest. [[slnc 600]] But before picking, it '
+            'does one thing first. [[slnc 300]] If there is any copy it '
+            'has never called, it calls that one. [[slnc 600]] Why does '
+            'that step have to exist? [[slnc 500]] Because a balancer '
+            'that has never called catalog three knows nothing about it. '
+            '[[slnc 300]] The danger is not knowing nothing. [[slnc 300]] '
+            'The danger is quietly inventing an opinion. [[slnc 500]] '
+            'Without that step, a copy never tried would either look '
+            'endlessly slow, and never be tried. [[slnc 300]] Or look '
+            'endlessly fast, and be flooded. [[slnc 600]] So the rule is: '
+            'measure before you judge. [[slnc 300]] Every copy gets one '
+            'request to prove itself. [[slnc 300]] After that, it is '
+            'judged on its record. [[slnc 300]] And if you delete that '
+            'step, one test fails, and its name says exactly that.'
         ),
     ),
     dict(
@@ -411,24 +398,23 @@ SCENES = [
   the client now believes: catalog-1 10ms, catalog-2 10ms, catalog-3 60ms
   it learned that on its own, from its own requests. Nothing told it.""",
         narration=(
-            "Here is the same twelve requests again, preferring the fast ones. "
-            "[[slnc 300]] A hundred and seventy milliseconds, down from three "
-            "hundred and twenty. And the slow box was asked exactly once — the once "
-            "it took to find out that it was slow. [[slnc 350]] But the timing is "
-            "not the important line here. The important line is the one underneath "
-            "it, where the client says what it now believes: catalog one, ten "
-            "milliseconds; catalog two, ten milliseconds; catalog three, sixty. "
-            "[[slnc 400]] Nobody configured those numbers. They are not in a "
-            "properties file, they were not passed in, and no operator typed them. "
-            "The client worked them out from its own twelve requests. [[slnc 350]] "
-            "And that is the entire argument for doing the balancing in the caller "
-            "rather than in the middle of the network. How slow has this machine "
-            "been, for me? is a question only the caller can answer. It depends on "
-            "which rack the caller is in, which network path the packets take, and "
-            "what the caller happens to be asking for. A balancer sitting somewhere "
-            "in the middle measures its own view, and its own view is a different "
-            "view. [[slnc 300]] A client in another data centre would have measured "
-            "different numbers and would be right to."
+            'Third demo: the same twelve requests, preferring the '
+            'fastest. [[slnc 500]] A hundred and seventy milliseconds, '
+            'down from three hundred and twenty. [[slnc 300]] And the '
+            'slow machine was asked only once: the one time it took to '
+            'find out that it was slow. [[slnc 600]] Then the client says '
+            'what it now believes. [[slnc 300]] Catalog one: ten '
+            'milliseconds. [[slnc 200]] Catalog two: ten. [[slnc 200]] '
+            'Catalog three: sixty. [[slnc 600]] Nobody set those numbers. '
+            '[[slnc 300]] They are not in a settings file, and nobody '
+            'typed them in. [[slnc 300]] The client worked them out from '
+            'its own twelve requests. [[slnc 600]] That is the whole '
+            'argument for balancing inside the caller. [[slnc 300]] How '
+            'slow has this machine been, for me? [[slnc 300]] Only the '
+            'caller can answer that. [[slnc 300]] It depends on where the '
+            'caller is, and what it is asking for. [[slnc 300]] A caller '
+            'in another data centre would measure different numbers, and '
+            'be right to.'
         ),
     ),
     dict(
@@ -450,26 +436,27 @@ SCENES = [
             "  all leave it together",
         ],
         narration=(
-            "Now the half that most explanations of this pattern leave out, and "
-            "there are two parts to it. Neither part is a bug, which is what makes "
-            "them worth your time. [[slnc 350]] Go back to those numbers for a "
-            "second. Catalog two is exactly as fast as catalog one. Both ten "
-            "milliseconds. And catalog two received one request out of twelve. "
-            "[[slnc 300]] What happened is that the tie broke towards whichever "
-            "one was measured first, so the client found a favourite and then kept "
-            "it, forever. With one client that is harmless — you are still using a "
-            "fast machine. [[slnc 350]] So now imagine a thousand clients in front "
-            "of the same three machines. They all measure the same thing. They all "
-            "reach the same conclusion. They all crowd onto the same instance. "
-            "[[slnc 300]] And because they have all crowded onto it, it gets slow. "
-            "So they all measure that, they all conclude it is slow, and they all "
-            "leave it at the same time — for the next one, which they then make "
-            "slow. [[slnc 350]] The cluster oscillates, the graphs look like a "
-            "sawtooth, and not one client did anything wrong. That is called "
-            "herding, and the fix is small: break ties at random. [[slnc 300]] But "
-            "notice the shape of what just happened. The clever strategy brought a "
-            "failure mode with it that the boring one does not have, and that is a "
-            "large part of why taking turns is still the default."
+            'Now the part most explanations skip. [[slnc 300]] It has two '
+            'halves, and neither is a bug. [[slnc 600]] Look again at '
+            'those numbers. [[slnc 300]] Catalog two is exactly as fast '
+            'as catalog one. [[slnc 300]] But it got only one request out '
+            'of twelve. [[slnc 500]] The tie was broken in favour of '
+            'whichever was measured first. [[slnc 300]] So the client '
+            'found a favourite, and kept it forever. [[slnc 300]] With '
+            'one client, that is harmless. [[slnc 600]] Now imagine a '
+            'thousand clients, in front of the same three machines. '
+            '[[slnc 300]] They all measure the same thing. [[slnc 300]] '
+            'They all choose the same favourite. [[slnc 300]] And they '
+            'all crowd onto it. [[slnc 500]] So it gets slow. [[slnc '
+            '300]] They all notice, and all leave it at once, for the '
+            'next one. [[slnc 300]] Which they then make slow. [[slnc '
+            '500]] The load swings back and forth, and not one client did '
+            'anything wrong. [[slnc 300]] This is called herding. [[slnc '
+            '300]] The fix is small: break ties at random. [[slnc 600]] '
+            'But notice what happened. [[slnc 300]] The clever rule '
+            'brought a problem that the simple one does not have. [[slnc '
+            '300]] That is a big part of why taking turns is still the '
+            'default.'
         ),
     ),
     dict(
@@ -485,22 +472,24 @@ SCENES = [
   left catalog-3 with nothing to do, because a client-side balancer
   can only balance the traffic it can see -- its own.""",
         narration=(
-            "And here is the second part, which is the more important of the two. "
-            "[[slnc 300]] Two clients this time — say the website and the mobile "
-            "app. Each has its own take-turns balancer. Each makes two requests. "
-            "[[slnc 300]] Catalog one gets two requests, catalog two gets two "
-            "requests, and catalog three gets nothing at all. [[slnc 400]] So "
-            "which client made the mistake? [[slnc 400]] Neither. That is the "
-            "answer, and it is worth sitting with. Each client took perfect turns. "
-            "Each counter did exactly what a counter is supposed to do: started at "
-            "the beginning of the list and stepped along it. [[slnc 350]] The "
-            "problem is that the counter lives inside one client, so it counts one "
-            "client's requests. Two counters that each start at zero produce a "
-            "pattern that is correct twice over and wrong collectively. "
-            "[[slnc 350]] And no amount of cleverness inside either client fixes "
-            "it, because the missing thing is not intelligence. It is information. "
-            "A client-side balancer can only balance the traffic it can see, and it "
-            "can only ever see its own."
+            'Fourth demo, and this is the more important half. [[slnc '
+            '400]] Now there are two clients: say, the website and the '
+            'mobile app. [[slnc 300]] Each has its own take-turns '
+            'balancer. [[slnc 300]] And each makes two requests. [[slnc '
+            '600]] Catalog one gets two requests. [[slnc 300]] Catalog '
+            'two gets two requests. [[slnc 300]] And catalog three gets '
+            'nothing at all. [[slnc 600]] So which client made the '
+            'mistake? [[slnc 500]] Neither. [[slnc 300]] Each took '
+            'perfect turns. [[slnc 300]] Each counter started at the top '
+            'of the list, and stepped along it. [[slnc 600]] The problem '
+            'is that each counter lives inside one client. [[slnc 300]] '
+            "So it only counts that client's requests. [[slnc 300]] Two "
+            'counters, each correct, are wrong together. [[slnc 600]] And '
+            'no cleverness inside either client can fix it. [[slnc 300]] '
+            'What is missing is not intelligence. [[slnc 300]] It is '
+            'information. [[slnc 300]] A client-side balancer can only '
+            'balance the traffic it can see. [[slnc 300]] And it can only '
+            'ever see its own.'
         ),
     ),
     dict(
@@ -521,23 +510,25 @@ SCENES = [
             "more often than this pattern's fans admit.",
         ],
         narration=(
-            "Which brings back the member of staff standing at the head of the six "
-            "queues. [[slnc 300]] They can see all six queues and every shopper in "
-            "the shop. No individual shopper can see that, no matter how carefully "
-            "they look. [[slnc 350]] So when one caller's view is not good enough, "
-            "the answer is not a cleverer caller. It is to put one balancer in "
-            "front of the cluster and let it see every request. That is server-side "
-            "load balancing — a load balancer, a proxy, a service mesh, an ingress. "
-            "[[slnc 350]] And I want to say the unpopular part out loud, because "
-            "pattern videos tend not to. Server-side balancing is simpler, it is "
-            "easier to operate, it works with callers you do not control and cannot "
-            "change, and it is the right answer more often than this pattern's fans "
-            "admit. The price you pay is one more network hop and one more thing "
-            "that can fail. [[slnc 350]] Client-side balancing earns its place when "
-            "the caller knows something nobody else does — its own latencies, which "
-            "rack it is in, which requests are cheap — or when you want no extra "
-            "hop at all. [[slnc 300]] Both are real engineering. Knowing which "
-            "situation you are in is the actual skill."
+            'Which brings back the member of staff at the front of the '
+            'six queues. [[slnc 500]] They can see every queue, and every '
+            'shopper. [[slnc 300]] No single shopper can, however '
+            "carefully they look. [[slnc 600]] So when one caller's view "
+            'is not good enough, the answer is not a cleverer caller. '
+            '[[slnc 300]] It is one balancer in front of all the copies, '
+            'seeing every request. [[slnc 300]] That is called '
+            'server-side load balancing. [[slnc 600]] And here is the '
+            'part pattern videos rarely say. [[slnc 300]] Server-side '
+            'balancing is simpler, and easier to run. [[slnc 300]] It '
+            'works with callers you do not control. [[slnc 300]] And it '
+            'is the right answer more often than people admit. [[slnc '
+            '300]] The price is one more network hop, and one more thing '
+            'that can fail. [[slnc 600]] Client-side balancing earns its '
+            'place when the caller knows something nobody else does. '
+            '[[slnc 300]] Like its own response times, or where it sits. '
+            '[[slnc 300]] Or when you want no extra hop at all. [[slnc '
+            '500]] Both are real engineering. [[slnc 300]] Knowing which '
+            'situation you are in is the real skill.'
         ),
     ),
     dict(
@@ -552,24 +543,23 @@ SCENES = [
             "stop being worth it.",
         ],
         narration=(
-            "That's client-side load balancing. [[slnc 250]] The full source, the "
-            "written notes, the diagrams and an animated walkthrough are all in the "
-            "repository, and everything runs offline with nothing installed but a "
-            "Java development kit — no Docker, no Kubernetes, no service mesh. "
-            "[[slnc 300]] If you try one exercise, try this one. Go into the "
-            "prefer-the-fastest balancer and delete the loop that tries every "
-            "instance once, so that it goes straight to picking the lowest average. "
-            "Then run the tests. [[slnc 300]] One test fails, and its name tells "
-            "you exactly what you broke. Sit with the question it raises: what does "
-            "the balancer now believe about a machine it has never called, and why "
-            "is believing something worse than knowing nothing? [[slnc 350]] And if "
-            "you have a little more time, change the slow instance to be as fast as "
-            "the other two and run all four acts again. The clever strategy's "
-            "advantage simply evaporates. That tells you something useful about when "
-            "to reach for it at all. [[slnc 300]] If this helped, a like genuinely "
-            "does help other people find it, and subscribe if you would like the "
-            "rest of the series. [[slnc 250]] Thanks for watching, and I'll see you "
-            "in the next one."
+            "That's client-side Load Balancing. [[slnc 400]] If you "
+            'remember one sentence, make it this one. [[slnc 300]] Let '
+            'the caller choose a copy on every request with a replaceable '
+            'rule, but remember it can only balance the traffic it can '
+            'see. [[slnc 500]] The full source code, written notes, '
+            'diagrams, and an animated walkthrough are all in the '
+            'repository. [[slnc 300]] It runs offline, with nothing '
+            'installed except a Java development kit. [[slnc 500]] Here '
+            'is one exercise to try. [[slnc 300]] In the '
+            'prefer-the-fastest rule, delete the step that tries every '
+            'copy once. [[slnc 300]] Then run the tests. [[slnc 300]] One '
+            'test fails, and its name tells you what you broke. [[slnc '
+            '300]] Ask yourself: what does the balancer now believe about '
+            'a machine it has never called? [[slnc 500]] If this helped, '
+            'a like really does help other people find it. [[slnc 300]] '
+            "And subscribe, if you'd like the rest of the series. [[slnc "
+            '400]] Thanks for watching.'
         ),
     ),
 ]

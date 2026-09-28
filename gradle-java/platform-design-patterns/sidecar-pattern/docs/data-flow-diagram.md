@@ -20,32 +20,6 @@ which is exactly why the demo asks the provider for the tally rather than the ca
 
 ![Sidecar pattern data flow diagram](images/data-flow-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-flowchart TD
-    Start(["a sale happens<br/>reference ORD-4417, 4799 pence"])
-    Svc["the service<br/>adds nothing but the address it was configured with"]
-    Hop["over the loopback interface<br/>http://localhost:8081, plain HTTP, no certificate"]
-    Proxy["the proxy beside it<br/>reads one configuration file"]
-    Add["the proxy adds what the network needs:<br/>the provider's real address<br/>TLS 1.3 and a client certificate<br/>a limit of 3 attempts<br/>a 2 second deadline<br/>an X-Service header saying who is calling"]
-    Try{"attempt 1, 2, 3<br/>declined or timed out?"}
-    Prov["the payment provider<br/>counts the attempt, records the transport"]
-    Ok(["one receipt<br/>pay_ORD-4417"])
-    Log["the proxy's access log<br/>one line per request, listing every attempt"]
-
-    Start --> Svc --> Hop --> Proxy --> Add --> Try
-    Try -- "try again, same payment" --> Prov
-    Try -- "out of attempts or deadline reached" --> Ok
-    Prov -- "503, try again" --> Try
-    Prov -- "200, receipt" --> Ok
-    Ok --> Svc
-    Proxy -.-> Log
-```
-
-</details>
-
 ## The three things this flow proves
 
 **The payment data itself never changes.** The reference and the amount that leave the

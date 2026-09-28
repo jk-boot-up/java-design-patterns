@@ -146,7 +146,6 @@ Flyweight:  4 styles x 64 KB artwork each     = 256 KB
 | `permission denied: ./gradlew` | Wrapper not executable | `chmod +x gradlew` |
 | Wrapper download times out | Offline / proxy | Install Gradle and run `gradle build` |
 | Icons show as `?` or boxes in the console | Terminal font lacks emoji glyphs | Cosmetic only — the badge logic is unaffected |
-| Diagrams show as raw text | Viewer lacks Mermaid support | Open the PNGs in `docs/images/` |
 
 ## Recommended Reading Order
 

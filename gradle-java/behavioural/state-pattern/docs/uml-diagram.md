@@ -8,57 +8,6 @@ second half has no conditional in it anywhere.
 
 ![State pattern sequence diagram](images/uml-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-sequenceDiagram
-    autonumber
-    actor Agent
-    participant Naive as NaiveOrder
-    participant Order
-    participant Shipped as ShippedState
-    participant Cancelled as CancelledState
-    participant Ledger
-
-    rect rgb(255, 235, 235)
-        note over Agent, Ledger: The trap -- one rule, written out in three chains
-        Agent->>Naive: allowedActions()
-        Naive-->>Agent: [deliver]
-        Agent->>Naive: cancel("changed their mind")
-        Naive->>Naive: status != DELIVERED/CANCELLED/REFUNDED?
-        Naive->>Ledger: refund(£97.49)
-        Naive-->>Agent: accepted, status = CANCELLED
-        note right of Naive: the parcel is on a van
-    end
-
-    rect rgb(235, 250, 240)
-        note over Agent, Ledger: The pattern -- the state answers, and it is the same state both times
-        Agent->>Order: allowedActions()
-        Order->>Shipped: allowedActions()
-        Shipped-->>Order: [deliver]
-        Order-->>Agent: [deliver]
-
-        Agent->>Order: cancel("changed their mind")
-        Order->>Shipped: cancel(order, reason)
-        Shipped-->>Order: throw IllegalTransitionException
-        Order->>Order: history += refused(cancel, SHIPPED)
-        Order-->>Agent: rethrown, state unchanged
-        note right of Shipped: no money moved
-    end
-
-    rect rgb(235, 240, 255)
-        note over Agent, Ledger: A legal transition, for contrast
-        Agent->>Order: deliver()
-        Order->>Shipped: deliver(order)
-        Shipped->>Order: transitionTo(DeliveredState, "deliver", "signed for, CON-A-1")
-        Order->>Order: state = DeliveredState
-        Order-->>Agent: (void)
-    end
-```
-
-</details>
-
 ## Reading It
 
 **The two lifelines that matter are `Order` and `ShippedState`.** Every arrow
@@ -89,25 +38,7 @@ Strategy sequence diagram never has.
 
 ![The order lifecycle as a state machine](images/state-machine.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-stateDiagram-v2
-    [*] --> PLACED
-    PLACED --> PAID : pay / charge total
-    PLACED --> CANCELLED : cancel / nothing to refund
-    PAID --> PACKED : pack
-    PAID --> CANCELLED : cancel / refund
-    PACKED --> SHIPPED : ship / mint consignment
-    PACKED --> CANCELLED : cancel / refund + restock
-    SHIPPED --> DELIVERED : deliver
-    DELIVERED --> REFUNDED : refund / refund once
-    CANCELLED --> [*]
-    REFUNDED --> [*]
-```
-
-</details>
+![Uml diagram 2](images/uml-diagram-2.png)
 
 Every arrow above is one overridden method. Every arrow that is *not* above —
 and there are thirty-three of them, six actions across seven states minus the

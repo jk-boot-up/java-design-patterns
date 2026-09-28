@@ -18,35 +18,6 @@ anything is wrong.
 
 ![Bulkhead data flow diagram](images/data-flow-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-flowchart TD
-    Start(["a job is submitted — a feed batch, or a sale"])
-    Which{"which bulkhead<br/>does it belong to?"}
-    FeedB["the feed bulkhead<br/>2 threads, a bounded queue of 2"]
-    CoB["the checkout bulkhead<br/>2 threads, its own queue"]
-    Free{"is a thread free<br/>in THIS pool?"}
-    Run["run now — the job starts and holds<br/>its thread until the partner answers"]
-    Room{"is there room<br/>in the queue?"}
-    Queue["wait in the queue<br/>bounded, so the backlog cannot grow forever"]
-    Refuse["BulkheadFullException — refused in about a millisecond<br/>the caller can shed, degrade, or try later"]
-    Done(["the work is done, or the caller knows it was not"])
-    Never["borrow a thread from the other pool"]
-
-    Start --> Which
-    Which --> FeedB --> Free
-    Which --> CoB --> Free
-    Free -- "yes" --> Run --> Done
-    Free -- "no" --> Room
-    Room -- "yes" --> Queue --> Run
-    Room -- "no" --> Refuse --> Done
-    Free -. "never — a compartment that lends<br/>is not a compartment" .- Never
-```
-
-</details>
-
 ## What the picture is telling you
 
 **"Is a thread free in THIS pool" is the only question that matters.** Every other box in

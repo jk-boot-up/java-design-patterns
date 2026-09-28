@@ -10,32 +10,33 @@ SCENES = [
         key='01-poster', kind='poster', title='Execute Around',
         body=None,
         narration=(
-            'Hello, and welcome. This video explains the Execute Around '
-            'pattern in Java, and it is written and presented by '
-            'Jayasekhar Konduru. [[slnc 300]] The plain definition: '
-            'execute around puts the set up and the clean up in one '
-            'method. The caller hands in only the work in the middle. '
-            '[[slnc 350]] This is another project in the foundational '
-            'category, whose subject is how an object gets hold of '
-            'another, and how small idioms shape everyday Java. In our '
-            'online store, every piece of code that reads orders must '
-            'open a connection and close it again, and someone always '
-            'forgets on the error path. [[slnc 300]] By the end you will '
-            'see a connection leak on a failure, see the closing done in '
-            'one place, see a result come out, see a transaction undone '
-            'on failure, see the same shape used for timing, and see the '
-            'bill, which is a resource that escapes and a caller trapped '
-            'in a lambda.'
+            'Hello, and welcome. [[slnc 400]] This video explains the '
+            'Execute Around pattern, in Java. [[slnc 300]] This video is '
+            'presented by Jayasekhar Konduru. [[slnc 600]] First, a '
+            'simple definition. [[slnc 300]] Execute Around puts the '
+            'setting up, and the cleaning up, in one method. [[slnc 300]] '
+            'The caller only hands in the work that goes in the middle. '
+            '[[slnc 600]] Think of a car wash. [[slnc 300]] The machine '
+            'always opens the gate at the start, and closes it at the '
+            'end. [[slnc 300]] You only drive through the middle. [[slnc '
+            '700]] In our online store, every piece of code that reads '
+            'orders must open a database connection, and close it again. '
+            '[[slnc 300]] And someone always forgets, when something goes '
+            'wrong. [[slnc 500]] In this video, a connection leaks on a '
+            'failure. [[slnc 300]] Then the closing moves into one place. '
+            '[[slnc 300]] We will get results out, undo a failed '
+            'transaction, measure time, and then hear the cost.'
         ),
     ),
     dict(
         key='02-scenario', kind='bullets', title='The Scenario',
         body=['Every query needs a connection.', '', 'Every connection must be', 'closed,', '', 'whether the query works', 'or fails.', '', 'Who does the closing?'],
         narration=(
-            'Here is the scenario. Every query to the order database '
-            'needs a connection, and every connection must be closed, '
-            'whether the query works or fails. [[slnc 300]] The question: '
-            'who does the closing?'
+            'Here is the scenario. [[slnc 400]] Every query to the order '
+            'database needs a connection. [[slnc 300]] And every '
+            'connection must be closed, whether the query works, or '
+            'fails. [[slnc 500]] So here is the question. [[slnc 300]] '
+            'Who does the closing?'
         ),
     ),
     dict(
@@ -49,19 +50,21 @@ SCENES = [
   repeat on every failure and
   the pool runs dry.""",
         narration=(
-            'First, open, use, close, by hand. The query broke, and the '
-            'code that would close the connection was after it. '
-            'Connections still open: one. Repeat that on every failure, '
-            'and the pool runs dry.'
+            'First, the naive way: open, use, and close, by hand. [[slnc '
+            '400]] The query breaks. [[slnc 300]] And the line that would '
+            'close the connection came after it, so it never runs. [[slnc '
+            '500]] Connections still open: one. [[slnc 300]] Repeat that '
+            'on every failure, and the connection pool runs dry.'
         ),
     ),
     dict(
         key='04-pattern', kind='bullets', title='The Pattern',
         body=['One method opens, runs the', 'work, and closes.', '', 'The caller passes only the', 'work, as a lambda.', '', 'The closing sits in a finally', 'block, once.'],
         narration=(
-            'The pattern. One method opens, runs the work, and closes. '
-            'The caller passes only the work, as a lambda. The closing '
-            'sits in a finally block, once.'
+            'Now, the pattern. [[slnc 400]] One method opens the '
+            'connection, runs the work, and closes it. [[slnc 300]] The '
+            'caller passes in only the work, as a lambda. [[slnc 500]] '
+            'The closing sits in a finally block, written once.'
         ),
     ),
     dict(
@@ -73,10 +76,11 @@ SCENES = [
   the closing is in one place,
   in a finally block.""",
         narration=(
-            'Second, the caller gives the work, and the pool does the '
-            'rest. The same failure: the query broke. Connections opened: '
-            'one. Still open: none. The closing is in one place, in a '
-            'finally block, and cannot be forgotten.'
+            'Second demo: the caller only gives the work. [[slnc 400]] '
+            'The same failure: the query breaks. [[slnc 500]] Connections '
+            'opened: one. [[slnc 300]] Still open: none. [[slnc 500]] The '
+            'closing lives in one place, in a finally block. [[slnc 300]] '
+            'So it cannot be forgotten.'
         ),
     ),
     dict(
@@ -86,8 +90,11 @@ SCENES = [
   a number came out: 15.
   still open: 0.""",
         narration=(
-            'Third, getting an answer out. A string came out: the rows '
-            'for an order. A number came out: fifteen. Still open: none.'
+            'Third demo: getting an answer out. [[slnc 400]] The work can '
+            'return a value. [[slnc 300]] Here, it returns the rows for '
+            'an order. [[slnc 300]] And here, it returns a number: '
+            'fifteen. [[slnc 500]] And still, no connections are left '
+            'open.'
         ),
     ),
     dict(
@@ -100,11 +107,14 @@ SCENES = [
 
   one purchase: 2000.""",
         narration=(
-            'Fourth, all or nothing. Two purchases of three thousand from '
-            'a credit of five thousand: the second failed, with not '
-            'enough credit. The balance afterwards is five thousand. The '
-            'first purchase was undone too. One purchase of three '
-            'thousand that works leaves two thousand.'
+            'Fourth demo: all or nothing. [[slnc 400]] A customer has '
+            'fifty pounds of credit. [[slnc 300]] Two purchases of thirty '
+            'pounds each are made, inside one transaction. [[slnc 300]] '
+            'The second fails, because there is not enough credit. [[slnc '
+            '500]] Afterwards, the balance is still fifty pounds. [[slnc '
+            '300]] The first purchase was undone too. [[slnc 500]] A '
+            'single purchase of thirty pounds, which works, leaves twenty '
+            'pounds.'
         ),
     ),
     dict(
@@ -114,9 +124,11 @@ SCENES = [
   a failing job: still measured:
   9 ticks.""",
         narration=(
-            'Fifth, the same shape, for measuring. Receipt sent, in five '
-            'ticks. And a failing job: the mail server timed out, and it '
-            'was still measured: nine ticks.'
+            'Fifth demo: the same shape, for measuring time. [[slnc 400]] '
+            'Sending a receipt took five ticks. [[slnc 500]] And a job '
+            'that fails, because the mail server timed out, is still '
+            'measured. [[slnc 300]] Nine ticks. [[slnc 300]] Because the '
+            'measuring also sits in a finally block.'
         ),
     ),
     dict(
@@ -131,76 +143,83 @@ SCENES = [
   two resources: blocks nest,
   work drifts right.""",
         narration=(
-            'Last, the bill. The caller let the connection out of the '
-            'block, and used it later: connection one is closed. The '
-            "block cannot stop that. The caller's code is now inside a "
-            'lambda: it cannot return early, and it cannot throw a '
-            'checked exception without help. And with two resources the '
-            'blocks nest, one inside the other, so the real work drifts '
-            'to the right.'
+            'Finally, the costs. [[slnc 400]] First, the caller let the '
+            'connection out of the block, and used it later. [[slnc 300]] '
+            'By then, it was closed. [[slnc 300]] The pattern cannot stop '
+            "that. [[slnc 500]] Second, the caller's code now lives "
+            'inside a lambda. [[slnc 300]] It cannot return early from '
+            'the outer method. [[slnc 300]] And it cannot throw a checked '
+            'exception without extra help. [[slnc 500]] Third, with two '
+            'resources, the blocks nest one inside the other. [[slnc '
+            '300]] And the real work drifts further and further to the '
+            'right.'
         ),
     ),
     dict(
         key='10-recognise', kind='bullets', title='How To Recognise It',
         body=['JdbcTemplate.query(...) and', 'TransactionTemplate.execute(...)', '', 'try (var in = ...) { ... }, the', "language's own version.", '', 'Files.lines used inside a block,', 'lock.lock(); try { ... } finally {'],
         narration=(
-            'How do you recognise this in code you did not write? '
-            'JdbcTemplate.query(...) and TransactionTemplate.execute(...) '
-            "in Spring. try (var in = ...) { ... }, the language's own "
-            'version. Files.lines used inside a block, lock.lock(); try { '
-            '... } finally { lock.unlock(); }. A method that takes a '
-            'lambda named work, callback or action.'
+            'How can you spot this pattern in code someone else wrote? '
+            "[[slnc 400]] In Spring, look for the JDBC template's query "
+            "method, and the transaction template's execute method. "
+            '[[slnc 300]] In Java itself, look for try-with-resources, '
+            "which is the language's own version. [[slnc 300]] Look for a "
+            'lock, followed by try, and an unlock in a finally block. '
+            '[[slnc 300]] And look for methods that take a lambda named '
+            'work, callback, or action.'
         ),
     ),
     dict(
         key='11-verdict', kind='bullets', title='The Verdict',
         body=['Use execute around wherever', 'something must be undone or', 'finished after use: connections,', 'files, locks, transactions,', 'timers. Put the clean-up in a', 'finally block, once. Do not let', 'the resource leave the block. For', 'plain files and streams, try-with-', "resources is the language's own"],
         narration=(
-            'Here is my verdict, plainly. Use execute around wherever '
-            'something must be undone or finished after use: connections, '
-            'files, locks, transactions, timers. Put the clean-up in a '
-            'finally block, once. Do not let the resource leave the '
-            'block. For plain files and streams, try-with-resources is '
-            "the language's own form of it."
+            'So, here is the verdict. [[slnc 400]] Use Execute Around '
+            'wherever something must be undone, or finished, after use. '
+            '[[slnc 300]] Connections, files, locks, transactions, and '
+            'timers. [[slnc 500]] Put the cleaning up in a finally block, '
+            'once. [[slnc 300]] And do not let the resource escape from '
+            'the block. [[slnc 500]] For simple files and streams, '
+            "try-with-resources is the language's own form of this "
+            'pattern.'
         ),
     ),
     dict(
         key='12-real', kind='bullets', title='What Is Real Here',
         body=['Everything is plain Java.', '', 'Every number quoted comes from', "this program's own output.", '', 'Nothing depends on a clock,', 'so every run is the same.'],
         narration=(
-            'The same honest admission as everywhere in this course. '
-            'Everything is plain Java. Every number quoted comes from '
-            "this program's own output. Nothing depends on a clock, so "
-            'every run is the same.'
+            'A quick, honest note about this demo. [[slnc 300]] '
+            'Everything is plain Java. [[slnc 300]] Every number you '
+            "heard comes from the program's own output. [[slnc 300]] Time "
+            'is counted in ticks, not by the clock, so every run gives '
+            'the same result.'
         ),
     ),
     dict(
         key='13-too-much', kind='bullets', title='When This Is Too Much',
         body=['For a resource used once, in one', 'place, try with resources is', 'enough. Write your own around', 'method when many callers repeat', 'the same set-up and clean-up.'],
         narration=(
-            'So when is it too much? For a resource used once, in one '
-            'place, try with resources is enough. Write your own around '
-            'method when many callers repeat the same set-up and '
-            'clean-up.'
+            'So, when is this too much? [[slnc 400]] For a resource used '
+            'once, in one place, try-with-resources is enough. [[slnc '
+            '400]] Write your own execute around method when many callers '
+            'repeat the same setting up, and cleaning up.'
         ),
     ),
     dict(
         key='14-outro', kind='outro', title='Thanks for Watching',
         body=['Full source, notes, diagrams and an animated walkthrough', 'are in the repository. Try the exercises in', 'the session guide.'],
         narration=(
-            "That's Execute Around. [[slnc 250]] If you take one sentence "
-            'away, take this one: execute around puts the opening and '
-            'closing in one place, and the price is that the work is '
-            'trapped in a lambda, and the resource can still escape. '
-            '[[slnc 350]] The full source, the written notes, the '
-            'diagrams and an animated walkthrough are all in the '
-            'repository, running offline with nothing installed but a '
-            'Java development kit. [[slnc 300]] If you try one exercise, '
-            'add a method that retries the work up to three times, around '
-            'the same connection. [[slnc 300]] If this helped, a like '
-            'genuinely does help other people find it, and subscribe if '
-            'you would like the rest of the series. [[slnc 250]] Thanks '
-            'for watching.'
+            "That's the Execute Around pattern. [[slnc 400]] If you "
+            'remember one sentence, make it this one. [[slnc 300]] '
+            'Execute Around puts the opening and closing in one place, '
+            'and the price is work trapped in a lambda, and a resource '
+            'that can still escape. [[slnc 500]] The full source code, '
+            'written notes, diagrams, and an animated walkthrough are all '
+            'in the repository. [[slnc 500]] Here is one exercise to try. '
+            '[[slnc 300]] Add a method that retries the work up to three '
+            'times. [[slnc 300]] All around the same connection. [[slnc '
+            '500]] If this helped, a like really does help other people '
+            "find it. [[slnc 300]] And subscribe, if you'd like the rest "
+            'of the series. [[slnc 400]] Thanks for watching.'
         ),
     ),
 ]

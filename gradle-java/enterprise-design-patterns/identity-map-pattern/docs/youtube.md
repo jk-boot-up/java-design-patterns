@@ -19,20 +19,20 @@ The first two lines are what a viewer sees above the fold, so they carry the hoo
 ```
 CHAPTERS
 00:00 Introduction
-00:45 The Scenario
-01:03 Two Loads, Two Objects
-01:23 The Lost Change
-01:48 equals() Is Not Enough
-02:10 The Pattern
-02:32 One Map, One Object
-02:57 Cost One: The Map Is A Cache
-03:20 Cost Two: It Holds Everything
-03:36 Cost Three: Scope Is A Decision
-03:57 The Toy Database
-04:15 Where You Have Met This
-04:35 What Is Real Here
-04:54 When This Is Too Much
-05:10 Thanks for Watching
+00:49 The Scenario
+01:07 Two Loads, Two Objects
+01:32 The Lost Change
+02:01 equals() Is Not Enough
+02:26 The Pattern
+02:49 One Map, One Object
+03:15 Cost One: The Map Is A Cache
+03:40 Cost Two: It Holds Everything
+04:00 Cost Three: Scope Is A Decision
+04:25 The Toy Database
+04:40 Where You Have Met This
+05:02 What Is Real Here
+05:21 When This Is Too Much
+05:38 Thanks for Watching
 
 SOURCE CODE, WRITTEN NOTES AND AN INTERACTIVE ANIMATION
 https://github.com/jk-boot-up/java-design-patterns/tree/main/gradle-java/enterprise-design-patterns/identity-map-pattern
@@ -47,20 +47,20 @@ YouTube renders these as chapters only if there are at least three and the first
 
 ```
 00:00 Introduction
-00:45 The Scenario
-01:03 Two Loads, Two Objects
-01:23 The Lost Change
-01:48 equals() Is Not Enough
-02:10 The Pattern
-02:32 One Map, One Object
-02:57 Cost One: The Map Is A Cache
-03:20 Cost Two: It Holds Everything
-03:36 Cost Three: Scope Is A Decision
-03:57 The Toy Database
-04:15 Where You Have Met This
-04:35 What Is Real Here
-04:54 When This Is Too Much
-05:10 Thanks for Watching
+00:49 The Scenario
+01:07 Two Loads, Two Objects
+01:32 The Lost Change
+02:01 equals() Is Not Enough
+02:26 The Pattern
+02:49 One Map, One Object
+03:15 Cost One: The Map Is A Cache
+03:40 Cost Two: It Holds Everything
+04:00 Cost Three: Scope Is A Decision
+04:25 The Toy Database
+04:40 Where You Have Met This
+05:02 What Is Real Here
+05:21 When This Is Too Much
+05:38 Thanks for Watching
 ```
 
 ## Tags
@@ -99,4 +99,4 @@ Add a card partway through pointing at the playlist, so a viewer who arrives at 
 
 ## Runtime
 
-Approximately 05:48, narrated at 145 words per minute.
+Approximately 06:13, narrated at 145 words per minute.

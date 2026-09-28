@@ -6,24 +6,4 @@ Say it in words. The service is asked for a product. It asks the cache, which ha
 
 ![Cache-Aside pattern sequence diagram](images/sequence-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant S as service
-    participant C as cache
-    participant D as database
-    S->>C: get(SKU-0)
-    C-->>S: nothing
-    S->>D: read(SKU-0)
-    D-->>S: product
-    S->>C: put(product)
-    S->>C: get(SKU-0), next time
-    C-->>S: product
-```
-
-</details>
-
 The load-bearing sentence: **the application does the reading and the remembering, and the cache never calls the database.**

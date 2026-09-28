@@ -17,19 +17,23 @@ SCENES = [
         title="Iterator",
         body=None,
         narration=(
-            "Hello, and welcome. This video explains the Iterator pattern in "
-            "Java, and it is written and presented by Jayasekhar Konduru. "
-            "[[slnc 300]] Let's start with the simple definition. An iterator "
-            "is a small object whose only job is to remember where you have "
-            "got to in a collection. It answers two questions. Is there "
-            "another one, and give me it. [[slnc 350]] That's the idea in a "
-            "sentence. The rest of the video does it properly, by building a "
-            "real working Java project: browsing the product catalogue of an "
-            "online shop, where the warehouse system will only hand the "
-            "products over three at a time. [[slnc 250]] By the end you'll "
-            "know exactly what your for-each loop turns into, why the position "
-            "must not live on the collection, and when this pattern is "
-            "ceremony you don't need."
+            'Hello, and welcome. [[slnc 400]] This video explains the '
+            'Iterator pattern, in Java. [[slnc 300]] This video is '
+            'presented by Jayasekhar Konduru. [[slnc 600]] First, a '
+            'simple definition. [[slnc 300]] An iterator is a small '
+            'object with one job: remembering where you are in a '
+            'collection. [[slnc 300]] It answers two questions. [[slnc '
+            '300]] Is there another one? [[slnc 200]] And, give me the '
+            'next one. [[slnc 600]] Think of a book and a bookmark. '
+            '[[slnc 300]] The book holds the pages. [[slnc 300]] The '
+            'bookmark remembers where you stopped reading. [[slnc 700]] '
+            'In this video, we browse the product catalogue of an online '
+            'shop. [[slnc 300]] The warehouse system only hands over '
+            'products three at a time. [[slnc 500]] By the end, you will '
+            'know what your for-each loop really turns into. [[slnc 300]] '
+            'Why the reading position must not live on the collection. '
+            '[[slnc 300]] And when this pattern is ceremony you do not '
+            'need.'
         ),
     ),
     dict(
@@ -51,15 +55,18 @@ SCENES = [
             "There is no size(). There is no hasMorePages().",
         ],
         narration=(
-            "So, imagine an online shop. [[slnc 250]] The catalogue doesn't "
-            "live in your program. It lives in the warehouse system, and that "
-            "system will only hand it over a page at a time. You ask for page "
-            "zero and get three products. Page one, three more. Page two, the "
-            "last two. [[slnc 300]] And how do you know you've finished? You "
-            "ask for page three and get an empty list back. [[slnc 300]] "
-            "That's the whole interface. There's no size. There's no has more "
-            "pages. Everything else you might want to know, you work out "
-            "yourself, by hand, in a loop. And that is where this goes wrong."
+            "Here is the scenario. [[slnc 400]] The shop's catalogue "
+            'lives in the warehouse system, not in our program. [[slnc '
+            '300]] And the warehouse only hands it over one page at a '
+            'time. [[slnc 500]] Ask for page zero, and you get three '
+            'products. [[slnc 300]] Page one gives three more. [[slnc '
+            '300]] Page two gives the last two. [[slnc 500]] How do you '
+            'know you have finished? [[slnc 300]] You ask for page three, '
+            'and get an empty list. [[slnc 500]] That is the whole '
+            'interface. [[slnc 300]] There is no total count, and no way '
+            'to ask whether more pages exist. [[slnc 300]] Everything '
+            'else, you work out yourself, in a loop. [[slnc 300]] And '
+            'that is where things go wrong.'
         ),
     ),
     dict(
@@ -81,17 +88,18 @@ SCENES = [
             "Nothing throws. Nothing logs. The page just isn't there.",
         ],
         narration=(
-            "Before any code, look closely at one method. [[slnc 300]] Find "
-            "cheapest walks the pages and returns the cheapest product in the "
-            "shop. Somebody started the page counter at one instead of zero. "
-            "[[slnc 300]] So it never looks at page zero, and the four pound "
-            "socks are on page zero. [[slnc 250]] It returns the eight pound "
-            "coffee mug. [[slnc 350]] Sit with that for a second, because it "
-            "is the reason this pattern exists. That is a real product, at a "
-            "real price, formatted perfectly, in exactly the shape the caller "
-            "expected. Nothing throws. Nothing gets logged. The cheapest-first "
-            "sort on your shop is simply wrong, quietly, for as long as nobody "
-            "counts by hand."
+            "Before any code, let's look closely at one method, called "
+            'find cheapest. [[slnc 400]] It walks through the pages, and '
+            'returns the cheapest product in the shop. [[slnc 500]] But '
+            'someone started the page counter at one, instead of zero. '
+            '[[slnc 300]] So it never looks at page zero. [[slnc 300]] '
+            'And the four pound socks are on page zero. [[slnc 500]] So '
+            'it returns the eight pound coffee mug instead. [[slnc 600]] '
+            'Think about that for a moment. [[slnc 300]] It is a real '
+            'product, at a real price, in exactly the shape the caller '
+            'expected. [[slnc 300]] Nothing crashes, and nothing is '
+            "logged. [[slnc 300]] The shop's cheapest-first list is "
+            'simply wrong, quietly, until someone counts by hand.'
         ),
     ),
     dict(
@@ -114,18 +122,18 @@ public Product findCheapest() {
     ...
 }""",
         narration=(
-            "Here's why. [[slnc 250]] Three methods that want to walk the "
-            "catalogue, and each one writes out the paging itself. [[slnc "
-            "300]] The first one is correct. The second one hard-codes three "
-            "pages, which is true today and stops being true the moment "
-            "somebody adds a tenth product — and when it does, it won't fail, "
-            "it will just start under-counting. The third is our off-by-one. "
-            "[[slnc 350]] And I want to be precise about the lesson, because "
-            "it isn't loops are hard. All three of these are the same bug. "
-            "The page loop was written three times, so it could be got wrong "
-            "in three different ways, and not one of those ways throws an "
-            "exception. [[slnc 300]] Write it a fourth time and you get a "
-            "fourth chance to be wrong."
+            'Here is why it happens. [[slnc 400]] Three methods need to '
+            'walk the catalogue. [[slnc 300]] And each one writes its own '
+            'paging loop. [[slnc 500]] The first loop is correct. [[slnc '
+            '400]] The second one assumes there are exactly three pages. '
+            '[[slnc 300]] That is true today. [[slnc 300]] But when a '
+            'ninth product is added, it will not fail. [[slnc 300]] It '
+            'will just start counting too few. [[slnc 400]] The third is '
+            'our off-by-one, starting at page one. [[slnc 600]] The '
+            'lesson is not that loops are hard. [[slnc 300]] All three '
+            'are the same bug. [[slnc 300]] The page loop was written '
+            'three times, so it could go wrong in three ways. [[slnc '
+            '300]] And none of those ways causes an error.'
         ),
     ),
     dict(
@@ -145,18 +153,19 @@ public Product findCheapest() {
             "    or with anything in the JDK that takes an Iterable.",
         ],
         narration=(
-            "Let's be precise, because it's four separate costs. [[slnc 300]] "
-            "One. Every caller has to learn how the storage works. The page "
-            "size stops being the warehouse's business and becomes everybody's "
-            "business, so changing it means editing every one of them. [[slnc "
-            "300]] Two. The bugs are silent. A crash is a good outcome — "
-            "somebody fixes it that afternoon. A plausible wrong answer can "
-            "live in production for a year. [[slnc 300]] Three. Returning a "
-            "list means fetching everything. A caller that wanted the first "
-            "two products just made four round trips to the warehouse, and on "
-            "a real catalogue that's four hundred. [[slnc 300]] And four. None "
-            "of this works with a for-each loop, because a for-each loop needs "
-            "something the shop doesn't have."
+            'So what exactly is wrong? [[slnc 300]] Four separate things. '
+            '[[slnc 500]] One. [[slnc 200]] Every caller must learn how '
+            'the warehouse stores its pages. [[slnc 300]] Change the page '
+            'size, and you must edit every caller. [[slnc 500]] Two. '
+            '[[slnc 200]] The bugs are silent. [[slnc 300]] A crash gets '
+            'fixed the same afternoon. [[slnc 300]] A believable wrong '
+            'answer can survive for a year. [[slnc 500]] Three. [[slnc '
+            '200]] Returning a full list means fetching everything. '
+            '[[slnc 300]] A caller that wanted just the first two '
+            'products still causes every page to be fetched. [[slnc 500]] '
+            'And four. [[slnc 200]] None of this works with a for-each '
+            'loop, because that loop needs something the shop does not '
+            'have.'
         ),
     ),
     dict(
@@ -176,17 +185,18 @@ public Product findCheapest() {
             "so nobody else has to know how the collection is stored.",
         ],
         narration=(
-            "Here's the definition from the Gang of Four book. [[slnc 250]] "
-            "Provide a way to access the elements of an aggregate object "
-            "sequentially, without exposing its underlying representation. "
-            "[[slnc 350]] Underlying representation is the important phrase. "
-            "In our shop the representation is pages, and every caller "
-            "currently knows about them. [[slnc 300]] So the move is this. "
-            "Write one object whose whole job is walking the pages, and give "
-            "callers something that hands one out. Then the page loop is "
-            "written once, in a place with a name, that can be tested on its "
-            "own. [[slnc 300]] And in Java there's a bonus, because the "
-            "language already has the two interfaces this pattern asks for."
+            "Here is the pattern's definition, from the famous Gang of "
+            'Four book. [[slnc 400]] Provide a way to access the elements '
+            'of a collection in order, without exposing how it is stored '
+            'inside. [[slnc 500]] How it is stored is the important part. '
+            '[[slnc 300]] In our shop, the catalogue is stored in pages. '
+            '[[slnc 300]] And right now, every caller knows about those '
+            'pages. [[slnc 500]] So here is the move. [[slnc 300]] Write '
+            'one object whose whole job is walking the pages. [[slnc '
+            '300]] And let the catalogue hand one out to anyone who asks. '
+            '[[slnc 300]] Now the page loop is written once, in one named '
+            'place, that can be tested on its own. [[slnc 500]] And Java '
+            'already has the two interfaces this pattern needs.'
         ),
     ),
     dict(
@@ -206,17 +216,17 @@ public Product findCheapest() {
             "That is the whole pattern. Everything else is syntax.",
         ],
         narration=(
-            "Here's the analogy to hold on to, and with this one, if you take "
-            "nothing else away, take this. [[slnc 250]] A book and a bookmark. "
-            "[[slnc 300]] The book knows what is in it. The bookmark knows "
-            "where you are. Two different facts, and they belong in two "
-            "different objects. [[slnc 300]] Two people can read the same book "
-            "at once, as long as they each have their own bookmark. Glue one "
-            "bookmark into the spine and they fight over it — every time one "
-            "reader turns a page, the other one loses their place. [[slnc "
-            "350]] That is the whole pattern. When you write your first "
-            "iterator and something behaves strangely, nine times out of ten "
-            "it's because a bookmark got glued into a spine."
+            'Here is the analogy to hold on to. [[slnc 300]] A book, and '
+            'a bookmark. [[slnc 500]] The book knows what is in it. '
+            '[[slnc 300]] The bookmark knows where you are. [[slnc 300]] '
+            'Two different facts, so they belong in two different '
+            'objects. [[slnc 500]] Two people can read the same book at '
+            'once, if each has their own bookmark. [[slnc 400]] But glue '
+            'a single bookmark into the spine, and they fight over it. '
+            '[[slnc 300]] Every time one reader turns a page, the other '
+            'loses their place. [[slnc 600]] That is the whole pattern. '
+            '[[slnc 300]] When an iterator behaves strangely, it is very '
+            'often because a bookmark was glued into the spine.'
         ),
     ),
     dict(
@@ -225,18 +235,19 @@ public Product findCheapest() {
         title="The Roles",
         body=None,
         narration=(
-            "So here are the pieces, and the striking thing is how few of them "
-            "we wrote. [[slnc 250]] Iterable and Iterator are the two roles the "
-            "pattern names, and both of them ship with Java. Iterable has one "
-            "method, iterator. Iterator has two, has next and next. [[slnc "
-            "300]] Product catalogue implements Iterable, and it's four lines "
-            "long. Look at what it does not have: no page number, no position, "
-            "no next. It holds the feed and nothing else. [[slnc 300]] "
-            "Catalogue iterator implements Iterator, and every single field on "
-            "it is position — which page we're on, where we are inside it, "
-            "whether we've started. It is the only class in the project that "
-            "contains a page loop. [[slnc 250]] And underneath, the catalogue "
-            "feed: the awkward paged thing we're hiding."
+            'So here are the pieces, and we wrote very few of them. '
+            '[[slnc 500]] Java provides the two main roles. [[slnc 300]] '
+            'Iterable has one method, called iterator. [[slnc 300]] And '
+            'Iterator has two methods: has next, and next. [[slnc 500]] '
+            'Our Product Catalogue implements Iterable, in just four '
+            'lines. [[slnc 300]] It has no page number, no position, and '
+            'no next method. [[slnc 300]] It only holds the warehouse '
+            'feed. [[slnc 500]] Our Catalogue Iterator implements '
+            'Iterator. [[slnc 300]] Every one of its fields is about '
+            'position: which page, where in that page, and whether it has '
+            'started. [[slnc 300]] It is the only class in the project '
+            'with a page loop. [[slnc 500]] And underneath sits the '
+            'catalogue feed, the awkward paged system we are hiding.'
         ),
     ),
     dict(
@@ -257,18 +268,18 @@ public Product findCheapest() {
 // That absence is the design — it is what lets two walks
 // run over one catalogue without colliding.""",
         narration=(
-            "This is the catalogue, and I'd rather talk about what isn't here. "
-            "[[slnc 250]] There's no page number. No current position. No "
-            "next method. It holds a feed, and it can hand you an iterator. "
-            "That's it. [[slnc 350]] The temptation, the first time you write "
-            "one of these, is to put the position on this class, because it "
-            "feels like the collection ought to know where you are. It's the "
-            "single most common mistake with this pattern, and the day it "
-            "bites you is the day somebody writes a loop inside a loop over "
-            "the same catalogue. [[slnc 300]] Look at the word new in "
-            "iterator. Every caller gets their own bookmark. Nothing is "
-            "shared, nothing is reused, and the catalogue doesn't keep the "
-            "ones it hands out."
+            "Let's look at the catalogue class, and focus on what is "
+            'missing. [[slnc 500]] There is no page number. [[slnc 300]] '
+            'No current position. [[slnc 300]] No next method. [[slnc '
+            '300]] It holds the feed, and it can hand you an iterator. '
+            '[[slnc 300]] That is all. [[slnc 600]] It is tempting to put '
+            'the position on the catalogue itself. [[slnc 300]] It feels '
+            'like the collection should know where you are. [[slnc 300]] '
+            'That is the most common mistake with this pattern. [[slnc '
+            '300]] And it bites the day someone writes a loop inside a '
+            'loop, over the same catalogue. [[slnc 600]] Every time you '
+            'ask for an iterator, you get a brand new one. [[slnc 300]] '
+            'Every caller gets their own bookmark, and nothing is shared.'
         ),
     ),
     dict(
@@ -294,20 +305,22 @@ public Product next() {
     return currentPage.get(indexInPage++);
 }""",
         narration=(
-            "And here's the page loop. Once. [[slnc 300]] Has next does all "
-            "the work. If we haven't started, fetch page zero — and notice "
-            "that's here, not in the constructor. Creating an iterator costs "
-            "nothing; the first fetch happens when somebody actually asks. "
-            "[[slnc 300]] Then, if we've run off the end of the current page, "
-            "move to the next one and fetch it. An empty page means we're "
-            "finished, and that's the only place in the whole project that "
-            "knows an empty page means finished. [[slnc 350]] It's a while, "
-            "not an if, because a short page in the middle would leave you "
-            "standing on a page with nothing left. [[slnc 300]] And next is "
-            "three lines, because has next already did everything. It calls "
-            "has next again rather than trusting the caller — which is also "
-            "why has next has to be safe to call twice. A has next that "
-            "consumes something is the other classic bug here."
+            'Now the iterator, where the page loop lives, just once. '
+            '[[slnc 500]] The has next method does all the work. [[slnc '
+            '300]] If it has not started yet, it fetches page zero. '
+            '[[slnc 300]] Notice that happens here, not when the iterator '
+            'is created. [[slnc 300]] Creating an iterator costs nothing. '
+            '[[slnc 300]] The first fetch only happens when someone '
+            'actually asks. [[slnc 500]] Then, if it has reached the end '
+            'of the current page, it fetches the next page. [[slnc 300]] '
+            'An empty page means the catalogue is finished. [[slnc 300]] '
+            'And this is the only place in the project that knows that. '
+            '[[slnc 500]] It uses a while loop, not a single if. [[slnc '
+            '300]] That way, an empty page in the middle cannot leave it '
+            'stuck. [[slnc 500]] The next method is only three lines, '
+            'because has next already did the work. [[slnc 300]] And has '
+            'next must be safe to call twice in a row. [[slnc 300]] A has '
+            'next that uses up an item is another classic bug.'
         ),
     ),
     dict(
@@ -333,19 +346,21 @@ public Product next() {
     assertEquals("SKU-001", inner.next().sku());   // still at the start
 }""",
         narration=(
-            "Thirteen tests, and these two are the ones that prove the "
-            "pattern. [[slnc 300]] A test that says the catalogue yields eight "
-            "products passes against the naive code just as happily. It proves "
-            "nothing. [[slnc 300]] The first one asserts what was not fetched. "
-            "The feed counts its own calls, so we can say: after creating an "
-            "iterator, zero pages. After pulling two products, one page. Move "
-            "that fetch into the constructor and this test goes red "
-            "immediately. Laziness stops being a claim in a comment and "
-            "becomes something the build checks. [[slnc 350]] The second is my "
-            "favourite. Two iterators over one catalogue. Advance one, and the "
-            "other is still at the start. [[slnc 250]] That is the glued "
-            "bookmark, written as an assertion. Put the position on the "
-            "catalogue and this is the test that goes red."
+            'The project has thirteen tests. [[slnc 300]] Two of them '
+            'prove the pattern. [[slnc 500]] A test like, the catalogue '
+            'has eight products, would pass for the naive code too. '
+            '[[slnc 300]] So it proves nothing about the pattern. [[slnc '
+            '500]] The first special test checks what was not fetched. '
+            '[[slnc 300]] The feed counts its own calls. [[slnc 300]] '
+            'After creating an iterator, zero pages have been fetched. '
+            '[[slnc 300]] After reading two products, just one page has '
+            'been fetched. [[slnc 300]] Move the fetch into the '
+            'constructor, and this test fails. [[slnc 500]] The second '
+            'test uses two iterators over one catalogue. [[slnc 300]] '
+            'Move one forward, and the other is still at the start. '
+            '[[slnc 300]] That is the glued bookmark problem, written as '
+            'a test. [[slnc 300]] Put the position on the catalogue, and '
+            'this test fails.'
         ),
     ),
     dict(
@@ -369,18 +384,19 @@ public Product next() {
 === 4.  Two walks, two positions ===
    outer -> SKU-002    inner -> SKU-001  (still at the start)""",
         narration=(
-            "Run it, and the two halves sit side by side. [[slnc 250]] Section "
-            "one is the naive browser: a count that's right by luck, and a "
-            "cheapest product that simply isn't the cheapest. [[slnc 300]] "
-            "Section two is the same catalogue in a for-each loop. Eight "
-            "products, in order, and the word page appears nowhere in the "
-            "calling code. [[slnc 300]] Section three is the line I'd frame. "
-            "Two products consumed, one page of three fetched. The other two "
-            "pages were never requested, so on a real system that's two HTTP "
-            "calls that never happened. Stop the loop early and the warehouse "
-            "never hears about it. [[slnc 350]] And section four is the two "
-            "bookmarks. Same catalogue, two walkers, and neither one disturbs "
-            "the other."
+            "Let's run the demo. [[slnc 400]] First, the naive browser. "
+            '[[slnc 300]] Its product count is right, but only by luck. '
+            '[[slnc 300]] And its cheapest product is not the cheapest. '
+            '[[slnc 500]] Second, the same catalogue in a for-each loop. '
+            '[[slnc 300]] All eight products, in order. [[slnc 300]] And '
+            'the calling code never mentions pages at all. [[slnc 500]] '
+            'Third, the most telling result. [[slnc 300]] Two products '
+            'were read, and only one page was fetched. [[slnc 300]] The '
+            'other two pages were never requested. [[slnc 300]] On a real '
+            'system, that is two network calls that never happened. '
+            '[[slnc 500]] And fourth, two bookmarks. [[slnc 300]] Two '
+            'readers walk the same catalogue, and neither disturbs the '
+            'other.'
         ),
     ),
     dict(
@@ -402,22 +418,22 @@ public Product next() {
             "Write your own when the storage is awkward.",
         ],
         narration=(
-            "So, what to take away. [[slnc 300]] The collection knows what is "
-            "in it. The iterator knows where you are. Keep those two facts in "
-            "two different objects, and the for-each loop is free. [[slnc "
-            "350]] On the three ways to walk something: use an index loop when "
-            "you genuinely need the index. Use an iterator when you want each "
-            "element in turn. Use a stream when you want to describe a "
-            "pipeline rather than a walk. [[slnc 300]] And let me be clear "
-            "about streams, because it's the question I'd expect. They are not "
-            "an alternative to this pattern. They're built on top of it — a "
-            "spliterator is an iterator that can also split itself in half. "
-            "[[slnc 350]] Now the honest bill. If you already have a list, it "
-            "already has an iterator, and writing your own around it is pure "
-            "ceremony. This pattern earns its keep when the storage is "
-            "awkward: pages, a tree, a file you're reading a line at a time, a "
-            "sequence with no end. That's when one carefully written has next "
-            "is worth more than three hand-rolled loops."
+            'So, what should you remember? [[slnc 400]] The collection '
+            'knows what is in it. [[slnc 300]] The iterator knows where '
+            'you are. [[slnc 300]] Keep those in two different objects, '
+            'and the for-each loop comes free. [[slnc 600]] There are '
+            'three ways to walk through things. [[slnc 300]] Use an index '
+            'loop when you really need the position number. [[slnc 300]] '
+            'Use an iterator when you want each item in turn. [[slnc '
+            '300]] And use a stream when you want to describe a pipeline '
+            'of steps. [[slnc 500]] Streams are not an alternative to '
+            'this pattern. [[slnc 300]] They are built on top of it. '
+            '[[slnc 600]] Now the honest cost. [[slnc 300]] If you '
+            'already have a list, it already has an iterator. [[slnc '
+            '300]] Writing your own around it is pure ceremony. [[slnc '
+            '400]] This pattern pays off when the storage is awkward. '
+            '[[slnc 300]] Pages, a tree, a file read one line at a time, '
+            'or a sequence with no end.'
         ),
     ),
     dict(
@@ -430,16 +446,18 @@ public Product next() {
             "the position onto the catalogue and watches a test go red.",
         ],
         narration=(
-            "That's the iterator pattern. [[slnc 250]] The full source, the "
-            "written notes, the diagrams and an animated walkthrough are all in "
-            "the repository — including the exercise I'd most recommend. Move "
-            "the page number and the index off the iterator and onto the "
-            "catalogue, run the tests, and watch the independent-positions test "
-            "go red. Five minutes, and you'll never glue a bookmark into a "
-            "spine again. [[slnc 300]] If this helped, a like genuinely does "
-            "help other people find it, and subscribe if you'd like the rest of "
-            "the behavioural series. [[slnc 250]] Thanks for watching, and I'll "
-            "see you in the next one."
+            "That's the Iterator pattern. [[slnc 400]] If you remember "
+            'one sentence, make it this one. [[slnc 300]] The collection '
+            'knows what is in it, and the iterator knows where you are, '
+            'so keep them apart. [[slnc 500]] The full source code, '
+            'written notes, diagrams, and an animated walkthrough are all '
+            'in the repository. [[slnc 500]] Here is one exercise to try. '
+            '[[slnc 300]] Move the page number and position off the '
+            'iterator, and onto the catalogue. [[slnc 300]] Run the '
+            'tests, and watch the two-bookmarks test fail. [[slnc 500]] '
+            'If this helped, a like really does help other people find '
+            "it. [[slnc 300]] And subscribe, if you'd like the rest of "
+            'the series. [[slnc 400]] Thanks for watching.'
         ),
     ),
 ]

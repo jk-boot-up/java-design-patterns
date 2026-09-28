@@ -2,64 +2,64 @@
 
 ## 1. Future/Promise with Spring
 
-Hello, and welcome. This video explains the Future/Promise pattern with Spring Boot, in Java, and it is written and presented by Jayasekhar Konduru. It is the framework version of the Future/Promise video. That one built the future and promise handoff by hand, and showed three costs: an exception that surfaces later, a get with no timeout that is a hang, and a cancellation a task can ignore. This one shows the same idea inside Spring Boot. The plain definition, in short: each piece of work is submitted and immediately returns a handle to a result that does not exist yet, so independent work can run at once. By the end you will see that the pool, not the annotation, decides how concurrent a page is, watch an exception vanish from a void method, lose a thread-local across the thread boundary, and learn why a timeout and a cancel both leave the work running.
+Hello, and welcome. This video explains the Future and Promise pattern, in Java, using Spring Boot. This video is presented by Jayasekhar Konduru. First, a simple definition. When you start a piece of work, you immediately get back a handle to a result that does not exist yet. So independent pieces of work can run at the same time. Think of dropping clothes at a dry cleaner. You get a ticket straight away, and collect the clothes later. This is the framework version of the Future and Promise video, with the same product page. We will learn that the thread pool, not the annotation, decides how much runs at once. We will hear an error vanish from a method that returns nothing. Lose a customer's details between threads. And learn why a timeout and a cancel both leave the work running.
 
 ## 2. The Partner Project
 
-This video assumes the Future/Promise video. If you have not seen it, start there. It builds the future and promise handoff by hand, and shows three costs: an exception that surfaces later, a get with no timeout that is a hang, and a cancellation a task can ignore. This one uses the same example. It does not teach the pattern again. It shows what Spring Boot does with it.
+Before we start, a quick note. This video has a partner: the hand-built Future and Promise video. That one builds the handoff between a future and a promise by hand. And it shows three costs: an error that appears later, a wait with no timeout that hangs, and a cancel that a task can ignore. If you are new to the pattern, watch that one first. Here, we keep the same product page, with its price, stock, and review score, and ask what Spring Boot does with it.
 
 ## 3. Before The First Line
 
-Before the first line of code, what Spring Boot is. Spring is a framework whose core is a container that creates your objects. Its async annotation runs a method on a thread pool it owns, and hands back a completable future, which the container completes when the method returns. And a promise: skipping this video loses none of the pattern. The hand-built one teaches all of it.
+One thing is new in this project: Spring Boot. At its heart, Spring is a container that creates your objects. Its at Async annotation runs a method on a thread pool that Spring owns. And it hands back a Completable Future. Spring completes that future when the method returns. And one promise. If you skip this video, you lose none of the pattern. This one is about the tool.
 
 ## 4. The Pool Decides
 
-First, concurrency. Three independent lookups, price, stock and rating, each marked async. On the default pool, all three are in flight at the same moment. Three. On a pool of one thread, only one is. The annotation asked for concurrency. The pool decided whether to give it. Concurrency is a property of the pool, not of the annotation.
+First demo: the pool decides. Three independent lookups, for price, stock, and rating, each marked at Async. On the default pool, all three run at the same moment. On a pool with just one thread, only one runs at a time. The annotation asked for things to run at once. The pool decided whether to allow it. How much runs at once is a property of the pool, not the annotation.
 
 ## 5. Exceptions
 
-Second, exceptions. A method returning a future fails, and the caller sees a completion exception, with the real cause inside it. The stack trace belongs to a pool thread. The calling method appears nowhere in it. Now a void method that throws. The caller gets nothing. The call returned normally. The exception went only to a handler that you have to register by hand. Without one, it is just logged. That is why the rule is: return a future, never void.
+Second demo: errors. A method that returns a future fails. The caller receives a Completion Exception, with the real cause inside: the review service is down. And the stack trace belongs to a pool thread, not the caller. Now a method that returns nothing, called a void method, throws an error. The caller gets nothing at all. The call returned normally. The error only went to a special handler, which you must register yourself. Without one, it is just written to a log. That is why the rule is: return a future, never void.
 
 ## 6. Thread-Locals
 
-Third, context. The caller is working for customer seven. That is held in a thread-local, the way request context, security context, and logging context all are. The async method asks whose order it is. Customer null. A thread-local does not cross to a pool thread. The fix is a task decorator, a small bean that copies it across. With it: customer seven. The fix is yours to write.
+Third demo: thread-local data. The caller is working for customer seven. That fact is stored in a thread-local, which is where request details, security details, and logging details usually live. The async method asks: whose order is this? The answer is: nobody's. A thread-local does not travel to a pool thread. The fix is a Task Decorator, a small bean that copies the data across. With it, the answer is customer seven. But you have to write that fix yourself.
 
 ## 7. A Timeout Does Not Stop It
 
-Fourth, a timeout. The caller waits two hundred milliseconds for a slow task, and gets a timeout exception. The task had not finished. Then the gate opens, and the task runs to the end anyway, and does its work. Nobody is waiting for the answer. A timeout is the caller giving up. It does not stop the work.
+Fourth demo: a timeout does not stop the work. The caller waits two hundred milliseconds for a slow task. Then it gets a Timeout Exception. The task had not finished. Later, the task carries on, runs to the end, and does its work anyway. Nobody is waiting for its answer any more. A timeout means the caller gave up. It does not stop the work.
 
 ## 8. cancel(true) Interrupts Nothing
 
-Fifth, cancellation. Cancel true reports true. The future says it is cancelled. And the task ran to completion anyway. On a completable future, cancel sets a flag on the future. It never interrupts the thread. The hand-built video showed a task that ignored an interrupt. Here, no interrupt is even sent.
+Fifth demo: cancelling. Calling cancel with true reports success. The future says it is cancelled. And the task runs to the end anyway. Why? On a Completable Future, cancel only sets a flag on the future. It never interrupts the thread doing the work. In the hand-built video, a task ignored an interruption. Here, no interruption is even sent.
 
 ## 9. Composing The Page
 
-Last, composing the page. Three futures combine into one, with no blocking until the very end. Now the review service is down. With a fallback chosen at that one step, the page still assembles: rating unavailable. Without the fallback, one failing lookup fails the whole page. That is the callback depth cost from the hand-built video, in a real library.
+Last demo: building the page from futures. Three futures are combined into one. Nothing waits until the very end. The page shows a price of one hundred and twenty-nine pounds ninety-nine, a stock of seven, and a rating of four point six. Now the review service goes down. With a fallback chosen at that one step, the page still appears, with the rating marked as unavailable. Without the fallback, one failed lookup fails the whole page.
 
 ## 10. The Verdict
 
-My verdict, plainly. Return a completable future, never void. Choose the pool. Carry the context across on purpose. A timeout is the caller giving up, not the work stopping. And design tasks that check for cancellation themselves.
+So, here is the verdict. Return a Completable Future, never void. Choose your thread pool deliberately. Carry thread-local data across on purpose. Remember that a timeout is giving up, not stopping. And design tasks that check for cancellation themselves.
 
 ## 11. How To Recognise It
 
-How do you recognise this in code you did not write? Async on a method returning a completable future. Chains of then combine, exceptionally, and or timeout. A task decorator bean. And logging or security context copied by hand across a thread.
+How can you spot this in code someone else wrote? Look for at Async methods that return a Completable Future. Look for chains of then combine, exceptionally, and or timeout. Look for a Task Decorator bean. And look for logging or security details, copied by hand between threads.
 
 ## 12. Where You Have Met This
 
-You have met this in every async method that returns a completable future, and in every log line that lost its request identifier on the way to a pool thread.
+Where have you met this before? In every at Async method that returns a future. And in every log line that lost its request I D on the way to a pool thread.
 
 ## 13. What Was Used
 
-For the record. Spring Boot four point one point one. No web server, no database, and no web starter.
+For the record, here are the versions. Spring Boot four point one point one. No web server, no database, and no web library.
 
 ## 14. What Is Real Here
 
-The same honest admission as everywhere in this course, and short. Everything is real: Spring's executor, its futures, and its handlers. Every wait is a latch, a gate, or a bounded spin, so every result is the same each run.
+A quick, honest note about this demo. Spring's thread pool, its futures, and its error handlers are all real. Every wait uses a latch, a gate, or a short, limited loop. So every run gives the same result.
 
 ## 15. When This Is Too Much
 
-So when is it too much? For two lookups that are already fast, or where the second needs the first's result, a future around work that never overlaps is ceremony.
+So, when is this too much? For lookups that are already fast, or where the second needs the first's result, a future adds ceremony and saves no time.
 
 ## 16. Thanks for Watching
 
-That's Future/Promise with Spring. If you take one sentence away, take this one: a future is a promise about when a value will be ready, never a promise that the work can be stopped. The full source, the written notes, the diagrams and an animated walkthrough are all in the repository. If you try one exercise, make the slow task check for interruption in a loop, and cancel it through an executor's future, and see the difference. If this helped, a like genuinely does help other people find it, and subscribe if you would like the rest of the series. Thanks for watching.
+That's Future and Promise with Spring. If you remember one sentence, make it this one. A future promises when a value will be ready, but never that the work behind it can be stopped. The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. Here is one exercise to try. Make the slow task check for interruption in its loop. Then cancel it through a normal executor's future, and listen for the difference. If this helped, a like really does help other people find it. And subscribe, if you'd like the rest of the series. Thanks for watching.

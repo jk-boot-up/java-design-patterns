@@ -2,56 +2,56 @@
 
 ## 1. Type Object
 
-Hello, and welcome. This video explains the Type Object pattern in Java, and it is written and presented by Jayasekhar Konduru. The plain definition: a type object turns the kind of a thing into data. Instead of a subclass for each kind, there is one class, and each object points at a type object that holds what differs. This is another project in the foundational category, whose subject is how an object gets hold of another, and how small idioms shape everyday Java. In our online store, books, laptops and groceries differ only in a few numbers, yet each has its own class. By the end you will see a class for each kind that differs only in numbers, see one class with a type as data, see a new kind added at run time with no new class, see one change in a type reach every product, see a type inherit from another, and see the bill, which is typos found late and behaviour that data cannot hold.
+Hello, and welcome. This video explains the Type Object pattern, in Java. This video is presented by Jayasekhar Konduru. First, a simple definition. A type object turns the kind of a thing into data. Instead of a subclass for each kind, there is one class. And each object points to a type object, which holds whatever differs. Think of a library's shelf labels. The labels say how long each kind of book can be borrowed. Change a label, and every book on that shelf follows the new rule. In our online store, books, laptops, and groceries differ in only a few numbers. Yet each one has its own class. In this video, we replace those classes with one class and some data. We will add a new kind while the program runs, change a rule in one place, and let one type inherit from another. And then the cost.
 
 ## 2. The Scenario
 
-Here is the scenario. Books have no tax, and cost three pounds to ship. Laptops carry twenty percent tax, and ship free. Groceries have five percent tax. Next month, the shop will sell gift cards. The question: is each kind a class?
+Here is the scenario. Books have no tax, and cost three pounds to ship. Laptops have twenty percent tax, and ship free. Groceries have five percent tax. And next month, the shop will start selling gift cards. So here is the question. Should each kind of product be its own class?
 
 ## 3. A Class For Each Kind
 
-First, a class for each kind. Three kinds, three classes, and they differ only in three numbers. A novel totals thirteen hundred. A gift card is a fourth kind. That is a fourth class, a new build, and a release.
+First, the naive way: a class for each kind. Three kinds, three classes. And they differ only in three numbers. A novel costs thirteen pounds in total. And a gift card is a fourth kind. That means a fourth class, a new build, and a new release.
 
 ## 4. The Pattern
 
-The pattern. One class for the thing. A type object for its kind, holding what differs. Each thing points at its type. A new kind is a new type object.
+Now, the pattern. One class for the product. A type object for its kind, which holds whatever differs. Each product points to its type. And a new kind is just a new type object.
 
 ## 5. A Type That Is Data
 
-Second, a type that is data. One product class. A novel totals thirteen hundred, a laptop ninety six thousand, and tea six twenty. Laptops can be returned after ten days, but not after twenty.
+Second demo: a type that is data. Now there is just one product class. A novel costs thirteen pounds. A laptop costs nine hundred and sixty pounds. And a pack of tea costs six pounds twenty. A laptop can be returned after ten days. But not after twenty.
 
 ## 6. A New Kind At Run Time
 
-Third, a new kind at run time. Types before: three. After: four. Classes added: none. A twenty five pound card totals twenty five hundred, and cannot be returned after one day.
+Third demo: a new kind, while the program runs. Before, there are three product types. After adding gift cards, there are four. Classes added: none. A twenty-five pound gift card costs exactly twenty-five pounds. And it cannot be returned, even after one day.
 
 ## 7. Change The Type, Change Every Product
 
-Fourth, change the type, change every product. Tax on tea is twenty, on coffee forty. Grocery tax is raised to ten percent, in one place. Tea is now forty, and coffee eighty.
+Fourth demo: change the type, and every product follows. The tax on a pack of tea is twenty pence. On a bag of coffee, forty pence. Now grocery tax is raised to ten percent, in one place. The tea's tax becomes forty pence. The coffee's becomes eighty pence.
 
 ## 8. A Type That Inherits
 
-Fifth, a type that inherits. An ebook states only its shipping: none. Its tax, zero, and its return days, thirty, come from book.
+Fifth demo: a type that inherits. An ebook type states only its shipping cost: nothing. Its tax, which is zero, and its return period, thirty days, both come from the book type. So the ebook only states what is different.
 
 ## 9. The Bill
 
-Last, the bill. A typo, b o k, is found when the program runs. With a class for each kind, the typo would not compile. Laptops need a serial number checked, and a type holds data, not steps. A flag says so, but the code that checks it is still somewhere else. And every new difference between kinds is a new field, that the code must remember to read. The type has six fields already.
+Finally, the costs. First, a typo in a type's name, like book spelled b o k, is only found when the program runs. With a class for each kind, that typo would not even compile. Second, laptops need their serial number checked. But a type holds data, not steps. A flag can say a check is needed, but the code that does the check lives somewhere else. Third, every new difference between kinds becomes a new field. And the code must remember to read it. This type already has six fields.
 
 ## 10. How To Recognise It
 
-How do you recognise this in code you did not write? A Type, Kind or Category object referenced by another. Rows in a product_types table, with a foreign key from products. Card, unit or enemy types in games, defined in data files. Currency, Locale and Charset, which describe things as data.
+How can you spot this pattern in code someone else wrote? Look for a Type, Kind, or Category object, pointed to by another object. Look for a product types table in a database, with products linked to it. Look for card types, unit types, or enemy types in games, defined in data files. And Java's own Currency, Locale, and Charset classes, which describe things as data.
 
 ## 11. The Verdict
 
-Here is my verdict, plainly. Use a type object when kinds differ in data, and new kinds should be added without new code. Let types inherit defaults. Where kinds differ in steps, use a strategy or a subclass. Check the name of a type early, and keep the number of fields small.
+So, here is the verdict. Use a type object when kinds differ in data, and new kinds should be added without new code. Let types inherit defaults from each other. Where kinds differ in steps, use a strategy, or a subclass. Check type names early. And keep the number of fields small.
 
 ## 12. What Is Real Here
 
-The same honest admission as everywhere in this course. Everything is plain Java. Every number quoted comes from this program's own output. Nothing depends on a clock, so every run is the same.
+A quick, honest note about this demo. Everything is plain Java. Every number you heard comes from the program's own output. And nothing depends on the clock, so every run gives the same result.
 
 ## 13. When This Is Too Much
 
-So when is it too much? If the kinds are few, fixed, and differ in behaviour, plain subclasses are clearer. A type object pays off when kinds are many, or added by non-programmers.
+So, when is this too much? If the kinds are few, fixed, and differ in behaviour, plain subclasses are clearer. A type object pays off when there are many kinds. Or when new kinds are added by people who are not programmers.
 
 ## 14. Thanks for Watching
 
-That's Type Object. If you take one sentence away, take this one: a type object makes kinds into data so that a new kind needs no new class, and the price is late errors and behaviour that data cannot hold. The full source, the written notes, the diagrams and an animated walkthrough are all in the repository, running offline with nothing installed but a Java development kit. If you try one exercise, add a type for frozen groceries that inherits from grocery but ships for more, and check its total. If this helped, a like genuinely does help other people find it, and subscribe if you would like the rest of the series. Thanks for watching.
+That's the Type Object pattern. If you remember one sentence, make it this one. A type object turns kinds into data, so a new kind needs no new class, and the price is late errors, and behaviour that data cannot hold. The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. Here is one exercise to try. Add a type for frozen groceries. Make it inherit from groceries, but cost more to ship. Then check its total. If this helped, a like really does help other people find it. And subscribe, if you'd like the rest of the series. Thanks for watching.

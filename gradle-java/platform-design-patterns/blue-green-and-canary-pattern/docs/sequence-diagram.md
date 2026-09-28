@@ -6,22 +6,4 @@ Say it in words. The rollout sets the green share to five percent. Traffic flows
 
 ![Blue-Green and Canary pattern sequence diagram](images/sequence-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant O as rollout
-    participant R as router
-    participant G as v2
-    O->>R: green share 5%
-    R->>G: 5 of 100 requests
-    G-->>O: 1 failed of 5, 20%
-    O->>O: above the gate
-    O->>R: green share 0%
-```
-
-</details>
-
 The load-bearing sentence: **the rollout watches the failures, and moves the setting.**

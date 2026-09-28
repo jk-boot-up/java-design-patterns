@@ -2,56 +2,56 @@
 
 ## 1. Pessimistic Offline Lock
 
-Hello, and welcome. This video explains the Pessimistic Offline Lock pattern in Java, and it is written and presented by Jayasekhar Konduru. The plain definition: a pessimistic offline lock makes a person take a lock on a record before editing it. Nobody else can edit it until the lock is let go, so the clash is prevented instead of detected. This is another project in the enterprise category, whose subject is how a business application organises its logic, its data and its requests. In our online store, two clerks want to edit the same product, and we would rather they did not clash at all. By the end you will see a lock stop a clash before it starts, see edits that overwrite nothing, and see the three bills: waiting, a lock nobody let go of, and two people each waiting for the other. I will also show how much to lock.
+Hello, and welcome. This video explains the Pessimistic Offline Lock pattern, in Java. This video is presented by Jayasekhar Konduru. First, a simple definition. A pessimistic lock makes a person take a lock on a record before editing it. Nobody else can edit it until the lock is released. So a clash is prevented, instead of detected. Think of a meeting room booking. Once you have booked the room, nobody else can use it until your booking ends. In our online store, two clerks want to edit the same product. And we would rather they did not clash at all. In this video, a lock stops a clash before it starts. Then we hear the costs: waiting, a forgotten lock, and two people each waiting for the other. And we learn how much to lock.
 
 ## 2. The Scenario
 
-Here is the scenario. In the online store, two clerks want to edit the same product. An edit takes several minutes, and a clash would throw away a lot of work. The question: can we stop the clash before it starts?
+Here is the scenario. Two clerks want to edit the same product. An edit takes several minutes. And a clash would throw away a lot of work. So here is the question. Can we stop the clash before it even starts?
 
 ## 3. Lock First, Then Edit
 
-First, lock, then edit. Clerk A asks for the lock on the blue mug, and gets it. Clerk B asks, and is refused, and told who holds it: A. Clerk B never starts an edit that could have been thrown away.
+First demo: lock first, then edit. Clerk A asks for the lock on the blue mug, and gets it. Clerk B asks, and is refused. And B is told who holds the lock: clerk A. Clerk B never starts an edit that might have been thrown away.
 
 ## 4. The Pattern
 
-The pattern. Take a lock before you edit. Only the holder may write. Everyone else is refused, and told who holds it. You let go when you are done, or the lock expires by itself.
+Now, the pattern. Take a lock before you edit. Only the lock holder may save changes. Everyone else is refused, and told who holds it. Release the lock when you are done. Or it expires by itself.
 
 ## 5. No Lost Update
 
-Second, no lost update. Clerk A raises the price and lets go. Then B takes the lock, and reads the product. It already has the new price. B saves the stock count on top of it. Nothing was overwritten, and nothing needed retrying.
+Second demo: no lost update. Clerk A raises the price, and releases the lock. Then clerk B takes the lock, and reads the product. It already shows the new price, twelve pounds. Clerk B saves the stock count, on top of it. Nothing was overwritten. And nothing needed retrying.
 
 ## 6. The Bill: Waiting
 
-Third, the first bill. While clerk A edits, clerk B tries once a minute, and is refused three times. In that time B has done nothing useful. A lock trades lost updates for waiting.
+Third demo: the first cost, waiting. While clerk A edits, clerk B tries once a minute. And is refused three times. In all that time, clerk B has done nothing useful. A lock swaps lost updates for waiting.
 
 ## 7. The Bill: A Lock Nobody Let Go Of
 
-Fourth, a lock nobody let go of. Clerk A goes to lunch without letting go. B is refused straight away, and again after ten minutes. After sixteen minutes the lock has expired, and B gets it. When A comes back and saves, A is refused, because A no longer holds the lock. An expiry solves the lunch, and creates a new problem for A.
+Fourth demo: a lock nobody released. Clerk A goes to lunch, without releasing the lock. Clerk B is refused straight away. And again, after ten minutes. After sixteen minutes, the lock has expired, and clerk B gets it. When clerk A comes back and saves, A is refused. Because A no longer holds the lock. An expiry solves the lunch problem, but creates a new problem for clerk A.
 
 ## 8. The Bill: Each Waiting For The Other
 
-Fifth, two clerks each waiting for the other. A holds the mug and now needs the tea. B holds the tea and now needs the mug. Neither can move, until a lock expires. That is a deadlock. The fix is a rule: everyone takes locks in the same order. Then A takes both, and B is stopped at the first, holding nothing, and simply waits.
+Fifth demo: two clerks, each waiting for the other. Clerk A holds the lock on the mug, and now needs the tea. Clerk B holds the lock on the tea, and now needs the mug. Neither can move, until a lock expires. That is called a deadlock. The fix is a simple rule: everyone takes locks in the same order. Then clerk A takes both. And clerk B is stopped at the first one, holding nothing, and simply waits.
 
 ## 9. How Much To Lock
 
-Last, how much to lock. One lock on the whole catalogue: A gets it, and B, editing a completely different product, is refused. A lock per product: A gets the mug, and B gets the tea. The smaller the thing locked, the fewer people wait. But the more things you lock, the more there is to forget, and to deadlock on.
+Last demo: how much to lock. With one lock on the whole catalogue, clerk A gets it. And clerk B, editing a completely different product, is refused. With one lock per product, clerk A gets the mug, and clerk B gets the tea. Both can work. The smaller the thing you lock, the fewer people wait. But the more locks you have, the more there are to forget, and to deadlock on.
 
 ## 10. How To Recognise It
 
-How do you recognise this in code you did not write? A lock or checkout step before an edit, and an unlock or checkin after. A locks table or a locked_by and locked_until column. SELECT ... FOR UPDATE held across a long session, which is a warning sign. A message such as 'this record is being edited by someone else'.
+How can you spot this pattern in code someone else wrote? Look for a lock, or check-out step, before an edit, and an unlock, or check-in, after. Look for a locks table, or columns saying who locked a record, and until when. Look for a database lock held across a long session, which is a warning sign. And a message like: this record is being edited by someone else.
 
 ## 11. The Verdict
 
-Here is my verdict, plainly. Use a pessimistic lock when a conflict would throw away a lot of work, when edits are long, and when it is acceptable that people sometimes wait. Lock the smallest thing that keeps the data safe, always give a lock an expiry, take locks in a fixed order, and refuse a write from anyone who no longer holds the lock. Use an optimistic lock where clashes are rare and retrying is cheap.
+So, here is the verdict. Use a pessimistic lock when a conflict would throw away a lot of work. When edits take a long time. And when it is acceptable for people to wait sometimes. Lock the smallest thing that keeps the data safe. Always give a lock an expiry. Take locks in a fixed order. And refuse a save from anyone who no longer holds the lock. Use an optimistic lock instead, where clashes are rare, and retrying is cheap.
 
 ## 12. What Is Real Here
 
-The same honest admission as everywhere in this course. Everything is plain Java. Every number quoted comes from this program's own output. Nothing depends on a clock, so every run is the same.
+A quick, honest note about this demo. Everything is plain Java. Every result you heard comes from the program's own output. Time is simulated, not read from the clock, so every run gives the same result.
 
 ## 13. When This Is Too Much
 
-So when is it too much? Where conflicts are rare and edits short, a lock is waiting and bookkeeping for nothing. A long database lock held across a user's thinking time is almost always a mistake.
+So, when is this too much? Where conflicts are rare and edits are short, a lock is waiting and bookkeeping for nothing. And a database lock held while a person thinks is almost always a mistake.
 
 ## 14. Thanks for Watching
 
-That's Pessimistic Offline Lock. If you take one sentence away, take this one: a pessimistic lock prevents the clash, and the price is waiting, forgotten locks and deadlocks. The full source, the written notes, the diagrams and an animated walkthrough are all in the repository, running offline with nothing installed but a Java development kit. If you try one exercise, add a way for a lock holder to renew its lock, and decide how many times it may. If this helped, a like genuinely does help other people find it, and subscribe if you would like the rest of the series. Thanks for watching.
+That's the Pessimistic Offline Lock. If you remember one sentence, make it this one. A pessimistic lock prevents the clash, and the price is waiting, forgotten locks, and deadlocks. The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. Here is one exercise to try. Add a way for a lock holder to renew their lock. And decide how many times they may do it. If this helped, a like really does help other people find it. And subscribe, if you'd like the rest of the series. Thanks for watching.

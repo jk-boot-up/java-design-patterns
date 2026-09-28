@@ -17,19 +17,20 @@ SCENES = [
         title="The Flyweight Pattern",
         body=None,
         narration=(
-            "Hello, and welcome. This video explains the Flyweight pattern in "
-            "Java, and it is written and presented by Jayasekhar Konduru. [[slnc "
-            "300]] Let's start with the simple definition. The flyweight pattern "
-            "stops you paying for the same data twice. The parts of an object "
-            "that are identical across thousands of instances are stored once and "
-            "shared between all of them, and everything that actually differs is "
-            "passed in from outside at the moment it is needed. [[slnc 350]] "
-            "That's the idea in a sentence, and it's a pattern that only shows up "
-            "once your object count gets large. The rest of the video does it "
-            "properly, by building a real working Java project: badge rendering "
-            "across an e-commerce catalog. [[slnc 250]] By the end you'll know "
-            "what a flyweight is, what intrinsic and extrinsic state actually "
-            "mean, and how to write one yourself."
+            'Hello, and welcome. [[slnc 400]] This video explains the '
+            'Flyweight pattern, in Java. [[slnc 300]] This video is '
+            'presented by Jayasekhar Konduru. [[slnc 600]] First, a '
+            'simple definition. [[slnc 300]] The Flyweight pattern stops '
+            'you paying for the same data twice. [[slnc 300]] The parts '
+            'of an object that are identical across thousands of copies '
+            'are stored once, and shared. [[slnc 300]] And the parts that '
+            'differ are passed in, at the moment they are needed. [[slnc '
+            '600]] Think of a rubber stamp. [[slnc 300]] One stamp, used '
+            'again and again, in a different place each time. [[slnc '
+            '700]] In our online store, we look at the small badges shown '
+            'on product listings. [[slnc 500]] By the end, you will know '
+            'what a flyweight is, what shared and passed-in state mean, '
+            'and how to write one yourself.'
         ),
     ),
     dict(
@@ -46,12 +47,13 @@ SCENES = [
             "but a hundred thousand listings need one each.",
         ],
         narration=(
-            "So, imagine an online store with one hundred thousand product "
-            "listings. [[slnc 250]] Every single listing shows a small badge in "
-            "the corner. New. Sale. Bestseller. Low stock. [[slnc 300]] Here's "
-            "the thing to notice already. There are only four distinct badge "
-            "designs in the whole catalog. But a hundred thousand listings each "
-            "need one drawn."
+            'Here is the scenario. [[slnc 400]] The store lists one '
+            'hundred thousand products. [[slnc 300]] Every listing shows '
+            'a small badge in the corner. [[slnc 300]] New. [[slnc 200]] '
+            'Sale. [[slnc 200]] Bestseller. [[slnc 200]] Or low stock. '
+            '[[slnc 600]] Notice this already. [[slnc 300]] There are '
+            'only four different badge designs. [[slnc 300]] But a '
+            'hundred thousand listings each need one.'
         ),
     ),
     dict(
@@ -68,12 +70,14 @@ SCENES = [
             "Every SALE badge in the catalog looks identical.",
         ],
         narration=(
-            "Look at what actually makes up one badge design. An icon. A "
-            "background colour. A text colour. Whether it's bold. And a "
-            "rendered artwork bitmap, sixty four kilobytes. [[slnc 300]] And "
-            "here's the key observation. Every single SALE badge in the entire "
-            "catalog looks completely identical. Same icon, same colours, same "
-            "artwork. Only the listing underneath it changes."
+            'Here is what makes up one badge design. [[slnc 500]] An '
+            'icon. [[slnc 200]] A background colour. [[slnc 200]] A text '
+            'colour. [[slnc 200]] Whether the text is bold. [[slnc 200]] '
+            'And a picture, sixty-four kilobytes in size. [[slnc 600]] '
+            'And here is the key point. [[slnc 300]] Every sale badge in '
+            'the whole catalog looks exactly the same. [[slnc 300]] Same '
+            'icon, same colours, same picture. [[slnc 300]] Only the '
+            'listing underneath it changes.'
         ),
     ),
     dict(
@@ -97,13 +101,13 @@ SCENES = [
 
 //  Called once per listing — one hundred thousand times""",
         narration=(
-            "So here's the naive approach. [[slnc 250]] Every time we build a "
-            "badge for a listing, we allocate a brand new sixty four kilobyte "
-            "artwork array, and we rebuild the icon and the colours from "
-            "scratch, based on a switch over the type. [[slnc 300]] That "
-            "constructor runs once per listing. One hundred thousand times. And "
-            "every single SALE badge ends up holding its own private, identical "
-            "copy of the exact same data."
+            'Here is the naive approach. [[slnc 400]] Every time a badge '
+            'is made for a listing, a brand new sixty-four-kilobyte '
+            'picture is created. [[slnc 300]] And the icon and colours '
+            'are rebuilt from scratch. [[slnc 600]] That happens once per '
+            'listing. [[slnc 300]] One hundred thousand times. [[slnc '
+            '300]] So every sale badge holds its own private copy of '
+            'exactly the same data.'
         ),
     ),
     dict(
@@ -118,14 +122,15 @@ SCENES = [
             "✗   No individual badge is wrong — the waste is structural",
         ],
         narration=(
-            "And that does real damage, purely on memory. [[slnc 250]] One "
-            "hundred thousand listings, each with a sixty four kilobyte "
-            "artwork, comes to roughly six point two five gigabytes. For four "
-            "distinct designs. [[slnc 300]] Every one of those bytes past the "
-            "first four copies is a pure duplicate. And the garbage collector "
-            "has to work through all those repeated allocations. [[slnc 250]] "
-            "To be clear, no individual badge object is wrong. It renders "
-            "correctly. The waste is structural, not a bug."
+            'That does real damage, to memory. [[slnc 500]] One hundred '
+            'thousand listings, each with a sixty-four-kilobyte picture, '
+            'adds up to about six gigabytes. [[slnc 300]] For just four '
+            'different designs. [[slnc 600]] Almost every one of those '
+            "bytes is a duplicate. [[slnc 300]] And Java's memory cleaner "
+            'has to work through all those repeated copies. [[slnc 600]] '
+            'To be clear, no single badge is wrong. [[slnc 300]] Each one '
+            'displays correctly. [[slnc 300]] The waste is in the '
+            'structure, not a bug.'
         ),
     ),
     dict(
@@ -144,13 +149,14 @@ SCENES = [
             "stop paying for the same data twice.",
         ],
         narration=(
-            "The flyweight pattern fixes exactly this. [[slnc 250]] And the "
-            "definition, in Gang of Four terms, is that a flyweight uses "
-            "sharing to support large numbers of fine grained objects "
-            "efficiently, by factoring out state that is shared, called "
-            "intrinsic, from state supplied by the caller, called extrinsic. "
-            "[[slnc 300]] In plain language? Stop paying for the same data "
-            "twice."
+            'The Flyweight pattern fixes exactly this. [[slnc 400]] The '
+            'classic book on design patterns, by the authors known as the '
+            'Gang of Four, describes it like this. [[slnc 300]] Use '
+            'sharing to support large numbers of small objects '
+            'efficiently. [[slnc 300]] By separating the state that is '
+            'shared, called intrinsic, from the state the caller '
+            'supplies, called extrinsic. [[slnc 600]] In plain words: '
+            'stop paying for the same data twice.'
         ),
     ),
     dict(
@@ -167,13 +173,14 @@ SCENES = [
             "The position on the page is extrinsic — supplied by you.",
         ],
         narration=(
-            "Here's how to remember it forever. Think about a rubber stamp. "
-            "[[slnc 250]] The stamp itself carries fixed ink, and a fixed "
-            "shape. That never changes, no matter how many times you use it. "
-            "[[slnc 300]] But where you press it down on the page? That's "
-            "different every single time. [[slnc 250]] The stamp is the "
-            "flyweight. It gets shared. The position on the page is extrinsic. "
-            "You supply it fresh, every time you stamp."
+            'Here is how to remember it. [[slnc 300]] Think about a '
+            'rubber stamp. [[slnc 500]] The stamp carries its ink and its '
+            'shape. [[slnc 300]] That never changes, however many times '
+            'you use it. [[slnc 500]] But where you press it on the page '
+            'is different every time. [[slnc 600]] The stamp is the '
+            'flyweight. [[slnc 300]] It is shared. [[slnc 300]] The '
+            'position on the page is extrinsic. [[slnc 300]] You supply '
+            'it fresh, each time.'
         ),
     ),
     dict(
@@ -182,15 +189,16 @@ SCENES = [
         title="The Four Roles",
         body=None,
         narration=(
-            "Every flyweight setup has four roles. [[slnc 200]] The flyweight "
-            "itself, which here is BadgeStyle. The flyweight factory, "
-            "BadgeStyleFactory, which is the only place a BadgeStyle ever gets "
-            "built. The context, CatalogBadge, which is cheap and plentiful, "
-            "one per listing. And the client, BadgeDemo, which asks the "
-            "factory for styles. [[slnc 350]] Here's the single most important "
-            "idea in this whole video. The factory hands out the same shared "
-            "instance to every caller asking for the same type. One BadgeStyle "
-            "object. A hundred thousand listings pointing at it."
+            'Every flyweight has four roles. [[slnc 500]] The flyweight '
+            'itself: here, the badge style. [[slnc 300]] The factory: the '
+            'only place a badge style is ever built. [[slnc 300]] The '
+            'context: a catalog badge, cheap and plentiful, one per '
+            'listing. [[slnc 300]] And the client: the demo code, which '
+            'asks the factory for styles. [[slnc 600]] Here is the most '
+            'important idea in this video. [[slnc 300]] The factory hands '
+            'out the same shared style to everyone who asks for the same '
+            'type. [[slnc 300]] One badge style object. [[slnc 300]] A '
+            'hundred thousand listings pointing at it.'
         ),
     ),
     dict(
@@ -214,15 +222,17 @@ SCENES = [
     }
 }""",
         narration=(
-            "This is the flyweight itself, BadgeStyle. [[slnc 250]] Every "
-            "field on it — the icon, the colours, the bold flag, the artwork "
-            "— is intrinsic. Identical for every SALE badge, no matter which "
-            "listing is asking. [[slnc 300]] And look closely at render. "
-            "listingId and customLabel arrive as parameters, not fields. "
-            "That's extrinsic state, supplied fresh by the caller every time, "
-            "and never stored on the shared object. [[slnc 250]] There are no "
-            "setters here, on purpose. Mutating a shared instance would "
-            "corrupt every listing sharing it."
+            'Here is the flyweight: the badge style. [[slnc 400]] '
+            'Everything it holds is shared state. [[slnc 300]] The icon, '
+            'the colours, the bold setting, and the picture. [[slnc 300]] '
+            'Identical for every sale badge, whichever listing asks. '
+            '[[slnc 600]] Now look at how it draws itself. [[slnc 300]] '
+            "The listing's I D, and any custom label, are passed in each "
+            'time. [[slnc 300]] That is the extrinsic state, and it is '
+            'never stored on the shared object. [[slnc 600]] And the '
+            'style can never be changed after it is built, on purpose. '
+            '[[slnc 300]] Changing a shared object would change every '
+            'listing that uses it.'
         ),
     ),
     dict(
@@ -245,15 +255,13 @@ SCENES = [
     }
 }""",
         narration=(
-            "And this is the factory. [[slnc 250]] One line does the entire "
-            "pattern's work. Cache dot computeIfAbsent, keyed by badge type. "
-            "[[slnc 300]] The very first time anyone asks for SALE, the "
-            "lambda runs, build constructs a brand new BadgeStyle, and it goes "
-            "into the cache. Every single call after that — for any listing, "
-            "from any thread — finds SALE already there, and gets back that "
-            "exact same instance. [[slnc 250]] Using a ConcurrentHashMap means "
-            "this is safe under concurrent access with no extra locking at "
-            "all."
+            'Here is the factory. [[slnc 400]] It keeps a small cache, '
+            'one entry per badge type. [[slnc 500]] The first time anyone '
+            'asks for the sale style, it is built, and stored in the '
+            'cache. [[slnc 300]] Every request after that, for any '
+            'listing, gets back that exact same object. [[slnc 500]] The '
+            'cache is a map built for many threads at once. [[slnc 300]] '
+            'So it is safe to use from anywhere, with no extra locking.'
         ),
     ),
     dict(
@@ -270,14 +278,14 @@ SCENES = [
             "A flyweight shares. It never remembers who asked.",
         ],
         narration=(
-            "So the flyweight is giving us three things. [[slnc 200]] "
-            "Sharing — one BadgeStyle per badge type, not per listing. "
-            "Correctness — thread-safe caching, with no locks we had to write "
-            "ourselves. And separation — intrinsic fields and extrinsic "
-            "parameters, cleanly kept apart. [[slnc 350]] Now notice what it "
-            "doesn't contain. There is no per-listing state anywhere on "
-            "BadgeStyle. [[slnc 250]] A flyweight shares. It never remembers "
-            "who asked."
+            'So the flyweight gives us three things. [[slnc 500]] '
+            'Sharing: one badge style per type, not per listing. [[slnc '
+            '300]] Safety: a thread-safe cache, with no locks to write '
+            'ourselves. [[slnc 300]] And separation: shared data stored, '
+            'and per-listing data passed in, never mixed. [[slnc 600]] '
+            'Now notice what the badge style does not contain. [[slnc '
+            '300]] Nothing about any particular listing. [[slnc 500]] A '
+            'flyweight shares. [[slnc 300]] It never remembers who asked.'
         ),
     ),
     dict(
@@ -301,14 +309,14 @@ SCENES = [
 
 //  100,000 CatalogBadge objects. As few as 4 BadgeStyle objects.""",
         narration=(
-            "And here's the context object that ties it together, "
-            "CatalogBadge. [[slnc 250]] Its constructor doesn't build a "
-            "style. It asks the factory for one, and holds a shared "
-            "reference. It owns exactly two things itself: the listing id and "
-            "an optional custom label. Everything else, it borrows. [[slnc "
-            "300]] So you can create a hundred thousand of these CatalogBadge "
-            "objects, and behind them, as few as four actual BadgeStyle "
-            "instances doing all the heavy lifting."
+            'Here is the context object: the catalog badge. [[slnc 400]] '
+            'When it is created, it does not build a style. [[slnc 300]] '
+            'It asks the factory for one, and keeps a reference to the '
+            'shared style. [[slnc 500]] It only owns two things itself: '
+            'the listing I D, and an optional custom label. [[slnc 300]] '
+            'Everything else, it borrows. [[slnc 600]] So you can create '
+            'a hundred thousand catalog badges. [[slnc 300]] And behind '
+            'them, just four badge styles do all the heavy lifting.'
         ),
     ),
     dict(
@@ -330,16 +338,16 @@ Naive:      100,000 badges x 64 KB artwork each = 6,250 MB
 Flyweight:  4 styles x 64 KB artwork each     = 256 KB
 Savings:    6,249 MB avoided by sharing 4 instances instead of 100,000""",
         narration=(
-            "When we run the project, the proof is right there in the "
-            "output. [[slnc 250]] styleFor SALE, called twice, returns true "
-            "for equals equals — the exact same object, both times. Two "
-            "different listings share one style instance. [[slnc 300]] Now "
-            "compare that to the naive alternative. naive A equals naive B, "
-            "for two identical SALE badges, is false. Same input, opposite "
-            "identity. [[slnc 300]] And at the bottom, the arithmetic that "
-            "makes it matter. Six thousand two hundred fifty megabytes, down "
-            "to two hundred fifty six kilobytes, just by sharing four "
-            "instances instead of a hundred thousand."
+            "Let's run the project. [[slnc 400]] Ask the factory for the "
+            'sale style twice, and you get the very same object, both '
+            'times. [[slnc 300]] Two different listings share one style. '
+            '[[slnc 300]] Only four badge styles were ever created. '
+            '[[slnc 600]] Now the naive version. [[slnc 300]] Two '
+            'identical sale badges are two separate objects. [[slnc 600]] '
+            'And the memory numbers. [[slnc 300]] About six gigabytes '
+            'with the naive version. [[slnc 300]] About two hundred and '
+            'fifty-six kilobytes with the flyweight. [[slnc 300]] Just by '
+            'sharing four objects, instead of a hundred thousand.'
         ),
     ),
     dict(
@@ -359,14 +367,15 @@ Savings:    6,249 MB avoided by sharing 4 instances instead of 100,000""",
             "the same instance, again and again.",
         ],
         narration=(
-            "So, to recap. Use a flyweight when your object count is huge, "
-            "and most of each object's state repeats across instances. [[slnc "
-            "300]] Keep intrinsic state as fields, extrinsic state as "
-            "parameters, and never give a flyweight a setter. And remember, "
-            "this pattern is only worth it at scale — five listings do not "
-            "need a cache. [[slnc 350]] And if you remember one sentence from "
-            "today, make it this one. Prototype hands out copies. Flyweight "
-            "hands out the same instance, again and again."
+            'So, to recap. [[slnc 400]] Use a flyweight when you have a '
+            "huge number of objects, and most of each one's data repeats. "
+            '[[slnc 600]] Store shared data inside the flyweight. [[slnc '
+            '300]] Pass per-use data in, each time. [[slnc 300]] And '
+            'never let a flyweight be changed. [[slnc 500]] It is only '
+            'worth it at scale. [[slnc 300]] Five listings do not need a '
+            'cache. [[slnc 600]] And one comparison worth knowing. [[slnc '
+            '300]] The Prototype pattern hands out copies. [[slnc 300]] A '
+            'flyweight hands out the same object, again and again.'
         ),
     ),
     dict(
@@ -380,14 +389,19 @@ Savings:    6,249 MB avoided by sharing 4 instances instead of 100,000""",
             "Full source code, notes and an animation are in the repository.",
         ],
         narration=(
-            "And that's the flyweight pattern. [[slnc 300]] If you got "
-            "something out of this, do give it a thumbs up, and subscribe. It "
-            "genuinely helps the channel, and it's what makes more of these "
-            "possible. [[slnc 250]] And if there's a pattern you'd like me to "
-            "cover next, drop it in the comments. I read every one. [[slnc "
-            "250]] All the source code, the written notes and an interactive "
-            "animation are in the repository. Thanks for watching, and I'll "
-            "see you in the next one."
+            "That's the Flyweight pattern. [[slnc 400]] If you remember "
+            'one sentence, make it this one. [[slnc 300]] Store the '
+            'shared part once, pass the changing part in, and a hundred '
+            'thousand objects can share four. [[slnc 500]] The full '
+            'source code, written notes, diagrams, and an animated '
+            'walkthrough are all in the repository. [[slnc 300]] It runs '
+            'offline, with nothing installed except a Java development '
+            'kit. [[slnc 500]] Here is one exercise to try. [[slnc 300]] '
+            'Add a fifth badge type, like free delivery. [[slnc 300]] And '
+            'check that still only one style is built for it. [[slnc '
+            '500]] If this helped, a like really does help other people '
+            "find it. [[slnc 300]] And subscribe, if you'd like the rest "
+            'of the series. [[slnc 400]] Thanks for watching.'
         ),
     ),
 ]

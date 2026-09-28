@@ -1,4 +1,4 @@
-# YouTube — API Composition Pattern
+# YouTube — API Composition Design Pattern
 
 Everything needed to publish `video/api-composition-pattern-explained.mp4`. Copy the fields straight out of this file.
 
@@ -7,7 +7,7 @@ Chapter timings are generated from the video's `.srt`. Re-run `python3 docs/make
 ## Title
 
 ```
-API Composition in Java - The Order Details Page
+API Composition Design Pattern in Java - Explained
 ```
 
 48 characters — under the 60 YouTube shows before truncating in search results.

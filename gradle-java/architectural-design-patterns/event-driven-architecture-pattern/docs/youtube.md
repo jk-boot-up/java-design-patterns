@@ -20,18 +20,18 @@ The first two lines are what a viewer sees above the fold, so they carry the hoo
 CHAPTERS
 00:00 Introduction
 00:58 The Scenario
-01:12 Calling And Waiting
-01:25 The Pattern
-01:35 Telling The Log
-01:48 A Service That Is Down
-02:04 A New Reader
-02:19 Not The Same Instant
-02:38 The Bill
-02:55 How To Recognise It
-03:15 The Verdict
-03:36 What Is Real Here
-03:48 When This Is Too Much
-04:01 Thanks for Watching
+01:14 Calling And Waiting
+01:31 The Pattern
+01:45 Telling The Log
+02:05 A Service That Is Down
+02:28 A New Reader
+02:48 Not The Same Instant
+03:13 The Bill
+03:37 How To Recognise It
+04:01 The Verdict
+04:29 What Is Real Here
+04:42 When This Is Too Much
+04:56 Thanks for Watching
 
 SOURCE CODE, WRITTEN NOTES AND AN INTERACTIVE ANIMATION
 https://github.com/jk-boot-up/java-design-patterns/tree/main/gradle-java/architectural-design-patterns/event-driven-architecture-pattern
@@ -47,18 +47,18 @@ YouTube renders these as chapters only if there are at least three and the first
 ```
 00:00 Introduction
 00:58 The Scenario
-01:12 Calling And Waiting
-01:25 The Pattern
-01:35 Telling The Log
-01:48 A Service That Is Down
-02:04 A New Reader
-02:19 Not The Same Instant
-02:38 The Bill
-02:55 How To Recognise It
-03:15 The Verdict
-03:36 What Is Real Here
-03:48 When This Is Too Much
-04:01 Thanks for Watching
+01:14 Calling And Waiting
+01:31 The Pattern
+01:45 Telling The Log
+02:05 A Service That Is Down
+02:28 A New Reader
+02:48 Not The Same Instant
+03:13 The Bill
+03:37 How To Recognise It
+04:01 The Verdict
+04:29 What Is Real Here
+04:42 When This Is Too Much
+04:56 Thanks for Watching
 ```
 
 ## Tags
@@ -97,4 +97,4 @@ Add a card partway through pointing at the playlist, so a viewer who arrives at 
 
 ## Runtime
 
-Approximately 04:42, narrated at 145 words per minute.
+Approximately 05:35, narrated at 145 words per minute.

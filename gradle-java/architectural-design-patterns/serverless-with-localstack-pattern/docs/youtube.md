@@ -20,20 +20,20 @@ The first two lines are what a viewer sees above the fold, so they carry the hoo
 CHAPTERS
 00:00 Introduction
 01:02 The Partner Project
-01:25 Before The First Line
-01:49 A Machine That Is Always On
-02:04 A Function Per Event
-02:20 Scale Out, And Back To Zero
-02:37 The Cold Start
-02:53 No Memory Between Calls
-03:12 The Bill
-03:39 The Verdict
-03:58 How To Recognise It
-04:11 Where You Have Met This
-04:19 What Was Used
-04:33 What Is Real Here
-04:49 When This Is Too Much
-04:59 Thanks for Watching
+01:28 Before The First Line
+02:02 A Machine That Is Always On
+02:20 A Function Per Event
+02:39 Scale Out, And Back To Zero
+02:56 The Cold Start
+03:15 No Memory Between Calls
+03:39 The Bill
+04:15 The Verdict
+04:34 How To Recognise It
+04:50 Where You Have Met This
+05:03 What Was Used
+05:16 What Is Real Here
+05:33 When This Is Too Much
+05:45 Thanks for Watching
 
 SOURCE CODE, WRITTEN NOTES AND AN INTERACTIVE ANIMATION
 https://github.com/jk-boot-up/java-design-patterns/tree/main/gradle-java/architectural-design-patterns/serverless-with-localstack-pattern
@@ -49,20 +49,20 @@ YouTube renders these as chapters only if there are at least three and the first
 ```
 00:00 Introduction
 01:02 The Partner Project
-01:25 Before The First Line
-01:49 A Machine That Is Always On
-02:04 A Function Per Event
-02:20 Scale Out, And Back To Zero
-02:37 The Cold Start
-02:53 No Memory Between Calls
-03:12 The Bill
-03:39 The Verdict
-03:58 How To Recognise It
-04:11 Where You Have Met This
-04:19 What Was Used
-04:33 What Is Real Here
-04:49 When This Is Too Much
-04:59 Thanks for Watching
+01:28 Before The First Line
+02:02 A Machine That Is Always On
+02:20 A Function Per Event
+02:39 Scale Out, And Back To Zero
+02:56 The Cold Start
+03:15 No Memory Between Calls
+03:39 The Bill
+04:15 The Verdict
+04:34 How To Recognise It
+04:50 Where You Have Met This
+05:03 What Was Used
+05:16 What Is Real Here
+05:33 When This Is Too Much
+05:45 Thanks for Watching
 ```
 
 ## Tags
@@ -101,4 +101,4 @@ Add a card partway through pointing at the playlist, so a viewer who arrives at 
 
 ## Runtime
 
-Approximately 05:37, narrated at 145 words per minute.
+Approximately 06:26, narrated at 145 words per minute.

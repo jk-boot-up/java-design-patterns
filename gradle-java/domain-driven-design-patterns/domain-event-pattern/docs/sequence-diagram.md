@@ -6,28 +6,4 @@ Say it in words. The caller places the order, and the order records an order pla
 
 ![Domain Event pattern sequence diagram](images/sequence-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant C as caller
-    participant O as Order
-    participant R as repository
-    participant S as stock
-    participant E as email
-    participant A as analytics
-    C->>O: place()
-    O-->>C: done, event recorded
-    C->>R: save(order)
-    R->>R: keep the order and its event
-    R->>S: relay: reserve
-    R->>E: relay: send (fails)
-    R->>A: relay: count
-    Note over R: waiting for email only
-```
-
-</details>
-
 The load-bearing sentence: **the order is safe before anyone reacts.**

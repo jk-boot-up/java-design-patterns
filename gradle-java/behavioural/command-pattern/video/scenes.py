@@ -17,20 +17,21 @@ SCENES = [
         title="The Command Pattern",
         body=None,
         narration=(
-            "Hello, and welcome. This video explains the Command pattern in Java, "
-            "and it is written and presented by Jayasekhar Konduru. [[slnc 300]] "
-            "Let's start with the simple definition. The command pattern turns an "
-            "action into an object. Instead of calling a method, you create "
-            "something that holds what to do and everything it needs in order to "
-            "do it — so the action can be stored, passed around, logged, "
-            "replayed, and asked to undo itself afterwards. [[slnc 350]] That's "
-            "the idea in a sentence, and it's the pattern behind every undo "
-            "button you have ever pressed. The rest of the video does it "
-            "properly, by building a real working Java project: a shopping cart "
-            "in an online store, and the edits a customer makes to it. [[slnc "
-            "250]] By the end you'll know why undo cannot be built out of method "
-            "calls, where undo bugs actually live, and what the pattern costs "
-            "you."
+            'Hello, and welcome. [[slnc 400]] This video explains the '
+            'Command pattern, in Java. [[slnc 300]] This video is '
+            'presented by Jayasekhar Konduru. [[slnc 600]] First, a '
+            'simple definition. [[slnc 300]] The Command pattern turns an '
+            'action into an object. [[slnc 300]] Instead of just calling '
+            'a method, you create an object that holds what to do, and '
+            'everything needed to do it. [[slnc 400]] Then the action can '
+            'be stored, passed around, logged, replayed, and even asked '
+            'to undo itself. [[slnc 600]] This is the pattern behind '
+            'every undo button you have ever pressed. [[slnc 700]] In '
+            'this video, we build a shopping cart for an online store, '
+            'and the edits a customer makes to it. [[slnc 400]] By the '
+            'end, you will know why undo cannot be built from plain '
+            'method calls. [[slnc 300]] Where undo bugs really come from. '
+            '[[slnc 300]] And what the pattern costs.'
         ),
     ),
     dict(
@@ -48,16 +49,18 @@ SCENES = [
             "  apply a coupon       there may already be one on the cart",
         ],
         narration=(
-            "So, imagine a shopping cart in an online store. [[slnc 250]] The "
-            "customer adds an item, removes one, changes a quantity, tries a "
-            "discount code. Then they do what every customer does: they change "
-            "their mind, and they look for the undo. [[slnc 300]] Now look at "
-            "those four edits again, because each one has a piece of history "
-            "attached to it. The cart might already have had some of that item. "
-            "The line you removed was in a particular position on the screen. "
-            "The coupon you applied may have pushed another one off. [[slnc "
-            "300]] Undo is not the opposite of what the customer asked for. It "
-            "is the restoration of what was there before they asked."
+            'Here is the scenario. [[slnc 400]] A customer edits their '
+            'shopping cart. [[slnc 300]] They add an item, remove one, '
+            'change a quantity, and try a discount code. [[slnc 300]] '
+            'Then, like every customer, they change their mind, and press '
+            'undo. [[slnc 600]] Each of those edits has some history '
+            'attached. [[slnc 300]] The cart may already have held some '
+            'of that item. [[slnc 300]] A removed line had a particular '
+            'position in the list. [[slnc 300]] And a new coupon may have '
+            'replaced an older one. [[slnc 600]] So here is the key idea. '
+            '[[slnc 300]] Undo is not the opposite of what the customer '
+            'asked for. [[slnc 300]] It is putting back whatever was '
+            'there before they asked.'
         ),
     ),
     dict(
@@ -75,16 +78,17 @@ SCENES = [
             "Fifteen lines. It works. It is a third of the code.",
         ],
         narration=(
-            "The obvious first move is to change the cart, and write a note "
-            "beside it saying what you just did. [[slnc 300]] Add two of H one "
-            "hundred, push a note saying add, H one hundred, two. Undo pops the "
-            "note, looks at what kind of edit it was, and reverses it. [[slnc "
-            "250]] I want to be fair to this, because it is good code. Fifteen "
-            "lines, readable at a glance, and for a cart that only ever gains "
-            "brand new lines it is completely correct. [[slnc 250]] The note is "
-            "honest, too: an accurate record of what the customer asked for. "
-            "[[slnc 300]] And that is exactly the problem, although you cannot "
-            "see it yet."
+            'The obvious first approach is simple. [[slnc 300]] Change '
+            'the cart, and write a note of what you changed. [[slnc 400]] '
+            'For example: add two headphones, and push a note that says, '
+            'add, headphones, two. [[slnc 300]] To undo, pop the note, '
+            'see what kind of edit it was, and reverse it. [[slnc 500]] '
+            'To be fair, this is good code. [[slnc 300]] About fifteen '
+            'lines, easy to read. [[slnc 300]] And for a cart that only '
+            'ever gains brand new items, it is completely correct. [[slnc '
+            '400]] The note is honest, too. [[slnc 300]] It records '
+            'exactly what the customer asked for. [[slnc 500]] And that '
+            'turns out to be the problem.'
         ),
     ),
     dict(
@@ -105,19 +109,22 @@ public boolean undo() {
     return true;
 }""",
         narration=(
-            "So here is the naive approach, and here is the day it bites. [[slnc "
-            "250]] A customer has three headphones in their cart and a ten "
-            "percent code they applied last week. They add two more headphones, "
-            "so the cart says five. They spot a better discount code and apply "
-            "that instead. Then they change their mind about both, and press undo "
-            "twice. [[slnc 350]] Follow the notes. The first undo pops the coupon "
-            "note and clears the coupon — so the ten percent code they never "
-            "touched is gone. The second undo pops the add note and removes the "
-            "line — so all five headphones disappear, including the three they "
-            "chose last week. [[slnc 300]] Nothing threw an exception. Nothing "
-            "logged a warning. The note was never wrong; it simply never held "
-            "the thing undo actually needed, which is what the cart looked like "
-            "beforehand."
+            'Here is the day it goes wrong. [[slnc 400]] A customer '
+            'already has three headphones in their cart. [[slnc 300]] And '
+            'a ten percent discount code, applied last week. [[slnc 500]] '
+            'They add two more headphones, so the cart now holds five. '
+            '[[slnc 300]] Then they apply a better discount code, which '
+            'replaces the old one. [[slnc 300]] Then they change their '
+            "mind about both, and press undo twice. [[slnc 600]] Let's "
+            'follow the notes. [[slnc 300]] The first undo finds the '
+            'coupon note, and clears the coupon. [[slnc 300]] So the ten '
+            'percent code, which they never touched, is gone. [[slnc '
+            '400]] The second undo finds the add note, and removes the '
+            'headphones line. [[slnc 300]] So all five headphones '
+            'disappear, including the three from last week. [[slnc 600]] '
+            'Nothing crashed, and nothing warned anyone. [[slnc 300]] The '
+            'notes were not wrong. [[slnc 300]] They just never recorded '
+            'what undo really needed: how the cart looked before.'
         ),
     ),
     dict(
@@ -134,16 +141,15 @@ public boolean undo() {
             "The switch growing is the complaint. The lost discount is the bug.",
         ],
         narration=(
-            "So why does that hurt? [[slnc 250]] Undo reverses the request "
-            "rather than the change it caused, and the state it needed — the "
-            "three headphones, the old coupon — was never written down by "
-            "anybody. A fifth kind of edit means another field on the note, "
-            "another case in the switch, and a re-test of the four that already "
-            "worked. [[slnc 250]] But the one that matters is the last: this bug "
-            "is silent. Nothing crashes. The customer is simply charged the "
-            "wrong amount. [[slnc 300]] Most explanations of this pattern stop "
-            "at the switch getting long. That is the design complaint. The lost "
-            "discount is the actual bug, and it is the reason to change anything."
+            'So why does this hurt? [[slnc 400]] Undo reverses the '
+            'request, not the change the request caused. [[slnc 300]] The '
+            'information undo needed, the three headphones and the old '
+            'coupon, was never saved. [[slnc 500]] Every new kind of edit '
+            'adds another field to the note, another case to the undo '
+            'code, and another round of testing for the old cases. [[slnc '
+            '500]] But the worst part is that this bug is silent. [[slnc '
+            '300]] Nothing crashes. [[slnc 300]] The customer is simply '
+            'charged the wrong amount.'
         ),
     ),
     dict(
@@ -162,17 +168,18 @@ public boolean undo() {
             "and it can be held, listed, logged and reversed.",
         ],
         narration=(
-            "The Gang of Four put it like this: encapsulate a request as an "
-            "object, thereby letting you parameterize clients with different "
-            "requests, queue or log requests, and support undoable operations. "
-            "[[slnc 350]] In plain language: make the action an object, and it "
-            "can be held, listed, logged and reversed. [[slnc 300]] Here is why "
-            "that is not just jargon. A method call is an event. It happens, it "
-            "returns, and then it is gone. You cannot put it in a list. You "
-            "cannot ask it what it did. You cannot run it again tomorrow, or "
-            "against a different cart, or backwards. [[slnc 250]] Undo needs "
-            "every one of those. So the first move is not clever at all: stop "
-            "calling the method, and make an object that is the call."
+            "Here is the pattern's definition, from the famous Gang of "
+            'Four book. [[slnc 400]] Encapsulate a request as an object, '
+            'so that you can queue it, log it, and support undo. [[slnc '
+            '500]] In plain words: make the action an object. [[slnc '
+            '300]] Then it can be kept, listed, logged, and reversed. '
+            '[[slnc 600]] Why does that matter? [[slnc 300]] A method '
+            'call is an event. [[slnc 300]] It happens, it returns, and '
+            'then it is gone. [[slnc 300]] You cannot put it in a list, '
+            'ask it what it did, or run it backwards. [[slnc 500]] Undo '
+            'needs all of those things. [[slnc 300]] So the first step is '
+            'simple. [[slnc 300]] Instead of calling the method, create '
+            'an object that represents the call.'
         ),
     ),
     dict(
@@ -192,17 +199,19 @@ public boolean undo() {
             "The waiter — who cannot cook — is the invoker.",
         ],
         narration=(
-            "Here is the everyday version. [[slnc 250]] A waiter does not carry "
-            "your words to the kitchen. They write a slip. [[slnc 300]] Think "
-            "about what that slip can do that your spoken sentence cannot. It "
-            "can be stacked with the others. Read back to you. Handed to a "
-            "different chef. Found again an hour later when you query the bill. "
-            "And torn up if you change your mind before it is cooked. [[slnc "
-            "300]] Your spoken words could do none of that, because they only "
-            "existed while you were saying them. [[slnc 250]] The slip is the "
-            "command. The kitchen — which knows how to cook and has never met "
-            "you — is the receiver. And the waiter, who can carry any slip "
-            "without being able to cook a thing on it, is the invoker."
+            'Here is an everyday example: a restaurant order slip. [[slnc '
+            '500]] A waiter does not carry your spoken words to the '
+            'kitchen. [[slnc 300]] They write a slip. [[slnc 500]] Think '
+            'about what that slip can do. [[slnc 300]] It can wait in a '
+            'stack with the others. [[slnc 300]] It can be read back to '
+            'you. [[slnc 300]] It can be handed to a different chef. '
+            '[[slnc 300]] It can be found an hour later, when you '
+            'question the bill. [[slnc 300]] And it can be torn up, if '
+            'you change your mind. [[slnc 600]] In the pattern, the slip '
+            'is the command. [[slnc 300]] The kitchen, which knows how to '
+            'cook but has never met you, is called the receiver. [[slnc '
+            '300]] And the waiter, who carries any slip without cooking '
+            'anything, is called the invoker.'
         ),
     ),
     dict(
@@ -211,19 +220,21 @@ public boolean undo() {
         title="The Roles",
         body=None,
         narration=(
-            "So here are the roles. [[slnc 250]] In the middle, the command "
-            "interface — Cart Command — with three methods: describe, execute "
-            "and undo. On the left, the invoker, Cart History, which holds two "
-            "stacks of that interface and does exactly two things with an "
-            "element: runs it, or reverses it. On the right, the receiver, the "
-            "Cart itself. [[slnc 300]] Along the bottom, the four concrete "
-            "commands, and notice what is written under each one: the field it "
-            "captures. Previous quantity. The removed line and its position. "
-            "Previous coupon. Those fields are the pattern doing its real work. "
-            "[[slnc 300]] And notice that the ignorance runs both ways. The Cart "
-            "has never heard of a command. And Cart History has never heard of a "
-            "coupon — it pops an object and sends it undo. What that means is "
-            "the command's business, not the invoker's."
+            'So here are the roles in our project. [[slnc 500]] The '
+            'command interface is called Cart Command. [[slnc 300]] It '
+            'has three methods: describe, execute, and undo. [[slnc 500]] '
+            'The invoker is called Cart History. [[slnc 300]] It keeps '
+            'two stacks of commands, one for done and one for undone. '
+            '[[slnc 300]] It only ever runs a command, or reverses one. '
+            '[[slnc 500]] The receiver is the Cart itself. [[slnc 500]] '
+            'Then there are four concrete commands: add item, remove '
+            'item, change quantity, and apply coupon. [[slnc 300]] Each '
+            'one saves exactly the information it needs to undo itself. '
+            '[[slnc 300]] The old quantity. [[slnc 200]] The removed line '
+            'and its position. [[slnc 200]] Or the old coupon. [[slnc '
+            '500]] And notice that neither side knows the other. [[slnc '
+            '300]] The cart has never heard of a command. [[slnc 300]] '
+            'And the history has never heard of a coupon.'
         ),
     ),
     dict(
@@ -242,16 +253,16 @@ public boolean undo() {
     void undo(Cart cart);
 }""",
         narration=(
-            "And here is the entire pattern. Three methods. [[slnc 300]] Describe "
-            "gives you one line for the audit trail, in the customer's terms. "
-            "Execute does the edit. Undo reverses it. [[slnc 250]] Ask a room "
-            "which of those three is hard and everybody says undo, and everybody "
-            "is right. [[slnc 300]] Notice that both execute and undo take the "
-            "cart as a parameter rather than holding onto one. That is "
-            "deliberate. A command holds values — a S K U, a quantity, a coupon — "
-            "never a live line that the cart might replace underneath it. The "
-            "receiver is passed in at the moment it is needed. [[slnc 250]] "
-            "Everything else in this video is a consequence of these twelve lines."
+            'The whole interface is just three methods. [[slnc 500]] '
+            'Describe returns one line for the history log, in the '
+            "customer's own terms. [[slnc 300]] Execute makes the change. "
+            '[[slnc 300]] And undo reverses it. [[slnc 500]] Which one is '
+            'hard? [[slnc 300]] Undo, of course. [[slnc 500]] Notice one '
+            'detail. [[slnc 300]] Both execute and undo receive the cart '
+            'as a parameter. [[slnc 300]] A command does not hold on to a '
+            'cart. [[slnc 300]] It only holds plain values, like a '
+            'product code, a quantity, or a coupon. [[slnc 300]] The cart '
+            'is handed in at the moment it is needed.'
         ),
     ),
     dict(
@@ -272,25 +283,28 @@ public void undo(Cart cart) {
     }
 }""",
         narration=(
-            "Read this one twice, because it is the reason the project exists. "
-            "[[slnc 300]] The first line of execute asks the cart how many of "
-            "this S K U it already has, and keeps the answer. Then it makes the "
-            "change. [[slnc 250]] Now look at undo. Adding two to a cart that "
-            "held three leaves five. Undoing that is not remove the line — it is "
-            "put it back to three. Which branch applies is not known when the "
-            "command is constructed. It is only known when it runs. [[slnc 350]] "
-            "So here is the rule, and it is the one place undo bugs live. "
-            "Capture the state you will need to reverse yourself inside execute, "
-            "from the receiver, at the moment you run. Not in the constructor — "
-            "that is a guess about a cart you have not reached yet, and an "
-            "earlier undo may have made it wrong before you get there. [[slnc "
-            "300]] A field the constructor does not set is the visible sign of a "
-            "command that captures at run time. [[slnc 250]] The other three are "
-            "the same shape. Remove captures the line and its position, because "
-            "putting it back at the bottom of the screen is not undo. Apply "
-            "coupon captures the coupon it replaced — null nine times out of "
-            "ten, and the tenth time it is the discount the naive version threw "
-            "away."
+            "This part is the reason the project exists, so let's go "
+            'slowly. [[slnc 500]] Take the add item command. [[slnc 300]] '
+            'The very first thing execute does is ask the cart: how many '
+            'of this item do you already have? [[slnc 300]] It saves that '
+            'answer. [[slnc 300]] Then it adds the new items. [[slnc '
+            '600]] Now think about undo. [[slnc 300]] Adding two '
+            'headphones to a cart that held three leaves five. [[slnc '
+            '300]] Undoing that does not mean removing the line. [[slnc '
+            '300]] It means setting the quantity back to three. [[slnc '
+            '500]] And we can only know that when the command runs, not '
+            'when it is created. [[slnc 600]] So here is the rule, and it '
+            'is where undo bugs live. [[slnc 300]] Save the information '
+            'you need for undo inside execute, from the receiver, at the '
+            'moment the command runs. [[slnc 300]] Not in the '
+            'constructor. [[slnc 300]] At construction time, the cart may '
+            'not yet look the way it will when the command runs. [[slnc '
+            '600]] The other commands follow the same rule. [[slnc 300]] '
+            'Remove item saves the line and its position, so undo puts it '
+            'back in the same place. [[slnc 300]] And apply coupon saves '
+            'the coupon it replaced. [[slnc 300]] Usually there is none. '
+            '[[slnc 300]] But sometimes, it is exactly the discount the '
+            'naive version threw away.'
         ),
     ),
     dict(
@@ -311,18 +325,20 @@ public boolean undo() {
     return true;
 }""",
         narration=(
-            "And here is the invoker, in full. [[slnc 250]] Execute runs the "
-            "command, pushes it onto the done stack, and clears the undone "
-            "stack. Undo pops the top command, sends it undo, and moves it "
-            "across. [[slnc 300]] Two decisions are worth naming. [[slnc 200]] "
-            "First, undone dot clear: once you take a new action, the old future "
-            "is unreachable — every text editor you have used behaves this way. "
-            "[[slnc 250]] Second, and this one is quieter: if execute throws, "
-            "the push never happens, because undoing a half-applied edit would "
-            "apply the reverse of something that never fully happened. [[slnc "
-            "300]] Now search this class for the word coupon. Or quantity. Or S "
-            "K U. They are not there. That is precisely why a fifth kind of edit "
-            "does not open this file."
+            'Now the invoker, Cart History. [[slnc 400]] To execute, it '
+            'runs the command, pushes it onto the done stack, and clears '
+            'the undone stack. [[slnc 300]] To undo, it pops the top '
+            'command, tells it to undo, and moves it to the undone stack. '
+            '[[slnc 600]] Two decisions are worth noticing. [[slnc 400]] '
+            'First, clearing the undone stack. [[slnc 300]] Once you take '
+            'a new action, the old redo path is gone. [[slnc 300]] Every '
+            'text editor you have used behaves this way. [[slnc 500]] '
+            'Second, if execute fails with an error, the command is never '
+            'pushed. [[slnc 300]] Undoing a half-finished edit would '
+            'reverse something that never fully happened. [[slnc 600]] '
+            'And notice what this class never mentions. [[slnc 300]] No '
+            'coupons, no quantities, no products. [[slnc 300]] That is '
+            'why a new kind of edit never needs to change this file.'
         ),
     ),
     dict(
@@ -344,18 +360,21 @@ void anUnknownCommandWorksUnchanged() {
     history.undo();
 }""",
         narration=(
-            "This is the test that proves the claim. [[slnc 300]] A test that "
-            "says adding two items leaves two items passes against the naive "
-            "editor as well — it tests the cart, not the pattern. [[slnc 250]] "
-            "This one does not. Gift wrapping is a command declared inside the "
-            "test file. Nothing in the main source has ever heard of it. Cart "
-            "History was compiled long before it existed, and it runs it, and "
-            "undoes it, without a single change. [[slnc 300]] If somebody put a "
-            "switch back into the invoker tomorrow, this is the test that goes "
-            "red. [[slnc 250]] Beside it sit two more: undoing a merged add "
-            "restores the previous quantity, and undo restores the replaced "
-            "coupon — the two cases the note-and-switch version got wrong. There "
-            "are thirty-seven tests here, and those three carry the argument."
+            'Here is the test that proves the pattern works. [[slnc 400]] '
+            'A simple test like, adding two items leaves two items, would '
+            'also pass for the naive version. [[slnc 300]] It tests the '
+            'cart, not the pattern. [[slnc 600]] This test is different. '
+            '[[slnc 300]] It creates a gift wrapping command, inside the '
+            'test file itself. [[slnc 300]] Nothing in the main code has '
+            'ever heard of gift wrapping. [[slnc 400]] Yet Cart History '
+            'runs it, and undoes it, without a single change. [[slnc '
+            '500]] If someone ever added special cases back into the '
+            'history class, this is the test that would fail. [[slnc '
+            '500]] Two more tests check the exact cases the naive version '
+            'got wrong. [[slnc 300]] Undoing an add restores the old '
+            'quantity. [[slnc 300]] And undoing a coupon restores the '
+            'coupon it replaced. [[slnc 300]] The project has '
+            'thirty-seven tests, and those three carry the argument.'
         ),
     ),
     dict(
@@ -381,17 +400,20 @@ void anUnknownCommandWorksUnchanged() {
     set H-100 to 4
     apply coupon WELCOME10""",
         narration=(
-            "Run it, and the two halves sit side by side. [[slnc 250]] Section "
-            "one is the naive editor: two undos, and the cart is empty and the "
-            "coupon is gone. Section four is the identical pair of edits done as "
-            "commands: two undos, and the cart has its three headphones and its "
-            "ten percent code, exactly as it started. [[slnc 300]] Same "
-            "customer, same actions, two different answers — and the difference "
-            "is one field per command, captured at the right moment. [[slnc "
-            "250]] Then section five, which people do not expect. History dot "
-            "log gives you a readable list of everything that was done, in the "
-            "customer's language. You did not write that. It came free, because "
-            "every edit was already an object that could describe itself."
+            "Let's run the demo, and compare. [[slnc 500]] First, the "
+            'naive version. [[slnc 300]] After two undos, the cart is '
+            'empty, and the discount code is gone. [[slnc 500]] Then the '
+            'same two edits, done with commands. [[slnc 300]] After two '
+            'undos, the cart has its three headphones, and its ten '
+            'percent code, exactly as it started. [[slnc 500]] The same '
+            'customer, the same actions, and two different results. '
+            '[[slnc 300]] The difference is one saved field per command, '
+            'captured at the right moment. [[slnc 600]] And there is a '
+            'bonus. [[slnc 300]] The history can print a readable list of '
+            'everything the customer did, in plain words. [[slnc 300]] '
+            'Nobody wrote extra code for that. [[slnc 300]] It comes '
+            'free, because every edit is an object that can describe '
+            'itself.'
         ),
     ),
     dict(
@@ -411,25 +433,28 @@ void anUnknownCommandWorksUnchanged() {
             "Command stores the difference.  Memento stores the state.",
         ],
         narration=(
-            "So, what to remember. [[slnc 300]] Make the action an object, with "
-            "execute, undo and describe. Capture the state undo will need inside "
-            "execute, from the receiver — never in the constructor. The invoker "
-            "holds a stack of the interface and knows nothing else. And a new "
-            "kind of edit is one class, with no working file reopened. [[slnc "
-            "350]] Now the honest part, because a pattern video that only lists "
-            "benefits is selling you something. [[slnc 250]] Every operation "
-            "becomes a class. For four edits that will never change, the naive "
-            "version is a third of the code and it works — use it. Command pays "
-            "when undo, logging or queuing is a real requirement. [[slnc 250]] "
-            "The inverse is yours to get right; the pattern gives you a place to "
-            "put undo, it does not check that yours is correct. And reads should "
-            "not be commands — nothing to undo, nothing to log. [[slnc 300]] "
-            "Finally, know its sibling. Command stores the difference and needs "
-            "each edit to know its inverse. Memento stores the state and needs "
-            "no inverses at all, at the cost of a copy per step. [[slnc 250]] "
-            "And you have used this already: every Runnable handed to an "
-            "executor is a command without an undo, and every database migration "
-            "with an up and a down is a command with one."
+            'So, what should you remember? [[slnc 500]] Make each action '
+            'an object, with execute, undo, and describe. [[slnc 300]] '
+            'Save the information undo needs inside execute, never in the '
+            'constructor. [[slnc 300]] Keep the invoker simple: it holds '
+            'commands, and knows nothing else. [[slnc 300]] And a new '
+            'kind of edit is one new class, with no old file reopened. '
+            '[[slnc 600]] Now the honest costs. [[slnc 400]] Every '
+            'operation becomes a class. [[slnc 300]] For four edits that '
+            'never change, the naive version is a third of the code, and '
+            'it works. [[slnc 300]] Use Command when undo, logging, or '
+            'queuing is a real need. [[slnc 500]] The pattern gives undo '
+            'a home, but it does not check that your undo is correct. '
+            '[[slnc 300]] And simple reads should not be commands, '
+            'because there is nothing to undo. [[slnc 600]] Finally, know '
+            'its close relative, the Memento pattern. [[slnc 300]] '
+            'Command saves the difference, and each edit must know how to '
+            'reverse itself. [[slnc 300]] Memento saves a full snapshot '
+            'instead, and needs no reversing, but costs a copy at every '
+            'step. [[slnc 500]] And you have used Command already. [[slnc '
+            '300]] A task handed to a thread pool is a command without '
+            'undo. [[slnc 300]] And a database migration with an up step '
+            'and a down step is a command with undo.'
         ),
     ),
     dict(
@@ -442,16 +467,19 @@ void anUnknownCommandWorksUnchanged() {
             "undo on purpose by moving one line into the constructor.",
         ],
         narration=(
-            "That's the command pattern. [[slnc 250]] The full source, the "
-            "written notes, the diagrams and an animated walkthrough are all in "
-            "the repository — including the exercise I would most recommend: "
-            "move that capture out of execute and into the constructor, run the "
-            "suite, and watch exactly one test go red. Understanding which "
-            "test, and why it is that one, is worth more than the rest of this "
-            "video. [[slnc 300]] If this helped, a like genuinely does help "
-            "other people find it, and subscribe if you would like the rest of "
-            "the behavioural series. [[slnc 250]] Thanks for watching, and I'll "
-            "see you in the next one."
+            "That's the Command pattern. [[slnc 400]] If you remember one "
+            'sentence, make it this one. [[slnc 300]] Turn each action '
+            'into an object that saves what it needs to undo itself, at '
+            'the moment it runs. [[slnc 500]] The full source code, '
+            'written notes, diagrams, and an animated walkthrough are all '
+            'in the repository. [[slnc 500]] Here is one exercise to try. '
+            '[[slnc 300]] Move that saving step out of execute, and into '
+            'the constructor. [[slnc 300]] Run the tests, and exactly one '
+            'will fail. [[slnc 300]] Working out which one, and why, is '
+            'worth more than the rest of this video. [[slnc 500]] If this '
+            'helped, a like really does help other people find it. [[slnc '
+            "300]] And subscribe, if you'd like the rest of the series. "
+            '[[slnc 400]] Thanks for watching.'
         ),
     ),
 ]

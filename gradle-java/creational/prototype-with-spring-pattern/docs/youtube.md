@@ -19,21 +19,21 @@ The first two lines are what a viewer sees above the fold, so they carry the hoo
 ```
 CHAPTERS
 00:00 Introduction
-00:49 The Partner Project
-01:11 Before The First Line
-01:30 A New One Each Time
-01:40 Independent
-01:51 A Definition, Not A Draft
-02:10 A Prototype Inside A Singleton
-02:29 Ask Each Time
-02:40 Nobody Cleans Up
-02:57 The Verdict
-03:11 How To Recognise It
-03:23 Where You Have Met This
-03:30 What Was Used
-03:39 What Is Real Here
-03:48 When This Is Too Much
-03:56 Thanks for Watching
+00:55 The Partner Project
+01:18 Before The First Line
+01:38 A New One Each Time
+01:50 Independent
+02:04 A Definition, Not A Draft
+02:25 A Prototype Inside A Singleton
+02:47 Ask Each Time
+03:04 Nobody Cleans Up
+03:25 The Verdict
+03:40 How To Recognise It
+03:53 Where You Have Met This
+04:03 What Was Used
+04:12 What Is Real Here
+04:21 When This Is Too Much
+04:31 Thanks for Watching
 
 SOURCE CODE, WRITTEN NOTES AND AN INTERACTIVE ANIMATION
 https://github.com/jk-boot-up/java-design-patterns/tree/main/gradle-java/creational/prototype-with-spring-pattern
@@ -48,21 +48,21 @@ YouTube renders these as chapters only if there are at least three and the first
 
 ```
 00:00 Introduction
-00:49 The Partner Project
-01:11 Before The First Line
-01:30 A New One Each Time
-01:40 Independent
-01:51 A Definition, Not A Draft
-02:10 A Prototype Inside A Singleton
-02:29 Ask Each Time
-02:40 Nobody Cleans Up
-02:57 The Verdict
-03:11 How To Recognise It
-03:23 Where You Have Met This
-03:30 What Was Used
-03:39 What Is Real Here
-03:48 When This Is Too Much
-03:56 Thanks for Watching
+00:55 The Partner Project
+01:18 Before The First Line
+01:38 A New One Each Time
+01:50 Independent
+02:04 A Definition, Not A Draft
+02:25 A Prototype Inside A Singleton
+02:47 Ask Each Time
+03:04 Nobody Cleans Up
+03:25 The Verdict
+03:40 How To Recognise It
+03:53 Where You Have Met This
+04:03 What Was Used
+04:12 What Is Real Here
+04:21 When This Is Too Much
+04:31 Thanks for Watching
 ```
 
 ## Tags
@@ -101,4 +101,4 @@ Add a card partway through pointing at the playlist, so a viewer who arrives at 
 
 ## Runtime
 
-Approximately 04:29, narrated at 145 words per minute.
+Approximately 05:07, narrated at 145 words per minute.

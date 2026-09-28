@@ -6,27 +6,4 @@ Say it in words. A caller calls the packing method. What it holds is not the ser
 
 ![Thread Pool with Spring pattern sequence diagram](images/sequence-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant C as caller
-    participant P as Spring proxy
-    participant E as executor
-    participant W as pool thread
-    C->>P: pack(1)
-    P->>E: submit
-    alt a thread is free
-        E->>W: run pack(1)
-    else the queue has room
-        E->>E: wait in the queue
-    else the queue is full
-        E-->>C: TaskRejectedException
-    end
-```
-
-</details>
-
 The load-bearing sentence: **the caller holds a proxy, and the work happens somewhere else.**

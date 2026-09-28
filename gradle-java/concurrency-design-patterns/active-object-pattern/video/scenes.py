@@ -11,19 +11,24 @@ SCENES = [
     dict(
         key="01-poster", kind="poster", title="Active Object", body=None,
         narration=(
-            "Hello, and welcome. This video explains the Active Object "
-            "pattern in Java, and it is written and presented by "
-            "Jayasekhar Konduru. [[slnc 300]] The plain definition: an "
-            "object gets its own thread, and a call to it becomes a "
-            "message that returns straight away with a promise of the "
-            "answer. Because one thread owns the state, the object needs "
-            "no lock. [[slnc 350]] This is the sixth and last project in "
-            "the concurrency category, and it is a capstone. Nothing in "
-            "it is new. It is four earlier ideas, assembled. [[slnc 300]] "
-            "By the end you will know what those four are, why callers "
-            "never wait, and what the design costs: a mailbox that can "
-            "back up, errors that arrive late, and a ceiling on how much "
-            "one worker can do."
+            'Hello, and welcome. [[slnc 400]] This video explains the '
+            'Active Object pattern, in Java. [[slnc 300]] This video is '
+            'presented by Jayasekhar Konduru. [[slnc 600]] First, a '
+            'simple definition. [[slnc 300]] An active object has its own '
+            'thread. [[slnc 300]] When you call it, your call becomes a '
+            'message in its mailbox. [[slnc 300]] The call returns '
+            'straight away, with a promise of the answer later. [[slnc '
+            "400]] And because only one thread ever touches the object's "
+            'data, it needs no lock at all. [[slnc 600]] Think of a busy '
+            'chef with an order rail. [[slnc 300]] Waiters clip orders to '
+            'the rail, and walk away at once. [[slnc 300]] The chef cooks '
+            'them one at a time, in order. [[slnc 700]] This pattern is a '
+            'capstone. [[slnc 300]] Nothing in it is new. [[slnc 300]] It '
+            'combines four ideas from earlier concurrency videos. [[slnc '
+            '500]] By the end, you will know why callers never wait. '
+            '[[slnc 300]] And what it costs: a mailbox that can back up, '
+            'errors that arrive late, and a limit on how much one worker '
+            'can do.'
         ),
     ),
     dict(
@@ -37,12 +42,13 @@ SCENES = [
             "and the import is slow.",
         ],
         narration=(
-            "Here is the scenario. An online store's stock count changes "
-            "from several places at once. [[slnc 300]] Checkout reserves "
-            "stock. Returns add it back. And a back-office import "
-            "corrects the count, which is slow work. [[slnc 300]] All "
-            "of them touch the same number, so something has to keep "
-            "them from colliding."
+            "Here is the scenario. [[slnc 400]] An online store's stock "
+            'count changes from several places at once. [[slnc 400]] '
+            'Checkout reserves stock. [[slnc 300]] Returns add stock '
+            'back. [[slnc 300]] And a back-office import corrects the '
+            'count, which is slow work. [[slnc 500]] All of them change '
+            'the same number. [[slnc 300]] So something must stop them '
+            'colliding.'
         ),
     ),
     dict(
@@ -55,13 +61,15 @@ SCENES = [
   a customer is waiting behind
   a back-office import.""",
         narration=(
-            "The answer from the last video was a monitor: the object "
-            "owns a lock. It is correct. But watch what a shared lock "
-            "does. [[slnc 300]] The import thread takes the lock and "
-            "starts its slow work. A checkout thread calls reserve. It "
-            "cannot get in, so it waits. Its state is waiting. "
-            "[[slnc 300]] A customer is standing behind a back-office "
-            "job, and the monitor cannot tell the two apart."
+            'The usual answer is a monitor. [[slnc 300]] The object owns '
+            'a lock, and only one thread may enter at a time. [[slnc '
+            '300]] It is correct. [[slnc 500]] But listen to what a '
+            'shared lock does. [[slnc 400]] The import thread takes the '
+            'lock, and starts its slow work. [[slnc 300]] Then a checkout '
+            'thread tries to reserve one item. [[slnc 300]] It cannot get '
+            'in, so it waits. [[slnc 500]] A real customer is now stuck '
+            'behind a back-office job. [[slnc 300]] And the lock cannot '
+            'tell the difference between them.'
         ),
     ),
     dict(
@@ -74,14 +82,16 @@ SCENES = [
             "One worker takes messages one at a time.",
         ],
         narration=(
-            "The pattern turns the object into something that works on "
-            "its own. It gets its own thread, and its own mailbox, a "
-            "queue of messages. [[slnc 300]] When you call reserve, the "
-            "object does not do the work. It packs the request into a "
-            "message, drops it in the mailbox, and returns a future "
-            "straight away. [[slnc 300]] Its one worker thread takes "
-            "the messages one at a time, in order, and completes each "
-            "future as it goes."
+            'The pattern turns the object into something that works on '
+            'its own. [[slnc 400]] It gets its own thread, and its own '
+            'mailbox, which is a queue of messages. [[slnc 500]] When you '
+            'call reserve, the object does not do the work right away. '
+            '[[slnc 300]] It packs your request into a message, drops it '
+            'in the mailbox, and immediately hands you a future. [[slnc '
+            '300]] A future is a promise of a result that will arrive '
+            "later. [[slnc 500]] The object's one worker thread takes "
+            'messages one at a time, in order. [[slnc 300]] And it '
+            'completes each future as it goes.'
         ),
     ),
     dict(
@@ -95,14 +105,16 @@ SCENES = [
   reserve done, later, in order:
   stock 49""",
         narration=(
-            "Same scene, with an active object. The import is running "
-            "on the worker. The checkout thread calls reserve. It "
-            "returns at once. Its future says not done yet. [[slnc 300]] "
-            "The import finishes. Stock is fifty. The worker takes the "
-            "reserve message next, applies it, and completes the "
-            "future. Stock is forty-nine. [[slnc 300]] The checkout "
-            "thread was never blocked, and the answers arrived in the "
-            "order the messages were sent."
+            'Now the same scene, with an active object. [[slnc 400]] The '
+            'slow import is running on the worker. [[slnc 300]] The '
+            'checkout thread calls reserve. [[slnc 300]] The call returns '
+            'at once. [[slnc 300]] Its future says: not done yet. [[slnc '
+            '500]] The import finishes, and the stock is fifty. [[slnc '
+            '300]] Then the worker takes the reserve message, and applies '
+            'it. [[slnc 300]] The stock is now forty-nine, and the future '
+            'is completed. [[slnc 500]] The checkout thread was never '
+            'blocked. [[slnc 300]] And the results arrived in the order '
+            'the messages were sent.'
         ),
     ),
     dict(
@@ -115,13 +127,15 @@ SCENES = [
   is not volatile. only the thread
   inventory-worker touches it.""",
         narration=(
-            "Now the surprising part. Four caller threads each send "
-            "twenty-five thousand restocks. The final stock is exactly "
-            "one hundred thousand. Not one update lost. [[slnc 300]] "
-            "Look for the lock, and there is none. The stock field is "
-            "a plain number, not even volatile. Only the worker thread "
-            "ever reads or writes it. [[slnc 300]] Mutual exclusion "
-            "here comes from there being exactly one worker."
+            'Now the surprising part. [[slnc 400]] Four caller threads '
+            'each send twenty-five thousand restock messages. [[slnc '
+            '300]] The final stock is exactly one hundred thousand. '
+            '[[slnc 300]] Not a single update is lost. [[slnc 500]] Look '
+            'for the lock. [[slnc 300]] There is none. [[slnc 300]] The '
+            'stock is a plain number, not even marked volatile. [[slnc '
+            '500]] Why is it safe? [[slnc 300]] Because only the worker '
+            'thread ever reads or writes it. [[slnc 300]] Safety comes '
+            'from there being exactly one worker.'
         ),
     ),
     dict(
@@ -135,14 +149,15 @@ SCENES = [
             "Nothing new. The assembly is.",
         ],
         narration=(
-            "This pattern is a capstone, so here is what it is made "
-            "of. [[slnc 300]] The mailbox is the queue from the "
-            "Producer-Consumer video. The worker is a thread, from the "
-            "Thread Pool video. The answer is a future, from the Future "
-            "and Promise video. And one party owning the state comes "
-            "from the Monitor Object video. [[slnc 300]] If any of "
-            "those is unfamiliar, go back to that video. This one only "
-            "covers what putting them together adds."
+            'This pattern is a capstone, so here is what it is made of. '
+            '[[slnc 500]] The mailbox is a queue, from the Producer '
+            'Consumer pattern. [[slnc 300]] The worker is a thread, from '
+            'the Thread Pool pattern. [[slnc 300]] The answer is a '
+            'future, from the Future and Promise pattern. [[slnc 300]] '
+            'And one party owning the data comes from the Monitor Object '
+            'pattern. [[slnc 500]] Nothing here is new. [[slnc 300]] What '
+            'is new is putting them together. [[slnc 300]] If any of '
+            'those four is unfamiliar, its own video explains it.'
         ),
     ),
     dict(
@@ -156,14 +171,15 @@ SCENES = [
 
   nothing refused them.""",
         narration=(
-            "Now the bill. First cost: the mailbox can back up. "
-            "[[slnc 300]] The worker is busy on one slow message. "
-            "Callers send ten thousand more. All ten thousand are "
-            "waiting in the mailbox. [[slnc 300]] Nothing refused them, "
-            "and nothing slowed the callers down. If the worker is "
-            "slower than its callers, the queue just grows. A real "
-            "system needs a bound and a decision about what to do when "
-            "it is full."
+            'Now the costs. [[slnc 300]] First: the mailbox can back up. '
+            '[[slnc 500]] The worker is busy with one slow message. '
+            '[[slnc 300]] Meanwhile, callers send ten thousand more. '
+            '[[slnc 300]] All ten thousand are now waiting in the '
+            'mailbox. [[slnc 500]] Nothing refused them, and nothing '
+            'slowed the callers down. [[slnc 300]] If the worker is '
+            'slower than its callers, the queue just keeps growing. '
+            '[[slnc 300]] A real system needs a limit on the queue, and a '
+            'decision about what to do when it is full.'
         ),
     ),
     dict(
@@ -175,13 +191,14 @@ SCENES = [
   the calling method appears
   nowhere in that trace: true""",
         narration=(
-            "Second cost. Everything is asynchronous, including "
-            "errors. [[slnc 300]] A message fails. It does not throw "
-            "where it was sent. Its future fails, later, when someone "
-            "asks for the result. [[slnc 300]] The stack trace belongs "
-            "to the worker thread. The method that sent the message "
-            "appears nowhere in it. Debugging means working out who "
-            "sent the message that failed."
+            'The second cost: everything is asynchronous, including '
+            'errors. [[slnc 500]] When a message fails, the error does '
+            'not appear where the message was sent. [[slnc 300]] Instead, '
+            'its future fails, later, when someone asks for the result. '
+            "[[slnc 500]] And the error's stack trace belongs to the "
+            'worker thread. [[slnc 300]] The method that sent the message '
+            'does not appear anywhere in it. [[slnc 300]] So debugging '
+            'means working out who sent the message that failed.'
         ),
     ),
     dict(
@@ -195,13 +212,15 @@ SCENES = [
 
   the ceiling is the worker.""",
         narration=(
-            "Third cost, measured. Every message here costs fifty "
-            "microseconds of real work, and one worker does all of it. "
-            "[[slnc 300]] One caller: about nineteen thousand eight "
-            "hundred messages a second. Four callers: about nineteen "
-            "thousand nine hundred. [[slnc 300]] Four times the "
-            "callers, the same rate. The ceiling is the worker, not the "
-            "callers. That is the price of having no lock."
+            'The third cost, measured. [[slnc 400]] Each message here '
+            'costs fifty microseconds of real work. [[slnc 300]] And one '
+            'worker does all of it. [[slnc 500]] With one caller, the '
+            'object handles about nineteen thousand eight hundred '
+            'messages per second. [[slnc 300]] With four callers, about '
+            'nineteen thousand nine hundred. [[slnc 500]] Four times the '
+            'callers, and the same rate. [[slnc 300]] The limit is the '
+            'single worker, not the callers. [[slnc 300]] That is the '
+            'price of having no lock.'
         ),
     ),
     dict(
@@ -216,13 +235,15 @@ inventory.importCorrection(50, () -> {
 started.await();          // now it is busy
 inventory.reserve(1);     // returns at once""",
         narration=(
-            "None of this is left to luck. The slow import parks the "
-            "worker on a gate, and tells a latch it has started. "
-            "[[slnc 300]] The demo waits for that latch, so the worker "
-            "is proven to be busy, and only then calls reserve. The "
-            "call returns while the worker is still held. [[slnc 300]] "
-            "The ceiling uses real work, not sleeping: each message "
-            "spins for fifty microseconds."
+            'How does the demo make these scenes happen reliably? [[slnc '
+            '400]] Nothing is left to luck. [[slnc 500]] The slow import '
+            'holds the worker at a gate. [[slnc 300]] And it signals, '
+            'through a latch, that it has started. [[slnc 400]] The demo '
+            'waits for that signal, so the worker is proven to be busy. '
+            '[[slnc 300]] Only then does it call reserve. [[slnc 300]] '
+            'And the call returns while the worker is still held. [[slnc '
+            '500]] The speed test uses real work, not sleeping. [[slnc '
+            '300]] Each message spins for fifty microseconds.'
         ),
     ),
     dict(
@@ -235,13 +256,14 @@ inventory.reserve(1);     // returns at once""",
             "and change between machines.",
         ],
         narration=(
-            "The same honest admission as every project here. Each "
-            "scenario pins what it needs: the worker is held on a "
-            "gate, the mailbox is counted while it is held, the error "
-            "is raised on the worker. [[slnc 300]] The scheduler still "
-            "chooses when each caller thread runs. The rates are real "
-            "measurements and change between machines. A passing test "
-            "proves the forced scenario, not every possible schedule."
+            'A quick, honest note about this demo. [[slnc 400]] Each '
+            'scene is pinned in place. [[slnc 300]] The worker is held at '
+            'a gate, the mailbox is counted while it is held, and the '
+            'error is raised on the worker. [[slnc 500]] But the '
+            'operating system still decides when each caller thread runs. '
+            '[[slnc 300]] The speeds are real measurements, and they '
+            'change from machine to machine. [[slnc 300]] A passing test '
+            'proves the forced scene, not every possible timing.'
         ),
     ),
     dict(
@@ -254,13 +276,15 @@ inventory.reserve(1);     // returns at once""",
             "a monitor is simpler.",
         ],
         narration=(
-            "Where does this idea go? Actor systems are active objects "
-            "where the mailbox is the main feature. Event loops, like "
-            "those in Node or Netty, are one worker and a mailbox. "
-            "This video names them and teaches neither. [[slnc 300]] "
-            "And when is it too much? For state that rarely changes, a "
-            "monitor is simpler. An active object earns its place when "
-            "callers must not wait, or when the work is slow."
+            'Where does this idea lead? [[slnc 400]] Actor systems are '
+            'active objects, where the mailbox is the main feature. '
+            '[[slnc 300]] Event loops, like those in Node or Netty, are '
+            'one worker and a mailbox. [[slnc 300]] This video names '
+            'them, but does not teach them. [[slnc 500]] And when is it '
+            'too much? [[slnc 300]] For data that rarely changes, a '
+            'simple monitor with a lock is easier. [[slnc 300]] An active '
+            'object earns its place when callers must never wait, or when '
+            'the work is slow.'
         ),
     ),
     dict(
@@ -271,18 +295,17 @@ inventory.reserve(1);     // returns at once""",
             "and decide what happens when it is full.",
         ],
         narration=(
-            "That's the Active Object. [[slnc 250]] If you take one "
-            "sentence away, take this one: an active object trades a "
-            "lock for a queue, and the queue has to be watched. "
-            "[[slnc 350]] The full source, the written notes, the "
-            "diagrams and an animated walkthrough are all in the "
-            "repository, running offline with nothing installed but a "
-            "Java development kit. [[slnc 300]] If you try one "
-            "exercise, give the mailbox a bound, and decide what a "
-            "caller should see when it is full. [[slnc 300]] If this "
-            "helped, a like genuinely does help other people find it, "
-            "and subscribe if you would like the rest of the series. "
-            "[[slnc 250]] Thanks for watching."
+            "That's the Active Object pattern. [[slnc 400]] If you "
+            'remember one sentence, make it this one. [[slnc 300]] An '
+            'active object trades a lock for a queue, and that queue has '
+            'to be watched. [[slnc 500]] The full source code, written '
+            'notes, diagrams, and an animated walkthrough are all in the '
+            'repository. [[slnc 500]] Here is one exercise to try. [[slnc '
+            '300]] Give the mailbox a size limit. [[slnc 300]] Then '
+            'decide what a caller should experience when it is full. '
+            '[[slnc 500]] If this helped, a like really does help other '
+            "people find it. [[slnc 300]] And subscribe, if you'd like "
+            'the rest of the series. [[slnc 400]] Thanks for watching.'
         ),
     ),
 ]

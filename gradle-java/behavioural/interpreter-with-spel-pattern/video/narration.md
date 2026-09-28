@@ -2,64 +2,64 @@
 
 ## 1. Interpreter with SpEL
 
-Hello, and welcome. This video explains the Interpreter pattern with Spring Expression Language, in Java, and it is written and presented by Jayasekhar Konduru. It is the framework version of the Interpreter video. That one turned promotion rules written as text into a tree of small rule objects, and applied them to orders, with a parser written by hand. This one shows the same idea inside Spring Expression Language. The plain definition, in short: SpEL is a ready made interpreter. A rule written as text becomes a tree, and the tree is evaluated against an object. By the end you will see the same promotion rules run by a library instead of a hand-built parser, then see the costs: a bigger language than you wanted, errors that arrive late, and a safety choice you must make.
+Hello, and welcome. This video explains the Interpreter pattern, in Java, using the Spring Expression Language. This video is presented by Jayasekhar Konduru. First, a simple definition. The Interpreter pattern turns sentences in a small language into a tree of objects, and then runs that tree. The Spring Expression Language, called SpEL, is a ready-made interpreter. You give it a rule written as text. It turns the text into a tree, and checks the tree against an object. Think of a calculator. You type a sum as text, and it works out the answer. You never have to build the calculator yourself. This is the framework version of the Interpreter video, with the same promotion rules for an online shop. This time, a library runs the rules, instead of a hand-built reader. Then we look at the costs: a bigger language than you wanted, errors that show up late, and a safety choice you must make.
 
 ## 2. The Partner Project
 
-This video assumes the Interpreter video. If you have not seen it, start there. It turns a promotion written as text into a tree of small rule objects, with a parser written by hand, and applies it to orders. This one uses the same example. It does not teach the pattern again. It shows what Spring Expression Language does with it.
+Before we start, a quick note. This video has a partner: the hand-built Interpreter video. That one turns a promotion written as text into a tree of small rule objects. And it writes its own reader for the text. If you are new to the pattern, watch that one first. Here, we keep the same example, and ask what SpEL does with it.
 
 ## 3. Before The First Line
 
-Before the first line of code, what Spring Expression Language is. Spring includes an expression language, called SpEL. It parses a line of text into a tree, and evaluates the tree against any object. And a promise: skipping this video loses none of the pattern. The hand-built one teaches all of it.
+One thing is new in this project: Spring's expression language library. It reads a line of text, turns it into a tree, and evaluates that tree against any object. It replaces both the hand-written reader and all the rule classes. And one promise. If you skip this video, you lose none of the pattern. This one is about the tool.
 
 ## 4. The Rules Are Text
 
-First, the rules are text. Welcome ten: first order. UK big: country is UK, and the basket is over fifty pounds. Bulk: five items or a basket over two hundred pounds. Not UK: everyone else. Asha gets UK big. Ben gets welcome and not UK. Carol gets UK big and bulk. There is no parser in this project, and no rule class.
+First demo: the rules are plain text. Welcome ten: the customer's first order. UK big: the country is UK, and the basket is over fifty pounds. Bulk: five items or more, or a basket over two hundred pounds. Not UK: everyone outside the UK. Asha gets UK big. Ben gets welcome ten, and not UK. Carol gets UK big, and bulk. There is no reader in this project, and no rule classes. The library does it all.
 
 ## 5. The Language Came Free
 
-Second, the language came free. A conditional, a pattern match against a voucher code, and a remainder all work, and we wrote none of them. In the hand built version, each one was a new class. That is the gain. The cost is next.
+Second demo: the language comes free. A rule can use an if-then-else, a pattern match on a voucher code, and a remainder calculation. All of them just work, and we wrote none of them. In the hand-built version, each one would have been a new class. That is the gain. Now for the costs.
 
 ## 6. Two Kinds Of Typo
 
-Third, two kinds of typo. A syntax error, two ands in a row, is refused when the book is built. Good. A misspelled property name is accepted, because nothing checks names until there is an order. It fails when the first order arrives. The defence is a test that loads every rule against a sample order.
+Third demo: two kinds of typo. First, a grammar mistake, like two ands in a row. That is refused as soon as the rule book is built. Good. Second, a misspelled property name. That is accepted, because nothing checks names until an order arrives. So it fails later, when the first real order comes in. The defence is a test that loads every rule, and checks it against a sample order.
 
 ## 7. The Language Can Reach The Program
 
-Fourth, the danger. In the full context, a rule can call any static method in the program. Here it only reads a system property, but it could call anything. The read only context refuses it. It also refuses method calls. Rules written by marketing are input, and input is not trusted. Use the read only context.
+Fourth demo: the danger. With the full evaluation context, a rule can call any static method in the whole program. Here, it only reads a system setting. But it could call anything. The read-only context refuses that. It refuses method calls too. A rule can only read properties. Rules written by the marketing team are input. And input must never be trusted. So use the read-only context.
 
 ## 8. Missing Values
 
-Fifth, missing values. Asha has no voucher, so reading a property of it fails. Put a question mark before the dot, and the failure becomes no match. Asha gets nothing, and Ben, who has a voucher, gets his promotion.
+Fifth demo: missing values. Asha has no voucher. So a rule that reads a property of her voucher fails with an error. Add a question mark before the dot, and a missing voucher simply means no match. Now Asha gets nothing, without an error. And Ben, who does have a voucher, gets his promotion.
 
 ## 9. Parsed Once
 
-Last, the cost of parsing. The four rules are parsed once, when the book is built. A thousand orders then go through the same four trees, and fifteen hundred promotions apply. Parsing is the expensive part, so do it at startup, not per order.
+Last demo: the cost of reading rules. The four rules are read and turned into trees once, when the rule book is built. Then a thousand orders go through those same four trees. Fifteen hundred promotions apply. The trees were built four times, not four thousand. Reading the text is the expensive part, so do it at startup, not for every order.
 
 ## 10. The Verdict
 
-My verdict, plainly. Use it when rules change without a release. Parse once, at startup. Use the read only context for rules that come from people. And test every rule against real orders.
+So, here is the verdict. Use it when rules must change without a release. Read the rules once, at startup. Use the read-only context for any rule written by people. And test every rule against real orders.
 
 ## 11. How To Recognise It
 
-How do you recognise this in code you did not write? A spel expression parser. A value annotation with a hash and braces. Or a pre authorize annotation with a string in it.
+How can you spot this in code someone else wrote? Look for the SpEL Expression Parser class. Look for an at Value annotation with a hash sign and curly braces. Or an at Pre Authorize annotation with a text rule inside it.
 
 ## 12. Where You Have Met This
 
-You have met this in every value annotation with a hash sign, and every pre authorize. Each is a SpEL expression.
+Where have you met this before? In every at Value annotation that uses a hash sign. And in every at Pre Authorize annotation. Each of those holds a SpEL expression.
 
 ## 13. What Was Used
 
-For the record. The expression library from Spring Framework seven. No container, and no Boot runtime.
+For the record, here are the versions. Just the expression library, from Spring Framework seven. No container, and no Spring Boot.
 
 ## 14. What Is Real Here
 
-The same honest admission as everywhere in this course. Everything is real: the real parser and the real evaluation contexts. Nothing depends on timing.
+A quick, honest note about this demo. Everything in it is real. The real expression reader, and the real evaluation contexts. And nothing depends on timing.
 
 ## 15. When This Is Too Much
 
-So when is it too much? For a fixed handful of rules, plain Java is simpler, and the compiler checks it.
+So, when is this too much? For a small, fixed set of rules, plain Java is simpler. And the compiler checks it for you.
 
 ## 16. Thanks for Watching
 
-That's Interpreter with SpEL. If you take one sentence away, take this one: SpEL is a ready-made interpreter, and the evaluation context is the safety choice. The full source, the written notes, the diagrams and an animated walkthrough are all in the repository. If you try one exercise, try the T operator in the read only context, and read the message. If this helped, a like genuinely does help other people find it, and subscribe if you would like the rest of the series. Thanks for watching.
+That's Interpreter with SpEL. If you remember one sentence, make it this one. SpEL is a ready-made interpreter, and choosing the evaluation context is your safety decision. The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. Here is one exercise to try. In the read-only context, try a rule that calls a static method. Then read the message it gives you. If this helped, a like really does help other people find it. And subscribe, if you'd like the rest of the series. Thanks for watching.

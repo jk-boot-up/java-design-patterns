@@ -25,36 +25,6 @@ and why.
 
 ![Layered Architecture pattern sequence diagram](images/sequence-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant Ada as Customer
-    participant Screen as CheckoutScreen «presentation»
-    participant Service as PlaceOrderService «application»
-    participant Products as ProductTable «infrastructure»
-    participant Cards as CardNetwork «infrastructure»
-    participant Orders as OrderTable «infrastructure»
-    participant Email as EmailServer «infrastructure»
-
-    Ada->>Screen: place an order — 1 machine, 1 grinder, 2 bags of beans
-    Screen->>Service: place(request, "ada@example.com")
-    Service->>Products: price and check stock, each line
-    Products-->>Service: £249.00, £89.50, £22.00×2 — all in stock
-    Note over Service: three lines total £382.50
-    Service->>Cards: charge cust-8801 £382.50
-    Cards-->>Service: charged
-    Service->>Products: reduce stock — ESP-001, GRD-014, BNS-220
-    Service->>Orders: save the order, status PLACED
-    Service->>Email: send the confirmation
-    Service-->>Screen: placed, ord-1001, £382.50
-    Screen-->>Ada: "Order ord-1001 placed. Total £382.50."
-```
-
-</details>
-
 Say the load-bearing sentence aloud, because it is the one detail a picture
 cannot carry on its own: **the card is charged before anything is written
 down.** Do the two in the other order — save the order, reduce the stock,

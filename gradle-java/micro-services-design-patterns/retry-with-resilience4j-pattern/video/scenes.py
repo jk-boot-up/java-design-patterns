@@ -10,47 +10,51 @@ SCENES = [
         key='01-poster', kind='poster', title='Retry with Resilience4j',
         body=None,
         narration=(
-            'Hello, and welcome. This video explains the Retry with '
-            'Backoff pattern with Resilience4j, in Java, and it is '
-            'written and presented by Jayasekhar Konduru. [[slnc 300]] It '
-            'is the framework version of the Retry with Backoff video. '
-            'That one retried a flaky payment gateway with a growing wait '
-            'between attempts, and showed why a retry is safe only when '
-            'the failure is temporary and doing the operation twice '
-            'cannot do it twice. This one shows the same idea inside '
-            'Resilience4j. [[slnc 350]] The plain definition, in short: '
-            'in Resilience4j, a retry is an annotation on a method, and '
-            'the attempts and the waits are configuration. [[slnc 300]] '
-            'By the end you will see the retry as an annotation and four '
-            'settings, then see the three ways it goes wrong: retrying '
-            'what should not be retried, charging twice, and retries that '
-            'multiply.'
+            'Hello, and welcome. [[slnc 400]] This video explains the '
+            'Retry with Backoff pattern in Java, using a library called '
+            'Resilience four J. [[slnc 300]] This video is presented by '
+            'Jayasekhar Konduru. [[slnc 600]] First, a simple definition. '
+            '[[slnc 300]] When a call fails for a reason that might not '
+            'happen again, you try again. [[slnc 300]] Each time, you '
+            'wait a little longer first. [[slnc 300]] And you only do it '
+            'if doing the job twice cannot do it twice. [[slnc 600]] In '
+            'Resilience four J, a retry is an annotation on a method. '
+            '[[slnc 300]] The number of attempts, and the waits, are '
+            'settings. [[slnc 700]] In our online store, checkout calls a '
+            'flaky payment gateway. [[slnc 500]] By the end, you will '
+            'hear the retry built from one annotation and a few settings. '
+            '[[slnc 300]] Then the three ways it goes wrong. [[slnc 300]] '
+            'Retrying what should not be retried. [[slnc 300]] Charging a '
+            'customer twice. [[slnc 300]] And retries that multiply.'
         ),
     ),
     dict(
         key='02-partner', kind='bullets', title='The Partner Project',
         body=['Retry with Backoff, the hand-built', 'video, retries a flaky payment gateway,', 'waiting longer each time.', '', 'It shows a retry is safe only if', 'doing it twice cannot do it twice.', '', 'If you have not seen it, start there.'],
         narration=(
-            'This video assumes the Retry with Backoff video. If you have '
-            'not seen it, start there. It retries a flaky payment '
-            'gateway, waiting longer each time, and shows that a retry is '
-            'safe only when the failure is temporary and doing the '
-            'operation twice cannot do it twice. [[slnc 300]] This one '
-            'uses the same example. It does not teach the pattern again. '
-            'It shows what Resilience4j does with it.'
+            'This video builds on the plain Java Retry with Backoff '
+            'video. [[slnc 300]] If you have not seen it, start there. '
+            '[[slnc 500]] That video retries a flaky payment gateway, '
+            'waiting longer each time. [[slnc 300]] And it shows that a '
+            'retry is only safe when the failure is temporary. [[slnc '
+            '300]] And when doing the operation twice cannot do it twice. '
+            '[[slnc 500]] This video uses the same example. [[slnc 300]] '
+            'It does not teach the pattern again. [[slnc 300]] It shows '
+            'what Resilience four J does with it.'
         ),
     ),
     dict(
         key='03-dependencies', kind='bullets', title='Before The First Line',
         body=['One thing is new: Resilience4j.', '', 'It contains the retry, with its', 'waits and its exception lists.', '', 'It runs inside Spring Boot,', 'through an annotation.', '', 'Skipping this video loses none', 'of the pattern.'],
         narration=(
-            'Before the first line of code, what Resilience4j is. '
-            'Resilience4j is a library of resilience patterns for Java. '
-            'It contains a retry with configurable waits and exception '
-            'lists, and a Spring Boot module that turns it into an '
-            'annotation. [[slnc 300]] And a promise: skipping this video '
-            'loses none of the pattern. The hand-built one teaches all of '
-            'it.'
+            'Before any code, what is Resilience four J? [[slnc 400]] It '
+            'is a library of resilience patterns for Java. [[slnc 300]] '
+            'It includes a retry, with settings for the waits, and lists '
+            'of which errors to retry. [[slnc 300]] It also has a Spring '
+            'Boot module that turns the retry into an annotation. [[slnc '
+            '500]] And a promise. [[slnc 300]] Skipping this video loses '
+            'none of the pattern. [[slnc 300]] The plain Java video '
+            'teaches all of it.'
         ),
     ),
     dict(
@@ -60,9 +64,11 @@ SCENES = [
   the caller gets: R-1.
   gateway calls: 3.""",
         narration=(
-            'First, the good case. The gateway times out twice. The third '
-            'attempt works. The caller receives a receipt, and never sees '
-            'the two failures. Three calls reached the gateway.'
+            'First demo: the good case. [[slnc 400]] The gateway times '
+            'out twice. [[slnc 300]] The third attempt works. [[slnc '
+            '500]] The caller receives a receipt. [[slnc 300]] And it '
+            'never sees the two failures. [[slnc 300]] Three calls '
+            'reached the gateway.'
         ),
     ),
     dict(
@@ -73,10 +79,12 @@ SCENES = [
 
   each wait is twice the last.""",
         narration=(
-            'Second, backoff. Before the first retry, one millisecond. '
-            'Before the second, two. Each wait doubles. In production the '
-            'numbers would be larger, but the shape is the same. A '
-            'struggling gateway is given room to recover.'
+            'Second demo: backoff. [[slnc 400]] Before the first retry, '
+            'the wait is one millisecond. [[slnc 300]] Before the second, '
+            'two milliseconds. [[slnc 300]] Each wait doubles. [[slnc '
+            '500]] In a real system, the numbers would be bigger, but the '
+            'shape is the same. [[slnc 300]] A struggling gateway is '
+            'given room to recover.'
         ),
     ),
     dict(
@@ -86,9 +94,11 @@ SCENES = [
   after 3 attempts the caller
   gets GatewayTimeout.""",
         narration=(
-            'Third, giving up. If the gateway never answers, the retry '
-            'stops after three attempts. The caller gets the timeout '
-            'exception. A retry has to end, and this is how.'
+            'Third demo: giving up. [[slnc 400]] This time, the gateway '
+            'never answers. [[slnc 300]] The retry stops after three '
+            'attempts. [[slnc 300]] And the caller gets the timeout '
+            'error. [[slnc 500]] A retry has to end somewhere. [[slnc '
+            '300]] And this is how.'
         ),
     ),
     dict(
@@ -100,11 +110,13 @@ SCENES = [
   retrying everything:
   3 attempts, same answer.""",
         narration=(
-            'Fourth, what to retry. A declined card will decline again. '
-            'With a list that retries only timeouts, there is one '
-            'attempt. With the default, which retries everything, there '
-            'are three. [[slnc 300]] Three attempts against a card that '
-            'will not change its mind, and a customer waiting.'
+            'Fourth demo: what is worth retrying? [[slnc 400]] A declined '
+            'card will be declined again. [[slnc 500]] With a setting '
+            'that retries only timeouts, there is one attempt. [[slnc '
+            '300]] With the default, which retries every error, there are '
+            'three. [[slnc 500]] Three attempts, against a card that will '
+            'not change its mind. [[slnc 300]] And a customer left '
+            'waiting.'
         ),
     ),
     dict(
@@ -115,12 +127,14 @@ SCENES = [
 
   with a key: [4999].""",
         narration=(
-            'Fifth, the danger the partner video warned about. The charge '
-            'went through, but the answer was lost, so the retry charged '
-            'again. Without a key, two charges of forty nine ninety nine. '
-            '[[slnc 300]] With an idempotency key, the gateway recognises '
-            'the repeat and charges once. The library cannot supply this. '
-            'You must.'
+            'Fifth demo: the danger the plain Java video warned about. '
+            '[[slnc 400]] The charge went through, but the reply was '
+            'lost. [[slnc 300]] So the retry charged again. [[slnc 500]] '
+            'Without a key, there are two charges of forty-nine pounds '
+            'ninety-nine. [[slnc 500]] With an idempotency key, the '
+            'gateway recognises the repeat. [[slnc 300]] And it charges '
+            'only once. [[slnc 500]] The library cannot supply that key. '
+            '[[slnc 300]] You must.'
         ),
     ),
     dict(
@@ -132,81 +146,92 @@ SCENES = [
   one customer, one dead
   gateway: 9 calls.""",
         narration=(
-            'Last, layers. Checkout has a retry, and so does the payments '
-            'client below it. Three attempts, each making three. One '
-            'customer and one dead gateway make nine calls. Add a third '
-            'layer and it is twenty seven. [[slnc 300]] Retry in one '
-            'layer only, and choose which.'
+            'Last demo: retries in layers. [[slnc 400]] Checkout has a '
+            'retry. [[slnc 300]] And the payment client underneath it '
+            'also has one. [[slnc 500]] Checkout makes three attempts. '
+            '[[slnc 300]] And each of those makes three attempts of its '
+            'own. [[slnc 300]] So one customer and one dead gateway make '
+            'nine calls. [[slnc 300]] Add a third layer, and it is '
+            'twenty-seven. [[slnc 500]] So retry in one layer only, and '
+            'choose which one.'
         ),
     ),
     dict(
         key='10-verdict', kind='bullets', title='The Verdict',
         body=['Retry temporary failures only.', '', 'Send an idempotency key.', '', 'Retry in one layer.', '', 'Keep attempts and waits small.'],
         narration=(
-            'My verdict, plainly. Retry only temporary failures. Send an '
-            'idempotency key with every call that changes something. '
-            'Retry in one layer, not two. And keep the attempts and the '
-            'waits small.'
+            'So, here is the verdict. [[slnc 400]] Retry only temporary '
+            'failures. [[slnc 300]] Send an idempotency key with every '
+            'call that changes something. [[slnc 300]] Retry in one '
+            'layer, not two. [[slnc 300]] And keep the number of '
+            'attempts, and the waits, small.'
         ),
     ),
     dict(
         key='11-recognise', kind='bullets', title='How To Recognise It',
         body=['@Retry with a name.', '', 'resilience4j.retry in configuration.', '', 'retry-exceptions and', 'ignore-exceptions.'],
         narration=(
-            'How do you recognise this in code you did not write? A retry '
-            'annotation with a name. Settings under resilience four j '
-            'retry. And retry exceptions or ignore exceptions lists.'
+            'How can you spot this in code someone else wrote? [[slnc '
+            '400]] Look for a retry annotation, with a name. [[slnc 300]] '
+            'Look for retry settings in the configuration file. [[slnc '
+            '300]] And look for lists of which errors to retry, and which '
+            'to ignore.'
         ),
     ),
     dict(
         key='12-met', kind='bullets', title='Where You Have Met This',
         body=['Any Spring service that calls', 'a payment, email or shipping', 'provider over the network.'],
         narration=(
-            'You have met this in any Spring service that calls a '
-            'payment, email or shipping provider over the network.'
+            'Where have you met this before? [[slnc 300]] In any Spring '
+            'service that calls a payment, email, or shipping provider '
+            'over the network.'
         ),
     ),
     dict(
         key='13-versions', kind='bullets', title='What Was Used',
         body=['Spring Boot 4.1.1.', '', 'Resilience4j 2.4.0.', '', 'No web server, no web starter.'],
         narration=(
-            'For the record. Spring Boot four point one point one. '
-            'Resilience four j two point four point zero. No web server, '
-            'and no web starter.'
+            'For the record, here is what was used. [[slnc 300]] Spring '
+            'Boot, version four point one point one. [[slnc 300]] '
+            'Resilience four J, version two point four point zero. [[slnc '
+            '300]] There is no web server, and no web starter.'
         ),
     ),
     dict(
         key='14-real', kind='bullets', title='What Is Real Here',
         body=['Everything is real: the real retry', 'and the real annotation.', '', 'Waits are one and two milliseconds,', 'and the values shown are the', 'ones Resilience4j chose.'],
         narration=(
-            'The same honest admission as everywhere in this course. '
-            'Everything is real: the real retry and the real annotation. '
-            'The waits are one and two milliseconds, and the values shown '
-            'are the ones Resilience4j chose, not measured.'
+            'A quick, honest note about this demo. [[slnc 300]] '
+            'Everything is real: the real retry, and the real annotation. '
+            '[[slnc 300]] The waits are only one and two milliseconds. '
+            '[[slnc 300]] And the values you heard are the ones '
+            'Resilience four J chose, not measured times.'
         ),
     ),
     dict(
         key='15-too-much', kind='bullets', title='When This Is Too Much',
         body=['For a failure that will not go', 'away, a retry only delays the', 'error.'],
         narration=(
-            'So when is it too much? For a failure that will not go away, '
-            'a retry only delays the error.'
+            'So, when is this too much? [[slnc 400]] For a failure that '
+            'will not go away, a retry only delays the error.'
         ),
     ),
     dict(
         key='16-outro', kind='outro', title='Thanks for Watching',
         body=['Full source, notes, diagrams and an animated walkthrough', 'are in the repository. Remove the retry from the', 'checkout layer and rerun act six.'],
         narration=(
-            "That's Retry with Resilience4j. [[slnc 250]] If you take one "
-            'sentence away, take this one: Resilience4j gives you the '
-            'retry as configuration, and safety is still your decision. '
-            '[[slnc 350]] The full source, the written notes, the '
-            'diagrams and an animated walkthrough are all in the '
-            'repository. [[slnc 300]] If you try one exercise, remove the '
-            'retry from the checkout layer, and rerun act six. [[slnc '
-            '300]] If this helped, a like genuinely does help other '
-            'people find it, and subscribe if you would like the rest of '
-            'the series. [[slnc 250]] Thanks for watching.'
+            "That's Retry, with Resilience four J. [[slnc 400]] If you "
+            'remember one sentence, make it this one. [[slnc 300]] '
+            'Resilience four J gives you the retry as settings, but '
+            'deciding whether it is safe is still your job. [[slnc 500]] '
+            'The full source code, written notes, diagrams, and an '
+            'animated walkthrough are all in the repository. [[slnc 500]] '
+            'Here is one exercise to try. [[slnc 300]] Remove the retry '
+            'from the checkout layer. [[slnc 300]] Then run the last demo '
+            'again, and count the calls. [[slnc 500]] If this helped, a '
+            'like really does help other people find it. [[slnc 300]] And '
+            "subscribe, if you'd like the rest of the series. [[slnc "
+            '400]] Thanks for watching.'
         ),
     ),
 ]

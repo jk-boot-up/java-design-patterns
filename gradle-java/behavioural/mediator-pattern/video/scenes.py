@@ -17,20 +17,24 @@ SCENES = [
         title="Mediator",
         body=None,
         narration=(
-            "Hello, and welcome. This video explains the Mediator pattern in "
-            "Java, and it is written and presented by Jayasekhar Konduru. "
-            "[[slnc 300]] Let's start with the simple definition. When a group "
-            "of objects all affect each other, you can either wire every one of "
-            "them to every other one, or you can give them a single object to "
-            "talk to and let that object hold the rules. The mediator is that "
-            "single object. [[slnc 350]] That's the idea in a sentence. The "
-            "rest of the video does it properly, by building a real working "
-            "Java project: the checkout page of an online shop, where choosing "
-            "a delivery country changes the couriers, the gift wrapping, the "
-            "total, and whether you're allowed to place the order at all. "
-            "[[slnc 250]] By the end you'll know why five controls can need "
-            "nine references, what that costs you, and the one criticism of "
-            "this pattern that is completely fair."
+            'Hello, and welcome. [[slnc 400]] This video explains the '
+            'Mediator pattern, in Java. [[slnc 300]] This video is '
+            'presented by Jayasekhar Konduru. [[slnc 600]] First, a '
+            'simple definition. [[slnc 300]] When a group of objects all '
+            'affect each other, you have two choices. [[slnc 300]] '
+            'Connect every object to every other one. [[slnc 300]] Or '
+            'give them all one single object to talk to, which holds the '
+            'rules. [[slnc 300]] That single object is the mediator. '
+            '[[slnc 600]] Think of an airport control tower. [[slnc 300]] '
+            'Planes do not talk to each other. [[slnc 300]] They all talk '
+            'to the tower, and the tower tells each one what to do. '
+            '[[slnc 700]] In this video, we build the checkout page of an '
+            'online shop. [[slnc 300]] Choosing a delivery country '
+            'changes the couriers, the gift wrapping, the total, and '
+            'whether you may place the order at all. [[slnc 500]] By the '
+            'end, you will know why five controls can need nine '
+            'connections, what that costs, and the one fair criticism of '
+            'this pattern.'
         ),
     ),
     dict(
@@ -54,18 +58,21 @@ SCENES = [
             "  country + shipping    ->  can the button be pressed",
         ],
         narration=(
-            "So, imagine an online shop. [[slnc 250]] This is its checkout "
-            "page, and it has five controls. Where the order is going. Which "
-            "courier. Whether to gift wrap it. The total. And the place order "
-            "button. [[slnc 300]] Those five are not independent. Change the "
-            "country and the courier list has to change with it, because the "
-            "courier that delivers in the United Kingdom is not the one that "
-            "ships to the States. Gift wrapping is done by hand in the London "
-            "warehouse, so it's only offered on domestic orders. The total "
-            "follows the courier and the wrapping. And the button may only be "
-            "pressed when there's both a country and a courier. [[slnc 350]] "
-            "Four rules. Write them down and they fit on a slide. [[slnc 250]] "
-            "The difficulty is never the rules. It's where they live."
+            "Here is the scenario: an online shop's checkout page, with "
+            'five controls. [[slnc 400]] The delivery country. [[slnc '
+            '200]] The courier. [[slnc 200]] A gift wrap option. [[slnc '
+            '200]] The total. [[slnc 200]] And the place order button. '
+            '[[slnc 600]] These five are connected by four rules. [[slnc '
+            '400]] One. [[slnc 200]] Changing the country changes the '
+            'list of couriers, because different couriers serve different '
+            'countries. [[slnc 300]] Two. [[slnc 200]] Gift wrapping is '
+            'done by hand in the London warehouse, so it is only offered '
+            'for UK orders. [[slnc 300]] Three. [[slnc 200]] The total '
+            'follows the courier and the gift wrap. [[slnc 300]] And '
+            'four. [[slnc 200]] The button may only be pressed when a '
+            'country and a courier are both chosen. [[slnc 600]] The '
+            'rules are simple. [[slnc 300]] The hard part is where they '
+            'live.'
         ),
     ),
     dict(
@@ -87,18 +94,19 @@ SCENES = [
             "The shopper is simply charged for a service they cannot receive.",
         ],
         narration=(
-            "Before any code, look closely at one click. [[slnc 300]] The "
-            "shopper has a UK order. Express shipping, gift wrapped, forty "
-            "eight pounds. Then they change their mind and send it to the "
-            "States instead. [[slnc 300]] The gift wrap box is correctly "
-            "withdrawn — the warehouse can't reach this order. But the tick is "
-            "still there, because withdrawing the offer and clearing the tick "
-            "were two separate things and only one of them got written. [[slnc "
-            "350]] So the shopper pays two pounds for gift wrapping that will "
-            "never happen. [[slnc 300]] Sit with that for a second, because it "
-            "is the reason this pattern exists. Nothing throws. Nothing gets "
-            "logged. It is a perfectly ordinary looking checkout with two "
-            "pounds of pure fiction in it, and it can stay that way for a year."
+            "Before any code, let's follow one click. [[slnc 400]] A "
+            'shopper has a UK order, with express shipping, gift wrapped, '
+            'for forty-eight pounds. [[slnc 300]] Then they change the '
+            'country to the United States. [[slnc 500]] The gift wrap '
+            'option is correctly withdrawn, because the London warehouse '
+            'cannot wrap this order. [[slnc 300]] But the tick stays in '
+            'the box. [[slnc 300]] Withdrawing the option and clearing '
+            'the tick were two separate steps, and only one was written. '
+            '[[slnc 500]] So the total is now forty-two pounds. [[slnc '
+            '300]] And two pounds of that is for gift wrapping that will '
+            'never happen. [[slnc 600]] Nothing crashes, and nothing is '
+            'logged. [[slnc 300]] It looks like a normal checkout, with '
+            'two pounds of pure fiction in it.'
         ),
     ),
     dict(
@@ -118,19 +126,21 @@ public void select(String country) {           // inside NaiveCountry
                                                // button: forgotten
 }""",
         narration=(
-            "Here's why. [[slnc 250]] The obvious place for, when the country "
-            "changes, refill the couriers, is inside the country widget, "
-            "because that's where the country changes. So the country widget is "
-            "given the shipping widget. [[slnc 300]] Then gift wrap depends on "
-            "the country too, so it needs that. And the total moved, so it "
-            "needs the total. And the button might need re-checking, so it "
-            "needs the button. [[slnc 300]] Nine references, on a page with "
-            "five controls. And look at the method. Three of the four things it "
-            "had to remember, it remembered. The fourth — re-check the button — "
-            "isn't there. [[slnc 350]] And I want to be precise about the "
-            "lesson, because it isn't that somebody was careless. It's that the "
-            "correctness of this page depends on a person holding all five "
-            "controls in their head, every time they touch any one of them."
+            'Here is why it happens. [[slnc 400]] The obvious place for '
+            'the rule, when the country changes, refresh the couriers, is '
+            'inside the country control. [[slnc 300]] So the country '
+            'control is given a reference to the courier control. [[slnc '
+            '400]] But gift wrap depends on the country too, so it needs '
+            'that as well. [[slnc 300]] And the total changes, so it '
+            'needs the total. [[slnc 300]] And the button might need '
+            'checking, so it needs the button. [[slnc 500]] That makes '
+            'nine references, on a page with just five controls. [[slnc '
+            "500]] Inside the country control's method, three of the four "
+            'follow-up steps were remembered. [[slnc 300]] The fourth, '
+            're-checking the button, was forgotten. [[slnc 600]] Nobody '
+            'was careless. [[slnc 300]] The page is only correct if '
+            'someone holds all five controls in their head, every time '
+            'they change any one of them.'
         ),
     ),
     dict(
@@ -153,21 +163,19 @@ public void select(String country) {           // inside NaiveCountry
             "    And shipping holds gift wrap, which holds shipping.",
         ],
         narration=(
-            "Let's be precise, because it's four separate costs. [[slnc 300]] "
-            "One. Nobody can see the whole form. To answer what happens when "
-            "the country changes, you read one method, then everything it "
-            "calls, then everything those call. There is no file you can open "
-            "that tells you what the page does. [[slnc 300]] Two. The bugs are "
-            "omissions. A missing line looks exactly like nothing, and you "
-            "cannot review nothing. [[slnc 300]] Three. The wiring grows faster "
-            "than the form. Three controls, six possible connections. Five "
-            "controls, twenty. Ten controls, ninety. This is why a form like "
-            "this is perfectly fine on the day it's written and unmaintainable "
-            "eighteen months later. [[slnc 300]] And four. No widget can be "
-            "built or tested alone — the country selector needs four other "
-            "widgets just to exist — and shipping holds gift wrap while gift "
-            "wrap holds shipping, so neither can be understood without the "
-            "other."
+            'So what exactly is wrong? [[slnc 300]] Four separate things. '
+            '[[slnc 500]] One. [[slnc 200]] Nobody can see the whole '
+            'form. [[slnc 300]] What happens when the country changes is '
+            'spread across three files, and no single file has the '
+            'answer. [[slnc 500]] Two. [[slnc 200]] The bugs are missing '
+            'lines. [[slnc 300]] And you cannot review a line that was '
+            'never written. [[slnc 500]] Three. [[slnc 200]] The '
+            'connections grow faster than the form. [[slnc 300]] Three '
+            'controls can have six connections. [[slnc 300]] Five '
+            'controls, twenty. [[slnc 300]] Ten controls, ninety. [[slnc '
+            '500]] And four. [[slnc 200]] No control can be built or '
+            'tested alone. [[slnc 300]] The country control needs four '
+            'other controls just to exist.'
         ),
     ),
     dict(
@@ -189,18 +197,16 @@ public void select(String country) {           // inside NaiveCountry
             "and the rules move somewhere you can read them.",
         ],
         narration=(
-            "Here's the definition from the Gang of Four book. [[slnc 250]] "
-            "Define an object that encapsulates how a set of objects interact. "
-            "Mediator promotes loose coupling by keeping objects from referring "
-            "to each other explicitly. [[slnc 350]] There are two halves there "
-            "and they're worth separating. Keeping objects from referring to "
-            "each other is the mechanism — it's the nine references becoming "
-            "five. [[slnc 300]] Encapsulates how a set of objects interact is "
-            "the payoff, and it's the bigger of the two. After this "
-            "refactoring, there is one file you can open, and one method inside "
-            "it, and reading that method tells you everything the page does. "
-            "[[slnc 300]] Nothing is hiding anywhere else, because there is "
-            "nowhere else."
+            "Here is the pattern's definition, from the famous Gang of "
+            'Four book. [[slnc 400]] Define an object that encapsulates '
+            'how a set of objects interact, and keep the objects from '
+            'referring to each other directly. [[slnc 600]] That has two '
+            'halves. [[slnc 300]] Keeping objects from referring to each '
+            'other is the mechanism. [[slnc 300]] Nine references become '
+            'five. [[slnc 500]] Encapsulating how they interact is the '
+            'bigger benefit. [[slnc 300]] After the change, there is one '
+            'file, with one method, that tells you everything the page '
+            'does. [[slnc 300]] Nothing hides anywhere else.'
         ),
     ),
     dict(
@@ -221,19 +227,18 @@ public void select(String country) {           // inside NaiveCountry
             "and the rules of the airspace are in one head.",
         ],
         narration=(
-            "Here's the analogy to hold on to, and with this one, if you take "
-            "nothing else away, take this. [[slnc 250]] Aircraft near an "
-            "airport. [[slnc 300]] There is no protocol by which the inbound "
-            "seven three seven asks the departing A three twenty to wait a "
-            "minute. They don't talk to each other at all. They all talk to the "
-            "tower, the tower knows where everything is, and the tower tells "
-            "each of them what to do. [[slnc 350]] And that is not because "
-            "pilots can't be trusted. It's arithmetic. Ten aircraft negotiating "
-            "with each other is ninety conversations, and sooner or later one "
-            "of them doesn't happen. Ten aircraft talking to a tower is ten "
-            "conversations, and the rules of the airspace are in one head. "
-            "[[slnc 300]] That's the whole pattern. Our checkout form is the "
-            "tower, and the five controls are the aircraft."
+            'Here is the analogy to hold on to: aircraft near an airport. '
+            '[[slnc 500]] Planes do not negotiate with each other about '
+            'who lands first. [[slnc 300]] They all talk to the control '
+            'tower. [[slnc 300]] The tower knows where everyone is, and '
+            'tells each plane what to do. [[slnc 600]] That is not '
+            'because pilots cannot be trusted. [[slnc 300]] It is simple '
+            'arithmetic. [[slnc 300]] Ten planes talking to each other '
+            'means ninety conversations, and sooner or later, one is '
+            'missed. [[slnc 300]] Ten planes talking to one tower means '
+            'just ten conversations. [[slnc 300]] And all the rules are '
+            'in one place. [[slnc 500]] In our project, the checkout form '
+            'is the tower, and the five controls are the planes.'
         ),
     ),
     dict(
@@ -242,19 +247,19 @@ public void select(String country) {           // inside NaiveCountry
         title="The Roles",
         body=None,
         narration=(
-            "So here are the pieces. [[slnc 250]] Checkout mediator is the "
-            "mediator role, and it has exactly one method: changed, taking the "
-            "widget that changed. That is not an abbreviation for teaching. A "
-            "mediator interface really can be this small, because colleagues "
-            "are meant to report, not to ask. [[slnc 300]] Form widget is the "
-            "colleague role. It has two fields, a name and a mediator, and the "
-            "important one is the one that isn't there. There is no field on a "
-            "widget capable of holding another widget, so the tangle isn't "
-            "merely discouraged — it's unrepresentable. [[slnc 300]] Then the "
-            "five concrete colleagues: country, shipping, gift wrap, the total "
-            "and the button. Each one holds the form. The form holds all five. "
-            "[[slnc 250]] Five arrows, all pointing the same way. It's a star, "
-            "not a web, and that shape is the entire result."
+            'So here are the pieces. [[slnc 500]] The Checkout Mediator '
+            'interface has exactly one method, called changed. [[slnc '
+            '300]] A control calls it to say, something about me changed. '
+            '[[slnc 300]] Controls report. [[slnc 300]] They never ask. '
+            '[[slnc 500]] Every control extends a base class called Form '
+            'Widget. [[slnc 300]] It has two fields: a name, and the '
+            'mediator. [[slnc 300]] There is no field that could hold '
+            'another control. [[slnc 300]] So controls cannot tangle, '
+            'even by accident. [[slnc 500]] Then there are the five real '
+            'controls: country, courier, gift wrap, the total, and the '
+            'button. [[slnc 300]] Each one knows the form. [[slnc 300]] '
+            'And the form knows all five. [[slnc 500]] The shape is a '
+            'star, not a web.'
         ),
     ),
     dict(
@@ -277,17 +282,17 @@ public class CountrySelector extends FormWidget {
     }                              // ...and that is the whole class
 }""",
         narration=(
-            "This is the colleague, and I'd rather talk about what isn't here. "
-            "[[slnc 250]] Two fields. A name, and a mediator. There is no field "
-            "that can hold another widget, which means a widget could not reach "
-            "across the form even if a future change wanted it to. [[slnc 350]] "
-            "And then look at the country selector. Store the string, announce "
-            "the change, stop. That is the whole class. [[slnc 300]] Put it next "
-            "to the naive version we saw earlier — four statements about four "
-            "other widgets, and still missing one. [[slnc 300]] The widget's "
-            "entire vocabulary is now, something about me is different. What "
-            "that means for the rest of the page is not its business, and, "
-            "crucially, it has no reference with which to make it its business."
+            "Let's look at a control, and notice what is missing. [[slnc "
+            '500]] The base class has only two fields: a name, and the '
+            'mediator. [[slnc 300]] No field can hold another control. '
+            '[[slnc 500]] Now the country control. [[slnc 300]] When a '
+            'country is chosen, it stores the country, announces that it '
+            'changed, and stops. [[slnc 300]] That is the whole class. '
+            '[[slnc 500]] Compare it with the naive version, which had '
+            'four follow-up steps, and still missed one. [[slnc 500]] A '
+            'control now only says, something about me is different. '
+            '[[slnc 300]] What that means for the rest of the page is not '
+            'its business.'
         ),
     ),
     dict(
@@ -311,20 +316,22 @@ void setAvailable(boolean available) {        // on GiftWrapCheckbox
     if (!available) this.ticked = false;      // one call, both facts
 }""",
         narration=(
-            "And here's the page. Once. [[slnc 300]] Read those six lines and "
-            "you have read the behaviour of the checkout. [[slnc 300]] Two "
-            "things are worth pausing on. First, the refresh calls run on every "
-            "change, unconditionally. Nothing works out whether they need to. "
-            "[[slnc 300]] That's what makes the second bug impossible here — "
-            "the mediator never has to notice that clearing the courier affects "
-            "the button, because it re-asks that question every single time, "
-            "whatever the change was. Cheap and always right beats clever and "
-            "sometimes stale. [[slnc 350]] Second, look at set available at the "
-            "bottom. Withdrawing gift wrap clears the tick in the same method. "
-            "And that is not, we remembered to also untick it. There is no "
-            "method in the project that does only half of that, so there is "
-            "nothing left to forget. [[slnc 300]] One if. That is the entire "
-            "control flow of the page."
+            'And here is the whole page, in one method, in the mediator. '
+            '[[slnc 500]] If the country changed, it refreshes the '
+            'courier list, and sets whether gift wrap is offered. [[slnc '
+            '300]] Then, whatever changed, it recalculates the total, and '
+            're-checks the button. [[slnc 600]] Two things are worth '
+            'noticing. [[slnc 400]] First, the total and the button are '
+            'refreshed after every change, with no special cases. [[slnc '
+            '300]] So the mediator never needs to remember that clearing '
+            'the courier affects the button. [[slnc 300]] It simply '
+            'checks again, every time. [[slnc 300]] Simple and always '
+            'right beats clever and sometimes wrong. [[slnc 500]] Second, '
+            'withdrawing the gift wrap offer also clears the tick, in the '
+            'same method. [[slnc 300]] There is no way to do only half of '
+            'that. [[slnc 300]] So there is nothing left to forget. '
+            '[[slnc 500]] One if statement. [[slnc 300]] That is the '
+            'entire control flow of the page.'
         ),
     ),
     dict(
@@ -347,20 +354,20 @@ void setAvailable(boolean available) {        // on GiftWrapCheckbox
     assertEquals(42, naive.total().pounds());    // pinned on purpose
 }""",
         narration=(
-            "Fourteen tests, and these two are the ones that prove the pattern. "
-            "[[slnc 300]] A test that says picking Express makes the total forty "
-            "six passes against the tangled version just as happily. It proves "
-            "nothing. [[slnc 300]] The first one asserts the structure. It walks "
-            "every field of every widget by reflection, and fails if any of them "
-            "has a widget type. [[slnc 300]] Because a comment saying, widgets "
-            "must not reference each other, survives exactly as long as the "
-            "first person who is in a hurry. This doesn't. [[slnc 350]] And the "
-            "second one is the interesting one, because it asserts the wrong "
-            "answer. It pins the naive form's bug in place — still ticked, "
-            "forty two pounds — with a message saying so. [[slnc 300]] Fix the "
-            "naive version and its own tests go red. That's deliberate. The "
-            "cost of that design is meant to be something the build says out "
-            "loud, not something a README claims."
+            'The project has fourteen tests. [[slnc 300]] Two of them '
+            'prove the pattern. [[slnc 500]] A test like, choosing '
+            'express makes the total forty-six pounds, passes for the '
+            'tangled version too. [[slnc 300]] So it proves nothing about '
+            'the pattern. [[slnc 500]] The first special test checks the '
+            'structure. [[slnc 300]] It looks at every field of every '
+            'control, and fails if any field can hold another control. '
+            '[[slnc 300]] A comment saying, controls must not reference '
+            'each other, lasts until the first person in a hurry. [[slnc '
+            '300]] This test does not. [[slnc 500]] The second test '
+            'checks a wrong answer, on purpose. [[slnc 300]] It confirms '
+            'that the naive form still has the bug: the tick stays, and '
+            'the total is forty-two pounds. [[slnc 300]] The cost of that '
+            'design is stated out loud, by the build.'
         ),
     ),
     dict(
@@ -384,18 +391,19 @@ shopper changes the country to US
   Total: £40                     <- basket only, nothing chosen yet
   place order     : disabled     <- the form re-checked itself""",
         narration=(
-            "Run it, and the two halves sit side by side. [[slnc 250]] Same "
-            "page. Same three clicks. Same change of mind. [[slnc 300]] The top "
-            "half is the tangled version: forty two pounds, two of them "
-            "phantom, and a place order button that will happily take an order "
-            "with no courier on it. [[slnc 300]] The bottom half is the "
-            "mediated one. The tick went when the offer went. The courier was "
-            "cleared, so the total is back to just the basket. And the button "
-            "disabled itself. [[slnc 350]] And here's the part I'd frame. "
-            "Nobody wrote a line of code that says, when the country changes, "
-            "disable the button. It falls out, because there is one place where "
-            "the reaction to a change is written, and that place re-checks "
-            "everything every time."
+            "Let's run the demo. [[slnc 400]] The same page, the same "
+            'three clicks, and the same change of mind. [[slnc 500]] '
+            'First, the tangled version. [[slnc 300]] The total is '
+            'forty-two pounds, with two pounds of phantom gift wrap. '
+            '[[slnc 300]] And the place order button still works, even '
+            'though no courier is chosen. [[slnc 500]] Now the mediated '
+            'version. [[slnc 300]] The tick disappeared when the offer '
+            'did. [[slnc 300]] The courier was cleared, so the total is '
+            'back to just the basket. [[slnc 300]] And the button '
+            'switched itself off. [[slnc 600]] Notice that nobody wrote '
+            'code saying, when the country changes, disable the button. '
+            '[[slnc 300]] It just happens, because the mediator re-checks '
+            'everything after every change.'
         ),
     ),
     dict(
@@ -418,30 +426,26 @@ shopper changes the country to US
             "the class nobody wants to open.",
         ],
         narration=(
-            "So, what to take away. [[slnc 300]] When everything talks to "
-            "everything, nobody can see the whole thing. Give them one place to "
-            "talk to, and the rules have somewhere to live. [[slnc 350]] On the "
-            "comparison, because this is the question I'd expect. Mediator and "
-            "observer both remove direct references, and they get confused "
-            "constantly. The difference is knowledge. An observer publisher "
-            "deliberately knows nothing about its subscribers. A mediator knows "
-            "all of its colleagues, on purpose, and that knowledge is exactly "
-            "what lets it enforce a rule spanning several of them. [[slnc 300]] "
-            "A publisher could not disable a button because a drop-down was "
-            "cleared. A mediator can. That's the job. And a facade sits in "
-            "front of several objects too, but it faces outwards — it exists to "
-            "simplify life for a caller outside. A mediator faces inwards. "
-            "[[slnc 350]] Now the honest bill, and this is the one pattern "
-            "whose main criticism I think is completely fair. Everything you "
-            "take out of the widgets goes into the mediator, and on a real form "
-            "that class gets big. It becomes a god object if you let it. The "
-            "answer isn't to deny that, it's to split it — one mediator per "
-            "section of the page — before it becomes the class nobody wants to "
-            "open. [[slnc 300]] And don't reach for it on a form with two "
-            "controls. Two things that affect each other, and never will be "
-            "three, are clearer wired directly. This earns its keep at about "
-            "four or five interacting parts, which is exactly where it stops "
-            "being possible to hold the wiring in your head."
+            'So, what should you remember? [[slnc 400]] When everything '
+            'talks to everything, nobody can see the whole picture. '
+            '[[slnc 300]] Give them one place to talk to, and the rules '
+            'have somewhere to live. [[slnc 600]] People often confuse '
+            'Mediator with Observer. [[slnc 300]] The difference is '
+            "knowledge. [[slnc 300]] An observer's publisher knows "
+            'nothing about its subscribers. [[slnc 300]] A mediator knows '
+            'all of its controls, on purpose. [[slnc 300]] That knowledge '
+            'is what lets it enforce a rule that spans several of them. '
+            '[[slnc 500]] A Facade also sits in front of several objects. '
+            '[[slnc 300]] But a facade faces outward, to make life '
+            'simpler for an outside caller. [[slnc 300]] A mediator faces '
+            'inward. [[slnc 600]] Now the honest cost, and this criticism '
+            'is fair. [[slnc 300]] Everything you take out of the '
+            'controls goes into the mediator. [[slnc 300]] On a real '
+            'form, that class can grow huge. [[slnc 300]] The answer is '
+            'to split it, one mediator per section of the page, before it '
+            'gets there. [[slnc 500]] And for two controls that will '
+            'never be three, direct wiring is clearer. [[slnc 300]] This '
+            'pattern pays off at about four or five interacting parts.'
         ),
     ),
     dict(
@@ -454,16 +458,18 @@ shopper changes the country to US
             "one widget a reference to another, and watches a test name it.",
         ],
         narration=(
-            "That's the mediator pattern. [[slnc 250]] The full source, the "
-            "written notes, the diagrams and an animated walkthrough are all in "
-            "the repository — including the exercise I'd most recommend. Give "
-            "the country selector a field of type total label, run the tests, "
-            "and watch the isolation test name the offending field back at you. "
-            "It takes a minute, and it's the moment the structural promise stops "
-            "being a comment. [[slnc 300]] If this helped, a like genuinely does "
-            "help other people find it, and subscribe if you'd like the rest of "
-            "the behavioural series. [[slnc 250]] Thanks for watching, and I'll "
-            "see you in the next one."
+            "That's the Mediator pattern. [[slnc 400]] If you remember "
+            'one sentence, make it this one. [[slnc 300]] Give a group of '
+            'objects one place to talk to, and their rules have one place '
+            'to live. [[slnc 500]] The full source code, written notes, '
+            'diagrams, and an animated walkthrough are all in the '
+            'repository. [[slnc 500]] Here is one exercise to try. [[slnc '
+            '300]] Give the country control a field that points at the '
+            'total. [[slnc 300]] Run the tests, and listen as the '
+            'structure test names that field. [[slnc 500]] If this '
+            'helped, a like really does help other people find it. [[slnc '
+            "300]] And subscribe, if you'd like the rest of the series. "
+            '[[slnc 400]] Thanks for watching.'
         ),
     ),
 ]

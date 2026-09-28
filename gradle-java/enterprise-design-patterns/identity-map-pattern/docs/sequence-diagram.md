@@ -6,26 +6,4 @@ Say it in words. The caller asks the session for the order. The session reads th
 
 ![Identity Map pattern sequence diagram](images/sequence-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant Caller
-    participant S as CustomerSession
-    participant M as identity map
-    participant DB as database
-    Caller->>S: findOrder(100)
-    S->>DB: select order 100
-    S->>M: get(7), missing
-    S->>DB: select customer 7
-    S->>M: put(7, customer)
-    Caller->>S: find(7)
-    S->>M: get(7), found
-    S-->>Caller: the same object, no database call
-```
-
-</details>
-
 The load-bearing sentence: **the second ask cost nothing, and returned the very same object.**

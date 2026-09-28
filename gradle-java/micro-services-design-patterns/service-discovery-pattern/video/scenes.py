@@ -23,22 +23,25 @@ SCENES = [
         title="Service Discovery",
         body=None,
         narration=(
-            "Hello, and welcome. This video explains the Service Discovery "
-            "pattern in Java, and it is written and presented by Jayasekhar "
-            "Konduru. [[slnc 300]] Let's start with the simple definition. "
-            "Service discovery means that instead of writing a service's address "
-            "into the code that calls it, you keep a shared list of who is "
-            "running right now, and the caller asks that list every time it needs "
-            "an address. Programs put themselves on the list when they start, and "
-            "they drop off it when they stop. [[slnc 350]] That's the idea in a "
-            "sentence. The rest of the video does it properly, by building a real "
-            "working Java project: an online shop whose pricing service runs as "
-            "several copies of itself, and a checkout that has to reach one of "
-            "them. [[slnc 250]] By the end you'll know why a written-down address "
-            "turns an ordinary deployment into an outage, what a lease is and why "
-            "a registration has to expire, and — the part that usually gets "
-            "skipped — why the list is guaranteed to be wrong for a few seconds "
-            "at a time, and what a caller has to do about that."
+            'Hello, and welcome. [[slnc 400]] This video explains the '
+            'Service Discovery pattern, in Java. [[slnc 300]] This video '
+            'is presented by Jayasekhar Konduru. [[slnc 600]] First, a '
+            'simple definition. [[slnc 300]] Instead of writing a '
+            "service's address into the code that calls it, you keep a "
+            'shared list of who is running right now. [[slnc 300]] The '
+            'caller asks that list every time it needs an address. [[slnc '
+            '300]] Programs add themselves to the list when they start, '
+            'and drop off it when they stop. [[slnc 600]] Think of a taxi '
+            "rank. [[slnc 300]] You do not need to know any driver's "
+            'name. [[slnc 300]] You just take whoever is at the front. '
+            '[[slnc 700]] In our online store, the pricing service runs '
+            'as several copies. [[slnc 300]] And checkout has to reach '
+            'one of them. [[slnc 500]] By the end, you will know why a '
+            'written-down address turns an ordinary release into an '
+            'outage. [[slnc 300]] What a lease is, and why a registration '
+            'must expire. [[slnc 300]] And why the list is always wrong '
+            'for a few seconds at a time, and what a caller must do about '
+            'it.'
         ),
     ),
     dict(
@@ -60,17 +63,16 @@ SCENES = [
             "Which one does it call, and how does it know?",
         ],
         narration=(
-            "Here is the situation. [[slnc 250]] The shop's pricing service is "
-            "busy enough that one copy of it is not sensible any more, so it runs "
-            "as three. They are the same program, started three times, on three "
-            "machines. [[slnc 300]] The important thing about those three is that "
-            "they are interchangeable. Any of them can answer any question, and "
-            "they all give the same answer, because the price of an espresso "
-            "machine does not depend on which machine you happen to ask. "
-            "[[slnc 350]] Now the checkout needs a price. To ask for one it needs "
-            "an address. [[slnc 300]] And that raises a question which has no "
-            "interesting answer in a single program, and no easy one here: which "
-            "of the three does it call, and how does it find out?"
+            "Here is the scenario. [[slnc 400]] The shop's pricing "
+            'service is busy. [[slnc 300]] So it runs as three copies of '
+            'the same program, on three machines. [[slnc 600]] The three '
+            'copies are interchangeable. [[slnc 300]] Any of them can '
+            'answer any question. [[slnc 300]] And they all give the same '
+            'answer. [[slnc 300]] The price of an espresso machine does '
+            'not depend on which machine you ask. [[slnc 600]] Now '
+            'checkout needs a price. [[slnc 300]] To ask for one, it '
+            'needs an address. [[slnc 500]] So which of the three does it '
+            'call? [[slnc 300]] And how does it find out?'
         ),
     ),
     dict(
@@ -89,18 +91,19 @@ SCENES = [
 
 // four lines, and every one of them is correct""",
         narration=(
-            "The obvious answer is to write the address down, and I want to be "
-            "fair to it, because this is what every system starts with and "
-            "starting there is right. [[slnc 300]] The class in the project is "
-            "called hardcoded pricing client. It holds one string, pricing dash "
-            "one, and it calls it. That is the whole class. [[slnc 350]] There is "
-            "no bug in it. It is four lines and every one of them is correct. It "
-            "is fast, it has no dependencies, it cannot be misconfigured, and "
-            "every test you would think to write against it passes. When the shop "
-            "had one pricing instance, this was exactly the right amount of code. "
-            "[[slnc 350]] So keep that in mind as we break it. What goes wrong "
-            "here is not a mistake somebody made. It is the world changing "
-            "underneath a decision that was correct when it was taken."
+            'The obvious answer is to write the address down. [[slnc '
+            '300]] Every system starts this way, and starting there is '
+            'right. [[slnc 600]] The class in the project is called the '
+            'hard-coded pricing client. [[slnc 300]] It holds one name, '
+            'pricing one, and calls it. [[slnc 300]] That is the whole '
+            'class. [[slnc 600]] There is no bug in it. [[slnc 300]] It '
+            'is fast, simple, and cannot be misconfigured. [[slnc 300]] '
+            'Every test you would write against it passes. [[slnc 300]] '
+            'When the shop had one pricing copy, this was exactly right. '
+            '[[slnc 600]] So keep that in mind as we break it. [[slnc '
+            '300]] What goes wrong is not a mistake. [[slnc 300]] It is '
+            'the world changing under a decision that was correct when it '
+            'was made.'
         ),
     ),
     dict(
@@ -121,18 +124,19 @@ SCENES = [
   because it was told about one machine and has no way to learn
   about another.""",
         narration=(
-            "Then somebody deploys pricing. [[slnc 250]] A rolling deployment "
-            "stops the first instance so it can be replaced with a new version. "
-            "That is not a fault. That is Tuesday afternoon. [[slnc 350]] And the "
-            "checkout is now down. Not slow. Down. It asks for a price and gets "
-            "nothing back, and it will go on getting nothing back until somebody "
-            "changes it. [[slnc 350]] Now here is the part that stings. At that "
-            "exact moment, pricing two and pricing three are up, healthy, and "
-            "doing nothing, three metres away in the same rack. The client cannot "
-            "use either of them. [[slnc 300]] And no amount of care inside that "
-            "client would help, because a constant is not a question you can ask "
-            "again later. It was told about one machine, once, and it has no way "
-            "of ever finding out about another."
+            'First demo: somebody releases a new version of pricing. '
+            '[[slnc 400]] A rolling release stops the first copy, so it '
+            'can be replaced. [[slnc 300]] That is not a fault. [[slnc '
+            '300]] It is an ordinary afternoon. [[slnc 600]] And checkout '
+            'is now down. [[slnc 300]] Not slow. [[slnc 300]] Down. '
+            '[[slnc 300]] It asks for a price, and gets nothing back. '
+            '[[slnc 300]] And it will keep getting nothing, until '
+            'somebody changes the code. [[slnc 600]] Here is the painful '
+            'part. [[slnc 300]] At that exact moment, pricing two and '
+            'pricing three are up, healthy, and idle. [[slnc 300]] The '
+            'client cannot use either of them. [[slnc 500]] It was told '
+            'about one machine, once. [[slnc 300]] And it has no way of '
+            'ever learning about another.'
         ),
     ),
     dict(
@@ -154,22 +158,21 @@ SCENES = [
             "A fast-moving fact, stored in a slow-moving artefact.",
         ],
         narration=(
-            "It is worth naming the damage properly, because it is wider than one "
-            "outage. [[slnc 300]] A routine deployment takes the caller down. "
-            "Scaling up buys you nothing at all — start a fourth instance for a "
-            "busy Friday and no existing caller will ever send it a single "
-            "request, so you are paying for capacity that cannot be reached. And "
-            "a crash has no fallback, because there is nothing to fall back to. "
-            "[[slnc 400]] But none of those is the diagnosis. The diagnosis is "
-            "this. [[slnc 300]] The set of running instances changes several times "
-            "a day — every deployment, every autoscaling event, every crash. The "
-            "source code of the callers changes about once a fortnight. A "
-            "fast-moving fact has been stored inside a slow-moving artefact. "
-            "[[slnc 350]] And that is why the usual first suggestion does not "
-            "work. Move the address into a configuration file and you have moved "
-            "the fact one step, and improved the ratio slightly. A human still "
-            "has to edit that file, and restart the process, and — worst of all — "
-            "that human still has to notice."
+            'The damage is wider than one outage. [[slnc 500]] A routine '
+            'release takes the caller down. [[slnc 300]] Adding capacity '
+            'does nothing: start a fourth copy for a busy Friday, and no '
+            'caller will ever use it. [[slnc 300]] And a crash has no '
+            'fallback, because there is nothing to fall back to. [[slnc '
+            '600]] But none of those is the real diagnosis. [[slnc 300]] '
+            'Here it is. [[slnc 500]] The set of running copies changes '
+            'several times a day. [[slnc 300]] With every release, every '
+            "scale-up, and every crash. [[slnc 300]] But the callers' "
+            'code only changes every couple of weeks. [[slnc 300]] A '
+            'fast-changing fact has been stored in a slow-changing place. '
+            '[[slnc 600]] That is why moving the address into a settings '
+            'file does not really help. [[slnc 300]] A person still has '
+            'to edit the file, restart the program, and most of all, '
+            'notice.'
         ),
     ),
     dict(
@@ -188,22 +191,25 @@ SCENES = [
             "Ask, every time. And be ready to be told wrong.",
         ],
         narration=(
-            "The pattern is usually stated something like this. Instances "
-            "register themselves with a registry when they start, renew that "
-            "registration from time to time, and deregister when they stop; and "
-            "callers query the registry for the current instances of a service. "
-            "[[slnc 350]] In plain words: don't write the address down. Ask, "
-            "every time. [[slnc 300]] And then there is a second half, which is "
-            "not in most statements of the pattern and which this video is going "
-            "to spend real time on: be ready to be told wrong. [[slnc 350]] "
-            "Notice what the first half fixes. An instance is reachable the "
-            "moment it starts, with no configuration change anywhere. A polite "
-            "shutdown is invisible to callers. Scaling up works. Nobody edits "
-            "anything. [[slnc 350]] And notice what it cannot fix, which is that "
-            "a program which has crashed cannot send a message saying it has "
-            "crashed. For a few seconds after a crash, the list will confidently "
-            "hand out the address of something that is not there. That is not a "
-            "flaw in any particular registry. It is the shape of the problem."
+            'Here is the pattern, as it is usually stated. [[slnc 400]] '
+            'Each copy registers itself with a registry when it starts. '
+            '[[slnc 300]] It renews that registration regularly. [[slnc '
+            '300]] And it removes itself when it stops. [[slnc 300]] '
+            'Callers ask the registry for the current copies of a '
+            'service. [[slnc 600]] In plain words: do not write the '
+            'address down. [[slnc 300]] Ask, every time. [[slnc 600]] And '
+            'there is a second half, which most descriptions leave out. '
+            '[[slnc 300]] Be ready to be told something wrong. [[slnc '
+            '600]] The first half fixes a lot. [[slnc 300]] A new copy is '
+            'reachable the moment it starts. [[slnc 300]] A polite '
+            'shutdown is invisible to callers. [[slnc 300]] Adding '
+            'capacity works. [[slnc 300]] Nobody edits anything. [[slnc '
+            '600]] But it cannot fix one thing. [[slnc 300]] A program '
+            'that has crashed cannot send a message saying it has '
+            'crashed. [[slnc 300]] So for a few seconds after a crash, '
+            'the list will hand out the address of something that is '
+            'gone. [[slnc 300]] That is not a flaw in any registry. '
+            '[[slnc 300]] It is the nature of the problem.'
         ),
     ),
     dict(
@@ -225,23 +231,24 @@ SCENES = [
             "stand there insisting. You take the next one.",
         ],
         narration=(
-            "The analogy to hold on to is a taxi rank. [[slnc 300]] One way to "
-            "get a taxi is to keep the mobile number of a driver called Dave. "
-            "That works beautifully, and it keeps working, right up until the "
-            "evening Dave is off. And then it goes on not working, while eleven "
-            "other drivers in town would happily take you, because your phone "
-            "knows about Dave and nobody else. [[slnc 400]] The other way is a "
-            "taxi rank. You know no driver's name at all. You go to the rank and "
-            "take whoever is at the front. Drivers join the rank when they start "
-            "a shift and leave it when they finish, and none of that requires you "
-            "to learn anything or change anything. [[slnc 350]] The rank is the "
-            "registry. The drivers are the instances. [[slnc 300]] And now here "
-            "is the detail that makes this more than a nice picture, so listen "
-            "for it. What do you do if you get into a car whose driver has just "
-            "been called away? [[slnc 300]] You do not stand there insisting. "
-            "You take the next one. [[slnc 350]] Hold on to that, because in the "
-            "code it turns out to be four lines, and without them the whole "
-            "pattern falls over exactly when you need it."
+            'Here is the analogy: a taxi rank. [[slnc 500]] One way to '
+            'get a taxi is to keep the phone number of a driver called '
+            'Dave. [[slnc 300]] That works well, until the evening Dave '
+            'is off. [[slnc 300]] Then it keeps not working, while eleven '
+            'other drivers in town would happily take you. [[slnc 300]] '
+            'Because your phone only knows about Dave. [[slnc 600]] The '
+            "other way is a taxi rank. [[slnc 300]] You know no driver's "
+            'name. [[slnc 300]] You just take whoever is at the front. '
+            '[[slnc 300]] Drivers join the rank when their shift starts, '
+            'and leave when it ends. [[slnc 300]] And you never need to '
+            'learn anything. [[slnc 500]] The rank is the registry. '
+            '[[slnc 300]] The drivers are the copies of the service. '
+            '[[slnc 600]] And here is the detail that matters. [[slnc '
+            '300]] What if you get into a car whose driver has just been '
+            'called away? [[slnc 300]] You do not stand there insisting. '
+            '[[slnc 300]] You take the next one. [[slnc 500]] Remember '
+            'that. [[slnc 300]] In the code, it is a tiny loop, and '
+            'without it the whole pattern fails exactly when you need it.'
         ),
     ),
     dict(
@@ -250,27 +257,24 @@ SCENES = [
         title="The Roles",
         body=None,
         narration=(
-            "So, the pieces. [[slnc 250]] At the top there is the caller: the "
-            "class in the project is called discovering pricing client. It holds a "
-            "reference to the registry rather than to an instance, and that one "
-            "difference is the entire pattern. It holds a source of addresses "
-            "where the old version held an address. [[slnc 350]] In the middle "
-            "sits the registry itself, called service registry. It keeps one entry "
-            "per instance, and each entry is a lease with a timestamp on it. "
-            "[[slnc 300]] To the side of it is that lease — a tiny record holding "
-            "the instance and the time of its last heartbeat. It is the only thing "
-            "in the project that stores a time, and it is what turns an ordinary "
-            "map into something that forgets. [[slnc 350]] On the right are the "
-            "pricing instances, and the direction of the arrows there is worth "
-            "saying out loud, because it is easy to get backwards. The arrows run "
-            "from the instances into the registry. Instances announce themselves. "
-            "Nothing in this system ever calls out to a service to ask whether it "
-            "is alive. [[slnc 300]] The reason is neat: a registry that polled "
-            "everybody would need a list of who everybody is, and building that "
-            "list is the original problem again, one level up. [[slnc 350]] And "
-            "kept deliberately beside the pattern rather than inside it is the "
-            "hardcoded client, so that the comparison is something you can run "
-            "rather than something I assert."
+            "Let's name the pieces. [[slnc 500]] First, the caller, "
+            'called the discovering pricing client. [[slnc 300]] It holds '
+            'the registry, not an address. [[slnc 300]] That one '
+            'difference is the whole pattern. [[slnc 500]] Second, the '
+            'registry. [[slnc 300]] It keeps one entry per running copy. '
+            '[[slnc 300]] Each entry is a lease, with a timestamp. [[slnc '
+            '500]] Third, that lease. [[slnc 300]] A tiny record of the '
+            'copy, and the time of its last heartbeat. [[slnc 300]] A '
+            'heartbeat is a regular message saying: I am still alive. '
+            '[[slnc 300]] The lease is what lets the registry forget. '
+            '[[slnc 500]] Fourth, the pricing copies themselves. [[slnc '
+            '300]] Notice the direction. [[slnc 300]] The copies announce '
+            'themselves to the registry. [[slnc 300]] Nothing ever calls '
+            'out to a service to ask if it is alive. [[slnc 300]] Because '
+            'to do that, the registry would need a list of everyone, '
+            'which is the original problem again. [[slnc 600]] And kept '
+            'beside the pattern, for comparison, is the hard-coded '
+            'client.'
         ),
     ),
     dict(
@@ -295,27 +299,25 @@ public List<ServiceInstance> instances(String serviceName) {
     ...
 }""",
         narration=(
-            "Now the registry, and most of it is deliberately boring. "
-            "[[slnc 300]] Registering is putting an entry in a map. Deregistering "
-            "is removing one. A heartbeat is putting the same entry back with a "
-            "fresher timestamp. If the class stopped there it would be a phone "
-            "book. [[slnc 400]] What makes it a registry is one comparison, and it "
-            "lives in the method that answers the question who is running. The "
-            "comparison is: take the current time, subtract the time of this "
-            "entry's last heartbeat, and if the difference is bigger than the "
-            "lease, throw the entry away. [[slnc 350]] In this project the lease "
-            "is three thousand milliseconds. [[slnc 300]] Ask yourself why a "
-            "registration needs to expire at all. Instances deregister when they "
-            "shut down, so why not trust them? [[slnc 350]] Because a program "
-            "that has crashed cannot send a message saying it has crashed. The "
-            "registry cannot detect death. It can only notice silence — and "
-            "silence is the one thing a dead process is extremely reliable at "
-            "producing. [[slnc 350]] Two small details worth hearing. The expiry "
-            "happens when somebody asks, not on a timer, so there is no "
-            "background thread anywhere in this project. And a heartbeat from an "
-            "instance the registry has never heard of does nothing at all, "
-            "quietly, because otherwise a stray heartbeat could walk a "
-            "deregistered instance back onto the list."
+            'Now the registry, and most of it is deliberately boring. '
+            '[[slnc 500]] Registering adds an entry to a list. [[slnc '
+            '300]] Removing takes one out. [[slnc 300]] A heartbeat puts '
+            'the same entry back, with a fresher time. [[slnc 300]] If it '
+            'stopped there, it would just be a phone book. [[slnc 600]] '
+            'What makes it a registry is one check. [[slnc 300]] When '
+            'someone asks who is running, it looks at each entry. [[slnc '
+            '300]] How long since its last heartbeat? [[slnc 300]] If it '
+            'is longer than the lease, the entry is thrown away. [[slnc '
+            '300]] In this project, the lease is three seconds. [[slnc '
+            '600]] Why must a registration expire at all? [[slnc 300]] '
+            'Copies remove themselves when they shut down, so why not '
+            'trust them? [[slnc 500]] Because a crashed program cannot '
+            'say it has crashed. [[slnc 300]] The registry cannot detect '
+            'death. [[slnc 300]] It can only notice silence. [[slnc 300]] '
+            'And a dead program is very reliable at being silent. [[slnc '
+            '600]] One more detail. [[slnc 300]] The expiry check happens '
+            'when someone asks, not on a timer. [[slnc 300]] So there is '
+            'no background thread anywhere in this project.'
         ),
     ),
     dict(
@@ -337,23 +339,24 @@ public List<ServiceInstance> instances(String serviceName) {
     throw lastFailure;      // everything offered is down: an honest answer
 }""",
         narration=(
-            "And here is the caller. There are two separate behaviours in this "
-            "short method and it is worth pulling them apart. [[slnc 350]] The "
-            "first is discovery. Ask the registry who is running, then call one of "
-            "them. Notice when the asking happens: at the top of every single "
-            "call, not once when the program starts. That matters more than it "
-            "looks. A client that looks the list up once and keeps it for the life "
-            "of the process has reinvented the hardcoded address with extra steps. "
-            "[[slnc 400]] The second behaviour is the loop. If the instance it was "
-            "given does not answer, it notes the word stale, and it moves down the "
-            "list to the next name. [[slnc 350]] That is the taxi driver who has "
-            "been called away. It is a loop and a caught exception, and it is the "
-            "difference between discovery that works and discovery that only works "
-            "on good days. [[slnc 350]] And look at the last line, because it is "
-            "also a decision. When every instance it was offered is dead, the "
-            "client fails. It does not hang, and it does not invent a price. "
-            "Everything is down is a real answer, and the client is allowed to "
-            "give it."
+            'Here is the caller. [[slnc 300]] It has two separate '
+            'behaviours. [[slnc 600]] The first is discovery. [[slnc '
+            '300]] Ask the registry who is running, then call one of '
+            'them. [[slnc 300]] And notice when it asks: on every single '
+            'call, not once at startup. [[slnc 500]] That matters. [[slnc '
+            '300]] A client that looks up the list once, and keeps it '
+            'forever, has just rebuilt the hard-coded address with extra '
+            'steps. [[slnc 600]] The second behaviour is the loop. [[slnc '
+            '300]] If the copy it was given does not answer, it logs the '
+            'word stale. [[slnc 300]] And it moves on to the next name on '
+            'the list. [[slnc 500]] That is the taxi driver who has been '
+            'called away. [[slnc 300]] It is a loop and a caught error. '
+            '[[slnc 300]] And it is the difference between discovery that '
+            'works, and discovery that only works on good days. [[slnc '
+            '600]] And at the end, if every copy it was offered is dead, '
+            'the client fails. [[slnc 300]] It does not hang, and it does '
+            'not invent a price. [[slnc 300]] Everything is down is a '
+            'real answer.'
         ),
     ),
     dict(
@@ -378,21 +381,22 @@ public List<ServiceInstance> instances(String serviceName) {
 
   no code changed, no restart, no configuration edit.""",
         narration=(
-            "Now the same deployment, with a registry in place. [[slnc 300]] "
-            "Follow the number of instances offered, because that number is the "
-            "whole story. [[slnc 300]] The first lookup is offered three "
-            "instances, and the price comes back in ten milliseconds. [[slnc 250]] "
-            "Then the deployment happens. Pricing one shuts down politely this "
-            "time, so on the way out it takes itself off the list. The next lookup "
-            "is offered two, and pricing two answers. [[slnc 300]] Then a fourth "
-            "instance starts up for a busy Friday and registers itself. The lookup "
-            "after that is offered three again. [[slnc 400]] Three, then two, then "
-            "three. A deployment and a scale-up, and the price came back correctly "
-            "every single time. [[slnc 350]] And here is the line that is the "
-            "actual return on the pattern: no code changed, no restart, no "
-            "configuration edit. Nobody was paged. Nobody noticed. [[slnc 300]] "
-            "The mechanical cost of all that is one extra message per call, the "
-            "one that asks the registry who is running."
+            'Second demo: the same release, with a registry. [[slnc 400]] '
+            'Listen to how many copies are offered each time. [[slnc '
+            '300]] That number tells the whole story. [[slnc 600]] The '
+            'first lookup is offered three copies. [[slnc 300]] The price '
+            'comes back in ten milliseconds. [[slnc 500]] Then the '
+            'release happens. [[slnc 300]] Pricing one shuts down '
+            'politely, and removes itself from the list on the way out. '
+            '[[slnc 300]] The next lookup is offered two, and pricing two '
+            'answers. [[slnc 500]] Then a fourth copy starts for a busy '
+            'Friday, and registers itself. [[slnc 300]] The next lookup '
+            'is offered three again. [[slnc 600]] Three, then two, then '
+            'three. [[slnc 300]] A release and a scale-up, and the price '
+            'came back correctly every time. [[slnc 500]] No code '
+            'changed. [[slnc 300]] No restart. [[slnc 300]] No settings '
+            'edited. [[slnc 300]] Nobody was called out. [[slnc 300]] '
+            'Nobody noticed.'
         ),
     ),
     dict(
@@ -411,23 +415,24 @@ public List<ServiceInstance> instances(String serviceName) {
   a client that trusted the first address would have failed here.
   This one tried the next name on the list.""",
         narration=(
-            "And now the half that usually gets skipped. [[slnc 300]] This time "
-            "pricing one does not shut down politely. The process simply dies. No "
-            "deregistration, because there is nobody left to send it. "
-            "[[slnc 350]] So the client asks the registry who is running, and it "
-            "is offered two instances. [[slnc 300]] Listen to that again. It is "
-            "offered two instances, and the first one is dead. The registry is not "
-            "wrong because somebody wrote it badly. It is wrong because it cannot "
-            "be right. [[slnc 400]] The client calls that first instance, gets "
-            "nothing, writes the word stale into its log, and moves down the list. "
-            "Pricing two answers, and the shopper gets a price. [[slnc 350]] "
-            "Count the cost of the crash: five milliseconds, and a line in a log. "
-            "[[slnc 300]] Without that loop it would have cost an outage — the "
-            "same outage we saw at the start, from the pattern that was supposed "
-            "to have fixed it. [[slnc 350]] Which is why I said this is a pair "
-            "rather than one idea. A registry without a caller that copes with "
-            "stale entries fails every time an instance dies, and dying instances "
-            "are precisely the situation it was introduced for."
+            'Third demo, and this is the half that usually gets skipped. '
+            '[[slnc 400]] This time, pricing one does not shut down '
+            'politely. [[slnc 300]] The program simply crashes. [[slnc '
+            '300]] It does not remove itself, because there is nobody '
+            'left to do it. [[slnc 600]] The client asks the registry who '
+            'is running. [[slnc 300]] It is offered two copies. [[slnc '
+            '300]] And the first one is dead. [[slnc 500]] The registry '
+            'is not wrong because it was badly written. [[slnc 300]] It '
+            'is wrong because it cannot be right. [[slnc 600]] The client '
+            'calls the first copy, and gets nothing. [[slnc 300]] It logs '
+            'the word stale, and moves on. [[slnc 300]] Pricing two '
+            'answers, and the shopper gets a price. [[slnc 500]] The '
+            'crash cost five milliseconds, and one line in a log. [[slnc '
+            '300]] Without that loop, it would have cost an outage. '
+            '[[slnc 600]] So a registry and a caller that copes with '
+            'wrong entries are a pair. [[slnc 300]] Without the loop, the '
+            'registry fails every time a copy dies. [[slnc 300]] Which is '
+            'exactly the situation it was meant for.'
         ),
     ),
     dict(
@@ -448,26 +453,27 @@ public List<ServiceInstance> instances(String serviceName) {
   the lease is 3000ms, so the wrong answer lasted a few seconds
   and then stopped. That window is the price of the pattern.""",
         narration=(
-            "So how long is the registry wrong for? [[slnc 300]] This is the act "
-            "with no caller in it at all. Time simply passes, one second at a "
-            "time, and we ask the registry how many instances it lists. "
-            "[[slnc 300]] Immediately after the crash: two. One second later: "
-            "still two. Two seconds: two. Three seconds: two. Four seconds later: "
-            "one. [[slnc 400]] For three full seconds the registry confidently "
-            "names a dead process, because the living instance keeps renewing its "
-            "lease and the dead one cannot. On the fourth second the dead lease "
-            "expires unrenewed, the entry is dropped, and the list becomes true "
-            "again. [[slnc 400]] That window is the honest price of this pattern, "
-            "and I want to be straight about it, because every real registry has "
-            "one. Eureka has it. Consul has it. The endpoints controller in "
-            "Kubernetes has it. [[slnc 350]] You can make the window shorter by "
-            "sending heartbeats more often, and then every instance spends more of "
-            "its life telling a registry that it is alive. That is a real trade "
-            "and you can pick either side of it. [[slnc 350]] What you cannot do "
-            "is make it zero, because the only message that would close the window "
-            "is the one a crashed process cannot send. [[slnc 300]] So the right "
-            "response is not to tune the lease until the problem goes away. It is "
-            "to write callers that expect to be handed a bad address now and then."
+            'Fourth demo: how long is the registry wrong for? [[slnc '
+            '400]] There is no caller in this demo. [[slnc 300]] Time '
+            'just passes, one second at a time, and we ask how many '
+            'copies the registry lists. [[slnc 600]] Right after the '
+            'crash: two. [[slnc 300]] One second later: still two. [[slnc '
+            '300]] Two seconds: two. [[slnc 300]] Three seconds: two. '
+            '[[slnc 300]] Four seconds later: one. [[slnc 600]] For three '
+            'whole seconds, the registry names a dead program. [[slnc '
+            '300]] The living copy keeps renewing its lease, and the dead '
+            'one cannot. [[slnc 300]] On the fourth second, the dead '
+            'lease expires, and the list becomes true again. [[slnc 600]] '
+            'That gap is the honest price of this pattern. [[slnc 300]] '
+            'Every real registry has one: Eureka, Consul, and Kubernetes '
+            'too. [[slnc 500]] You can shorten the gap by sending '
+            'heartbeats more often. [[slnc 300]] But then every copy '
+            'spends more time saying it is alive. [[slnc 300]] You cannot '
+            'make it zero. [[slnc 300]] Because the one message that '
+            'would close the gap is the one a crashed program cannot '
+            'send. [[slnc 500]] So do not try to tune the problem away. '
+            '[[slnc 300]] Write callers that expect a bad address now and '
+            'then.'
         ),
     ),
     dict(
@@ -490,24 +496,23 @@ public List<ServiceInstance> instances(String serviceName) {
 
 // 19 tests, no Thread.sleep, and the clock is simulated""",
         narration=(
-            "The tests are worth a minute, because of what they choose to assert. "
-            "[[slnc 300]] Both clients return four hundred and forty nine pounds "
-            "ninety nine. So a test that checked the price would pass on the "
-            "hardcoded version too, and would prove nothing at all. [[slnc 350]] "
-            "Instead the tests pin the behaviours that only discovery gives you. "
-            "That a new instance is found with no code or configuration change. "
-            "That a polite shutdown takes effect immediately. That a crashed "
-            "instance stays on the list, because it could not say otherwise — yes, "
-            "there is a test asserting that the registry is wrong, on purpose. "
-            "[[slnc 350]] That a stale entry is handed out and the caller copes by "
-            "trying the next one. That a lease is still good on its very last "
-            "millisecond, which is the kind of boundary that quietly drifts. And "
-            "that the registry is consulted on every call rather than once. "
-            "[[slnc 350]] There is also a test pinning the naive client's failure, "
-            "so the comparison cannot rot silently as the project changes. "
-            "[[slnc 300]] Nineteen tests, and not one of them calls sleep, even "
-            "the ones about a three second lease — because the clock is simulated "
-            "and four seconds of waiting is a number added to a counter."
+            'The tests are worth a moment, because of what they choose to '
+            'check. [[slnc 500]] Both clients return the same price. '
+            '[[slnc 300]] So a test that only checked the price would '
+            'pass on the hard-coded version too. [[slnc 300]] And prove '
+            'nothing. [[slnc 600]] Instead, the tests check what only '
+            'discovery gives you. [[slnc 300]] A new copy is found, with '
+            'no code or settings change. [[slnc 300]] A polite shutdown '
+            'takes effect at once. [[slnc 300]] A crashed copy stays on '
+            'the list, because it could not say otherwise. [[slnc 300]] '
+            'Yes, one test deliberately checks that the registry is '
+            'wrong. [[slnc 500]] A wrong entry is handed out, and the '
+            'caller copes by trying the next one. [[slnc 300]] A lease is '
+            'still valid on its very last millisecond. [[slnc 300]] And '
+            'the registry is asked on every call, not just once. [[slnc '
+            '600]] Nineteen tests, and not one of them waits. [[slnc '
+            '300]] Even the ones about a three-second lease. [[slnc 300]] '
+            'Because the clock is simulated.'
         ),
     ),
     dict(
@@ -529,27 +534,27 @@ public List<ServiceInstance> instances(String serviceName) {
             "still the right answer.",
         ],
         narration=(
-            "Now the costs, because a pattern presented without them is a sales "
-            "pitch. [[slnc 350]] First, the registry is a new thing that has to be "
-            "up. If it goes down and nobody can look anything up, then nothing can "
-            "call anything, which is a worse failure than the one we started with. "
-            "That is why real registries are run as a cluster of several nodes, and "
-            "why real clients usually keep the last good list they were given as a "
-            "fallback. [[slnc 350]] Which leads to the second cost, and it is an "
-            "uncomfortable one. That fallback deliberately reintroduces staleness. "
-            "Caching the list for a second or two is normal and sensible, and it "
-            "means you are knowingly choosing to sometimes be wrong, because the "
-            "alternative is being unavailable. The loop in the caller is what makes "
-            "that choice affordable. [[slnc 400]] Third: nothing is where you left "
-            "it. Which instance served a request is no longer something you can "
-            "read out of a configuration file — it is a decision taken at runtime. "
-            "That is the whole point, and it means your logs have to record which "
-            "instance answered, or debugging becomes guesswork. [[slnc 400]] And "
-            "finally, the honest one. If a service has exactly one instance, "
-            "started by hand, that never moves, then a constant is the right answer "
-            "and a registry is theatre. [[slnc 300]] The pattern earns its keep the "
-            "moment the number of instances stops being one — or, in practice, the "
-            "first time anybody wants to deploy without downtime."
+            'Now the costs, because a pattern without its costs is a '
+            'sales pitch. [[slnc 600]] First, the registry is a new thing '
+            'that must stay up. [[slnc 300]] If nobody can look anything '
+            'up, nothing can call anything. [[slnc 300]] That is worse '
+            'than where we started. [[slnc 300]] So real registries run '
+            'as several servers. [[slnc 300]] And real clients keep the '
+            'last good list, as a fallback. [[slnc 600]] Second, that '
+            'fallback deliberately brings back out-of-date answers. '
+            '[[slnc 300]] Keeping the list for a second or two is normal '
+            'and sensible. [[slnc 300]] You are choosing to be sometimes '
+            "wrong, rather than unavailable. [[slnc 300]] The caller's "
+            'loop is what makes that choice safe. [[slnc 600]] Third, '
+            'nothing is where you left it. [[slnc 300]] Which copy served '
+            'a request is decided while the program runs. [[slnc 300]] So '
+            'your logs must record which copy answered, or debugging '
+            'becomes guesswork. [[slnc 600]] And finally, the honest one. '
+            '[[slnc 300]] If a service has exactly one copy, started by '
+            'hand, that never moves, a written-down address is the right '
+            'answer. [[slnc 300]] The pattern earns its keep the moment '
+            'there is more than one copy. [[slnc 300]] Or the first time '
+            'anyone wants to release without downtime.'
         ),
     ),
     dict(
@@ -563,23 +568,25 @@ public List<ServiceInstance> instances(String serviceName) {
             "and falls over the first time something crashes.",
         ],
         narration=(
-            "That's the service discovery pattern. [[slnc 250]] The full source, "
-            "the written notes, the diagrams and an animated walkthrough are all in "
-            "the repository, and everything runs offline with nothing installed but "
-            "a Java development kit — no Docker, no Consul, no Kubernetes. "
-            "[[slnc 300]] If you try one exercise, try this one. Delete the loop "
-            "from the caller, so that it uses only the first instance the registry "
-            "offers, and then run the tests. [[slnc 300]] Watch which ones fail. "
-            "Every deployment test still passes. Only the crash tests break. "
-            "[[slnc 350]] That is exactly the trap a real system falls into, "
-            "because deployments happen constantly while you are testing, and "
-            "crashes do not. You can ship a registry that looks perfect for months "
-            "and fails the first night something dies badly. [[slnc 300]] It takes "
-            "two minutes, and it is the moment that trying the next name stops "
-            "being advice and becomes code. [[slnc 300]] If this helped, a like "
-            "genuinely does help other people find it, and subscribe if you would "
-            "like the rest of the series. [[slnc 250]] Thanks for watching, and "
-            "I'll see you in the next one."
+            "That's the Service Discovery pattern. [[slnc 400]] If you "
+            'remember one sentence, make it this one. [[slnc 300]] Do not '
+            'write the address down, ask every time, and be ready to be '
+            'told wrong, by trying the next name on the list. [[slnc '
+            '500]] The full source code, written notes, diagrams, and an '
+            'animated walkthrough are all in the repository. [[slnc 300]] '
+            'It runs offline, with nothing installed except a Java '
+            'development kit. [[slnc 500]] Here is one exercise to try. '
+            '[[slnc 300]] Delete the loop from the caller, so it only '
+            'uses the first copy it is offered. [[slnc 300]] Then run the '
+            'tests. [[slnc 300]] Every release test still passes. [[slnc '
+            '300]] Only the crash tests fail. [[slnc 500]] That is the '
+            'real trap. [[slnc 300]] Releases happen all the time while '
+            'you test, but crashes do not. [[slnc 300]] So a registry can '
+            'look perfect for months, and fail the first night something '
+            'crashes. [[slnc 500]] If this helped, a like really does '
+            'help other people find it. [[slnc 300]] And subscribe, if '
+            "you'd like the rest of the series. [[slnc 400]] Thanks for "
+            'watching.'
         ),
     ),
 ]

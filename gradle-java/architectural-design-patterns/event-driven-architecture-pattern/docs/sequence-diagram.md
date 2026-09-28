@@ -6,22 +6,4 @@ Say it in words. The order service appends an order placed event to the log, and
 
 ![Event-Driven Architecture pattern sequence diagram](images/sequence-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant O as order service
-    participant L as log
-    participant S as shipping
-    O->>L: append OrderPlaced ORD-1
-    Note over S: was down
-    S->>L: read from my position
-    L-->>S: ORD-1
-    S->>S: plan delivery
-```
-
-</details>
-
 The load-bearing sentence: **the writer never calls a reader.**

@@ -19,21 +19,21 @@ The first two lines are what a viewer sees above the fold, so they carry the hoo
 ```
 CHAPTERS
 00:00 Introduction
-00:52 The Partner Project
-01:15 Before The First Line
-01:36 The Subject Knows Nobody
-01:53 On The Caller's Thread
-02:06 One Listener Fails
-02:27 A Listener On Another Thread
-02:47 A Listener That Filters
-03:03 An Event Nobody Hears
-03:21 The Verdict
-03:33 How To Recognise It
-03:45 Where You Have Met This
-03:54 What Was Used
-04:02 What Is Real Here
-04:14 When This Is Too Much
-04:23 Thanks for Watching
+00:57 The Partner Project
+01:23 Before The First Line
+01:45 The Subject Knows Nobody
+02:08 On The Caller's Thread
+02:26 One Listener Fails
+02:51 A Listener On Another Thread
+03:21 A Listener That Filters
+03:45 An Event Nobody Hears
+04:05 The Verdict
+04:19 How To Recognise It
+04:32 Where You Have Met This
+04:42 What Was Used
+04:51 What Is Real Here
+05:03 When This Is Too Much
+05:14 Thanks for Watching
 
 SOURCE CODE, WRITTEN NOTES AND AN INTERACTIVE ANIMATION
 https://github.com/jk-boot-up/java-design-patterns/tree/main/gradle-java/behavioural/observer-with-spring-pattern
@@ -48,21 +48,21 @@ YouTube renders these as chapters only if there are at least three and the first
 
 ```
 00:00 Introduction
-00:52 The Partner Project
-01:15 Before The First Line
-01:36 The Subject Knows Nobody
-01:53 On The Caller's Thread
-02:06 One Listener Fails
-02:27 A Listener On Another Thread
-02:47 A Listener That Filters
-03:03 An Event Nobody Hears
-03:21 The Verdict
-03:33 How To Recognise It
-03:45 Where You Have Met This
-03:54 What Was Used
-04:02 What Is Real Here
-04:14 When This Is Too Much
-04:23 Thanks for Watching
+00:57 The Partner Project
+01:23 Before The First Line
+01:45 The Subject Knows Nobody
+02:08 On The Caller's Thread
+02:26 One Listener Fails
+02:51 A Listener On Another Thread
+03:21 A Listener That Filters
+03:45 An Event Nobody Hears
+04:05 The Verdict
+04:19 How To Recognise It
+04:32 Where You Have Met This
+04:42 What Was Used
+04:51 What Is Real Here
+05:03 When This Is Too Much
+05:14 Thanks for Watching
 ```
 
 ## Tags
@@ -101,4 +101,4 @@ Add a card partway through pointing at the playlist, so a viewer who arrives at 
 
 ## Runtime
 
-Approximately 04:57, narrated at 145 words per minute.
+Approximately 05:52, narrated at 145 words per minute.

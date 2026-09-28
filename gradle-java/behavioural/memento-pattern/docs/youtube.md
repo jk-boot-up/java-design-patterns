@@ -19,19 +19,19 @@ The first two lines are what a viewer sees above the fold, so they carry the hoo
 ```
 CHAPTERS
 00:00 Introduction
-00:49 The Scenario
-01:30 Look Closely at One Line
-02:08 The Naive Approach — Undo Without a Snapshot
-02:44 Why That Hurts
-03:48 The Memento Pattern
-04:32 An Analogy
-05:22 The Roles
-06:06 The Memento — Two Interfaces, No Framework
-07:02 The Originator and the Caretaker
-07:52 The Tests — Asserting the Structure, Not Just the Behaviour
-08:49 Running It
-09:35 What to Remember
-11:06 Thanks for Watching
+00:54 The Scenario
+01:26 Look Closely at One Line
+02:03 The Naive Approach — Undo Without a Snapshot
+02:34 Why That Hurts
+03:23 The Memento Pattern
+03:59 An Analogy
+04:42 The Roles
+05:17 The Memento — Two Interfaces, No Framework
+06:02 The Originator and the Caretaker
+06:54 The Tests — Asserting the Structure, Not Just the Behaviour
+07:30 Running It
+08:15 What to Remember
+09:21 Thanks for Watching
 
 SOURCE CODE, WRITTEN NOTES AND AN INTERACTIVE ANIMATION
 https://github.com/jk-boot-up/java-design-patterns/tree/main/gradle-java/behavioural/memento-pattern
@@ -46,19 +46,19 @@ YouTube renders these as chapters only if there are at least three and the first
 
 ```
 00:00 Introduction
-00:49 The Scenario
-01:30 Look Closely at One Line
-02:08 The Naive Approach — Undo Without a Snapshot
-02:44 Why That Hurts
-03:48 The Memento Pattern
-04:32 An Analogy
-05:22 The Roles
-06:06 The Memento — Two Interfaces, No Framework
-07:02 The Originator and the Caretaker
-07:52 The Tests — Asserting the Structure, Not Just the Behaviour
-08:49 Running It
-09:35 What to Remember
-11:06 Thanks for Watching
+00:54 The Scenario
+01:26 Look Closely at One Line
+02:03 The Naive Approach — Undo Without a Snapshot
+02:34 Why That Hurts
+03:23 The Memento Pattern
+03:59 An Analogy
+04:42 The Roles
+05:17 The Memento — Two Interfaces, No Framework
+06:02 The Originator and the Caretaker
+06:54 The Tests — Asserting the Structure, Not Just the Behaviour
+07:30 Running It
+08:15 What to Remember
+09:21 Thanks for Watching
 ```
 
 ## Tags
@@ -97,4 +97,4 @@ Add a card partway through pointing at the playlist, so a viewer who arrives at 
 
 ## Runtime
 
-Approximately 11:42, narrated at 145 words per minute.
+Approximately 09:59, narrated at 145 words per minute.

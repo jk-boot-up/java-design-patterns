@@ -10,53 +10,60 @@ SCENES = [
         key='01-poster', kind='poster', title='Lazy Load with Hibernate',
         body=None,
         narration=(
-            'Hello, and welcome. This video explains Lazy Load with '
-            'Hibernate, in Java, and it is written and presented by '
-            'Jayasekhar Konduru. [[slnc 300]] It is the framework version '
-            'of the Lazy Load video. That one built the pattern by hand. '
-            'This one is about the most searched Java error there is: '
-            'lazy initialization exception. [[slnc 350]] The plain '
-            'definition: a lazy field does not hold its data. It holds a '
-            'stand-in, that loads the data the first time somebody asks. '
-            '[[slnc 300]] By the end you will know exactly what is in '
-            'that field, why asking after the session has closed fails, '
-            'and what each of the three usual fixes costs.'
+            'Hello, and welcome. [[slnc 400]] This video explains the '
+            'Lazy Load pattern, in Java, using Hibernate. [[slnc 300]] '
+            'This video is presented by Jayasekhar Konduru. [[slnc 600]] '
+            'First, a simple definition. [[slnc 300]] A lazy field does '
+            'not hold its data straight away. [[slnc 300]] It holds a '
+            'stand-in, which loads the data the first time someone asks. '
+            '[[slnc 600]] Think of a gift voucher. [[slnc 300]] It is not '
+            'the gift itself. [[slnc 300]] It only turns into the gift if '
+            'you redeem it while the shop is still open. [[slnc 700]] '
+            'This is the framework version of the Lazy Load video. [[slnc '
+            '300]] And it is about one of the most searched Java errors '
+            'there is: the Lazy Initialization Exception. [[slnc 500]] By '
+            'the end, you will know exactly what is in a lazy field. '
+            '[[slnc 300]] Why asking after the session has closed fails. '
+            '[[slnc 300]] And what each of the three usual fixes costs.'
         ),
     ),
     dict(
         key='02-partner', kind='bullets', title='The Partner Project',
         body=['Lazy Load, the hand-built video,', 'built four lazy variants and a', 'session-closed failure from', 'plain Java.', '', 'This video uses the same store', 'and shows what Hibernate does.', '', 'If you have not seen that one,', 'start there.'],
         narration=(
-            'This video assumes the Lazy Load video. If you have not seen '
-            'it, start there. It builds four ways of loading later, by '
-            'hand, and a failure when the session has closed. [[slnc '
-            '300]] This one uses the very same store: five customers, '
-            'twenty orders, four lines in each. It does not teach the '
-            'pattern again. It shows the real exception, from Hibernate '
-            'itself.'
+            'Before we start, a quick note. [[slnc 300]] This video has a '
+            'partner: the hand-built Lazy Load video. [[slnc 400]] That '
+            'one builds four ways of loading later, by hand, and shows a '
+            'failure once the session has closed. [[slnc 500]] Here, we '
+            'use the very same store. [[slnc 300]] Five customers, twenty '
+            'orders, and four lines in each order. [[slnc 300]] We will '
+            'not teach the pattern again. [[slnc 300]] Instead, we hear '
+            'the real error, from Hibernate itself.'
         ),
     ),
     dict(
         key='03-dependencies', kind='bullets', title='Before The First Annotation',
         body=['Two things are new: Hibernate and H2.', '', 'Hibernate turns operations on objects', 'into SQL. H2 is a database that runs', 'inside the test, so nothing is installed.', '', 'Skipping this video loses none', 'of the pattern.'],
         narration=(
-            'Before the first annotation, two new things. Hibernate is '
-            'the most widely used implementation of J P A. You mark your '
-            'classes, and it turns operations on them into S Q L. [[slnc '
-            '300]] H two is a database that runs inside the test, in '
-            'memory, so nothing needs installing. [[slnc 300]] And a '
-            'promise: skipping this video loses none of the pattern. The '
-            'hand-built one teaches all of it. This one explains an '
-            'exception.'
+            'Two things are new in this project. [[slnc 400]] First, '
+            'Hibernate, the most widely used implementation of J P A, '
+            "Java's standard for storing objects. [[slnc 300]] You mark "
+            'your classes, and it turns work on those objects into '
+            'database commands. [[slnc 500]] Second, H2, a database that '
+            'runs in memory, inside the test, so nothing needs '
+            'installing. [[slnc 500]] And one promise. [[slnc 300]] If '
+            'you skip this video, you lose none of the pattern. [[slnc '
+            '300]] This one explains an error.'
         ),
     ),
     dict(
         key='04-lazy-word', kind='bullets', title='One Word Makes It Lazy',
         body=['@ManyToOne(fetch = LAZY)', '', "An order's customer, and its lines,", 'are both declared lazy.', '', 'That one word is what this', 'whole video is about.'],
         narration=(
-            'Here is the one word. On the order class, the customer, and '
-            'the lines, are both declared with fetch type lazy. [[slnc '
-            '300]] That one word is what this whole video is about.'
+            'Here is the one word that matters. [[slnc 400]] On the order '
+            "class, the customer, and the order's lines, are both marked "
+            'with fetch type lazy. [[slnc 500]] That one word is what '
+            'this whole video is about.'
         ),
     ),
     dict(
@@ -73,13 +80,16 @@ SCENES = [
   the failure is where it
   was used.""",
         narration=(
-            'Now the failure, on purpose. Load an order. Close the '
-            "session. Then ask the order for its customer's name. [[slnc "
-            '300]] The order loaded fine. Asking for the name threw a '
-            'lazy initialization exception. Could not initialize proxy, '
-            'customer number one, no session. [[slnc 300]] Look where it '
-            'failed. Not where the order was loaded. Where the customer '
-            'was used. That is why it is so hard to find.'
+            'First demo: the error, on purpose. [[slnc 400]] Load an '
+            'order. [[slnc 300]] Close the session. [[slnc 300]] Then ask '
+            "the order for its customer's name. [[slnc 500]] The order "
+            'loaded fine. [[slnc 300]] But asking for the name threw a '
+            'Lazy Initialization Exception. [[slnc 300]] The message '
+            'says: could not initialise proxy, customer number one, no '
+            'session. [[slnc 500]] Notice where it failed. [[slnc 300]] '
+            'Not where the order was loaded, but where the customer was '
+            'used. [[slnc 300]] That is why this error is so hard to '
+            'track down.'
         ),
     ),
     dict(
@@ -97,15 +107,15 @@ SCENES = [
   ask for the name, inside
   the session: initialised.""",
         narration=(
-            'So what is actually in that field? Not a customer. Hibernate '
-            'generated a subclass of the customer class. It holds only '
-            "two things: the customer's id, and a reference to the "
-            'session. It has not loaded anything. Initialised: false. '
-            '[[slnc 300]] Ask it for the name while the session is open, '
-            'and it selects the customer, and becomes initialised. [[slnc '
-            '300]] Close the session first, and it has nothing to load '
-            'with. That is the exception. Not a bug. A promise that '
-            'needed something that has gone.'
+            'So what is actually in that field? [[slnc 400]] Not a '
+            'customer. [[slnc 500]] Hibernate generated a subclass of the '
+            'customer class. [[slnc 300]] It holds just two things: the '
+            "customer's I D, and a link to the session. [[slnc 300]] It "
+            'has not loaded anything yet. [[slnc 500]] Ask it for the '
+            'name while the session is open, and it loads the customer. '
+            '[[slnc 300]] Close the session first, and it has nothing to '
+            'load with. [[slnc 500]] That is the error. [[slnc 300]] Not '
+            'a bug, but a promise that needed something that is now gone.'
         ),
     ),
     dict(
@@ -120,18 +130,19 @@ SCENES = [
   stay open while the page
   renders.""",
         narration=(
-            'The first usual fix: keep the session open while the page '
-            'renders. It works. [[slnc 300]] Twenty orders, each with its '
-            "customer's name: six statements. Not twenty-one. One for the "
-            'orders, and one for each of the five different customers, '
-            'because the session loads each customer only once. That is '
-            'the identity map from the earlier video, at work. [[slnc '
-            '300]] But twenty orders, each with its line count: '
-            'twenty-one statements. One for the orders, then one for '
-            "every order's lines. That is N plus one. [[slnc 300]] The "
-            'cost: the session, and its database connection, stay open '
-            'while the page renders. And the extra queries are hidden '
-            'inside the view, where nobody looks.'
+            'The first usual fix: keep the session open while the page is '
+            'built. [[slnc 300]] It works. [[slnc 500]] Twenty orders, '
+            "each showing its customer's name: six database queries, not "
+            'twenty-one. [[slnc 300]] One for the orders, and one for '
+            'each of the five different customers. [[slnc 300]] Because '
+            'the session loads each customer only once. [[slnc 500]] But '
+            'twenty orders, each showing how many lines it has: '
+            'twenty-one queries. [[slnc 300]] One for the orders, then '
+            "one for each order's lines. [[slnc 300]] That is the N plus "
+            'one problem. [[slnc 500]] The cost: the session, and its '
+            'database connection, stay open while the page is built. '
+            '[[slnc 300]] And the extra queries hide inside the page '
+            'code, where nobody looks.'
         ),
     ),
     dict(
@@ -147,14 +158,15 @@ SCENES = [
 
   every caller gets the lines.""",
         narration=(
-            'The second fix: fetch it in the same query, with a join '
-            'fetch. One statement, for the customers. One statement, for '
-            'the lines. [[slnc 300]] The cost is hidden in the middle. '
-            'Fetching the lines makes the database send eighty rows for '
-            'twenty orders, each order repeated once for each of its four '
-            'lines. Hibernate folds them back together for you. [[slnc '
-            '300]] And every caller of that query now gets the lines, '
-            'whether it wanted them or not.'
+            'The second fix: fetch the related data in the same query, '
+            'with a join fetch. [[slnc 500]] One query for the customers. '
+            '[[slnc 300]] And one query for the lines. [[slnc 500]] But '
+            'there is a hidden cost. [[slnc 300]] Fetching the lines '
+            'makes the database send eighty rows for twenty orders. '
+            '[[slnc 300]] Each order is repeated, once for each of its '
+            'four lines. [[slnc 300]] Hibernate folds them back together '
+            'for you. [[slnc 500]] And every caller of that query now '
+            'gets the lines, whether it wanted them or not.'
         ),
     ),
     dict(
@@ -170,80 +182,88 @@ SCENES = [
 
   a class for every query.""",
         narration=(
-            'The third fix: ask for exactly what the page needs. A '
-            'projection. One statement, twenty rows, each with just an '
-            'order number and a customer name. [[slnc 300]] No entity. No '
-            'proxy. Nothing lazy left to fail. [[slnc 300]] The cost: a '
-            'class for every query, and a row is not an object with '
-            'behaviour. This is the idea from the D T O video, arriving '
-            'from the other direction.'
+            'The third fix: ask for exactly what the page needs. [[slnc '
+            '300]] This is called a projection. [[slnc 500]] One query, '
+            'twenty rows, each with just an order number and a customer '
+            'name. [[slnc 300]] No entity, no stand-in, and nothing lazy '
+            'left to fail. [[slnc 500]] The cost: a small class for every '
+            'query. [[slnc 300]] And a row is not an object with '
+            'behaviour. [[slnc 300]] This is the idea from the D T O '
+            'video, arriving from the other direction.'
         ),
     ),
     dict(
         key='10-not-eager', kind='bullets', title='The Fix Not On The List',
         body=['Make the mapping EAGER.', '', 'That removes the exception.', '', 'And it brings back the first act', 'of the partner video: loading one', 'order loads the shop.'],
         narration=(
-            'There is a fourth fix, that is not on the list, because it '
-            'is the one to be careful of. Make the mapping eager. That '
-            'removes the exception. [[slnc 300]] And it brings back the '
-            'first act of the Lazy Load video: load one order, and you '
-            'load the shop.'
+            'There is a fourth fix, which is not on the list, because it '
+            'needs care. [[slnc 400]] Make the relationship eager, '
+            'instead of lazy. [[slnc 300]] That removes the error. [[slnc '
+            '500]] But it brings back the first problem from the Lazy '
+            'Load video. [[slnc 300]] Load one order, and you load the '
+            'whole shop.'
         ),
     ),
     dict(
         key='11-met', kind='bullets', title='Where You Have Met This',
         body=['In a Spring application it is almost', 'always a controller or a view using', 'a lazy field after the transaction', 'has ended.', '', 'Exactly act one.'],
         narration=(
-            'You have very likely met this in a Spring application. It is '
-            'almost always a controller, or a view, using a lazy field '
-            'after the transaction has ended. Exactly act one. [[slnc '
-            '300]] Now you know the mechanism, not just the workaround.'
+            'You have very likely met this in a Spring application. '
+            '[[slnc 400]] It is almost always a controller, or a page '
+            'template, using a lazy field after the transaction has '
+            'ended. [[slnc 300]] Exactly the first demo. [[slnc 500]] Now '
+            'you know the cause, not just the workaround.'
         ),
     ),
     dict(
         key='12-versions', kind='bullets', title='What Was Used',
         body=['Hibernate ORM 7.4.5.', 'H2 2.4.240.', "Versions from Spring Boot 4.1.1's", 'bill of materials.', '', 'Spring Boot itself is not used.'],
         narration=(
-            'For the record. Hibernate O R M seven point four point five, '
-            'and H two two point four point two forty. The versions come '
-            "from Spring Boot four point one point one's bill of "
-            'materials. Spring Boot itself is not used in this video.'
+            'For the record, here are the versions. [[slnc 300]] '
+            'Hibernate seven point four point five. [[slnc 300]] And H2 '
+            'two point four point two forty. [[slnc 400]] These versions '
+            "come from Spring Boot four point one point one's list of "
+            'tested libraries. [[slnc 300]] But Spring Boot itself is not '
+            'used here.'
         ),
     ),
     dict(
         key='13-real', kind='bullets', title='What Is Real Here',
         body=['Everything is real: the exception,', 'the proxy, and the statement counts', "from Hibernate's own statistics.", '', 'The database is H2 in memory.'],
         narration=(
-            'The same honest admission as everywhere in this course, and '
-            'again a short one. Everything is real. The exception is '
-            "Hibernate's. The proxy is Hibernate's. The statement counts "
-            "come from Hibernate's own statistics. The only stand-in is "
-            'the database, which is H two in memory.'
+            'A quick, honest note about this demo. [[slnc 300]] '
+            'Everything here is real. [[slnc 300]] The error is '
+            "Hibernate's. [[slnc 300]] The stand-in is Hibernate's. "
+            "[[slnc 300]] And the query counts come from Hibernate's own "
+            'statistics. [[slnc 400]] The only stand-in is the database, '
+            'which is H2, in memory.'
         ),
     ),
     dict(
         key='14-too-much', kind='bullets', title='When This Is Too Much',
         body=['If you almost always need the related', 'data, lazy loading only adds queries.'],
         narration=(
-            'So when is lazy loading too much? If you almost always need '
-            'the related data, it only adds queries. It earns its place '
-            'when the related data is large, and rarely needed.'
+            'So, when is lazy loading too much? [[slnc 400]] If you '
+            'almost always need the related data, it only adds extra '
+            'queries. [[slnc 400]] It earns its place when the related '
+            'data is large, and rarely needed.'
         ),
     ),
     dict(
         key='15-outro', kind='outro', title='Thanks for Watching',
         body=['Full source, notes, diagrams and an animated walkthrough', 'are in the repository. Add a batch size to the lines', 'and count the statements.'],
         narration=(
-            "That's Lazy Load with Hibernate. [[slnc 250]] If you take "
-            'one sentence away, take this one: a lazy field is a promise '
-            'that needs a session to keep. [[slnc 350]] The full source, '
-            'the written notes, the diagrams and an animated walkthrough '
-            'are all in the repository. [[slnc 300]] If you try one '
-            'exercise, add a batch size to the lines, and count the '
-            'statements. [[slnc 300]] If this helped, a like genuinely '
-            'does help other people find it, and subscribe if you would '
-            'like the rest of the series. [[slnc 250]] Thanks for '
-            'watching.'
+            "That's Lazy Load with Hibernate. [[slnc 400]] If you "
+            'remember one sentence, make it this one. [[slnc 300]] A lazy '
+            'field is a promise, and it needs an open session to keep it. '
+            '[[slnc 500]] The full source code, written notes, diagrams, '
+            'and an animated walkthrough are all in the repository. '
+            '[[slnc 500]] Here is one exercise to try. [[slnc 300]] Add a '
+            'batch size setting to the order lines. [[slnc 300]] Then '
+            'count the queries again. [[slnc 500]] If this helped, a like '
+            'really does help other people find it. [[slnc 300]] And '
+            "subscribe, if you'd like the rest of the series. [[slnc "
+            '400]] Thanks for watching.'
         ),
     ),
 ]

@@ -19,19 +19,19 @@ The first two lines are what a viewer sees above the fold, so they carry the hoo
 ```
 CHAPTERS
 00:00 Introduction
-00:45 The Scenario
-01:04 A Monitor — The Caller Waits
-01:28 The Pattern — A Thread And A Mailbox
-01:55 The Call Returns At Once
-02:22 No Lock At All
-02:47 What It Is Made Of
-03:13 Cost One — The Mailbox Backs Up
-03:38 Cost Two — Errors Arrive Later
-04:01 Cost Three — One Worker Is A Ceiling
-04:26 How The Demo Forces It
-04:49 What The Scheduler Really Does
-05:13 Where This Leads, And When It Is Too Much
-05:38 Thanks for Watching
+00:56 The Scenario
+01:16 A Monitor — The Caller Waits
+01:43 The Pattern — A Thread And A Mailbox
+02:15 The Call Returns At Once
+02:45 No Lock At All
+03:13 What It Is Made Of
+03:42 Cost One — The Mailbox Backs Up
+04:09 Cost Two — Errors Arrive Later
+04:35 Cost Three — One Worker Is A Ceiling
+05:02 How The Demo Forces It
+05:31 What The Scheduler Really Does
+05:57 Where This Leads, And When It Is Too Much
+06:25 Thanks for Watching
 
 SOURCE CODE, WRITTEN NOTES AND AN INTERACTIVE ANIMATION
 https://github.com/jk-boot-up/java-design-patterns/tree/main/gradle-java/concurrency-design-patterns/active-object-pattern
@@ -46,19 +46,19 @@ YouTube renders these as chapters only if there are at least three and the first
 
 ```
 00:00 Introduction
-00:45 The Scenario
-01:04 A Monitor — The Caller Waits
-01:28 The Pattern — A Thread And A Mailbox
-01:55 The Call Returns At Once
-02:22 No Lock At All
-02:47 What It Is Made Of
-03:13 Cost One — The Mailbox Backs Up
-03:38 Cost Two — Errors Arrive Later
-04:01 Cost Three — One Worker Is A Ceiling
-04:26 How The Demo Forces It
-04:49 What The Scheduler Really Does
-05:13 Where This Leads, And When It Is Too Much
-05:38 Thanks for Watching
+00:56 The Scenario
+01:16 A Monitor — The Caller Waits
+01:43 The Pattern — A Thread And A Mailbox
+02:15 The Call Returns At Once
+02:45 No Lock At All
+03:13 What It Is Made Of
+03:42 Cost One — The Mailbox Backs Up
+04:09 Cost Two — Errors Arrive Later
+04:35 Cost Three — One Worker Is A Ceiling
+05:02 How The Demo Forces It
+05:31 What The Scheduler Really Does
+05:57 Where This Leads, And When It Is Too Much
+06:25 Thanks for Watching
 ```
 
 ## Tags
@@ -97,4 +97,4 @@ Add a card partway through pointing at the playlist, so a viewer who arrives at 
 
 ## Runtime
 
-Approximately 06:15, narrated at 145 words per minute.
+Approximately 07:00, narrated at 145 words per minute.

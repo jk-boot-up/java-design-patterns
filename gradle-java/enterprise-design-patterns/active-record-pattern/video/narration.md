@@ -2,56 +2,56 @@
 
 ## 1. Active Record
 
-Hello, and welcome. This video explains the Active Record pattern in Java, and it is written and presented by Jayasekhar Konduru. The plain definition: an active record is an object that wraps one row of a database table. It carries the rules about that row, and it knows how to find itself, save itself and change itself. This is another project in the enterprise category, whose subject is how a business application organises its logic, its data and its requests. In our online store, the thing that saves itself is an order. By the end you will see an order find and save itself in three lines, see its rules sit beside its data, and then see the three bills: a rule that cannot be tested without the table, a class that is the table, and queries you cannot see.
+Hello, and welcome. This video explains the Active Record pattern, in Java. This video is presented by Jayasekhar Konduru. First, a simple definition. An active record is an object that wraps one row of a database table. It carries the rules about that row. And it knows how to find itself, save itself, and change itself. Think of a paper form that can file itself in the right drawer. Convenient, but the form now has to know how the filing cabinet works. In our online store, the thing that saves itself is an order. In this video, an order finds and saves itself in three lines, with its rules right beside its data. Then we will hear three costs. A rule you cannot test without the table, a class that is the table, and database queries you cannot see.
 
 ## 2. The Scenario
 
-Here is the scenario. The online store keeps orders in a table. Each order has a customer, a total and a status. Orders are created, changed while they are drafts, placed, and looked up by customer. The question: who does the saving?
+Here is the scenario. The online store keeps its orders in a database table. Each order has a customer, a total, and a status. Orders are created, changed while they are still drafts, placed, and looked up by customer. So here is the question. Who does the saving?
 
 ## 3. A Record That Saves Itself
 
-First, a record that saves itself. An order is created, saved, and found again, in three lines. Order one, for customer one, sixteen hundred pence, a draft. There is no repository and no mapper. The order is the row.
+First demo: a record that saves itself. An order is created, saved, and found again, in three lines. Order one, for customer one, sixteen pounds, as a draft. There is no repository, and no mapper. The order is the row.
 
 ## 4. The Pattern
 
-The pattern. One class is one row of a table. It finds itself and saves itself. The finders are static methods on the class. And the rules about the row are written on the row, right beside the data.
+Now, the pattern. One class represents one row of a table. It finds itself, and saves itself. Methods for finding records are static methods on the class. And the rules about the row are written on the row, right beside its data.
 
 ## 5. Finders On The Class
 
-Second, finders on the class. Ask the order class for one customer's orders, and it returns three, with totals of five hundred, a thousand, and fifteen hundred. The class you use to make an order is the class you use to look one up.
+Second demo: finders on the class. Ask the Order class for customer two's orders. It returns three, with totals of five pounds, ten pounds, and fifteen pounds. The same class you use to create an order is the class you use to look one up.
 
 ## 6. The Rules Are On The Record
 
-Third, the rules are on the record. A placed order refuses a new line. An empty order refuses to be placed. What an order may do sits right beside what an order is. That is the appeal: one class, and everything about orders is in it.
+Third demo: the rules live on the record. A placed order refuses a new line. An empty order refuses to be placed. What an order may do sits right beside what an order is. That is the appeal. One class, and everything about orders is in it.
 
 ## 7. The Bill: A Rule That Needs The Table
 
-Fourth, the first bill. Is a sixty pound order eligible for free delivery? Written on the record, the rule loads the customer to answer, so it touches the table once. The same rule on two numbers touches nothing. To test the rule on the record, a customers table has to exist, and hold a customer.
+Fourth demo: the first cost. Is a sixty pound order eligible for free delivery? Written on the record, the rule loads the customer to find out. So it touches the database once. The same rule, written as a plain function of two numbers, touches nothing. So to test the rule on the record, a customers table must exist, and hold a customer.
 
 ## 8. The Bill: The Class Is The Table
 
-Fifth, the second bill. A column in the table is renamed. Loading an order now fails: the table has no column total pence. The fields of the class are the columns of the table. One cannot change without the other.
+Fifth demo: the second cost. A column in the table is renamed. Loading an order now fails, because the table has no column called total pence. The fields of the class are the columns of the table. One cannot change without the other.
 
 ## 9. The Bill: Queries You Cannot See
 
-Last, the third bill. Check five orders for free delivery, and there are five table operations, because each call loads the customer again. Each call looked innocent, and nothing in the loop shows it. With a hundred orders, it is a hundred queries.
+Last demo: the third cost, queries you cannot see. Check five orders for free delivery. That makes five database queries, because each check loads the customer again. Each call looked innocent. And nothing in the loop shows the queries. With a hundred orders, it would be a hundred queries.
 
 ## 10. How To Recognise It
 
-How do you recognise this in code you did not write? A class with save(), find() and delete() on it. Ruby on Rails' ActiveRecord, and Laravel's Eloquent. JPA entities with methods that reach for the database themselves. Fields named exactly like columns.
+How can you spot this pattern in code someone else wrote? Look for a class with save, find, and delete methods on it. Look for Ruby on Rails' Active Record, or Laravel's Eloquent. Look for entity classes with methods that reach into the database themselves. And fields named exactly like the table's columns.
 
 ## 11. The Verdict
 
-Here is my verdict, plainly. Use an active record when the objects are close to the tables, the rules are few, and speed of writing matters: admin tools, small services, the first version. Move the rules that need no table into plain functions or objects. Move to a data mapper when the model and the schema start to differ, or when the logic grows.
+So, here is the verdict. Use an active record when your objects closely match your tables, the rules are few, and speed of writing matters. Admin tools, small services, or the first version of something. Move any rule that does not need the database into a plain function or object. And switch to a data mapper when the model and the tables start to differ, or when the logic grows.
 
 ## 12. What Is Real Here
 
-The same honest admission as everywhere in this course. Everything is plain Java. Every number quoted comes from this program's own output. Nothing depends on a clock, so every run is the same.
+A quick, honest note about this demo. Everything is plain Java. Every number you heard comes from the program's own output. And nothing depends on the clock, so every run gives the same result.
 
 ## 13. When This Is Too Much
 
-So when is it too much? Active Record is rarely too much. It is often too little once the rules grow. Watch for rules that need a table to test, and loops that hide queries.
+So, when is this too much? Active Record is rarely too much. It is more often too little, once the rules grow. Watch for rules that need a database to test. And loops that hide queries.
 
 ## 14. Thanks for Watching
 
-That's Active Record. If you take one sentence away, take this one: an active record is the quickest way to get data in and out, and the price is that the class and the table become one thing. The full source, the written notes, the diagrams and an animated walkthrough are all in the repository, running offline with nothing installed but a Java development kit. If you try one exercise, make the delivery rule take a total instead of loading a customer, and count the table operations again. If this helped, a like genuinely does help other people find it, and subscribe if you would like the rest of the series. Thanks for watching.
+That's the Active Record pattern. If you remember one sentence, make it this one. An active record is the quickest way to get data in and out, and the price is that the class and the table become one thing. The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. Here is one exercise to try. Make the free delivery rule take a total, instead of loading a customer. Then count the database queries again. If this helped, a like really does help other people find it. And subscribe, if you'd like the rest of the series. Thanks for watching.

@@ -6,26 +6,6 @@ failure.
 
 ![Clean Architecture with Spring data flow diagram](images/data-flow-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-flowchart TD
-    Start(["context.refresh() begins"])
-    Scan["read @Bean methods from the given\n@Configuration class"]
-    Resolve{"does every @Bean method's\nparameter have a matching bean?"}
-    Build["invoke each @Bean method,\nin dependency order"]
-    Ready(["context ready — getBean(...) works"])
-    Missing["parameter has no matching bean"]
-    Throw(["UnsatisfiedDependencyException\nnames the missing type"])
-
-    Start --> Scan --> Resolve
-    Resolve -- yes, AppConfig --> Build --> Ready
-    Resolve -- no, BrokenAppConfig --> Missing --> Throw
-```
-
-</details>
-
 ## Reading The Diagram
 
 **One flowchart, two configuration classes, two different endpoints.**

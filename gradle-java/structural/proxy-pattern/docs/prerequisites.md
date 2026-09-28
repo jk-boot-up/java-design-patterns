@@ -154,7 +154,6 @@ Images loaded eagerly, before rendering anything: 3
 | `permission denied: ./gradlew` | Wrapper not executable | `chmod +x gradlew` |
 | Load count keeps climbing across tests | `HighResolutionProductImage.LOAD_COUNT` is static and not reset | Call `HighResolutionProductImage.resetLoadCount()` in `@BeforeEach` |
 | `SecurityException` thrown when you expected success | Role passed is not `Role.CATALOG_ADMIN` | Check which `Role` is passed to the proxy's constructor |
-| Diagrams show as raw text | Viewer lacks Mermaid support | Open the PNGs in `docs/images/` |
 
 ## Recommended Reading Order
 

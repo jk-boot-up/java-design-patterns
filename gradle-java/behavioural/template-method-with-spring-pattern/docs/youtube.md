@@ -19,21 +19,21 @@ The first two lines are what a viewer sees above the fold, so they carry the hoo
 ```
 CHAPTERS
 00:00 Introduction
-00:46 The Partner Project
-01:07 Before The First Line
-01:31 Plain JDBC Leaks
-01:56 The Template Closes On Every Path
-02:11 What Is Ours
-02:34 Exceptions, Translated
-02:55 What The Template Decides
-03:15 A Transaction Is A Template Too
-03:39 The Verdict
-03:52 How To Recognise It
-04:04 Where You Have Met This
-04:14 What Was Used
-04:23 What Is Real Here
-04:35 When This Is Too Much
-04:47 Thanks for Watching
+00:57 The Partner Project
+01:20 Before The First Line
+01:48 Plain JDBC Leaks
+02:19 The Template Closes On Every Path
+02:38 What Is Ours
+03:07 Exceptions, Translated
+03:34 What The Template Decides
+03:56 A Transaction Is A Template Too
+04:29 The Verdict
+04:42 How To Recognise It
+04:57 Where You Have Met This
+05:09 What Was Used
+05:20 What Is Real Here
+05:32 When This Is Too Much
+05:45 Thanks for Watching
 
 SOURCE CODE, WRITTEN NOTES AND AN INTERACTIVE ANIMATION
 https://github.com/jk-boot-up/java-design-patterns/tree/main/gradle-java/behavioural/template-method-with-spring-pattern
@@ -48,21 +48,21 @@ YouTube renders these as chapters only if there are at least three and the first
 
 ```
 00:00 Introduction
-00:46 The Partner Project
-01:07 Before The First Line
-01:31 Plain JDBC Leaks
-01:56 The Template Closes On Every Path
-02:11 What Is Ours
-02:34 Exceptions, Translated
-02:55 What The Template Decides
-03:15 A Transaction Is A Template Too
-03:39 The Verdict
-03:52 How To Recognise It
-04:04 Where You Have Met This
-04:14 What Was Used
-04:23 What Is Real Here
-04:35 When This Is Too Much
-04:47 Thanks for Watching
+00:57 The Partner Project
+01:20 Before The First Line
+01:48 Plain JDBC Leaks
+02:19 The Template Closes On Every Path
+02:38 What Is Ours
+03:07 Exceptions, Translated
+03:34 What The Template Decides
+03:56 A Transaction Is A Template Too
+04:29 The Verdict
+04:42 How To Recognise It
+04:57 Where You Have Met This
+05:09 What Was Used
+05:20 What Is Real Here
+05:32 When This Is Too Much
+05:45 Thanks for Watching
 ```
 
 ## Tags
@@ -101,4 +101,4 @@ Add a card partway through pointing at the playlist, so a viewer who arrives at 
 
 ## Runtime
 
-Approximately 05:20, narrated at 145 words per minute.
+Approximately 06:22, narrated at 145 words per minute.

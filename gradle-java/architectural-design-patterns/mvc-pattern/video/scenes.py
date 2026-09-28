@@ -23,27 +23,26 @@ SCENES = [
         title="MVC",
         body=None,
         narration=(
-            "Hello, and welcome. This video explains the Model View "
-            "Controller pattern in Java, and it is written and presented by "
-            "Jayasekhar Konduru. [[slnc 300]] Let's start with the plain "
-            "definition. MVC splits a screen into three roles. A model "
-            "holds data and does the one calculation that matters. A view "
-            "turns that data into text or pixels and does no calculation of "
-            "its own. And a controller takes an input and turns it into a "
-            "call on the model, then tells a view to render. [[slnc 350]] "
-            "Now, almost everyone who says those three words means something "
-            "slightly different by them, and this video is going to be "
-            "precise about that, because the version most of you have "
-            "actually used at work is not quite the one taught in "
-            "textbooks. [[slnc 300]] So this video builds a real working "
-            "online shop -- the same order this whole course's category "
-            "places -- and shows what happens when a screen and a "
-            "confirmation email both need to show a customer the same "
-            "total, and one of them decides to work it out for itself. "
-            "[[slnc 300]] By the end you will know why that is not a typo "
-            "or a rounding accident but a structural bug, what a model has "
-            "to guarantee to make it impossible, and which flavour of MVC "
-            "you have actually been using all along."
+            'Hello, and welcome. [[slnc 400]] This video explains the '
+            'Model View Controller pattern, in Java. [[slnc 300]] It is '
+            'usually called M V C. [[slnc 300]] This video is presented '
+            'by Jayasekhar Konduru. [[slnc 600]] First, a simple '
+            'definition. [[slnc 300]] M V C splits a screen into three '
+            'roles. [[slnc 400]] The model holds the data, and does the '
+            'one calculation that matters. [[slnc 300]] The view turns '
+            'that data into text, and calculates nothing. [[slnc 300]] '
+            "And the controller takes the user's input, calls the model, "
+            'and then asks a view to display the result. [[slnc 600]] '
+            'Think of a newsroom. [[slnc 300]] The reporter writes the '
+            'facts once. [[slnc 300]] The website and the printed paper '
+            'both show the same facts. [[slnc 300]] Neither one is '
+            'allowed to change the numbers. [[slnc 700]] In our online '
+            'store, a screen and a confirmation email must both show the '
+            'same order total. [[slnc 400]] In this video, we will see '
+            'what happens when one of them works out the total for '
+            'itself. [[slnc 300]] Why that is a structural bug, not a '
+            'typo. [[slnc 300]] And which kind of M V C you have probably '
+            'been using all along.'
         ),
     ),
     dict(
@@ -62,17 +61,17 @@ SCENES = [
             "Placed once. Shown twice: on screen, and by email.",
         ],
         narration=(
-            "Same order as every project in this category. Ada Okafor buys "
-            "an espresso machine, a burr grinder, and two bags of coffee "
-            "beans, for three hundred and eighty-two pounds fifty. [[slnc "
-            "300]] Stock is checked, the card is charged, the order is "
-            "saved -- exactly the sequence the previous project in this "
-            "series built and tested. This video picks up from the moment "
-            "just after that. [[slnc 300]] Ada is shown a summary on "
-            "screen. Ada also gets a confirmation email a moment later. "
-            "Both of them are supposed to say three hundred and eighty-two "
-            "pounds fifty. Hold onto that number, because for most of this "
-            "video, one of the two outputs is not going to agree with it."
+            'Here is the job. [[slnc 300]] It is the same order as every '
+            'project in this series. [[slnc 300]] A customer called Ada '
+            'Okafor buys an espresso machine, a coffee grinder, and two '
+            'bags of coffee beans, for three hundred and eighty-two '
+            'pounds fifty. [[slnc 500]] The order has already been '
+            'placed. [[slnc 300]] Now Ada must be told about it, twice. '
+            '[[slnc 300]] Once in a summary on screen. [[slnc 300]] And '
+            'once in a confirmation email, a moment later. [[slnc 500]] '
+            'Both must say three hundred and eighty-two pounds fifty. '
+            '[[slnc 300]] Remember that number, because for a while, one '
+            'of them will not agree.'
         ),
     ),
     dict(
@@ -89,19 +88,17 @@ SCENES = [
 }
 // works. and untestable without a full checkout.""",
         narration=(
-            "Before there is a model to separate from a view, there has to "
-            "be no separation at all, so that is where the project starts. "
-            "[[slnc 300]] One class checks stock, takes payment, and "
-            "formats the screen text, in the same method. It works, and it "
-            "has exactly one property worth noticing: because there is only "
-            "one method, the checkout and the screen text cannot possibly "
-            "disagree with each other -- there is only one calculation, "
-            "full stop. [[slnc 350]] Its problem is a different one. Try to "
-            "write a test that only checks 'does the summary read "
-            "correctly' without running a full checkout alongside it. You "
-            "cannot, because they are the same fourteen lines. That is the "
-            "cost of no separation. The cost of the wrong kind of "
-            "separation, which is what act three shows you, is worse."
+            'We start with no separation at all. [[slnc 400]] One class '
+            'checks the stock, takes the payment, and writes the screen '
+            'text, all in one method. [[slnc 500]] It works. [[slnc 300]] '
+            'And because there is only one calculation, the checkout and '
+            'the screen text cannot disagree. [[slnc 500]] Its problem is '
+            'different. [[slnc 300]] You cannot test whether the summary '
+            'reads correctly, without running a whole checkout at the '
+            'same time. [[slnc 300]] They are the same fourteen lines. '
+            '[[slnc 500]] That is the cost of no separation. [[slnc 300]] '
+            'But as we will hear shortly, the wrong kind of separation '
+            'costs more.'
         ),
     ),
     dict(
@@ -120,22 +117,20 @@ SCENES = [
             "    hands it to whichever views are asked for",
         ],
         narration=(
-            "So here are the three roles, and I want to name what each one "
-            "is not allowed to know, because that is the actual "
-            "architecture. [[slnc 300]] The model holds the placed order's "
-            "lines, and its one total. It does not know how it will be "
-            "displayed -- on a screen, in an email, or in a format nobody "
-            "has invented yet. [[slnc 300]] The view turns that model into "
-            "text. It computes nothing. Not a sum, not a rounding, not a "
-            "percentage -- if a view contains an arithmetic operator applied "
-            "to a price, something has already gone wrong. [[slnc 350]] And "
-            "the controller places the order, reads it back from storage, "
-            "builds exactly one model from it, and hands that same model to "
-            "whichever views were asked for. [[slnc 300]] Here is the "
-            "sentence I want you to leave this video with, stated early "
-            "because everything else demonstrates it. Two views cannot "
-            "disagree about a number neither of them is allowed to "
-            "calculate."
+            'So here are the three roles, and what each one is not '
+            "allowed to know. [[slnc 600]] The model holds the order's "
+            'lines, and its one total. [[slnc 300]] It does not know how '
+            'it will be shown: on a screen, in an email, or anywhere '
+            'else. [[slnc 500]] The view turns the model into text. '
+            '[[slnc 300]] It calculates nothing. [[slnc 300]] No adding, '
+            'no rounding, no percentages. [[slnc 300]] If a view does '
+            'arithmetic on a price, something has already gone wrong. '
+            '[[slnc 500]] The controller places the order, and builds '
+            'exactly one model from it. [[slnc 300]] Then it hands that '
+            'same model to every view that needs it. [[slnc 600]] Here is '
+            'the key sentence of this video. [[slnc 300]] Two views '
+            'cannot disagree about a number that neither of them is '
+            'allowed to calculate.'
         ),
     ),
     dict(
@@ -150,24 +145,24 @@ SCENES = [
   the screen says £382.50. the email says £383.00.
   NOTHING IN THE BUILD OBJECTED.""",
         narration=(
-            "Now here is the moment this video is actually about. [[slnc "
-            "300]] A real screen exists, reading a real model, and it "
-            "works. Somebody is then asked for a confirmation email. The "
-            "model does not have a convenient method yet for 'unit prices "
-            "rounded to the nearest pound, for a tidier-looking line', so "
-            "rather than ask for one, the new email view reaches straight "
-            "into the product catalogue itself, and rounds each unit price "
-            "before multiplying. [[slnc 350]] It compiles. It is not a "
-            "hack -- a reviewer would see a small, self-contained view doing "
-            "its own formatting, and approve it. [[slnc 300]] And it prints "
-            "a different total. The burr grinder is eighty-nine pounds "
-            "fifty. Rounded to the nearest pound before it is multiplied by "
-            "one, it becomes ninety, and the fifty pence never comes back. "
-            "The screen says three hundred and eighty-two fifty. The email "
-            "says three hundred and eighty-three pounds. [[slnc 350]] "
-            "Nothing in the build objected. A customer sees one number at "
-            "checkout and a different one in their inbox thirty seconds "
-            "later, and there is no exception anywhere to explain why."
+            'Now for the moment this video is about. [[slnc 500]] The '
+            'screen already works, reading the model. [[slnc 300]] Then '
+            'someone is asked to write a confirmation email. [[slnc 300]] '
+            'They want tidy prices, rounded to the nearest pound. [[slnc '
+            '400]] The model has no method for that. [[slnc 300]] So '
+            'instead of asking for one, the new email view reads the '
+            'product catalogue directly. [[slnc 300]] And it rounds each '
+            'price before multiplying. [[slnc 500]] It compiles. [[slnc '
+            '300]] A reviewer sees a small, tidy view, and approves it. '
+            '[[slnc 500]] But it prints a different total. [[slnc 300]] '
+            'The coffee grinder costs eighty-nine pounds fifty. [[slnc '
+            '300]] Rounded, it becomes ninety, and the fifty pence never '
+            'comes back. [[slnc 500]] So the screen says three hundred '
+            'and eighty-two pounds fifty. [[slnc 300]] And the email says '
+            'three hundred and eighty-three pounds. [[slnc 500]] Nothing '
+            'in the build objected. [[slnc 300]] The customer sees one '
+            'number at checkout, and a different one in their inbox, '
+            'thirty seconds later.'
         ),
     ),
     dict(
@@ -182,20 +177,17 @@ SCENES = [
 // a view CANNOT be handed a price,
 // a product, or a quantity to multiply.""",
         narration=(
-            "So how does the pattern actually prevent this? Not with a "
-            "warning, and not with a convention -- with an interface that "
-            "is simply too narrow to allow the mistake. [[slnc 300]] Every "
-            "view in this project implements one method, taking one "
-            "parameter: a finished order summary model. That is it. There "
-            "is no overload that accepts a product, or a price, or a "
-            "quantity. [[slnc 350]] Read that narrowness as the actual "
-            "enforcement mechanism, more than any rule written elsewhere. A "
-            "view that wanted to compute its own total the honest way "
-            "simply has nothing in its hand to compute one from -- which is "
-            "exactly why the naive email view had to go around this "
-            "interface entirely and import the product catalogue directly. "
-            "That is not a coincidence. Going around the model is the only "
-            "way the bug was ever going to be possible."
+            'So how does the pattern prevent this? [[slnc 400]] Not with '
+            'a warning. [[slnc 300]] With an interface that is simply too '
+            'narrow to allow the mistake. [[slnc 500]] Every view has '
+            'exactly one method, called render. [[slnc 300]] It takes one '
+            'thing: the finished order summary model. [[slnc 300]] There '
+            'is no way to hand a view a product, a price, or a quantity. '
+            '[[slnc 500]] So a view has nothing to calculate a total '
+            'from. [[slnc 400]] That is exactly why the rounding email '
+            'had to go around this interface, and read the catalogue '
+            'directly. [[slnc 400]] Going around the model was the only '
+            'way the bug could ever happen.'
         ),
     ),
     dict(
@@ -212,24 +204,20 @@ SCENES = [
             "you have already used the second one.",
         ],
         narration=(
-            "I promised to be precise about which MVC we mean, so let's be "
-            "precise. [[slnc 300]] Classic Smalltalk MVC has the view "
-            "observe the model directly -- the model changes, and every "
-            "subscribed view redraws itself without being told to, by "
-            "name. [[slnc 350]] Web MVC -- the Spring, Rails or Django kind "
-            "almost everyone meets first -- does not have this at all. A "
-            "controller method assembles a model, often literally a map of "
-            "key-value pairs, and hands it to a template engine, which "
-            "renders once and is done. There is no ongoing subscription, "
-            "because a web response is sent once and the page is gone. "
-            "[[slnc 350]] If you have ever written a controller method that "
-            "returns a view name and adds attributes to a model parameter, "
-            "you have already used this half of the idea. You were simply "
-            "never shown the Smalltalk half it is named after. This "
-            "project's controller builds the model once and hands it "
-            "directly to the views asked for, which is closer to the "
-            "second kind -- and the notes explain exactly where the "
-            "simplification sits."
+            'Now, which M V C do we mean? [[slnc 300]] There are two main '
+            'kinds. [[slnc 500]] The original, classic M V C comes from a '
+            'language called Smalltalk. [[slnc 300]] There, the view '
+            'watches the model. [[slnc 300]] When the model changes, '
+            'every view redraws itself automatically. [[slnc 500]] Web M '
+            'V C, the kind used by Spring, Rails and Django, works '
+            'differently. [[slnc 300]] The controller builds a model '
+            'once, and hands it to a template. [[slnc 300]] The template '
+            'renders the page once, and it is done. [[slnc 300]] Nothing '
+            'keeps watching. [[slnc 500]] If you have written a web '
+            'controller that adds values to a model and returns a view '
+            'name, you have used this second kind. [[slnc 400]] This '
+            "project's controller builds the model once, and hands it to "
+            'its views. [[slnc 300]] So it is closer to the web kind.'
         ),
     ),
     dict(
@@ -247,23 +235,22 @@ SCENES = [
             "         screen with no explicit push.",
         ],
         narration=(
-            "Two more names get thrown around with MVC, and they deserve "
-            "one scene each rather than being folded in as though they were "
-            "the same thing. [[slnc 300]] MVP -- Model, View, Presenter -- "
-            "makes the view fully passive. It has no reference to the model "
-            "at all, and a presenter pulls data out and pushes it into the "
-            "view through a small interface, which makes the view trivial "
-            "to fake in a test. [[slnc 350]] MVVM -- Model, View, ViewModel "
-            "-- goes one step further. The view binds to a view model's "
-            "properties, so a property changing updates the screen with no "
-            "explicit push at all. That is the mechanism most modern UI "
-            "frameworks actually use under a different name -- data "
-            "binding, reactive streams, whatever your framework calls it. "
-            "[[slnc 300]] Properly teaching either one needs a real user "
-            "interface toolkit with actual data binding, which a console "
-            "demo does not have, so this video stops here. The distinction "
-            "worth keeping: MVC's view can read its model directly, MVP's "
-            "cannot, and MVVM's binds to it automatically."
+            "Two related names often come up, so let's separate them. "
+            '[[slnc 500]] M V P stands for Model, View, Presenter. [[slnc '
+            '300]] Here the view is completely passive. [[slnc 300]] It '
+            'never touches the model. [[slnc 300]] A presenter reads the '
+            'data, and pushes it into the view. [[slnc 300]] That makes '
+            'the view easy to fake in a test. [[slnc 500]] M V V M stands '
+            'for Model, View, View Model. [[slnc 300]] Here the view is '
+            "bound to the view model's properties. [[slnc 300]] When a "
+            'property changes, the screen updates by itself, with no '
+            'explicit push. [[slnc 300]] Many modern user interface '
+            'frameworks work this way. [[slnc 500]] Teaching either one '
+            'properly needs a real user interface toolkit, so this video '
+            'stops here. [[slnc 400]] The short version. [[slnc 300]] In '
+            'M V C, the view may read the model. [[slnc 300]] In M V P, '
+            'it may not. [[slnc 300]] And in M V V M, it is bound to it '
+            'automatically.'
         ),
     ),
     dict(
@@ -281,17 +268,16 @@ SCENES = [
 
 rule.check(layers);""",
         narration=(
-            "So the narrow interface is the main defence, and this project "
-            "also backs it with the same device the rest of the category "
-            "uses. [[slnc 300]] No class in the view package may depend on "
-            "classes in the infrastructure package. Read as English: a view "
-            "is not allowed to reach into storage or the catalogue, which "
-            "is precisely how the naive email view got the ingredients to "
-            "compute a number of its own. [[slnc 350]] It runs in "
-            "'gradlew test', alongside every other test, and it costs about "
-            "thirty lines. And a second test widens that same rule to the "
-            "naive package on purpose, and asserts that it fails, naming "
-            "the rounded email view and the catalogue class it reached for."
+            'The narrow interface is the main defence. [[slnc 300]] This '
+            'project also adds a rule, written as a test with a library '
+            'called ArchUnit. [[slnc 500]] No class in the view package '
+            'may depend on any class in the infrastructure package. '
+            '[[slnc 400]] In plain words, a view may not reach into '
+            'storage or the catalogue. [[slnc 300]] That is exactly how '
+            'the rounding email got the numbers to do its own sum. [[slnc '
+            '500]] The test runs with every other test. [[slnc 300]] And '
+            'a second test points the rule at the shortcut version, and '
+            'expects it to fail.'
         ),
     ),
     dict(
@@ -308,14 +294,13 @@ Class <...naive.view.RoundedEmailView>
   depends on class
   <...infrastructure.ProductTable>""",
         narration=(
-            "Here is what the build prints. Architecture violation. The "
-            "rule was violated one time. [[slnc 300]] And then the part "
-            "that matters: it names the class -- rounded email view -- and "
-            "it names exactly what that class reached for -- the product "
-            "table. [[slnc 350]] 'The email does not touch the catalogue' "
-            "stopped being something a team promises at a whiteboard and "
-            "forgets within a month, and became something that fails a "
-            "build, by name, in under a second."
+            'So what does a failure sound like? [[slnc 400]] The build '
+            'reports an architecture violation, found once. [[slnc 300]] '
+            'It names the class, Rounded Email View. [[slnc 300]] And it '
+            'names what that class reached for, the Product Table. [[slnc '
+            '500]] The promise that the email never touches the catalogue '
+            'is no longer just a promise. [[slnc 300]] It fails the '
+            'build, by name, in under a second.'
         ),
     ),
     dict(
@@ -334,19 +319,20 @@ Class <...naive.view.RoundedEmailView>
   of those, opened                      : 1
   of those, never opened                : 20""",
         narration=(
-            "So let's do it properly. The forced change this project "
-            "performs: add a real second view, over the same model. [[slnc "
-            "300]] Counted from the real files on disk: one file added, "
-            "the new email view. One file modified -- the composition "
-            "root, passing one extra argument. Two lines changed. [[slnc "
-            "350]] Twenty-one classes make up the model, the controller and "
-            "every view. Twenty of them were never opened. [[slnc 300]] But "
-            "the number a file count alone cannot show you is the "
-            "important one. The new view's total is not merely observed to "
-            "match the screen's -- it is guaranteed to, because "
-            "'EmailConfirmationView dot render' contains no arithmetic "
-            "operator anywhere in it. It cannot compute a wrong answer. It "
-            "cannot compute an answer at all."
+            "Now let's do it properly. [[slnc 300]] The change: add a "
+            'real second view, the email, using the same model. [[slnc '
+            '500]] Counted from the real files. [[slnc 300]] One file '
+            'added: the new email view. [[slnc 300]] One file modified: '
+            'the setup code, which passes one extra argument. [[slnc '
+            '300]] Two lines changed. [[slnc 500]] The model, the '
+            'controller and all the views make twenty-one classes. [[slnc '
+            '300]] Twenty of them were never opened. [[slnc 500]] And '
+            'here is the part a file count cannot show. [[slnc 300]] The '
+            "new email's total is not just checked to match the screen. "
+            '[[slnc 300]] It is guaranteed to, because the email view '
+            'contains no arithmetic at all. [[slnc 300]] It cannot '
+            'calculate a wrong answer, because it cannot calculate any '
+            'answer.'
         ),
     ),
     dict(
@@ -361,16 +347,15 @@ Class <...naive.view.RoundedEmailView>
   both views: £382.50. every time, because
   neither one is allowed to add up a price.""",
         narration=(
-            "Run it, and here is act five in full. The screen says three "
-            "hundred and eighty-two pounds fifty. The email says three "
-            "hundred and eighty-two pounds fifty. [[slnc 300]] Not because "
-            "somebody tested both and they happened to match today. Because "
-            "there is exactly one place in this program that can produce an "
-            "order total, and both renderers read it from there. Run it a "
-            "thousand times with a thousand different orders, and the "
-            "screen and the email will agree on every single one, for a "
-            "reason stronger than testing can ever provide on its own: the "
-            "email view is structurally incapable of disagreeing."
+            "Let's run it. [[slnc 400]] The screen says three hundred and "
+            'eighty-two pounds fifty. [[slnc 300]] The email says three '
+            'hundred and eighty-two pounds fifty. [[slnc 500]] Not '
+            'because someone tested both, and they happened to match '
+            'today. [[slnc 300]] Because there is exactly one place in '
+            'the program that can produce an order total. [[slnc 300]] '
+            'And both views read it from there. [[slnc 500]] Run it with '
+            'a thousand different orders, and they will agree every time. '
+            '[[slnc 300]] The email view is simply unable to disagree.'
         ),
     ),
     dict(
@@ -387,21 +372,18 @@ Class <...naive.view.RoundedEmailView>
             "    add to the controller than to find a home for.",
         ],
         narration=(
-            "Every project in this category has to pay a bill, honestly, "
-            "and here is this one's. [[slnc 300]] A narrow view interface "
-            "is a real constraint, not a free lunch. A view that "
-            "legitimately needs something the model does not expose has "
-            "exactly one honest option: widen the model, for every view, "
-            "rather than reach around it. The architecture test only "
-            "catches a view importing infrastructure -- it cannot catch a "
-            "model quietly growing fifteen getters nobody else uses because "
-            "one view once needed a sixteenth. [[slnc 350]] And the single "
-            "most common failure of MVC in real production code: "
-            "controllers grow. 'Just one more check' is always easier to "
-            "add to the controller already handling the request than to "
-            "find its proper home. This project's controller is three "
-            "calls long, on purpose, and staying that short is a "
-            "discipline the pattern does not enforce for you."
+            "Every pattern has a cost, so let's name this one honestly. "
+            '[[slnc 500]] First, a narrow view interface is a real limit. '
+            '[[slnc 300]] If a view truly needs something the model does '
+            'not offer, the honest fix is to widen the model, for every '
+            'view. [[slnc 300]] Not to reach around it. [[slnc 300]] And '
+            'no test will stop a model slowly growing methods that only '
+            'one view ever uses. [[slnc 500]] Second, and most common: '
+            'controllers grow. [[slnc 300]] Adding just one more check to '
+            'the controller is always easier than finding the right home '
+            "for it. [[slnc 400]] This project's controller is only three "
+            'calls long, on purpose. [[slnc 300]] Keeping it short is a '
+            'discipline the pattern does not enforce for you.'
         ),
     ),
     dict(
@@ -417,17 +399,14 @@ Class <...naive.view.RoundedEmailView>
             "never grow a second.",
         ],
         narration=(
-            "So when is this not worth building? [[slnc 300]] A model, "
-            "view and controller split earns its keep the moment more than "
-            "one output has to represent the same underlying state -- a "
-            "screen and an email, a screen and a PDF receipt, a desktop app "
-            "and a command line. [[slnc 300]] It is not worth it for a "
-            "program with exactly one output that is never going to grow a "
-            "second. A single method that computes and prints in one pass, "
-            "the way act one's naive screen did, is not a shortcut in that "
-            "case. It is the whole of what is needed, and building three "
-            "classes around it would be solving a problem that does not yet "
-            "exist."
+            'So when is this not worth building? [[slnc 400]] M V C earns '
+            'its keep when more than one output must show the same state. '
+            '[[slnc 300]] A screen and an email. [[slnc 200]] A screen '
+            'and a receipt. [[slnc 200]] A desktop app and a command '
+            'line. [[slnc 500]] It is not worth it when there is exactly '
+            'one output, and there will never be a second. [[slnc 300]] '
+            'Then a single method that calculates and prints is not a '
+            'shortcut. [[slnc 300]] It is all you need.'
         ),
     ),
     dict(
@@ -441,21 +420,21 @@ Class <...naive.view.RoundedEmailView>
             "agree without a single line of arithmetic changing.",
         ],
         narration=(
-            "That's MVC. [[slnc 250]] If you take one sentence away, take "
-            "this one: two views cannot disagree about a number neither of "
-            "them is allowed to calculate. [[slnc 350]] The full source, "
-            "the written notes, the diagrams and an animated walkthrough "
-            "are all in the repository, running offline with nothing "
-            "installed but a Java development kit. [[slnc 300]] If you try "
-            "one exercise, try this. Add a method to the model that exposes "
-            "prices rounded to the nearest pound, properly, and rewrite the "
-            "naive email to use it instead of reaching into the catalogue. "
-            "Watch both totals agree -- not because you fixed the "
-            "arithmetic, but because there is no longer any arithmetic in "
-            "the view to get wrong. [[slnc 300]] If this helped, a like "
-            "genuinely does help other people find it, and subscribe if "
-            "you would like the rest of the series. [[slnc 250]] Thanks for "
-            "watching, and I'll see you in the next one."
+            "That's M V C. [[slnc 400]] If you remember one sentence, "
+            'make it this one. [[slnc 300]] Two views cannot disagree '
+            'about a number that neither of them is allowed to calculate. '
+            '[[slnc 500]] The full source code, written notes, diagrams, '
+            'and an animated walkthrough are all in the repository. '
+            '[[slnc 300]] It runs offline, with nothing installed except '
+            'a Java development kit. [[slnc 500]] Here is one exercise to '
+            'try. [[slnc 300]] Add a method to the model that gives '
+            'prices rounded to the nearest pound. [[slnc 300]] Then '
+            'change the shortcut email to use it, instead of reading the '
+            'catalogue. [[slnc 300]] Both totals will agree, because '
+            'there is no arithmetic left in the view to get wrong. [[slnc '
+            '500]] If this helped, a like really does help other people '
+            "find it. [[slnc 300]] And subscribe, if you'd like the rest "
+            'of the series. [[slnc 400]] Thanks for watching.'
         ),
     ),
 ]

@@ -10,31 +10,34 @@ SCENES = [
         key='01-poster', kind='poster', title='Delegation',
         body=None,
         narration=(
-            'Hello, and welcome. This video explains the Delegation '
-            'pattern in Java, and it is written and presented by '
-            'Jayasekhar Konduru. [[slnc 300]] The plain definition: '
-            'delegation is when an object does not do a job itself. It '
-            'hands the job to a helper object that it holds, and that it '
-            'can swap. [[slnc 350]] This is another project in the '
-            'foundational category, whose subject is how an object gets '
-            'hold of another, and how small idioms shape everyday Java. '
-            'In our online store, an order can be priced in several ways, '
-            'and each new way seems to need a new kind of order. [[slnc '
-            '300]] By the end you will see classes multiply for each way '
-            'of pricing, see an order hand its pricing on, see the helper '
-            'swapped while the order lives, see two helpers used at once, '
-            'see why the helper is given the order, and see the bill, '
-            'which is an extra call and forwarding methods.'
+            'Hello, and welcome. [[slnc 400]] This video explains the '
+            'Delegation pattern, in Java. [[slnc 300]] This video is '
+            'presented by Jayasekhar Konduru. [[slnc 600]] First, a '
+            'simple definition. [[slnc 300]] Delegation is when an object '
+            'does not do a job itself. [[slnc 300]] Instead, it hands the '
+            'job to a helper object that it holds. [[slnc 300]] And that '
+            'helper can be swapped. [[slnc 600]] Think of a busy manager '
+            'with an assistant. [[slnc 300]] The manager passes the diary '
+            'to the assistant. [[slnc 300]] And if the assistant changes, '
+            "the manager's job does not. [[slnc 700]] In our online "
+            'store, an order can be priced in several ways. [[slnc 300]] '
+            'And each new way seems to need a new kind of order. [[slnc '
+            '500]] In this video, classes multiply for every way of '
+            'pricing. [[slnc 300]] Then an order hands its pricing to a '
+            'helper. [[slnc 300]] We will swap the helper, combine two '
+            'helpers, and then hear the cost.'
         ),
     ),
     dict(
         key='02-scenario', kind='bullets', title='The Scenario',
         body=['An order can be priced with a', 'premium discount,', 'with gift wrap,', 'with both, or neither.', '', 'A customer may become premium', 'in the middle of shopping.', '', 'Do we need a class for each?'],
         narration=(
-            'Here is the scenario. An order can be priced with a premium '
-            'discount, with gift wrap, with both, or with neither. A '
-            'customer may become premium in the middle of shopping. '
-            '[[slnc 300]] The question: do we need a class for each?'
+            'Here is the scenario. [[slnc 400]] An order can be priced '
+            'with a premium discount. [[slnc 300]] Or with gift wrap. '
+            '[[slnc 300]] Or with both, or neither. [[slnc 500]] And a '
+            'customer might become premium in the middle of shopping. '
+            '[[slnc 500]] So here is the question. [[slnc 300]] Do we '
+            'need a separate class for each combination?'
         ),
     ),
     dict(
@@ -47,19 +50,22 @@ SCENES = [
   an order cannot change its
   class once it exists.""",
         narration=(
-            'First, a subclass for each way. Premium, gift wrap, and '
-            'both: four classes for two features. A third feature would '
-            'need eight. A premium gift order is ninety six hundred. And '
-            'an order cannot change its class once it exists.'
+            'First, the naive way: a subclass for each combination. '
+            '[[slnc 400]] Premium, gift wrap, and both. [[slnc 300]] That '
+            'is four classes, for just two features. [[slnc 300]] A third '
+            'feature would need eight. [[slnc 500]] A premium gift order '
+            'costs ninety-six pounds. [[slnc 300]] But once an order '
+            'exists, it can never change its class.'
         ),
     ),
     dict(
         key='04-pattern', kind='bullets', title='The Pattern',
         body=['The object holds a helper.', '', 'When asked to do the job, it', 'hands the job to the helper.', '', 'The helper can be swapped,', 'and used with others.'],
         narration=(
-            'The pattern. The object holds a helper. When asked to do the '
-            'job, it hands the job to the helper. The helper can be '
-            'swapped, and used with others.'
+            'Now, the pattern. [[slnc 400]] The object holds a helper. '
+            '[[slnc 300]] When asked to do the job, it hands the job to '
+            'the helper. [[slnc 500]] The helper can be swapped. [[slnc '
+            '300]] And it can be combined with other helpers.'
         ),
     ),
     dict(
@@ -70,9 +76,11 @@ SCENES = [
   premium: 9000.
   gift wrap: 10600.""",
         narration=(
-            'Second, the order hands the pricing on. One order class. '
-            'With no rule, ten thousand. With premium, nine thousand. '
-            'With gift wrap, ten thousand six hundred.'
+            'Second demo: the order hands its pricing on. [[slnc 400]] '
+            'There is just one order class. [[slnc 500]] With no pricing '
+            'rule, the order costs one hundred pounds. [[slnc 300]] With '
+            'the premium rule, ninety pounds. [[slnc 300]] With the gift '
+            'wrap rule, one hundred and six pounds.'
         ),
     ),
     dict(
@@ -83,9 +91,10 @@ SCENES = [
   the same order object:
   10000, then 9000.""",
         narration=(
-            'Third, change the helper while it lives. The customer joins '
-            'the premium plan while shopping. The same order object: ten '
-            'thousand, then nine thousand.'
+            'Third demo: change the helper while the order exists. [[slnc '
+            '400]] The customer joins the premium plan, while shopping. '
+            '[[slnc 500]] The very same order object costs one hundred '
+            'pounds, and then ninety.'
         ),
     ),
     dict(
@@ -96,9 +105,10 @@ SCENES = [
   for both.
   classes added: 0.""",
         narration=(
-            'Fourth, two helpers at once. Premium then gift wrap: ninety '
-            'six hundred, the same as the class made for both. Classes '
-            'added: none.'
+            'Fourth demo: two helpers at once. [[slnc 400]] Premium, and '
+            'then gift wrap. [[slnc 300]] The total is ninety-six pounds. '
+            '[[slnc 300]] Exactly the same as the special class made for '
+            'both. [[slnc 500]] And the number of classes added: none.'
         ),
     ),
     dict(
@@ -112,12 +122,15 @@ SCENES = [
   helper does not know which
   order it is helping.""",
         narration=(
-            'Fifth, the helper needs to see the order. Gift wrap is three '
-            'hundred for each item, so it must look at the order it was '
-            'called for. Two items: ten thousand six hundred. Three '
-            'items: ten thousand nine hundred. That is why the order '
-            'passes itself in: the helper is a different object, and does '
-            'not know which order it is helping.'
+            'Fifth demo: the helper needs to see the order. [[slnc 400]] '
+            'Gift wrap costs three pounds for each item. [[slnc 300]] So '
+            'the helper must look at the order it is pricing. [[slnc '
+            '500]] Two items: one hundred and six pounds. [[slnc 300]] '
+            'Three items: one hundred and nine pounds. [[slnc 500]] That '
+            'is why the order passes itself in, when it calls the helper. '
+            '[[slnc 300]] The helper is a separate object. [[slnc 300]] '
+            'It does not know which order it is helping, unless it is '
+            'told.'
         ),
     ),
     dict(
@@ -133,72 +146,78 @@ SCENES = [
   the helper knows nothing of
   its owner unless told.""",
         narration=(
-            'Last, the bill. One total made three calls to helpers, where '
-            'inheritance made none: one more hop for every helper. To '
-            'look like a helper with four methods, the order had to write '
-            'four forwarding methods that only pass the call on. And a '
-            'helper knows nothing of its owner unless it is told.'
+            'Finally, the cost. [[slnc 400]] Working out one total made '
+            'three calls to helpers. [[slnc 300]] Inheritance would have '
+            'made none. [[slnc 300]] So there is one extra hop, for every '
+            "helper. [[slnc 500]] To offer a helper's four methods, the "
+            'order had to write four forwarding methods. [[slnc 300]] '
+            'They do nothing but pass the call along. [[slnc 500]] And a '
+            'helper knows nothing about its owner, unless it is told.'
         ),
     ),
     dict(
         key='10-recognise', kind='bullets', title='How To Recognise It',
         body=['A field of an interface type, and', 'a method that just calls it.', '', 'Strategy, State, Decorator and', 'Proxy, which are all delegation', '', "Kotlin's by keyword, and Lombok's", '@Delegate.'],
         narration=(
-            'How do you recognise this in code you did not write? A field '
-            'of an interface type, and a method that just calls it. '
-            'Strategy, State, Decorator and Proxy, which are all '
-            "delegation with a purpose. Kotlin's by keyword, and Lombok's "
-            '@Delegate. Collections.unmodifiableList, which hands each '
-            'call to a list it holds.'
+            'How can you spot this pattern in code someone else wrote? '
+            '[[slnc 400]] Look for a field whose type is an interface, '
+            'and a method that simply calls it. [[slnc 500]] Many famous '
+            'patterns are delegation with a purpose. [[slnc 300]] '
+            'Strategy, State, Decorator, and Proxy. [[slnc 500]] Kotlin '
+            "has a keyword for it, called by. [[slnc 300]] And Java's "
+            'unmodifiable list simply hands each call to a list it holds.'
         ),
     ),
     dict(
         key='11-verdict', kind='bullets', title='The Verdict',
         body=['Prefer holding a helper to', 'inheriting from a parent, when', 'what varies is one job. Pass the', 'owner in if the helper needs it.', 'Let the helper be swapped, and', 'combined. Accept the extra hop,', 'and the forwarding code, or use a', 'language feature that writes it', 'for you.'],
         narration=(
-            'Here is my verdict, plainly. Prefer holding a helper to '
-            'inheriting from a parent, when what varies is one job. Pass '
-            'the owner in if the helper needs it. Let the helper be '
-            'swapped, and combined. Accept the extra hop, and the '
-            'forwarding code, or use a language feature that writes it '
-            'for you.'
+            'So, here is the verdict. [[slnc 400]] When what varies is '
+            'one job, prefer holding a helper, over inheriting from a '
+            'parent. [[slnc 500]] Pass the owner in, if the helper needs '
+            'to see it. [[slnc 300]] Let the helper be swapped, and '
+            'combined. [[slnc 500]] And accept the extra hop, and the '
+            'forwarding code. [[slnc 300]] Or use a language feature that '
+            'writes the forwarding for you.'
         ),
     ),
     dict(
         key='12-real', kind='bullets', title='What Is Real Here',
         body=['Everything is plain Java.', '', 'Every number quoted comes from', "this program's own output.", '', 'Nothing depends on a clock,', 'so every run is the same.'],
         narration=(
-            'The same honest admission as everywhere in this course. '
-            'Everything is plain Java. Every number quoted comes from '
-            "this program's own output. Nothing depends on a clock, so "
-            'every run is the same.'
+            'A quick, honest note about this demo. [[slnc 300]] '
+            'Everything is plain Java. [[slnc 300]] Every number you '
+            "heard comes from the program's own output. [[slnc 300]] And "
+            'nothing depends on the clock, so every run gives the same '
+            'result.'
         ),
     ),
     dict(
         key='13-too-much', kind='bullets', title='When This Is Too Much',
         body=['If there is one fixed way of doing', 'a job, do it directly. Delegation', 'pays off when a job varies, or', 'must change at run time.'],
         narration=(
-            'So when is it too much? If there is one fixed way of doing a '
-            'job, do it directly. Delegation pays off when a job varies, '
-            'or must change at run time.'
+            'So, when is this too much? [[slnc 400]] If there is only one '
+            'fixed way to do a job, just do it directly. [[slnc 400]] '
+            'Delegation pays off when a job varies, or must change while '
+            'the program runs.'
         ),
     ),
     dict(
         key='14-outro', kind='outro', title='Thanks for Watching',
         body=['Full source, notes, diagrams and an animated walkthrough', 'are in the repository. Try the exercises in', 'the session guide.'],
         narration=(
-            "That's Delegation. [[slnc 250]] If you take one sentence "
-            'away, take this one: delegation hands a job to a helper you '
-            'can swap and combine, and the price is an extra call, and '
-            'the forwarding code you must write. [[slnc 350]] The full '
-            'source, the written notes, the diagrams and an animated '
-            'walkthrough are all in the repository, running offline with '
-            'nothing installed but a Java development kit. [[slnc 300]] '
-            'If you try one exercise, add a fourth rule that adds a '
-            'shipping fee, and combine it with premium without adding a '
-            'class. [[slnc 300]] If this helped, a like genuinely does '
-            'help other people find it, and subscribe if you would like '
-            'the rest of the series. [[slnc 250]] Thanks for watching.'
+            "That's the Delegation pattern. [[slnc 400]] If you remember "
+            'one sentence, make it this one. [[slnc 300]] Delegation '
+            'hands a job to a helper you can swap and combine, and the '
+            'price is an extra call, and forwarding code you must write. '
+            '[[slnc 500]] The full source code, written notes, diagrams, '
+            'and an animated walkthrough are all in the repository. '
+            '[[slnc 500]] Here is one exercise to try. [[slnc 300]] Add a '
+            'fourth rule that adds a shipping fee. [[slnc 300]] And '
+            'combine it with premium, without adding a class. [[slnc '
+            '500]] If this helped, a like really does help other people '
+            "find it. [[slnc 300]] And subscribe, if you'd like the rest "
+            'of the series. [[slnc 400]] Thanks for watching.'
         ),
     ),
 ]

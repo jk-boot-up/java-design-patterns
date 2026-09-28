@@ -21,41 +21,6 @@ to the same address the same number of times, and one of them gets paid.
 
 ![Sidecar with a Java proxy data flow diagram](images/data-flow-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-flowchart TD
-    Start(["a sale happens<br/>reference ORD-4418, 4799 pence"])
-    Svc["the checkout service<br/>adds nothing but the address it was configured with"]
-    Hop["over the loopback interface<br/>http://localhost:8081, plain HTTP, no certificate"]
-    Port(["localhost:8081<br/>whatever is bound to it answers"])
-
-    NgProxy["the nginx proxy<br/>reads the policy file"]
-    JvProxy["the java proxy<br/>reads the same policy file"]
-
-    NgAdd["adds the envelope:<br/>the provider's real address<br/>TLS 1.3<br/>3 attempts<br/>2 second deadline<br/>X-Service header"]
-    JvAdd["adds the same envelope,<br/>plus the one thing the other cannot say:<br/>wait 200ms, then 400ms"]
-
-    NgTimes["attempts leave at<br/>1ms, 2ms, 3ms"]
-    JvTimes["attempts leave at<br/>1ms, 202ms, 603ms"]
-
-    Prov["the payment provider<br/>declines everything before 300ms<br/>records the arrival time of each attempt"]
-
-    Fail(["NOT PAID<br/>3 attempts, all declined"])
-    Ok(["receipt pay_ORD-4418<br/>3 attempts, the third one charged"])
-
-    Start --> Svc --> Hop --> Port
-    Port -- "yesterday" --> NgProxy --> NgAdd --> NgTimes --> Prov
-    Port -- "today" --> JvProxy --> JvAdd --> JvTimes --> Prov
-    Prov -- "all three inside the bad window" --> Fail
-    Prov -- "the third one after 300ms" --> Ok
-    Fail --> Svc
-    Ok --> Svc
-```
-
-</details>
-
 ## The three things this flow proves
 
 **The payment data itself is untouched by the change.** `ORD-4418` and `4799` leave the

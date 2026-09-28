@@ -6,24 +6,4 @@ Say it in words. The order service publishes an order placed event to the topic,
 
 ![Publisher-Subscriber pattern sequence diagram](images/sequence-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant P as order service
-    participant T as topic
-    participant I as inventory
-    participant A as analytics
-    P->>T: publish(OrderPlaced ORD-1)
-    I->>T: read from my position
-    T-->>I: OrderPlaced ORD-1
-    Note over A: busy
-    A->>T: read from my position, later
-    T-->>A: OrderPlaced ORD-1
-```
-
-</details>
-
 The load-bearing sentence: **the publisher writes once, and each reader has its own position.**

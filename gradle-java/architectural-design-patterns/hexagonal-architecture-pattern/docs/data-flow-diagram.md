@@ -5,41 +5,6 @@ one unchanged core, and leaving through the ports it declared.
 
 ![Hexagonal Architecture pattern data flow diagram](images/data-flow-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-flowchart TD
-    HttpReq(["a simulated JSON body arrives"])
-    CliReq(["a simulated command line arrives"])
-    Core["PlaceOrderService.place<br/>the same method, either way"]
-    Check{"every SKU exists,<br/>with enough stock?"}
-    Refuse1["refused — via whichever adapter called"]
-    Charge["PaymentGateway.charge"]
-    Declined{"accepted?"}
-    Refuse2["refused — nothing written down yet"]
-    Reduce["ProductCatalog.reduceStock"]
-    Save["OrderStore.save"]
-    Notify["Notifier.send"]
-    HttpResp(["JSON-shaped response string"])
-    CliResp(["plain-text response string"])
-    Shortcut["NaivePlaceOrderService<br/>constructs InMemoryOrderStore directly"]
-
-    HttpReq --> Core
-    CliReq --> Core
-    Core --> Check
-    Check -- no --> Refuse1
-    Check -- yes --> Charge --> Declined
-    Declined -- no --> Refuse2
-    Declined -- yes --> Reduce --> Save --> Notify
-    Notify --> HttpResp
-    Notify --> CliResp
-
-    Core -.->|the shortcut skips the port entirely| Shortcut
-```
-
-</details>
-
 ## Reading The Diagram
 
 **Two arrows enter `Core` from the top, and both go to the same box.**

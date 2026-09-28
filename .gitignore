@@ -75,3 +75,11 @@ venv/
 .project
 .DS_Store
 Thumbs.db
+
+# Voice auditions: rendered audio is not committed.
+**/video/voice-samples/*.m4a
+tools/videokit/.stop
+tools/videokit/rollout-state.lock
+
+# Per-project video build logs.
+**/video/.build.log

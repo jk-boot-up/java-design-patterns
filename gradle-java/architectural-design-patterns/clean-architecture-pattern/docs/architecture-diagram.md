@@ -7,50 +7,6 @@ boundary points inward.
 
 ![Clean Architecture pattern architecture diagram](images/architecture-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-flowchart TB
-    Root["PlaceAnOrderDemo<br/>composition root — frameworks & drivers"]
-
-    subgraph Adapters["interface adapters"]
-        direction TB
-        Ctrl1["CheckoutController"]
-        Ctrl2["BatchOrderController «new»"]
-        Gw1["InMemoryOrderRepository"]
-        Gw2["FileBackedOrderRepository «new»"]
-
-        subgraph UseCases["use cases"]
-            direction TB
-            UC["PlaceOrderInteractor"]
-            Bounds["OrderRepository · ProductRepository ·<br/>PaymentGateway · NotificationGateway"]
-
-            subgraph Entities["entities"]
-                direction TB
-                Ent["Order · Money · Product<br/>knows nothing outside itself"]
-            end
-        end
-    end
-
-    subgraph N["naive.usecases — outside the real architecture"]
-        Naive["NaivePlaceOrderInteractor"]
-    end
-
-    Root -.->|wires everything by hand| Adapters
-
-    Ctrl1 -->|calls in| UC
-    Ctrl2 -->|calls in| UC
-    UC --> Bounds
-    Gw1 -->|implements| Bounds
-    Gw2 -->|implements| Bounds
-    UC -.->|builds| Ent
-
-    Naive -->|names the gateway directly —<br/>the rule this project enforces| Gw1
-```
-
-</details>
-
 ## Reading The Diagram
 
 **Three rings, nested, and every arrow that crosses a ring boundary points

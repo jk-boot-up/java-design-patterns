@@ -15,25 +15,25 @@ SCENES = [
         title="Clean Architecture with Spring",
         body=None,
         narration=(
-            "Hello, and welcome. This video is about Clean Architecture "
-            "with Spring, and it is written and presented by Jayasekhar "
-            "Konduru. [[slnc 300]] This is the fifth and final project in "
-            "a series that has built the same online shop five different "
-            "ways, and it is unlike the other four in one important "
-            "respect. It does not teach a new architecture. It takes the "
-            "identical object graph a previous video, Clean Architecture, "
-            "already built and taught -- the same entities, the same use "
-            "cases, the same adapters, copied unchanged -- and has a "
-            "container assemble it instead of a person. [[slnc 350]] If "
-            "you have not watched that video, pause this one and watch it "
-            "first. Everything here assumes you already know what a use "
-            "case and a port are, and spends none of its time re-teaching "
-            "them. [[slnc 300]] What this video actually owns is one "
-            "comparison, proven rather than described: hand-wiring an "
-            "object graph fails the moment you make a mistake, while you "
-            "are still typing. Wiring the same graph with a container "
-            "fails only once the program tries to run -- and by then, "
-            "everything else about the program looked completely normal."
+            'Hello, and welcome. [[slnc 400]] This video explains Clean '
+            'Architecture with Spring, in Java. [[slnc 300]] This video '
+            'is presented by Jayasekhar Konduru. [[slnc 600]] First, a '
+            'simple definition. [[slnc 300]] Clean Architecture keeps the '
+            'business rules in the middle of a program, and the technical '
+            'details on the outside. [[slnc 300]] Spring is a framework '
+            "that builds your program's objects, and connects them for "
+            'you. [[slnc 600]] Think of flat-pack furniture. [[slnc 300]] '
+            'You can assemble it yourself, by hand. [[slnc 300]] Or a '
+            'fitter can assemble it for you. [[slnc 300]] The furniture '
+            'is the same either way. [[slnc 300]] What changes is who '
+            'does the assembly, and when you find out a piece is missing. '
+            '[[slnc 700]] That is this video. [[slnc 300]] We take the '
+            'online shop from the Clean Architecture video, unchanged, '
+            'and let Spring assemble it instead of a person. [[slnc 400]] '
+            'If you have not seen that video, watch it first. [[slnc '
+            '400]] Here, we prove one thing. [[slnc 300]] Wiring by hand '
+            'fails while you are still typing. [[slnc 300]] Wiring by '
+            'Spring fails only when the program starts.'
         ),
     ),
     dict(
@@ -52,17 +52,15 @@ SCENES = [
             "    Spring, from first principles.",
         ],
         narration=(
-            "Let me be precise about scope before anything else, because "
-            "a video that tries to do everything ends up teaching nothing "
-            "well. [[slnc 300]] This video owns one contrast: compile-time "
-            "wiring failure against startup wiring failure. [[slnc 350]] "
-            "It does not own Clean Architecture itself -- that is already "
-            "taught, completely, in the video this one names in its very "
-            "first sentence. And it does not own Spring as a general "
-            "subject. If you want dependency injection explained from "
-            "first principles, that is a different, dedicated video. "
-            "[[slnc 300]] Everything in the next twelve minutes is in "
-            "service of that one comparison, and nothing else."
+            "Before we begin, let's be clear about what this video "
+            'covers. [[slnc 400]] It covers one comparison. [[slnc 300]] '
+            'A wiring mistake caught when the code compiles, against a '
+            'wiring mistake caught when the program starts. [[slnc 500]] '
+            'It does not teach Clean Architecture again. [[slnc 300]] The '
+            'earlier video does that completely. [[slnc 300]] And it does '
+            'not teach Spring from the very beginning. [[slnc 300]] That '
+            'is a separate video. [[slnc 400]] Everything that follows '
+            'serves that one comparison.'
         ),
     ),
     dict(
@@ -79,18 +77,19 @@ SCENES = [
             "and matching each one to whatever asked for it.",
         ],
         narration=(
-            "Before the comparison, the plain-language definition, for "
-            "anyone meeting this for the first time. [[slnc 300]] Spring "
-            "builds your program's objects for you, and connects them, "
-            "instead of you writing the new calls yourself. [[slnc 350]] "
-            "At its centre is something called an application context -- a "
-            "registry that reads a set of instructions, in this project "
-            "one class with a method per object it needs to build, "
-            "constructs every object those instructions describe, and "
-            "wires each one into whichever other object asked for it, by "
-            "type. [[slnc 300]] The everyday word for this is dependency "
-            "injection, and if you have ever written a class annotated at "
-            "Service or at Autowired, you have already met it."
+            'So, what does Spring actually do? [[slnc 400]] Spring builds '
+            "your program's objects for you, and connects them. [[slnc "
+            '300]] You no longer write every "new" call yourself. [[slnc '
+            '500]] At its centre is something called the application '
+            'context. [[slnc 300]] Think of it as a workshop with a list '
+            'of instructions. [[slnc 300]] In this project, the '
+            'instructions are one class, with one method for each object '
+            'to build. [[slnc 400]] The context builds each object. '
+            '[[slnc 300]] Then it hands each one to whichever other '
+            'object asked for that type. [[slnc 500]] This is called '
+            'dependency injection. [[slnc 300]] If you have ever marked a '
+            'class with the at Service or at Autowired annotation, you '
+            'have already used it.'
         ),
     ),
     dict(
@@ -108,18 +107,16 @@ SCENES = [
             "    no web starter, no database starter.",
         ],
         narration=(
-            "One practical note before the comparison, for anyone who "
-            "wants to run this alongside the video. [[slnc 300]] There is "
-            "nothing to install by hand -- the Gradle wrapper fetches "
-            "everything on first run, the same as every other project in "
-            "this repository. [[slnc 300]] The version is Spring Boot "
-            "four point one point one, the newest generally available "
-            "release at the time this was built -- a milestone release is "
-            "not a release, and this category pins real ones only. "
-            "[[slnc 300]] And the dependency is deliberately narrow: "
-            "spring-boot-starter, core dependency injection, nothing "
-            "else. No web starter, no database starter, because this "
-            "project builds no web application."
+            'A practical note, if you want to run this yourself. [[slnc '
+            '400]] You do not install anything by hand. [[slnc 300]] The '
+            'Gradle wrapper downloads everything the first time you '
+            'build. [[slnc 500]] The version is Spring Boot four point '
+            'one point one. [[slnc 300]] That was the newest full release '
+            'when this was built. [[slnc 300]] Early preview releases are '
+            'not used. [[slnc 500]] And only one Spring library is used: '
+            'the core starter. [[slnc 300]] There is no web library and '
+            'no database library, because this project is not a web '
+            'application.'
         ),
     ),
     dict(
@@ -141,21 +138,23 @@ public PlaceOrderInputBoundary placeOrder(
         products, orders, payments, notifications);
 }""",
         narration=(
-            "Here is the moment this whole video exists for. Read these "
-            "two side by side. [[slnc 300]] The hand-wired version: four "
-            "arguments, one constructor call, written by a person, in a "
-            "method that runs top to bottom. The Spring version: the "
-            "identical four arguments, the identical constructor, the "
-            "identical class -- wrapped in one method, marked as "
-            "producing a bean. [[slnc 350]] The difference is entirely "
-            "about who calls it, and when. There, a line in main, the "
-            "moment the program starts. Here, Spring, once, when the "
-            "context is built -- matching this method's four parameter "
-            "types against other methods' return types, in whatever order "
-            "satisfies them. [[slnc 300]] Say this plainly, because it is "
-            "worth being able to say without a slide in front of you. At "
-            "Component is not magic. It is those twenty lines, discovered "
-            "and called by a container instead of typed by a person."
+            'Here is the heart of the video. [[slnc 500]] In the '
+            'hand-wired version, one line creates the use case. [[slnc '
+            '300]] It calls the constructor, and passes four things: the '
+            'product store, the order store, the payment gateway, and the '
+            'notification gateway. [[slnc 500]] In the Spring version, '
+            'the same constructor is called, with the same four things. '
+            '[[slnc 300]] The only difference is that the call sits '
+            'inside a method marked with the at Bean annotation. [[slnc '
+            '500]] So what really changed? [[slnc 300]] Who makes the '
+            'call, and when. [[slnc 400]] By hand, the main method makes '
+            'the call, as the program starts. [[slnc 300]] With Spring, '
+            'the container makes the call, once. [[slnc 300]] It matches '
+            'the four parameter types to the other bean methods, in '
+            'whatever order works. [[slnc 500]] So remember this. [[slnc '
+            "300]] Spring's annotations are not magic. [[slnc 300]] They "
+            'are those same twenty lines of wiring, found and called by '
+            'the container, instead of typed by a person.'
         ),
     ),
     dict(
@@ -172,13 +171,14 @@ public PlaceOrderInputBoundary placeOrder(
     checkoutController -> CheckoutController
     batchOrderController -> BatchOrderController""",
         narration=(
-            "Run the project, and here is what actually gets built. Seven "
-            "beans: four gateways, the interactor, and two controllers. "
-            "[[slnc 300]] Every one of those seven names is the same "
-            "class the hand-wired project's composition root already "
-            "constructed, in the same order, wired to the same "
-            "collaborators. Nothing about the object graph is different. "
-            "Only who is holding the wrench."
+            "Let's run it, and list what Spring builds. [[slnc 400]] "
+            'Seven objects, which Spring calls beans. [[slnc 300]] Four '
+            'gateways. [[slnc 200]] One use case. [[slnc 200]] And two '
+            'controllers. [[slnc 500]] Each of those seven is exactly the '
+            'same class the hand-wired project built. [[slnc 300]] '
+            'Connected to the same partners. [[slnc 400]] The program '
+            'itself has not changed at all. [[slnc 300]] Only the one '
+            'assembling it has.'
         ),
     ),
     dict(
@@ -190,12 +190,13 @@ public PlaceOrderInputBoundary placeOrder(
   BatchOrderController was already wired -- one more
   @Bean method, same as one more line of new(...).""",
         narration=(
-            "Quickly, because this was already proven in the previous "
-            "video and this one is not going to re-argue it. The forced "
-            "change -- a new delivery mechanism, a new data source -- "
-            "costs exactly as little here as it did by hand. One more "
-            "bean method, wired the same way as everything else. Nothing "
-            "about using a container changed that cost."
+            'Next, a quick check. [[slnc 300]] The earlier video added a '
+            'new way in, and a new place to store orders. [[slnc 400]] '
+            'Does Spring make that change more expensive? [[slnc 300]] '
+            'No. [[slnc 300]] It costs one more bean method, wired just '
+            'like the others. [[slnc 300]] The imported order still '
+            'arrives, for two hundred and forty-nine pounds. [[slnc 300]] '
+            'Using a container did not change that cost.'
         ),
     ),
     dict(
@@ -208,15 +209,15 @@ public PlaceOrderInputBoundary placeOrder(
     // this is a compile error.
     // it will not build. full stop.""",
         narration=(
-            "Now the contrast, in two parts. First, the hand-wired "
-            "project. Delete one argument from that constructor call -- "
-            "say, the notifications collaborator. [[slnc 300]] This does "
-            "not run and fail. It does not start and then misbehave. It "
-            "does not compile, at all. Your editor tells you immediately, "
-            "before you have even saved the file, that this call no "
-            "longer matches any constructor that exists. The compiler "
-            "catches the mistake before the program has any chance to "
-            "run."
+            'Now, the comparison, in two parts. [[slnc 500]] Part one: '
+            'the hand-wired version. [[slnc 300]] Remove one argument '
+            'from the constructor call. [[slnc 300]] Say, the '
+            'notification gateway. [[slnc 500]] What happens? [[slnc '
+            '300]] The program does not start and then misbehave. [[slnc '
+            '300]] It does not compile at all. [[slnc 400]] Your editor '
+            'warns you straight away, before you even save the file. '
+            '[[slnc 300]] The compiler catches the mistake before the '
+            'program can ever run.'
         ),
     ),
     dict(
@@ -231,16 +232,17 @@ public PlaceOrderInputBoundary placeOrder(
   least 1 bean which qualifies as autowire
   candidate.""",
         narration=(
-            "Now delete the equivalent bean method instead -- "
-            "notificationGateway, gone. [[slnc 300]] The file compiles. "
-            "Every other bean method compiles. Gradlew build succeeds, "
-            "cleanly, with no warning anywhere. [[slnc 350]] The mistake "
-            "is invisible until something actually asks the context to "
-            "build the interactor -- and only then does Spring discover "
-            "that one of its four parameters has nothing to satisfy it, "
-            "and throw. Not at compile time. At startup, seconds into what "
-            "looked, right up until that message, like an entirely normal "
-            "run."
+            'Part two: the Spring version. [[slnc 400]] This time, delete '
+            'the bean method that builds the notification gateway. [[slnc '
+            '500]] The code compiles. [[slnc 300]] The build succeeds, '
+            'with no warnings at all. [[slnc 500]] The mistake stays '
+            'hidden until the program starts. [[slnc 300]] Then Spring '
+            'tries to build the use case. [[slnc 300]] It needs a '
+            'notification gateway, and finds none. [[slnc 400]] So it '
+            'stops, with a message: startup failed, no qualifying bean of '
+            'type Notification Gateway. [[slnc 500]] Not while typing. '
+            '[[slnc 300]] At startup, a few seconds into a run that '
+            'looked completely normal.'
         ),
     ),
     dict(
@@ -258,17 +260,15 @@ public PlaceOrderInputBoundary placeOrder(
             "with a hole in it, until something falls in.",
         ],
         narration=(
-            "Here is the mechanism, stated plainly. A compiler checks "
-            "types against a call site it can see, right there in the "
-            "source, while you are still typing. [[slnc 300]] A container "
-            "checks types against a set of beans it has not built yet, "
-            "and it only performs that check once something actually asks "
-            "for the result. [[slnc 350]] The container will happily "
-            "accept a configuration with a hole in it. It says nothing, "
-            "objects to nothing, until the one moment something falls "
-            "into the hole -- and by then, the process has already "
-            "started, logged its banner, and looked, to anyone watching, "
-            "completely healthy."
+            "Why can't Spring see this coming? [[slnc 400]] A compiler "
+            'checks the types at a call it can see, in the source code, '
+            'while you type. [[slnc 500]] A container checks the types '
+            'against objects it has not built yet. [[slnc 300]] And it '
+            'only checks when something asks for them. [[slnc 500]] Think '
+            'of a hole in a floor, covered by a rug. [[slnc 300]] Nothing '
+            'seems wrong, until someone steps on that exact spot. [[slnc '
+            '400]] By then, the program has already started, printed its '
+            'banner, and looked perfectly healthy.'
         ),
     ),
     dict(
@@ -286,17 +286,17 @@ public PlaceOrderInputBoundary placeOrder(
             "not compile time.",
         ],
         narration=(
-            "So here is the bill for the convenience, and it is worth "
-            "pricing honestly rather than waving away. [[slnc 300]] A "
-            "reader now needs to know what Spring is to run this project "
-            "at all -- entities and use cases need nothing new, but the "
-            "configuration and the entry point do. [[slnc 300]] Startup "
-            "is slower: the context has to be built, every bean method "
-            "invoked, every dependency resolved -- real work the "
-            "hand-wired project never pays for. [[slnc 350]] And a wiring "
-            "mistake surfaces at run time instead of compile time, which "
-            "you have just watched happen. That is the entire cost of the "
-            "convenience, and it is a real one."
+            "Every convenience has a cost, so let's name it honestly. "
+            '[[slnc 500]] One. [[slnc 200]] Anyone running this project '
+            'now needs to know what Spring is. [[slnc 300]] The entities '
+            'and use cases need nothing new, but the setup and the '
+            'starting point do. [[slnc 500]] Two. [[slnc 200]] Startup is '
+            'slower. [[slnc 300]] Spring must build the context, call '
+            'every bean method, and connect everything. [[slnc 300]] The '
+            'hand-wired version never pays for that. [[slnc 500]] Three. '
+            '[[slnc 200]] A wiring mistake shows up when the program '
+            'runs, not when it compiles. [[slnc 300]] You just heard '
+            'exactly that happen.'
         ),
     ),
     dict(
@@ -314,16 +314,14 @@ public PlaceOrderInputBoundary placeOrder(
             "separate video from this one.",
         ],
         narration=(
-            "So when does reaching for a container actually pay off? "
-            "[[slnc 300]] The moment a real application has enough "
-            "objects that wiring them all in one hand-written method stops "
-            "being readable -- which, honestly, is most real applications "
-            "past a handful of classes. [[slnc 350]] It is not worth it "
-            "for learning the architecture itself. That lesson is "
-            "complete, and arguably clearer, with no framework in the way "
-            "at all -- which is exactly why Clean Architecture is its own "
-            "video, built first, rather than a single scene inside this "
-            "one."
+            'So when is a container worth it? [[slnc 400]] When a real '
+            'application has so many objects that wiring them all in one '
+            'method becomes hard to read. [[slnc 300]] Honestly, that is '
+            'most real applications beyond a handful of classes. [[slnc '
+            '500]] It is not worth it for learning the architecture. '
+            '[[slnc 300]] That lesson is clearer with no framework in the '
+            'way. [[slnc 300]] That is exactly why Clean Architecture has '
+            'its own video, built first.'
         ),
     ),
     dict(
@@ -341,15 +339,13 @@ public PlaceOrderInputBoundary placeOrder(
             "anywhere in this project.",
         ],
         narration=(
-            "One more thing worth saying plainly, because it is easy for "
-            "a video like this to sprawl. [[slnc 300]] Every entity, use "
-            "case and adapter in this project is a file already taught, "
-            "completely, in the video before this one -- nothing here "
-            "re-teaches any of it. Spring, as a general subject, is a "
-            "different, dedicated video, not this one. And there is no "
-            "web application anywhere in this project -- no web starter, "
-            "no HTTP server, because this is a wiring comparison, not a "
-            "web tutorial wearing an architecture's name."
+            'One more thing, to keep this video focused. [[slnc 400]] '
+            'Every entity, use case and adapter here comes from the '
+            'earlier video. [[slnc 300]] None of it is taught again. '
+            '[[slnc 400]] Spring in general is a separate video. [[slnc '
+            '400]] And there is no web application here. [[slnc 300]] No '
+            'web server, and no web library. [[slnc 300]] This is a '
+            'comparison of two ways to wire a program, and nothing more.'
         ),
     ),
     dict(
@@ -363,18 +359,19 @@ public PlaceOrderInputBoundary placeOrder(
             "checking whether it matches what this video showed.",
         ],
         narration=(
-            "That's Clean Architecture with Spring. [[slnc 250]] If you "
-            "take one sentence away, take this one: hand-wiring fails at "
-            "compile time; container wiring fails at startup. [[slnc "
-            "350]] The full source, the written notes, the diagrams and "
-            "an animated walkthrough are all in the repository. [[slnc "
-            "300]] If you try one exercise, try this. Delete a different "
-            "bean method than the one this video deleted, run the "
-            "project, and read the exception it produces before checking "
-            "whether it says what you expected. [[slnc 300]] If this "
-            "helped, a like genuinely does help other people find it, and "
-            "subscribe if you would like the rest of the series. [[slnc "
-            "250]] Thanks for watching, and I'll see you in the next one."
+            "That's Clean Architecture with Spring. [[slnc 400]] If you "
+            'remember one sentence, make it this one. [[slnc 300]] Wiring '
+            'by hand fails when you compile, and wiring by a container '
+            'fails when the program starts. [[slnc 500]] The full source '
+            'code, written notes, diagrams, and an animated walkthrough '
+            'are all in the repository. [[slnc 500]] Here is one exercise '
+            'to try. [[slnc 300]] Delete a different bean method from the '
+            'one in this video. [[slnc 300]] Run the project, and read '
+            'the error it gives. [[slnc 300]] Then check whether it says '
+            'what you expected. [[slnc 500]] If this helped, a like '
+            'really does help other people find it. [[slnc 300]] And '
+            "subscribe, if you'd like the rest of the series. [[slnc "
+            '400]] Thanks for watching.'
         ),
     ),
 ]

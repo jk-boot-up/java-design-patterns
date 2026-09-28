@@ -13,22 +13,24 @@ SCENES = [
         key='01-poster', kind='poster', title='Database per Service with Containers',
         body=None,
         narration=(
-            'Hello, and welcome. This video explains the Database per Service '
-            'pattern in Java, using two real databases: PostgreSQL and '
-            'MongoDB. [[slnc 250]] It is written and presented by Jayasekhar '
-            'Konduru. [[slnc 300]] Here is the plain definition, in general '
-            'words. Each service keeps its own data, in its own database. No '
-            'other service may read that database directly. If you want '
-            'somebody else\'s data, you ask them for it. [[slnc 350]] Now the '
-            'same thing in our online store. The shop has an Orders team and '
-            'a Catalog team. Orders knows what each customer bought. Catalog '
-            'knows what each product is called, what it costs, and how many '
-            'are on the shelf. Each team gets a database of its own, and in '
-            'this video they are two different kinds of database. '
-            '[[slnc 300]] By the end you will have seen one shared database '
-            'work well and then break, the split survive the same change, and '
-            'the old join tried against two real engines. One of them refuses '
-            'it out loud. The other one says nothing at all.'
+            'Hello, and welcome. [[slnc 400]] This video explains the '
+            'Database per Service pattern in Java, using two real '
+            'databases: PostgreSQL and MongoDB. [[slnc 300]] This video '
+            'is presented by Jayasekhar Konduru. [[slnc 600]] First, a '
+            'simple definition. [[slnc 300]] Each service keeps its own '
+            'data, in its own database. [[slnc 300]] No other service may '
+            'read that database directly. [[slnc 300]] If you want '
+            "someone else's data, you ask them for it. [[slnc 700]] In "
+            'our online store, there is an Orders team and a Catalog '
+            'team. [[slnc 300]] Orders knows what each customer bought. '
+            "[[slnc 300]] Catalog knows each product's name, price, and "
+            'stock. [[slnc 300]] Each team gets a database of its own. '
+            '[[slnc 300]] And here, they are two different kinds of '
+            'database. [[slnc 500]] By the end, you will hear one shared '
+            'database work well, and then break. [[slnc 300]] The split '
+            'survive the same change. [[slnc 300]] And the old join tried '
+            'against two real databases. [[slnc 300]] One refuses it out '
+            'loud. [[slnc 300]] The other says nothing at all.'
         ),
     ),
     dict(
@@ -39,16 +41,18 @@ SCENES = [
               'The names belong to Catalog.', '',
               'The hand-built twin kept both databases', 'as maps inside one Java program.'],
         narration=(
-            'Here is the scenario. Customer cust-7 has two orders. Order one '
-            'oh one is one Stainless Steel Kettle. Order one oh two is four '
-            'Blue Stoneware Mugs. [[slnc 250]] The order history page belongs '
-            'to the Orders team. It shows each order with the product\'s name '
-            'beside it. But the names belong to the Catalog team. So the page '
-            'needs data from both teams. [[slnc 300]] The hand-built twin of '
-            'this project told this story with two maps inside one Java '
-            'program. This time the data lives in real databases, each in a '
-            'container that the demo starts at the beginning and removes at '
-            'the end.'
+            'Here is the scenario. [[slnc 400]] One customer has two '
+            'orders. [[slnc 300]] Order one oh one is one Stainless Steel '
+            'Kettle. [[slnc 300]] Order one oh two is four Blue Stoneware '
+            'Mugs. [[slnc 600]] The order history page belongs to the '
+            'Orders team. [[slnc 300]] It shows each order, with the '
+            "product's name beside it. [[slnc 300]] But the names belong "
+            'to the Catalog team. [[slnc 300]] So the page needs data '
+            'from both teams. [[slnc 600]] The plain Java version told '
+            'this story with two simple maps, inside one Java program. '
+            '[[slnc 300]] This time, the data lives in real databases. '
+            '[[slnc 300]] Each runs in a container that the demo starts '
+            'at the beginning, and removes at the end.'
         ),
     ),
     dict(
@@ -58,20 +62,20 @@ SCENES = [
               'Transaction: changes kept or undone', '  together. Undoing them: rollback.', '',
               'Every error carries a 5-character code.'],
         narration=(
-            'Before the first act, some words, each in plain language first. '
-            '[[slnc 250]] PostgreSQL, usually called Postgres, keeps data in '
-            'tables. Think of a spreadsheet with fixed column headings, where '
-            'every row fills in the same columns. It is asked questions in a '
-            'language called SQL. [[slnc 250]] Postgres can answer one '
-            'question from two tables at once, by matching a value in one '
-            'with a value in the other. That is called a join. [[slnc 250]] '
-            'It can also keep a rule between two tables: a value in one must '
-            'exist in the other. It refuses any change that would break the '
-            'rule. That rule is called a foreign key. [[slnc 250]] And a group '
-            'of changes that are kept together or undone together is a '
-            'transaction. Undoing it is a rollback. [[slnc 250]] Every error '
-            'Postgres gives has a five-character code, and the video will say '
-            'those codes out loud.'
+            'Before the first demo, some words, in plain language. [[slnc '
+            '500]] PostgreSQL, usually called Postgres, keeps data in '
+            'tables. [[slnc 300]] Think of a spreadsheet with fixed '
+            'column headings. [[slnc 300]] Every row fills in the same '
+            'columns. [[slnc 300]] You ask it questions in a language '
+            'called S Q L. [[slnc 500]] Postgres can answer one question '
+            'from two tables at once, by matching values between them. '
+            '[[slnc 300]] That is called a join. [[slnc 500]] It can also '
+            'keep a rule between two tables. [[slnc 300]] A value in one '
+            'must exist in the other. [[slnc 300]] That rule is called a '
+            'foreign key, and Postgres refuses any change that breaks it. '
+            '[[slnc 500]] A group of changes that are kept together, or '
+            'undone together, is called a transaction. [[slnc 300]] '
+            'Undoing it is called a rollback.'
         ),
     ),
     dict(
@@ -89,17 +93,20 @@ SCENES = [
     ERROR 23503: violates foreign key
     constraint "orders_sku_fkey\"""",
         narration=(
-            'Act one. Both teams keep their tables in one Postgres database, '
-            'called shop. Catalog owns the products table. Orders owns the '
-            'orders table. And a foreign key says every order must name a '
-            'product that exists. [[slnc 250]] The order history page is one '
-            'SQL join. Both rows come back with their names, and it takes one '
-            'round trip: one question sent to the database. [[slnc 300]] Then '
-            'the Catalog team tries to delete the kettle, which order one oh '
-            'one still names. Postgres refuses, with error two three five '
-            'zero three: the foreign key would be broken. [[slnc 250]] This '
-            'is the arrangement working well. Fast, correct, and guarded by '
-            'the database itself.'
+            'First demo: one shared database. [[slnc 400]] Both teams '
+            'keep their tables in one Postgres database. [[slnc 300]] '
+            'Catalog owns the products table. [[slnc 300]] Orders owns '
+            'the orders table. [[slnc 300]] And a foreign key says every '
+            'order must name a product that exists. [[slnc 600]] The '
+            'order history page is one S Q L join. [[slnc 300]] Both '
+            'orders come back with their names. [[slnc 300]] And it takes '
+            'one round trip, meaning one question sent to the database. '
+            '[[slnc 600]] Then the Catalog team tries to delete the '
+            'kettle. [[slnc 300]] But order one oh one still names it. '
+            '[[slnc 300]] So Postgres refuses, because the foreign key '
+            'would be broken. [[slnc 500]] This is the shared database '
+            'working well. [[slnc 300]] Fast, correct, and guarded by the '
+            'database itself.'
         ),
     ),
     dict(
@@ -115,15 +122,17 @@ SCENES = [
 
   nobody did anything wrong.""",
         narration=(
-            'Act two. The Catalog team renames its column, from product name '
-            'to title. The change is correct. They update their own queries, '
-            'and their tests pass. [[slnc 250]] But the order history page '
-            'belongs to the Orders team, and its query still names the old '
-            'column. Postgres answers with error four two seven zero three: '
-            'the column does not exist. [[slnc 300]] Nobody did anything '
-            'wrong. The column was Catalog\'s. The query naming it was '
-            'Orders\'. The break lives between two teams, where no test suite '
-            'looks.'
+            'Second demo: a rename. [[slnc 400]] The Catalog team renames '
+            'its column, from product name to title. [[slnc 300]] The '
+            'change is correct. [[slnc 300]] They update their own '
+            'queries, and their tests pass. [[slnc 600]] But the order '
+            'history page belongs to the Orders team. [[slnc 300]] And '
+            'its query still uses the old column name. [[slnc 300]] '
+            'Postgres answers with an error: that column does not exist. '
+            '[[slnc 600]] Nobody did anything wrong. [[slnc 300]] The '
+            'column belonged to Catalog. [[slnc 300]] The query that '
+            'named it belonged to Orders. [[slnc 300]] The break lives '
+            'between two teams, where no test suite looks.'
         ),
     ),
     dict(
@@ -134,17 +143,18 @@ SCENES = [
               'Find: fetch the documents that match.', '$lookup: its join, into another',
               '  collection in the same database.'],
         narration=(
-            'Now the second engine, and its words. [[slnc 250]] MongoDB is a '
-            'document database. Think of a drawer of filled-in forms, where '
-            'each form can have its own set of boxes. Each form is what '
-            'MongoDB calls a document: one record of named fields. A drawer '
-            'of them is a collection. There are no tables, and two documents '
-            'in one collection need not have the same fields. [[slnc 250]] '
-            'Asking MongoDB for the documents that match is called a find. '
-            '[[slnc 250]] And MongoDB has its own kind of join. For each '
+            'Now the second database, and its words. [[slnc 400]] MongoDB '
+            'is a document database. [[slnc 300]] Think of a drawer of '
+            'filled-in forms, where each form can have its own set of '
+            'boxes. [[slnc 500]] Each form is called a document: one '
+            'record of named fields. [[slnc 300]] A drawer of them is '
+            'called a collection. [[slnc 300]] There are no tables. '
+            '[[slnc 300]] And two documents in one collection do not need '
+            'the same fields. [[slnc 500]] Asking MongoDB for matching '
+            'documents is called a find. [[slnc 500]] MongoDB also has '
+            'its own kind of join, called lookup. [[slnc 300]] For each '
             'document, it attaches the matching documents from another '
-            'collection in the same database. That step is called lookup, '
-            'written with a dollar sign in front.'
+            'collection, in the same database.'
         ),
     ),
     dict(
@@ -162,35 +172,40 @@ SCENES = [
   MongoDB changed 2 documents.
   the page is unchanged.""",
         narration=(
-            'Act three is the split. Orders keeps Postgres, in a database of '
-            'its own, holding one table. Catalog moves to MongoDB, in a '
-            'database of its own, holding one collection of documents. '
-            '[[slnc 250]] The kettle\'s document has a wattage. The mug\'s has '
-            'a capacity in millilitres. Nobody changed a table to allow '
-            'either. That is the usual reason a team wants its own database: '
-            'a different kind of store that suits its data. [[slnc 300]] The '
-            'page is now two questions. One SQL query to Orders for the '
-            'customer\'s orders. One find to Catalog for both names at once. '
-            'Java puts the answers side by side. Two round trips, where the '
-            'join took one. [[slnc 300]] Then the Catalog team renames its '
-            'name field to title, in every document. MongoDB changed two '
-            'documents. The page is unchanged, because nothing outside '
-            'Catalog ever named that field.'
+            'Third demo: the split. [[slnc 400]] Orders keeps Postgres, '
+            'in a database of its own, with one table. [[slnc 300]] '
+            'Catalog moves to MongoDB, in a database of its own, with one '
+            "collection. [[slnc 600]] The kettle's document has a "
+            "wattage. [[slnc 300]] The mug's document has a capacity in "
+            'millilitres. [[slnc 300]] Nobody had to change a table to '
+            'allow either. [[slnc 300]] That is a common reason for a '
+            'team to want its own database: a kind of store that suits '
+            'its data. [[slnc 600]] The page is now two questions. [[slnc '
+            "300]] One S Q L query to Orders, for the customer's orders. "
+            '[[slnc 300]] One find to Catalog, for both names at once. '
+            '[[slnc 300]] Java puts the answers side by side. [[slnc '
+            '300]] Two round trips, where the join took one. [[slnc 600]] '
+            'Then the Catalog team renames its name field to title, in '
+            'every document. [[slnc 300]] And the page is unchanged. '
+            '[[slnc 300]] Because nothing outside Catalog ever named that '
+            'field.'
         ),
     ),
     dict(
         key='08-diagram', kind='diagram', title='Who Can Reach What',
         body=None,
         narration=(
-            'Here is who can reach what, in words. The order history page '
-            'asks the Orders service, and then asks the Catalog service. The '
-            'Orders service holds one connection, to its own Postgres '
-            'database, and nothing else. The Catalog service holds one '
-            'client, for its own MongoDB database, and nothing else. '
-            '[[slnc 300]] Between the two databases there is no line at all. '
-            'No join, no foreign key, and no shared transaction. No engine '
-            'holds both halves. Hold on to that, because the next act tries '
-            'to cross that gap anyway.'
+            'Here is who can reach what, in words. [[slnc 400]] The order '
+            'history page asks the Orders service, and then the Catalog '
+            'service. [[slnc 500]] The Orders service holds one '
+            'connection, to its own Postgres database, and nothing else. '
+            '[[slnc 300]] The Catalog service holds one connection, to '
+            'its own MongoDB database, and nothing else. [[slnc 600]] '
+            'Between the two databases, there is nothing at all. [[slnc '
+            '300]] No join, no foreign key, and no shared transaction. '
+            '[[slnc 300]] No database holds both halves. [[slnc 300]] '
+            'Remember that, because the next demo tries to cross that gap '
+            'anyway.'
         ),
     ),
     dict(
@@ -207,15 +222,17 @@ public CatalogService(Mongo mongo, ...) {
         .getCollection("products");
 }""",
         narration=(
-            'In the code, the whole pattern is two constructors. The Orders '
-            'service is handed Postgres, and opens a connection to one '
-            'database, called orders. The Catalog service is handed MongoDB, '
-            'and opens a client for one database, called catalog, and one '
-            'collection, called products. [[slnc 300]] What matters is what '
-            'they are not handed. The Orders service has no MongoDB address '
-            'and no MongoDB password. The Catalog service has no Postgres '
-            'connection. The hand-built twin needed an exception class to say '
-            'you may not. Here nothing says it. The rule is the wiring.'
+            'In the code, the whole pattern is two constructors. [[slnc '
+            '400]] The Orders service is given Postgres, and connects to '
+            'one database, called orders. [[slnc 300]] The Catalog '
+            'service is given MongoDB, and connects to one database, '
+            'called catalog. [[slnc 600]] What matters is what they are '
+            'not given. [[slnc 300]] The Orders service has no MongoDB '
+            'address, and no MongoDB password. [[slnc 300]] The Catalog '
+            'service has no Postgres connection. [[slnc 500]] The plain '
+            'Java version needed special code to say: you may not. [[slnc '
+            '300]] Here, nothing needs to say it. [[slnc 300]] The rule '
+            'is in how things are connected.'
         ),
     ),
     dict(
@@ -232,21 +249,24 @@ public CatalogService(Mongo mongo, ...) {
     SKU-KETTLE with 0 orders,
     SKU-MUG with 0 orders.""",
         narration=(
-            'Act four is the headline of this project. The old join is tried '
-            'from both sides. [[slnc 250]] From the Orders side, the old SQL. '
-            'Postgres answers with error four two P zero one: there is no '
-            'table called products here. Then a reach across to the shop '
-            'database, which sits on the very same Postgres server. Error '
-            'zero A zero zero zero: cross-database references are not '
-            'implemented. Postgres will not even join two of its own '
-            'databases. [[slnc 300]] From the Catalog side, MongoDB\'s own '
-            'join, pointed at a collection called orders. MongoDB has no such '
-            'collection. The orders are in Postgres. And it does not '
-            'complain. It treats the missing collection as empty, and hands '
-            'back both products, each with zero orders. [[slnc 300]] That '
-            'quiet answer is the dangerous one. A report built on it would '
-            'say nobody ever bought a kettle, and no log anywhere would say '
-            'why. The join is not forbidden. It cannot be written.'
+            'Fourth demo, and this is the headline of the project. [[slnc '
+            '400]] The old join is tried from both sides. [[slnc 600]] '
+            'From the Orders side, the old S Q L query. [[slnc 300]] '
+            'Postgres answers with an error: there is no products table '
+            'here. [[slnc 500]] Then the query reaches across to the old '
+            'shared database, on the very same Postgres server. [[slnc '
+            '300]] Another error: Postgres cannot join across two of its '
+            "own databases. [[slnc 600]] From the Catalog side, MongoDB's "
+            'own join, pointed at a collection called orders. [[slnc '
+            '300]] MongoDB has no such collection. [[slnc 300]] The '
+            'orders are in Postgres. [[slnc 500]] And MongoDB does not '
+            'complain. [[slnc 300]] It treats the missing collection as '
+            'empty. [[slnc 300]] And it returns both products, each with '
+            'zero orders. [[slnc 600]] That quiet answer is the dangerous '
+            'one. [[slnc 300]] A report built on it would say nobody ever '
+            'bought a kettle. [[slnc 300]] And no log anywhere would say '
+            'why. [[slnc 500]] The join is not forbidden. [[slnc 300]] It '
+            'simply cannot be written.'
         ),
     ),
     dict(
@@ -262,14 +282,17 @@ public CatalogService(Mongo mongo, ...) {
 
   in act ONE Postgres refused this delete.""",
         narration=(
-            'Act five. The Catalog team deletes the kettle. MongoDB deleted '
-            'one document, and nothing refused. [[slnc 250]] Postgres still '
-            'holds one order naming the kettle, and it has no way of knowing '
-            'the kettle has gone. The page has to decide what to show, and it '
-            'shows: no longer in the catalogue. [[slnc 300]] In act one, '
-            'Postgres refused this exact delete. Across two engines, nothing '
-            'can. The rule that used to live in the database now lives in '
-            'code, and in agreements between teams.'
+            'Fifth demo: no foreign key between two databases. [[slnc '
+            '400]] The Catalog team deletes the kettle. [[slnc 300]] '
+            'MongoDB deletes one document. [[slnc 300]] And nothing '
+            'refuses. [[slnc 600]] Postgres still holds one order that '
+            'names the kettle. [[slnc 300]] And it has no way of knowing '
+            'the kettle has gone. [[slnc 300]] The page has to decide '
+            'what to show. [[slnc 300]] It shows: no longer in the '
+            'catalogue. [[slnc 600]] In the first demo, Postgres refused '
+            'this exact delete. [[slnc 300]] Across two databases, '
+            'nothing can. [[slnc 300]] That rule now lives in code, and '
+            'in agreements between teams.'
         ),
     ),
     dict(
@@ -286,18 +309,22 @@ public CatalogService(Mongo mongo, ...) {
     ord-101  (catalog unreachable)   x1
   2 containers, 2 drivers, 2 languages.""",
         narration=(
-            'Act six is the bill. Customer cust-7 checks out two more mugs. '
-            'Orders writes order one oh three inside a Postgres transaction. '
-            'Catalog takes two mugs off the shelf in MongoDB. [[slnc 250]] '
-            'Then the payment is declined, and Orders rolls back. Postgres '
-            'forgets the order: the customer has two orders again. MongoDB '
-            'keeps its change: thirty eight mugs, where there were forty. The '
-            'rollback reached one engine, not both. In the shared database, '
-            'the stock and the order would have been one transaction. '
-            '[[slnc 300]] Then MongoDB is stopped. The page asks Orders, which '
-            'answers. It asks Catalog, which does not. Every name reads: '
-            'catalog unreachable. The page is half there. [[slnc 250]] And the '
-            'shop now runs two containers, two drivers and two query '
+            'Sixth demo: the bill. [[slnc 400]] The customer checks out '
+            'two more mugs. [[slnc 300]] Orders writes order one oh '
+            'three, inside a Postgres transaction. [[slnc 300]] Catalog '
+            'takes two mugs off the shelf, in MongoDB. [[slnc 600]] Then '
+            'the payment is declined, and Orders rolls back. [[slnc 300]] '
+            'Postgres forgets the order. [[slnc 300]] The customer has '
+            'two orders again. [[slnc 500]] But MongoDB keeps its change. '
+            '[[slnc 300]] Thirty-eight mugs, where there were forty. '
+            '[[slnc 300]] The rollback reached one database, not both. '
+            '[[slnc 300]] In the shared database, the stock and the order '
+            'would have been one transaction. [[slnc 600]] Then MongoDB '
+            'is stopped. [[slnc 300]] The page asks Orders, which '
+            'answers. [[slnc 300]] It asks Catalog, which does not. '
+            '[[slnc 300]] So every name reads: catalog unreachable. '
+            '[[slnc 300]] The page is only half there. [[slnc 600]] And '
+            'the shop now runs two containers, two drivers, and two query '
             'languages, where it had one of each.'
         ),
     ),
@@ -308,17 +335,20 @@ public CatalogService(Mongo mongo, ...) {
               '✗ Two genuinely different engines.', '✗ A join that answers nothing, quietly.',
               '✗ A rollback that stops at its engine.', '✗ One database down, the other up.'],
         narration=(
-            'So what did the hand-built simulation get right? The whole '
-            'argument. One shared database answers the page in one join, and '
-            'a foreign key protects it. A correct rename breaks somebody '
-            'else\'s page. The split does the same page in two calls, and the '
-            'rename becomes harmless. [[slnc 300]] What it left out was '
-            'everything that needs real engines. Its two databases were the '
-            'same kind of thing, so it could not show a team choosing a '
-            'different store for different data. Its refusal was an exception '
-            'it wrote itself, so it could not show a real engine answering a '
-            'join with a quiet nothing. It had no transactions, so no '
-            'rollback could stop halfway. And a map in memory is never down.'
+            'So what did the plain Java version get right? [[slnc 400]] '
+            'The whole argument. [[slnc 300]] One shared database answers '
+            'the page in one join, protected by a foreign key. [[slnc '
+            "300]] A correct rename breaks somebody else's page. [[slnc "
+            '300]] The split builds the same page in two calls, and the '
+            'rename becomes harmless. [[slnc 600]] What it left out was '
+            'everything that needs real databases. [[slnc 500]] Its two '
+            'databases were the same kind of thing. [[slnc 300]] So it '
+            'could not show a team choosing a different store for '
+            'different data. [[slnc 400]] Its refusal was code it wrote '
+            'itself. [[slnc 300]] So it could not show a real database '
+            'answering a join with a quiet nothing. [[slnc 400]] It had '
+            'no transactions, so no rollback could stop halfway. [[slnc '
+            '400]] And a map in memory is never down.'
         ),
     ),
     dict(
@@ -329,15 +359,18 @@ public CatalogService(Mongo mongo, ...) {
               '2. the foreign key: an agreement', '3. one transaction: two that can disagree',
               '4. both up: one can be down'],
         narration=(
-            'The verdict. When two teams keep breaking each other, give each '
-            'service its own database, and let each pick the engine that '
-            'suits its data. [[slnc 250]] Then say out loud what that gives '
-            'up. One. The join becomes two questions and some code. '
-            '[[slnc 200]] Two. The foreign key becomes an agreement between '
-            'teams. [[slnc 200]] Three. One transaction becomes two, and they '
-            'can disagree. [[slnc 200]] Four. One engine can be down while '
-            'the other is up. [[slnc 250]] And never trust an answer of '
-            'nothing from a join, until you know where the other half lives.'
+            'So, here is the verdict. [[slnc 400]] When two teams keep '
+            'breaking each other, give each service its own database. '
+            '[[slnc 300]] And let each team pick the kind of database '
+            'that suits its data. [[slnc 600]] Then be honest about what '
+            'that gives up. [[slnc 500]] One. [[slnc 200]] The join '
+            'becomes two questions, and some code. [[slnc 400]] Two. '
+            '[[slnc 200]] The foreign key becomes an agreement between '
+            'teams. [[slnc 400]] Three. [[slnc 200]] One transaction '
+            'becomes two, and they can disagree. [[slnc 400]] Four. '
+            '[[slnc 200]] One database can be down while the other is up. '
+            '[[slnc 600]] And never trust an empty answer from a join, '
+            'until you know where the other half lives.'
         ),
     ),
     dict(
@@ -347,21 +380,20 @@ public CatalogService(Mongo mongo, ...) {
               'Too much for one small team: one database', 'keeps the join, the key and one transaction.',
               'Same shape of data? Two databases on one', 'engine is often enough.'],
         narration=(
-            'What is real here? Two real databases. Postgres, version '
-            'eighteen point six, and MongoDB, version eight point three point '
-            'eleven, the newest releases, each in its own container. The demo '
-            'starts both at the beginning and removes both at the end, each '
-            'on a random free port. Java talks to them through the newest '
-            'Postgres driver and the newest MongoDB driver. The one thing you '
-            'need is a container runtime, such as Docker Desktop, switched on '
-            'before you start. Every number and every error code in this '
-            'video comes from the program\'s own output, and two runs one '
-            'after the other print the same thing. [[slnc 300]] So when is '
-            'this too much? If one small team owns both halves, one database '
-            'keeps the join, the foreign key and the single transaction. And '
-            'if the two teams\' data has the same shape, two databases on one '
-            'engine is often enough. A second engine is one more thing to '
-            'back up, upgrade, watch and learn.'
+            'A quick, honest note about this demo. [[slnc 400]] There are '
+            'two real databases. [[slnc 300]] Postgres, version eighteen '
+            'point six. [[slnc 300]] And MongoDB, version eight point '
+            'three point eleven. [[slnc 300]] Each runs in its own '
+            'container, which the demo starts and removes by itself. '
+            '[[slnc 300]] You just need Docker switched on first. [[slnc '
+            "300]] Every number you heard comes from the program's own "
+            'output. [[slnc 600]] So, when is this too much? [[slnc 300]] '
+            'If one small team owns both halves, one database keeps the '
+            'join, the foreign key, and the single transaction. [[slnc '
+            "300]] If both teams' data has the same shape, two databases "
+            'on the same kind of engine is often enough. [[slnc 300]] A '
+            'second kind of database is one more thing to back up, '
+            'update, watch, and learn.'
         ),
     ),
     dict(
@@ -370,17 +402,19 @@ public CatalogService(Mongo mongo, ...) {
               'are in the repository. Try the exercises in',
               'the session guide.'],
         narration=(
-            "That's Database per Service with Containers. [[slnc 250]] If you "
-            'take one sentence away, take this one: once each service has its '
-            'own engine, the join is not forbidden, it is impossible, and one '
-            'engine will not even tell you. [[slnc 350]] The full source, the '
-            'written notes, the diagrams and an animated walkthrough are all '
-            'in the repository. [[slnc 300]] If you try one exercise, create a '
-            'real orders collection in the catalog database with one document '
-            'in it, guess what the lookup will say, and then run it. '
-            '[[slnc 300]] If this helped, a like genuinely does help other '
-            'people find it, and subscribe if you would like the rest of the '
-            'series. [[slnc 250]] Thanks for watching.'
+            "That's Database per Service, with Containers. [[slnc 400]] "
+            'If you remember one sentence, make it this one. [[slnc 300]] '
+            'Once each service has its own database, the join is not '
+            'forbidden, it is impossible, and one database will not even '
+            'tell you. [[slnc 500]] The full source code, written notes, '
+            'diagrams, and an animated walkthrough are all in the '
+            'repository. [[slnc 500]] Here is one exercise to try. [[slnc '
+            '300]] Create a real orders collection in the catalog '
+            'database, with one document in it. [[slnc 300]] Guess what '
+            'the lookup will return, and then run it. [[slnc 500]] If '
+            'this helped, a like really does help other people find it. '
+            "[[slnc 300]] And subscribe, if you'd like the rest of the "
+            'series. [[slnc 400]] Thanks for watching.'
         ),
     ),
 ]

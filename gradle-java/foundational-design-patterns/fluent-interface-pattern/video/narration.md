@@ -2,56 +2,56 @@
 
 ## 1. Fluent Interface
 
-Hello, and welcome. This video explains the Fluent Interface pattern in Java, and it is written and presented by Jayasekhar Konduru. The plain definition: a fluent interface lets calls be chained, so that code reads like a sentence. Each call returns something that the next call can be made on. This is another project in the foundational category, whose subject is how an object gets hold of another, and how small idioms shape everyday Java. In our online store, a product search takes five arguments, and two of them are booleans that are easy to swap. By the end you will see a long argument list where swapped booleans still compile, see the same search as a sentence, see optional parts left out, see the difference between a query that changes itself and one that never does, see guided steps that refuse a wrong order, and see the bill, which is late errors and awkward debugging.
+Hello, and welcome. This video explains the Fluent Interface pattern, in Java. This video is presented by Jayasekhar Konduru. First, a simple definition. A fluent interface lets method calls be chained together, so the code reads like a sentence. Each call returns something that the next call can be made on. Think of giving directions. Go straight, then turn left, then stop at the bakery. Each step follows naturally from the last. In our online store, a product search takes five arguments. And two of them are true-or-false values that are easy to swap. In this video, swapped values still compile. Then the same search becomes a sentence. We will leave out optional parts, compare a query that changes itself with one that never does, and use guided steps that refuse a wrong order. And then the cost.
 
 ## 2. The Scenario
 
-Here is the scenario. The catalog search takes a category, a price limit, whether to show only what is in stock, whether to sort by price, and how many to show. Two of the five are true or false. The question: can it read better?
+Here is the scenario. The catalogue search takes five things. A category, a price limit, whether to show only items in stock, whether to sort by price, and how many results to show. Two of those five are simply true or false. So here is the question. Can the call read better?
 
 ## 3. A Long List Of Arguments
 
-First, a long list of arguments. The find call with mugs, twenty five hundred, true, true and ten gives the blue mug and the big mug. With the two booleans the other way round, it gives three mugs, including one that is not in stock. Both compile. Which is in stock, and which is the sort? You must count the arguments to know.
+First, the naive way: a long list of arguments. Search for mugs, under twenty-five pounds, true, true, and ten. The result is the blue mug and the big mug. Now swap the two true-or-false values. The result is three mugs, including one that is out of stock. Both versions compile. Which true means in stock, and which means sorted? You have to count the arguments to know.
 
 ## 4. The Pattern
 
-The pattern. Each call returns something to call the next on. Each call names the one thing it sets. The code reads like a sentence.
+Now, the pattern. Each call returns something you can make the next call on. Each call names the one thing it sets. And the code reads like a sentence.
 
 ## 5. A Sentence
 
-Second, a sentence. Search, category mugs, under twenty five hundred, in stock, cheapest first, first ten. The same answer as the long call, and every part names itself.
+Second demo: a sentence. Search, category mugs, under twenty-five pounds, in stock, cheapest first, first ten. The same answer as the long call. And every part names itself.
 
 ## 6. Leave Out What You Do Not Need
 
-Third, leave out what you do not need. Category only: green tea. Under a thousand, any category: the blue mug, and green tea. And the order of the optional parts does not matter.
+Third demo: leave out what you do not need. With only a category, the result is green tea. With only a price limit of ten pounds, any category, the result is the blue mug, and green tea. And the order of the optional parts does not matter.
 
 ## 7. Does A Call Change The Query?
 
-Fourth, does a call change the query? A query that never changes: cheap gives the blue mug, dear gives three mugs, and the base still gives four. A query that changes itself: cheap and dear give the same three mugs. They are the same object. The cheap query was spoiled by the dear one.
+Fourth demo: does a call change the query? First, a query that never changes. Each call returns a new query. The cheap search gives one mug. The expensive search gives three. And the original base query still gives all four. Now, a query that changes itself. The cheap search and the expensive search both give the same three mugs. Because they are the same object. The cheap query was spoiled by the expensive one.
 
 ## 8. Guided Steps
 
-Fifth, guided steps. At the start, the only thing offered is category. Then, under. Then, cheapest first, in stock, or run. A call out of order does not compile.
+Fifth demo: guided steps. At the start, the only step offered is category. After that, only a price limit is offered. After that, cheapest first, in stock, or run. A call made in the wrong order simply does not compile.
 
 ## 9. The Bill
 
-Last, the bill. Under minus five was accepted, and nothing complained. It failed at run, saying the price limit is below zero. The mistake and the report are on different steps of one long line. A debugger cannot stop between the calls of one chain, and a stack trace names the line, not the step. And it is a small language that someone designed: this one has seven methods to learn, and to keep.
+Finally, the costs. A price limit of minus five was accepted, and nothing complained. It only failed at the end, when the search ran, saying the price limit is below zero. The mistake and the report are on different steps of one long line. A debugger cannot stop between the calls in one chain. And an error report names the line, not the step. Finally, it is a small language someone designed. This one has seven methods to learn, and to maintain.
 
 ## 10. How To Recognise It
 
-How do you recognise this in code you did not write? Java streams: list.stream().filter(...).map(...).toList(). StringBuilder.append(...).append(...). jOOQ, QueryDSL, AssertJ and Mockito's when(...).thenReturn(...). Builders with .name(...).age(...).build().
+How can you spot this pattern in code someone else wrote? Java streams are fluent: stream, filter, map, and to list. String Builder, with append after append. Testing libraries, like AssertJ, and Mockito's when, then return. And builders, where you set a name, then an age, then call build.
 
 ## 11. The Verdict
 
-Here is my verdict, plainly. Use a fluent interface where many optional settings make a plain call hard to read. Make each call return a new object, unless the object is a builder used once. Check values in each call, not at the end. Use staged types when order matters. Keep it small, since it is a language you must maintain.
+So, here is the verdict. Use a fluent interface where many optional settings make a plain call hard to read. Make each call return a new object. Unless the object is a builder, used once. Check values in each call, not at the end. Use guided steps when the order matters. And keep it small, because it is a language you must maintain.
 
 ## 12. What Is Real Here
 
-The same honest admission as everywhere in this course. Everything is plain Java. Every number quoted comes from this program's own output. Nothing depends on a clock, so every run is the same.
+A quick, honest note about this demo. Everything is plain Java. Every result you heard comes from the program's own output. And nothing depends on the clock, so every run gives the same result.
 
 ## 13. When This Is Too Much
 
-So when is it too much? For two or three obvious arguments, a plain call is shorter. A fluent API costs a class, a design and its upkeep.
+So, when is this too much? For two or three obvious arguments, a plain call is shorter. A fluent interface costs a class, a design, and ongoing upkeep.
 
 ## 14. Thanks for Watching
 
-That's Fluent Interface. If you take one sentence away, take this one: a fluent interface makes calls read like a sentence, and the price is errors found late, debugging that is harder, and a small language to maintain. The full source, the written notes, the diagrams and an animated walkthrough are all in the repository, running offline with nothing installed but a Java development kit. If you try one exercise, add a step that limits results to one category, and decide where in the chain it may appear. If this helped, a like genuinely does help other people find it, and subscribe if you would like the rest of the series. Thanks for watching.
+That's the Fluent Interface pattern. If you remember one sentence, make it this one. A fluent interface makes calls read like a sentence, and the price is errors found late, harder debugging, and a small language to maintain. The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. Here is one exercise to try. Add a step that limits results to one brand. And decide where in the chain it may appear. If this helped, a like really does help other people find it. And subscribe, if you'd like the rest of the series. Thanks for watching.

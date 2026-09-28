@@ -6,34 +6,6 @@ Say it in words. Email and analytics each open their own connection to Redis and
 
 ![Publisher-Subscriber with Redis sequence diagram](images/sequence-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant O as order service
-    participant R as Redis
-    participant E as email
-    participant A as analytics
-    E->>R: subscribe orders.placed
-    A->>R: subscribe orders.placed
-    Note over A: stops reading
-    O->>R: publish ORD-1
-    R-->>O: 2 receivers
-    R->>E: ORD-1, read at once
-    R-->>R: ORD-1 onto the pile for analytics
-    O->>R: publish, round after round, never waiting
-    R->>E: every order
-    R-->>R: pile for analytics passes 1mb
-    R-xA: connection closed, pile thrown away
-    Note over R: listeners cut off for falling behind: 1
-    O->>R: publish the next order
-    R-->>O: 1 receiver
-```
-
-</details>
-
 The load-bearing sentence: **Redis never waits for a slow subscriber, and past the limit it cuts that subscriber off — the publisher only ever sees a smaller number.**
 
 For the second process, the late subscriber and the patterns, see [`uml-diagram.md`](uml-diagram.md).

@@ -18,46 +18,6 @@ pattern people leave out.
 
 ![Circuit breaker data flow diagram](images/data-flow-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-flowchart TD
-    Start(["the shop needs something from Recommendations"])
-    State{"what state is<br/>the breaker in?"}
-    Refuse["REFUSED — no call is made<br/>the clock does not move"]
-    Wait{"has the wait<br/>of 5000ms passed?"}
-    Probe["HALF-OPEN — exactly one call allowed through<br/>everything else is still refused"]
-    Call["make the real call<br/>3000ms of waiting for an answer that is not coming"]
-    Result{"did it answer?"}
-    Reset["success — the consecutive-failure count goes back to zero<br/>a bad moment is not an outage"]
-    Count["failure — increment the count"]
-    Trip{"three in a row?"}
-    Open["OPENED — not calling for 5000ms"]
-    Closed["CLOSED — calls resume, nobody deployed anything"]
-    Decide{"what does this caller<br/>do with a fast failure?"}
-    Page["product page: an empty list<br/>plus a degraded flag, so nobody<br/>has to guess later what empty meant"]
-    Honest["checkout: an honest no,<br/>basket intact, card untouched"]
-    Lie["the fallback that must never be written:<br/>a receipt for money that never moved"]
-    Done(["the shopper gets an answer"])
-
-    Start --> State
-    State -- "OPEN" --> Wait
-    Wait -- "no" --> Refuse --> Decide
-    Wait -- "yes" --> Probe --> Call
-    State -- "CLOSED" --> Call
-    Call --> Result
-    Result -- "yes" --> Reset --> Closed --> Done
-    Result -- "no" --> Count --> Trip
-    Trip -- "yes, or a failed probe" --> Open --> Decide
-    Trip -- "no" --> Done
-    Decide --> Page --> Done
-    Decide --> Honest --> Done
-    Decide -. "green dashboards, a thanked shopper,<br/>and an espresso machine nobody paid for" .-> Lie
-```
-
-</details>
-
 ## What the picture is telling you
 
 **The refusal path contains no call and no clock.** Follow it: state is open, the wait has

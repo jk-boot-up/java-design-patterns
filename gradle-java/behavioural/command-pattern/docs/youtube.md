@@ -21,20 +21,20 @@ Learn the Command design pattern in Java 21 by building undo and redo for a shop
 
 CHAPTERS
 00:00 Introduction
-00:52 The Scenario
-01:31 The Obvious First Move
-02:09 The Naive Approach — The Note Records the Request
-02:58 Why That Hurts
-03:37 The Command Pattern
-04:22 Everyday Analogy: The Order Slip
-05:03 The Roles
-05:56 The Command — Three Methods
-06:36 The One That Is Not Trivial to Reverse
-07:47 The Invoker, Which Knows Nothing
-08:34 The Test That Proves It
-09:21 Running It
-10:06 What to Remember
-11:21 Thanks for Watching
+00:49 The Scenario
+01:25 The Obvious First Move
+01:59 The Naive Approach — The Note Records the Request
+02:51 Why That Hurts
+03:19 The Command Pattern
+03:57 Everyday Analogy: The Order Slip
+04:34 The Roles
+05:22 The Command — Three Methods
+05:54 The One That Is Not Trivial to Reverse
+07:04 The Invoker, Which Knows Nothing
+07:53 The Test That Proves It
+08:43 Running It
+09:27 What to Remember
+10:42 Thanks for Watching
 
 SOURCE CODE, WRITTEN NOTES AND AN INTERACTIVE ANIMATION
 https://github.com/jk-boot-up/java-design-patterns/tree/main/gradle-java/behavioural/command-pattern
@@ -49,20 +49,20 @@ YouTube renders these as chapters only if there are at least three and the first
 
 ```
 00:00 Introduction
-00:52 The Scenario
-01:31 The Obvious First Move
-02:09 The Naive Approach — The Note Records the Request
-02:58 Why That Hurts
-03:37 The Command Pattern
-04:22 Everyday Analogy: The Order Slip
-05:03 The Roles
-05:56 The Command — Three Methods
-06:36 The One That Is Not Trivial to Reverse
-07:47 The Invoker, Which Knows Nothing
-08:34 The Test That Proves It
-09:21 Running It
-10:06 What to Remember
-11:21 Thanks for Watching
+00:49 The Scenario
+01:25 The Obvious First Move
+01:59 The Naive Approach — The Note Records the Request
+02:51 Why That Hurts
+03:19 The Command Pattern
+03:57 Everyday Analogy: The Order Slip
+04:34 The Roles
+05:22 The Command — Three Methods
+05:54 The One That Is Not Trivial to Reverse
+07:04 The Invoker, Which Knows Nothing
+07:53 The Test That Proves It
+08:43 Running It
+09:27 What to Remember
+10:42 Thanks for Watching
 ```
 
 ## Tags
@@ -101,4 +101,4 @@ Add a card partway through pointing at the playlist, so a viewer who arrives at 
 
 ## Runtime
 
-Approximately 11:57, narrated at 145 words per minute.
+Approximately 11:24, narrated at 145 words per minute.

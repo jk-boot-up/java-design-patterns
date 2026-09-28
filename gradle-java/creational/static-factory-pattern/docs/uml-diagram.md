@@ -6,52 +6,6 @@ got.
 
 ![Static factory method sequence diagram](images/uml-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-sequenceDiagram
-    actor Client as StaticFactoryDemo
-    participant Discount as Discount<br/>(static methods)
-    participant Impl as PercentageDiscount
-    participant Checkout as CheckoutService
-    participant Money as Money<br/>(static methods)
-
-    Client->>Discount: forCoupon("SAVE10")
-    activate Discount
-    Discount->>Discount: percentage(10)
-    Discount->>Impl: new PercentageDiscount(10)
-    activate Impl
-    Impl-->>Discount: instance
-    deactivate Impl
-    Discount-->>Client: Discount
-    deactivate Discount
-
-    Note over Client,Impl: the caller holds a Discount and cannot tell which class it is
-
-    Client->>Checkout: checkout(order, discount)
-    activate Checkout
-
-    Checkout->>Impl: appliedTo(order)
-    activate Impl
-    Impl->>Money: subtotal.percent(10)
-    activate Money
-    Money-->>Impl: £12.00
-    deactivate Money
-    Impl-->>Checkout: £12.00
-    deactivate Impl
-
-    Checkout->>Impl: describe()
-    activate Impl
-    Impl-->>Checkout: "10% off"
-    deactivate Impl
-
-    Checkout-->>Client: Receipt
-    deactivate Checkout
-```
-
-</details>
-
 ## Notes
 
 - Everything interesting happens above the note. Once `forCoupon` has

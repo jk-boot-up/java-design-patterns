@@ -23,49 +23,6 @@ is the one thing a diagram genuinely cannot draw, so it is written on the boxes.
 
 ![Backends for frontends architecture diagram](images/architecture-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-flowchart TB
-    subgraph T1["Tier 1 — one JVM, JDK 21 only, no network"]
-        direction TB
-        Demo["ProductScreenDemo<br/>the seven acts"]
-        Chatty["ChattyPhone<br/>the phone calling all five services itself"]
-        Shared["SharedApi<br/>one endpoint that belongs to everybody"]
-        Mob["MobileBff<br/>owned by the phone team"]
-        Web["WebBff<br/>owned by the storefront team"]
-        Shop["Shop<br/>catalog, pricing, inventory, reviews, media"]
-        Doc["Doc<br/>an ordered map that measures itself"]
-        Screens["Screens<br/>the fields each screen actually draws"]
-        Log["CallLog<br/>counts calls, device and internal"]
-        Demo --> Chatty --> Shop
-        Demo --> Shared --> Shop
-        Demo --> Mob --> Shop
-        Demo --> Web --> Shop
-        Mob --> Doc
-        Web --> Doc
-        Screens -.-> Mob
-        Screens -.-> Web
-        Shop --> Log
-    end
-
-    subgraph T2["Tier 2 — real/, three JVM processes, no Docker"]
-        direction TB
-        Phone(["the phone app"])
-        Desk(["the desktop store"])
-        MB["mobile-bff<br/>Spring Boot 4.1.1<br/>196 bytes, 6 fields"]
-        WB["web-bff<br/>Spring Boot 4.1.1<br/>1409 bytes, 15 fields"]
-        RS["shop<br/>Spring Boot 4.1.1<br/>five endpoints, one process"]
-        Phone --> MB --> RS
-        Desk --> WB --> RS
-    end
-
-    T1 -. "the same seven acts, over a real connection" .-> T2
-```
-
-</details>
-
 ## What the diagram is telling you to count
 
 **One shop, two backends, and no duplicated service boxes.** The five things the shop knows

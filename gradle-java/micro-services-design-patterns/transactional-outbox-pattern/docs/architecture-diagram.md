@@ -24,46 +24,6 @@ order to exist is for the message to exist beside it.
 
 ![Transactional Outbox architecture diagram](images/architecture-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-flowchart TB
-    subgraph W["what the program is a model of"]
-        direction TB
-        Cust["a customer presses checkout"]
-        subgraph One["ONE transaction, one database — the whole guarantee"]
-            direction LR
-            Ord["the order row"]
-            Out["the out-tray row<br/>written in the same commit as the order"]
-        end
-        Relay["the collector — a timer, not a customer<br/>read what is unsent, post it, tick it off"]
-        Brk["the broker, and whoever is listening<br/>a second system, and it can be down"]
-        Cust --> One
-        One --> Relay --> Brk
-        Cust -. "NO ARROW HERE — checkout never touches the broker" .-x Brk
-    end
-
-    subgraph J["what actually runs — one JVM, JDK 21, no network, nothing installed"]
-        direction LR
-        Demo["OrderPlacedDemo<br/>the five acts"]
-        OS["OrderService.placeOrder<br/>begin, save, save, commit — and nothing else"]
-        DB["OrderDatabase + Transaction<br/>holds its writes until commit,<br/>which is the one property the pattern borrows"]
-        OM["OutboxMessage<br/>an id, a payload, and a sent flag"]
-        OR["OutboxRelay.sweep<br/>unsent, publish, markSent"]
-        MB["MessageBroker + NotificationService<br/>a list behind a RemoteCall"]
-        NV["NaiveOrderService<br/>the comparison — two lines, and a gap between them"]
-        PD["ProcessDiedException + SimulatedClock + CallLog<br/>stands in for the JVM disappearing"]
-        Demo --> OS --> DB --> OM
-        Demo --> OR --> MB
-        Demo --> NV --> PD
-    end
-
-    W -. "no broker, no database, no sockets — a map and a list" .-> J
-```
-
-</details>
-
 ## What the diagram is telling you to count
 
 **Two systems, one transaction, and the message is moved to the side that has one.** The

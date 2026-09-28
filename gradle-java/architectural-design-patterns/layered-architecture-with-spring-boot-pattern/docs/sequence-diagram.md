@@ -6,24 +6,4 @@ Say it in words. The controller receives the request and calls the service. The 
 
 ![Layered Architecture with Spring Boot pattern sequence diagram](images/sequence-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant C as controller
-    participant S as service
-    participant P as product repository
-    participant N as card network
-    C->>S: place(request)
-    S->>P: reserve stock (ok)
-    S->>N: charge
-    N-->>S: declined
-    S-->>C: CheckoutRefused (rolled back)
-    C-->>C: error mapping: 402
-```
-
-</details>
-
 The load-bearing sentence: **the transaction belongs to the layer that knows the whole use case.**

@@ -25,27 +25,28 @@ SCENES = [
         title="Layered Architecture",
         body=None,
         narration=(
-            "Hello, and welcome. This video explains the Layered Architecture "
-            "pattern in Java, and it is written and presented by Jayasekhar "
-            "Konduru. [[slnc 300]] Let's start with the plain definition. A "
-            "layered architecture splits a program into stacked groups of "
-            "classes, called layers, where each layer is only allowed to "
-            "depend on the layer directly beneath it. The promise is that a "
-            "change to one layer should not force a change to the layers above "
-            "it. [[slnc 350]] Now here is the part almost nobody says out "
-            "loud. Drawing four boxes on a whiteboard costs nothing, and "
-            "nothing stops a developer, on a busy Tuesday, from adding one "
-            "import that skips a box. [[slnc 300]] So this video builds a real "
-            "working online shop -- one order, four layers -- and does three "
-            "things with it. It shows the shortcut happening, on purpose, and "
-            "shows that nothing in the build objects to it. Then it writes the "
-            "rule down as a test, and watches that test go red, naming the "
-            "class that broke it. And then it performs a real change -- "
-            "swapping out the entire way orders are stored -- and counts, from "
-            "the actual files on disk, exactly what that change touched. "
-            "[[slnc 300]] By the end you will know why four folders with the "
-            "right names are not an architecture, and what the one thing is "
-            "that turns them into one."
+            'Hello, and welcome. [[slnc 400]] This video explains the '
+            'Layered Architecture pattern, in Java. [[slnc 300]] This '
+            'video is presented by Jayasekhar Konduru. [[slnc 600]] '
+            'First, a simple definition. [[slnc 300]] A layered '
+            'architecture splits a program into stacked groups of '
+            'classes, called layers. [[slnc 300]] Each layer may only '
+            'depend on the layer directly beneath it. [[slnc 300]] The '
+            'promise is that changing one layer should not force changes '
+            'in the layers above it. [[slnc 600]] Think of a restaurant. '
+            '[[slnc 300]] The customer talks to the waiter. [[slnc 300]] '
+            'The waiter talks to the chef. [[slnc 300]] The chef takes '
+            'food from the store room. [[slnc 300]] The customer never '
+            'walks into the store room. [[slnc 700]] But here is what '
+            'people rarely say. [[slnc 300]] Drawing four boxes on a '
+            'whiteboard costs nothing. [[slnc 300]] And nothing stops a '
+            'busy developer adding one import that skips a box. [[slnc '
+            '500]] So in this video, we build a real online shop with '
+            'four layers. [[slnc 300]] We watch someone take a shortcut, '
+            'and see that nothing complains. [[slnc 300]] Then we write '
+            'the rule as a test, and watch it catch the shortcut. [[slnc '
+            '300]] And finally, we make a real change, and count exactly '
+            'what it touched.'
         ),
     ),
     dict(
@@ -65,21 +66,20 @@ SCENES = [
             "A confirmation is sent.",
         ],
         narration=(
-            "Here is the feature this whole video is built around, and it "
-            "stays the same from the first minute to the last. [[slnc 250]] "
-            "Ada Okafor, customer number cust-8801, orders three things from "
-            "an online shop: one espresso machine at two hundred and "
-            "forty-nine pounds, one burr grinder at eighty-nine pounds fifty, "
-            "and two bags of coffee beans at twenty-two pounds each. That "
-            "comes to three hundred and eighty-two pounds fifty. [[slnc 300]] "
-            "Placing that order means four things happen, in order. Stock is "
-            "checked, so nobody buys the last grinder twice. Payment is taken. "
-            "Then, and only then, the stock is reduced and the order is "
-            "written down. And a confirmation email goes out. [[slnc 300]] "
-            "Hold onto that order. Every version of the code in this video -- "
-            "the bad one, the good one, and the one with a shortcut hidden in "
-            "it -- places exactly this order, so you can compare them "
-            "directly rather than take my word for which one is better."
+            'Here is the job, and it stays the same for the whole video. '
+            '[[slnc 400]] A customer called Ada Okafor orders three '
+            'things from an online shop. [[slnc 300]] One espresso '
+            'machine, for two hundred and forty-nine pounds. [[slnc 300]] '
+            'One coffee grinder, for eighty-nine pounds fifty. [[slnc '
+            '300]] And two bags of coffee beans, at twenty-two pounds '
+            'each. [[slnc 300]] The total is three hundred and eighty-two '
+            'pounds fifty. [[slnc 500]] Placing that order takes four '
+            'steps, in order. [[slnc 300]] Check the stock, so nobody '
+            'buys the last grinder twice. [[slnc 300]] Take the payment. '
+            '[[slnc 300]] Reduce the stock and save the order. [[slnc '
+            '300]] And send a confirmation email. [[slnc 500]] Every '
+            'version of the code in this video places exactly this order. '
+            '[[slnc 300]] So you can compare them fairly.'
         ),
     ),
     dict(
@@ -101,22 +101,20 @@ SCENES = [
     }
 }""",
         narration=(
-            "Before there is a layer to skip, there have to be no layers at "
-            "all, so that is where the project starts. [[slnc 300]] This is "
-            "one class. It holds the catalogue prices in a map, the stock "
-            "levels in a map, the placed orders in a map, and the sent emails "
-            "in a list, and one method does the entire checkout: work out the "
-            "total, check the stock, take the money, reduce the stock, write "
-            "the order down, send the email. Seventy-four lines, and every "
-            "single one of them is easy to read on its own. [[slnc 350]] Here "
-            "is the property no amount of tidying removes. Try to write a "
-            "test that only checks the arithmetic -- that three lines really "
-            "do come to three hundred and eighty-two pounds fifty -- without "
-            "touching anything else. You cannot. To construct this class at "
-            "all, you construct its catalogue map, its order map, and its "
-            "list of sent email, because they are fields of the same object. "
-            "The pricing and the storage are welded together, and there is no "
-            "seam anywhere to prise them apart."
+            'We start with no layers at all. [[slnc 400]] Just one class. '
+            '[[slnc 300]] It keeps the prices, the stock levels, the '
+            'orders, and the sent emails, all as fields. [[slnc 300]] And '
+            'one method does the whole checkout. [[slnc 300]] It works '
+            'out the total, checks stock, takes the money, reduces stock, '
+            'saves the order, and sends the email. [[slnc 400]] '
+            'Seventy-four lines, and each line is easy to read. [[slnc '
+            '600]] But here is the problem. [[slnc 300]] Try to test just '
+            'the arithmetic, that the three items really add up to three '
+            "hundred and eighty-two pounds fifty. [[slnc 300]] You can't "
+            'do it on its own. [[slnc 300]] To create this class, you '
+            'must also create its stock, its orders, and its email list. '
+            '[[slnc 400]] Pricing and storage are welded together, with '
+            'no seam to pull them apart.'
         ),
     ),
     dict(
@@ -138,26 +136,24 @@ SCENES = [
             "    where orders, products, cards and email actually live",
         ],
         narration=(
-            "So we split it. Four layers, and I want to name each one and say "
-            "exactly what job it does, because the names alone are not the "
-            "architecture -- what each one is not allowed to know is. [[slnc "
-            "300]] At the top, presentation. Its only job is to turn what a "
-            "customer typed into one call, and turn what comes back into "
-            "words. Underneath it, application. This layer runs the checkout "
-            "as a fixed sequence: check stock, charge the card, reduce stock, "
-            "save the order, send the confirmation. Reading that sentence "
-            "aloud is genuinely most of what this layer does. [[slnc 350]] "
-            "Below that, domain -- the nouns of the business. An order, a "
-            "price, a product. These classes know nothing about anything "
-            "above them or below them, because an order and a price are true "
-            "whether or not anybody is storing them or showing them to "
-            "anyone. [[slnc 300]] And at the bottom, infrastructure -- where "
-            "orders, products, card charges and emails actually live. "
-            "[[slnc 300]] The rule that makes this an architecture rather "
-            "than four labelled folders is one sentence: each layer depends "
-            "only on the layer directly beneath it. Presentation reaches "
-            "application. Application reaches infrastructure. Nothing reaches "
-            "back up, and nothing reaches sideways past its neighbour."
+            'So we split it into four layers. [[slnc 300]] The names '
+            'matter less than what each layer is not allowed to know. '
+            '[[slnc 600]] Layer one, at the top: presentation. [[slnc '
+            '300]] It turns what the customer typed into one call. [[slnc '
+            '300]] And it turns the answer back into words. [[slnc 500]] '
+            'Layer two: application. [[slnc 300]] It runs the checkout as '
+            'a fixed list of steps. [[slnc 300]] Check stock, charge the '
+            'card, reduce stock, save the order, send the confirmation. '
+            '[[slnc 500]] Layer three: domain. [[slnc 300]] These are the '
+            'business nouns, like an order, a price, and a product. '
+            '[[slnc 300]] They know nothing about the layers above or '
+            'below them. [[slnc 500]] Layer four, at the bottom: '
+            'infrastructure. [[slnc 300]] This is where orders, products, '
+            'card payments and emails really live. [[slnc 600]] And the '
+            'rule that makes this an architecture. [[slnc 300]] Each '
+            'layer depends only on the layer directly beneath it. [[slnc '
+            '300]] Nothing reaches back up. [[slnc 300]] And nothing '
+            'skips past its neighbour.'
         ),
     ),
     dict(
@@ -173,24 +169,21 @@ SCENES = [
 
   NOTHING IN THE BUILD OBJECTED.""",
         narration=(
-            "Now here is the moment this whole category exists to name. "
-            "[[slnc 300]] Somebody needs a screen listing a customer's past "
-            "orders. The application layer has no method for that yet, and "
-            "adding one properly means a request object, a result object and "
-            "a service method -- three files, to return rows that are sitting "
-            "right there in the order storage. So the new screen takes the "
-            "storage class directly. Ten minutes, instead of an afternoon. "
-            "[[slnc 350]] It compiles. It is tidy. A reviewer skimming the "
-            "diff sees a small, clear screen and approves it without a "
-            "comment. The tests pass. It ships. [[slnc 350]] Read that last "
-            "line on the screen again, because it is the entire lesson of "
-            "this project. Nothing in the build objected. The four layers "
-            "still exist, the names on the folders are still correct, and one "
-            "screen has quietly reached straight past application into "
-            "storage -- and not one tool anywhere told anybody. That is what "
-            "layering as it is usually practised actually is: a convention, "
-            "and a convention that nothing checks decays, not all at once, "
-            "but one reasonable Tuesday at a time."
+            'Now for the moment this whole video is about. [[slnc 500]] '
+            "Someone needs a new screen that lists a customer's past "
+            'orders. [[slnc 300]] The application layer has no method for '
+            'that yet. [[slnc 300]] Adding one properly means three new '
+            'files. [[slnc 400]] So the new screen talks to the order '
+            'storage directly. [[slnc 300]] Ten minutes, instead of an '
+            'afternoon. [[slnc 500]] It compiles. [[slnc 200]] It looks '
+            'tidy. [[slnc 200]] The reviewer approves it. [[slnc 200]] '
+            'The tests pass. [[slnc 200]] It ships. [[slnc 600]] And here '
+            'is the lesson. [[slnc 300]] Nothing in the build objected. '
+            '[[slnc 400]] The four layers still exist, and the folder '
+            'names are still right. [[slnc 300]] But one screen has '
+            'quietly skipped a layer, and no tool told anyone. [[slnc '
+            '500]] A rule that nothing checks does not break all at once. '
+            '[[slnc 300]] It decays, one reasonable shortcut at a time.'
         ),
     ),
     dict(
@@ -207,21 +200,16 @@ SCENES = [
             "A test can.",
         ],
         narration=(
-            "Before I show you the fix, I want to name the actual problem, "
-            "because it is not that anyone involved was careless. [[slnc "
-            "300]] Architecture is almost always taught with diagrams and "
-            "adjectives -- decoupled, maintainable, clean. Every one of those "
-            "words sounds like a property of the code, and not one of them is "
-            "something a build can check. A diagram lives on a wiki page, "
-            "gets glanced at during onboarding, and is never consulted again. "
-            "[[slnc 350]] So the actual claim this video is going to make is "
-            "narrower and much more useful than 'be disciplined'. A dependency "
-            "rule -- presentation may not touch infrastructure -- is a "
-            "sentence about imports, and a sentence about imports is exactly "
-            "the kind of thing a program can check mechanically, every single "
-            "time it builds. [[slnc 300]] A diagram cannot fail. A test can. "
-            "Everything from here on is about turning the first kind of "
-            "sentence into the second kind."
+            'Why does this keep happening? [[slnc 300]] Not because '
+            'people are careless. [[slnc 500]] Architecture is usually '
+            'taught with diagrams, and with words like decoupled, '
+            'maintainable, and clean. [[slnc 300]] They sound like facts '
+            'about the code. [[slnc 300]] But a build cannot check any of '
+            'them. [[slnc 500]] A dependency rule is different. [[slnc '
+            '300]] Presentation may not touch infrastructure. [[slnc '
+            '300]] That is a sentence about imports. [[slnc 300]] And a '
+            'program can check imports, every single time it builds. '
+            '[[slnc 600]] A diagram cannot fail. [[slnc 300]] A test can.'
         ),
     ),
     dict(
@@ -239,22 +227,18 @@ SCENES = [
 
 rule.check(layers);""",
         narration=(
-            "This is the whole architecture, written down. Not a diagram of "
-            "it -- the thing itself, in a form a build can check. [[slnc "
-            "300]] It uses a small open-source library called ArchUnit, and I "
-            "want you to read it almost as English, because that is "
-            "deliberately how it is written. No classes that reside in the "
-            "presentation package should depend on classes that reside in the "
-            "infrastructure package. [[slnc 350]] That is it. That is one "
-            "test method, it runs every time the command 'gradlew test' runs, "
-            "alongside every other test in the project, and it costs about "
-            "thirty lines. Compare that cost with what it buys: the "
-            "difference between a layered architecture and four folders with "
-            "layered names. [[slnc 300]] And notice the 'because' clause at "
-            "the end. ArchUnit lets you write down why the rule exists, in "
-            "plain language, and that sentence is printed to whoever reads "
-            "the failure later -- which matters enormously for the next "
-            "thing I want to show you."
+            'So here is the architecture, written as a test. [[slnc 400]] '
+            'It uses a small open-source library called ArchUnit. [[slnc '
+            '300]] And it reads almost like English. [[slnc 500]] No '
+            'classes in the presentation package should depend on classes '
+            'in the infrastructure package. [[slnc 600]] That is one test '
+            'method. [[slnc 300]] It runs every time the other tests run. '
+            '[[slnc 300]] And it costs about thirty lines. [[slnc 500]] '
+            'The rule also carries a reason, written in plain words. '
+            '[[slnc 300]] It says that a screen reading storage directly '
+            'must be changed every time storage changes, and nothing '
+            'warns you. [[slnc 300]] Whoever sees the failure later reads '
+            'that reason too.'
         ),
     ),
     dict(
@@ -272,21 +256,18 @@ Class <...naive.presentation.OrderHistoryScreen>
   <...infrastructure.InMemoryOrderTable>
   in (OrderHistoryScreen.java:24)""",
         narration=(
-            "So let's watch it happen. There is a second test in this "
-            "project whose only job is to prove the rule actually catches "
-            "something, by pointing the exact same sentence at the naive "
-            "screen from earlier and asserting that it fails. [[slnc 300]] "
-            "Here is what the build prints. Architecture Violation. The rule "
-            "was violated one time. And then the part that matters most: it "
-            "names the class -- OrderHistoryScreen -- and it names exactly "
-            "what that class reached for -- InMemoryOrderTable -- and it even "
-            "gives the line number. [[slnc 400]] Sit with what just happened. "
-            "'The screen does not touch the database' stopped being something "
-            "a team promises at a whiteboard and forgets within a month, and "
-            "became something that fails a build, by name, in under a "
-            "second. A green test that has never been seen red proves "
-            "nothing at all -- this is what makes the green one, on the real "
-            "project, worth trusting."
+            "Let's watch the rule catch the shortcut. [[slnc 400]] A "
+            'second test points the same rule at the shortcut screen from '
+            'earlier. [[slnc 300]] And it expects the rule to fail. '
+            '[[slnc 500]] Here is what the build reports. [[slnc 300]] An '
+            'architecture violation, found once. [[slnc 300]] It names '
+            'the class, Order History Screen. [[slnc 300]] It names what '
+            'that class reached for, the In Memory Order Table. [[slnc '
+            '300]] And it even gives the line number. [[slnc 600]] So a '
+            'promise made at a whiteboard has become a check that fails '
+            'the build, by name, in under a second. [[slnc 400]] And '
+            'because we have seen it fail, we can trust it when it '
+            'passes.'
         ),
     ),
     dict(
@@ -304,23 +285,20 @@ Class <...naive.presentation.OrderHistoryScreen>
   of those, opened           : 1
   of those, never opened     : 16""",
         narration=(
-            "An architecture's whole claim is about the future -- this shape, "
-            "it says, makes some future change cheap. So this project does "
-            "not describe that. It performs it, on camera, and counts the "
-            "cost. [[slnc 350]] The change: orders stop living in a simple "
-            "map keyed by order id, and start living in an append-only log, "
-            "read backwards to find the newest version of an order. That is "
-            "roughly how a real log-structured store behaves, and it is about "
-            "as different a storage decision as one page of code can make. "
-            "[[slnc 350]] Here is the bill, counted from the real files on "
-            "disk at the moment the demo runs, not from memory and not from "
-            "an estimate. One file added. One file modified -- the "
-            "composition root, the single place in the whole project that is "
-            "allowed to say the word 'new' for a concrete storage class. One "
-            "line changed. [[slnc 350]] And then the number that actually "
-            "carries the argument. Seventeen classes make up the four real "
-            "layers. Sixteen of them were never opened. Not the word "
-            "'decoupled'. The number."
+            'An architecture claims that some future change will be '
+            "cheap. [[slnc 300]] So let's make that change, and count the "
+            'cost. [[slnc 500]] The change: orders stop living in a '
+            'simple map, looked up by order I D. [[slnc 300]] Instead, '
+            'they live in an append-only log, read backwards to find the '
+            'latest version of each order. [[slnc 300]] That is a very '
+            'different way to store data. [[slnc 600]] Here is the bill, '
+            'counted from the real files. [[slnc 300]] One file added. '
+            '[[slnc 300]] One file modified: the setup code, which is the '
+            'only place allowed to create the storage class. [[slnc 300]] '
+            'And one line changed. [[slnc 600]] The four layers contain '
+            'seventeen classes. [[slnc 300]] Sixteen of them were never '
+            'opened. [[slnc 400]] Not the word decoupled. [[slnc 300]] A '
+            'number.'
         ),
     ),
     dict(
@@ -337,21 +315,18 @@ Class <...naive.presentation.OrderHistoryScreen>
   every screen that went through the
   application layer: untouched""",
         narration=(
-            "And here is the other half of that same story. [[slnc 250]] "
-            "OrderHistoryScreen -- the naive screen from earlier, the one "
-            "that took ten minutes instead of an afternoon -- imported "
-            "InMemoryOrderTable directly. The concrete class, not the "
-            "interface. [[slnc 300]] So when the storage layer is replaced, "
-            "that screen does not compile. It cannot be handed the new store, "
-            "because it never asked for the interface in the first place. "
-            "Every screen that went through the application layer as it was "
-            "supposed to: untouched, all sixteen of them. The one that took "
-            "the shortcut: broken, by a change it was never even involved "
-            "in. [[slnc 350]] That is the bill for the ten minutes, and "
-            "notice when it arrives. Not on the Tuesday the shortcut was "
-            "written -- on some later day, doing something completely "
-            "unrelated, when nobody in the room remembers there ever was a "
-            "ten-minute decision to begin with."
+            'And what about the shortcut screen? [[slnc 400]] Remember, '
+            'it used the in-memory storage class directly. [[slnc 300]] '
+            'The concrete class, not the interface. [[slnc 500]] So when '
+            'the storage is replaced, that screen no longer compiles. '
+            '[[slnc 300]] It cannot accept the new storage, because it '
+            'never asked for the interface. [[slnc 500]] Every screen '
+            'that went through the application layer was untouched. '
+            '[[slnc 300]] The one that took the shortcut is broken, by a '
+            'change it had nothing to do with. [[slnc 600]] That is the '
+            'real bill for those ten minutes. [[slnc 300]] And it arrives '
+            'much later, on some unrelated day, when nobody remembers the '
+            'shortcut was ever taken.'
         ),
     ),
     dict(
@@ -360,25 +335,22 @@ Class <...naive.presentation.OrderHistoryScreen>
         title="What This Project Does Not Fix",
         body=None,
         narration=(
-            "Before the bill for the whole architecture, one honest "
-            "admission, because this project should not pretend to have "
-            "solved everything. [[slnc 300]] Look at what the application "
-            "layer itself is allowed to import. It names the storage "
-            "interface, the card network, and the email sender -- all three "
-            "defined in the infrastructure layer beneath it. That is allowed, "
-            "under this architecture's own rule, because application sits "
-            "directly above infrastructure. [[slnc 350]] But say what that "
-            "actually means out loud. The application layer still reaches "
-            "downward into infrastructure to even know those names exist. "
-            "The interface for how orders are stored is defined down there, "
-            "with the implementation, rather than up here, with the code that "
-            "uses it. [[slnc 350]] That single fact -- domain and application "
-            "still depending downward onto infrastructure -- is exactly what "
-            "the next project in this category, Hexagonal Architecture, "
-            "changes. One interface moves upward into the core, storage "
-            "implements it instead of defining it, and the direction of that "
-            "one dependency reverses. This project is not that project. It "
-            "is one deliberate step before it."
+            'Now, one honest admission. [[slnc 300]] This project does '
+            'not solve everything. [[slnc 500]] Think about what the '
+            'application layer imports. [[slnc 300]] The storage '
+            'interface, the card payment interface, and the email '
+            'interface. [[slnc 300]] All three are defined down in the '
+            'infrastructure layer. [[slnc 300]] The rule allows that, '
+            'because application sits directly above infrastructure. '
+            '[[slnc 600]] But it means the application layer still '
+            'reaches down into infrastructure, just to know those names. '
+            '[[slnc 300]] The interface for storing orders lives down '
+            'there, next to its implementation. [[slnc 300]] Not up here, '
+            'next to the code that uses it. [[slnc 600]] Hexagonal '
+            'Architecture, which has its own video, changes exactly this. '
+            '[[slnc 300]] It moves that interface up into the core, so '
+            'the dependency points the other way. [[slnc 300]] This '
+            'project is one deliberate step before that.'
         ),
     ),
     dict(
@@ -398,21 +370,19 @@ email.send(customerEmail, confirmationFor(order));
 // can be undone for free, and nothing above
 // it has changed anything yet.""",
         narration=(
-            "One more detail worth a scene of its own, because it lives "
-            "inside the application layer and it is easy to walk past. "
-            "[[slnc 250]] The card is charged before anything at all is "
-            "written down. Not after the stock is reduced, not after the "
-            "order is saved -- first. [[slnc 350]] Try the other order for a "
-            "moment. Save the order, reduce the stock, then charge the card. "
-            "Now a declined card leaves an order sitting in storage and stock "
-            "missing off the shelf, and nothing anywhere records that neither "
-            "of those should have happened. [[slnc 350]] Charging first means "
-            "a decline stops the whole sequence before a single fact has "
-            "changed anywhere in the system. That is not an accident of how "
-            "this class happened to be typed -- it is exactly the kind of "
-            "decision an application layer exists to own, once, in one "
-            "place, instead of leaving it to be repeated, and potentially "
-            "reordered, at every screen that ever needs a checkout."
+            'One more detail inside the application layer, because it is '
+            'easy to miss. [[slnc 500]] The card is charged first. [[slnc '
+            '300]] Before the stock is reduced, and before the order is '
+            'saved. [[slnc 500]] Why? [[slnc 300]] Imagine the other way '
+            'round. [[slnc 300]] Save the order, reduce the stock, and '
+            'then charge the card. [[slnc 300]] If the card is declined, '
+            'you are left with a saved order, and missing stock, that '
+            'should never have happened. [[slnc 500]] Charging first '
+            'means a declined card stops everything, before anything has '
+            'changed. [[slnc 500]] This is exactly the kind of decision '
+            'the application layer exists to own. [[slnc 300]] Once, in '
+            'one place, instead of repeated on every screen that needs a '
+            'checkout.'
         ),
     ),
     dict(
@@ -433,24 +403,18 @@ email.send(customerEmail, confirmationFor(order));
             "    by package. Hexagonal exists to fix this.",
         ],
         narration=(
-            "A project that only shows what an architecture buys is a sales "
-            "pitch, so here is what this one costs, honestly. [[slnc 300]] "
-            "First, indirection. Add one field to the checkout form and it "
-            "touches the presentation layer's request handling, the "
-            "application layer's request object, and possibly a domain "
-            "object underneath. One idea from a customer's point of view "
-            "becomes four places to edit from yours. [[slnc 300]] Second, "
-            "pass-through layers. Some methods on the application layer exist "
-            "purely to forward a call and reshape its arguments a little. "
-            "That is real work with no payoff of its own, and it is "
-            "genuinely tedious, and pretending it is not helps nobody. "
-            "[[slnc 350]] And third, the one I already showed you: the "
-            "bottom layer is still the database, in the sense that matters. "
-            "The application layer still has to name the storage package to "
-            "even compile. Layering organises a codebase. It does not, on "
-            "its own, invert which way a dependency points -- and that "
-            "distinction is worth being precise about before the next video "
-            "in this series claims to fix it."
+            "Every pattern has a cost, so let's be honest about this one. "
+            '[[slnc 500]] First, indirection. [[slnc 300]] Add one field '
+            'to the checkout form, and it may touch three or four places. '
+            '[[slnc 300]] One small idea for the customer becomes several '
+            'edits for you. [[slnc 500]] Second, pass-through layers. '
+            '[[slnc 300]] Some methods in the application layer only pass '
+            'a call along. [[slnc 300]] That is real, and it is tedious. '
+            '[[slnc 500]] Third, the problem we just heard about. [[slnc '
+            '300]] The application layer still has to name the storage '
+            'package to compile. [[slnc 300]] Layers organise the code. '
+            '[[slnc 300]] On their own, they do not reverse which way a '
+            'dependency points.'
         ),
     ),
     dict(
@@ -469,21 +433,17 @@ email.send(customerEmail, confirmationFor(order));
             "the screen is worth -- stop.",
         ],
         narration=(
-            "Every project in this category has to answer this question "
-            "plainly, out loud, or it is only ever arguing for more "
-            "structure. [[slnc 300]] Four layers and an architecture test are "
-            "worth their weight for anything with more than one caller of the "
-            "same business logic, or anything you genuinely expect to "
-            "outlive its first storage choice. [[slnc 300]] They are not "
-            "worth it for a script that reads a file, does one calculation, "
-            "and prints a result once. A four-package skeleton wrapped around "
-            "fifteen lines of real logic is not layering -- it is packaging, "
-            "and the giveaway is exactly the shortcut this video showed you "
-            "in reverse. [[slnc 350]] If writing the request object, the "
-            "result object and the service method for a new screen would "
-            "take longer than the screen itself is worth to anyone, the "
-            "layers have already stopped paying for themselves, and the "
-            "honest move is to stop building them, not to build them badly."
+            'So when is this too much? [[slnc 400]] Four layers and an '
+            'architecture test are worth it when more than one caller '
+            'uses the same business logic. [[slnc 300]] Or when the code '
+            'will outlive its first choice of storage. [[slnc 500]] They '
+            'are not worth it for a small script that reads a file, does '
+            'one calculation, and prints the result. [[slnc 300]] Four '
+            'packages around fifteen lines of logic is not layering. '
+            '[[slnc 300]] It is just packaging. [[slnc 500]] Here is a '
+            'simple test. [[slnc 300]] If adding the extra layer files '
+            'for a new screen takes longer than the screen is worth, the '
+            'layers have stopped paying for themselves.'
         ),
     ),
     dict(
@@ -498,22 +458,20 @@ email.send(customerEmail, confirmationFor(order));
             "name every shortcut in the project at once.",
         ],
         narration=(
-            "That's layered architecture. [[slnc 250]] If you take one "
-            "sentence away, take this one: a layered architecture is not the "
-            "four folders. It is the test that fails when somebody reaches "
-            "past one. [[slnc 350]] The full source, the written notes, the "
-            "diagrams and an animated walkthrough are all in the repository, "
-            "and every bit of it runs offline with nothing installed but a "
-            "Java development kit -- no database, no web framework, nothing. "
-            "[[slnc 300]] If you try one exercise, try this. Widen the "
-            "architecture test so it checks the naive package as well as the "
-            "real one, run it, and read every violation the build finds in "
-            "one go. [[slnc 300]] If this helped, a like genuinely does help "
-            "other people find it, and subscribe if you would like the rest "
-            "of the series -- this category has four more architectures to "
-            "go, and each one is one deliberate step from this project. "
-            "[[slnc 250]] Thanks for watching, and I'll see you in the next "
-            "one."
+            "That's Layered Architecture. [[slnc 400]] If you remember "
+            'one sentence, make it this one. [[slnc 300]] A layered '
+            'architecture is not the four folders, it is the test that '
+            'fails when someone skips one. [[slnc 500]] The full source '
+            'code, written notes, diagrams, and an animated walkthrough '
+            'are all in the repository. [[slnc 300]] It runs offline, '
+            'with nothing installed except a Java development kit. [[slnc '
+            '500]] Here is one exercise to try. [[slnc 300]] Widen the '
+            'architecture test, so it also checks the shortcut package. '
+            '[[slnc 300]] Run it, and read every violation the build '
+            'finds. [[slnc 500]] If this helped, a like really does help '
+            "other people find it. [[slnc 300]] And subscribe, if you'd "
+            'like the rest of the series. [[slnc 400]] Thanks for '
+            'watching.'
         ),
     ),
 ]

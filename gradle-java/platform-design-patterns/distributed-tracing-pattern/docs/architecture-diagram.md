@@ -24,46 +24,6 @@ anybody's request, and the hole only exists in a picture nobody is obliged to lo
 
 ![Distributed tracing architecture diagram](images/architecture-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-flowchart TB
-    subgraph T1["Tier 1 — one JVM, JDK 21 only, no network"]
-        direction TB
-        Demo["ProductPageDemo<br/>the seven acts"]
-        Page["ProductPage<br/>calls catalog, pricing, inventory,<br/>recommendations, render"]
-        Tracer["Tracer<br/>starts and ends spans"]
-        Ctx["TraceContext<br/>a ThreadLocal, and the trouble in act 6"]
-        Span["Span<br/>id, parent, start, end"]
-        Trace["Trace<br/>the spans of one request"]
-        Samp["Sampler<br/>keeps one in a hundred"]
-        Fall["Waterfall<br/>indent by parent, position by start time"]
-        ILog["InterleavedLog<br/>two customers, one log file"]
-        Async["AsyncHandoff<br/>the context that did not travel"]
-        Demo --> Page --> Tracer
-        Tracer --> Span --> Trace --> Fall
-        Tracer --> Ctx
-        Tracer --> Samp
-        Demo --> ILog
-        Demo --> Async
-    end
-
-    subgraph T2["Tier 2 — real/, two JVM processes and one container"]
-        direction LR
-        PP["product-page<br/>Spring Boot 4.1.1<br/>spring-boot-starter-opentelemetry<br/>OpenTelemetry SDK 1.62.0"]
-        Rec["recommendations<br/>Spring Boot 4.1.1<br/>the same starter"]
-        J["jaegertracing/jaeger:2.20.0<br/>OTLP in on 4318, UI and query on 16686"]
-        PP -- "HTTP, carrying traceparent" --> Rec
-        PP -- "its own spans, OTLP over HTTP" --> J
-        Rec -- "its own spans, OTLP over HTTP" --> J
-    end
-
-    T1 -. "the same waterfall, redrawn from what a backend received" .-> T2
-```
-
-</details>
-
 ## What the diagram is telling you to count
 
 **One box per unit of work, and one parent id per box.** Every span on the picture knows

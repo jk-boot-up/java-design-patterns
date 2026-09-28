@@ -6,22 +6,4 @@ Say it in words. The application starts, and Spring scans for classes marked as 
 
 ![Dependency Injection with Spring pattern sequence diagram](images/sequence-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant App
-    participant S as Spring context
-    participant C as CheckoutService
-    App->>S: run
-    S->>S: scan for @Component classes
-    S->>S: build policy, gateway, notifier
-    S->>C: new CheckoutService(policy, gateway, notifier)
-    S-->>App: the graph, built
-```
-
-</details>
-
 The load-bearing sentence: **Spring did not add the idea, it removed the typing.**

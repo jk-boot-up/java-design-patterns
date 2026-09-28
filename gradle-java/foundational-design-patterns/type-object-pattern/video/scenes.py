@@ -10,34 +10,36 @@ SCENES = [
         key='01-poster', kind='poster', title='Type Object',
         body=None,
         narration=(
-            'Hello, and welcome. This video explains the Type Object '
-            'pattern in Java, and it is written and presented by '
-            'Jayasekhar Konduru. [[slnc 300]] The plain definition: a '
-            'type object turns the kind of a thing into data. Instead of '
-            'a subclass for each kind, there is one class, and each '
-            'object points at a type object that holds what differs. '
-            '[[slnc 350]] This is another project in the foundational '
-            'category, whose subject is how an object gets hold of '
-            'another, and how small idioms shape everyday Java. In our '
-            'online store, books, laptops and groceries differ only in a '
-            'few numbers, yet each has its own class. [[slnc 300]] By the '
-            'end you will see a class for each kind that differs only in '
-            'numbers, see one class with a type as data, see a new kind '
-            'added at run time with no new class, see one change in a '
-            'type reach every product, see a type inherit from another, '
-            'and see the bill, which is typos found late and behaviour '
-            'that data cannot hold.'
+            'Hello, and welcome. [[slnc 400]] This video explains the '
+            'Type Object pattern, in Java. [[slnc 300]] This video is '
+            'presented by Jayasekhar Konduru. [[slnc 600]] First, a '
+            'simple definition. [[slnc 300]] A type object turns the kind '
+            'of a thing into data. [[slnc 300]] Instead of a subclass for '
+            'each kind, there is one class. [[slnc 300]] And each object '
+            'points to a type object, which holds whatever differs. '
+            "[[slnc 600]] Think of a library's shelf labels. [[slnc 300]] "
+            'The labels say how long each kind of book can be borrowed. '
+            '[[slnc 300]] Change a label, and every book on that shelf '
+            'follows the new rule. [[slnc 700]] In our online store, '
+            'books, laptops, and groceries differ in only a few numbers. '
+            '[[slnc 300]] Yet each one has its own class. [[slnc 500]] In '
+            'this video, we replace those classes with one class and some '
+            'data. [[slnc 300]] We will add a new kind while the program '
+            'runs, change a rule in one place, and let one type inherit '
+            'from another. [[slnc 300]] And then the cost.'
         ),
     ),
     dict(
         key='02-scenario', kind='bullets', title='The Scenario',
         body=['Books: no tax, 3 pounds', 'to ship.', '', 'Laptops: 20 percent tax,', 'free shipping.', '', 'Groceries: 5 percent tax.', '', 'Next month: gift cards.'],
         narration=(
-            'Here is the scenario. Books have no tax, and cost three '
-            'pounds to ship. Laptops carry twenty percent tax, and ship '
-            'free. Groceries have five percent tax. Next month, the shop '
-            'will sell gift cards. [[slnc 300]] The question: is each '
-            'kind a class?'
+            'Here is the scenario. [[slnc 400]] Books have no tax, and '
+            'cost three pounds to ship. [[slnc 300]] Laptops have twenty '
+            'percent tax, and ship free. [[slnc 300]] Groceries have five '
+            'percent tax. [[slnc 500]] And next month, the shop will '
+            'start selling gift cards. [[slnc 500]] So here is the '
+            'question. [[slnc 300]] Should each kind of product be its '
+            'own class?'
         ),
     ),
     dict(
@@ -50,19 +52,22 @@ SCENES = [
   a gift card: a fourth class,
   a build, a release.""",
         narration=(
-            'First, a class for each kind. Three kinds, three classes, '
-            'and they differ only in three numbers. A novel totals '
-            'thirteen hundred. A gift card is a fourth kind. That is a '
-            'fourth class, a new build, and a release.'
+            'First, the naive way: a class for each kind. [[slnc 400]] '
+            'Three kinds, three classes. [[slnc 300]] And they differ '
+            'only in three numbers. [[slnc 500]] A novel costs thirteen '
+            'pounds in total. [[slnc 500]] And a gift card is a fourth '
+            'kind. [[slnc 300]] That means a fourth class, a new build, '
+            'and a new release.'
         ),
     ),
     dict(
         key='04-pattern', kind='bullets', title='The Pattern',
         body=['One class for the thing.', '', 'A type object for its kind,', 'holding what differs.', '', 'Each thing points at its type.', 'A new kind is a new type object.'],
         narration=(
-            'The pattern. One class for the thing. A type object for its '
-            'kind, holding what differs. Each thing points at its type. A '
-            'new kind is a new type object.'
+            'Now, the pattern. [[slnc 400]] One class for the product. '
+            '[[slnc 300]] A type object for its kind, which holds '
+            'whatever differs. [[slnc 500]] Each product points to its '
+            'type. [[slnc 300]] And a new kind is just a new type object.'
         ),
     ),
     dict(
@@ -75,10 +80,12 @@ SCENES = [
   laptop return after 10 days:
   true; after 20: false.""",
         narration=(
-            'Second, a type that is data. One product class. A novel '
-            'totals thirteen hundred, a laptop ninety six thousand, and '
-            'tea six twenty. Laptops can be returned after ten days, but '
-            'not after twenty.'
+            'Second demo: a type that is data. [[slnc 400]] Now there is '
+            'just one product class. [[slnc 500]] A novel costs thirteen '
+            'pounds. [[slnc 300]] A laptop costs nine hundred and sixty '
+            'pounds. [[slnc 300]] And a pack of tea costs six pounds '
+            'twenty. [[slnc 500]] A laptop can be returned after ten '
+            'days. [[slnc 300]] But not after twenty.'
         ),
     ),
     dict(
@@ -90,9 +97,12 @@ SCENES = [
   can it be returned after 1
   day: false.""",
         narration=(
-            'Third, a new kind at run time. Types before: three. After: '
-            'four. Classes added: none. A twenty five pound card totals '
-            'twenty five hundred, and cannot be returned after one day.'
+            'Third demo: a new kind, while the program runs. [[slnc 400]] '
+            'Before, there are three product types. [[slnc 300]] After '
+            'adding gift cards, there are four. [[slnc 300]] Classes '
+            'added: none. [[slnc 500]] A twenty-five pound gift card '
+            'costs exactly twenty-five pounds. [[slnc 300]] And it cannot '
+            'be returned, even after one day.'
         ),
     ),
     dict(
@@ -103,9 +113,12 @@ SCENES = [
   in one place.
   tea 40, coffee 80.""",
         narration=(
-            'Fourth, change the type, change every product. Tax on tea is '
-            'twenty, on coffee forty. Grocery tax is raised to ten '
-            'percent, in one place. Tea is now forty, and coffee eighty.'
+            'Fourth demo: change the type, and every product follows. '
+            '[[slnc 400]] The tax on a pack of tea is twenty pence. '
+            '[[slnc 300]] On a bag of coffee, forty pence. [[slnc 500]] '
+            'Now grocery tax is raised to ten percent, in one place. '
+            "[[slnc 300]] The tea's tax becomes forty pence. [[slnc 300]] "
+            "The coffee's becomes eighty pence."
         ),
     ),
     dict(
@@ -115,9 +128,11 @@ SCENES = [
   its tax 0 and return days 30
   come from book.""",
         narration=(
-            'Fifth, a type that inherits. An ebook states only its '
-            'shipping: none. Its tax, zero, and its return days, thirty, '
-            'come from book.'
+            'Fifth demo: a type that inherits. [[slnc 400]] An ebook type '
+            'states only its shipping cost: nothing. [[slnc 500]] Its '
+            'tax, which is zero, and its return period, thirty days, both '
+            'come from the book type. [[slnc 300]] So the ebook only '
+            'states what is different.'
         ),
     ),
     dict(
@@ -134,73 +149,83 @@ SCENES = [
   every difference: a new field.
   6 already.""",
         narration=(
-            'Last, the bill. A typo, b o k, is found when the program '
-            'runs. With a class for each kind, the typo would not '
-            'compile. Laptops need a serial number checked, and a type '
-            'holds data, not steps. A flag says so, but the code that '
-            'checks it is still somewhere else. And every new difference '
-            'between kinds is a new field, that the code must remember to '
-            'read. The type has six fields already.'
+            "Finally, the costs. [[slnc 400]] First, a typo in a type's "
+            'name, like book spelled b o k, is only found when the '
+            'program runs. [[slnc 300]] With a class for each kind, that '
+            'typo would not even compile. [[slnc 500]] Second, laptops '
+            'need their serial number checked. [[slnc 300]] But a type '
+            'holds data, not steps. [[slnc 300]] A flag can say a check '
+            'is needed, but the code that does the check lives somewhere '
+            'else. [[slnc 500]] Third, every new difference between kinds '
+            'becomes a new field. [[slnc 300]] And the code must remember '
+            'to read it. [[slnc 300]] This type already has six fields.'
         ),
     ),
     dict(
         key='10-recognise', kind='bullets', title='How To Recognise It',
         body=['A Type, Kind or Category object', 'referenced by another.', '', 'Rows in a product_types table,', 'with a foreign key from products.', '', 'Card, unit or enemy types in', 'games, defined in data files.'],
         narration=(
-            'How do you recognise this in code you did not write? A Type, '
-            'Kind or Category object referenced by another. Rows in a '
-            'product_types table, with a foreign key from products. Card, '
-            'unit or enemy types in games, defined in data files. '
-            'Currency, Locale and Charset, which describe things as data.'
+            'How can you spot this pattern in code someone else wrote? '
+            '[[slnc 400]] Look for a Type, Kind, or Category object, '
+            'pointed to by another object. [[slnc 300]] Look for a '
+            'product types table in a database, with products linked to '
+            'it. [[slnc 300]] Look for card types, unit types, or enemy '
+            'types in games, defined in data files. [[slnc 300]] And '
+            "Java's own Currency, Locale, and Charset classes, which "
+            'describe things as data.'
         ),
     ),
     dict(
         key='11-verdict', kind='bullets', title='The Verdict',
         body=['Use a type object when kinds', 'differ in data, and new kinds', 'should be added without new code.', 'Let types inherit defaults. Where', 'kinds differ in steps, use a', 'strategy or a subclass. Check the', 'name of a type early, and keep the', 'number of fields small.'],
         narration=(
-            'Here is my verdict, plainly. Use a type object when kinds '
-            'differ in data, and new kinds should be added without new '
-            'code. Let types inherit defaults. Where kinds differ in '
-            'steps, use a strategy or a subclass. Check the name of a '
-            'type early, and keep the number of fields small.'
+            'So, here is the verdict. [[slnc 400]] Use a type object when '
+            'kinds differ in data, and new kinds should be added without '
+            'new code. [[slnc 300]] Let types inherit defaults from each '
+            'other. [[slnc 500]] Where kinds differ in steps, use a '
+            'strategy, or a subclass. [[slnc 300]] Check type names '
+            'early. [[slnc 300]] And keep the number of fields small.'
         ),
     ),
     dict(
         key='12-real', kind='bullets', title='What Is Real Here',
         body=['Everything is plain Java.', '', 'Every number quoted comes from', "this program's own output.", '', 'Nothing depends on a clock,', 'so every run is the same.'],
         narration=(
-            'The same honest admission as everywhere in this course. '
-            'Everything is plain Java. Every number quoted comes from '
-            "this program's own output. Nothing depends on a clock, so "
-            'every run is the same.'
+            'A quick, honest note about this demo. [[slnc 300]] '
+            'Everything is plain Java. [[slnc 300]] Every number you '
+            "heard comes from the program's own output. [[slnc 300]] And "
+            'nothing depends on the clock, so every run gives the same '
+            'result.'
         ),
     ),
     dict(
         key='13-too-much', kind='bullets', title='When This Is Too Much',
         body=['If the kinds are few, fixed, and', 'differ in behaviour, plain', 'subclasses are clearer. A type', 'object pays off when kinds are', 'many, or added by non-programmers.'],
         narration=(
-            'So when is it too much? If the kinds are few, fixed, and '
-            'differ in behaviour, plain subclasses are clearer. A type '
-            'object pays off when kinds are many, or added by '
-            'non-programmers.'
+            'So, when is this too much? [[slnc 400]] If the kinds are '
+            'few, fixed, and differ in behaviour, plain subclasses are '
+            'clearer. [[slnc 400]] A type object pays off when there are '
+            'many kinds. [[slnc 300]] Or when new kinds are added by '
+            'people who are not programmers.'
         ),
     ),
     dict(
         key='14-outro', kind='outro', title='Thanks for Watching',
         body=['Full source, notes, diagrams and an animated walkthrough', 'are in the repository. Try the exercises in', 'the session guide.'],
         narration=(
-            "That's Type Object. [[slnc 250]] If you take one sentence "
-            'away, take this one: a type object makes kinds into data so '
-            'that a new kind needs no new class, and the price is late '
-            'errors and behaviour that data cannot hold. [[slnc 350]] The '
-            'full source, the written notes, the diagrams and an animated '
-            'walkthrough are all in the repository, running offline with '
-            'nothing installed but a Java development kit. [[slnc 300]] '
-            'If you try one exercise, add a type for frozen groceries '
-            'that inherits from grocery but ships for more, and check its '
-            'total. [[slnc 300]] If this helped, a like genuinely does '
-            'help other people find it, and subscribe if you would like '
-            'the rest of the series. [[slnc 250]] Thanks for watching.'
+            "That's the Type Object pattern. [[slnc 400]] If you remember "
+            'one sentence, make it this one. [[slnc 300]] A type object '
+            'turns kinds into data, so a new kind needs no new class, and '
+            'the price is late errors, and behaviour that data cannot '
+            'hold. [[slnc 500]] The full source code, written notes, '
+            'diagrams, and an animated walkthrough are all in the '
+            'repository. [[slnc 500]] Here is one exercise to try. [[slnc '
+            '300]] Add a type for frozen groceries. [[slnc 300]] Make it '
+            'inherit from groceries, but cost more to ship. [[slnc 300]] '
+            'Then check its total. [[slnc 500]] If this helped, a like '
+            'really does help other people find it. [[slnc 300]] And '
+            "subscribe, if you'd like the rest of the series. [[slnc "
+            '400]] Thanks for watching.'
         ),
     ),
 ]

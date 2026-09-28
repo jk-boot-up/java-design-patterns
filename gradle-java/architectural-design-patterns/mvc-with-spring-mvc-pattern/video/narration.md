@@ -2,64 +2,64 @@
 
 ## 1. MVC with Spring MVC
 
-Hello, and welcome. This video explains the MVC pattern with Spring MVC, in Java, and it is written and presented by Jayasekhar Konduru. It is the framework version of the MVC video. That one split an order summary into a model that works out the total, views that only show it, and a controller that connects them, and showed a second view added without touching the model. This one shows the same idea inside Spring MVC. The plain definition, in short: in Spring MVC, a controller method returns a view name and a model, and the framework does the rendering. By the end you will see an order summary served as a web page and as JSON from one model, then see what goes wrong when a template does its own sums.
+Hello, and welcome. This video explains the M V C pattern, in Java, using Spring M V C. This video is presented by Jayasekhar Konduru. First, a simple definition. M V C splits a screen into three roles. A model that works out the numbers. Views that only display them. And a controller that connects the two. In Spring M V C, a controller method returns the name of a view, together with a model. The framework then does the displaying for you. Think of a restaurant menu. The kitchen sets the prices once. The printed menu and the menu on the website just show them. This is the framework version of the M V C video, with the same online store. We will serve one order summary as a web page, and as data for other programs, from one model. Then we will hear what goes wrong when a template does its own sums.
 
 ## 2. The Partner Project
 
-This video assumes the MVC video. If you have not seen it, start there. It splits an order summary into a model that works out the total, views that only show it, and a controller that connects them, and adds a second view without touching the model. This one uses the same example. It does not teach the pattern again. It shows what Spring MVC does with it.
+Before we start, a quick note. This video has a partner: the hand-built M V C video. That one splits an order summary into a model that works out the total, views that only show it, and a controller that connects them. It also adds a second view, without touching the model. If you are new to the pattern, watch that one first. Here, we keep the same example, and ask what Spring M V C does with it.
 
 ## 3. Before The First Line
 
-Before the first line of code, what Spring MVC is. Spring MVC is the web layer of Spring. A controller method returns a view name and a model, and Thymeleaf turns a template and the model into a page. And a promise: skipping this video loses none of the pattern. The hand-built one teaches all of it.
+Three things are new in this project. Spring Boot. Spring M V C, which is the web part of Spring. And Thymeleaf, a template engine. Here is how they fit together. A controller method returns a view name and a model. Thymeleaf takes the matching template, fills in the model's values, and produces the web page. And one promise. If you skip this video, you lose none of the pattern. This one is about the tool.
 
 ## 4. The Controller Names A View
 
-First, a browser asks for the order. The controller names a view, and the model supplies the numbers. The page says: total, two hundred and ninety two pounds fifty. Discount, thirty two pounds fifty.
+First demo: the controller names a view. A web browser asks for the order. The controller chooses a view, and the model supplies the numbers. The page shows a total of two hundred and ninety-two pounds fifty. And a discount of thirty-two pounds fifty.
 
 ## 5. The Same Model, A Second View
 
-Second, another view. A program that asks for JSON gets the same model as data. Total, twenty nine thousand two hundred and fifty pence. We added a controller method, and the model did not change.
+Second demo: the same model, a second view. This time, another program asks for the order as data, in a format called JSON. It gets the same model, as data. The total is twenty-nine thousand two hundred and fifty pence, which is the same two hundred and ninety-two pounds fifty. We added one controller method. The model did not change at all.
 
 ## 6. Computed Once
 
-Third, once. One page view computes the summary once. And the model needs no server to run. Called on its own, it gives the same total. That is what makes it easy to test.
+Third demo: the total is computed once. Each time the page is viewed, the summary is computed exactly once. And the model does not need a web server to run. Call it on its own, and it gives the same total. That is what makes it so easy to test.
 
 ## 7. A Sum In The View
 
-Fourth, the shortcut. A template adds up the lines itself. It shows thirty two thousand five hundred. The model says twenty nine thousand two hundred and fifty. The template never heard of the discount. Two places now compute a total, and they disagree.
+Fourth demo: the shortcut. Someone writes a template that adds up the order lines by itself. It shows three hundred and twenty-five pounds. But the model says two hundred and ninety-two pounds fifty. Why? The template never heard about the discount. Now two places compute a total, and they disagree.
 
 ## 8. The Same View, Another Order
 
-Fifth, another order. A one-line order is placed. The template that adds up two named lines fails with a five hundred. The real view, which only shows what the model gives it, works. A sum in a template is written for one shape of data.
+Fifth demo: the same template, with a different order. Someone places an order with just one line. The shortcut template was written to add up two named lines. So it fails, with a server error, five hundred. The real view, which only shows what the model gives it, works fine. It shows twelve pounds fifty. A sum written inside a template only works for one shape of data.
 
 ## 9. Post, Redirect, Get
 
-Last, post, redirect, get. The form post answers with a redirect to the new order's page. If the customer refreshes, the browser repeats the get, not the post. The order cannot be placed twice by accident.
+Last demo: post, redirect, get. When the customer submits the order form, that is called a post. The server answers with a redirect, to the new order's page. Now, if the customer presses refresh, the browser repeats only the page request. Not the order. So the order cannot be placed twice by accident.
 
 ## 10. The Verdict
 
-My verdict, plainly. Compute in the model, once. Keep templates to display. Keep the controller thin. And use a redirect after a form post.
+So, here is the verdict. Compute in the model, once. Let templates only display. Keep the controller thin. And after a form post, answer with a redirect.
 
 ## 11. How To Recognise It
 
-How do you recognise this in code you did not write? Controller methods that return a view name and take a model. And templates in a resources folder.
+How can you spot this in code someone else wrote? Look for controller methods that take a model, and return the name of a view. And look for templates stored in the resources folder.
 
 ## 12. Where You Have Met This
 
-You have met this in every server rendered Spring web page.
+Where have you met this before? In every Spring web page that is built on the server.
 
 ## 13. What Was Used
 
-For the record. Spring Boot four point one point one and Thymeleaf. A real web server, on a free port.
+For the record, here are the versions. Spring Boot four point one point one, and Thymeleaf. With a real web server, on a free port.
 
 ## 14. What Is Real Here
 
-The same honest admission as everywhere in this course. Everything is real: a real web server, real HTTP and real templates.
+A quick, honest note about this demo. Everything in it is real. A real web server, real web requests, and real templates.
 
 ## 15. When This Is Too Much
 
-So when is it too much? For an API with no pages, a controller that returns data is enough, and there is no view to separate.
+So, when is this too much? For a service with no web pages at all, a controller that returns data is enough. There is no view to separate.
 
 ## 16. Thanks for Watching
 
-That's MVC with Spring MVC. If you take one sentence away, take this one: Spring MVC renders for you, and the pattern holds only while templates just show. The full source, the written notes, the diagrams and an animated walkthrough are all in the repository. If you try one exercise, add a plain text view, and keep the model unchanged. If this helped, a like genuinely does help other people find it, and subscribe if you would like the rest of the series. Thanks for watching.
+That's M V C with Spring M V C. If you remember one sentence, make it this one. Spring M V C does the rendering for you, and the pattern only holds while templates just display. The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. Here is one exercise to try. Add a plain text view of the order. And keep the model exactly as it is. If this helped, a like really does help other people find it. And subscribe, if you'd like the rest of the series. Thanks for watching.

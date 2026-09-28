@@ -47,24 +47,24 @@ SCENES = [
         title="Bulkhead",
         body=None,
         narration=(
-            "Hello, and welcome. This video explains the Bulkhead pattern in "
-            "Java, and it is written and presented by Jayasekhar Konduru. "
-            "[[slnc 300]] Let's start with the simple definition. Stop letting "
-            "every kind of work draw from the same pot of resources. Give the "
-            "work that must never fail a pot of its own, so that one slow job "
-            "filling up its own pot cannot take the last of something the "
-            "important work needed. [[slnc 350]] The name comes from "
-            "shipbuilding. A bulkhead is a wall that divides a hull into "
-            "separate watertight compartments, so that a hole in one of them "
-            "floods that compartment and not the whole ship. [[slnc 300]] The "
-            "rest of the video builds a real working Java project: an online "
-            "shop with two jobs to do. Taking a shopper's money, and importing "
-            "a supplier's catalogue overnight. [[slnc 300]] By the end you'll "
-            "know how a background job that nobody was waiting for stops the "
-            "shop selling, without either piece of code so much as mentioning "
-            "the other; why making the pool bigger does not help; why the "
-            "broken-looking thing is not broken at all; and exactly what the "
-            "wall costs you on every day that nothing goes wrong."
+            'Hello, and welcome. [[slnc 400]] This video explains the '
+            'Bulkhead pattern, in Java. [[slnc 300]] This video is '
+            'presented by Jayasekhar Konduru. [[slnc 600]] First, a '
+            'simple definition. [[slnc 300]] Stop letting every kind of '
+            'work draw from the same pot of resources. [[slnc 300]] Give '
+            'the work that must never fail a pot of its own. [[slnc 300]] '
+            'Then one slow job can fill up its own pot, but it cannot '
+            'take what the important work needs. [[slnc 600]] The name '
+            'comes from shipbuilding. [[slnc 300]] A bulkhead is a wall '
+            "that divides a ship's hull into separate watertight "
+            'compartments. [[slnc 300]] A hole floods one compartment, '
+            'not the whole ship. [[slnc 700]] In our online store, there '
+            "are two jobs. [[slnc 300]] Taking a shopper's money. [[slnc "
+            "300]] And importing a supplier's catalogue overnight. [[slnc "
+            '500]] By the end, you will know how a background job that '
+            'nobody is waiting for can stop the shop selling. [[slnc '
+            '300]] Why a bigger pool does not help. [[slnc 300]] And what '
+            'the wall costs you, on every day that nothing goes wrong.'
         ),
     ),
     dict(
@@ -86,25 +86,23 @@ SCENES = [
             "that is, occasionally, very slow.",
         ],
         narration=(
-            "Here is the situation, and it is worth picturing before any code. "
-            "[[slnc 300]] The shop runs on one application with one pool of "
-            "threads. Everything it does — serving a product page, taking a "
-            "payment, sending an email, importing the supplier's catalogue — "
-            "asks that pool for a thread, does its job, and hands the thread "
-            "back. [[slnc 250]] That is a completely ordinary way to build a "
-            "service, and for a long time it is the right one. Threads are "
-            "expensive, a pool is the standard way to bound how many exist, and "
-            "one pool means one number to tune. [[slnc 350]] Two of the jobs in "
-            "that shop matter for this video. [[slnc 300]] The first is "
-            "checkout. It takes a shopper's money. It is fast, it is correct, "
-            "and nobody has ever filed a bug against it. It needs exactly one "
-            "thing in order to work: a thread. [[slnc 350]] The second is the "
-            "supplier feed. It imports the supplier's catalogue overnight. "
-            "Nobody is waiting for it. If it finished an hour late, nothing bad "
-            "would happen to anyone. [[slnc 250]] And it calls a partner API "
-            "which is, occasionally, very slow. [[slnc 300]] Hold those two in "
-            "your head, because the whole video is about what they have in "
-            "common — which, as far as the code is concerned, is nothing at all."
+            'Here is the scenario. [[slnc 400]] The shop runs as one '
+            'application, with one pool of threads. [[slnc 300]] A thread '
+            'is a worker that runs one job at a time. [[slnc 500]] Every '
+            'job asks the pool for a thread, does its work, and gives the '
+            'thread back. [[slnc 300]] Showing a product page, taking a '
+            'payment, sending an email. [[slnc 300]] All from the same '
+            'pool. [[slnc 500]] That is a completely normal design, and '
+            'for a long time it is the right one. [[slnc 600]] Two of '
+            'those jobs matter here. [[slnc 400]] The first is checkout. '
+            "[[slnc 300]] It takes a shopper's money. [[slnc 300]] It is "
+            'fast, it is correct, and it needs exactly one thing: a '
+            'thread. [[slnc 500]] The second is the supplier feed. [[slnc '
+            "300]] It imports the supplier's catalogue overnight. [[slnc "
+            '300]] Nobody is waiting for it. [[slnc 300]] And it calls a '
+            'partner service which is, sometimes, very slow. [[slnc 500]] '
+            'In the code, these two jobs have nothing to do with each '
+            'other. [[slnc 300]] Keep that in mind.'
         ),
     ),
     dict(
@@ -122,18 +120,16 @@ shared.submit("checkout",
 
 // four threads. no bug. every test passes.""",
         narration=(
-            "Here is the arrangement, and there is nothing clever about it. "
-            "[[slnc 300]] One pool with four threads in it. Four import batches "
-            "are handed to it, one after another. Then a shopper turns up and "
-            "the payment is handed to the same pool. [[slnc 350]] I want to be "
-            "fair to this code, because it is the villain of the next few "
-            "minutes and it does not deserve to be. [[slnc 300]] There is no "
-            "bug in it. Every test written against it passes. It is the "
-            "arrangement almost every service starts with, and in a code review "
-            "nobody would say a word — because the cost of it is not in the "
-            "code at all. [[slnc 350]] Now, tonight, the partner API that the "
-            "feed calls has gone slow. Not failing. Answering, but slowly. "
-            "[[slnc 300]] Let's run it."
+            'Here is the setup. [[slnc 400]] One pool, with four threads. '
+            '[[slnc 300]] Four import batches are handed to it, one after '
+            'another. [[slnc 300]] Then a shopper arrives, and the '
+            'payment is handed to the same pool. [[slnc 500]] To be fair '
+            'to this code, there is no bug in it. [[slnc 300]] Every test '
+            'passes. [[slnc 300]] Almost every service starts this way. '
+            '[[slnc 300]] And in a code review, nobody would say a word. '
+            '[[slnc 500]] Tonight, the partner service that the feed '
+            'calls has gone slow. [[slnc 300]] Not failing. [[slnc 300]] '
+            "Answering, but slowly. [[slnc 300]] Let's run it."
         ),
     ),
     dict(
@@ -152,20 +148,20 @@ shared.submit("checkout",
   all 4 threads are held by the feed,
   and the sale is lost""",
         narration=(
-            "Here is the fact that everything else in this video follows from, "
-            "and it is a small one. [[slnc 300]] A job that is waiting still "
-            "holds its thread. It is using no processor time. It is doing "
-            "nothing whatsoever. But that thread belongs to it until the call it "
-            "is waiting on comes back. [[slnc 350]] So: the first import batch "
-            "starts, and takes a thread. The second starts, and takes a thread. "
-            "The third. The fourth. [[slnc 250]] Four batches, four threads, and "
-            "the pool has four threads. [[slnc 300]] Now the shopper tries to "
-            "pay, and there is no thread for them. After three hundred "
-            "milliseconds they are still waiting, and the sale is gone. "
-            "[[slnc 350]] But I want you to notice what is not in that output "
-            "rather than what is. [[slnc 300]] There is no line for checkout. "
-            "Not a slow line. Not an error line. No line at all — because it "
-            "never started."
+            'Everything follows from one small fact. [[slnc 400]] A job '
+            'that is waiting still holds its thread. [[slnc 300]] It uses '
+            'no processor time, and does nothing. [[slnc 300]] But the '
+            'thread stays with it, until its call comes back. [[slnc '
+            '500]] So, the first import batch starts, and takes a thread. '
+            '[[slnc 300]] The second takes a thread. [[slnc 200]] The '
+            'third. [[slnc 200]] The fourth. [[slnc 400]] Four batches, '
+            'four threads, and the pool only has four. [[slnc 500]] Now '
+            'the shopper tries to pay. [[slnc 300]] There is no thread '
+            'free. [[slnc 300]] After three hundred milliseconds, they '
+            'are still waiting, and the sale is lost. [[slnc 600]] And '
+            'here is the strange part. [[slnc 300]] There is no line for '
+            'checkout in the output at all. [[slnc 300]] Not a slow line, '
+            'and not an error. [[slnc 300]] Checkout never started.'
         ),
     ),
     dict(
@@ -187,22 +183,22 @@ shared.submit("checkout",
             "call, no shared field. Only a shared pool.",
         ],
         narration=(
-            "It would honestly be easier if checkout were faulty, because then "
-            "there would be something to fix. [[slnc 300]] It is not faulty. "
-            "There is a test in this project that takes exactly that same "
-            "checkout job, runs it the moment a thread is free, and watches it "
-            "complete perfectly. [[slnc 350]] It was starved, not broken. And "
-            "from the outside those two look completely identical. Which is "
-            "exactly why this is so hard to diagnose at three in the morning: "
-            "you are looking for a bug in a class that does not have one. "
-            "[[slnc 300]] So here is the sentence that matters. The shop stopped "
-            "selling because of a background job that nobody was waiting for. "
-            "[[slnc 350]] And now notice how invisible the connection is. "
-            "Nothing in the checkout code mentions the supplier feed. Nothing in "
-            "the supplier feed mentions checkout. No import, no method call, no "
-            "shared variable, no message. [[slnc 300]] They are coupled by a "
-            "resource that neither of them names — which means no amount of "
-            "reading either file will ever show you this."
+            'It would be easier if checkout were broken, because then '
+            'there would be something to fix. [[slnc 400]] But it is not '
+            'broken. [[slnc 300]] A test in this project runs the same '
+            'checkout job the moment a thread is free, and it works '
+            'perfectly. [[slnc 500]] It was starved, not broken. [[slnc '
+            '300]] And from the outside, those two look exactly the same. '
+            '[[slnc 300]] That is why this is so hard to find at three in '
+            'the morning. [[slnc 300]] You are looking for a bug in a '
+            'class that does not have one. [[slnc 600]] So here is the '
+            'key sentence. [[slnc 300]] The shop stopped selling because '
+            'of a background job that nobody was waiting for. [[slnc '
+            '500]] And the link between them is invisible. [[slnc 300]] '
+            'Checkout never mentions the feed. [[slnc 300]] The feed '
+            'never mentions checkout. [[slnc 300]] They are tied together '
+            'only by the pool they share. [[slnc 300]] So reading either '
+            'file will never show you the problem.'
         ),
     ),
     dict(
@@ -224,27 +220,23 @@ shared.submit("checkout",
             "And look at where the walls take up space.",
         ],
         narration=(
-            "Let me leave the code for half a minute, because the name of this "
-            "pattern is not a metaphor. It is the actual word for something. "
-            "[[slnc 300]] A bulkhead is a wall that divides a ship's hull into "
-            "separate watertight compartments. [[slnc 350]] Punch a hole below "
-            "the waterline in a hull that has no walls in it, and the water "
-            "spreads the length of the ship, and the ship goes down. Punch "
-            "exactly the same hole in a hull that is divided, and one "
-            "compartment floods. The ship sits a little lower in the water, and "
-            "it keeps going. [[slnc 350]] Two things are worth taking from that, "
-            "and the second is the one people skip. [[slnc 300]] First: nothing "
-            "about the hole changed. The bulkhead did not make the hull "
-            "stronger, or the sea calmer, or the damage smaller. Exactly as much "
-            "water came in. All that changed is how far it was allowed to "
-            "spread. [[slnc 350]] Second: think about where those walls "
-            "physically are. They take up space. One compartment can be "
-            "completely empty while the one next to it is packed full, and you "
-            "cannot move the space between them. [[slnc 300]] That is not a flaw "
-            "in the design. That is the design. Isolation is paid for in "
-            "capacity you are not allowed to use. [[slnc 250]] Hold on to that, "
-            "because we will come back to it, and it is the part most "
-            "explanations of this pattern leave out."
+            "Let's leave the code for a moment, and think about a ship. "
+            "[[slnc 400]] A bulkhead is a wall that divides a ship's hull "
+            'into watertight compartments. [[slnc 500]] Make a hole in a '
+            'hull with no walls, and the water spreads along the whole '
+            'ship, and it sinks. [[slnc 300]] Make the same hole in a '
+            'divided hull, and only one compartment floods. [[slnc 300]] '
+            'The ship sits a little lower, and keeps going. [[slnc 600]] '
+            'There are two lessons here. [[slnc 400]] First, the hole did '
+            'not change. [[slnc 300]] Just as much water came in. [[slnc '
+            '300]] The wall only limits how far it spreads. [[slnc 500]] '
+            'Second, the walls take up space. [[slnc 300]] One '
+            'compartment can be empty while the next one is full. [[slnc '
+            '300]] And you cannot move space from one to the other. '
+            '[[slnc 300]] That is not a flaw. [[slnc 300]] That is the '
+            'design. [[slnc 300]] Isolation is paid for in capacity you '
+            'are not allowed to use. [[slnc 300]] Hold on to that, '
+            'because we will come back to it.'
         ),
     ),
     dict(
@@ -266,25 +258,25 @@ shared.submit("checkout",
             "It is a slow leak with good manners.",
         ],
         narration=(
-            "Before the fix, the two answers that come up first in every room I "
-            "have ever asked this in. [[slnc 350]] The first is: make the pool "
-            "bigger. Four threads was too few, so use forty. [[slnc 300]] That "
-            "buys time and nothing else. Whenever the partner API is slow enough "
-            "for long enough, the feed will take forty threads instead of four, "
-            "and checkout will be starved at forty exactly as it was at four. "
-            "The number changes; the failure does not. [[slnc 250]] And it is "
-            "worse than a draw, because the bigger the pool, the longer it takes "
-            "anybody to notice, and the more memory the eventual pile-up "
-            "consumes. [[slnc 350]] The second answer is: never refuse a job. "
-            "Just let them all wait their turn. An unbounded queue. [[slnc 300]] "
-            "That one sounds generous, and it is the more dangerous of the two. "
-            "What it actually does is convert a fast, visible failure into a "
-            "slow, invisible one. Jobs accumulate until the process runs out of "
-            "memory, and every caller sits waiting for work that will not start "
-            "for minutes. [[slnc 350]] A queue that never says no is not "
-            "generous. It is a slow leak with good manners. [[slnc 300]] So "
-            "neither of those is the answer. The two jobs are connected only by "
-            "the pool they share. What happens if they stop sharing it?"
+            'Before the real fix, here are two tempting fixes. [[slnc '
+            '300]] Both are wrong. [[slnc 500]] The first is: make the '
+            'pool bigger. [[slnc 300]] Forty threads, instead of four. '
+            '[[slnc 400]] That only buys time. [[slnc 300]] If the '
+            'partner is slow for long enough, the feed takes all forty '
+            'threads. [[slnc 300]] And checkout is starved at forty, just '
+            'as it was at four. [[slnc 300]] The number changed. [[slnc '
+            '300]] The failure did not. [[slnc 300]] Worse, a bigger pool '
+            'takes longer to notice, and uses more memory when it finally '
+            'fills up. [[slnc 600]] The second is: never refuse a job. '
+            '[[slnc 300]] Let every job wait in a queue with no limit. '
+            '[[slnc 400]] That sounds generous, but it is more dangerous. '
+            '[[slnc 300]] It turns a fast, visible failure into a slow, '
+            'invisible one. [[slnc 300]] Jobs pile up until the program '
+            'runs out of memory. [[slnc 300]] And every caller waits for '
+            'work that will not start for minutes. [[slnc 600]] So '
+            'neither fix works. [[slnc 300]] The two jobs are only '
+            'connected by the pool they share. [[slnc 300]] So what if '
+            'they stop sharing it?'
         ),
     ),
     dict(
@@ -300,22 +292,21 @@ shared.submit("checkout",
 // no algorithm. nothing adaptive.
 // nothing to tune at runtime.""",
         narration=(
-            "And here is the entire mechanism. I would like you to be "
-            "disappointed by it. [[slnc 350]] A fixed pool of threads. A queue "
-            "that holds a fixed number of waiting jobs. And a name, so that "
-            "every worker thread in this pool is called after it. [[slnc 300]] "
-            "That is all. There is no algorithm here. Nothing adaptive. Nothing "
-            "that reacts to load. Nothing to tune at runtime. [[slnc 350]] Say "
-            "that out loud, because it is the point of the whole video. A "
-            "bulkhead is not a clever piece of machinery. It is a decision to "
-            "stop sharing. [[slnc 300]] The pattern does not live in this class. "
-            "It lives in having two of them. [[slnc 350]] Which means the "
-            "interesting work is not writing any of this. The interesting work "
-            "is deciding where the walls go — and we will come back to that, "
-            "because it is a decision about the business, not about the code. "
-            "[[slnc 300]] For now: the feed gets two threads of its own, "
-            "checkout gets two threads of its own, and we give them exactly the "
-            "same bad night."
+            'Here is the whole mechanism, and it is very plain. [[slnc '
+            '400]] A pool with a fixed number of threads. [[slnc 300]] A '
+            'queue that holds a fixed number of waiting jobs. [[slnc '
+            '300]] And a name, which every thread in the pool carries. '
+            '[[slnc 500]] That is all. [[slnc 300]] No clever algorithm. '
+            '[[slnc 300]] Nothing that adapts to load. [[slnc 300]] '
+            'Nothing to tune while it runs. [[slnc 600]] So a bulkhead is '
+            'not clever machinery. [[slnc 300]] It is a decision to stop '
+            'sharing. [[slnc 300]] The pattern is not in this class. '
+            '[[slnc 300]] It is in having two of them. [[slnc 500]] The '
+            'hard part is deciding where the walls go. [[slnc 300]] And '
+            'that is a business decision, not a coding one. [[slnc 500]] '
+            'For now, the feed gets two threads of its own. [[slnc 300]] '
+            'Checkout gets two threads of its own. [[slnc 300]] And we '
+            'give them exactly the same bad night.'
         ),
     ),
     dict(
@@ -332,19 +323,20 @@ shared.submit("checkout",
   the feed is jammed -- 2 threads busy, 2 jobs queued --
   and the shop is still selling, because it never shared.""",
         narration=(
-            "Same slow partner. Same four batches. Same instant. [[slnc 300]] "
-            "Two of the batches start, and the other two sit in the feed's queue "
-            "waiting for a feed thread. Nothing there has improved at all. "
-            "[[slnc 350]] And then the shopper arrives, asks for a thread, gets "
-            "one immediately, and pays. The sale goes through in milliseconds. "
-            "[[slnc 300]] Now listen to the names of the threads, because they "
-            "are the entire argument. [[slnc 250]] The import batches are "
-            "running on something called feed-worker. The payment ran on "
-            "something called checkout-worker. [[slnc 300]] Those are different "
-            "threads, out of different pools, and no amount of demand on one "
-            "side can produce a thread on the other. The feed cannot borrow from "
-            "checkout, and checkout is not allowed to help the feed. "
-            "[[slnc 350]] That is the whole pattern, and it just saved a sale."
+            'Same slow partner. [[slnc 200]] Same four batches. [[slnc '
+            '200]] Same moment. [[slnc 500]] Two batches start. [[slnc '
+            "300]] The other two wait in the feed's queue for a feed "
+            'thread. [[slnc 300]] On the feed side, nothing has improved. '
+            '[[slnc 500]] Then the shopper arrives, gets a thread '
+            'straight away, and pays. [[slnc 300]] The sale goes through '
+            'in milliseconds. [[slnc 600]] The names of the threads tell '
+            'the whole story. [[slnc 400]] The import batches run on '
+            'threads called feed worker. [[slnc 300]] The payment runs on '
+            'a thread called checkout worker. [[slnc 500]] They come from '
+            'different pools. [[slnc 300]] The feed cannot borrow from '
+            'checkout. [[slnc 300]] And checkout is not allowed to help '
+            'the feed. [[slnc 500]] That is the whole pattern, and it '
+            'just saved a sale.'
         ),
     ),
     dict(
@@ -353,30 +345,28 @@ shared.submit("checkout",
         title="Who Owns What",
         body=None,
         narration=(
-            "Let me name the pieces, because there are only a few and each one "
-            "has exactly one job. [[slnc 300]] A bulkhead is a named, bounded "
-            "pot of threads that one kind of work is allowed to use. Underneath "
-            "it there is a fixed thread pool with a bounded queue, and that is "
-            "genuinely the whole of it. [[slnc 350]] When both its threads are "
-            "busy and its queue is full, it throws — immediately — and the "
-            "exception says which bulkhead was full. Not that the system is "
-            "busy. Which pot ran out. [[slnc 300]] Then the work. Checkout, "
-            "which must never be starved. The supplier feed, which nobody is "
-            "waiting for and which holds a thread the entire time it waits. "
-            "[[slnc 350]] And here is the uncomfortable part. Those two "
-            "descriptions — must never be starved, and nobody is waiting for it "
-            "— are the most important facts in this entire system, and they "
-            "appear nowhere in the code. Nothing in the compiler knows them. "
-            "Nothing can derive them. [[slnc 300]] They come from the people who "
-            "run the shop. And if they are not written down somewhere — as a "
-            "pool, as a thread count — then during the outage they get decided "
-            "by whichever job happened to ask for a thread first. [[slnc 350]] "
-            "One more piece. The slow partner API is not a real network call "
-            "here, and nothing in this project sleeps. It is a gate that a job "
-            "waits at until the test opens it. A job waiting at a closed gate "
-            "holds its thread exactly the way a job waiting on a slow network "
-            "does — and it holds it for precisely as long as the test wants, "
-            "instead of a guessed number of milliseconds."
+            "Let's name the pieces. [[slnc 300]] There are only a few, "
+            'and each has one job. [[slnc 500]] A bulkhead is a named '
+            'pool of threads, with a limit, that one kind of work may '
+            'use. [[slnc 300]] Underneath, it is a fixed thread pool with '
+            'a limited queue. [[slnc 500]] When all its threads are busy '
+            'and its queue is full, it refuses at once. [[slnc 300]] And '
+            'the error says which bulkhead was full. [[slnc 300]] Not '
+            'that the system is busy, but which pool ran out. [[slnc '
+            '600]] Then there is the work. [[slnc 300]] Checkout, which '
+            'must never be starved. [[slnc 300]] And the supplier feed, '
+            'which nobody is waiting for, and which holds its thread the '
+            'whole time it waits. [[slnc 600]] Those two facts are the '
+            'most important in the system. [[slnc 300]] And they appear '
+            'nowhere in the code. [[slnc 300]] They come from the people '
+            'who run the shop. [[slnc 300]] If nobody writes them down, '
+            'as a pool and a thread count, then in an outage they are '
+            'decided by whichever job asked for a thread first. [[slnc '
+            '600]] One more piece. [[slnc 300]] The slow partner is not a '
+            'real network call, and nothing in this project sleeps. '
+            '[[slnc 300]] It is a gate that a job waits at, until the '
+            'test opens it. [[slnc 300]] A job waiting at a closed gate '
+            'holds its thread, just like a job waiting on a slow network.'
         ),
     ),
     dict(
@@ -398,22 +388,20 @@ shared.submit("checkout",
             "has not ruled out it happening by accident.",
         ],
         narration=(
-            "Now, before anybody celebrates, the question I would want asked in "
-            "a review. [[slnc 350]] Checkout worked. Good. But how do we know "
-            "the partition is what did that? [[slnc 300]] Suppose the partner "
-            "API had quietly started answering again a moment before the shopper "
-            "turned up. The output would look exactly the same. We would have "
-            "proved nothing, and we would have believed it. [[slnc 350]] So "
-            "there is a test in this project whose entire job is to assert that "
-            "the feed is still jammed — two threads busy, two jobs queued — at "
-            "the very instant the sale goes through. [[slnc 300]] That is the "
-            "difference between a demonstration and an anecdote. Nothing about "
-            "the partner API was fixed. The slow thing is still slow, still "
-            "stuck, still holding both of its threads, and the shop is selling "
-            "anyway. [[slnc 350]] And this generalises well beyond thread pools, "
-            "so it is worth taking away on its own. A test that only checks that "
-            "the good thing happened has not ruled out the good thing happening "
-            "by accident."
+            'Before we celebrate, here is a fair question. [[slnc 400]] '
+            'Checkout worked. [[slnc 300]] But how do we know the wall '
+            'did that? [[slnc 500]] Suppose the partner service had '
+            'started answering again, just before the shopper arrived. '
+            '[[slnc 300]] The output would look exactly the same. [[slnc '
+            '300]] We would have proved nothing. [[slnc 500]] So one test '
+            'checks that the feed is still jammed at the very moment the '
+            'sale goes through. [[slnc 300]] Two threads busy, and two '
+            'jobs waiting. [[slnc 500]] Nothing about the partner was '
+            'fixed. [[slnc 300]] The slow thing is still slow, and the '
+            'shop is selling anyway. [[slnc 600]] This lesson works far '
+            'beyond thread pools. [[slnc 300]] A test that only checks '
+            'the good thing happened has not ruled out that it happened '
+            'by luck.'
         ),
     ),
     dict(
@@ -428,20 +416,21 @@ shared.submit("checkout",
   batch after it, until the shop ran out of memory
   instead of out of threads.""",
         narration=(
-            "The feed's bulkhead has two threads and a queue that holds two, so "
-            "four batches fit. A fifth arrives. [[slnc 300]] It is refused, and "
-            "the refusal comes back in zero milliseconds. [[slnc 350]] That can "
-            "feel hostile, and it is the exact opposite. The speed is the whole "
-            "value of it. The caller finds out instantly, while it still has "
-            "time to do something useful — shed the batch, degrade, try again "
-            "later, write it down somewhere for tonight. [[slnc 300]] This is "
-            "the same idea as a circuit breaker's fast failure, applied to a "
-            "queue rather than to a broken service. [[slnc 350]] Compare it with "
-            "the alternative one more time, because the contrast is the lesson. "
-            "An unbounded queue would have accepted that batch. And the one "
-            "after it. And every one after that. Nobody would have been told "
-            "anything at all, until the process ran out of memory instead of "
-            "running out of threads. [[slnc 300]] Refusing is a feature."
+            "The feed's bulkhead has two threads, and a queue that holds "
+            'two. [[slnc 300]] So four batches fit. [[slnc 300]] Now a '
+            'fifth batch arrives. [[slnc 500]] It is refused, and the '
+            'refusal takes zero milliseconds. [[slnc 500]] That can feel '
+            'unfriendly, but it is the opposite. [[slnc 300]] The speed '
+            'is the whole point. [[slnc 300]] The caller finds out at '
+            'once, while it still has time to do something useful. [[slnc '
+            '300]] Drop the batch, do less, or try again later. [[slnc '
+            '500]] It is the same idea as a circuit breaker failing fast, '
+            'but applied to a queue. [[slnc 600]] Now compare it with a '
+            'queue that has no limit. [[slnc 300]] That queue would have '
+            'accepted this batch, and the next one, and every one after '
+            'that. [[slnc 300]] Nobody would be told anything, until the '
+            'program ran out of memory instead of threads. [[slnc 500]] '
+            'Refusing is a feature.'
         ),
     ),
     dict(
@@ -463,21 +452,20 @@ shared.submit("checkout",
             "you chose, at a moment you chose.",
         ],
         narration=(
-            "It is worth being precise about what that refusal buys, because it "
-            "is more than speed. [[slnc 300]] The exception names the pot that "
-            "is full. Not the system is busy — the feed's pool is full. "
-            "[[slnc 250]] Those are very different sentences to be woken up by. "
-            "One of them tells you where to look. [[slnc 350]] Second, the "
-            "caller is told in a millisecond, which means it still has options. "
-            "It can shed the work, do a smaller version of it, or write it down "
-            "for later. A caller that is merely kept waiting has no options at "
-            "all. [[slnc 300]] And third, the size of the damage was decided in "
-            "advance, in daylight, by somebody thinking clearly — rather than "
-            "being an accident of which job happened to ask for a thread first "
-            "in the middle of an incident. [[slnc 350]] The failure has not gone "
-            "away. Nothing here made the partner API faster. What changed is "
-            "that the failure became something you chose, at a moment you chose, "
-            "in a shape you chose."
+            'That refusal gives you three things, not just speed. [[slnc '
+            '500]] First, the error names the pool that is full. [[slnc '
+            "300]] Not, the system is busy. [[slnc 300]] But, the feed's "
+            'pool is full. [[slnc 300]] One of those tells an engineer '
+            'where to look. [[slnc 500]] Second, the caller is told in a '
+            'millisecond, so it still has choices. [[slnc 300]] It can '
+            'drop the work, do a smaller version, or save it for later. '
+            '[[slnc 300]] A caller that is simply kept waiting has no '
+            'choices at all. [[slnc 500]] Third, the size of the damage '
+            'was decided in advance, calmly, in daylight. [[slnc 300]] '
+            'Not by chance, in the middle of an incident. [[slnc 600]] '
+            'The failure has not gone away. [[slnc 300]] The partner is '
+            'no faster. [[slnc 300]] What changed is that you chose the '
+            'shape of the failure, ahead of time.'
         ),
     ),
     dict(
@@ -493,22 +481,22 @@ shared.submit("checkout",
   the feed sooner. Bulkheads buy isolation and pay
   for it in throughput.""",
         narration=(
-            "And now the bill, because any explanation of this pattern that "
-            "stops before here is selling you something. [[slnc 350]] On a quiet "
-            "afternoon, this is what the partitioned shop looks like. The feed "
-            "has two threads busy, with two more jobs queued up behind them, "
-            "waiting. And checkout has two threads doing absolutely nothing. "
-            "[[slnc 300]] Let those two sentences sit next to each other for a "
-            "moment. Two threads are idle, while two jobs are waiting for a "
-            "thread. And they are not allowed to help. [[slnc 350]] One shared "
-            "pool of four would have run all four batches at once and finished "
-            "the import sooner. There is a test in this project that asserts "
-            "exactly that — the shared pool, on a good day, is genuinely faster. "
-            "[[slnc 300]] So: partitioned pools are idle capacity by design. Not "
-            "a bug. Not a tuning problem you will get around to. That is what "
-            "you are buying the isolation with. [[slnc 350]] It is the ship "
-            "again. The walls take up space, and the empty compartment cannot "
-            "lend any of it to the full one."
+            'Now the bill. [[slnc 300]] Any honest explanation of this '
+            'pattern has to include it. [[slnc 500]] On a quiet '
+            'afternoon, the divided shop looks like this. [[slnc 300]] '
+            'The feed has two threads busy, and two more jobs waiting. '
+            '[[slnc 300]] And checkout has two threads doing nothing at '
+            'all. [[slnc 500]] Two threads are idle, while two jobs wait '
+            'for a thread. [[slnc 300]] And they are not allowed to help. '
+            '[[slnc 600]] One shared pool of four would have run all four '
+            'batches at once, and finished sooner. [[slnc 300]] A test in '
+            'this project checks exactly that. [[slnc 300]] On a good '
+            'day, the shared pool really is faster. [[slnc 500]] So '
+            'divided pools leave capacity idle, on purpose. [[slnc 300]] '
+            'That is not a bug, or a tuning problem. [[slnc 300]] It is '
+            'the price of the isolation. [[slnc 500]] It is the ship '
+            'again. [[slnc 300]] The empty compartment cannot lend its '
+            'space to the full one.'
         ),
     ),
     dict(
@@ -530,25 +518,26 @@ shared.submit("checkout",
             "damage spreading, not you calling the dead thing.",
         ],
         narration=(
-            "So where do the walls actually go? [[slnc 300]] The trade is worth "
-            "making for anything whose failure ends the business. In a shop, "
-            "that is taking money. [[slnc 350]] It is not worth making for "
-            "everything. A shop with fifteen bulkheads has fifteen pools to "
-            "size, fifteen numbers that drift out of date as traffic changes, "
-            "and a great many threads doing nothing at three in the afternoon. "
-            "[[slnc 300]] The useful instinct is two or three partitions, drawn "
-            "along the lines of what must survive — not along the lines of the "
-            "package structure, which is the tempting thing to do because it "
-            "looks tidy. [[slnc 350]] And remember that the classification is a "
-            "business decision, not a technical one. Nobody can tell from the "
-            "code that the supplier feed matters less than checkout. "
-            "[[slnc 300]] One last thing, and it matters. A bulkhead is not the "
-            "whole answer to an outage. It stops the damage spreading; it does "
-            "not stop you calling the thing that has stopped answering. "
-            "[[slnc 350]] That is the circuit breaker's job, and the two belong "
-            "together: a breaker so you stop calling a service that is down, and "
-            "a bulkhead so that the calls still in flight cannot drown anything "
-            "that matters."
+            'So where should the walls go? [[slnc 400]] The trade is '
+            'worth it for work whose failure ends the business. [[slnc '
+            '300]] In a shop, that is taking money. [[slnc 500]] It is '
+            'not worth it for everything. [[slnc 300]] Fifteen bulkheads '
+            'means fifteen pools to size. [[slnc 300]] Fifteen numbers '
+            'that go out of date as traffic changes. [[slnc 300]] And a '
+            'lot of threads doing nothing in the afternoon. [[slnc 500]] '
+            'A good rule is two or three pools, divided by what must '
+            'survive. [[slnc 300]] Not by how the code is organised into '
+            'packages, even though that looks tidy. [[slnc 500]] And '
+            'remember, this is a business decision. [[slnc 300]] Nobody '
+            'can tell from the code that the supplier feed matters less '
+            'than checkout. [[slnc 600]] One last point. [[slnc 300]] A '
+            'bulkhead stops the damage spreading. [[slnc 300]] It does '
+            'not stop you calling a service that has stopped answering. '
+            '[[slnc 300]] That is the job of a circuit breaker. [[slnc '
+            '500]] The two belong together. [[slnc 300]] A breaker, so '
+            'you stop calling a service that is down. [[slnc 300]] And a '
+            'bulkhead, so the calls already waiting cannot drown anything '
+            'that matters.'
         ),
     ),
     dict(
@@ -562,30 +551,27 @@ shared.submit("checkout",
             "proves the slow feed is still stuck while the shop sells.",
         ],
         narration=(
-            "That's the bulkhead. [[slnc 250]] The full source, the written "
-            "notes, the diagrams and an animated walkthrough are all in the "
-            "repository, and everything runs offline with nothing installed but "
-            "a Java development kit. [[slnc 300]] This is the only project in "
-            "the series that uses real threads, because the subject genuinely is "
-            "threads waiting for one another, and you cannot fake a thread being "
-            "unavailable. But nothing in it sleeps, so the whole suite still "
-            "runs in about a second. [[slnc 350]] If you try one exercise, try "
-            "this one. Give checkout's bulkhead one thread instead of two, and "
-            "put two sales through it while the feed is jammed. [[slnc 300]] "
-            "Watch the second sale wait. The wall protects checkout from the "
-            "feed. It does not protect checkout from checkout, and that is worth "
-            "feeling rather than being told. [[slnc 350]] And then the harder "
-            "question, the one no exercise can answer for you. In the system you "
-            "work on, which work must never be starved? [[slnc 300]] And — this "
-            "is the half people skip — what are you willing to leave sitting "
-            "idle in order to guarantee it? [[slnc 350]] Because that is the "
-            "real lesson here. The mechanism is a second thread pool and you "
-            "already know how to write one. Deciding what must survive, and "
-            "paying for it in capacity you are not allowed to use, is the part "
-            "that needs a person. [[slnc 300]] If this helped, a like genuinely "
-            "does help other people find it, and subscribe if you would like the "
-            "rest of the series. [[slnc 250]] Thanks for watching, and I'll see "
-            "you in the next one."
+            "That's the Bulkhead pattern. [[slnc 400]] If you remember "
+            'one sentence, make it this one. [[slnc 300]] A bulkhead '
+            'gives the work that must survive a pool of its own, and pays '
+            'for that safety with capacity left idle on purpose. [[slnc '
+            '500]] The full source code, written notes, diagrams, and an '
+            'animated walkthrough are all in the repository. [[slnc 300]] '
+            'It runs offline, with nothing installed except a Java '
+            'development kit. [[slnc 300]] It uses real threads, but '
+            'nothing sleeps, so all the tests run in about a second. '
+            '[[slnc 500]] Here is one exercise to try. [[slnc 300]] Give '
+            "checkout's bulkhead one thread instead of two. [[slnc 300]] "
+            'Then put two sales through it while the feed is jammed. '
+            '[[slnc 300]] The second sale waits. [[slnc 300]] The wall '
+            'protects checkout from the feed, but not from checkout '
+            'itself. [[slnc 500]] And one question to think about. [[slnc '
+            '300]] In your own system, which work must never be starved? '
+            '[[slnc 300]] And what are you willing to leave idle, to '
+            'guarantee it? [[slnc 500]] If this helped, a like really '
+            'does help other people find it. [[slnc 300]] And subscribe, '
+            "if you'd like the rest of the series. [[slnc 400]] Thanks "
+            'for watching.'
         ),
     ),
 ]

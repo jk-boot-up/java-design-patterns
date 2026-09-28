@@ -10,58 +10,55 @@ SCENES = [
         key='01-poster', kind='poster', title='Event Bus with NATS',
         body=None,
         narration=(
-            'Hello, and welcome. This video explains the Event Bus '
-            'pattern with NATS, in Java, and it is written and presented '
-            'by Jayasekhar Konduru. [[slnc 300]] The plain definition, in '
-            'short: an event bus is one meeting place. You publish to it, '
-            'you subscribe to it, and you never hold a reference to '
-            'whoever is on the other side. [[slnc 300]] Here is the '
-            'everyday version. Think of a tannoy in a warehouse. Somebody '
-            'picks up the microphone and announces that an order is ready '
-            'to pack. Everybody standing in the room at that moment hears '
-            'it. The person on the microphone does not know who is in the '
-            'room, does not wait for anybody, and is never told whether '
-            'anybody acted on it. And somebody who walks in a second '
-            'later hears nothing, because there is no recording. [[slnc '
-            '350]] Now the same thing in an online store. Checkout '
-            'announces that an order has been placed. The email service, '
-            'the warehouse and the analytics tally each listen for what '
-            'they care about. Checkout holds no reference to any of them. '
-            '[[slnc 300]] The difference in this video is that the '
-            'meeting place is now a real server, in a container, on the '
-            'network. And it keeps nothing.'
+            'Hello, and welcome. [[slnc 400]] This video explains the '
+            'Event Bus pattern, in Java, using NATS. [[slnc 300]] This '
+            'video is presented by Jayasekhar Konduru. [[slnc 600]] '
+            'First, a simple definition. [[slnc 300]] An event bus is one '
+            'meeting place. [[slnc 300]] You publish to it, you subscribe '
+            'to it, and you never hold a reference to whoever is on the '
+            'other side. [[slnc 600]] Think of a loudspeaker in a '
+            'warehouse. [[slnc 300]] Someone announces that an order is '
+            'ready to pack. [[slnc 300]] Everyone in the room at that '
+            'moment hears it. [[slnc 300]] The announcer does not know '
+            'who is listening, and is never told whether anyone acted. '
+            '[[slnc 300]] And someone who walks in a second later hears '
+            'nothing, because there is no recording. [[slnc 700]] In our '
+            'online store, checkout announces that an order has been '
+            'placed. [[slnc 300]] The email service, the warehouse, and '
+            'analytics each listen for what they care about. [[slnc 500]] '
+            'What is new here is that the meeting place is a real server, '
+            'on the network. [[slnc 300]] And it keeps nothing.'
         ),
     ),
     dict(
         key='02-partner', kind='bullets', title='The Partner Project',
         body=['The Event Bus video builds the', 'same bus by hand, inside one', 'program.', '', 'It teaches the pattern. If you', 'have not seen it, start there.', '', 'This one shows what changes when', 'the bus is a separate server.'],
         narration=(
-            'This video has a partner. The Event Bus video builds the '
-            'same bus by hand, inside one program, in plain Java with '
-            'nothing installed. If you have not seen it, start there, '
-            'because it teaches the pattern. [[slnc 300]] This video does '
-            'not teach it again. It uses the same online store, and it '
-            'shows what changes when the meeting place stops being an '
-            'object in your program and becomes a separate server on the '
-            'network.'
+            'Before we start, a quick note. [[slnc 300]] This video has a '
+            'partner: the hand-built Event Bus video. [[slnc 400]] That '
+            'one builds the bus by hand, inside one program, in plain '
+            'Java. [[slnc 300]] If you are new to the pattern, watch that '
+            'one first. [[slnc 500]] Here, we keep the same online store. '
+            '[[slnc 300]] And we hear what changes when the meeting place '
+            'becomes a separate server.'
         ),
     ),
     dict(
         key='03-dependencies', kind='bullets', title='Before The First Line',
         body=['NATS is a message bus that runs', 'as a program of its own.', '', 'It stores nothing and remembers', 'nobody.', '', 'You need a container runtime.', 'Skipping this video loses none of', 'the pattern.'],
         narration=(
-            'Before the first line of code, what NATS is. NATS is a '
-            'message bus that runs as a program of its own. A service '
+            'First, what is NATS? [[slnc 400]] NATS is a message bus that '
+            'runs as a program of its own. [[slnc 500]] A service '
             'publishes an event under a name, and returns straight away. '
-            'Another service subscribes to a name, and from that moment '
-            'the server sends it every event published under that name. '
-            '[[slnc 300]] NATS calls that name a subject. The important '
-            'part is what NATS does not do. It stores nothing. It '
-            'remembers nobody. An event goes to whoever is listening at '
-            'that instant, and then it is gone. [[slnc 300]] You will '
-            'need a container runtime running, such as Docker. Without '
-            'one the demo prints a single sentence saying so, and stops. '
-            'And skipping this video loses none of the pattern.'
+            '[[slnc 300]] Another service subscribes to a name. [[slnc '
+            '300]] From then on, the server sends it every event '
+            'published under that name. [[slnc 300]] NATS calls that name '
+            'a subject. [[slnc 500]] The important part is what NATS does '
+            'not do. [[slnc 300]] It stores nothing. [[slnc 300]] It '
+            'remembers nobody. [[slnc 300]] An event goes to whoever is '
+            'listening at that instant, and then it is gone. [[slnc 500]] '
+            'You need Docker running. [[slnc 300]] And one promise: if '
+            'you skip this video, you lose none of the pattern.'
         ),
     ),
     dict(
@@ -75,14 +72,15 @@ SCENES = [
 
   add a sixth: 10 more.""",
         narration=(
-            'First, the store before there is a bus. Five services that '
-            'each tell the other four when an order is placed need twenty '
-            'wires between them, because each pair needs one in each '
-            'direction. [[slnc 250]] And now that these are separate '
-            'programs, every one of those wires is a network address that '
-            'somebody has to be told about, that can be typed wrong, and '
-            'that can point at something which is not running. Add a '
-            'sixth service and it needs ten more.'
+            'First demo: the store before there is a bus. [[slnc 400]] '
+            'Five services, each telling the other four when an order is '
+            'placed. [[slnc 300]] That needs twenty connections between '
+            'them. [[slnc 500]] And these are now separate programs. '
+            '[[slnc 300]] So every connection is a network address, which '
+            'someone must be told about. [[slnc 300]] Which can be typed '
+            'wrong. [[slnc 300]] And which can point at something that is '
+            'not running. [[slnc 500]] Add a sixth service, and it needs '
+            'ten more.'
         ),
     ),
     dict(
@@ -96,14 +94,15 @@ SCENES = [
 
   5 wires, not 20.""",
         narration=(
-            'Second, everyone knows the bus. Checkout publishes an order '
-            'placed event under the name store dot orders dot placed, and '
-            'returns immediately. It is told nothing at all about who was '
-            'listening. [[slnc 250]] The email service saw the order. The '
-            'warehouse saw the order. The analytics tally saw the order. '
-            'Each of them has its own connection to the server, and none '
-            'of them knows about the others. Five services, one '
-            'connection each: five wires, not twenty.'
+            'Second demo: everyone knows the bus. [[slnc 400]] Checkout '
+            'publishes an order placed event, under the subject store dot '
+            'orders dot placed. [[slnc 300]] And it returns immediately. '
+            '[[slnc 300]] It is told nothing about who was listening. '
+            '[[slnc 500]] The email service receives the order. [[slnc '
+            '300]] The warehouse receives it. [[slnc 300]] Analytics '
+            'receives it. [[slnc 500]] Each has its own connection to the '
+            'server, and none knows about the others. [[slnc 300]] Five '
+            'services, one connection each: five, not twenty.'
         ),
     ),
     dict(
@@ -117,17 +116,18 @@ SCENES = [
   store.orders.*      -> 2
   store.>             -> 4""",
         narration=(
-            'Third, subscribing by name. The hand-built bus let a '
-            'subscriber ask for a type of event. NATS has no types. It '
-            'has names, written in dotted parts, like store dot orders '
-            'dot placed. [[slnc 250]] Checkout publishes four events: an '
-            'order placed, that order cancelled, a payment taken, and '
-            'stock running low. A listener that asks for the exact name '
-            'store dot orders dot placed receives one event. [[slnc 200]] '
-            'A listener can also ask for a family. A star stands for one '
-            'part of the name, so store dot orders dot star receives two: '
-            'the placed and the cancelled. An arrow stands for the whole '
-            'rest of the name, so store dot arrow receives all four.'
+            'Third demo: subscribing by name. [[slnc 400]] NATS has no '
+            'event types. [[slnc 300]] It has names made of dotted parts, '
+            'like store dot orders dot placed. [[slnc 500]] Checkout '
+            'publishes four events. [[slnc 300]] An order placed. [[slnc '
+            '200]] That order cancelled. [[slnc 200]] A payment taken. '
+            '[[slnc 200]] And stock running low. [[slnc 500]] A listener '
+            'for the exact name, order placed, receives one event. [[slnc '
+            '500]] A listener can also ask for a family. [[slnc 300]] A '
+            'star stands for one part of the name. [[slnc 300]] So store '
+            'dot orders dot star receives two: placed, and cancelled. '
+            '[[slnc 300]] An arrow stands for everything after it. [[slnc '
+            '300]] So store dot arrow receives all four.'
         ),
     ),
     dict(
@@ -141,15 +141,14 @@ SCENES = [
 
   checkout was never told.""",
         narration=(
-            'Fourth, one failing subscriber. The email service throws: '
-            'the mail server timed out. The warehouse, on a connection of '
-            'its own, still reserves the stock for that order. [[slnc '
-            '250]] In the hand-built bus that isolation had to be '
-            'written, by catching the failure so one bad subscriber could '
-            'not stop the rest. Here it is free, because the two '
-            'subscribers are not even in the same program. And checkout '
-            'was never told, because publishing had already returned '
-            'before either of them ran.'
+            'Fourth demo: one failing subscriber. [[slnc 400]] The email '
+            'service fails: the mail server timed out. [[slnc 300]] But '
+            'the warehouse, on its own connection, still reserves the '
+            'stock. [[slnc 500]] In the hand-built bus, that protection '
+            'had to be written by hand. [[slnc 300]] Here it comes free, '
+            'because the two subscribers are not even in the same '
+            'program. [[slnc 500]] And checkout was never told, because '
+            'it had already moved on.'
         ),
     ),
     dict(
@@ -165,22 +164,23 @@ SCENES = [
 
   2 published, 1 received.""",
         narration=(
-            'Fifth, and this is the act the whole video exists for: an '
-            'event nobody hears. [[slnc 250]] Nobody is listening. '
-            'Checkout publishes an order placed event for order ORD one. '
-            'The call returns without an error, and the bus drops the '
-            'event. There is no error, no record, and nowhere to read it '
-            'back from. The hand-built bus noticed this and turned the '
-            'event into a dead event that something could watch for. NATS '
-            'has no such hook. [[slnc 350]] Then the warehouse starts '
-            'listening, and checkout publishes order ORD two. The first '
-            'event the warehouse ever receives is ORD two. [[slnc 250]] '
-            'Pause on why that matters. You cannot prove a miss by '
-            'waiting and seeing nothing, because you never know how long '
-            'to wait. But this bus delivers one name in the order it was '
-            'published. So once the second order has arrived, the first '
-            'one cannot still be on its way. It was never coming. Two '
-            'orders published, one received.'
+            'Fifth demo, and the heart of this video: an event nobody '
+            'hears. [[slnc 500]] Nobody is listening. [[slnc 300]] '
+            'Checkout publishes an order placed event, for order one. '
+            '[[slnc 300]] The call returns with no error. [[slnc 300]] '
+            'And the bus drops the event. [[slnc 500]] There is no error, '
+            'no record, and nowhere to read it back from. [[slnc 300]] '
+            'The hand-built bus turned unheard events into dead events '
+            'you could watch for. [[slnc 300]] NATS has no such thing. '
+            '[[slnc 600]] Then the warehouse starts listening. [[slnc '
+            '300]] And checkout publishes order two. [[slnc 300]] The '
+            'very first event the warehouse ever receives is order two. '
+            '[[slnc 500]] Why does that prove order one was lost? [[slnc '
+            '300]] Because this bus delivers events for one name in the '
+            'order they were published. [[slnc 300]] So once order two '
+            'has arrived, order one can no longer be on its way. [[slnc '
+            '300]] It was never coming. [[slnc 300]] Two orders '
+            'published, and one received.'
         ),
     ),
     dict(
@@ -194,14 +194,14 @@ SCENES = [
 
     no responders""",
         narration=(
-            'There is one way out, and it is worth knowing. Telling this '
-            'bus is never confirmed. Asking is. [[slnc 250]] A request is '
-            'a question with a reply address attached to it. When you '
-            'send a request under a name that nobody is listening to, the '
-            'server does not leave you waiting. It answers immediately, '
-            'and it says there are no responders. That is the only moment '
-            'on this bus where a publisher ever learns that its words '
-            'went nowhere.'
+            'There is one way out, and it is worth knowing. [[slnc 400]] '
+            'Telling this bus is never confirmed. [[slnc 300]] But asking '
+            'is. [[slnc 500]] A request is a question, with a reply '
+            'address attached. [[slnc 300]] Send a request under a name '
+            'that nobody is listening to. [[slnc 300]] And the server '
+            'answers at once, saying: no responders. [[slnc 500]] That is '
+            'the only moment on this bus when a publisher learns its '
+            'words went nowhere.'
         ),
     ),
     dict(
@@ -216,108 +216,108 @@ SCENES = [
 
   1 container to run and watch.""",
         narration=(
-            'Last, the bill. Who reacts to an order being placed? Nothing '
-            'in checkout says, and checkout genuinely cannot find out. '
-            'The hand-built bus was an object you could ask. This one is '
-            'a separate program, and only it knows, so it has to be asked '
-            'on a second port that exists for that. It reports three '
-            'listeners for store events. [[slnc 300]] Analytics then '
-            'stops listening while keeping its connection open: two. Then '
-            'all three services close their connections: none, because '
-            'closing a connection takes every listener on it at once. '
-            '[[slnc 300]] And the bus is now a program of its own to run, '
-            'to watch and to keep up. This demo needed one container. '
-            'And it keeps nothing, so a subscriber that is down when an '
-            'event is published has missed it for good.'
+            'Finally, the costs. [[slnc 400]] Who reacts to an order '
+            'being placed? [[slnc 300]] Nothing in checkout says, and '
+            'checkout cannot find out. [[slnc 300]] Only the server '
+            'knows. [[slnc 300]] So you must ask the server, on a '
+            'separate monitoring port. [[slnc 500]] It reports three '
+            'listeners for store events. [[slnc 300]] Analytics stops '
+            'listening: two. [[slnc 300]] All three services disconnect: '
+            'none. [[slnc 500]] And the bus is now a program of its own, '
+            'to run, watch, and maintain. [[slnc 300]] Most importantly, '
+            'it keeps nothing. [[slnc 300]] A subscriber that is down '
+            'when an event is published has missed it for good.'
         ),
     ),
     dict(
         key='11-contrast', kind='bullets', title='The Opposite Trade',
         body=['A durable log keeps events, so a', 'service that was down catches up', 'later.', '', 'Its price: storage, tracking every', 'reader, and the same event', 'possibly arriving twice.', '', 'NATS chooses the other side of', 'every one of those.'],
         narration=(
-            'It is worth knowing what the other choice looks like, '
-            'because this course covers both. A durable log keeps every '
-            'event it is given. A service that was down comes back and '
-            'reads everything it missed, and a brand new service can be '
-            'built from the whole history. [[slnc 300]] The price is '
-            'real: the server stores the events, it tracks how far every '
-            'reader has got, and it may hand the same event over twice, '
-            'so every reader has to be safe to repeat. [[slnc 300]] NATS '
-            'chooses the other side of every one of those. Neither is '
-            'right in general. Pick the one that matches what a missed '
-            'event would actually cost you.'
+            'It is worth knowing the opposite choice, because this series '
+            'covers both. [[slnc 500]] A durable log keeps every event it '
+            'is given. [[slnc 300]] A service that was down comes back, '
+            'and reads everything it missed. [[slnc 300]] And a brand new '
+            'service can be built from the whole history. [[slnc 500]] '
+            'The price is real. [[slnc 300]] The server stores the '
+            'events, tracks how far each reader has got, and may deliver '
+            'the same event twice. [[slnc 300]] So every reader must be '
+            'safe to run twice. [[slnc 500]] NATS makes the opposite '
+            'choice on every one of those. [[slnc 300]] Neither is right '
+            'in general. [[slnc 300]] Choose based on what a missed event '
+            'would really cost you.'
         ),
     ),
     dict(
         key='12-verdict', kind='bullets', title='The Verdict',
         body=['Use it for announcements, not for', 'anything you cannot lose.', '', 'Name subjects for facts in the', 'past tense, and agree them as a', 'team.', '', 'Wait for the server to confirm a', 'subscription before publishing.'],
         narration=(
-            'My verdict, plainly. Use this kind of bus for announcements: '
-            'cache invalidations, live dashboards, telemetry, anything '
-            'where the next event makes the last one irrelevant. [[slnc '
-            '250]] Name your subjects for facts in the past tense, and '
-            'agree the naming as a team, because the names are the '
-            'contract and nothing checks them for you. [[slnc 250]] '
-            'Always wait for the server to confirm a subscription before '
-            'you publish something you want that subscriber to hear. And '
-            'when an event genuinely must not be lost, do not reach for a '
-            'longer timeout. Reach for a durable log, or ask instead of '
-            'telling.'
+            'So, here is the verdict. [[slnc 400]] Use this kind of bus '
+            'for announcements, where the next event makes the last one '
+            'irrelevant. [[slnc 300]] Clearing caches, live dashboards, '
+            'and system measurements. [[slnc 500]] Name your subjects as '
+            'facts in the past tense, and agree the names as a team. '
+            '[[slnc 300]] Because the names are the contract, and nothing '
+            'checks them for you. [[slnc 500]] Always wait for the server '
+            'to confirm a subscription before publishing something that '
+            'subscriber must hear. [[slnc 500]] And when an event must '
+            'never be lost, use a durable log, or ask instead of telling.'
         ),
     ),
     dict(
         key='13-recognise', kind='bullets', title='How To Recognise It',
         body=['Publish and subscribe taking a', 'dotted string.', '', 'Subject names with a star or an', 'arrow in them.', '', 'A flush before a publish: that is', 'somebody who has been bitten.'],
         narration=(
-            'How do you recognise this in code you did not write? A '
-            'connection object with publish and subscribe on it, both '
-            'taking a dotted string rather than a class. [[slnc 200]] '
-            'Subject names with a star or an arrow in them. A dispatcher, '
-            'which is just a subscription with a handler attached instead '
-            'of a loop. [[slnc 200]] And a flush call right before a '
-            'publish. That one is somebody who has already been bitten by '
-            'publishing before the server had agreed to the subscription.'
+            'How can you spot this in code someone else wrote? [[slnc '
+            '400]] Look for a connection with publish and subscribe '
+            'methods, taking a dotted name, not a class. [[slnc 300]] '
+            'Look for subject names containing a star, or an arrow. '
+            '[[slnc 300]] And look for a flush call, just before a '
+            'publish. [[slnc 300]] That is someone who has already been '
+            'caught out, by publishing before the server confirmed a '
+            'subscription.'
         ),
     ),
     dict(
         key='14-versions', kind='bullets', title='What Was Used',
         body=['NATS server 2.15.0, in a', 'container.', '', 'The NATS Java client, 2.26.3.', '', 'Testcontainers 2.0.5, which', 'starts and stops the container.', '', 'Java 21, and Docker 24 or later.'],
         narration=(
-            'For the record. The NATS server, version 2 point 15 point '
-            'zero, running in a container. The official NATS client for '
-            'Java, version 2 point 26 point 3. Testcontainers, version 2 '
-            'point zero point 5, which starts the container and stops it '
-            'again. Java 21, and Docker 24 or later.'
+            'For the record, here are the versions. [[slnc 300]] The NATS '
+            'server, version two point fifteen, in a container. [[slnc '
+            '300]] The NATS Java client, version two point twenty-six '
+            'point three. [[slnc 300]] Testcontainers two point zero '
+            'point five, which starts and stops the container. [[slnc '
+            '300]] Java twenty-one, and Docker twenty-four or later.'
         ),
     ),
     dict(
         key='15-real', kind='bullets', title='What Is Real Here',
         body=['Everything is real: a real server', 'in a container, real subjects,', 'real dropped events.', '', 'No test sleeps. Every wait has a', 'deadline and fails rather than', 'hangs.'],
         narration=(
-            'The same honest admission as everywhere in this course. '
-            'Everything here is real: a real NATS server in a container, '
-            'real subjects, and events that are really dropped. [[slnc '
-            '250]] And no test anywhere in this project sleeps for a '
-            'fixed time. Every wait has a deadline, and when the deadline '
-            'passes the test fails and says who was waiting for what, '
-            'rather than hanging.'
+            'A quick, honest note about this demo. [[slnc 400]] '
+            'Everything here is real. [[slnc 300]] A real NATS server in '
+            'a container, real subjects, and events that are really '
+            'dropped. [[slnc 500]] And no test ever just sleeps for a '
+            'fixed time. [[slnc 300]] Every wait has a deadline. [[slnc '
+            '300]] If the deadline passes, the test fails, and says what '
+            'it was waiting for, instead of hanging.'
         ),
     ),
     dict(
         key='16-outro', kind='outro', title='Thanks for Watching',
         body=['Full source, notes, diagrams and an animated walkthrough', 'are in the repository. Try adding a loyalty service that', 'listens for payments, and watch it hear nothing else.'],
         narration=(
-            "That's the Event Bus pattern with NATS. [[slnc 250]] If you "
-            'take one sentence away, take this one: on this bus, '
-            'publishing always succeeds, and succeeding means nothing. '
-            '[[slnc 350]] The full source, the written notes, the '
-            'diagrams and an animated walkthrough you can step through '
-            'are all in the repository. [[slnc 300]] If you try one '
-            'exercise, add a loyalty service that listens for payments '
-            'taken, and watch it hear the payment and nothing else. '
-            '[[slnc 300]] If this helped, a like genuinely does help '
-            'other people find it, and subscribe if you would like the '
-            'rest of the series. [[slnc 250]] Thanks for watching.'
+            "That's the Event Bus pattern, with NATS. [[slnc 400]] If you "
+            'remember one sentence, make it this one. [[slnc 300]] On '
+            'this bus, publishing always succeeds, and succeeding means '
+            'nothing. [[slnc 500]] The full source code, written notes, '
+            'diagrams, and an animated walkthrough are all in the '
+            'repository. [[slnc 500]] Here is one exercise to try. [[slnc '
+            '300]] Add a loyalty service that listens only for payments '
+            'taken. [[slnc 300]] And check that it hears the payment, and '
+            'nothing else. [[slnc 500]] If this helped, a like really '
+            'does help other people find it. [[slnc 300]] And subscribe, '
+            "if you'd like the rest of the series. [[slnc 400]] Thanks "
+            'for watching.'
         ),
     ),
 ]

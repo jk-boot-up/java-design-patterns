@@ -10,19 +10,22 @@ SCENES = [
         key='01-poster', kind='poster', title='Aggregate',
         body=None,
         narration=(
-            'Hello, and welcome. This video explains the Aggregate '
-            'pattern in Java, and it is written and presented by '
-            'Jayasekhar Konduru. [[slnc 300]] The plain definition: an '
-            'aggregate is a small cluster of objects that is treated as '
-            'one unit. It has one root, which is the only way in, so the '
-            'rules that span the cluster cannot be broken from outside. '
-            '[[slnc 350]] This is the second project in the domain-driven '
-            'design category, whose subject is writing code that says '
-            'what the business says. In our online store, the cluster is '
-            'an order and its lines. [[slnc 300]] By the end you will see '
-            'an order break every one of its own rules when anyone can '
-            'reach inside it, then see one root guard them all, why it '
-            'refers to other aggregates only by id, how it is saved '
+            'Hello, and welcome. [[slnc 400]] This video explains the '
+            'Aggregate pattern, in Java. [[slnc 300]] This video is '
+            'presented by Jayasekhar Konduru. [[slnc 600]] First, a '
+            'simple definition. [[slnc 300]] An aggregate is a small '
+            'group of objects that is treated as one unit. [[slnc 300]] '
+            'It has one main object, called the root, which is the only '
+            'way in. [[slnc 300]] So the rules that cover the whole group '
+            'cannot be broken from outside. [[slnc 600]] Think of a bank '
+            "teller's window. [[slnc 300]] You cannot reach into the "
+            'vault yourself. [[slnc 300]] Every deposit and withdrawal '
+            'goes through the teller, who checks the rules. [[slnc 700]] '
+            'In our online store, the group is an order, and its lines. '
+            '[[slnc 500]] In this video, an order breaks all its own '
+            'rules, when anyone can reach inside it. [[slnc 300]] Then '
+            'one root guards them all. [[slnc 300]] We will hear why it '
+            'refers to other groups only by I D, how it is saved as a '
             'whole, and how drawing it too big goes wrong.'
         ),
     ),
@@ -30,12 +33,14 @@ SCENES = [
         key='02-scenario', kind='bullets', title='The Scenario',
         body=['An order has lines.', '', 'Rules span the lines:', 'one to ten of an item,', 'one line per item,', 'a total under a thousand pounds,', 'and a placed order cannot change.', '', 'Who enforces them?'],
         narration=(
-            'Here is the scenario. In the online store, an order has '
-            'lines. And there are rules that span the lines. A line holds '
-            'between one and ten of an item. An item appears on one line '
-            'only. The total may not pass a thousand pounds. And a placed '
-            'order cannot change. [[slnc 300]] The question: who enforces '
-            'them?'
+            'Here is the scenario. [[slnc 400]] In our online store, an '
+            'order has lines. [[slnc 300]] And some rules cover all the '
+            'lines together. [[slnc 500]] A line holds between one and '
+            'ten of an item. [[slnc 300]] Each item appears on only one '
+            'line. [[slnc 300]] The total may not go over one thousand '
+            'pounds. [[slnc 300]] And once an order is placed, it cannot '
+            'change. [[slnc 500]] So here is the question. [[slnc 300]] '
+            'Who enforces these rules?'
         ),
     ),
     dict(
@@ -50,23 +55,26 @@ SCENES = [
   every rule lives in the
   caller's head.""",
         narration=(
-            'First, a loose order. It is a list with public fields. A '
-            'line of minus three mugs goes in. The same machine goes on '
-            'two lines. The total comes to nearly six thousand pounds, '
-            'far over the limit. And a line is added after the order was '
-            'placed. [[slnc 300]] Every rule is true only in the head of '
-            'whoever wrote the caller.'
+            'First, a loose order. [[slnc 400]] It is just a list, with '
+            'public fields. [[slnc 500]] A line of minus three mugs goes '
+            'in. [[slnc 300]] The same machine goes on two separate '
+            'lines. [[slnc 300]] The total reaches nearly six thousand '
+            'pounds, far over the limit. [[slnc 300]] And a line is added '
+            'after the order was placed. [[slnc 500]] All of it is '
+            'accepted. [[slnc 300]] Every rule exists only in the head of '
+            'whoever wrote the calling code.'
         ),
     ),
     dict(
         key='04-pattern', kind='bullets', title='The Pattern',
         body=['One root: the Order.', '', 'Its lines cannot be reached, or', 'built, except through it.', '', 'Every rule that spans the lines', 'lives in the root.', '', 'Other aggregates: by id only.'],
         narration=(
-            'The pattern. One root, the order. Its lines cannot be '
-            'reached, or even built, except through it. Every rule that '
-            'spans the lines lives in the root, so there is exactly one '
-            'place to look. And it refers to other aggregates, like the '
-            'customer, by id only.'
+            'Now, the pattern. [[slnc 400]] There is one root: the Order. '
+            '[[slnc 300]] Its lines cannot be reached, or even created, '
+            'except through it. [[slnc 500]] Every rule that covers the '
+            'lines lives in the root. [[slnc 300]] So there is exactly '
+            'one place to look. [[slnc 500]] And other aggregates, such '
+            'as the customer, are referred to by I D only.'
         ),
     ),
     dict(
@@ -79,12 +87,14 @@ SCENES = [
   after place(): refused.
   empty: refused.""",
         narration=(
-            'Second, the same operations through the root. Nought mugs is '
-            'refused. Eleven mugs is refused. Six mugs are fine, but five '
-            'more of the same would make eleven, and that is refused too. '
-            'A total over a thousand pounds is refused. A change after '
-            'placing is refused, and an empty order cannot be placed. '
-            '[[slnc 300]] Six rules, each enforced, all in one class.'
+            'Second demo: the same actions, through the root. [[slnc '
+            '400]] Zero mugs is refused. [[slnc 300]] Eleven mugs is '
+            'refused. [[slnc 300]] Six mugs is fine. [[slnc 300]] But '
+            'five more of the same mug would make eleven, so that is '
+            'refused too. [[slnc 400]] A total over one thousand pounds '
+            'is refused. [[slnc 300]] A change after placing the order is '
+            'refused. [[slnc 300]] And an empty order cannot be placed. '
+            '[[slnc 500]] Six rules, each enforced, all in one class.'
         ),
     ),
     dict(
@@ -98,10 +108,11 @@ SCENES = [
 
   the root is the only way.""",
         narration=(
-            'Third, one door. The list of lines, seen from outside, is '
-            'read only. Trying to clear it throws. And an order line has '
-            'no public constructor, so no line can exist that the order '
-            'has not checked.'
+            'Third demo: there is only one door. [[slnc 400]] From '
+            'outside, the list of lines is read-only. [[slnc 300]] Trying '
+            'to clear it throws an error. [[slnc 500]] And an order line '
+            'has no public constructor. [[slnc 300]] So no line can exist '
+            'that the order has not checked.'
         ),
     ),
     dict(
@@ -116,11 +127,13 @@ SCENES = [
   the customer is another
   aggregate.""",
         narration=(
-            'Fourth, other aggregates by id. Three orders that hold the '
-            'whole customer object load the customer three times. Three '
-            'that hold only a customer id load none. The customer is a '
-            'different aggregate, with its own rules and its own saves. '
-            'An order should know who, not carry them.'
+            'Fourth demo: other aggregates, by I D. [[slnc 400]] Three '
+            'orders that each hold the whole customer object load the '
+            'customer three times. [[slnc 300]] Three orders that only '
+            'hold a customer I D load it no times at all. [[slnc 500]] '
+            'The customer is a separate aggregate, with its own rules, '
+            'and its own saves. [[slnc 300]] An order should know who the '
+            'customer is, not carry the customer around.'
         ),
     ),
     dict(
@@ -133,12 +146,13 @@ SCENES = [
   a half-updated order
   cannot exist.""",
         narration=(
-            'Fifth, saved whole. Two clerks read the same order, and each '
-            'add a line. Clerk A saves, and it is accepted. Clerk B '
-            'saves, and is refused, because the order changed since it '
-            'was read. [[slnc 300]] The order is read whole, changed '
-            "whole and saved whole. So an order with half of one clerk's "
-            'change cannot exist.'
+            'Fifth demo: saved whole, or not at all. [[slnc 400]] Two '
+            'clerks read the same order, and each adds a line. [[slnc '
+            '400]] Clerk A saves, and it is accepted. [[slnc 300]] Clerk '
+            'B saves, and it is refused, because the order changed since '
+            'B read it. [[slnc 500]] The order is read whole, changed '
+            'whole, and saved whole. [[slnc 300]] So an order with only '
+            "half of one clerk's change can never exist."
         ),
     ),
     dict(
@@ -152,70 +166,78 @@ SCENES = [
   one aggregate per order:
   both accepted.""",
         narration=(
-            'Last, the bill. Suppose the aggregate is the customer and '
-            'all their orders. Two clerks change two different orders. '
-            'The second save is refused, because both changed the '
-            'customer. That is a false conflict. [[slnc 300]] With one '
-            'aggregate per order, both saves go through. The boundary is '
-            'a choice, and drawing it too wide costs you real contention.'
+            'Finally, the cost of drawing it too big. [[slnc 400]] '
+            'Suppose the aggregate is the customer, together with all '
+            'their orders. [[slnc 400]] Two clerks change two different '
+            'orders. [[slnc 300]] The second save is refused, because '
+            'both changed the same customer aggregate. [[slnc 300]] That '
+            'is a false conflict. [[slnc 500]] With one aggregate per '
+            'order, both saves go through. [[slnc 300]] The boundary is a '
+            'choice. [[slnc 300]] And drawing it too wide costs you real '
+            'conflicts.'
         ),
     ),
     dict(
         key='10-recognise', kind='bullets', title='How To Recognise It',
         body=['Private collections, and methods', 'that add to them.', '', 'A read-only view, not the list.', '', 'A repository that saves the', 'root only.', '', 'Other aggregates held by id.'],
         narration=(
-            'How do you recognise this in code you did not write? A class '
-            'with private collections and methods that add to them. A '
-            'read only view returned instead of the list itself. A '
-            'repository that saves the order, and never a line. And other '
-            'aggregates held by id.'
+            'How can you spot this pattern in code someone else wrote? '
+            '[[slnc 400]] Look for a class with private collections, and '
+            'methods that add to them. [[slnc 300]] Look for a read-only '
+            'view being returned, instead of the list itself. [[slnc '
+            '300]] Look for a repository that saves the whole order, and '
+            'never a single line. [[slnc 300]] And look for other '
+            'aggregates held by I D.'
         ),
     ),
     dict(
         key='11-verdict', kind='bullets', title='The Verdict',
         body=['Draw it around what must be', 'consistent together.', '', 'One root, one way in.', '', 'The rules live in the root.', '', 'Other aggregates by id.', '', 'Save and load the whole.'],
         narration=(
-            'Here is my verdict, plainly. Draw the aggregate around what '
-            'must be consistent together, and no wider. Make one class '
-            'the root, and the only way in. Keep the rules in it. Refer '
-            'to other aggregates by id. And save and load the whole '
-            'thing.'
+            'So, here is the verdict. [[slnc 400]] Draw the aggregate '
+            'around what must stay consistent together, and no wider. '
+            '[[slnc 300]] Make one class the root, and the only way in. '
+            '[[slnc 300]] Keep the rules inside it. [[slnc 300]] Refer to '
+            'other aggregates by I D. [[slnc 300]] And save and load the '
+            'whole thing, together.'
         ),
     ),
     dict(
         key='12-real', kind='bullets', title='What Is Real Here',
         body=['Everything is plain Java.', '', 'The stores are in memory, and the', 'version check is a real check.', '', 'Two clerks are two loads in a row,', 'so every run is the same.'],
         narration=(
-            'The same honest admission as everywhere in this course. '
-            'Everything is plain Java. The stores are in memory, and the '
-            'version check is a real check. The two clerks are two loads, '
-            'one after the other, so every run is the same.'
+            'A quick, honest note about this demo. [[slnc 300]] '
+            'Everything is plain Java. [[slnc 300]] The storage is in '
+            'memory, and the version check is a real check. [[slnc 300]] '
+            'The two clerks load one after the other, so every run gives '
+            'the same result.'
         ),
     ),
     dict(
         key='13-too-much', kind='bullets', title='When This Is Too Much',
         body=['For a record with no rules across', 'its parts, one class is enough.', '', 'It earns its place when rules', 'span several objects.'],
         narration=(
-            'So when is it too much? For a plain record with no rules '
-            'across its parts, a single class is enough. An aggregate '
-            'earns its place when rules span several objects.'
+            'So, when is this too much? [[slnc 400]] For a simple record '
+            'with no rules across its parts, a single class is enough. '
+            '[[slnc 300]] An aggregate earns its place when rules cover '
+            'several objects together.'
         ),
     ),
     dict(
         key='14-outro', kind='outro', title='Thanks for Watching',
         body=['Full source, notes, diagrams and an animated walkthrough', 'are in the repository. Add a rule that an order can', 'hold at most five different items.'],
         narration=(
-            "That's Aggregate. [[slnc 250]] If you take one sentence "
-            'away, take this one: an aggregate is where a rule lives, and '
-            'where a save begins and ends. [[slnc 350]] The full source, '
-            'the written notes, the diagrams and an animated walkthrough '
-            'are all in the repository, running offline with nothing '
-            'installed but a Java development kit. [[slnc 300]] If you '
-            'try one exercise, add a rule that an order can hold at most '
-            'five different items, and see which class changes. [[slnc '
-            '300]] If this helped, a like genuinely does help other '
-            'people find it, and subscribe if you would like the rest of '
-            'the series. [[slnc 250]] Thanks for watching.'
+            "That's the Aggregate pattern. [[slnc 400]] If you remember "
+            'one sentence, make it this one. [[slnc 300]] An aggregate is '
+            'where a rule lives, and where a save begins and ends. [[slnc '
+            '500]] The full source code, written notes, diagrams, and an '
+            'animated walkthrough are all in the repository. [[slnc 500]] '
+            'Here is one exercise to try. [[slnc 300]] Add a rule that an '
+            'order can hold at most five different items. [[slnc 300]] '
+            'Then notice which class had to change. [[slnc 500]] If this '
+            'helped, a like really does help other people find it. [[slnc '
+            "300]] And subscribe, if you'd like the rest of the series. "
+            '[[slnc 400]] Thanks for watching.'
         ),
     ),
 ]

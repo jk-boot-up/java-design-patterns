@@ -19,19 +19,19 @@ The first two lines are what a viewer sees above the fold, so they carry the hoo
 ```
 CHAPTERS
 00:00 Introduction
-00:53 The Scenario
-01:07 Every Feature Inside
-01:21 The Pattern
-01:33 A Core And Plugins
-01:47 A New Feature, No Change
-02:05 A Plugin That Breaks
-02:18 Order Matters
-02:31 The Bill
-02:53 How To Recognise It
-03:10 The Verdict
-03:30 What Is Real Here
-03:43 When This Is Too Much
-03:58 Thanks for Watching
+00:56 The Scenario
+01:12 Every Feature Inside
+01:30 The Pattern
+01:43 A Core And Plugins
+02:01 A New Feature, No Change
+02:22 A Plugin That Breaks
+02:39 Order Matters
+03:03 The Bill
+03:30 How To Recognise It
+03:56 The Verdict
+04:24 What Is Real Here
+04:37 When This Is Too Much
+04:56 Thanks for Watching
 
 SOURCE CODE, WRITTEN NOTES AND AN INTERACTIVE ANIMATION
 https://github.com/jk-boot-up/java-design-patterns/tree/main/gradle-java/architectural-design-patterns/microkernel-pattern
@@ -46,19 +46,19 @@ YouTube renders these as chapters only if there are at least three and the first
 
 ```
 00:00 Introduction
-00:53 The Scenario
-01:07 Every Feature Inside
-01:21 The Pattern
-01:33 A Core And Plugins
-01:47 A New Feature, No Change
-02:05 A Plugin That Breaks
-02:18 Order Matters
-02:31 The Bill
-02:53 How To Recognise It
-03:10 The Verdict
-03:30 What Is Real Here
-03:43 When This Is Too Much
-03:58 Thanks for Watching
+00:56 The Scenario
+01:12 Every Feature Inside
+01:30 The Pattern
+01:43 A Core And Plugins
+02:01 A New Feature, No Change
+02:22 A Plugin That Breaks
+02:39 Order Matters
+03:03 The Bill
+03:30 How To Recognise It
+03:56 The Verdict
+04:24 What Is Real Here
+04:37 When This Is Too Much
+04:56 Thanks for Watching
 ```
 
 ## Tags
@@ -97,4 +97,4 @@ Add a card partway through pointing at the playlist, so a viewer who arrives at 
 
 ## Runtime
 
-Approximately 04:40, narrated at 145 words per minute.
+Approximately 05:36, narrated at 145 words per minute.

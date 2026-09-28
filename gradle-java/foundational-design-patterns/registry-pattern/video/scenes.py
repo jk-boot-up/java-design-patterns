@@ -10,31 +10,35 @@ SCENES = [
         key='01-poster', kind='poster', title='Registry',
         body=None,
         narration=(
-            'Hello, and welcome. This video explains the Registry pattern '
-            'in Java, and it is written and presented by Jayasekhar '
-            'Konduru. [[slnc 300]] The plain definition: a registry is a '
-            'well-known place where things are kept, so any object can '
-            'find what it needs by asking. [[slnc 350]] This is the third '
-            'project in the foundational category, and the first of three '
-            'that answer one question: how does an object get hold of '
-            'what it needs? Registry is a well-known place. The next '
-            'video, on Service Locator, adds a middleman. The one after, '
-            'on Dependency Injection, stops the asking altogether. All '
-            'three use the same three collaborators in our online store, '
-            'a discount policy, a payment gateway and a notifier, so you '
-            'can compare them. [[slnc 300]] By the end you will see why a '
-            'registry is a global variable with better manners, with '
-            'evidence.'
+            'Hello, and welcome. [[slnc 400]] This video explains the '
+            'Registry pattern, in Java. [[slnc 300]] This video is '
+            'presented by Jayasekhar Konduru. [[slnc 600]] First, a '
+            'simple definition. [[slnc 300]] A registry is a well-known '
+            'place where things are kept. [[slnc 300]] So any object can '
+            'find what it needs, just by asking. [[slnc 600]] Think of a '
+            'noticeboard in an office. [[slnc 300]] Anyone can walk up '
+            'and read the phone number they need. [[slnc 300]] But nobody '
+            'knows who pinned what, or when. [[slnc 700]] This is one of '
+            'three related patterns that answer one question. [[slnc '
+            '300]] How does an object get hold of what it needs? [[slnc '
+            '300]] The others are Service Locator, and Dependency '
+            'Injection, each with its own video. [[slnc 500]] In our '
+            'online store, the checkout needs a discount policy, a '
+            'payment gateway, and a notifier. [[slnc 300]] By the end, '
+            'you will hear, with evidence, why a registry is a global '
+            'variable with better manners.'
         ),
     ),
     dict(
         key='02-scenario', kind='bullets', title='The Scenario',
         body=['A checkout needs three things:', 'a discount policy,', 'a payment gateway,', 'and a notifier.', '', 'The payment gateway is needed six', 'classes down.'],
         narration=(
-            'Here is the scenario. The checkout needs three things: a '
-            'discount policy, a payment gateway, and a notifier. [[slnc '
-            '300]] And the payment gateway is needed six classes down '
-            'from where the checkout starts. How does it get there?'
+            'Here is the scenario. [[slnc 400]] The checkout needs three '
+            'helpers. [[slnc 300]] A discount policy, a payment gateway, '
+            'and a notifier. [[slnc 500]] And the payment gateway is '
+            'needed six classes down, from where the checkout starts. '
+            '[[slnc 500]] So here is the question. [[slnc 300]] How does '
+            'it get there?'
         ),
     ),
     dict(
@@ -48,25 +52,28 @@ SCENES = [
 
   only the last one uses it.""",
         narration=(
-            'The plain answer: pass it down. The gateway goes into the '
-            'storefront, which passes it to the cart service, which '
-            'passes it to the order coordinator, the pricing stage, the '
-            'payment stage, and finally the charger. Six constructors. '
-            '[[slnc 300]] Only the last one uses it. The other five '
-            'forward it. [[slnc 300]] I want to be fair to this. It is '
-            'real friction, and anyone who says otherwise has not had to '
-            'add a parameter to six constructors. But it is also honest. '
-            'Every dependency is visible, in a signature.'
+            'First, the plain answer: pass it down. [[slnc 400]] The '
+            'gateway goes into the storefront. [[slnc 300]] The '
+            'storefront passes it to the cart service. [[slnc 300]] Then '
+            'to the order coordinator, the pricing stage, the payment '
+            'stage, and finally the charger. [[slnc 300]] Six '
+            'constructors. [[slnc 500]] Only the last one actually uses '
+            'it. [[slnc 300]] The other five just pass it along. [[slnc '
+            '500]] To be fair, that is real friction. [[slnc 300]] But it '
+            'is also honest. [[slnc 300]] Every dependency is visible, in '
+            'a constructor.'
         ),
     ),
     dict(
         key='04-pattern', kind='bullets', title='The Pattern',
         body=['A well-known object others can', 'find things in.', '', 'Registry.get(PaymentGateway.class)', '', 'The six constructors collapse.'],
         narration=(
-            'The pattern: a well-known object that others find things in. '
-            'Registry dot get, payment gateway. From anywhere. [[slnc '
-            "300]] The six constructors collapse. The checkout's "
-            'constructor takes nothing at all. The friction is gone.'
+            'Now, the pattern. [[slnc 400]] A well-known object that '
+            'others can find things in. [[slnc 300]] Registry dot get, '
+            'payment gateway. [[slnc 300]] From anywhere in the code. '
+            '[[slnc 500]] The six constructors collapse. [[slnc 300]] The '
+            "checkout's constructor takes nothing at all. [[slnc 300]] "
+            'The friction is gone.'
         ),
     ),
     dict(
@@ -78,10 +85,11 @@ SCENES = [
   six constructors became
   none.""",
         narration=(
-            'And it works. The registry checkout takes nothing in its '
-            'constructor. It asks the registry for the discount policy, '
-            'the gateway and the notifier, when it needs them. [[slnc '
-            '300]] Six constructors became none. And that is exactly '
+            'Second demo: it works. [[slnc 400]] The registry checkout '
+            'takes nothing in its constructor. [[slnc 300]] It asks the '
+            'registry for the discount policy, the gateway, and the '
+            'notifier, whenever it needs them. [[slnc 500]] Six '
+            'constructors became none. [[slnc 300]] And that is exactly '
             'where the trouble starts.'
         ),
     ),
@@ -98,13 +106,14 @@ SCENES = [
   nothing is registered for
   DiscountPolicy.""",
         narration=(
-            'First cost. The dependencies become invisible. New registry '
-            'checkout compiles, and constructs, and looks perfectly fine. '
-            'Its signature says it needs nothing. [[slnc 300]] Then the '
-            'first call fails: nothing is registered for discount policy. '
-            'Three things had to be registered first, and nothing in the '
-            'class says so. The compiler could not tell you. Neither '
-            'could the constructor.'
+            'Third demo: the first cost, invisible dependencies. [[slnc '
+            '400]] Creating a registry checkout compiles, and looks '
+            'perfectly fine. [[slnc 300]] Its constructor says it needs '
+            'nothing. [[slnc 500]] Then the first call fails. [[slnc '
+            '300]] Nothing is registered for the discount policy. [[slnc '
+            '500]] Three things had to be registered first. [[slnc 300]] '
+            'And nothing in the class says so. [[slnc 300]] The compiler '
+            'could not tell you, and neither could the constructor.'
         ),
     ),
     dict(
@@ -119,14 +128,16 @@ SCENES = [
   neither test changed.
   the order did.""",
         narration=(
-            'Second cost, and the one teams meet first. Two tests share '
-            'the registry. One leaves a gateway behind, with a charge '
-            'already on it. The other expects exactly one charge in '
-            'total. [[slnc 300]] In one order, both pass. In the other '
-            'order, the second test fails: it saw two charges. [[slnc '
-            '300]] Neither test changed. The order they ran in did. This '
-            'is the kind of failure that costs a team a day, and it comes '
-            'from global state.'
+            'Fourth demo: the second cost, and the one teams meet first. '
+            '[[slnc 400]] Two tests share the registry. [[slnc 300]] One '
+            'leaves a gateway behind, with a charge already on it. [[slnc '
+            '300]] The other expects exactly one charge in total. [[slnc '
+            '500]] Run them in one order, and both pass. [[slnc 300]] Run '
+            'them in the other order, and the second test fails, because '
+            'it saw two charges. [[slnc 500]] Neither test changed. '
+            '[[slnc 300]] Only the order they ran in did. [[slnc 300]] '
+            'This kind of failure can cost a team a whole day. [[slnc '
+            '300]] And it comes from shared, global state.'
         ),
     ),
     dict(
@@ -141,83 +152,90 @@ SCENES = [
 
   in no one file.""",
         narration=(
-            'Third cost. What is in the registry, right now? At start-up, '
-            'nothing. After one class ran, the discount policy. After two '
-            'more, all three. [[slnc 300]] That answer is not in any one '
-            'file. It depends on what has run, and in what order. And it '
-            'is a static map, shared by every thread, so thread safety is '
-            'now a question too.'
+            'Fifth demo: the third cost. [[slnc 400]] What is in the '
+            'registry, right now? [[slnc 500]] At start-up: nothing. '
+            '[[slnc 300]] After one class has run: the discount policy. '
+            '[[slnc 300]] After two more: all three. [[slnc 500]] That '
+            'answer is not written in any one file. [[slnc 300]] It '
+            'depends on what has run, and in what order. [[slnc 300]] And '
+            'the registry is shared by every thread, so thread safety '
+            'becomes a question too.'
         ),
     ),
     dict(
         key='09-where', kind='bullets', title='Where A Registry Is Right',
         body=['A very few things that are truly', 'application-wide,', '', 'set up once at start-up,', 'and never changed.'],
         narration=(
-            'Is there a place where a registry is the right answer? Yes. '
-            'A very small number of things that are truly '
-            'application-wide, set up once at start-up, and never '
-            'changed. [[slnc 300]] Not collaborators that vary. Not '
-            'anything a test needs to replace.'
+            'So, is a registry ever the right answer? [[slnc 400]] Yes. '
+            '[[slnc 300]] For a very small number of things that are '
+            'truly application-wide. [[slnc 300]] Set up once, at '
+            'start-up, and never changed. [[slnc 500]] But not for '
+            'helpers that vary. [[slnc 300]] And not for anything a test '
+            'needs to replace.'
         ),
     ),
     dict(
         key='10-verdict', kind='bullets', title='The Verdict',
         body=['Use a registry narrowly.', '', 'A very few application-wide things,', 'set up once.', '', 'Not for collaborators, and not for', 'anything that tests must replace.'],
         narration=(
-            'My verdict, plainly. Use a registry narrowly. For a very few '
-            'application-wide things, set up once. Not for the '
-            'collaborators of your business logic, and not for anything a '
-            'test must replace. [[slnc 300]] And the problem it leaves, '
-            'invisible dependencies, is what the next video tries to fix, '
-            'with a middleman that can find and create things.'
+            'So, here is the verdict. [[slnc 400]] Use a registry '
+            'narrowly. [[slnc 300]] For a very few application-wide '
+            'things, set up once. [[slnc 500]] Not for the helpers of '
+            'your business logic. [[slnc 300]] And not for anything a '
+            'test must replace. [[slnc 500]] The problem it leaves, '
+            'invisible dependencies, is what the Service Locator pattern '
+            'tries to fix.'
         ),
     ),
     dict(
         key='11-recognise', kind='bullets', title='How To Recognise It',
         body=['Static get, lookup, getInstance.', 'System.getProperties(),', 'Locale.getDefault().', '', 'A Context passed everywhere.', '', 'A BeforeEach that clears something', 'static, because tests leaked.'],
         narration=(
-            'How do you recognise this in code you did not write? A class '
-            'with static get, lookup, or get instance methods, keyed by '
-            'type or by name. System dot get properties. Locale dot get '
-            'default. A context object passed everywhere. And the '
-            'giveaway: a before each method that clears something static, '
-            'because tests were leaking into each other.'
+            'How can you spot this pattern in code someone else wrote? '
+            '[[slnc 400]] Look for a class with static get, lookup, or '
+            'get instance methods, keyed by type or by name. [[slnc 300]] '
+            'In Java itself, System get properties, and Locale get '
+            'default. [[slnc 300]] Look for a context object passed '
+            'everywhere. [[slnc 500]] And the giveaway: a test setup '
+            'method that clears something static, because tests were '
+            'leaking into each other.'
         ),
     ),
     dict(
         key='12-real', kind='bullets', title='What Is Real Here',
         body=['Everything is plain Java.', 'The test order is simulated by running', 'two test bodies in both orders,', 'in one shared registry.', '', 'The failure is exactly the real one.'],
         narration=(
-            'The same honest admission as everywhere in this course. It '
-            'is all plain Java. The two orders are simulated by running '
-            'two test bodies, in each order, against one shared registry. '
-            'But the failure is exactly the real one, and it is in the '
-            "project's own tests."
+            'A quick, honest note about this demo. [[slnc 400]] '
+            'Everything is plain Java. [[slnc 300]] The two test orders '
+            'are simulated, by running two tests in each order, against '
+            'one shared registry. [[slnc 500]] But the failure is exactly '
+            "the real one. [[slnc 300]] And it is in the project's own "
+            'tests.'
         ),
     ),
     dict(
         key='13-too-much', kind='bullets', title='When This Is Too Much',
         body=['For nearly everything that is not', 'truly application-wide.'],
         narration=(
-            'So when is a registry too much? For nearly everything that '
-            'is not truly application-wide.'
+            'So, when is a registry too much? [[slnc 400]] For nearly '
+            'everything that is not truly application-wide.'
         ),
     ),
     dict(
         key='14-outro', kind='outro', title='Thanks for Watching',
         body=['Full source, notes, diagrams and an animated walkthrough', 'are in the repository. Run the two tests in both', 'orders yourself, and see which one fails.'],
         narration=(
-            "That's the Registry. [[slnc 250]] If you take one sentence "
-            'away, take this one: a registry removes the friction of '
-            'passing things down, and pays for it by hiding what every '
-            'class needs. [[slnc 350]] The full source, the written '
-            'notes, the diagrams and an animated walkthrough are all in '
-            'the repository, running offline with nothing installed but a '
-            'Java development kit. [[slnc 300]] If you try one exercise, '
-            'run the two tests in both orders yourself, and see which one '
-            'fails. [[slnc 300]] If this helped, a like genuinely does '
-            'help other people find it, and subscribe if you would like '
-            'the rest of the series. [[slnc 250]] Thanks for watching.'
+            "That's the Registry pattern. [[slnc 400]] If you remember "
+            'one sentence, make it this one. [[slnc 300]] A registry '
+            'removes the friction of passing things down, and pays for it '
+            'by hiding what every class needs. [[slnc 500]] The full '
+            'source code, written notes, diagrams, and an animated '
+            'walkthrough are all in the repository. [[slnc 500]] Here is '
+            'one exercise to try. [[slnc 300]] Run the two tests in both '
+            'orders yourself. [[slnc 300]] And see which one fails. '
+            '[[slnc 500]] If this helped, a like really does help other '
+            "people find it. [[slnc 300]] And subscribe, if you'd like "
+            'the rest of the series. [[slnc 400]] Thanks for watching.'
         ),
     ),
 ]

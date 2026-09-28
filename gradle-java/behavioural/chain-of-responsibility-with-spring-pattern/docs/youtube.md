@@ -19,21 +19,21 @@ The first two lines are what a viewer sees above the fold, so they carry the hoo
 ```
 CHAPTERS
 00:00 Introduction
-00:49 The Partner Project
-01:13 Before The First Line
-01:34 Spring Builds The Chain
-01:50 Five Requests
-02:06 The Order Is The Cost
-02:25 A Link That Throws
-02:43 Switched Off By A Property
-03:03 Nobody Answers
-03:18 The Verdict
-03:29 How To Recognise It
-03:41 Where You Have Met This
-03:48 What Was Used
-03:56 What Is Real Here
-04:08 When This Is Too Much
-04:15 Thanks for Watching
+00:58 The Partner Project
+01:25 Before The First Line
+01:48 Spring Builds The Chain
+02:06 Five Requests
+02:29 The Order Is The Cost
+02:53 A Link That Throws
+03:16 Switched Off By A Property
+03:39 Nobody Answers
+04:00 The Verdict
+04:13 How To Recognise It
+04:27 Where You Have Met This
+04:36 What Was Used
+04:45 What Is Real Here
+04:56 When This Is Too Much
+05:03 Thanks for Watching
 
 SOURCE CODE, WRITTEN NOTES AND AN INTERACTIVE ANIMATION
 https://github.com/jk-boot-up/java-design-patterns/tree/main/gradle-java/behavioural/chain-of-responsibility-with-spring-pattern
@@ -48,21 +48,21 @@ YouTube renders these as chapters only if there are at least three and the first
 
 ```
 00:00 Introduction
-00:49 The Partner Project
-01:13 Before The First Line
-01:34 Spring Builds The Chain
-01:50 Five Requests
-02:06 The Order Is The Cost
-02:25 A Link That Throws
-02:43 Switched Off By A Property
-03:03 Nobody Answers
-03:18 The Verdict
-03:29 How To Recognise It
-03:41 Where You Have Met This
-03:48 What Was Used
-03:56 What Is Real Here
-04:08 When This Is Too Much
-04:15 Thanks for Watching
+00:58 The Partner Project
+01:25 Before The First Line
+01:48 Spring Builds The Chain
+02:06 Five Requests
+02:29 The Order Is The Cost
+02:53 A Link That Throws
+03:16 Switched Off By A Property
+03:39 Nobody Answers
+04:00 The Verdict
+04:13 How To Recognise It
+04:27 Where You Have Met This
+04:36 What Was Used
+04:45 What Is Real Here
+04:56 When This Is Too Much
+05:03 Thanks for Watching
 ```
 
 ## Tags
@@ -101,4 +101,4 @@ Add a card partway through pointing at the playlist, so a viewer who arrives at 
 
 ## Runtime
 
-Approximately 04:48, narrated at 145 words per minute.
+Approximately 05:39, narrated at 145 words per minute.

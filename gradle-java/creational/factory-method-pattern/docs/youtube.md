@@ -21,20 +21,20 @@ Learn the Factory Method pattern in Java 21 by building an online store's delive
 
 CHAPTERS
 00:00 Introduction
-00:54 The Scenario
-01:23 The Workflow Is Always the Same
+00:52 The Scenario
+01:22 The Workflow Is Always the Same
 01:51 The Problem — One Class Doing Both Jobs
-02:10 Why That Hurts
-02:46 The Factory Method
-03:15 Remember It With a Coffee Chain
-03:53 The Four Roles
-04:29 A Product — Small, Focused, Unaware
-04:54 The Creator — A Workflow With a Hole in It
-05:30 A Concrete Creator — Six Lines
-06:00 What You Gain
-06:40 Running It
-07:08 Wrap Up
-07:58 Thanks for Watching
+02:09 Why That Hurts
+02:44 The Factory Method
+03:10 Remember It With a Coffee Chain
+03:46 The Four Roles
+04:20 A Product — Small, Focused, Unaware
+04:46 The Creator — A Workflow With a Hole in It
+05:23 A Concrete Creator — Six Lines
+05:57 What You Gain
+06:33 Running It
+07:03 Wrap Up
+07:48 Thanks for Watching
 
 SOURCE CODE, WRITTEN NOTES AND AN INTERACTIVE ANIMATION
 https://github.com/jk-boot-up/java-design-patterns/tree/main/gradle-java/creational/factory-method-pattern
@@ -49,20 +49,20 @@ YouTube renders these as chapters only if there are at least three and the first
 
 ```
 00:00 Introduction
-00:54 The Scenario
-01:23 The Workflow Is Always the Same
+00:52 The Scenario
+01:22 The Workflow Is Always the Same
 01:51 The Problem — One Class Doing Both Jobs
-02:10 Why That Hurts
-02:46 The Factory Method
-03:15 Remember It With a Coffee Chain
-03:53 The Four Roles
-04:29 A Product — Small, Focused, Unaware
-04:54 The Creator — A Workflow With a Hole in It
-05:30 A Concrete Creator — Six Lines
-06:00 What You Gain
-06:40 Running It
-07:08 Wrap Up
-07:58 Thanks for Watching
+02:09 Why That Hurts
+02:44 The Factory Method
+03:10 Remember It With a Coffee Chain
+03:46 The Four Roles
+04:20 A Product — Small, Focused, Unaware
+04:46 The Creator — A Workflow With a Hole in It
+05:23 A Concrete Creator — Six Lines
+05:57 What You Gain
+06:33 Running It
+07:03 Wrap Up
+07:48 Thanks for Watching
 ```
 
 ## Tags
@@ -101,4 +101,4 @@ Add a card partway through pointing at the playlist, so a viewer who arrives at 
 
 ## Runtime
 
-Approximately 08:24, narrated at 145 words per minute.
+Approximately 08:19, narrated at 145 words per minute.

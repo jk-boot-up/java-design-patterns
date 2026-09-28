@@ -10,32 +10,35 @@ SCENES = [
         key='01-poster', kind='poster', title='Microkernel',
         body=None,
         narration=(
-            'Hello, and welcome. This video explains the Microkernel '
-            'pattern in Java, and it is written and presented by '
-            'Jayasekhar Konduru. [[slnc 300]] The plain definition: a '
-            'microkernel keeps a small core that only knows how to keep '
-            'plugins and run them. Every feature lives in a plugin. '
-            '[[slnc 350]] This is another project in the architecture '
-            'category, whose subject is how a whole application is '
-            'arranged, and who may depend on whom. In our online store, '
-            'the checkout keeps gaining features, and every one means '
-            'editing the same class. [[slnc 300]] By the end you will see '
-            'a checkout that has to be edited for every new feature, see '
-            'a core and plugins, see a plugin added and removed while '
-            'running, see a broken plugin not stop the others, see the '
-            'order of plugins change the price, and see the bill, which '
-            'is a narrow interface and results that depend on what is '
-            'installed.'
+            'Hello, and welcome. [[slnc 400]] This video explains the '
+            'Microkernel pattern, in Java. [[slnc 300]] This video is '
+            'presented by Jayasekhar Konduru. [[slnc 600]] First, a '
+            'simple definition. [[slnc 300]] A microkernel is a small '
+            'core that knows only one thing: how to keep plugins, and run '
+            'them. [[slnc 300]] Every actual feature lives in a plugin. '
+            '[[slnc 600]] Think of a power strip. [[slnc 300]] The strip '
+            'itself does very little. [[slnc 300]] It just gives power to '
+            'whatever you plug in: a lamp, a fan, a charger. [[slnc 300]] '
+            'You add or remove devices without rewiring the strip. [[slnc '
+            '700]] In our online store, the checkout keeps gaining new '
+            'features. [[slnc 300]] And every new feature means editing '
+            'the same class. [[slnc 500]] In this video, we move those '
+            'features into plugins. [[slnc 300]] We will add and remove a '
+            'plugin while the shop is running, survive a broken plugin, '
+            'and see why the order of plugins matters. [[slnc 300]] Then '
+            'we will look at the cost.'
         ),
     ),
     dict(
         key='02-scenario', kind='bullets', title='The Scenario',
         body=['The checkout has a member', 'discount and a shipping fee.', '', 'Now marketing wants gift wrap,', 'then loyalty points,', 'then more.', '', 'Must we edit the checkout', 'every time?'],
         narration=(
-            'Here is the scenario. The checkout has a member discount and '
-            'a shipping fee. Now the marketing team wants gift wrap, then '
-            'loyalty points, then more. [[slnc 300]] The question: must '
-            'we edit the checkout every time?'
+            'Here is the scenario. [[slnc 400]] The checkout already has '
+            'a member discount, and a shipping fee. [[slnc 300]] Now the '
+            'marketing team wants gift wrap. [[slnc 300]] Then loyalty '
+            'points. [[slnc 300]] Then more. [[slnc 500]] So here is the '
+            'question. [[slnc 300]] Must we edit the checkout every '
+            'single time?'
         ),
     ),
     dict(
@@ -48,19 +51,23 @@ SCENES = [
   test all of it, release all of
   it.""",
         narration=(
-            'First, every feature inside. Gift wrap is asked for, and the '
-            'checkout does not support it. The total is unchanged. To add '
-            'it, we must edit the checkout, test all of it again, and '
-            'release all of it.'
+            'First, the old way: every feature inside the checkout. '
+            '[[slnc 400]] A customer asks for gift wrap. [[slnc 300]] The '
+            'checkout does not support it, so the total stays the same. '
+            '[[slnc 500]] To add gift wrap, we must edit the checkout. '
+            '[[slnc 300]] Then test all of it again. [[slnc 300]] Then '
+            'release all of it again.'
         ),
     ),
     dict(
         key='04-pattern', kind='bullets', title='The Pattern',
         body=['A small core.', '', 'It knows one interface: Plugin.', 'It keeps plugins, starts and', 'stops them, and runs them.', '', 'Every feature is a plugin.'],
         narration=(
-            'The pattern. A small core. It knows one interface, called '
-            'plugin. It keeps plugins, starts and stops them, and runs '
-            'them. Every feature is a plugin.'
+            'Now, the pattern. [[slnc 400]] There is a small core. [[slnc '
+            '300]] It knows exactly one interface, called Plugin. [[slnc '
+            '400]] The core keeps a list of plugins. [[slnc 300]] It '
+            'starts them, stops them, and runs them. [[slnc 400]] And '
+            'every feature is a plugin.'
         ),
     ),
     dict(
@@ -73,10 +80,12 @@ SCENES = [
   the core knows one interface,
   nothing about discounts.""",
         narration=(
-            'Second, a core and plugins. The core has two plugins: member '
-            'discount and shipping fee. A total of ten thousand becomes '
-            'ninety five hundred. The core knows one interface, and '
-            'nothing about discounts or fees.'
+            'Second demo: a core with plugins. [[slnc 400]] The core has '
+            'two plugins: a member discount, and a shipping fee. [[slnc '
+            '400]] An order of one hundred dollars goes in. [[slnc 300]] '
+            'It comes out at ninety-five dollars. [[slnc 500]] The core '
+            'itself knows one interface. [[slnc 300]] It knows nothing '
+            'about discounts or fees.'
         ),
     ),
     dict(
@@ -89,11 +98,13 @@ SCENES = [
 
   the core is unchanged.""",
         narration=(
-            'Third, a new feature, with no change to the core. Gift wrap '
-            'is registered while the system is running. It is started, '
-            'and the total is ninety eight hundred. Then it is taken away '
-            'again, and stopped, and the total goes back to ninety five '
-            'hundred. The core was not changed.'
+            'Third demo: a new feature, with no change to the core. '
+            '[[slnc 400]] While the shop is running, the gift wrap plugin '
+            'is registered. [[slnc 300]] It starts, and the total becomes '
+            'ninety-eight dollars. [[slnc 500]] Then gift wrap is removed '
+            'again. [[slnc 300]] It stops, and the total goes back to '
+            'ninety-five dollars. [[slnc 500]] The core was not changed '
+            'at all.'
         ),
     ),
     dict(
@@ -104,10 +115,12 @@ SCENES = [
   the others still ran:
   9500.""",
         narration=(
-            'Fourth, a plugin that breaks. The loyalty points plugin '
-            'throws an error. The core records it, and carries on. The '
-            'other plugins still ran, and the total is ninety five '
-            'hundred.'
+            'Fourth demo: a plugin that breaks. [[slnc 400]] The loyalty '
+            'points plugin throws an error. [[slnc 400]] The core records '
+            'the error, and carries on. [[slnc 300]] The other plugins '
+            'still run. [[slnc 300]] The total is still ninety-five '
+            'dollars. [[slnc 400]] One broken plugin did not stop the '
+            'checkout.'
         ),
     ),
     dict(
@@ -120,10 +133,13 @@ SCENES = [
   the core cannot know which is
   right.""",
         narration=(
-            'Fifth, order matters. Discount then fee gives ninety five '
-            'hundred. Fee then discount gives ninety four fifty. The same '
-            'two plugins, and a different price. The core cannot know '
-            'which is right.'
+            'Fifth demo: the order of plugins matters. [[slnc 400]] Apply '
+            'the discount first, then the fee, and the total is '
+            'ninety-five dollars. [[slnc 400]] Apply the fee first, then '
+            'the discount, and the total is ninety-four dollars fifty. '
+            '[[slnc 500]] The same two plugins, and a different price. '
+            '[[slnc 400]] And the core has no way to know which order is '
+            'right. [[slnc 300]] Someone has to decide that on purpose.'
         ),
     ),
     dict(
@@ -139,22 +155,27 @@ SCENES = [
   the total depends on what is
   installed, in some order.""",
         narration=(
-            'Last, the bill. The interface offers one thing: adjust a '
-            "total. Plugins want more: the customer's country, and a line "
-            'on the receipt. If the interface grows, every plugin feels '
-            'it. If it does not, plugins reach around the core. And a '
-            "customer's total is now decided by whichever plugins are "
-            'installed, in some order.'
+            'Finally, the cost. [[slnc 400]] The plugin interface offers '
+            'just one thing: adjust the total. [[slnc 400]] But plugins '
+            "want more. [[slnc 300]] For example, the customer's country, "
+            'or a line on the receipt. [[slnc 500]] If the interface '
+            'grows, every plugin is affected. [[slnc 300]] If it does not '
+            'grow, plugins start reaching around the core. [[slnc 500]] '
+            "And one more cost. [[slnc 300]] A customer's total now "
+            'depends on which plugins are installed, and in what order.'
         ),
     ),
     dict(
         key='10-recognise', kind='bullets', title='How To Recognise It',
         body=['A Plugin or Extension interface', 'loaded by name or from a folder.', '', 'ServiceLoader in Java.', '', 'IDEs, browsers with extensions,', 'and build tools with plugins.'],
         narration=(
-            'How do you recognise this in code you did not write? A '
-            'Plugin or Extension interface loaded by name or from a '
-            'folder. ServiceLoader in Java. IDEs, browsers with '
-            'extensions, and build tools with plugins. OSGi bundles and '
+            'How can you spot this pattern in code someone else wrote? '
+            '[[slnc 400]] Look for a Plugin or Extension interface, '
+            'loaded by name or from a folder. [[slnc 300]] In Java, look '
+            'for the Service Loader class. [[slnc 400]] You also meet it '
+            'in everyday tools. [[slnc 300]] Code editors with '
+            'extensions, web browsers with add-ons, and build tools with '
+            'plugins. [[slnc 300]] And in systems built on OSGi, such as '
             'the Eclipse platform.'
         ),
     ),
@@ -162,50 +183,58 @@ SCENES = [
         key='11-verdict', kind='bullets', title='The Verdict',
         body=['Use a microkernel when features', 'come and go, and different', 'customers or teams need different', 'sets. Keep the core tiny and the', 'interface stable. Decide the order', 'of plugins on purpose. Isolate a', 'failing plugin. Do not use it for', 'a system whose features never', 'change.'],
         narration=(
-            'Here is my verdict, plainly. Use a microkernel when features '
-            'come and go, and different customers or teams need different '
-            'sets. Keep the core tiny and the interface stable. Decide '
-            'the order of plugins on purpose. Isolate a failing plugin. '
-            'Do not use it for a system whose features never change.'
+            'So, here is the verdict. [[slnc 400]] Use a microkernel when '
+            'features come and go. [[slnc 300]] And when different '
+            'customers or teams need different sets of features. [[slnc '
+            '500]] Then follow four rules. [[slnc 300]] One. [[slnc 200]] '
+            'Keep the core tiny, and the interface stable. [[slnc 300]] '
+            'Two. [[slnc 200]] Decide the order of plugins on purpose. '
+            '[[slnc 300]] Three. [[slnc 200]] Isolate a failing plugin, '
+            'so it cannot stop the others. [[slnc 300]] And four. [[slnc '
+            '200]] Do not use it for a system whose features never '
+            'change.'
         ),
     ),
     dict(
         key='12-real', kind='bullets', title='What Is Real Here',
         body=['Everything is plain Java.', '', 'Every number quoted comes from', "this program's own output.", '', 'Nothing depends on a clock,', 'so every run is the same.'],
         narration=(
-            'The same honest admission as everywhere in this course. '
-            'Everything is plain Java. Every number quoted comes from '
-            "this program's own output. Nothing depends on a clock, so "
-            'every run is the same.'
+            'A quick, honest note about this demo. [[slnc 300]] '
+            'Everything is plain Java. [[slnc 300]] Every number you '
+            "heard comes from the program's own output. [[slnc 300]] And "
+            'nothing depends on the clock, so every run gives the same '
+            'result.'
         ),
     ),
     dict(
         key='13-too-much', kind='bullets', title='When This Is Too Much',
         body=['If the features are few and fixed,', 'plain classes are simpler. A', 'plugin system costs an interface,', 'a lifecycle and a way to order', 'things, and pays off only when the', 'set of features truly varies.'],
         narration=(
-            'So when is it too much? If the features are few and fixed, '
-            'plain classes are simpler. A plugin system costs an '
-            'interface, a lifecycle and a way to order things, and pays '
-            'off only when the set of features truly varies.'
+            'So, when is this too much? [[slnc 400]] If there are only a '
+            'few features, and they never change, plain classes are '
+            'simpler. [[slnc 400]] A plugin system costs an interface, a '
+            'way to start and stop plugins, and a way to order them. '
+            '[[slnc 300]] It only pays off when the set of features '
+            'really does vary.'
         ),
     ),
     dict(
         key='14-outro', kind='outro', title='Thanks for Watching',
         body=['Full source, notes, diagrams and an animated walkthrough', 'are in the repository. Try the exercises in', 'the session guide.'],
         narration=(
-            "That's Microkernel. [[slnc 250]] If you take one sentence "
-            'away, take this one: a microkernel puts every feature in a '
-            'plugin and keeps the core small, and the price is a narrow '
-            'interface and results that depend on what is installed. '
-            '[[slnc 350]] The full source, the written notes, the '
-            'diagrams and an animated walkthrough are all in the '
-            'repository, running offline with nothing installed but a '
-            'Java development kit. [[slnc 300]] If you try one exercise, '
-            'add a plugin that rounds the total to the nearest ten cents, '
-            'and decide where in the order it goes. [[slnc 300]] If this '
-            'helped, a like genuinely does help other people find it, and '
-            'subscribe if you would like the rest of the series. [[slnc '
-            '250]] Thanks for watching.'
+            "That's the Microkernel pattern. [[slnc 400]] If you remember "
+            'one sentence, make it this one. [[slnc 300]] A microkernel '
+            'puts every feature in a plugin and keeps the core small, and '
+            'the price is a narrow interface, and results that depend on '
+            'what is installed. [[slnc 500]] The full source code, '
+            'written notes, diagrams, and an animated walkthrough are all '
+            'in the repository. [[slnc 500]] Here is one exercise to try. '
+            '[[slnc 300]] Add a plugin that rounds the total to the '
+            'nearest ten cents. [[slnc 300]] Then decide where in the '
+            'order it should go. [[slnc 500]] If this helped, a like '
+            'really does help other people find it. [[slnc 300]] And '
+            "subscribe, if you'd like the rest of the series. [[slnc "
+            '400]] Thanks for watching.'
         ),
     ),
 ]

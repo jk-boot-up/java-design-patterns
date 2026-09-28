@@ -21,20 +21,20 @@ Learn the singleton pattern in Java 21 — the Gang of Four pattern for guarante
 
 CHAPTERS
 00:00 Introduction
-00:56 The Job
-01:31 An Instance Per Caller
-01:56 The Classic Fix
-02:16 Breaking It: Reflection
-02:42 Breaking It: Serialization
-03:08 The Singleton Pattern
-03:36 The Shape of It
-04:08 One Constant, Three Guarantees
+00:48 The Job
+01:18 An Instance Per Caller
+01:49 The Classic Fix
+02:12 Breaking It: Reflection
+02:40 Breaking It: Serialization
+03:07 The Singleton Pattern
+03:35 The Shape of It
+04:07 One Constant, Three Guarantees
 04:38 Why AtomicLong
-05:07 Running It
-05:37 Where It Stops
-06:16 How It Relates to the Others
-06:51 One Sentence to Keep
-07:30 Thanks for Watching
+05:11 Running It
+05:40 Where It Stops
+06:18 How It Relates to the Others
+06:52 One Sentence to Keep
+07:21 Thanks for Watching
 
 SOURCE CODE, WRITTEN NOTES AND AN INTERACTIVE ANIMATION
 https://github.com/jk-boot-up/java-design-patterns/tree/main/gradle-java/creational/singleton-pattern
@@ -49,20 +49,20 @@ YouTube renders these as chapters only if there are at least three and the first
 
 ```
 00:00 Introduction
-00:56 The Job
-01:31 An Instance Per Caller
-01:56 The Classic Fix
-02:16 Breaking It: Reflection
-02:42 Breaking It: Serialization
-03:08 The Singleton Pattern
-03:36 The Shape of It
-04:08 One Constant, Three Guarantees
+00:48 The Job
+01:18 An Instance Per Caller
+01:49 The Classic Fix
+02:12 Breaking It: Reflection
+02:40 Breaking It: Serialization
+03:07 The Singleton Pattern
+03:35 The Shape of It
+04:07 One Constant, Three Guarantees
 04:38 Why AtomicLong
-05:07 Running It
-05:37 Where It Stops
-06:16 How It Relates to the Others
-06:51 One Sentence to Keep
-07:30 Thanks for Watching
+05:11 Running It
+05:40 Where It Stops
+06:18 How It Relates to the Others
+06:52 One Sentence to Keep
+07:21 Thanks for Watching
 ```
 
 ## Tags
@@ -101,4 +101,4 @@ Add a card partway through pointing at the playlist, so a viewer who arrives at 
 
 ## Runtime
 
-Approximately 07:56, narrated at 145 words per minute.
+Approximately 07:42, narrated at 145 words per minute.

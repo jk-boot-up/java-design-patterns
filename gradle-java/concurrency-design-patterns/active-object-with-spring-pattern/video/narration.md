@@ -2,64 +2,64 @@
 
 ## 1. Active Object with Spring
 
-Hello, and welcome. This video explains the Active Object pattern with Spring Boot, in Java, and it is written and presented by Jayasekhar Konduru. It is the framework version of the Active Object video. That one built an object with its own thread and mailbox by hand, so calls become messages that return a future at once, with no lock at all, and showed its costs: a mailbox that backs up, errors that arrive late, and a throughput ceiling. This one shows the same idea inside Spring Boot. The plain definition, in short: an object gets its own thread, and a call to it becomes a message that returns straight away with a promise of the answer, so one thread owns the state and it needs no lock. By the end you will see an active object built from a bean and a one-thread executor, with a plain field and no lock, then see the two ways that guarantee breaks: a call that skips the proxy, and a read that skips the mailbox.
+Hello, and welcome. This video explains the Active Object pattern, in Java, using Spring Boot. This video is presented by Jayasekhar Konduru. First, a simple definition. An active object has its own thread. A call to it becomes a message in a mailbox, and returns straight away with a promise of the answer. Because only one thread owns the data, no lock is needed. Think of a post box. You drop your letter in, and walk away. One postal worker empties it and handles each letter in turn. This is the framework version of the Active Object video, with the same shop stock. We will build an active object from a Spring bean and a one-thread executor, with no lock. Then we will hear the two ways that guarantee breaks: a call that skips the proxy, and a read that skips the mailbox.
 
 ## 2. The Partner Project
 
-This video assumes the Active Object video. If you have not seen it, start there. It builds an object with its own thread and mailbox by hand, with no lock, and shows three costs: a mailbox that backs up, errors that arrive late, and a throughput ceiling. This one uses the same example. It does not teach the pattern again. It shows what Spring Boot does with it.
+Before we start, a quick note. This video has a partner: the hand-built Active Object video. That one builds an object with its own thread and mailbox, by hand, with no lock. And it shows three costs: a mailbox that backs up, errors that arrive late, and a limit on speed. If you are new to the pattern, watch that one first. Here, we ask what Spring Boot does with the same idea.
 
 ## 3. Before The First Line
 
-Before the first line of code, what Spring Boot is. Spring is a framework whose core is a container that creates your objects. An async bean, given an executor with exactly one thread, is an active object: the executor's queue is the mailbox. And a promise: skipping this video loses none of the pattern. The hand-built one teaches all of it.
+One thing is new in this project: Spring Boot. At its heart, Spring is a container that creates your objects. A bean whose methods are marked at Async, running on an executor with exactly one thread, is an active object. The executor's queue is the mailbox. And one promise. If you skip this video, you lose none of the pattern. This one is about the tool.
 
 ## 4. No Lock At All
 
-First, the point of the pattern. Four callers each send five thousand restocks. The final stock is exactly twenty thousand. Look for the lock, and there is none. The stock is a plain int, not even volatile. It is safe because every change runs on one thread, the inventory thread, and the executor has exactly one.
+First demo: no lock at all. Four callers each send five thousand restock messages. The final stock is exactly twenty thousand. Look for the lock. There is none. The stock is a plain number, not even marked volatile. It is safe because every change runs on one thread, the inventory thread. And the executor has exactly one.
 
 ## 5. The Mailbox
 
-The mailbox is the executor's queue. The worker is busy on one slow message, and callers send ten thousand more. All ten thousand wait. Nothing refuses them. Bound the queue to three, and the fourth waiting message is refused with a task rejected exception. That is the partner's cost, and here it is a setting.
+Second demo: the mailbox. The worker is busy with one slow message. Callers send ten thousand more. All ten thousand wait, and nothing refuses them. Now limit the queue to three. The fourth waiting message is refused, with a Task Rejected exception. In the hand-built video, that limit was a cost. Here, it is just a setting.
 
 ## 6. A Call That Skips The Proxy
 
-Now a failure that is Spring's own. The worker has read the stock, and is holding that value at a gate. A caller adds five, through this, and it runs on the caller's own thread, because a call on this skips the proxy. Then the worker writes what it read, plus ten. Final stock: ten, not fifteen. Five items vanished. With two threads changing a plain field, the lock-free design is gone, and nothing complains.
+Third demo: a failure that belongs to Spring. The worker reads the stock, which is zero, and holds on to that value. Meanwhile, a caller adds five items. But it calls the method on this, meaning on the same object, directly. A call on this skips Spring's proxy. So it runs on the caller's own thread, not the worker. Then the worker writes what it read, plus ten. The final stock is ten, not fifteen. Five items vanished. Two threads touched a plain field, so the lock-free guarantee is gone. And nothing complained.
 
 ## 7. A Read That Skips The Mailbox
 
-Fourth, a read. A restock of five is waiting behind a slow message. A getter that reads the field directly, from the caller's thread, says zero. A read sent as a message, queued behind the restock, waits its turn, and says five. The direct read raced the worker, and lost. In an active object, reads are messages too.
+Fourth demo: a read. A restock of five items is waiting in the mailbox, behind a slow message. A getter that reads the field directly, from the caller's thread, says zero. A read sent as a message waits its turn, behind the restock. And it says five. The direct read raced the worker, and lost. In an active object, reads must be messages too.
 
 ## 8. Errors Arrive Later
 
-Fifth, errors. A failing message does not throw where it was sent. Its future fails, later, and the stack trace belongs to the inventory thread. The method that sent the message appears nowhere in it. Debugging means finding who sent the message that failed.
+Fifth demo: errors arrive later. A failing message does not throw where it was sent. Instead, its future fails, later. And the error's stack trace belongs to the inventory thread. The method that sent the message appears nowhere in it. So debugging means finding out who sent the message that failed.
 
 ## 9. One Worker Is A Ceiling
 
-Last, the ceiling. Every message costs fifty microseconds of real work. One caller: about nineteen thousand a second. Four callers: the same. Four times the callers, the same rate. The ceiling is the worker, exactly as in the hand-built video. That is the price of having no lock. The numbers vary by machine.
+Last demo: one worker is a limit. Every message costs fifty microseconds of real work. With one caller, about nineteen thousand messages per second. With four callers, about the same. Four times the callers, and the same rate. The limit is the single worker, exactly as in the hand-built video. That is the price of having no lock. The numbers vary from machine to machine.
 
 ## 10. The Verdict
 
-My verdict, plainly. Use it when callers must not wait, and one owner for the state is enough. Route every access, reads included, through the proxy. Bound the mailbox. And never give the executor a second thread.
+So, here is the verdict. Use it when callers must not wait, and one owner for the data is enough. Send every access through the proxy, including reads. Put a limit on the mailbox. And never give the executor a second thread.
 
 ## 11. How To Recognise It
 
-How do you recognise this in code you did not write? An async method naming an executor that has exactly one thread. A service with mutable fields, no synchronized keyword anywhere, and methods that all return futures. And a comment saying, only ever called from the worker thread.
+How can you spot this in code someone else wrote? Look for an at Async method that names an executor with exactly one thread. A service with changing fields, no synchronized keyword anywhere, and methods that all return futures. And a comment that says, only ever called from the worker thread.
 
 ## 12. Where You Have Met This
 
-You have met this as a single thread executor, named for the thing it protects. Actor libraries take the same idea much further.
+Where have you met this before? As a single-thread executor, named after the thing it protects. Actor libraries take the same idea much further.
 
 ## 13. What Was Used
 
-For the record. Spring Boot four point one point one. No web server, no database, and no web starter.
+For the record, here are the versions. Spring Boot four point one point one. No web server, no database, and no web library.
 
 ## 14. What Is Real Here
 
-The same honest admission as everywhere in this course. Everything is real: Spring's executor, its proxy, and its exceptions. Every wait is a latch or a gate. The throughput numbers are measured, and vary by machine.
+A quick, honest note about this demo. Spring's executor, its proxy, and its errors are all real. Every wait uses a latch or a gate. The speed numbers are real measurements, and they vary by machine.
 
 ## 15. When This Is Too Much
 
-So when is it too much? For state that changes rarely, a synchronized method is simpler. An active object earns its place when callers must not wait.
+So, when is this too much? For data that changes rarely, a simple synchronized method is easier. An active object earns its place when callers must not wait.
 
 ## 16. Thanks for Watching
 
-That's Active Object with Spring. If you take one sentence away, take this one: an active object trades a lock for a queue, and the guarantee holds only for the calls that go through it. The full source, the written notes, the diagrams and an animated walkthrough are all in the repository. If you try one exercise, give the executor two threads, and rerun the first act, and see which guarantee you just gave up. If this helped, a like genuinely does help other people find it, and subscribe if you would like the rest of the series. Thanks for watching.
+That's Active Object with Spring. If you remember one sentence, make it this one. An active object trades a lock for a queue, and the guarantee only holds for calls that go through the queue. The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. Here is one exercise to try. Give the executor two threads, and run the first demo again. Then work out which guarantee you just gave up. If this helped, a like really does help other people find it. And subscribe, if you'd like the rest of the series. Thanks for watching.

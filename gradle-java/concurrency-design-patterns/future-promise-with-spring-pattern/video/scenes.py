@@ -10,48 +10,52 @@ SCENES = [
         key='01-poster', kind='poster', title='Future/Promise with Spring',
         body=None,
         narration=(
-            'Hello, and welcome. This video explains the Future/Promise '
-            'pattern with Spring Boot, in Java, and it is written and '
-            'presented by Jayasekhar Konduru. [[slnc 300]] It is the '
-            'framework version of the Future/Promise video. That one '
-            'built the future and promise handoff by hand, and showed '
-            'three costs: an exception that surfaces later, a get with no '
-            'timeout that is a hang, and a cancellation a task can '
-            'ignore. This one shows the same idea inside Spring Boot. '
-            '[[slnc 350]] The plain definition, in short: each piece of '
-            'work is submitted and immediately returns a handle to a '
-            'result that does not exist yet, so independent work can run '
-            'at once. [[slnc 300]] By the end you will see that the pool, '
-            'not the annotation, decides how concurrent a page is, watch '
-            'an exception vanish from a void method, lose a thread-local '
-            'across the thread boundary, and learn why a timeout and a '
-            'cancel both leave the work running.'
+            'Hello, and welcome. [[slnc 400]] This video explains the '
+            'Future and Promise pattern, in Java, using Spring Boot. '
+            '[[slnc 300]] This video is presented by Jayasekhar Konduru. '
+            '[[slnc 600]] First, a simple definition. [[slnc 300]] When '
+            'you start a piece of work, you immediately get back a handle '
+            'to a result that does not exist yet. [[slnc 300]] So '
+            'independent pieces of work can run at the same time. [[slnc '
+            '600]] Think of dropping clothes at a dry cleaner. [[slnc '
+            '300]] You get a ticket straight away, and collect the '
+            'clothes later. [[slnc 700]] This is the framework version of '
+            'the Future and Promise video, with the same product page. '
+            '[[slnc 500]] We will learn that the thread pool, not the '
+            'annotation, decides how much runs at once. [[slnc 300]] We '
+            'will hear an error vanish from a method that returns '
+            "nothing. [[slnc 300]] Lose a customer's details between "
+            'threads. [[slnc 300]] And learn why a timeout and a cancel '
+            'both leave the work running.'
         ),
     ),
     dict(
         key='02-partner', kind='bullets', title='The Partner Project',
         body=['Future/Promise, the hand-built video,', 'built the handoff and showed three', 'costs: an exception that moves, a get', 'that hangs, a cancel that is a request.', '', 'This one uses the same product page:', 'price, stock and a review score.', '', 'If you have not seen it, start there.'],
         narration=(
-            'This video assumes the Future/Promise video. If you have not '
-            'seen it, start there. It builds the future and promise '
-            'handoff by hand, and shows three costs: an exception that '
-            'surfaces later, a get with no timeout that is a hang, and a '
-            'cancellation a task can ignore. [[slnc 300]] This one uses '
-            'the same example. It does not teach the pattern again. It '
-            'shows what Spring Boot does with it.'
+            'Before we start, a quick note. [[slnc 300]] This video has a '
+            'partner: the hand-built Future and Promise video. [[slnc '
+            '400]] That one builds the handoff between a future and a '
+            'promise by hand. [[slnc 300]] And it shows three costs: an '
+            'error that appears later, a wait with no timeout that hangs, '
+            'and a cancel that a task can ignore. [[slnc 500]] If you are '
+            'new to the pattern, watch that one first. [[slnc 400]] Here, '
+            'we keep the same product page, with its price, stock, and '
+            'review score, and ask what Spring Boot does with it.'
         ),
     ),
     dict(
         key='03-dependencies', kind='bullets', title='Before The First Line',
         body=['One thing is new: Spring Boot.', '', 'Its @Async annotation runs a method on', 'a pool, and hands back a future that', 'the container completes.', '', 'Skipping this video loses none', 'of the pattern.'],
         narration=(
-            'Before the first line of code, what Spring Boot is. Spring '
-            'is a framework whose core is a container that creates your '
-            'objects. Its async annotation runs a method on a thread pool '
-            'it owns, and hands back a completable future, which the '
-            'container completes when the method returns. [[slnc 300]] '
-            'And a promise: skipping this video loses none of the '
-            'pattern. The hand-built one teaches all of it.'
+            'One thing is new in this project: Spring Boot. [[slnc 400]] '
+            'At its heart, Spring is a container that creates your '
+            'objects. [[slnc 500]] Its at Async annotation runs a method '
+            'on a thread pool that Spring owns. [[slnc 300]] And it hands '
+            'back a Completable Future. [[slnc 300]] Spring completes '
+            'that future when the method returns. [[slnc 500]] And one '
+            'promise. [[slnc 300]] If you skip this video, you lose none '
+            'of the pattern. [[slnc 300]] This one is about the tool.'
         ),
     ),
     dict(
@@ -67,13 +71,14 @@ SCENES = [
   the annotation asked.
   the pool decided.""",
         narration=(
-            'First, concurrency. Three independent lookups, price, stock '
-            'and rating, each marked async. On the default pool, all '
-            'three are in flight at the same moment. Three. On a pool of '
-            'one thread, only one is. [[slnc 300]] The annotation asked '
-            'for concurrency. The pool decided whether to give it. '
-            'Concurrency is a property of the pool, not of the '
-            'annotation.'
+            'First demo: the pool decides. [[slnc 400]] Three independent '
+            'lookups, for price, stock, and rating, each marked at Async. '
+            '[[slnc 500]] On the default pool, all three run at the same '
+            'moment. [[slnc 300]] On a pool with just one thread, only '
+            'one runs at a time. [[slnc 500]] The annotation asked for '
+            'things to run at once. [[slnc 300]] The pool decided whether '
+            'to allow it. [[slnc 300]] How much runs at once is a '
+            'property of the pool, not the annotation.'
         ),
     ),
     dict(
@@ -89,14 +94,17 @@ SCENES = [
   it went only to a handler
   you had to register.""",
         narration=(
-            'Second, exceptions. A method returning a future fails, and '
-            'the caller sees a completion exception, with the real cause '
-            'inside it. The stack trace belongs to a pool thread. The '
-            'calling method appears nowhere in it. [[slnc 300]] Now a '
-            'void method that throws. The caller gets nothing. The call '
-            'returned normally. The exception went only to a handler that '
-            'you have to register by hand. Without one, it is just '
-            'logged. That is why the rule is: return a future, never '
+            'Second demo: errors. [[slnc 400]] A method that returns a '
+            'future fails. [[slnc 300]] The caller receives a Completion '
+            'Exception, with the real cause inside: the review service is '
+            'down. [[slnc 300]] And the stack trace belongs to a pool '
+            'thread, not the caller. [[slnc 600]] Now a method that '
+            'returns nothing, called a void method, throws an error. '
+            '[[slnc 300]] The caller gets nothing at all. [[slnc 300]] '
+            'The call returned normally. [[slnc 400]] The error only went '
+            'to a special handler, which you must register yourself. '
+            '[[slnc 300]] Without one, it is just written to a log. '
+            '[[slnc 500]] That is why the rule is: return a future, never '
             'void.'
         ),
     ),
@@ -113,13 +121,16 @@ SCENES = [
   copies it across:
   customer 7.""",
         narration=(
-            'Third, context. The caller is working for customer seven. '
-            'That is held in a thread-local, the way request context, '
-            'security context, and logging context all are. The async '
-            'method asks whose order it is. Customer null. [[slnc 300]] A '
-            'thread-local does not cross to a pool thread. The fix is a '
-            'task decorator, a small bean that copies it across. With it: '
-            'customer seven. The fix is yours to write.'
+            'Third demo: thread-local data. [[slnc 400]] The caller is '
+            'working for customer seven. [[slnc 300]] That fact is stored '
+            'in a thread-local, which is where request details, security '
+            'details, and logging details usually live. [[slnc 500]] The '
+            'async method asks: whose order is this? [[slnc 300]] The '
+            "answer is: nobody's. [[slnc 500]] A thread-local does not "
+            'travel to a pool thread. [[slnc 300]] The fix is a Task '
+            'Decorator, a small bean that copies the data across. [[slnc '
+            '300]] With it, the answer is customer seven. [[slnc 300]] '
+            'But you have to write that fix yourself.'
         ),
     ),
     dict(
@@ -134,12 +145,14 @@ SCENES = [
   it ran to the end anyway.
   nobody was waiting.""",
         narration=(
-            'Fourth, a timeout. The caller waits two hundred milliseconds '
-            'for a slow task, and gets a timeout exception. The task had '
-            'not finished. [[slnc 300]] Then the gate opens, and the task '
-            'runs to the end anyway, and does its work. Nobody is waiting '
-            'for the answer. A timeout is the caller giving up. It does '
-            'not stop the work.'
+            'Fourth demo: a timeout does not stop the work. [[slnc 400]] '
+            'The caller waits two hundred milliseconds for a slow task. '
+            '[[slnc 300]] Then it gets a Timeout Exception. [[slnc 300]] '
+            'The task had not finished. [[slnc 500]] Later, the task '
+            'carries on, runs to the end, and does its work anyway. '
+            '[[slnc 300]] Nobody is waiting for its answer any more. '
+            '[[slnc 500]] A timeout means the caller gave up. [[slnc '
+            '300]] It does not stop the work.'
         ),
     ),
     dict(
@@ -155,12 +168,14 @@ SCENES = [
   future. the thread was never
   told.""",
         narration=(
-            'Fifth, cancellation. Cancel true reports true. The future '
-            'says it is cancelled. And the task ran to completion anyway. '
-            '[[slnc 300]] On a completable future, cancel sets a flag on '
-            'the future. It never interrupts the thread. The hand-built '
-            'video showed a task that ignored an interrupt. Here, no '
-            'interrupt is even sent.'
+            'Fifth demo: cancelling. [[slnc 400]] Calling cancel with '
+            'true reports success. [[slnc 300]] The future says it is '
+            'cancelled. [[slnc 300]] And the task runs to the end anyway. '
+            '[[slnc 500]] Why? [[slnc 300]] On a Completable Future, '
+            'cancel only sets a flag on the future. [[slnc 300]] It never '
+            'interrupts the thread doing the work. [[slnc 400]] In the '
+            'hand-built video, a task ignored an interruption. [[slnc '
+            '300]] Here, no interruption is even sent.'
         ),
     ),
     dict(
@@ -177,87 +192,96 @@ SCENES = [
   no fallback: the whole page
   fails.""",
         narration=(
-            'Last, composing the page. Three futures combine into one, '
-            'with no blocking until the very end. [[slnc 300]] Now the '
-            'review service is down. With a fallback chosen at that one '
-            'step, the page still assembles: rating unavailable. Without '
-            'the fallback, one failing lookup fails the whole page. That '
-            'is the callback depth cost from the hand-built video, in a '
-            'real library.'
+            'Last demo: building the page from futures. [[slnc 400]] '
+            'Three futures are combined into one. [[slnc 300]] Nothing '
+            'waits until the very end. [[slnc 300]] The page shows a '
+            'price of one hundred and twenty-nine pounds ninety-nine, a '
+            'stock of seven, and a rating of four point six. [[slnc 500]] '
+            'Now the review service goes down. [[slnc 300]] With a '
+            'fallback chosen at that one step, the page still appears, '
+            'with the rating marked as unavailable. [[slnc 300]] Without '
+            'the fallback, one failed lookup fails the whole page.'
         ),
     ),
     dict(
         key='10-verdict', kind='bullets', title='The Verdict',
         body=['Return a CompletableFuture, never void.', 'Choose the pool.', 'Carry the context on purpose.', 'A timeout is giving up, not stopping.', '', 'Design tasks that check for', 'cancellation themselves.'],
         narration=(
-            'My verdict, plainly. Return a completable future, never '
-            'void. Choose the pool. Carry the context across on purpose. '
-            'A timeout is the caller giving up, not the work stopping. '
-            'And design tasks that check for cancellation themselves.'
+            'So, here is the verdict. [[slnc 400]] Return a Completable '
+            'Future, never void. [[slnc 300]] Choose your thread pool '
+            'deliberately. [[slnc 300]] Carry thread-local data across on '
+            'purpose. [[slnc 300]] Remember that a timeout is giving up, '
+            'not stopping. [[slnc 300]] And design tasks that check for '
+            'cancellation themselves.'
         ),
     ),
     dict(
         key='11-recognise', kind='bullets', title='How To Recognise It',
         body=['@Async returning CompletableFuture.', 'thenCombine, exceptionally, orTimeout.', 'A TaskDecorator bean.', 'MDC or SecurityContext copied by hand.'],
         narration=(
-            'How do you recognise this in code you did not write? Async '
-            'on a method returning a completable future. Chains of then '
-            'combine, exceptionally, and or timeout. A task decorator '
-            'bean. And logging or security context copied by hand across '
-            'a thread.'
+            'How can you spot this in code someone else wrote? [[slnc '
+            '400]] Look for at Async methods that return a Completable '
+            'Future. [[slnc 300]] Look for chains of then combine, '
+            'exceptionally, and or timeout. [[slnc 300]] Look for a Task '
+            'Decorator bean. [[slnc 300]] And look for logging or '
+            'security details, copied by hand between threads.'
         ),
     ),
     dict(
         key='12-met', kind='bullets', title='Where You Have Met This',
         body=['Every @Async method that returns a', 'CompletableFuture.', '', 'And every log line that lost its request', 'id on the way to a pool thread.'],
         narration=(
-            'You have met this in every async method that returns a '
-            'completable future, and in every log line that lost its '
-            'request identifier on the way to a pool thread.'
+            'Where have you met this before? [[slnc 300]] In every at '
+            'Async method that returns a future. [[slnc 300]] And in '
+            'every log line that lost its request I D on the way to a '
+            'pool thread.'
         ),
     ),
     dict(
         key='13-versions', kind='bullets', title='What Was Used',
         body=['Spring Boot 4.1.1.', '', 'No web server, no database,', 'no web starter.'],
         narration=(
-            'For the record. Spring Boot four point one point one. No web '
-            'server, no database, and no web starter.'
+            'For the record, here are the versions. [[slnc 300]] Spring '
+            'Boot four point one point one. [[slnc 300]] No web server, '
+            'no database, and no web library.'
         ),
     ),
     dict(
         key='14-real', kind='bullets', title='What Is Real Here',
         body=["Everything is real: Spring's executor,", 'its futures and its handlers.', '', 'Every wait is a latch, a gate,', 'or a bounded spin.'],
         narration=(
-            'The same honest admission as everywhere in this course, and '
-            "short. Everything is real: Spring's executor, its futures, "
-            'and its handlers. Every wait is a latch, a gate, or a '
-            'bounded spin, so every result is the same each run.'
+            "A quick, honest note about this demo. [[slnc 300]] Spring's "
+            'thread pool, its futures, and its error handlers are all '
+            'real. [[slnc 300]] Every wait uses a latch, a gate, or a '
+            'short, limited loop. [[slnc 300]] So every run gives the '
+            'same result.'
         ),
     ),
     dict(
         key='15-too-much', kind='bullets', title='When This Is Too Much',
         body=['Two lookups that are already fast,', 'or where the second needs the', 'first: a future is ceremony.'],
         narration=(
-            'So when is it too much? For two lookups that are already '
-            "fast, or where the second needs the first's result, a future "
-            'around work that never overlaps is ceremony.'
+            'So, when is this too much? [[slnc 400]] For lookups that are '
+            "already fast, or where the second needs the first's result, "
+            'a future adds ceremony and saves no time.'
         ),
     ),
     dict(
         key='16-outro', kind='outro', title='Thanks for Watching',
         body=['Full source, notes, diagrams and an animated walkthrough', 'are in the repository. Make the slow task check for', 'interruption, and cancel it properly.'],
         narration=(
-            "That's Future/Promise with Spring. [[slnc 250]] If you take "
-            'one sentence away, take this one: a future is a promise '
-            'about when a value will be ready, never a promise that the '
-            'work can be stopped. [[slnc 350]] The full source, the '
-            'written notes, the diagrams and an animated walkthrough are '
-            'all in the repository. [[slnc 300]] If you try one exercise, '
-            'make the slow task check for interruption in a loop, and '
-            "cancel it through an executor's future, and see the "
-            'difference. [[slnc 300]] If this helped, a like genuinely '
-            'does help other people find it, and subscribe if you would '
-            'like the rest of the series. [[slnc 250]] Thanks for '
+            "That's Future and Promise with Spring. [[slnc 400]] If you "
+            'remember one sentence, make it this one. [[slnc 300]] A '
+            'future promises when a value will be ready, but never that '
+            'the work behind it can be stopped. [[slnc 500]] The full '
+            'source code, written notes, diagrams, and an animated '
+            'walkthrough are all in the repository. [[slnc 500]] Here is '
+            'one exercise to try. [[slnc 300]] Make the slow task check '
+            'for interruption in its loop. [[slnc 300]] Then cancel it '
+            "through a normal executor's future, and listen for the "
+            'difference. [[slnc 500]] If this helped, a like really does '
+            'help other people find it. [[slnc 300]] And subscribe, if '
+            "you'd like the rest of the series. [[slnc 400]] Thanks for "
             'watching.'
         ),
     ),

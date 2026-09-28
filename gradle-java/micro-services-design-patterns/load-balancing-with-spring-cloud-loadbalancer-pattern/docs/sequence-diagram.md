@@ -6,24 +6,4 @@ Say it in words. The caller asks for a URL whose host is the name catalogue. The
 
 ![Load Balancing with Spring Cloud LoadBalancer pattern sequence diagram](images/sequence-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant C as caller
-    participant B as balancer
-    participant A as copy-a
-    participant Bb as copy-b
-    C->>B: http://catalogue/...
-    B->>A: request 1
-    A-->>C: answer
-    C->>B: http://catalogue/...
-    B->>Bb: request 2
-    Bb-->>C: answer
-```
-
-</details>
-
 The load-bearing sentence: **the choice is made again for every request.**

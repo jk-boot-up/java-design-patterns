@@ -2,56 +2,56 @@
 
 ## 1. Null Object
 
-Hello, and welcome. This video explains the Null Object pattern in Java, and it is written and presented by Jayasekhar Konduru. The plain definition: instead of returning nothing, return an object that implements the same interface and does nothing, so callers never have to check. This is the first project in the foundational category, whose subject is how an object gets hold of another, and what happens when there is not one. Null Object answers the second half. In our online store, the thing that might not be there is a discount. By the end you will see how null checks spread and one gets forgotten, how this pattern removes them, and, the part most treatments leave out, how it can hide an error. I will also tell you plainly when I would not use it.
+Hello, and welcome. This video explains the Null Object pattern, in Java. This video is presented by Jayasekhar Konduru. First, a simple definition. Instead of returning nothing, return an object that does nothing. It implements the same interface as the real objects. So callers never have to check whether they got anything. Think of a blank voucher that is worth nothing. The till can accept it like any other voucher. It simply takes nothing off the price. In our online store, the thing that might not be there is a discount. In this video, null checks spread, and one gets forgotten. Then this pattern removes them. And we will hear the part most explanations leave out: how it can hide a real error. And when not to use it.
 
 ## 2. The Scenario
 
-Here is the scenario. In the online store, most customers have no discount. Some have a loyalty discount, and a few, a staff discount. Eight different places in the checkout price an order after whatever discount there is. The question: what should the lookup return, for a customer who has none?
+Here is the scenario. In our online store, most customers have no discount. Some have a loyalty discount. And a few have a staff discount. Eight different places in the checkout work out an order's price, after any discount. So here is the question. What should the discount lookup return, for a customer who has none?
 
 ## 3. Return Null
 
-The obvious answer is null. And it works, when everyone remembers to check. Customer one, with a loyalty discount: ninety pounds. Customer two, with none: one hundred pounds. But there are eight places that price an order. Seven remembered to check for null. The eighth, added last, in a hurry, did not. For customer two, it throws a null pointer exception, at checkout, in front of a customer.
+The obvious answer is null, meaning nothing. And it works, as long as everyone remembers to check. Customer one has a loyalty discount, and pays ninety pounds. Customer two has none, and pays one hundred pounds. But eight places work out the price. Seven remembered to check for null. The eighth, added last, in a hurry, did not. For customer two, it crashes with a null pointer exception. At checkout, in front of a customer.
 
 ## 4. The Check You Stop Seeing
 
-Look at the cost, beyond the crash. The same check, if discount is not null, appears seven times. Seven identical blocks. After the third, a reader stops seeing them. So the eighth method, the one without the check, hides in plain sight. It looks exactly like all the others, minus four lines nobody notices are missing.
+There is another cost, beyond the crash. The same check, if the discount is not null, appears seven times. Seven identical blocks. After the third one, a reader stops noticing them. So the eighth method, the one without the check, hides in plain sight. It looks just like the others, minus four lines nobody notices are missing.
 
 ## 5. The Pattern
 
-The pattern: a no discount object. It implements the same discount interface as the loyalty and staff discounts. Its apply method just returns the price unchanged. The lookup never returns null. For a customer with no discount, it returns this.
+Now, the pattern: a No Discount object. It implements the same Discount interface as the loyalty and staff discounts. Its apply method simply returns the price, unchanged. And the lookup never returns null. For a customer with no discount, it returns this object.
 
 ## 6. Every Check Deleted
 
-Now delete every null check, in all eight methods. Run the same four customers. Nine thousand. Ten thousand. Seventy-five hundred. Ten thousand. Identical to before, every one. And the eighth method, that crashed, now returns ten thousand. The forgotten check is no longer possible to forget, because there is nothing to remember.
+Third demo: every null check deleted. All eight methods lose their null checks. Then the same four customers run again. Ninety pounds. One hundred pounds. Seventy-five pounds. One hundred pounds. Exactly the same as before. And the eighth method, which crashed, now returns one hundred pounds. The forgotten check can no longer be forgotten, because there is nothing to remember.
 
 ## 7. The Bill: It Hides Errors
 
-Now the bill, the part most explanations leave out. A null object hides errors. Suppose the discount service is down. A well-meaning directory catches the failure, and returns the no discount object, to keep the checkout going. Customer one, entitled to ten per cent off, is charged ten thousand pence instead of nine thousand. No error. No log. No alert. No discount, and the service was down, now look exactly the same. That is a quieter bug than the exception it replaced, and a worse one.
+Now the cost, the part most explanations leave out. A null object can hide errors. Suppose the discount service is down. A well-meaning lookup catches the failure, and returns No Discount, to keep checkout running. Customer one is entitled to ten percent off. But is charged one hundred pounds, instead of ninety. No error. No log. No alert. Having no discount, and the service being down, now look exactly the same. That is a quieter bug than the crash it replaced, and a worse one.
 
 ## 8. Where The Line Is
 
-So where is the line? If absence is a legitimate state of the domain, a null object is right. Having no discount is normal, most customers have none. If absence means something went wrong, the service is down, a null object is wrong. It turns a failure into a normal-looking result.
+So where is the line? If absence is a normal state in your business, a null object is right. Having no discount is normal. Most customers have none. But if absence means something went wrong, like the service being down, a null object is wrong. It turns a failure into a normal-looking result.
 
 ## 9. The Honest Alternatives
 
-There are two honest alternatives. First, optional. Absence is written into the return type. No discount is an empty optional. A service that is down is still an exception. The two can no longer be confused, and every caller has to decide what absence means to it. In Java, this is often the better answer. Second, an explicit failure. When absence means something went wrong, throw.
+Fourth demo: the honest alternatives. First, Java's Optional type. Absence is written into the return type itself. Customer one has a discount, and customer two has an empty optional. And a service that is down still throws an error. It never becomes an empty optional. So the two cases can no longer be confused. And every caller must decide what absence means. The second alternative: when absence means something went wrong, throw an error, clearly.
 
 ## 10. How To Recognise It
 
-How do you recognise this in code you did not write? Collections dot empty list is one: a list that is never null, and does nothing. Input stream null input stream reads nothing. A no-op logger, handed to code that would otherwise check whether logging is configured. And any class called noop or null, implementing an interface with empty method bodies.
+How can you spot this pattern in code someone else wrote? Java's empty list is one: a list that is never null, and holds nothing. The null input stream reads nothing. A logger that does nothing, handed to code that would otherwise check whether logging is set up. And any class named no-op, or null something, with empty method bodies.
 
 ## 11. The Verdict
 
-Here is my verdict, plainly. Use a null object when absence is a legitimate state of your domain. Never use one to hide a failure. And where the caller ought to decide what absence means, prefer optional.
+So, here is the verdict. Use a null object when absence is a normal state in your business. Never use one to hide a failure. And where the caller should decide what absence means, prefer Optional.
 
 ## 12. What Is Real Here
 
-The same honest admission as everywhere in this course. It is all plain Java. The discount service is simulated by a switch that makes it fail. But the crash, and the silent full price order, both really happen, in the code you have just seen.
+A quick, honest note about this demo. Everything is plain Java. The discount service is simulated by a switch that makes it fail. But the crash, and the silent full-price order, both really happen, in the code you just heard about.
 
 ## 13. When This Is Too Much
 
-So when is it too much? For a value with a single call site, a null check is simpler. It earns its place when the same check would be repeated, and when absence is normal.
+So, when is this too much? For a value used in only one place, a single null check is simpler. A null object earns its place when the same check would be repeated. And when absence is normal.
 
 ## 14. Thanks for Watching
 
-That's the Null Object. If you take one sentence away, take this one: absence can be a normal state, but it must never be a place to hide a failure. The full source, the written notes, the diagrams and an animated walkthrough are all in the repository, running offline with nothing installed but a Java development kit. If you try one exercise, write a test that would catch a directory swallowing an outage. If this helped, a like genuinely does help other people find it, and subscribe if you would like the rest of the series. Thanks for watching.
+That's the Null Object pattern. If you remember one sentence, make it this one. Absence can be a normal state, but it must never be a place to hide a failure. The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. Here is one exercise to try. Write a test that would catch a lookup quietly hiding a service outage. If this helped, a like really does help other people find it. And subscribe, if you'd like the rest of the series. Thanks for watching.

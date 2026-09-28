@@ -6,20 +6,4 @@ Say it in words. A caller asks the order to add a line of one more machine. The 
 
 ![Aggregate pattern sequence diagram](images/sequence-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant C as caller
-    participant O as Order
-    C->>O: addLine(machine, 300, 1)
-    O->>O: total with this line: over 1000
-    O-->>C: InvariantViolated
-    Note over O: lines unchanged
-```
-
-</details>
-
 The load-bearing sentence: **the rule lives in one place, and a refused change leaves the aggregate as it was.**

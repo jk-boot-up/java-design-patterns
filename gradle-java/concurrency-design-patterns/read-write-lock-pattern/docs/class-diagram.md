@@ -8,63 +8,6 @@ project measures it in code instead of arguing it in prose.
 
 ![Read–Write Lock pattern class diagram](images/class-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-classDiagram
-    class Price {
-        <<record, domain>>
-        +BigDecimal amount
-        +String currency
-    }
-
-    class UnsynchronizedCatalogue {
-        <<naive>>
-        -BigDecimal amount
-        -String currency
-        +read() Price
-        +write(price)
-    }
-    class SingleLockCatalogue {
-        <<naive>>
-        -ReentrantLock lock
-        +read() Price
-        +write(price)
-    }
-
-    class ReadWriteCatalogue {
-        <<pattern>>
-        -ReentrantReadWriteLock lock
-        +read() Price
-        +write(price)
-    }
-    class SnapshotCatalogue {
-        <<pattern>>
-        -AtomicReference~Price~ price
-        +read() Price
-        +write(price)
-    }
-    class WriterBarging {
-        <<pattern, static>>
-        +demonstrate(lock) Outcome
-    }
-    class UpgradeDeadlock {
-        <<pattern, static>>
-        +attemptUpgrade(lock, timeoutMillis) Outcome
-    }
-
-    UnsynchronizedCatalogue ..> Price : two separate field writes, not one
-    SingleLockCatalogue ..> Price : one field, guarded by one lock
-    ReadWriteCatalogue ..> Price : one field, guarded by two roles of one lock
-    SnapshotCatalogue ..> Price : one atomic reference, no lock at all
-
-    WriterBarging ..> ReadWriteCatalogue : demonstrates a cost of the pattern class's own lock
-    UpgradeDeadlock ..> ReadWriteCatalogue : demonstrates a second cost of the same lock
-```
-
-</details>
-
 ## Reading The Diagram
 
 **`UnsynchronizedCatalogue` is the only class with two separate fields

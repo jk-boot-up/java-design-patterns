@@ -19,19 +19,19 @@ The first two lines are what a viewer sees above the fold, so they carry the hoo
 ```
 CHAPTERS
 00:00 Introduction
-00:57 The Scenario
-01:13 A Long List Of Arguments
-01:36 The Pattern
-01:45 A Sentence
-01:59 Leave Out What You Do Not Need
-02:12 Does A Call Change The Query?
-02:31 Guided Steps
-02:45 The Bill
-03:11 How To Recognise It
-03:29 The Verdict
-03:51 What Is Real Here
-04:04 When This Is Too Much
-04:14 Thanks for Watching
+00:56 The Scenario
+01:15 A Long List Of Arguments
+01:41 The Pattern
+01:51 A Sentence
+02:05 Leave Out What You Do Not Need
+02:22 Does A Call Change The Query?
+02:50 Guided Steps
+03:07 The Bill
+03:39 How To Recognise It
+04:00 The Verdict
+04:23 What Is Real Here
+04:36 When This Is Too Much
+04:47 Thanks for Watching
 
 SOURCE CODE, WRITTEN NOTES AND AN INTERACTIVE ANIMATION
 https://github.com/jk-boot-up/java-design-patterns/tree/main/gradle-java/foundational-design-patterns/fluent-interface-pattern
@@ -46,19 +46,19 @@ YouTube renders these as chapters only if there are at least three and the first
 
 ```
 00:00 Introduction
-00:57 The Scenario
-01:13 A Long List Of Arguments
-01:36 The Pattern
-01:45 A Sentence
-01:59 Leave Out What You Do Not Need
-02:12 Does A Call Change The Query?
-02:31 Guided Steps
-02:45 The Bill
-03:11 How To Recognise It
-03:29 The Verdict
-03:51 What Is Real Here
-04:04 When This Is Too Much
-04:14 Thanks for Watching
+00:56 The Scenario
+01:15 A Long List Of Arguments
+01:41 The Pattern
+01:51 A Sentence
+02:05 Leave Out What You Do Not Need
+02:22 Does A Call Change The Query?
+02:50 Guided Steps
+03:07 The Bill
+03:39 How To Recognise It
+04:00 The Verdict
+04:23 What Is Real Here
+04:36 When This Is Too Much
+04:47 Thanks for Watching
 ```
 
 ## Tags
@@ -97,4 +97,4 @@ Add a card partway through pointing at the playlist, so a viewer who arrives at 
 
 ## Runtime
 
-Approximately 04:57, narrated at 145 words per minute.
+Approximately 05:26, narrated at 145 words per minute.

@@ -6,24 +6,4 @@ Say it in words. The console gets a line of text and calls the use case. The use
 
 ![Onion Architecture pattern sequence diagram](images/sequence-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant U as console
-    participant A as place order
-    participant P as pricing
-    participant R as repository
-    U->>A: place(ORD-1, lines)
-    A->>P: price(order)
-    P-->>A: discount applied
-    A->>R: save(order)
-    R-->>A: stored
-    A-->>U: order
-```
-
-</details>
-
 The load-bearing sentence: **the repository is an idea to the inside, and a real store on the outside.**

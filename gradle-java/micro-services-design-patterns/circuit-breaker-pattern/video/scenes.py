@@ -40,25 +40,27 @@ SCENES = [
         title="Circuit Breaker",
         body=None,
         narration=(
-            "Hello, and welcome. This video explains the Circuit Breaker "
-            "pattern in Java, and it is written and presented by Jayasekhar "
-            "Konduru. [[slnc 300]] Let's start with the simple definition. When "
-            "a service you depend on has clearly stopped working, you stop "
-            "calling it for a while — and then, after that while, you let "
-            "exactly one call through to find out whether it has come back. "
-            "[[slnc 350]] That is the whole mechanism, and it takes about a "
-            "hundred lines of plain Java. [[slnc 250]] But there is a second "
-            "half that most explanations leave out, and it is the harder half: "
-            "a breaker does not make failures disappear, it makes them fail "
-            "fast, and you still have to decide what to say to the person "
-            "waiting. [[slnc 300]] The rest of the video does both, by building "
-            "a real working Java project: an online shop where one service has "
-            "stopped answering this morning. [[slnc 300]] By the end you'll know "
-            "why trying again is the wrong tool for an outage; why an outage in "
-            "a feature nobody would miss can stop the shop selling anything at "
-            "all; and why one of the four callers in this project thanks a "
-            "shopper for money that never moved, while nothing throws, no alert "
-            "fires, and every dashboard stays green."
+            'Hello, and welcome. [[slnc 400]] This video explains the '
+            'Circuit Breaker pattern, in Java. [[slnc 300]] This video is '
+            'presented by Jayasekhar Konduru. [[slnc 600]] First, a '
+            'simple definition. [[slnc 300]] When a service you depend on '
+            'has clearly stopped working, you stop calling it for a '
+            'while. [[slnc 300]] Then, after that while, you let exactly '
+            'one call through, to find out whether it has come back. '
+            '[[slnc 600]] Think of the fuse box in a house. [[slnc 300]] '
+            'When the wiring has a fault, the fuse trips, and stays off. '
+            '[[slnc 300]] Later, someone flips it back on, once, to see. '
+            '[[slnc 600]] There is a second half that most explanations '
+            'leave out. [[slnc 300]] A breaker does not make failures '
+            'disappear. [[slnc 300]] It makes them fail fast. [[slnc '
+            '300]] And you still have to decide what to tell the person '
+            'waiting. [[slnc 700]] In our online store, one service has '
+            'stopped answering this morning. [[slnc 500]] By the end, you '
+            'will know why trying again is the wrong tool for an outage. '
+            '[[slnc 300]] How a broken feature that nobody would miss can '
+            'stop the shop selling anything. [[slnc 300]] And why one of '
+            'the four callers in this project thanks a shopper for money '
+            'that never moved.'
         ),
     ),
     dict(
@@ -79,23 +81,22 @@ SCENES = [
             "Every call. For as long as the outage lasts.",
         ],
         narration=(
-            "Here is the situation, and it is worth picturing before any code. "
-            "[[slnc 300]] A shopper is looking at a product page for an espresso "
-            "machine. The page shows the machine, the price, the description — "
-            "and underneath all of that, a row of suggestions. People who "
-            "bought this also bought. Those suggestions come from a completely "
-            "separate service, called Recommendations, running somewhere else. "
-            "[[slnc 350]] This morning, Recommendations has stopped answering. "
-            "[[slnc 250]] Now, notice what I did not say. I did not say it is "
-            "refusing connections, because that would actually be easy — you'd "
-            "get an error back straight away and you'd know. [[slnc 300]] What "
-            "it is doing is worse and much more common. It accepts the "
-            "connection, it says nothing at all, and three seconds later your "
-            "call gives up and throws a timeout. [[slnc 300]] Every single call "
-            "does that, for as long as the outage lasts. Three seconds, "
-            "nothing, three seconds, nothing. [[slnc 250]] And hold on to one "
-            "detail, because the whole video turns on it: nobody would miss "
-            "these suggestions. They are the least important thing on the page."
+            'Here is the scenario. [[slnc 400]] A shopper is looking at a '
+            'product page for an espresso machine. [[slnc 300]] The page '
+            'shows the machine, the price, and the description. [[slnc '
+            '300]] And underneath, a row of suggestions: people who '
+            'bought this also bought. [[slnc 500]] Those suggestions come '
+            'from a separate service, called Recommendations. [[slnc '
+            '600]] This morning, Recommendations has stopped answering. '
+            '[[slnc 500]] It is not refusing connections. [[slnc 300]] '
+            'That would be easy, because you would get an error straight '
+            'away. [[slnc 300]] Instead, it accepts the connection, and '
+            'says nothing. [[slnc 300]] Three seconds later, the call '
+            'gives up with a timeout. [[slnc 500]] Every call does that, '
+            'for as long as the outage lasts. [[slnc 500]] And remember '
+            'one detail, because the whole video turns on it. [[slnc '
+            '300]] Nobody would miss these suggestions. [[slnc 300]] They '
+            'are the least important thing on the page.'
         ),
     ),
     dict(
@@ -113,19 +114,18 @@ return List.of();   // gave up, serve the page anyway
 
 // compiles, works, correct page, every test passes""",
         narration=(
-            "Ask a room of developers what to do about a call that failed, and "
-            "somebody will say: try it again. [[slnc 300]] And they are reaching "
-            "for something reasonable. The previous pattern in this series is "
-            "retry with backoff, and for a dropped connection or a router that "
-            "reset, trying again is exactly right. [[slnc 350]] So here is that "
-            "answer, applied here. A loop that makes up to three attempts. If "
-            "an attempt times out, it swallows the timeout and goes round "
-            "again. If all three fail, it gives up and serves the page with no "
-            "suggestions on it. [[slnc 300]] I want to be fair to this code. "
-            "There is no bug in it. It compiles, it is easy to read, it always "
-            "returns a correct page, and every test written against it passes. "
-            "[[slnc 300]] Let's run it against a service that has stopped "
-            "answering, and watch the clock."
+            'Ask a room of developers what to do about a failed call, and '
+            'someone will say: try it again. [[slnc 400]] That is '
+            'reasonable. [[slnc 300]] For a dropped connection, trying '
+            'again is exactly right. [[slnc 300]] That is the retry '
+            'pattern. [[slnc 500]] So here it is, applied here. [[slnc '
+            '300]] A loop makes up to three attempts. [[slnc 300]] If an '
+            'attempt times out, it tries again. [[slnc 300]] If all three '
+            'fail, it gives up, and serves the page with no suggestions. '
+            '[[slnc 500]] To be fair to this code, there is no bug in it. '
+            '[[slnc 300]] It always returns a correct page, and every '
+            "test passes. [[slnc 500]] Let's run it against a service "
+            'that has stopped answering, and watch the clock.'
         ),
     ),
     dict(
@@ -146,20 +146,19 @@ return List.of();   // gave up, serve the page anyway
   the shopper waited 9000ms for a page with nothing extra on it,
   and a service that is already down received 3 more calls.""",
         narration=(
-            "Read the left-hand column, because that is the whole story. "
-            "[[slnc 300]] Zero to three thousand: timeout. Three thousand to six "
-            "thousand: timeout. Six thousand to nine thousand: timeout. "
-            "[[slnc 300]] The shopper waited nine seconds. And then they got a "
-            "page with no suggestions on it — which is precisely, identically, "
-            "the page they would have had at zero seconds if we had never "
-            "called at all. [[slnc 350]] So every one of those nine seconds "
-            "bought absolutely nothing. [[slnc 250]] And there is a second cost, "
-            "pointing the other way. A service that is already on its knees "
-            "just received three times as much traffic from us as it would "
-            "have done if we had asked once. We are not helping it recover. We "
-            "are standing on it. [[slnc 300]] Retry is not a bad pattern. It is "
-            "the wrong pattern for this, and the difference is a single "
-            "question that I'll come to in a moment."
+            'Here is the timeline. [[slnc 400]] Zero to three seconds: '
+            'timeout. [[slnc 300]] Three to six seconds: timeout. [[slnc '
+            '300]] Six to nine seconds: timeout. [[slnc 500]] The shopper '
+            'waited nine seconds. [[slnc 300]] And then got a page with '
+            'no suggestions. [[slnc 300]] Exactly the page they could '
+            'have had at zero seconds, if we had never called at all. '
+            '[[slnc 500]] So those nine seconds bought nothing. [[slnc '
+            '600]] There is a second cost, too. [[slnc 300]] A service '
+            'that is already struggling just got three times as much '
+            'traffic from us. [[slnc 300]] We are not helping it recover. '
+            '[[slnc 300]] We are standing on it. [[slnc 500]] Retry is '
+            'not a bad pattern. [[slnc 300]] It is the wrong pattern for '
+            'an outage.'
         ),
     ),
     dict(
@@ -181,23 +180,25 @@ return List.of();   // gave up, serve the page anyway
             "run out, checkout stops working too.",
         ],
         narration=(
-            "There are three costs here, and almost everybody finds the first "
-            "two and stops. [[slnc 300]] One: nine seconds of a shopper's life, "
-            "spent to arrive at the same page they'd have had immediately. "
-            "[[slnc 250]] Two: triple the traffic, aimed at something already "
-            "struggling. [[slnc 300]] The third one is the one that actually "
-            "takes the shop down, and it is worth saying slowly. [[slnc 250]] "
-            "While your code is sitting there waiting for an answer that is "
-            "never coming, it is holding a thread. That thread is doing "
-            "nothing. It cannot serve anybody else. And threads are finite — a "
-            "web server has a pool of them, maybe a couple of hundred. "
-            "[[slnc 350]] So now imagine a thousand shoppers browsing product "
-            "pages during this outage. That is a thousand threads, each held "
-            "open for nine seconds, waiting on a feature that nobody would "
-            "have missed. [[slnc 300]] When the pool runs out, there are no "
-            "threads left for anything — including checkout. [[slnc 350]] Let me "
-            "say that as plainly as I can. The espresso machines stop selling, "
-            "because the suggestions are broken."
+            'There are three costs here. [[slnc 300]] Most people find '
+            'the first two, and stop. [[slnc 500]] One. [[slnc 200]] Nine '
+            "seconds of a shopper's time, to reach the same page they "
+            'could have had at once. [[slnc 400]] Two. [[slnc 200]] Three '
+            'times the traffic, aimed at a service that is already '
+            'struggling. [[slnc 500]] Three is the one that takes the '
+            'shop down. [[slnc 300]] While the code waits for an answer '
+            'that never comes, it holds a thread. [[slnc 300]] A thread '
+            'is a worker that can serve one request at a time. [[slnc '
+            '300]] That thread does nothing, and cannot serve anyone '
+            'else. [[slnc 300]] And a web server only has a limited '
+            'number of them, perhaps a couple of hundred. [[slnc 500]] '
+            'Now imagine a thousand shoppers browsing during the outage. '
+            '[[slnc 300]] That is a thousand threads, each held for nine '
+            'seconds, waiting on a feature nobody would miss. [[slnc '
+            '300]] When the threads run out, there are none left for '
+            'anything. [[slnc 300]] Including checkout. [[slnc 500]] So '
+            'the espresso machines stop selling, because the suggestions '
+            'are broken.'
         ),
     ),
     dict(
@@ -219,21 +220,20 @@ return List.of();   // gave up, serve the page anyway
             "That is the entire pattern.",
         ],
         narration=(
-            "Forget software for thirty seconds and think about the fuse box in "
-            "a house. [[slnc 300]] When something goes badly wrong with the "
-            "wiring, the fuse trips. The power to that circuit is cut. "
-            "[[slnc 250]] And here is the important bit: it stays tripped. "
-            "[[slnc 300]] A fuse does not flick itself back on hopefully every "
-            "few seconds to see how things are going. If it did, it would be "
-            "useless — the fault is still there, and all that hopeful flicking "
-            "is exactly the thing the fuse exists to prevent. [[slnc 350]] What "
-            "actually happens is that later on, somebody walks over to the box "
-            "and flips the switch back on. Once. To see. [[slnc 300]] If the "
-            "lights come on, good, we're back. If it trips again immediately, "
-            "fine — it stays off, and they go and find the actual problem. "
-            "[[slnc 350]] That is the entire pattern. Stop calling. Wait. Let "
-            "one call through to find out. And I'd rather you remembered the "
-            "fuse box than any of the class names coming up."
+            'Forget software for a moment, and think about the fuse box '
+            'in a house. [[slnc 400]] When something goes badly wrong '
+            'with the wiring, the fuse trips. [[slnc 300]] The power to '
+            'that circuit is cut. [[slnc 300]] And it stays off. [[slnc '
+            '500]] A fuse does not keep switching itself back on every '
+            'few seconds, hoping. [[slnc 300]] The fault is still there, '
+            'and that is exactly what the fuse exists to prevent. [[slnc '
+            '500]] Instead, later on, someone walks over and flips the '
+            'switch back on. [[slnc 300]] Once. [[slnc 300]] To see. '
+            '[[slnc 500]] If the lights come on, good. [[slnc 300]] If it '
+            'trips again, it stays off, and they go and find the real '
+            'problem. [[slnc 600]] That is the entire pattern. [[slnc '
+            '300]] Stop calling. [[slnc 300]] Wait. [[slnc 300]] Then let '
+            'one call through, to find out.'
         ),
     ),
     dict(
@@ -255,20 +255,20 @@ return List.of();   // gave up, serve the page anyway
             "Think of a wire.",
         ],
         narration=(
-            "There are three states, and one piece of vocabulary that catches "
-            "absolutely everybody, so let's deal with it now. [[slnc 300]] The "
-            "healthy state — the everything-is-fine state, where calls go "
-            "through normally — is called closed. [[slnc 300]] I know. "
-            "[[slnc 250]] If that sounds backwards, it is because you are "
-            "thinking of a door. A closed door stops you. But this name comes "
-            "from electrical circuits, and a closed circuit is one where the "
-            "current flows. It is complete. It works. [[slnc 350]] So: closed "
-            "means healthy, calls go through, and failures in a row are being "
-            "counted. Open means tripped — calls are refused without being "
-            "made at all. [[slnc 300]] And half-open is that moment at the fuse "
-            "box with a finger on the switch: exactly one call is allowed "
-            "through, to see what happens. [[slnc 350]] Think of a wire, not a "
-            "door, and the rest of this video will make sense."
+            'A breaker has three states. [[slnc 300]] And one of the '
+            "names sounds backwards, so let's deal with it now. [[slnc "
+            '500]] The healthy state, where calls go through normally, is '
+            'called closed. [[slnc 500]] That sounds wrong if you think '
+            'of a door, because a closed door stops you. [[slnc 300]] But '
+            'the name comes from electrical circuits. [[slnc 300]] A '
+            'closed circuit is complete, and the current flows. [[slnc '
+            '600]] So, closed means healthy. [[slnc 300]] Calls go '
+            'through, and failures in a row are counted. [[slnc 500]] '
+            'Open means tripped. [[slnc 300]] Calls are refused, without '
+            'being made at all. [[slnc 500]] And half-open is the moment '
+            'with a finger on the fuse switch. [[slnc 300]] Exactly one '
+            'call is let through, to see what happens. [[slnc 500]] Think '
+            'of a wire, not a door.'
         ),
     ),
     dict(
@@ -292,22 +292,23 @@ return List.of();   // gave up, serve the page anyway
     }
 }""",
         narration=(
-            "In code the whole decision fits in one method, and there are only "
-            "three questions in it. [[slnc 300]] First question: am I currently "
-            "tripped, and if so, is the waiting period over? If I am tripped "
-            "and the wait is not over, I throw immediately without making any "
-            "call at all. That is the important line — no call is made. If the "
-            "wait is over, I move to half-open and let this one through. "
-            "[[slnc 350]] Second question: did the call work? If it did, I reset "
-            "the count of failures back to zero and hand the answer back. "
-            "[[slnc 300]] Now, notice I said reset, not decrement, and that word "
-            "matters. The count is of failures in a row — consecutive failures. "
-            "A service that answers you three times and fails once is not down. "
-            "It is having a bad moment, and a bad moment is retry's job, not "
-            "this one's. [[slnc 350]] Third question: if the call failed, have I "
-            "now failed enough times in a row? In this project the threshold is "
-            "three. At three, it trips, notes the time, and stops calling. "
-            "[[slnc 300]] That's it. That is the mechanism, end to end."
+            'In code, the whole decision fits in one method, with three '
+            'questions. [[slnc 500]] First question. [[slnc 300]] Is the '
+            'breaker open, and is the waiting time over? [[slnc 300]] If '
+            'it is open, and the wait is not over, it refuses at once, '
+            'and makes no call. [[slnc 300]] If the wait is over, it '
+            'moves to half-open, and lets this one call through. [[slnc '
+            '500]] Second question. [[slnc 300]] Did the call work? '
+            '[[slnc 300]] If so, the failure count goes back to zero, and '
+            'the answer is returned. [[slnc 500]] Back to zero, not down '
+            'by one. [[slnc 300]] Because it counts failures in a row. '
+            '[[slnc 300]] A service that answers three times and fails '
+            'once is not down. [[slnc 300]] It is having a bad moment, '
+            "and that is retry's job. [[slnc 500]] Third question. [[slnc "
+            '300]] If the call failed, has it now failed enough times in '
+            'a row? [[slnc 300]] In this project, the limit is three. '
+            '[[slnc 300]] At three, the breaker trips, notes the time, '
+            'and stops calling. [[slnc 500]] That is the whole mechanism.'
         ),
     ),
     dict(
@@ -329,28 +330,26 @@ return List.of();   // gave up, serve the page anyway
   3 calls reached Recommendations, 3 were refused without a call
   total time 9000ms""",
         narration=(
-            "Same outage, six shoppers, now with a breaker. And once again the "
-            "left-hand column is the argument, so let me read it to you. "
-            "[[slnc 300]] The first page: zero to three thousand, timeout, "
-            "failure one of three. The second: three thousand to six thousand, "
-            "timeout, failure two. The third: six thousand to nine thousand, "
-            "timeout — and that is three in a row, so the breaker trips. "
-            "[[slnc 350]] Now the fourth shopper arrives. Nine thousand to nine "
-            "thousand. Refused, no call made. [[slnc 250]] Fifth shopper: nine "
-            "thousand to nine thousand. Sixth: nine thousand to nine thousand. "
-            "[[slnc 350]] The clock stopped moving. [[slnc 300]] That is what I "
-            "want you to hear. Once the breaker is open, serving a page costs "
-            "nothing at all, because nothing leaves the building. Six pages "
-            "were served, three calls were actually made, three were refused, "
-            "and the grand total for all six is nine seconds — the same nine "
-            "seconds that retry spent on one single shopper. [[slnc 350]] And "
-            "every one of those six pages is a page somebody can buy an "
-            "espresso machine from. [[slnc 300]] Now let me be honest about the "
-            "trade, because this part gets skipped. The first three shoppers "
-            "paid three seconds each. A breaker never protects the people who "
-            "discover an outage. It protects everybody after them. What it "
-            "prevents is the outage being rediscovered, at full price, by every "
-            "shopper for as long as it lasts."
+            'Now the same outage, with six shoppers, and a breaker. '
+            '[[slnc 500]] The first page: zero to three seconds, timeout. '
+            '[[slnc 300]] Failure one of three. [[slnc 300]] The second '
+            'page: three to six seconds, timeout. [[slnc 300]] Failure '
+            'two. [[slnc 300]] The third page: six to nine seconds, '
+            'timeout. [[slnc 300]] That is three in a row, so the breaker '
+            'trips. [[slnc 600]] The fourth shopper arrives at nine '
+            'seconds, and is refused instantly. [[slnc 300]] No call is '
+            'made. [[slnc 300]] The fifth, also instantly. [[slnc 300]] '
+            'The sixth, also instantly. [[slnc 500]] The clock has '
+            'stopped moving. [[slnc 300]] Once the breaker is open, '
+            'serving a page costs nothing, because nothing leaves the '
+            'building. [[slnc 500]] Six pages, three real calls, and nine '
+            'seconds in total. [[slnc 300]] The same nine seconds retry '
+            'spent on a single shopper. [[slnc 300]] And every one of '
+            'those six pages can still sell an espresso machine. [[slnc '
+            '600]] To be honest about the trade: the first three shoppers '
+            'still waited three seconds each. [[slnc 300]] A breaker '
+            'never protects the people who discover an outage. [[slnc '
+            '300]] It protects everybody after them.'
         ),
     ),
     dict(
@@ -359,30 +358,28 @@ return List.of();   // gave up, serve the page anyway
         title="The Pieces, And What Each One Decides",
         body=None,
         narration=(
-            "Let me put the pieces in order, in words, because there are only a "
-            "few of them. [[slnc 300]] At the centre there is one class, called "
-            "CircuitBreaker. It holds three things: which state it is in, how "
-            "many failures in a row it has seen, and the moment it tripped. "
-            "[[slnc 300]] And here is the thing worth noticing about it. It takes "
-            "a piece of work to run and it runs it. It has never heard of "
-            "product pages. It has never heard of money, or shoppers, or "
-            "espresso machines. That is exactly why one copy of this class can "
-            "serve every caller in the project. [[slnc 350]] Underneath it sits "
-            "the state — closed, open, or half-open — and a clock. And the "
-            "clock is the half-open mechanism, entirely. There is no scheduler "
-            "here. There is no background thread waking up to retry. The "
-            "breaker simply compares the current time against the moment it "
-            "tripped, on whatever call happens to arrive next. Recovery is "
-            "discovered by ordinary traffic. [[slnc 350]] On the other side there "
-            "are four callers, and they are the interesting part. The product "
-            "page, which treats suggestions as optional. Checkout, which treats "
-            "payment as essential. A third one that invents a receipt — we'll "
-            "come to that one. And a fourth that has no breaker at all and just "
-            "retries, which is act one, kept in the project on purpose so the "
-            "comparison is something you can run rather than something I "
-            "assert. [[slnc 350]] All four share one breaker class. Nothing about "
-            "the breaker changes between them. What changes is the catch block "
-            "— and that is the only place the pattern leaves you a decision."
+            "Let's name the pieces. [[slnc 300]] There are only a few. "
+            '[[slnc 500]] At the centre is one class: the circuit '
+            'breaker. [[slnc 300]] It remembers three things. [[slnc '
+            '300]] Its state, how many failures in a row it has seen, and '
+            'the moment it tripped. [[slnc 500]] It is given a piece of '
+            'work, and runs it. [[slnc 300]] It knows nothing about '
+            'product pages, money, or shoppers. [[slnc 300]] That is why '
+            'one breaker class can serve every caller. [[slnc 600]] It '
+            'also has a clock, and that clock is the whole half-open '
+            'mechanism. [[slnc 300]] There is no background timer. [[slnc '
+            '300]] The breaker simply compares the time now with the time '
+            'it tripped, whenever the next call arrives. [[slnc 300]] So '
+            'recovery is found by ordinary traffic. [[slnc 600]] Then '
+            'there are four callers, and they are the interesting part. '
+            '[[slnc 300]] The product page, which treats suggestions as '
+            'optional. [[slnc 300]] Checkout, which treats payment as '
+            'essential. [[slnc 300]] A third caller that invents a '
+            'receipt. [[slnc 300]] And a fourth with no breaker at all, '
+            'which only retries. [[slnc 500]] All four use the same '
+            'breaker class. [[slnc 300]] What changes between them is '
+            'what they do when the call fails. [[slnc 300]] That is the '
+            'only decision the pattern leaves to you.'
         ),
     ),
     dict(
@@ -400,24 +397,24 @@ return List.of();   // gave up, serve the page anyway
   page: Barista Pro Espresso Machine, 2 suggestion(s)
   state: CLOSED -- nobody deployed anything to make that happen.""",
         narration=(
-            "Meanwhile, somewhere else, somebody has fixed Recommendations. "
-            "[[slnc 300]] At nine seconds the breaker is open and a call is "
-            "refused instantly. Then the clock reaches fourteen thousand, which "
-            "is five seconds after it tripped, and the next shopper to arrive "
-            "gets a different answer. Half-open: letting one call through. "
-            "[[slnc 300]] That call takes twenty milliseconds and comes back with "
-            "two suggestions. So the breaker closes, and normal service "
-            "resumes. [[slnc 350]] Read the last line again, because it is the "
-            "nicest property of this pattern. Nobody was paged. Nobody logged "
-            "into anything. Nobody deployed anything. The shop noticed, all by "
-            "itself, that the outage was over. [[slnc 350]] And notice how cheap "
-            "the finding-out was. One call. If Recommendations had still been "
-            "down, that one shopper would have waited three seconds, the "
-            "breaker would have reopened for another full five, and everybody "
-            "else would have carried on being served instantly. [[slnc 300]] The "
-            "single call is the whole point of half-open. If you let all the "
-            "waiting calls through instead, you have simply recreated the "
-            "stampede on a timer."
+            'Meanwhile, somebody has fixed Recommendations. [[slnc 500]] '
+            'At nine seconds, the breaker is open, and a call is refused '
+            'instantly. [[slnc 300]] At fourteen seconds, five seconds '
+            'after it tripped, the next shopper gets a different answer. '
+            '[[slnc 300]] Half-open: one call is let through. [[slnc '
+            '500]] That call takes twenty milliseconds, and returns two '
+            'suggestions. [[slnc 300]] So the breaker closes, and normal '
+            'service resumes. [[slnc 600]] Nobody was called out. [[slnc '
+            '300]] Nobody logged in, and nobody deployed anything. [[slnc '
+            '300]] The shop noticed by itself that the outage was over. '
+            '[[slnc 500]] And finding out was cheap: one call. [[slnc '
+            '300]] If the service had still been down, one shopper would '
+            'have waited three seconds. [[slnc 300]] The breaker would '
+            'have opened again for another five. [[slnc 300]] And '
+            'everyone else would still be served instantly. [[slnc 500]] '
+            'That single call is the whole point of half-open. [[slnc '
+            '300]] Let every waiting call through instead, and you just '
+            'rush the broken service all over again.'
         ),
     ),
     dict(
@@ -439,22 +436,22 @@ return List.of();   // gave up, serve the page anyway
             "for taking the money.",
         ],
         narration=(
-            "Everything up to here is the mechanism, and the mechanism is the "
-            "easy half. [[slnc 350]] Here is the sentence the rest of this video "
-            "depends on. A breaker does not make failures disappear. It makes "
-            "them fail fast. [[slnc 300]] The call still failed. The shopper "
-            "still isn't getting what they asked for. All that changed is that "
-            "they found out in no time at all instead of in three seconds. "
-            "[[slnc 350]] So what is that speed actually worth? And the honest "
-            "answer is: it depends entirely on what you were calling. "
-            "[[slnc 300]] On the product page it bought us something lovely. "
-            "Suggestions are optional, so there is something true we can say "
-            "instead — we have no suggestions to show you right now — and the "
-            "page goes out without them and the shopper buys the espresso "
-            "machine anyway. [[slnc 350]] Now ask the same question about "
-            "checkout, where the thing that is failing is taking the money. "
-            "[[slnc 300]] There is no substitute for taking the money. There is "
-            "nothing a shop can serve you instead."
+            'Everything so far is the mechanism, and that is the easy '
+            'half. [[slnc 500]] Here is the key sentence. [[slnc 300]] A '
+            'breaker does not make failures disappear. [[slnc 300]] It '
+            'makes them fail fast. [[slnc 500]] The call still failed. '
+            '[[slnc 300]] The shopper still does not get what they asked '
+            'for. [[slnc 300]] They just find out at once, instead of '
+            'after three seconds. [[slnc 500]] So what is that speed '
+            'worth? [[slnc 300]] It depends entirely on what you were '
+            'calling. [[slnc 600]] On the product page, it is worth a '
+            'lot. [[slnc 300]] Suggestions are optional, so there is '
+            'something true to say instead. [[slnc 300]] We have no '
+            'suggestions to show right now. [[slnc 300]] The page goes '
+            'out without them, and the shopper buys the machine anyway. '
+            '[[slnc 600]] Now ask the same question about checkout, where '
+            'the failing service takes the money. [[slnc 300]] There is '
+            'no substitute for taking the money.'
         ),
     ),
     dict(
@@ -474,24 +471,23 @@ return List.of();   // gave up, serve the page anyway
 
 // "We cannot take payment at the moment. Your basket is saved.\"""",
         narration=(
-            "So here is checkout, wired to the same breaker class, with the "
-            "same threshold and the same wait. And when the breaker refuses, it "
-            "does not invent anything. It tells the shopper the truth: we "
-            "cannot take payment at the moment, your basket is saved. "
-            "[[slnc 350]] Five shoppers were told that. Zero cards were charged. "
-            "[[slnc 300]] Which raises a fair question — if there is no fallback "
-            "here, is the breaker worth having at all? [[slnc 350]] Yes, and for "
-            "two reasons. [[slnc 250]] The first is in the timestamps. The first "
-            "shopper got that message after three seconds of spinner. The "
-            "fourth and fifth got exactly the same message instantly. Same "
-            "words, same outcome, and telling somebody their basket is safe "
-            "straight away instead of after three seconds of watching a "
-            "spinner is a genuinely better product. [[slnc 350]] The second "
-            "reason is the one from earlier. Without the breaker, every one of "
-            "those five shoppers holds a thread open for three seconds to "
-            "discover the same outage. Make it a thousand shoppers and you have "
-            "lost the whole shop, not just checkout. [[slnc 300]] A fast, honest "
-            "no is a real feature."
+            'Here is checkout, using the same breaker class, with the '
+            'same limit and the same wait. [[slnc 500]] When the breaker '
+            'refuses, checkout does not invent anything. [[slnc 300]] It '
+            'tells the shopper the truth. [[slnc 300]] We cannot take '
+            'payment at the moment, and your basket is saved. [[slnc '
+            '500]] Five shoppers were told that. [[slnc 300]] No cards '
+            'were charged. [[slnc 600]] So, with no fallback, is the '
+            'breaker still worth having? [[slnc 300]] Yes, for two '
+            'reasons. [[slnc 500]] First, speed. [[slnc 300]] The first '
+            'shopper got that message after three seconds of waiting. '
+            '[[slnc 300]] The fourth and fifth got the same message '
+            'instantly. [[slnc 300]] Being told straight away that your '
+            'basket is safe is a better experience. [[slnc 500]] Second, '
+            'threads. [[slnc 300]] Without the breaker, every shopper '
+            'holds a thread for three seconds. [[slnc 300]] With a '
+            'thousand shoppers, you lose the whole shop, not just '
+            'checkout. [[slnc 500]] A fast, honest no is a real feature.'
         ),
     ),
     dict(
@@ -510,25 +506,27 @@ return List.of();   // gave up, serve the page anyway
 
 // catch (RuntimeException anything) { return "chg-assumed-ok"; }""",
         narration=(
-            "And now the last one, which I'd like you to sit with for a moment. "
-            "[[slnc 350]] This class is wired identically to the honest one. Same "
-            "dependency, same breaker, same threshold, same shape. The only "
-            "difference is one catch block. When payments cannot be reached, "
-            "instead of throwing, it returns a made-up receipt. [[slnc 350]] Look "
-            "at what happens. The shopper is thanked. They are shown a receipt. "
-            "Nothing throws an exception. No alert fires. Every dashboard in "
-            "the building is green. And the warehouse is going to ship an "
-            "espresso machine that nobody paid for. [[slnc 350]] Cards actually "
-            "charged: zero. [[slnc 300]] Now, the lesson here is not that "
-            "fallbacks are bad — the product page's fallback is excellent, and "
-            "it is the reason the shop kept selling this morning. [[slnc 300]] "
-            "The rule that tells the two apart is one word, and it is this. An "
-            "empty list of suggestions is true. The shop really does have no "
-            "suggestions to show. [[slnc 350]] A receipt for money that never "
-            "moved is not true. [[slnc 300]] And a fallback that hides a real "
-            "failure is worse than the error it replaced — because the error "
-            "would have been noticed in seconds, and this will be noticed at "
-            "the end of the month."
+            'And now the last caller. [[slnc 300]] Think about this one '
+            'carefully. [[slnc 500]] It is set up exactly like the honest '
+            'checkout. [[slnc 300]] Same service, same breaker, same '
+            'limit. [[slnc 300]] The only difference is what it does on '
+            'failure. [[slnc 300]] When payments cannot be reached, it '
+            'returns a made-up receipt. [[slnc 600]] So the shopper is '
+            'thanked, and shown a receipt. [[slnc 300]] No error is '
+            'raised. [[slnc 300]] No alert fires. [[slnc 300]] Every '
+            'dashboard stays green. [[slnc 300]] And the warehouse will '
+            'ship an espresso machine that nobody paid for. [[slnc 300]] '
+            'Cards actually charged: zero. [[slnc 600]] The lesson is not '
+            "that fallbacks are bad. [[slnc 300]] The product page's "
+            'fallback is excellent. [[slnc 300]] It is why the shop kept '
+            'selling this morning. [[slnc 500]] The difference is one '
+            'word: true. [[slnc 300]] An empty list of suggestions is '
+            'true. [[slnc 300]] The shop really has none to show. [[slnc '
+            '300]] A receipt for money that never moved is not true. '
+            '[[slnc 500]] And a fallback that hides a real failure is '
+            'worse than the error it replaced. [[slnc 300]] The error '
+            'would be noticed in seconds. [[slnc 300]] This will be '
+            'noticed at the end of the month.'
         ),
     ),
     dict(
@@ -550,24 +548,23 @@ return List.of();   // gave up, serve the page anyway
             "It cannot tell you whether your fallback is true.",
         ],
         narration=(
-            "Before I finish, the costs — because every pattern has them and "
-            "this one is usually sold without any. [[slnc 300]] First, and I said "
-            "it earlier but it is worth repeating: a breaker does not protect "
-            "the people who find the outage. Somebody always pays full price. "
-            "[[slnc 300]] Second, it can be tuned badly in both directions. Set "
-            "the threshold to one and a single wobble takes a perfectly healthy "
-            "service out of use. Set the reset wait to a minute and your shop "
-            "stays degraded for a full minute after the dependency came back. "
-            "[[slnc 350]] Third, it is not free to reason about. There is now a "
-            "piece of state that changes what your code does, and the same call "
-            "behaves differently depending on what happened five seconds ago. "
-            "For a call that is fast and local, or one that runs once at "
-            "startup, that is not a trade worth making. [[slnc 350]] And finally, "
-            "the honest one. In production you would probably reach for a "
-            "library rather than write this yourself, and that is fine. But a "
-            "library gives you the state machine, the threshold and the timer. "
-            "[[slnc 300]] It cannot tell you whether the thing you say instead is "
-            "true. That part is yours."
+            'Now the costs, because every pattern has them. [[slnc 500]] '
+            'First, a breaker does not protect the people who discover '
+            'the outage. [[slnc 300]] Somebody always pays full price. '
+            '[[slnc 500]] Second, it can be tuned badly, in both '
+            'directions. [[slnc 300]] With a limit of one, a single '
+            'hiccup cuts off a perfectly healthy service. [[slnc 300]] '
+            'With a one-minute wait, the shop stays degraded for a whole '
+            'minute after the service has recovered. [[slnc 500]] Third, '
+            'it is harder to reason about. [[slnc 300]] The same call now '
+            'behaves differently, depending on what happened five seconds '
+            'ago. [[slnc 300]] For a call that is fast and local, or runs '
+            'once at startup, that is not worth it. [[slnc 600]] Finally, '
+            'in real systems, you would probably use a library rather '
+            'than write this yourself. [[slnc 300]] That is fine. [[slnc '
+            '300]] A library gives you the states, the limit, and the '
+            'timer. [[slnc 300]] But it cannot tell you whether what you '
+            'say instead is true. [[slnc 300]] That part is yours.'
         ),
     ),
     dict(
@@ -581,28 +578,28 @@ return List.of();   // gave up, serve the page anyway
             "why half-open lets exactly one.",
         ],
         narration=(
-            "That's the circuit breaker. [[slnc 250]] The full source, the "
-            "written notes, the diagrams and an animated walkthrough are all in "
-            "the repository, and everything runs offline with nothing installed "
-            "but a Java development kit — there is no network in this project "
-            "at all, and no resilience library either. [[slnc 300]] If you try "
-            "one exercise, try this one. Find the line that moves the breaker "
-            "into half-open, delete it, and just let every waiting call through "
-            "once the wait is over. Then run the demo again with the service "
-            "still down. [[slnc 300]] Every caller pays three seconds, "
-            "simultaneously, against something already on its knees — and you "
-            "will have built the stampede that the pattern exists to prevent. "
-            "[[slnc 350]] And then sit with the harder question, the one no "
-            "exercise can answer for you. Somewhere in the system you work on "
-            "there is a catch block that returns something reassuring when a "
-            "dependency fails. [[slnc 300]] Is what it says true? [[slnc 350]] "
-            "Because that is the real lesson here. The state machine is the "
-            "easy half. A breaker makes failures fast, not invisible, and a "
-            "fallback is only legitimate if what it tells the person waiting is "
-            "actually true. [[slnc 300]] If this helped, a like genuinely does "
-            "help other people find it, and subscribe if you would like the "
-            "rest of the series. [[slnc 250]] Thanks for watching, and I'll see "
-            "you in the next one."
+            "That's the Circuit Breaker pattern. [[slnc 400]] If you "
+            'remember one sentence, make it this one. [[slnc 300]] A '
+            'breaker makes failures fast, not invisible, and a fallback '
+            'is only acceptable if what it tells the person waiting is '
+            'true. [[slnc 500]] The full source code, written notes, '
+            'diagrams, and an animated walkthrough are all in the '
+            'repository. [[slnc 300]] It runs offline, with nothing '
+            'installed except a Java development kit. [[slnc 300]] There '
+            'is no network, and no resilience library. [[slnc 500]] Here '
+            'is one exercise to try. [[slnc 300]] Remove the half-open '
+            'step, so every waiting call is let through once the wait is '
+            'over. [[slnc 300]] Then run the demo with the service still '
+            'down. [[slnc 300]] Every caller waits three seconds at the '
+            'same time, against a service that is already struggling. '
+            '[[slnc 300]] That is the rush the pattern exists to prevent. '
+            '[[slnc 500]] And one question to think about. [[slnc 300]] '
+            'Somewhere in your own system, a catch block returns '
+            'something reassuring when a service fails. [[slnc 300]] Is '
+            'what it says true? [[slnc 500]] If this helped, a like '
+            'really does help other people find it. [[slnc 300]] And '
+            "subscribe, if you'd like the rest of the series. [[slnc "
+            '400]] Thanks for watching.'
         ),
     ),
 ]

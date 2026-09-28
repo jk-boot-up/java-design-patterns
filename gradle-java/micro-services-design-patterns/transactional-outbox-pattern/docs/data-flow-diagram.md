@@ -14,40 +14,6 @@ one place in this diagram where the pattern has no answer.
 
 ![Transactional Outbox data flow diagram](images/data-flow-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-flowchart TD
-    Start(["a customer presses checkout"])
-    Begin["begin a transaction"]
-    W1["write the order row"]
-    W2["write the out-tray row beside it<br/>same transaction, same database"]
-    C1{"did the commit happen?"}
-    Nothing(["NOTHING exists — no order, no message<br/>the customer sees checkout fail and tries again.<br/>This is the easy case."])
-    Both["BOTH rows exist, or neither ever did<br/>the customer is done, and the broker<br/>has not been touched"]
-
-    Tick(["later, a timer fires — nobody is waiting"])
-    Sweep["read the rows that are not marked sent"]
-    Pub["publish one to the broker"]
-    B{"did the broker accept it?"}
-    Leave["leave it in the tray, mark nothing<br/>the NEXT sweep will read it again —<br/>and nobody wrote that retry"]
-    Mark{"was the row marked sent<br/>before the relay died?"}
-    Dup(["delivered TWICE — two emails, one order<br/>same message id both times"])
-    Once(["delivered once, ticked off, done"])
-
-    Start --> Begin --> W1 --> W2 --> C1
-    C1 -- "no — the process died" --> Nothing
-    C1 -- "yes" --> Both
-    Both --> Tick --> Sweep --> Pub --> B
-    B -- "no — the broker is down" --> Leave --> Sweep
-    B -- "yes" --> Mark
-    Mark -- "no — died in the gap" --> Dup --> Sweep
-    Mark -- "yes" --> Once
-```
-
-</details>
-
 ## What the picture is telling you
 
 **Only one box writes, and it writes twice in one motion.** `OrderService.placeOrder` opens

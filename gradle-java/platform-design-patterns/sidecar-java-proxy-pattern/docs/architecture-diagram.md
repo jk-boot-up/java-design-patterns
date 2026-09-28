@@ -16,37 +16,6 @@ is the whole reason the swap is possible at all.
 
 ![Sidecar with a Java proxy architecture diagram](images/architecture-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-flowchart TB
-    subgraph Before["yesterday"]
-        direction LR
-        SvcA["checkout service<br/>Java, Spring Boot<br/>configured with http://localhost:8081/pay<br/>no retry code, no certificate, no counters"]
-        PortA(["localhost:8081"])
-        NginxA["nginx proxy<br/>22 lines of configuration<br/>3 attempts, no wait between them<br/>TLS 1.3, access log, X-Service header"]
-        SvcA --> PortA --> NginxA
-    end
-
-    subgraph After["today"]
-        direction LR
-        SvcB["checkout service<br/>the same image, the same process<br/>configured with http://localhost:8081/pay<br/>not rebuilt, not restarted, not told"]
-        PortB(["localhost:8081"])
-        JavaB["java proxy<br/>40 lines of Java<br/>3 attempts, waiting 200ms then 400ms<br/>reads the same policy file"]
-        SvcB --> PortB --> JavaB
-    end
-
-    Provider["the payment provider<br/>HTTPS only, wobbles for 300ms at a time"]
-
-    NginxA --> Provider
-    JavaB --> Provider
-
-    Before -. "one line of configuration,<br/>zero service restarts" .-> After
-```
-
-</details>
-
 ## What runs where, and what that buys
 
 **The service is one process and the proxy is another.** That is inherited from §41 and

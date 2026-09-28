@@ -19,21 +19,21 @@ The first two lines are what a viewer sees above the fold, so they carry the hoo
 ```
 CHAPTERS
 00:00 Introduction
-00:58 The Partner Project
-01:23 Before The First Line
-01:46 One Address, Four Services
-02:05 The Prefix Is Stripped
-02:24 One Token Check, For Every Route
-02:42 One Service Down
-03:05 A Gateway Forwards
-03:25 A Slow Service
-03:39 The Verdict
-03:56 How To Recognise It
-04:07 Where You Have Met This
-04:12 What Was Used
-04:23 What Is Real Here
-04:38 When This Is Too Much
-04:44 Thanks for Watching
+01:03 The Partner Project
+01:31 Before The First Line
+01:59 One Address, Four Services
+02:32 The Prefix Is Stripped
+03:00 One Token Check, For Every Route
+03:35 One Service Down
+04:13 A Gateway Forwards
+04:39 A Slow Service
+05:05 The Verdict
+05:28 How To Recognise It
+05:43 Where You Have Met This
+05:51 What Was Used
+06:05 What Is Real Here
+06:26 When This Is Too Much
+06:36 Thanks for Watching
 
 SOURCE CODE, WRITTEN NOTES AND AN INTERACTIVE ANIMATION
 https://github.com/jk-boot-up/java-design-patterns/tree/main/gradle-java/micro-services-design-patterns/api-gateway-with-spring-cloud-gateway-pattern
@@ -48,21 +48,21 @@ YouTube renders these as chapters only if there are at least three and the first
 
 ```
 00:00 Introduction
-00:58 The Partner Project
-01:23 Before The First Line
-01:46 One Address, Four Services
-02:05 The Prefix Is Stripped
-02:24 One Token Check, For Every Route
-02:42 One Service Down
-03:05 A Gateway Forwards
-03:25 A Slow Service
-03:39 The Verdict
-03:56 How To Recognise It
-04:07 Where You Have Met This
-04:12 What Was Used
-04:23 What Is Real Here
-04:38 When This Is Too Much
-04:44 Thanks for Watching
+01:03 The Partner Project
+01:31 Before The First Line
+01:59 One Address, Four Services
+02:32 The Prefix Is Stripped
+03:00 One Token Check, For Every Route
+03:35 One Service Down
+04:13 A Gateway Forwards
+04:39 A Slow Service
+05:05 The Verdict
+05:28 How To Recognise It
+05:43 Where You Have Met This
+05:51 What Was Used
+06:05 What Is Real Here
+06:26 When This Is Too Much
+06:36 Thanks for Watching
 ```
 
 ## Tags
@@ -101,4 +101,4 @@ Add a card partway through pointing at the playlist, so a viewer who arrives at 
 
 ## Runtime
 
-Approximately 05:19, narrated at 145 words per minute.
+Approximately 07:16, narrated at 145 words per minute.

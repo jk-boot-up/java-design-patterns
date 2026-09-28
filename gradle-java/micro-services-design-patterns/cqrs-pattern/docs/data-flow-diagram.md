@@ -16,38 +16,6 @@ customer's own order is missing from their own page.
 
 ![CQRS data flow diagram](images/data-flow-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-flowchart TD
-    Place(["a customer places order ord-5001"])
-    Ledger["reserve the stock — checked and decremented<br/>in one breath, so the last kettle sells once"]
-    Final["the order is placed, paid for and FINAL<br/>the customer is already looking at a receipt"]
-    Emit["publish the events"]
-    Flight{"have the events been delivered yet?"}
-    Gap["the read model has 0 rows for this customer<br/>the order is real, the money has moved,<br/>and their own page does not have it on"]
-    Apply["apply — ALL the expensive work lives here<br/>ask Catalog for the names, ONCE, and keep the finished rows"]
-    Rows["OrderHistoryRow — sku, name, quantity, money<br/>the name is duplicated from Catalog on purpose"]
-
-    View(["somebody opens the order history page"])
-    RouteA["compose it now: ask Orders 30ms,<br/>then ask Catalog 60ms, then stitch"]
-    RouteB["look it up: one map read, 5ms,<br/>nobody else called"]
-    PageA(["the page — 90ms, 2 service calls, always current"])
-    PageB(["the page — 5ms, 0 service calls, a moment behind"])
-
-    Place --> Ledger --> Final --> Emit --> Flight
-    Flight -- "not yet" --> Gap
-    Flight -- "delivered" --> Apply --> Rows
-    Gap -. "closes by itself — nobody polls, no timer" .-> Apply
-
-    View --> RouteA --> PageA
-    View --> RouteB
-    Rows --> RouteB --> PageB
-```
-
-</details>
-
 ## What the picture is telling you
 
 **The expensive box appears exactly once on the lower route.** `apply` holds the call to

@@ -22,17 +22,20 @@ SCENES = [
         title="Transactional Outbox",
         body="",
         narration=(
-            "This is the Transactional Outbox pattern, in Java, explained from "
-            "scratch with a program you can run yourself. "
-            "I am Jayasekhar Konduru, and this is part of a series on design "
-            "patterns for services that talk to each other. "
-            "The Transactional Outbox pattern says this: when you need to save "
-            "something and also tell somebody about it, do not do two things. "
-            "Write the announcement into your own database, in the same "
-            "transaction as the data, and let a separate process post it later. "
-            "In our online shop, that means the order row and the message that "
-            "announces it are written by one commit, and the confirmation email "
-            "goes out afterwards, from a message that was already safely stored."
+            'Hello, and welcome. [[slnc 400]] This video explains the '
+            'Transactional Outbox pattern, in Java. [[slnc 300]] This '
+            'video is presented by Jayasekhar Konduru. [[slnc 600]] '
+            'First, a simple definition. [[slnc 300]] Sometimes you need '
+            'to save something, and also tell others about it. [[slnc '
+            '300]] The outbox says: do not do two separate things. [[slnc '
+            '300]] Write the announcement into your own database, in the '
+            'same step as the data. [[slnc 300]] Then let a separate '
+            'process send it out later. [[slnc 600]] Think of an office '
+            'out-tray. [[slnc 300]] You drop the letter in the tray, and '
+            'the post room sends it later. [[slnc 700]] In our online '
+            'store, the order, and the message announcing it, are saved '
+            'together. [[slnc 300]] And the confirmation email goes out '
+            'afterwards, from a message that was already safely stored.'
         ),
     ),
     dict(
@@ -54,17 +57,18 @@ SCENES = [
             "And the obvious code does them on two separate lines.",
         ],
         narration=(
-            "A customer presses buy. Two things have to happen now. The order has "
-            "to be saved, so the shop knows it exists and can be charged for. And "
-            "the rest of the business has to be told, so the confirmation email "
-            "goes out, the warehouse picks the parcel, and the accounts balance at "
-            "the end of the month. "
-            "The first of those is a write to your own database. The second is a "
-            "message to a broker, which is a different piece of software on a "
-            "different machine. They are two systems, and no transaction covers "
-            "both of them. "
-            "The obvious code does them one after the other, on two lines. That is "
-            "where we start."
+            'A customer presses buy. [[slnc 300]] Now two things must '
+            'happen. [[slnc 500]] The order must be saved, so the shop '
+            'knows it exists, and can charge for it. [[slnc 300]] And the '
+            'rest of the business must be told. [[slnc 300]] So the email '
+            'goes out, the warehouse packs the parcel, and the accounts '
+            'balance. [[slnc 600]] The first is a write to your own '
+            'database. [[slnc 300]] The second is a message to a broker: '
+            'a separate program, on a separate machine, that passes '
+            'messages on. [[slnc 500]] They are two systems. [[slnc 300]] '
+            'And no single transaction covers both. [[slnc 500]] The '
+            'obvious code does them one after the other, in two lines. '
+            '[[slnc 300]] That is where we start.'
         ),
     ),
     dict(
@@ -79,13 +83,14 @@ SCENES = [
 // Save it. Then announce it.
 // Nobody would stop this in a review.""",
         narration=(
-            "Here is what almost everybody writes first, and it is two lines long. "
-            "Save the order to the database. Then publish an event to the broker "
-            "saying the order was placed. "
-            "Read that out loud and it sounds correct, because it is the order you "
-            "would do it in yourself. It would pass a code review in any team I "
-            "have worked in. Hold on to that, because in about a minute it is "
-            "going to lose a customer's order without raising a single error."
+            'Here is what almost everyone writes first. [[slnc 300]] Two '
+            'lines. [[slnc 500]] Save the order to the database. [[slnc '
+            '300]] Then send a message to the broker, saying the order '
+            'was placed. [[slnc 600]] That sounds correct. [[slnc 300]] '
+            'It is the order you would do it in yourself. [[slnc 300]] It '
+            'would pass any code review. [[slnc 500]] Remember that. '
+            '[[slnc 300]] Because in about a minute, it will lose a '
+            "customer's order without a single error."
         ),
     ),
     dict(
@@ -101,14 +106,16 @@ SCENES = [
   two lines, and they did the right thing.
   This is what every test the author writes will see.""",
         narration=(
-            "Act one runs those two lines. The order commits. The broker accepts "
-            "the message fifteen milliseconds later. The notification service "
-            "receives it and the email goes out. One order saved, one event "
-            "delivered, one email sent. "
-            "This is the important thing about act one: it is what every test "
-            "written for this code will see. The author writes a test, it passes, "
-            "and the code ships. Everything that goes wrong from here on goes "
-            "wrong in production, to a real customer, on a path no test ever took."
+            'First demo: the two lines. [[slnc 400]] The order is saved. '
+            '[[slnc 300]] The broker accepts the message fifteen '
+            'milliseconds later. [[slnc 300]] The notification service '
+            'receives it, and the email goes out. [[slnc 500]] One order '
+            'saved. [[slnc 200]] One message delivered. [[slnc 200]] One '
+            'email sent. [[slnc 600]] Here is the important point. [[slnc '
+            '300]] This is what every test written for this code will '
+            'see. [[slnc 300]] The test passes, and the code is released. '
+            '[[slnc 300]] Everything that goes wrong from here happens in '
+            'production, to a real customer, on a path no test ever took.'
         ),
     ),
     dict(
@@ -126,16 +133,17 @@ SCENES = [
   the order is real. The customer will be charged.
   Nobody will ever be told.""",
         narration=(
-            "Act two runs exactly the same two lines, and this time the process "
-            "dies in between them. A deploy landing in the middle of a request will "
-            "do it, and a deploy landing mid request is one of the most ordinary "
-            "reasons a request dies at all. "
-            "Now count what is left. The order is in the database. It is a real "
-            "order, for seventy pounds and ninety five pence, and the customer will "
-            "be charged for it. Zero events were delivered and zero emails were "
-            "sent. "
-            "The order is real, the customer will be charged, and nobody will ever "
-            "be told."
+            'Second demo: exactly the same two lines. [[slnc 300]] But '
+            'this time, the program dies between them. [[slnc 500]] A new '
+            'release landing in the middle of a request will do it. '
+            '[[slnc 300]] And that is one of the most ordinary ways a '
+            'request dies. [[slnc 600]] Now count what is left. [[slnc '
+            '300]] The order is in the database. [[slnc 300]] It is a '
+            'real order, for seventy pounds ninety-five, and the customer '
+            'will be charged. [[slnc 500]] No messages were delivered. '
+            '[[slnc 300]] No emails were sent. [[slnc 500]] The order is '
+            'real. [[slnc 300]] The customer will be charged. [[slnc '
+            '300]] And nobody will ever be told.'
         ),
     ),
     dict(
@@ -157,16 +165,17 @@ SCENES = [
             "that was never written down.",
         ],
         narration=(
-            "Now ask the question that matters, and sit with the answer. What "
-            "would retry this? "
-            "Nothing will. Nothing anywhere recorded that a message was owed. There "
-            "is no failed send in a log, because the send was never attempted. "
-            "There is no row in a dead letter queue, because nothing reached the "
-            "queue. There is no alert, because nothing errored. "
-            "This is not a message that failed to send. It is a message that "
-            "stopped existing. And no amount of retry logic, monitoring, or "
-            "cleverness can find something that was never written down anywhere. "
-            "That is what makes this failure different from an ordinary outage."
+            'Now ask the question that matters. [[slnc 300]] What would '
+            'retry this? [[slnc 600]] Nothing will. [[slnc 500]] Nothing '
+            'anywhere recorded that a message was owed. [[slnc 300]] '
+            'There is no failed send in a log, because the send was never '
+            'attempted. [[slnc 300]] There is nothing in a queue of '
+            'failed messages, because nothing reached the queue. [[slnc '
+            '300]] There is no alert, because nothing went wrong that '
+            'anything could see. [[slnc 600]] This is not a message that '
+            'failed to send. [[slnc 300]] It is a message that stopped '
+            'existing. [[slnc 500]] And no retry logic, monitoring, or '
+            'cleverness can find something that was never written down.'
         ),
     ),
     dict(
@@ -188,16 +197,20 @@ SCENES = [
             "  machine, and it will not join your transaction.",
         ],
         narration=(
-            "Two fixes get suggested in every room, and both are worth taking "
-            "seriously before taking apart. "
-            "The first is to swap the lines. Publish first, then save. That does "
-            "not close the gap; it moves it. Now a crash in the middle announces an "
-            "order that does not exist, and the warehouse picks a parcel that "
-            "nobody paid for. You have chosen a different lie, not fewer lies. "
-            "The second is to wrap both lines in a transaction. But a database "
-            "transaction covers the database. The broker is a separate program on a "
-            "separate machine, and it is not going to join your transaction. There "
-            "is no commit that spans the two of them."
+            'Two fixes get suggested in every room. [[slnc 300]] Both are '
+            'worth taking seriously, before we take them apart. [[slnc '
+            '600]] The first: swap the lines. [[slnc 300]] Send the '
+            'message first, then save. [[slnc 500]] That does not close '
+            'the gap. [[slnc 300]] It moves it. [[slnc 300]] Now a crash '
+            'in the middle announces an order that does not exist. [[slnc '
+            '300]] And the warehouse packs a parcel nobody paid for. '
+            '[[slnc 300]] You have chosen a different lie, not fewer '
+            'lies. [[slnc 600]] The second: wrap both lines in a '
+            'transaction. [[slnc 500]] But a database transaction only '
+            'covers the database. [[slnc 300]] The broker is a separate '
+            'program, on a separate machine. [[slnc 300]] It will not '
+            'join your transaction. [[slnc 300]] No single save covers '
+            'both.'
         ),
     ),
     dict(
@@ -219,17 +232,17 @@ SCENES = [
             "Your job ended when the letter hit the tray.",
         ],
         narration=(
-            "So stop trying to make the broker part of your transaction, and think "
-            "about an out-tray instead. "
-            "You write a letter at your desk. You do not get up and walk to the "
-            "post box. You drop the letter in the out-tray beside you, at the same "
-            "moment you file your own copy of it. That is one action, and it does "
-            "both things. "
-            "Later, the post room comes round, takes what is in the tray, and posts "
-            "it. If the post office is shut, the letter comes back and goes out on "
-            "the next round. "
-            "The important part is that your job ended the moment the letter hit "
-            "the tray. Whether the post office is open is not your problem."
+            'So stop trying to make the broker part of your transaction. '
+            '[[slnc 300]] Think about an out-tray instead. [[slnc 600]] '
+            'You write a letter at your desk. [[slnc 300]] You do not '
+            'walk to the post box. [[slnc 300]] You drop the letter in '
+            'the out-tray beside you, at the same moment you file your '
+            'own copy. [[slnc 300]] One action, and both things are done. '
+            '[[slnc 600]] Later, the post room comes round, and posts '
+            'what is in the tray. [[slnc 300]] If the post office is '
+            'shut, the letter goes out on the next round. [[slnc 500]] '
+            'Your job ended the moment the letter hit the tray. [[slnc '
+            '300]] Whether the post office is open is not your problem.'
         ),
     ),
     dict(
@@ -244,16 +257,18 @@ SCENES = [
 // Two rows. One commit. Both, or neither.
 // And no mention of the broker anywhere.""",
         narration=(
-            "Here is the whole mechanism, and it is small enough to be "
-            "disappointing. Begin a transaction. Save the order. Save the message "
-            "as well, as an ordinary row in an ordinary table in your own database. "
-            "Commit. "
-            "Two rows, one commit. Because it is one commit, there is no instant at "
-            "which one exists without the other. A crash before it leaves neither. "
-            "A crash after it leaves both. "
-            "And look at what is not in those four lines. There is no broker. The "
-            "order service does not call it, does not import it, and does not know "
-            "it exists. That absence is the pattern."
+            'Here is the whole mechanism, and it is small. [[slnc 500]] '
+            'Start a database transaction. [[slnc 300]] Save the order. '
+            '[[slnc 300]] Save the message too, as an ordinary row, in an '
+            'ordinary table, in your own database. [[slnc 300]] Then '
+            'commit, which means save both together. [[slnc 600]] Two '
+            'rows, one commit. [[slnc 300]] So there is never a moment '
+            'when one exists without the other. [[slnc 300]] A crash '
+            'before the commit leaves neither. [[slnc 300]] A crash after '
+            'it leaves both. [[slnc 600]] And notice what is missing. '
+            '[[slnc 300]] There is no broker. [[slnc 300]] The order '
+            'service does not call it, and does not even know it exists. '
+            '[[slnc 300]] That absence is the pattern.'
         ),
     ),
     dict(
@@ -262,15 +277,18 @@ SCENES = [
         title="The shape of it",
         body="",
         narration=(
-            "So the shape has two halves that run at different times. "
-            "The first half is the checkout. The order service opens a transaction, "
-            "writes the order row and the message row, and commits. Then it is "
-            "finished, and the customer sees their confirmation page. "
-            "The second half is a separate process called the relay. It reads the "
-            "messages in the table that have not been sent, publishes each one to "
-            "the broker, and marks each one as sent. "
-            "The two halves share nothing but a table. One runs because a customer "
-            "pressed a button. The other runs because a timer fired."
+            'The shape has two halves, which run at different times. '
+            '[[slnc 600]] The first half is checkout. [[slnc 300]] The '
+            'order service opens a transaction, writes the order and the '
+            'message, and commits. [[slnc 300]] Then it is finished, and '
+            'the customer sees their confirmation page. [[slnc 600]] The '
+            'second half is a separate process, called the relay. [[slnc '
+            '300]] It reads the messages that have not been sent yet. '
+            '[[slnc 300]] It sends each one to the broker. [[slnc 300]] '
+            'And it marks each one as sent. [[slnc 600]] The two halves '
+            'share nothing but a table. [[slnc 300]] One runs because a '
+            'customer pressed a button. [[slnc 300]] The other runs '
+            'because a timer went off.'
         ),
     ),
     dict(
@@ -289,16 +307,18 @@ Orders never called the broker. Now the relay comes round:
      15ms ->    15ms  OrderDb  MARKED-SENT  msg-1
   published on that sweep: 1, still waiting: 0""",
         narration=(
-            "Act three. After the checkout commits, and before anything else "
-            "happens, there is one order saved, one message waiting in the out-tray, "
-            "and zero events delivered. The order service never called the broker. "
-            "Then the relay comes round. Read the timeline: one commit wrote the "
-            "order and the message together. The broker accepted the message. The "
-            "notification service sent the email. And the relay marked the message "
-            "as sent. "
-            "The customer got exactly the same email as in act one. What changed is "
-            "that between the commit and the email there was no moment where the "
-            "order existed and the message did not."
+            'Third demo: one commit, then a sweep. [[slnc 400]] After the '
+            'checkout commits, and before anything else happens, there is '
+            'one order saved. [[slnc 300]] One message waiting in the '
+            'out-tray. [[slnc 300]] And no messages delivered. [[slnc '
+            '300]] The order service never called the broker. [[slnc '
+            '600]] Then the relay comes round. [[slnc 300]] The broker '
+            'accepts the message. [[slnc 300]] The notification service '
+            'sends the email. [[slnc 300]] And the relay marks the '
+            'message as sent. [[slnc 600]] The customer got exactly the '
+            'same email as in the first demo. [[slnc 300]] What changed '
+            'is this. [[slnc 300]] There was never a moment when the '
+            'order existed, and the message did not.'
         ),
     ),
     dict(
@@ -318,18 +338,21 @@ unreachable -- checkout does not depend on it
 
   nobody wrote any retry logic.""",
         narration=(
-            "Act four takes the broker away completely, and two customers check out "
-            "while it is unreachable. Both checkouts succeed. They never needed the "
-            "broker; they wrote two rows to a database and finished. In the version "
-            "we started with, a broker outage would have been a checkout outage. "
-            "The first sweep publishes nothing, because the broker will not answer, "
-            "and both messages stay in the tray. The broker comes back, the second "
-            "sweep publishes both, and both emails go out. "
-            "Now go and look for the retry logic, because there is none. No backoff "
-            "setting, no attempt counter, no scheduled retry table. A row that was "
-            "not published is still an unsent row, so the next sweep picks it up "
-            "again. The retry is not code. It is a consequence of where the message "
-            "is kept."
+            'Fourth demo: the broker is down. [[slnc 400]] Two customers '
+            'check out while the broker cannot be reached. [[slnc 500]] '
+            'Both checkouts succeed. [[slnc 300]] They never needed the '
+            'broker. [[slnc 300]] They wrote two rows to a database, and '
+            'finished. [[slnc 300]] In the two-line version, a broker '
+            'outage would have been a checkout outage. [[slnc 600]] The '
+            "relay's first sweep sends nothing, because the broker will "
+            'not answer. [[slnc 300]] Both messages stay in the tray. '
+            '[[slnc 500]] The broker comes back. [[slnc 300]] The second '
+            'sweep sends both, and both emails go out. [[slnc 600]] Now '
+            'look for the retry logic. [[slnc 300]] There is none. [[slnc '
+            '300]] A message that was not sent is still an unsent row. '
+            '[[slnc 300]] So the next sweep simply picks it up again. '
+            '[[slnc 500]] The retry is not code. [[slnc 300]] It comes '
+            'from where the message is kept.'
         ),
     ),
     dict(
@@ -349,16 +372,18 @@ so the out-tray still holds: 1
     "your order ord-8006 for £70.95 is confirmed"
     "your order ord-8006 for £70.95 is confirmed\"""",
         narration=(
-            "Act five is the bill, and this is the part most explanations leave "
-            "out. "
-            "The relay publishes a message. The broker takes it and the email goes "
-            "out. And then the relay dies, before it can write down that it had "
-            "sent it. The row is still marked unsent, because nothing ever marked "
-            "it. So the relay restarts, reads the tray, finds that message still "
-            "sitting there, and publishes it again. "
-            "The message was delivered twice. The customer has two identical "
-            "confirmation emails in their inbox for one order. Nothing failed, no "
-            "test went red, and this is the pattern working exactly as designed."
+            'Fifth demo: the bill. [[slnc 300]] Most explanations leave '
+            'this part out. [[slnc 600]] The relay sends a message. '
+            '[[slnc 300]] The broker takes it, and the email goes out. '
+            '[[slnc 300]] And then the relay dies, before it can mark the '
+            'message as sent. [[slnc 600]] So the row is still marked '
+            'unsent. [[slnc 300]] The relay restarts, reads the tray, and '
+            'finds that message still there. [[slnc 300]] So it sends it '
+            'again. [[slnc 600]] The message was delivered twice. [[slnc '
+            '300]] The customer has two identical confirmation emails, '
+            'for one order. [[slnc 500]] Nothing failed. [[slnc 300]] No '
+            'test went red. [[slnc 300]] And this is the pattern working '
+            'exactly as designed.'
         ),
     ),
     dict(
@@ -380,18 +405,20 @@ so the out-tray still holds: 1
             "and a loss cannot. That is at-least-once.",
         ],
         narration=(
-            "Here is why that duplicate cannot be engineered away. Publishing to "
-            "the broker and marking the row as sent are in two different systems, "
-            "so there is a gap between them. It is the same gap this pattern was "
-            "invented to close, turning up again inside the fix. "
-            "You cannot remove it. You can only choose which way it falls. Mark the "
-            "row sent first, and a crash in the gap loses the message forever. "
-            "Publish first, and a crash in the gap sends it twice. "
-            "This pattern publishes first, on purpose, because a duplicate is "
-            "something you can recover from and a loss is not. The name for that "
-            "guarantee is at-least-once delivery. Say it out loud when you adopt "
-            "this: never lost, sometimes twice. Anybody who tells you their outbox "
-            "gives exactly-once has not looked at this gap."
+            'Here is why that duplicate cannot be designed away. [[slnc '
+            '500]] Sending to the broker, and marking the row as sent, '
+            'happen in two different systems. [[slnc 300]] So there is a '
+            'gap between them. [[slnc 300]] It is the same gap this '
+            'pattern was invented to close, turning up again inside the '
+            'fix. [[slnc 600]] You cannot remove it. [[slnc 300]] You can '
+            'only choose which way it falls. [[slnc 500]] Mark the row '
+            'sent first, and a crash in the gap loses the message '
+            'forever. [[slnc 300]] Send first, and a crash in the gap '
+            'sends it twice. [[slnc 600]] This pattern sends first, on '
+            'purpose. [[slnc 300]] Because a duplicate can be recovered '
+            'from, and a loss cannot. [[slnc 500]] That promise is called '
+            'at-least-once delivery. [[slnc 300]] Say it out loud when '
+            'you adopt this: never lost, sometimes twice.'
         ),
     ),
     dict(
@@ -412,17 +439,18 @@ Two confirmation emails is embarrassing.
 If the receiver were Payments,
 it would be two charges.""",
         narration=(
-            "The duplicate is not fixable on this side, and pretending otherwise is "
-            "how teams end up believing in exactly-once. It belongs to whoever "
-            "receives the message. "
-            "What this side owes them is the ability to notice it, and it provides "
-            "exactly one thing: the message identifier was identical both times. "
-            "Same id, same message. A receiver that remembers which identifiers it "
-            "has already handled can throw the second one away. That one stable "
-            "field is the entire handover. "
-            "And it matters more than it sounds. Two confirmation emails is "
-            "embarrassing. If the thing receiving that message were the payments "
-            "service, it would be two charges on somebody's card."
+            'The duplicate cannot be fixed on this side. [[slnc 300]] It '
+            'belongs to whoever receives the message. [[slnc 600]] What '
+            'this side owes them is a way to notice it. [[slnc 300]] And '
+            'it provides exactly one thing. [[slnc 300]] The message I D '
+            'was the same both times. [[slnc 500]] Same I D, same '
+            'message. [[slnc 300]] A receiver that remembers which I Ds '
+            'it has already handled can throw the second one away. [[slnc '
+            '300]] That one stable field is the whole handover. [[slnc '
+            '600]] And it matters more than it sounds. [[slnc 300]] Two '
+            'confirmation emails is embarrassing. [[slnc 300]] If the '
+            'receiver were the payment service, it would be two charges '
+            "on someone's card."
         ),
     ),
     dict(
@@ -443,22 +471,27 @@ it would be two charges.""",
             "          and sometimes the same message twice.",
         ],
         narration=(
-            "So, the Transactional Outbox. When you have to save something and also "
-            "announce it, do not do two things. Write the announcement into your "
-            "own database, as an ordinary row, in the same transaction as the data. "
-            "Then let a separate relay read those rows and post them. "
-            "What you get is three things. The data and its announcement are one "
-            "atomic act, so nothing is silently lost. Your checkout keeps working "
-            "when the broker does not, because it never talks to the broker. And "
-            "every message is delivered eventually, without anybody writing a line "
-            "of retry logic. "
-            "What you pay is four things. The message goes out on the next sweep "
-            "rather than immediately. Somebody has to run and watch the relay. The "
-            "table grows and needs clearing out. And the same message will "
-            "sometimes arrive twice. "
-            "Everything is in the repository: the code, the five acts, the tests, "
-            "and an animation you can step through. Run it, and pay particular "
-            "attention to act five. Thanks for watching."
+            "That's the Transactional Outbox pattern. [[slnc 400]] If you "
+            'remember one sentence, make it this one. [[slnc 300]] Save '
+            'the message in your own database, in the same transaction as '
+            'the data, and let a separate relay send it later. [[slnc '
+            '600]] What you get. [[slnc 300]] The data and its '
+            'announcement are saved together, so nothing is silently '
+            'lost. [[slnc 300]] Checkout keeps working when the broker '
+            'does not. [[slnc 300]] And every message is eventually '
+            'delivered, without any retry code. [[slnc 600]] What you '
+            'pay. [[slnc 300]] The message goes out on the next sweep, '
+            'not immediately. [[slnc 300]] Someone must run and watch the '
+            'relay. [[slnc 300]] The table grows, and needs clearing out. '
+            '[[slnc 300]] And the same message will sometimes arrive '
+            'twice. [[slnc 600]] The full source code, written notes, '
+            'diagrams, and an animated walkthrough are all in the '
+            'repository. [[slnc 300]] It runs offline, with nothing '
+            'installed except a Java development kit. [[slnc 300]] Pay '
+            'special attention to the fifth demo. [[slnc 500]] If this '
+            'helped, a like really does help other people find it. [[slnc '
+            "300]] And subscribe, if you'd like the rest of the series. "
+            '[[slnc 400]] Thanks for watching.'
         ),
     ),
 ]

@@ -5,28 +5,6 @@ spot, with no wait in between.
 
 ![Thread Pool pattern data flow diagram](images/data-flow-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-flowchart TD
-    Submit(["an order is submitted to the pool"])
-    WorkerFree{"is a worker free right now?"}
-    QueueRoom{"is there room in the bounded queue?"}
-    Rejected(["rejected on the spot — act three's overflow order"])
-    Queued["sitting in the pool's own queue"]
-    Running["a worker is packing it"]
-    Packed(["packed"])
-
-    Submit --> WorkerFree
-    WorkerFree -- yes --> Running --> Packed
-    WorkerFree -- no --> QueueRoom
-    QueueRoom -- yes --> Queued --> Running
-    QueueRoom -- no --> Rejected
-```
-
-</details>
-
 ## Reading The Diagram
 
 **There is no patience step anywhere on this diagram.** §46's diagram had

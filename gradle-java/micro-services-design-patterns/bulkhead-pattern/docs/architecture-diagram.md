@@ -22,55 +22,6 @@ whose door is propped open is the one that sinks the ship.
 
 ![Bulkhead architecture diagram](images/architecture-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-flowchart TB
-    subgraph W["what the program is a model of"]
-        direction TB
-        Feed["the nightly supplier feed<br/>four batches, calling a partner API<br/>that is occasionally very slow"]
-        CO["checkout<br/>fine, fast, and the reason the shop exists"]
-        subgraph Shared["the arrangement that sinks: one pool of four"]
-            direction LR
-            S1["shared-worker — taken by feed-1"]
-            S2["shared-worker — taken by feed-2"]
-            S3["shared-worker — taken by feed-3"]
-            S4["shared-worker — taken by feed-4"]
-        end
-        subgraph Split["the arrangement that holds: two pools of two"]
-            direction LR
-            F1["feed-worker"]
-            F2["feed-worker"]
-            W1["checkout-worker"]
-            W2["checkout-worker"]
-        end
-        Feed -- "fills it, and checkout never starts" --> Shared
-        CO -. "no thread available, so no line in the log at all" .-> Shared
-        Feed -- "jams its own compartment" --> Split
-        CO -- "runs in milliseconds, on threads the feed cannot reach" --> Split
-    end
-
-    subgraph J["what actually runs — one JVM, JDK 21, real threads, nothing installed"]
-        direction LR
-        Demo["BulkheadDemo<br/>the four acts"]
-        BH["Bulkhead<br/>a fixed pool, a bounded queue, and a name"]
-        Full["BulkheadFullException<br/>refused in about a millisecond"]
-        SF["SupplierFeed<br/>the slow work"]
-        CK["Checkout<br/>the work that must not be starved"]
-        G["Gate<br/>stands in for the slow partner — a test<br/>holds a thread for exactly as long as it wants"]
-        JL["JobLog<br/>CopyOnWriteArrayList, because several<br/>worker threads write to it at once"]
-        Demo --> BH --> Full
-        Demo --> SF --> G
-        Demo --> CK
-        BH --> JL
-    end
-
-    W -. "no Docker, no Resilience4j, no broker — java.util.concurrent" .-> J
-```
-
-</details>
-
 ## What the diagram is telling you to count
 
 **Four workers in the shared pool and four batches in the feed.** That is the entire

@@ -21,20 +21,20 @@ Learn the Observer design pattern in Java 21 by shipping an order in an online s
 
 CHAPTERS
 00:00 Introduction
-00:59 The Scenario
-01:38 The Obvious First Move
-02:12 The Naive Approach — Four Calls, No Net
-02:56 Why That Hurts
-03:41 The Observer Pattern
-04:03 Remember It With a Newsletter
-04:45 The Roles
-05:37 The Observer — One Small Interface
-06:24 A Concrete Observer — It Knows Only Its Own Job
-07:05 The Subject — Search It for the Word 'Email'
-08:09 The Test That Actually Proves It
-08:53 Running It
-09:32 Wrap Up
-11:09 Thanks for Watching
+00:57 The Scenario
+01:31 The Obvious First Move
+01:58 The Naive Approach — Four Calls, No Net
+02:41 Why That Hurts
+03:19 The Observer Pattern
+03:41 Remember It With a Newsletter
+04:20 The Roles
+05:10 The Observer — One Small Interface
+05:48 A Concrete Observer — It Knows Only Its Own Job
+06:25 The Subject — Search It for the Word 'Email'
+07:24 The Test That Actually Proves It
+08:00 Running It
+08:36 Wrap Up
+09:46 Thanks for Watching
 
 SOURCE CODE, WRITTEN NOTES AND AN INTERACTIVE ANIMATION
 https://github.com/jk-boot-up/java-design-patterns/tree/main/gradle-java/behavioural/observer-pattern
@@ -49,20 +49,20 @@ YouTube renders these as chapters only if there are at least three and the first
 
 ```
 00:00 Introduction
-00:59 The Scenario
-01:38 The Obvious First Move
-02:12 The Naive Approach — Four Calls, No Net
-02:56 Why That Hurts
-03:41 The Observer Pattern
-04:03 Remember It With a Newsletter
-04:45 The Roles
-05:37 The Observer — One Small Interface
-06:24 A Concrete Observer — It Knows Only Its Own Job
-07:05 The Subject — Search It for the Word 'Email'
-08:09 The Test That Actually Proves It
-08:53 Running It
-09:32 Wrap Up
-11:09 Thanks for Watching
+00:57 The Scenario
+01:31 The Obvious First Move
+01:58 The Naive Approach — Four Calls, No Net
+02:41 Why That Hurts
+03:19 The Observer Pattern
+03:41 Remember It With a Newsletter
+04:20 The Roles
+05:10 The Observer — One Small Interface
+05:48 A Concrete Observer — It Knows Only Its Own Job
+06:25 The Subject — Search It for the Word 'Email'
+07:24 The Test That Actually Proves It
+08:00 Running It
+08:36 Wrap Up
+09:46 Thanks for Watching
 ```
 
 ## Tags
@@ -101,4 +101,4 @@ Add a card partway through pointing at the playlist, so a viewer who arrives at 
 
 ## Runtime
 
-Approximately 11:36, narrated at 145 words per minute.
+Approximately 10:19, narrated at 145 words per minute.

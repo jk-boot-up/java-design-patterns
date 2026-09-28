@@ -98,11 +98,10 @@ never need to jump forward.
 | `thumbnail.png` | The image to upload |
 | `spec.md` / `spec.html` | This document |
 
-Both Mermaid diagrams are committed as source *and* rendered PNG. The PNG
-is what the README embeds, because GitHub's Mermaid rendering cannot be
-relied on at these diagrams' size; the source is what gets edited.
-Regenerating after an edit is mandatory — a diagram that disagrees with
-the code is worse than no diagram.
+Every diagram is an image file in `docs/images/` (PNG or SVG); Mermaid is
+not used. The README and the HTML pages embed those images. Updating the
+image after a code change is mandatory — a diagram that disagrees with the
+code is worse than no diagram.
 
 ---
 
@@ -277,7 +276,7 @@ are required:
 6. **Upload checklist** — subtitles, language, thumbnail, HD processing,
    playlist.
 7. **Cards and end screen** — which video comes next in the learning
-   order. For this project: none; it is last, so the end screen links back to Simple Factory and to the playlist.
+   order. For this project: Publisher-Subscriber with Redis.
 
 > **Requirement.** Chapter timings are generated from the built `.srt`,
 > never written by hand, by

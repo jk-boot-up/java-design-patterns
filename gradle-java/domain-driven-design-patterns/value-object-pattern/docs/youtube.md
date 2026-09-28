@@ -19,19 +19,19 @@ The first two lines are what a viewer sees above the fold, so they carry the hoo
 ```
 CHAPTERS
 00:00 Introduction
-00:41 The Scenario
-00:59 Money As A Double
-01:19 The Pattern
-01:40 Money As A Value
-01:57 Equal By Value
-02:17 Never Changed
-02:40 Valid From The Start
-03:04 Splitting Is A Decision
-03:29 How To Recognise It
-03:49 The Verdict
-04:08 What Is Real Here
-04:22 When This Is Too Much
-04:35 Thanks for Watching
+00:45 The Scenario
+01:05 Money As A Double
+01:32 The Pattern
+01:54 Money As A Value
+02:16 Equal By Value
+02:40 Never Changed
+03:04 Valid From The Start
+03:27 Splitting Is A Decision
+03:56 How To Recognise It
+04:19 The Verdict
+04:39 What Is Real Here
+04:53 When This Is Too Much
+05:08 Thanks for Watching
 
 SOURCE CODE, WRITTEN NOTES AND AN INTERACTIVE ANIMATION
 https://github.com/jk-boot-up/java-design-patterns/tree/main/gradle-java/domain-driven-design-patterns/value-object-pattern
@@ -46,19 +46,19 @@ YouTube renders these as chapters only if there are at least three and the first
 
 ```
 00:00 Introduction
-00:41 The Scenario
-00:59 Money As A Double
-01:19 The Pattern
-01:40 Money As A Value
-01:57 Equal By Value
-02:17 Never Changed
-02:40 Valid From The Start
-03:04 Splitting Is A Decision
-03:29 How To Recognise It
-03:49 The Verdict
-04:08 What Is Real Here
-04:22 When This Is Too Much
-04:35 Thanks for Watching
+00:45 The Scenario
+01:05 Money As A Double
+01:32 The Pattern
+01:54 Money As A Value
+02:16 Equal By Value
+02:40 Never Changed
+03:04 Valid From The Start
+03:27 Splitting Is A Decision
+03:56 How To Recognise It
+04:19 The Verdict
+04:39 What Is Real Here
+04:53 When This Is Too Much
+05:08 Thanks for Watching
 ```
 
 ## Tags
@@ -97,4 +97,4 @@ Add a card partway through pointing at the playlist, so a viewer who arrives at 
 
 ## Runtime
 
-Approximately 05:13, narrated at 145 words per minute.
+Approximately 05:44, narrated at 145 words per minute.

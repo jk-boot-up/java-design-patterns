@@ -149,7 +149,6 @@ Product count: 4
 | `permission denied: ./gradlew` | Wrapper not executable | `chmod +x gradlew` |
 | Wrapper download times out | Offline / proxy | Install Gradle and run `gradle build` |
 | `UnsupportedOperationException` from `children().add(...)` | `Category.children()` returns an unmodifiable view, on purpose | Call `category.add(child)` instead |
-| Diagrams show as raw text | Viewer lacks Mermaid support | Open the PNGs in `docs/images/` |
 
 ## Recommended Reading Order
 

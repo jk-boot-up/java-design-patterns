@@ -10,49 +10,56 @@ SCENES = [
         key='01-poster', kind='poster', title='Service Discovery with Spring Cloud Consul',
         body=None,
         narration=(
-            'Hello, and welcome. This video explains the Service Registry '
-            'and Discovery pattern with Spring Cloud Consul, in Java, and '
-            'it is written and presented by Jayasekhar Konduru. [[slnc '
-            '300]] It is the framework version of the Service Registry '
-            'and Discovery video. That one let three copies of the '
-            'Pricing service announce themselves to a shared registry, so '
-            'a caller asked for an address each time instead of holding '
-            'one, and showed that a registry is only as good as its last '
-            'update. This one shows the same idea inside Spring Cloud '
-            'Consul. [[slnc 350]] The plain definition, in short: with '
-            'Spring Cloud Consul, a service registers itself when it '
-            'starts, and a client asks the registry for healthy copies by '
-            'name. [[slnc 300]] By the end you will see three real copies '
-            'register themselves with a real Consul, see requests find '
-            'them by name, and then see the two ways the list can be '
-            'wrong: a crash that is not noticed at once, and a registry '
-            'that is gone.'
+            'Hello, and welcome. [[slnc 400]] This video explains the '
+            'Service Discovery pattern in Java, using Spring Cloud '
+            'Consul. [[slnc 300]] This video is presented by Jayasekhar '
+            'Konduru. [[slnc 600]] First, a simple definition. [[slnc '
+            '300]] Services add themselves to a shared list, called a '
+            'registry, when they start. [[slnc 300]] A caller asks the '
+            'registry for a service by name, instead of holding a fixed '
+            'address. [[slnc 600]] Think of a taxi rank. [[slnc 300]] '
+            'Drivers join it when their shift starts, and you take '
+            'whoever is at the front. [[slnc 600]] With Spring Cloud '
+            'Consul, a service registers itself when it starts. [[slnc '
+            '300]] And a client asks the registry for healthy copies, by '
+            'name. [[slnc 700]] In our online store, the pricing service '
+            'runs as three copies. [[slnc 500]] By the end, you will hear '
+            'three real copies register with a real Consul. [[slnc 300]] '
+            'Requests find them by name. [[slnc 300]] And the two ways '
+            'the list can be wrong: a crash that is not noticed at once, '
+            'and a registry that is gone.'
         ),
     ),
     dict(
         key='02-partner', kind='bullets', title='The Partner Project',
         body=['Service Registry and Discovery, the', 'hand-built video, lets three copies', 'of Pricing announce themselves.', '', 'It shows a registry is only as good', 'as its last update.', '', 'If you have not seen it, start there.'],
         narration=(
-            'This video assumes the Service Registry and Discovery video. '
-            'If you have not seen it, start there. It lets three copies '
-            'of the Pricing service announce themselves to a shared '
-            'registry, so a caller asks for an address each time, and '
+            'This video builds on the plain Java Service Discovery video. '
+            '[[slnc 300]] If you have not seen it, start there. [[slnc '
+            '500]] That video lets three copies of the pricing service '
+            'announce themselves to a shared registry. [[slnc 300]] So a '
+            'caller asks for an address each time. [[slnc 300]] And it '
             'shows that a registry is only as good as its last update. '
-            '[[slnc 300]] This one uses the same example. It does not '
-            'teach the pattern again. It shows what Spring Cloud Consul '
-            'does with it.'
+            '[[slnc 500]] This video uses the same example. [[slnc 300]] '
+            'It does not teach the pattern again. [[slnc 300]] It shows '
+            'what Spring Cloud Consul does with it.'
         ),
     ),
     dict(
         key='03-dependencies', kind='bullets', title='Before The First Line',
         body=['Three things are new: Spring Cloud', 'Consul, a real Consul agent, and', "Spring Boot's web server.", '', 'You need the consul program', 'installed. Without it the demo says', 'so and stops.', '', 'Skipping this video loses none', 'of the pattern.'],
         narration=(
-            'Before the first line of code, what Spring Cloud Consul is. '
-            'Consul is a registry from HashiCorp. Spring Cloud Consul '
-            'registers a Spring application with it when it starts, adds '
-            'a health check, and lets a client ask for healthy copies by '
-            'name. [[slnc 300]] And a promise: skipping this video loses '
-            'none of the pattern. The hand-built one teaches all of it.'
+            'Before any code, what is Spring Cloud Consul? [[slnc 400]] '
+            'Consul is a registry, made by a company called HashiCorp. '
+            '[[slnc 500]] Spring Cloud Consul registers a Spring '
+            'application with Consul when it starts. [[slnc 300]] It adds '
+            'a health check, which Consul calls regularly to see if the '
+            'service is alive. [[slnc 300]] And it lets a client ask for '
+            'healthy copies, by name. [[slnc 500]] To run this demo, you '
+            'need the Consul program installed. [[slnc 300]] Without it, '
+            'the demo says so, and stops. [[slnc 500]] And a promise. '
+            '[[slnc 300]] Skipping this video loses none of the pattern. '
+            '[[slnc 300]] The plain Java video teaches all of it.'
         ),
     ),
     dict(
@@ -65,10 +72,12 @@ SCENES = [
 
   each registered itself.""",
         narration=(
-            'First, three copies of Pricing start. Consul lists all '
-            'three. Nobody told it. Each copy registered itself when it '
-            'started, with a health check. The client has only the name, '
-            'pricing.'
+            'First demo: three copies announce themselves. [[slnc 400]] '
+            'Three copies of pricing start. [[slnc 300]] And Consul lists '
+            'all three. [[slnc 500]] Nobody told Consul about them. '
+            '[[slnc 300]] Each copy registered itself when it started, '
+            'with a health check. [[slnc 500]] The client only knows the '
+            'name: pricing.'
         ),
     ),
     dict(
@@ -77,9 +86,11 @@ SCENES = [
   six requests to the name:
   2, 2, 2.""",
         narration=(
-            'Second, the client asks by name. Six requests, answered two, '
-            'two and two by the three copies. The list came from Consul, '
-            'and the choice came from the balancer.'
+            'Second demo: requests find them. [[slnc 400]] The client '
+            'asks by name. [[slnc 300]] Six requests are answered two, '
+            'two, and two, by the three copies. [[slnc 500]] The list '
+            'came from Consul. [[slnc 300]] And the choice of which copy '
+            'came from a load balancer.'
         ),
     ),
     dict(
@@ -91,9 +102,11 @@ SCENES = [
   hardcoded: fails.
   by name: 2, 2, 2.""",
         narration=(
-            'Third, a deployment. Pricing one restarts on a new port. The '
-            'address someone wrote down now fails. Asking by name still '
-            'works, and pricing one is back in the list, at its new port.'
+            'Third demo: a new release moves a copy. [[slnc 400]] Pricing '
+            'one restarts, on a new port. [[slnc 500]] An address someone '
+            'wrote down now fails. [[slnc 300]] But asking by name still '
+            'works. [[slnc 300]] Pricing one is back in the list, at its '
+            'new port.'
         ),
     ),
     dict(
@@ -104,9 +117,10 @@ SCENES = [
 
   six requests: 3, 3.""",
         narration=(
-            'Fourth, a graceful stop. Pricing three shuts down properly '
-            'and removes itself. The list shrinks at once. The six '
-            'requests split three and three.'
+            'Fourth demo: a polite shutdown is noticed at once. [[slnc '
+            '400]] Pricing three shuts down properly, and removes itself '
+            'from Consul. [[slnc 300]] The list shrinks straight away. '
+            '[[slnc 300]] And six requests split three and three.'
         ),
     ),
     dict(
@@ -119,11 +133,13 @@ SCENES = [
   after its check fails:
   removed, and 6 of 6 work.""",
         narration=(
-            'Fifth, a crash. Pricing two stops answering, and says '
-            'nothing. Consul still lists it. Three of six requests fail. '
-            '[[slnc 300]] Then its health check fails, and Consul removes '
-            'it. Now all six work. The list is only as good as its last '
-            "check. That is the taxi rank's catch."
+            'Fifth demo: a crash is not noticed at once. [[slnc 400]] '
+            'Pricing two stops answering, and says nothing. [[slnc 300]] '
+            'Consul still lists it. [[slnc 300]] So three of the six '
+            'requests fail. [[slnc 600]] Then its health check fails, and '
+            'Consul removes it. [[slnc 300]] Now all six requests work. '
+            '[[slnc 500]] The list is only as good as its last check. '
+            "[[slnc 300]] That is the taxi rank's catch."
         ),
     ),
     dict(
@@ -135,81 +151,90 @@ SCENES = [
 
   the client kept nothing.""",
         narration=(
-            'Last, the registry goes away. The client asks for pricing '
-            'and gets an error. It kept no list of its own. Remembering '
-            "the last good list is the client's job."
+            'Last demo: the registry itself goes away. [[slnc 400]] '
+            'Consul is stopped. [[slnc 300]] The client asks for pricing, '
+            'and gets an error. [[slnc 500]] It kept no list of its own. '
+            "[[slnc 300]] Remembering the last good list is the client's "
+            'job.'
         ),
     ),
     dict(
         key='10-verdict', kind='bullets', title='The Verdict',
         body=['Register at startup.', '', 'Choose the check interval.', '', 'Retry across copies.', '', 'Remember the last list.'],
         narration=(
-            'My verdict, plainly. Register at startup, and deregister on '
-            'shutdown. Choose the health check interval on purpose. '
-            'Expect stale entries after a crash, and retry across copies. '
-            'And give the client a last known good list for the day the '
-            'registry is down.'
+            'So, here is the verdict. [[slnc 400]] Register when the '
+            'service starts, and remove it when it shuts down. [[slnc '
+            '300]] Choose how often the health check runs, on purpose. '
+            '[[slnc 300]] Expect out-of-date entries after a crash, and '
+            'retry on another copy. [[slnc 300]] And give the client a '
+            'last known good list, for the day the registry is down.'
         ),
     ),
     dict(
         key='11-recognise', kind='bullets', title='How To Recognise It',
         body=['spring.cloud.consul in', 'configuration.', '', 'A URL whose host is a service name.', '', 'A health endpoint a registry calls.'],
         narration=(
-            'How do you recognise this in code you did not write? '
-            'Settings under spring cloud consul. A URL whose host is a '
-            'service name. And a health endpoint that a registry calls.'
+            'How can you spot this in code someone else wrote? [[slnc '
+            '400]] Look for Spring Cloud Consul settings in the '
+            'configuration file. [[slnc 300]] Look for a web address '
+            'whose host is a service name. [[slnc 300]] And look for a '
+            'health endpoint that a registry calls.'
         ),
     ),
     dict(
         key='12-met', kind='bullets', title='Where You Have Met This',
         body=['Platforms that run many small', 'services that must find each other.'],
         narration=(
-            'You have met this in platforms that run many small services '
-            'that must find each other.'
+            'Where have you met this before? [[slnc 300]] In any platform '
+            'that runs many small services that must find each other.'
         ),
     ),
     dict(
         key='13-versions', kind='bullets', title='What Was Used',
         body=['Spring Boot 4.1.1.', '', 'Spring Cloud 2025.1.3.', '', 'Consul 1.16 or later.'],
         narration=(
-            'For the record. Spring Boot four point one point one. Spring '
-            'Cloud twenty twenty five point one point three. And Consul '
-            'one point sixteen or later.'
+            'For the record, here is what was used. [[slnc 300]] Spring '
+            'Boot, version four point one point one. [[slnc 300]] Spring '
+            'Cloud, release twenty twenty-five point one point three. '
+            '[[slnc 300]] And Consul, version one point sixteen or later.'
         ),
     ),
     dict(
         key='14-real', kind='bullets', title='What Is Real Here',
         body=['Everything is real: a real Consul,', 'real registrations and real', 'health checks.', '', 'The demo waits for a check to fail,', 'so it takes about half a minute.'],
         narration=(
-            'The same honest admission as everywhere in this course. '
-            'Everything is real: a real Consul, real registrations and '
-            'real health checks. The demo waits for a check to fail, so '
-            'it takes about half a minute.'
+            'A quick, honest note about this demo. [[slnc 300]] '
+            'Everything is real: a real Consul, real registrations, and '
+            'real health checks. [[slnc 300]] The demo waits for a health '
+            'check to fail. [[slnc 300]] So it takes about half a minute '
+            'to run.'
         ),
     ),
     dict(
         key='15-too-much', kind='bullets', title='When This Is Too Much',
         body=['With three services on fixed hosts,', 'a configuration file is simpler.'],
         narration=(
-            'So when is it too much? With three services on fixed hosts '
-            'that rarely change, a configuration file is simpler than a '
-            'registry.'
+            'So, when is this too much? [[slnc 400]] With three services '
+            'on fixed machines that rarely change, a settings file is '
+            'simpler than a registry.'
         ),
     ),
     dict(
         key='16-outro', kind='outro', title='Thanks for Watching',
         body=['Full source, notes, diagrams and an animated walkthrough', 'are in the repository. Change the check interval and', 'rerun act five.'],
         narration=(
-            "That's Service Discovery with Spring Cloud Consul. [[slnc "
-            '250]] If you take one sentence away, take this one: a real '
-            'registry lists what passed its last check, and the client '
-            'must plan for the rest. [[slnc 350]] The full source, the '
-            'written notes, the diagrams and an animated walkthrough are '
-            'all in the repository. [[slnc 300]] If you try one exercise, '
-            'change the check interval, and rerun act five. [[slnc 300]] '
-            'If this helped, a like genuinely does help other people find '
-            'it, and subscribe if you would like the rest of the series. '
-            '[[slnc 250]] Thanks for watching.'
+            "That's Service Discovery, with Spring Cloud Consul. [[slnc "
+            '400]] If you remember one sentence, make it this one. [[slnc '
+            '300]] A real registry lists what passed its last health '
+            'check, and the client must plan for everything else. [[slnc '
+            '500]] The full source code, written notes, diagrams, and an '
+            'animated walkthrough are all in the repository. [[slnc 500]] '
+            'Here is one exercise to try. [[slnc 300]] Change how often '
+            'the health check runs. [[slnc 300]] Then run the fifth demo '
+            'again, and see how long the crashed copy stays listed. '
+            '[[slnc 500]] If this helped, a like really does help other '
+            "people find it. [[slnc 300]] And subscribe, if you'd like "
+            'the rest of the series. [[slnc 400]] Thanks for watching.'
         ),
     ),
 ]

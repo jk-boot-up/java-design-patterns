@@ -12,25 +12,27 @@ SCENES = [
         key='01-poster', kind='poster', title='Queue-Based Load Leveling with SQS',
         body=None,
         narration=(
-            'Hello, and welcome. This video explains the Queue-Based Load '
-            'Leveling pattern in Java, using a real Amazon queue, running '
-            'on your own machine. [[slnc 250]] It is written and presented '
-            'by Jayasekhar Konduru. [[slnc 300]] Here is the plain '
-            'definition, in general words. When work arrives in bursts, '
-            'faster than a service can handle it, you put a queue in '
-            'between. The burst waits in line, and the service keeps its '
-            'own steady pace. It works like a post office the day before a '
-            'holiday. A crowd arrives at once, a machine at the door hands '
-            'out numbered tickets, and the clerk serves one person after '
-            'another, never rushed. [[slnc 350]] Now the same thing in our '
-            'online store. A sale sends a hundred orders in the same '
-            'moment. Checkout puts every order on a queue and tells the '
-            'customer at once that the order is received. The packing '
-            'service takes orders off the queue at its own pace, ten at a '
-            'time. [[slnc 300]] By the end you will have seen the depth a '
-            'real burst builds, an order that is taken but not removed, a '
-            'slow packer that packs one order twice, a packer that stops '
-            'and loses nothing, and the bill for all of it.'
+            'Hello, and welcome. [[slnc 400]] This video explains the '
+            'Queue-Based Load Leveling pattern in Java, using a real '
+            'Amazon queue, running on your own machine. [[slnc 300]] This '
+            'video is presented by Jayasekhar Konduru. [[slnc 600]] '
+            'First, a simple definition. [[slnc 300]] When work arrives '
+            'in bursts, faster than a service can handle it, you put a '
+            'queue in between. [[slnc 300]] The burst waits in line. '
+            '[[slnc 300]] And the service keeps its own steady pace. '
+            '[[slnc 600]] It works like a post office the day before a '
+            'holiday. [[slnc 300]] A crowd arrives at once, and a machine '
+            'at the door hands out numbered tickets. [[slnc 300]] The '
+            'clerk serves one person after another, never rushed. [[slnc '
+            '700]] In our online store, a sale sends a hundred orders in '
+            'the same moment. [[slnc 300]] Checkout puts every order on a '
+            'queue, and tells the customer at once that it is received. '
+            '[[slnc 300]] The packing service takes orders off the queue '
+            'at its own pace, ten at a time. [[slnc 500]] By the end, you '
+            'will hear a real burst fill the queue. [[slnc 300]] An order '
+            'that is taken, but not removed. [[slnc 300]] A slow packer '
+            'that packs one order twice. [[slnc 300]] A packer that '
+            'stops, and loses nothing. [[slnc 300]] And the bill.'
         ),
     ),
     dict(
@@ -40,17 +42,17 @@ SCENES = [
               'The hand-built partner project kept', 'its queue in memory, with its own clock.', '',
               'This time the queue is Amazon SQS,', 'and the rules are Amazon\'s.'],
         narration=(
-            'Here is the scenario. The shop runs a sale, and in its first '
-            'second a hundred orders arrive at once. The packing service '
-            'picks the items and packs the parcels, and it can do ten '
-            'orders a round, however many are waiting. [[slnc 300]] So '
-            'checkout does not call the packing service directly. It puts '
-            'each order on a queue, a waiting line for work, and tells the '
-            'customer straight away that the order is received. '
-            '[[slnc 250]] The hand-built partner project in this course '
-            'kept its queue in memory, with a clock it made up for itself. '
-            'This time the queue is Amazon\'s queue service, and the rules '
-            'it plays by are Amazon\'s rules.'
+            'Here is the scenario. [[slnc 400]] The shop runs a sale, and '
+            'in its first second, a hundred orders arrive at once. [[slnc '
+            '300]] The packing service can handle ten orders per round, '
+            'however many are waiting. [[slnc 600]] So checkout does not '
+            'call the packing service directly. [[slnc 300]] It puts each '
+            'order on a queue, a waiting line for work. [[slnc 300]] And '
+            'it tells the customer straight away that the order is '
+            'received. [[slnc 600]] The plain Java version kept its queue '
+            'in memory, with a made-up clock. [[slnc 300]] This time, the '
+            "queue is Amazon's queue service. [[slnc 300]] And the rules "
+            "it plays by are Amazon's rules."
         ),
     ),
     dict(
@@ -67,17 +69,18 @@ SCENES = [
   and 0 in flight.
   kept for 345600 seconds, 4 days.""",
         narration=(
-            'First, the burst. The queue service is called S Q S, short '
-            'for Simple Queue Service. A hundred orders arrive at once, '
-            'and checkout sends them to S Q S. [[slnc 250]] It tries '
-            'eleven orders in one request, and S Q S refuses, in its own '
-            'words: the maximum number of entries per request is ten. '
-            'That is not a rule this program made up. It is the service '
-            'saying no. [[slnc 250]] So the burst goes as ten requests of '
-            'ten. S Q S now reports a hundred orders waiting, and none in '
-            'flight. Nobody was refused. And S Q S will keep an order that '
-            'nobody takes for three hundred and forty five thousand, six '
-            'hundred seconds. That is four days.'
+            'First demo: a burst lands on the queue. [[slnc 400]] The '
+            'queue service is called S Q S, short for Simple Queue '
+            'Service. [[slnc 300]] A hundred orders arrive at once, and '
+            'checkout sends them to S Q S. [[slnc 600]] It tries to send '
+            'eleven orders in one request. [[slnc 300]] And S Q S '
+            'refuses. [[slnc 300]] The most it accepts in one request is '
+            'ten. [[slnc 300]] That is not a rule this program made up. '
+            '[[slnc 300]] It is the real service saying no. [[slnc 600]] '
+            'So the burst goes as ten requests, of ten orders each. '
+            '[[slnc 300]] S Q S now reports a hundred orders waiting. '
+            '[[slnc 300]] Nobody was refused. [[slnc 300]] And S Q S will '
+            'keep an order that nobody takes for four days.'
         ),
     ),
     dict(
@@ -87,20 +90,21 @@ SCENES = [
               'Visibility timeout: how long SQS', 'hides a taken order before it', 'hands it out again.', '',
               'LocalStack plays SQS, on this', 'machine, in one container.'],
         narration=(
-            'The real service brings a few words with it, and each one is '
-            'simpler than it sounds. [[slnc 250]] An order that nobody has '
-            'taken yet is waiting. The number of waiting orders is the '
-            'depth of the queue. [[slnc 250]] When a packer takes an order, '
-            'S Q S does not remove it. It hides it from everyone else, '
-            'until the packer says it is finished by deleting it. An order '
-            'that is taken but not yet deleted is what S Q S calls in '
-            'flight. [[slnc 250]] And how long S Q S hides a taken order, '
-            'before it gives up waiting and hands it out again, is what '
-            'S Q S calls the visibility timeout. [[slnc 250]] None of this '
-            'is on Amazon here. A program called LocalStack answers exactly '
-            'as S Q S would, in one small sealed box on this machine, '
-            'called a container. The demo switches it on at the start and '
-            'off at the end.'
+            'The real service brings a few words with it. [[slnc 300]] '
+            'Each one is simpler than it sounds. [[slnc 500]] An order '
+            'that nobody has taken yet is waiting. [[slnc 300]] The '
+            'number of waiting orders is the depth of the queue. [[slnc '
+            '600]] When a packer takes an order, S Q S does not remove '
+            'it. [[slnc 300]] It hides it from everyone else. [[slnc '
+            '300]] Until the packer says it has finished, by deleting it. '
+            '[[slnc 300]] An order that is taken, but not yet deleted, is '
+            'called in flight. [[slnc 600]] And how long S Q S hides a '
+            'taken order, before handing it out again, is called the '
+            'visibility timeout. [[slnc 600]] None of this is really on '
+            'Amazon here. [[slnc 300]] A program called LocalStack '
+            'answers exactly as S Q S would. [[slnc 300]] It runs in a '
+            'container, a small sealed box on this machine, that the demo '
+            'switches on and off.'
         ),
     ),
     dict(
@@ -117,32 +121,38 @@ SCENES = [
   70, 60, 50, 40, 30, 20, 10, 0.
   100 packed in 10 rounds.""",
         narration=(
-            'Second, the packer. It asks S Q S for eleven orders at once, '
-            'and S Q S refuses again: it hands out between one and ten. '
-            '[[slnc 250]] So it takes ten. And for a moment S Q S reports '
-            'ninety waiting, and ten in flight. Those ten are neither on '
-            'the line nor gone. They are taken, and hidden, and not yet '
-            'finished. [[slnc 250]] The packer packs the ten parcels, and '
-            'only then deletes them. Round after round, the depth falls by '
-            'ten: ninety, eighty, seventy, and so on, down to zero. A '
-            'hundred orders packed in ten rounds, and the packer never did '
-            'more than ten at once. That is the pattern working.'
+            'Second demo: the packer keeps its own pace. [[slnc 400]] It '
+            'asks S Q S for eleven orders at once. [[slnc 300]] And S Q S '
+            'refuses again. [[slnc 300]] It hands out between one and '
+            'ten. [[slnc 500]] So the packer takes ten. [[slnc 300]] For '
+            'a moment, S Q S reports ninety waiting, and ten in flight. '
+            '[[slnc 300]] Those ten are neither in the line, nor gone. '
+            '[[slnc 300]] They are taken, hidden, and not yet finished. '
+            '[[slnc 600]] The packer packs the ten parcels, and only then '
+            'deletes them. [[slnc 300]] Round after round, the depth '
+            'falls by ten. [[slnc 300]] Ninety, eighty, seventy, and so '
+            'on, down to zero. [[slnc 500]] A hundred orders packed in '
+            'ten rounds. [[slnc 300]] And the packer never did more than '
+            'ten at once. [[slnc 300]] That is the pattern working.'
         ),
     ),
     dict(
         key='06-diagram', kind='diagram', title='Where The Orders Live',
         body=None,
         narration=(
-            'Here is the whole picture in words. There are four parts, in '
-            'order. Checkout comes first: it sends the burst to the queue, '
-            'ten orders to a request. The S Q S queue is second: it counts '
-            'the orders waiting and the orders in flight, and it lives in '
-            'neither checkout nor the packers. The packer is third: it '
-            'takes up to ten, packs them, and then deletes them. A second '
-            'packer is last: it is handed any order whose timeout ran out. '
-            '[[slnc 300]] The one rule that holds it together is the '
-            'order of the last two steps. Pack first, and delete only '
-            'after the parcel is packed.'
+            'Here is the whole picture, in words. [[slnc 400]] There are '
+            'four parts, in order. [[slnc 500]] First, checkout. [[slnc '
+            '300]] It sends the burst to the queue, ten orders per '
+            'request. [[slnc 400]] Second, the S Q S queue. [[slnc 300]] '
+            'It counts the orders waiting, and the orders in flight. '
+            '[[slnc 300]] It lives outside both checkout and the packers. '
+            '[[slnc 400]] Third, the packer. [[slnc 300]] It takes up to '
+            'ten orders, packs them, and then deletes them. [[slnc 400]] '
+            'Fourth, a second packer. [[slnc 300]] It is handed any order '
+            'whose timeout ran out. [[slnc 600]] The rule that holds it '
+            'together is the order of the last two steps. [[slnc 300]] '
+            'Pack first. [[slnc 300]] Delete only after the parcel is '
+            'packed.'
         ),
     ),
     dict(
@@ -159,17 +169,19 @@ SCENES = [
   seconds have passed: true.
   SQS has handed it out 2 times.""",
         narration=(
-            'Third, the heart of it. S Q S hides a taken order for thirty '
-            'seconds, unless you choose a different time. This queue hides '
-            'it for two seconds. [[slnc 250]] A packer takes order two '
-            'thousand and one, and stops before it finishes. It never '
-            'deletes it. S Q S reports no orders waiting, and one in '
-            'flight. A second packer asks at once, and is given nothing. '
-            '[[slnc 300]] The second packer keeps asking. Once the two '
-            'seconds have passed, order two thousand and one comes back, '
-            'and S Q S says it has now handed it out two times. '
-            '[[slnc 250]] S Q S never knew the first packer had stopped. '
-            'It only knew the time had run out.'
+            'Third demo, and this is the heart of it. [[slnc 400]] By '
+            'default, S Q S hides a taken order for thirty seconds. '
+            '[[slnc 300]] This queue hides it for only two seconds. '
+            '[[slnc 600]] A packer takes order two thousand and one. '
+            '[[slnc 300]] Then it stops, before it finishes. [[slnc 300]] '
+            'It never deletes the order. [[slnc 500]] S Q S reports no '
+            'orders waiting, and one in flight. [[slnc 300]] A second '
+            'packer asks straight away, and is given nothing. [[slnc '
+            '600]] The second packer keeps asking. [[slnc 300]] Once the '
+            'two seconds have passed, order two thousand and one comes '
+            'back. [[slnc 300]] And S Q S says it has now handed it out '
+            'twice. [[slnc 600]] S Q S never knew the first packer had '
+            'stopped. [[slnc 300]] It only knew the time had run out.'
         ),
     ),
     dict(
@@ -179,17 +191,18 @@ SCENES = [
               'No delete in time: it goes back.', '',
               'The price: an order can be', 'handed out more than once.'],
         narration=(
-            'Why does S Q S hide an order, instead of removing it? Think '
-            'of a coat check. An attendant lifts a coat to fetch it, and '
-            'drapes a cloth over its hook. If the attendant comes back and '
-            'says done, the coat is gone for good. If the attendant never '
-            'comes back, the cloth comes off by itself, and the next '
-            'attendant can take the coat. [[slnc 300]] If S Q S removed '
-            'an order the moment it was taken, a packer that crashed '
-            'would lose that order for ever. So S Q S waits for the '
-            'delete that says finished, and if it does not come in time, '
-            'the order goes back on the line. [[slnc 250]] The price is '
-            'simple to say. An order can be handed out more than once.'
+            'Why does S Q S hide an order, instead of removing it? [[slnc '
+            '400]] Think of a coat check. [[slnc 300]] An attendant lifts '
+            'a coat off its hook, and drapes a cloth over the hook. '
+            '[[slnc 300]] If the attendant comes back and says done, the '
+            'coat is gone for good. [[slnc 300]] If the attendant never '
+            'comes back, the cloth comes off, and the next attendant can '
+            'take the coat. [[slnc 600]] If S Q S removed an order the '
+            'moment it was taken, a packer that crashed would lose it '
+            'forever. [[slnc 300]] So S Q S waits for the delete that '
+            'says finished. [[slnc 300]] If it does not come in time, the '
+            'order goes back in line. [[slnc 600]] The price is simple. '
+            '[[slnc 300]] An order can be handed out more than once.'
         ),
     ),
     dict(
@@ -205,15 +218,16 @@ SCENES = [
   ORD-3001 was packed 2 times:
   two parcels for one order.""",
         narration=(
-            'Fourth, that price, paid. Packer A takes order three '
-            'thousand and one. It has not stopped. It is just slow, and '
-            'it needs longer than two seconds. [[slnc 250]] The two '
-            'seconds run out. S Q S does not know packer A is still '
-            'working, so it hands order three thousand and one to packer '
-            'B as well. [[slnc 250]] Both packers pack it, and both '
-            'delete it. Order three thousand and one was packed two '
-            'times. The customer gets two parcels for one order, and the '
-            'shop pays for both.'
+            'Fourth demo: that price, paid. [[slnc 400]] Packer A takes '
+            'order three thousand and one. [[slnc 300]] It has not '
+            'stopped. [[slnc 300]] It is just slow, and needs more than '
+            'two seconds. [[slnc 600]] The two seconds run out. [[slnc '
+            '300]] S Q S does not know packer A is still working. [[slnc '
+            '300]] So it hands order three thousand and one to packer B '
+            'as well. [[slnc 600]] Both packers pack it, and both delete '
+            'it. [[slnc 300]] The order was packed twice. [[slnc 300]] '
+            'The customer gets two parcels for one order. [[slnc 300]] '
+            'And the shop pays for both.'
         ),
     ),
     dict(
@@ -229,16 +243,16 @@ SCENES = [
 
   ORD-3002 was packed 1 time.""",
         narration=(
-            'There is a cure. Packer A takes order three thousand and '
-            'two, and before its two seconds run out, it tells S Q S: I '
-            'am still working, hide it for ten seconds more. S Q S calls '
-            'this changing the message\'s visibility. [[slnc 300]] Packer '
-            'B asks for orders, and this time it asks S Q S to hold the '
-            'question open for three seconds, well past the old timeout, '
-            'rather than answer straight away. S Q S calls that long '
-            'polling. Packer B is given nothing. [[slnc 250]] Packer A '
-            'finishes, and deletes. Order three thousand and two was '
-            'packed one time.'
+            'There is a cure. [[slnc 400]] Packer A takes order three '
+            'thousand and two. [[slnc 300]] Before its two seconds run '
+            'out, it tells S Q S: I am still working, hide it for ten '
+            'seconds more. [[slnc 600]] Packer B asks for orders. [[slnc '
+            '300]] This time it asks S Q S to hold its question open for '
+            'three seconds, rather than answer at once. [[slnc 300]] That '
+            'is called long polling. [[slnc 300]] Packer B is given '
+            'nothing. [[slnc 600]] Packer A finishes, and deletes the '
+            'order. [[slnc 300]] Order three thousand and two was packed '
+            'once.'
         ),
     ),
     dict(
@@ -255,18 +269,21 @@ SCENES = [
   packed: 100, lost: 0.
   handed out a second time: 7.""",
         narration=(
-            'Fifth, the moment the hand-built project could not survive. '
-            'Its last act stopped the program holding its queue, and '
-            'seventy orders were lost. [[slnc 250]] Here, a hundred orders '
-            'wait on a queue with a two second timeout. The packer takes '
-            'ten, finishes three, and its process stops. [[slnc 250]] S Q '
-            'S reports ninety waiting, and seven in flight. Nothing is '
-            'lost. The seven are only hidden. When the timeout runs out '
-            'they come back, and ninety seven are waiting. A new packer '
-            'drains the queue. [[slnc 250]] Packed, a hundred. Lost, none. '
-            'Seven orders were handed out a second time, and that was '
-            'safe, because the packer that stopped had not packed them. '
-            'The queue outlived the program that was reading it.'
+            'Fifth demo, the moment the plain Java version could not '
+            'survive. [[slnc 400]] In its last demo, the program holding '
+            'the queue stopped, and seventy orders were lost. [[slnc '
+            '600]] Here, a hundred orders wait on a queue with a '
+            'two-second timeout. [[slnc 300]] The packer takes ten, '
+            'finishes three, and then its program stops. [[slnc 600]] S Q '
+            'S reports ninety waiting, and seven in flight. [[slnc 300]] '
+            'Nothing is lost. [[slnc 300]] The seven are only hidden. '
+            '[[slnc 500]] When the timeout runs out, they come back, and '
+            'ninety-seven are waiting. [[slnc 300]] A new packer clears '
+            'the queue. [[slnc 600]] A hundred packed. [[slnc 300]] None '
+            'lost. [[slnc 300]] Seven orders were handed out a second '
+            'time. [[slnc 300]] And that was safe, because the packer '
+            'that stopped had not packed them. [[slnc 500]] The queue '
+            'outlived the program reading it.'
         ),
     ),
     dict(
@@ -283,18 +300,19 @@ SCENES = [
   30 requests. one at a time: 300.
   1 container for 1 queue service.""",
         narration=(
-            'Last, the bill. The hand-built project could give its queue '
-            'a limit of fifty orders. The demo asks S Q S for the same, '
-            'and S Q S does not know the setting. There is no limit to '
-            'set. [[slnc 250]] Then orders arrive at fifteen a round, and '
-            'the packer does ten, for twenty rounds. S Q S refused none. '
-            'A hundred are waiting, and the number keeps growing. Nothing '
-            'warns you. The depth is a number you have to ask S Q S for, '
-            'and act on. [[slnc 250]] The demo also counts every request '
-            'S Q S receives. A hundred orders, sent, taken and deleted '
-            'ten to a request, cost thirty requests. One at a time, they '
-            'cost three hundred. Here that was one container, for one '
-            'queue service.'
+            'Finally, the bill. [[slnc 400]] The plain Java version could '
+            'give its queue a limit of fifty orders. [[slnc 300]] The '
+            'demo asks S Q S for the same. [[slnc 300]] And S Q S does '
+            'not know that setting. [[slnc 300]] There is no limit to '
+            'set. [[slnc 600]] Then orders arrive at fifteen per round, '
+            'and the packer handles ten, for twenty rounds. [[slnc 300]] '
+            'S Q S refuses none. [[slnc 300]] A hundred are waiting, and '
+            'the number keeps growing. [[slnc 300]] Nothing warns you. '
+            '[[slnc 300]] You have to ask for the depth yourself, and act '
+            'on it. [[slnc 600]] The demo also counts every request S Q S '
+            'receives. [[slnc 300]] A hundred orders, sent, taken, and '
+            'deleted ten at a time, cost thirty requests. [[slnc 300]] '
+            'One at a time, they would cost three hundred.'
         ),
     ),
     dict(
@@ -304,17 +322,19 @@ SCENES = [
               'Taken is not removed: in flight.', 'A slow worker, packing twice.',
               'A queue that outlives the worker.', 'No limit to set, 10 per request.'],
         narration=(
-            'The hand-built partner project got the shape right. A burst '
-            'waits on a queue, the worker keeps its own pace, and the '
-            'price is waiting. A queue fed faster than it is drained grows '
-            'for ever. All of that holds on real S Q S, with the same '
-            'numbers. [[slnc 300]] It left out four things. In the '
-            'simulation an order was waiting or done, and nothing in '
-            'between. The real queue has a third state, in flight, with a '
-            'clock on it. That clock means a slow worker can pack an order '
-            'twice. It also means a worker that dies loses nothing, '
-            'because the queue lives outside it. And the real queue has '
-            'no limit to set, and takes and gives ten at a time.'
+            'The plain Java version got the shape right. [[slnc 400]] A '
+            'burst waits on a queue. [[slnc 300]] The worker keeps its '
+            'own pace. [[slnc 300]] And the price is waiting. [[slnc '
+            '300]] All of that holds on real S Q S, with the same '
+            'numbers. [[slnc 600]] But it left out four things. [[slnc '
+            '500]] First, in the plain version an order was either '
+            'waiting, or done. [[slnc 300]] The real queue has a third '
+            'state, in flight, with a clock on it. [[slnc 400]] Second, '
+            'that clock means a slow worker can pack an order twice. '
+            '[[slnc 400]] Third, a worker that dies loses nothing, '
+            'because the queue lives outside it. [[slnc 400]] And fourth, '
+            'the real queue has no limit to set, and handles ten orders '
+            'at a time.'
         ),
     ),
     dict(
@@ -325,16 +345,17 @@ SCENES = [
               '2. Delete only after the work.', '3. Doing an order twice does no harm.',
               '4. Watch the depth yourself.'],
         narration=(
-            'Here is my verdict, plainly. Use a queue to level load when '
-            'bursts come, and the caller does not need the answer straight '
-            'away. Then say four things out loud, because the service will '
-            'not assume them. [[slnc 250]] One. Set the visibility timeout '
-            'longer than your slowest piece of work, and when work runs '
-            'long, tell the queue you are still working. [[slnc 200]] Two. '
-            'Delete an order only after the work is done. [[slnc 200]] '
-            'Three. Make handling an order twice do no harm, because one '
-            'day it will happen. [[slnc 200]] Four. Watch the depth '
-            'yourself, because the queue will never refuse the backlog.'
+            'So, here is the verdict. [[slnc 400]] Use a queue when '
+            'bursts come, and the caller does not need the answer '
+            'straight away. [[slnc 500]] Then settle four things, because '
+            'the service will not. [[slnc 500]] One. [[slnc 200]] Set the '
+            'visibility timeout longer than your slowest work. [[slnc '
+            '300]] And when work runs long, tell the queue you are still '
+            'working. [[slnc 400]] Two. [[slnc 200]] Delete an order only '
+            'after the work is done. [[slnc 400]] Three. [[slnc 200]] '
+            'Make handling an order twice harmless, because one day it '
+            'will happen. [[slnc 400]] Four. [[slnc 200]] Watch the depth '
+            'yourself, because the queue will never refuse a backlog.'
         ),
     ),
     dict(
@@ -345,19 +366,20 @@ SCENES = [
               'needs the answer now.', '',
               'One more service to run.'],
         narration=(
-            'What is real here? The queue is played by LocalStack, '
-            'version four point fourteen, in a container the demo starts '
-            'and stops itself. That version is held back on purpose: the '
-            'newer ones refuse to start without a LocalStack account. The '
-            'code is plain Amazon code, using the newest Amazon library '
-            'for Java, and would run unchanged against Amazon itself. The '
-            'one thing you need is a container runtime, such as Docker '
-            'Desktop, switched on before you start. Every number in this '
-            'video is the program\'s own output, and two runs print the '
-            'same thing. [[slnc 300]] So when is this too much? If load '
-            'is steady and the service copes, a queue is one more thing '
-            'to run and pay for. And if the caller needs the answer now, '
-            'such as a price or a stock check, a queue is the wrong shape.'
+            'A quick, honest note about this demo. [[slnc 400]] The queue '
+            'is played by LocalStack, version four point fourteen, in a '
+            'container the demo starts and stops by itself. [[slnc 300]] '
+            'That version is held back on purpose, because newer ones '
+            'need a LocalStack account. [[slnc 500]] The code is ordinary '
+            'Amazon code, using the newest Amazon library for Java. '
+            '[[slnc 300]] It would run unchanged against Amazon itself. '
+            '[[slnc 300]] You just need Docker switched on first. [[slnc '
+            "300]] Every number you heard comes from the program's own "
+            'output. [[slnc 600]] So, when is this too much? [[slnc 300]] '
+            'If the load is steady and the service copes, a queue is one '
+            'more thing to run and pay for. [[slnc 300]] And if the '
+            'caller needs the answer now, like a price or a stock check, '
+            'a queue is the wrong shape.'
         ),
     ),
     dict(
@@ -366,18 +388,18 @@ SCENES = [
               'are in the repository. Try the exercises in',
               'the session guide.'],
         narration=(
-            "That's Queue-Based Load Leveling with S Q S. [[slnc 250]] If "
-            'you take one sentence away, take this one: a taken order is '
-            'only hidden, so delete it after the work, and make doing it '
-            'twice harmless. [[slnc 350]] The full source, the written '
-            'notes, the diagrams and an animated walkthrough are all in '
-            'the repository. [[slnc 300]] If you try one exercise, give '
-            'the slow packer\'s queue a ten second timeout instead of two, '
-            'predict what packer B is given, and run it to see if you '
-            'were right. [[slnc 300]] If this helped, a like genuinely '
-            'does help other people find it, and subscribe if you would '
-            'like the rest of the series. [[slnc 250]] Thanks for '
-            'watching.'
+            "That's Queue-Based Load Leveling, with S Q S. [[slnc 400]] "
+            'If you remember one sentence, make it this one. [[slnc 300]] '
+            'A taken order is only hidden, so delete it after the work, '
+            'and make doing it twice harmless. [[slnc 500]] The full '
+            'source code, written notes, diagrams, and an animated '
+            'walkthrough are all in the repository. [[slnc 500]] Here is '
+            "one exercise to try. [[slnc 300]] Give the slow packer's "
+            'queue a ten-second timeout, instead of two. [[slnc 300]] '
+            'Guess what packer B will be given, and then run it to check. '
+            '[[slnc 500]] If this helped, a like really does help other '
+            "people find it. [[slnc 300]] And subscribe, if you'd like "
+            'the rest of the series. [[slnc 400]] Thanks for watching.'
         ),
     ),
 ]

@@ -20,18 +20,18 @@ The first two lines are what a viewer sees above the fold, so they carry the hoo
 CHAPTERS
 00:00 Introduction
 00:54 The Scenario
-01:09 Pass It Down
-01:43 The Pattern
-01:58 It Works
+01:11 Pass It Down
+01:40 The Pattern
+01:57 It Works
 02:15 The Bill: Invisible
-02:40 The Bill: Order Dependence
-03:09 The Bill: What Is In It?
-03:33 Where A Registry Is Right
-03:49 The Verdict
-04:12 How To Recognise It
-04:35 What Is Real Here
-04:52 When This Is Too Much
-04:59 Thanks for Watching
+02:41 The Bill: Order Dependence
+03:13 The Bill: What Is In It?
+03:38 Where A Registry Is Right
+03:55 The Verdict
+04:16 How To Recognise It
+04:41 What Is Real Here
+04:58 When This Is Too Much
+05:05 Thanks for Watching
 
 SOURCE CODE, WRITTEN NOTES AND AN INTERACTIVE ANIMATION
 https://github.com/jk-boot-up/java-design-patterns/tree/main/gradle-java/foundational-design-patterns/registry-pattern
@@ -47,18 +47,18 @@ YouTube renders these as chapters only if there are at least three and the first
 ```
 00:00 Introduction
 00:54 The Scenario
-01:09 Pass It Down
-01:43 The Pattern
-01:58 It Works
+01:11 Pass It Down
+01:40 The Pattern
+01:57 It Works
 02:15 The Bill: Invisible
-02:40 The Bill: Order Dependence
-03:09 The Bill: What Is In It?
-03:33 Where A Registry Is Right
-03:49 The Verdict
-04:12 How To Recognise It
-04:35 What Is Real Here
-04:52 When This Is Too Much
-04:59 Thanks for Watching
+02:41 The Bill: Order Dependence
+03:13 The Bill: What Is In It?
+03:38 Where A Registry Is Right
+03:55 The Verdict
+04:16 How To Recognise It
+04:41 What Is Real Here
+04:58 When This Is Too Much
+05:05 Thanks for Watching
 ```
 
 ## Tags
@@ -97,4 +97,4 @@ Add a card partway through pointing at the playlist, so a viewer who arrives at 
 
 ## Runtime
 
-Approximately 05:37, narrated at 145 words per minute.
+Approximately 05:41, narrated at 145 words per minute.

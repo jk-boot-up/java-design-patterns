@@ -6,27 +6,4 @@ Say it in words. Thread A and thread B both ask for the price list, and both see
 
 ![Double-Checked Locking pattern sequence diagram](images/sequence-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant A as thread A
-    participant L as lock
-    participant B as thread B
-    participant F as volatile field
-    A->>F: read: missing
-    B->>F: read: missing
-    A->>L: take
-    A->>F: read again: missing
-    A->>F: build, store
-    A->>L: release
-    B->>L: take
-    B->>F: read again: built
-    B->>L: release
-```
-
-</details>
-
 The load-bearing sentence: **the second check is what stops the second build.**

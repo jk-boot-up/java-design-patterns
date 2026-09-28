@@ -9,51 +9,6 @@ steps**.
 
 ![Template Method pattern sequence diagram](images/uml-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-sequenceDiagram
-    autonumber
-    actor Customer
-    participant Naive as NaiveFulfilment
-    participant Base as FulfilmentProcess
-    participant Digital as DigitalFulfilment
-    participant Report as FulfilmentReport
-
-    rect rgb(255, 235, 235)
-        note over Customer, Report: The trap -- the sequence is a convention, written out by hand
-        Customer->>Naive: fulfilDigital(order)
-        Naive->>Report: step("validate"), step("reserve")
-        Naive->>Report: step("charge"), step("pack")
-        Naive->>Report: notified("... Key: " + dispatchReference())
-        Report-->>Naive: dispatchReference() = "(not dispatched)"
-        Naive->>Report: dispatchedAs("KEY-D-1-E-777")
-        Naive-->>Customer: email sent, with no key in it
-    end
-
-    rect rgb(235, 250, 240)
-        note over Customer, Report: The pattern -- the sequence belongs to the base class
-        Customer->>Base: fulfil(order)
-        Base->>Base: validate(order, report)
-        Base->>Digital: requiresShippingAddress()
-        Digital-->>Base: false
-        Base->>Digital: reserveStock(order, report)
-        Base->>Digital: charge(order, report)
-        Base->>Digital: pack(order, report)
-        Base->>Digital: dispatch(order, report)
-        Digital->>Report: dispatchedAs("KEY-D-1-E-777")
-        Base->>Digital: notifyCustomer(order, report)
-        Digital->>Report: dispatchReference()
-        Report-->>Digital: "KEY-D-1-E-777"
-        Digital->>Report: notified("... Key: KEY-D-1-E-777")
-        Base->>Digital: afterFulfilment(order, report)
-        Base-->>Customer: email sent, with the key in it
-    end
-```
-
-</details>
-
 ## Reading It
 
 **Steps 1 to 7 — the naive run.** Nothing here is unreasonable in isolation.

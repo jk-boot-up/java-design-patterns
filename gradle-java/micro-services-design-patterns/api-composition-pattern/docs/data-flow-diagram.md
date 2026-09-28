@@ -17,43 +17,6 @@ plausible guess.
 
 ![API Composition data flow diagram](images/data-flow-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-flowchart TD
-    Start(["show the details of order ord-101"])
-    O["ask Orders — 30ms"]
-    OK1{"did Orders answer?"}
-    Fail(["no page at all, and the shopper is told<br/>a blank page is not a partial page"])
-    Have["the order: skus, quantities, money<br/>all of it correct, none of it named"]
-    Split["fan out — both of these leave at the same instant"]
-    C["ask Catalog for the names of these skus — 60ms"]
-    S["ask Shipping for the delivery status — 120ms"]
-    OKC{"did Catalog answer?"}
-    OKS{"did Shipping answer?"}
-    Names["product names"]
-    NoNames["sku codes instead of names<br/>the quantities and the money are still right,<br/>because they were never Catalog's to know"]
-    Del["a real delivery status"]
-    NoDel["'unknown — we cannot check this right now'<br/>NOT 'in transit', which is nearly always true<br/>and is exactly the wrong thing to say"]
-    Gather["GATHERED — the slower of the two sets the pace"]
-    Assemble["assemble the page, and record<br/>missingSections() so the hole has a name"]
-    Done(["the page — whole, or honestly partial"])
-
-    Start --> O --> OK1
-    OK1 -- "no — REQUIRED" --> Fail
-    OK1 -- "yes" --> Have --> Split
-    Split --> C --> OKC
-    Split --> S --> OKS
-    OKC -- "yes" --> Names --> Gather
-    OKC -- "no — optional" --> NoNames --> Gather
-    OKS -- "yes" --> Del --> Gather
-    OKS -- "no — optional" --> NoDel --> Gather
-    Gather --> Assemble --> Done
-```
-
-</details>
-
 ## What the picture is telling you
 
 **One branch ends the page and two do not.** That asymmetry is the design, and it was

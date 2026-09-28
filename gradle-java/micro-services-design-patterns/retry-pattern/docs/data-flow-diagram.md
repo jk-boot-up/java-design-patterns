@@ -17,42 +17,6 @@ times; answering the second one wrongly is how a retry loop becomes an outage.
 
 ![Retry with backoff data flow diagram](images/data-flow-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-flowchart TD
-    Start(["the shopper presses Pay — ORD-5001, £449.99"])
-    Build["build the PaymentRequest once<br/>including the idempotency key<br/>OUTSIDE the loop, and this is the whole fix"]
-    Attempt["attempt the charge — 50ms"]
-    Outcome{"what came back?"}
-    Seen{"has the gateway seen<br/>this key before?"}
-    Replay["REPLAYED — the original receipt,<br/>no second charge"]
-    Charged["CHARGED — chg-1, £449.99"]
-    Declined["the bank said no, for a reason<br/>that is still true in 100ms"]
-    Nothing["nothing came back<br/>request lost, or receipt lost — indistinguishable"]
-    Retryable{"is this failure<br/>worth repeating?"}
-    Perm["PERMANENT — stop now, report clearly<br/>one answer in 50ms, not three delays"]
-    Left{"attempts left?"}
-    Wait["WAITED — 100ms, then 200, then 400<br/>plus jitter, so callers do not return together"]
-    GiveUp["give up honestly<br/>three timeouts, nothing charged, the shopper is told"]
-    Done(["a receipt — and the card was charged exactly once"])
-
-    Start --> Build --> Attempt --> Outcome
-    Outcome -- "arrived" --> Seen
-    Seen -- "yes" --> Replay --> Done
-    Seen -- "no" --> Charged --> Done
-    Outcome -- "refused" --> Declined --> Retryable
-    Outcome -- "silence" --> Nothing --> Retryable
-    Retryable -- "no — a decline" --> Perm
-    Retryable -- "yes — a timeout" --> Left
-    Left -- "no" --> GiveUp
-    Left -- "yes" --> Wait
-    Wait -. "the same request, the same key, nothing rebuilt" .-> Attempt
-```
-
-</details>
-
 ## What the picture is telling you
 
 **The loop carries the same key round, not a copy of the work.** That dotted arrow is the

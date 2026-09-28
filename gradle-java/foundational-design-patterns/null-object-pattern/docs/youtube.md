@@ -19,19 +19,19 @@ The first two lines are what a viewer sees above the fold, so they carry the hoo
 ```
 CHAPTERS
 00:00 Introduction
-00:48 The Scenario
-01:09 Return Null
-01:38 The Check You Stop Seeing
-02:01 The Pattern
-02:19 Every Check Deleted
-02:42 The Bill: It Hides Errors
-03:18 Where The Line Is
-03:37 The Honest Alternatives
-04:04 How To Recognise It
-04:27 The Verdict
-04:40 What Is Real Here
-04:56 When This Is Too Much
-05:08 Thanks for Watching
+00:50 The Scenario
+01:11 Return Null
+01:41 The Check You Stop Seeing
+02:04 The Pattern
+02:24 Every Check Deleted
+02:50 The Bill: It Hides Errors
+03:26 Where The Line Is
+03:46 The Honest Alternatives
+04:19 How To Recognise It
+04:42 The Verdict
+04:55 What Is Real Here
+05:12 When This Is Too Much
+05:25 Thanks for Watching
 
 SOURCE CODE, WRITTEN NOTES AND AN INTERACTIVE ANIMATION
 https://github.com/jk-boot-up/java-design-patterns/tree/main/gradle-java/foundational-design-patterns/null-object-pattern
@@ -46,19 +46,19 @@ YouTube renders these as chapters only if there are at least three and the first
 
 ```
 00:00 Introduction
-00:48 The Scenario
-01:09 Return Null
-01:38 The Check You Stop Seeing
-02:01 The Pattern
-02:19 Every Check Deleted
-02:42 The Bill: It Hides Errors
-03:18 Where The Line Is
-03:37 The Honest Alternatives
-04:04 How To Recognise It
-04:27 The Verdict
-04:40 What Is Real Here
-04:56 When This Is Too Much
-05:08 Thanks for Watching
+00:50 The Scenario
+01:11 Return Null
+01:41 The Check You Stop Seeing
+02:04 The Pattern
+02:24 Every Check Deleted
+02:50 The Bill: It Hides Errors
+03:26 Where The Line Is
+03:46 The Honest Alternatives
+04:19 How To Recognise It
+04:42 The Verdict
+04:55 What Is Real Here
+05:12 When This Is Too Much
+05:25 Thanks for Watching
 ```
 
 ## Tags
@@ -97,4 +97,4 @@ Add a card partway through pointing at the playlist, so a viewer who arrives at 
 
 ## Runtime
 
-Approximately 05:43, narrated at 145 words per minute.
+Approximately 05:59, narrated at 145 words per minute.

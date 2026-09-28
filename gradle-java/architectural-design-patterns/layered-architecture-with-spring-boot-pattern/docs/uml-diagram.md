@@ -6,18 +6,3 @@ Four sequences.
 
 ![The Shortcut](images/uml-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant C as ShortcutController
-    participant R as OrderRepository
-    C->>R: find(id)
-    R-->>C: Order, with costPence
-    Note over C: the service and the response object are skipped
-```
-
-</details>
-

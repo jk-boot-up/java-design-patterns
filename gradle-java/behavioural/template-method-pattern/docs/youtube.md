@@ -21,20 +21,20 @@ Learn the Template Method design pattern in Java 21 by building order fulfilment
 
 CHAPTERS
 00:00 Introduction
-00:57 The Scenario
-01:43 The Obvious First Move
-02:18 The Naive Approach — Two Lines the Wrong Way Round
-03:15 Why That Hurts
-04:11 The Template Method Pattern
-04:49 Everyday Analogy: The Recipe
-05:36 The Roles
-06:32 The Template Method — Seven Lines and One Keyword
-07:30 Three Kinds of Hole
-08:46 Why the Order Being Fixed Is Worth Something
-09:35 The Test That Proves It
-10:21 Running It
-11:09 What to Remember
-12:38 Thanks for Watching
+00:53 The Scenario
+01:39 The Obvious First Move
+02:09 The Naive Approach — Two Lines the Wrong Way Round
+02:58 Why That Hurts
+03:41 The Template Method Pattern
+04:12 Everyday Analogy: The Recipe
+04:49 The Roles
+05:35 The Template Method — Seven Lines and One Keyword
+06:19 Three Kinds of Hole
+07:23 Why the Order Being Fixed Is Worth Something
+07:59 The Test That Proves It
+08:37 Running It
+09:19 What to Remember
+10:33 Thanks for Watching
 
 SOURCE CODE, WRITTEN NOTES AND AN INTERACTIVE ANIMATION
 https://github.com/jk-boot-up/java-design-patterns/tree/main/gradle-java/behavioural/template-method-pattern
@@ -49,20 +49,20 @@ YouTube renders these as chapters only if there are at least three and the first
 
 ```
 00:00 Introduction
-00:57 The Scenario
-01:43 The Obvious First Move
-02:18 The Naive Approach — Two Lines the Wrong Way Round
-03:15 Why That Hurts
-04:11 The Template Method Pattern
-04:49 Everyday Analogy: The Recipe
-05:36 The Roles
-06:32 The Template Method — Seven Lines and One Keyword
-07:30 Three Kinds of Hole
-08:46 Why the Order Being Fixed Is Worth Something
-09:35 The Test That Proves It
-10:21 Running It
-11:09 What to Remember
-12:38 Thanks for Watching
+00:53 The Scenario
+01:39 The Obvious First Move
+02:09 The Naive Approach — Two Lines the Wrong Way Round
+02:58 Why That Hurts
+03:41 The Template Method Pattern
+04:12 Everyday Analogy: The Recipe
+04:49 The Roles
+05:35 The Template Method — Seven Lines and One Keyword
+06:19 Three Kinds of Hole
+07:23 Why the Order Being Fixed Is Worth Something
+07:59 The Test That Proves It
+08:37 Running It
+09:19 What to Remember
+10:33 Thanks for Watching
 ```
 
 ## Tags
@@ -101,4 +101,4 @@ Add a card partway through pointing at the playlist, so a viewer who arrives at 
 
 ## Runtime
 
-Approximately 13:17, narrated at 145 words per minute.
+Approximately 11:14, narrated at 145 words per minute.

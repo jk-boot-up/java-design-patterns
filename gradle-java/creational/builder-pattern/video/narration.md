@@ -1,97 +1,77 @@
-# Builder Pattern — Video Narration Script
+# Builder Pattern Pattern — Video Narration Script
 
-The full spoken script, scene by scene. This is the human-readable copy;
-the authoritative text lives in the `narration` field of each scene in
-[`scenes.py`](scenes.py), next to the slide it belongs to.
+## 1. Builder Pattern
 
-**Voice:** female (macOS `Samantha`, US English), rate 165 wpm.
-**Runtime:** approximately 12 minutes.
+Hello, and welcome. This video explains the Builder pattern, in Java. This video is presented by Jayasekhar Konduru. First, a simple definition. The Builder pattern creates an object one piece at a time. Instead of a constructor with a long list of arguments, you call a named method for each part you want. In any order. Then one final method checks everything, and hands back the finished object. Think of ordering at a sandwich counter. You name the bread, then each filling, one at a time. And they only make it when you say, that's everything. In this video, we build a purchase order for an online store. By the end, you will know why two famous books both recommend this pattern. And how it works together with a static factory method.
 
-The script is written to be spoken, not read: contractions, short
-sentences, and `[[slnc NNN]]` pause markers in `scenes.py` that the
-synthesiser turns into breathing room. The markers are stripped below
-and from the subtitles.
+## 2. The Job
 
-Currency and symbols are written out in words, because the synthesiser
-reads them poorly. Keep that habit if you edit the script.
+Here is the job: building a purchase order. Two things are always required. An order I D and a customer I D. And at least one item, with a shipping address. On top of that, there are five independent, optional extras. Gift wrapping. A gift message. A coupon code. Priority shipping. And a free-text note. Any order might have none of those, or all of them, in any combination.
 
-The first scene carries the author credit and the last carries the
-subscribe call to action; keep both if you re-record.
+## 3. The Constructor With Nine Parameters
 
----
+So you write the constructor everyone starts with. Nine parameters, one for every fact this order might need. Now imagine reading a call to it. Nine values in a row, separated by commas. Is this a priority order, or a gift order? You have to count commas, and check against the parameter list, to know. And there are two true-or-false values in there. Swap them by accident, and the compiler says nothing at all.
 
-## Scene 1 — Builder Pattern
+## 4. Telescoping Constructors
 
-Hello, and welcome. This video explains the Builder pattern in Java, and it is written and presented by Jayasekhar Konduru. Let's start with the simple definition. The builder pattern constructs an object one piece at a time. Instead of a constructor taking a long list of arguments, you call a named method for each part you want to set, in whatever order suits you, and then one final method that validates the lot and hands back the finished object. That's the idea in a sentence. It's in the original Gang of Four book, and it's also item two in Effective Java, and by the end you'll know exactly why both books claim it. The rest of the video does it properly, by building a real working Java project: a purchase order in an online store, in Java 21, picking up right where the static factory method left off. And you'll see the two of them compose, because one of them returns the other.
+The next idea is to add shorter constructors, for the common cases. But then a gift order without priority needs one version. A gift order with a coupon needs another. Every new combination needs a brand new constructor. Or you fall back to the nine-parameter one anyway. The book Effective Java has a name for this: the telescoping constructor. And it is named as a warning, not as something to copy.
 
-## Scene 2 — The Job
+## 5. Why That Hurts
 
-So here's the job. We're building a purchase order. Two things about it are always true. It needs an order id and a customer id, and it needs at least one item and a shipping address. But on top of that, there are five completely independent optional pieces. Gift wrap, which can carry a message. A coupon code. Priority shipping. And a free-text note. Any order might have none of those, or all of them, in any combination.
+And that costs you in five ways. One. The calling code no longer says what it means. Two. Most calls are full of nulls, and false values, because most orders use few options. Three. The order of the parameters is arbitrary, and nothing enforces it. Four. Every new option widens the constructor, and touches every caller. Five. There is nowhere to put a rule like, a gift message means the order must be gift wrapped. A constructor just stores values. Notice that the purchase order itself is fine. The problem is the way in.
 
-## Scene 3 — The Constructor With Nine Parameters
+## 6. The Builder Pattern
 
-So you write the constructor everyone starts with. Nine parameters, one for every fact this order might need. Now look at the call underneath it, and tell me, quickly, is this the priority order, or the gift order? You have to count commas and cross-check against the parameter list to know. And there are two booleans in there. Swap them by accident, and the compiler says absolutely nothing.
+The fix is a pattern from the famous Gang of Four book. Separate the construction of a complex object from its representation, so the same process can create different results. In plain words: build the object one piece at a time, in any order. And check it is complete only when you say you are done. It is also item two in the book Effective Java. Both books describe the same code, from two angles.
 
-## Scene 4 — Telescoping Constructors
+## 7. A Made-to-Order Sandwich Counter
 
-The next instinct is to add smaller constructors on top, one for the common cases. But look what happens. A gift order without priority needs one overload. A gift order with a coupon needs another. Every new combination either needs a brand new overload, or you fall back to the nine-parameter one anyway. Effective Java actually has a name for this. The telescoping constructor pattern. And it's named as the chapter's cautionary tale, not as something to reach for.
+Here is an analogy: a made-to-order sandwich counter. You do not shout your whole order through the hatch at once. You name the bread. Then a filling. Then another. Then any extras you want. You never list all the toppings you do not want. And they do not start making it until you say, that's everything. If you say that with no fillings at all, they can refuse. That is exactly the shape of a builder. Build it up piece by piece, and check it only at the end.
 
-## Scene 5 — Why That Hurts
+## 8. The Shape of It
 
-And that costs you, in five specific ways. One. The call site stops saying what it means. Two. Most calls are mostly null, or mostly false, because most orders don't use most of the options. Three. The parameter order is completely arbitrary, and nothing in the language enforces it. Four. Every new option widens the constructor, and every existing caller has to be touched, even the ones that never wanted the new option. And five, the one people miss: there is nowhere to put a rule like "a gift message implies gift wrap". A constructor just assigns fields. But notice, again, what isn't wrong. The type itself is fine. It's the way in that's the problem.
+So here is the shape of it. There is exactly one way in. A static method called builder, on the purchase order class, which takes the two required I Ds. It hands back a Builder object. Every method on the Builder returns that same Builder. So the calls can be chained, one after another, in a single statement. Only the final build method does two things. It checks the order is complete. And it creates the finished, unchangeable purchase order. The purchase order's own constructor is private. The Builder is the only way to create one.
 
-## Scene 6 — The Builder Pattern
+## 9. Required Facts, Optional Pieces
 
-The fix has a name, and this time it really is a Gang of Four pattern. Separate the construction of a complex object from its representation, so the same construction process can create different representations. In plain words? You decide the object a piece at a time, in whatever order suits you, and it only gets checked for completeness the moment you say you're done. And it's also item two in Effective Java. Same technique, described from two angles — one as a design pattern for building complex objects, the other as the fix for the telescoping constructor we just saw. Both books are talking about the same code.
+Here is how the code handles required and optional parts. The two facts that are always required, the order I D and the customer I D, are the Builder's only constructor arguments. And you reach that constructor through the static builder method. Every optional piece starts with a sensible default. It has no constructor argument at all. So there is nothing to skip past, because there was never a position for it.
 
-## Scene 7 — A Made-to-Order Sandwich Counter
+## 10. One Method, One Piece
 
-Think about ordering at a made-to-order sandwich counter. You don't shout the entire order through the hatch in one go. You say the bread. Then a filling. Then another. Then maybe some extras, and you only mention the ones you actually want — nobody says "no pickles, no mustard, no onions" for every topping that isn't there. And crucially, they don't start making the sandwich until you say "that's everything". If you say that with no fillings at all, they can quite reasonably say no. That's the whole shape of a builder. You build it up, a piece at a time, and completeness only gets checked at the very end.
+Every Builder method follows the same shape. Set one piece, then return the Builder itself. Returning the same Builder is what lets the next call chain straight on. So creating an order reads like a sentence. Builder, add a mug, add a book, set the shipping address, mark it priority, and build. Compare that with the nine-parameter constructor. Now every piece announces itself by name, in whatever order you wrote it.
 
-## Scene 8 — The Shape of It
+## 11. A Rule That Lives in One Place
 
-So here's the shape of it. There's exactly one door in: PurchaseOrder dot builder, taking the two facts every order truly needs. That hands back a Builder. Every chainable method on that Builder returns the very same Builder, so the calls read as one flowing statement. And only the final build call does two things at once: it checks the order is actually complete, and it constructs the immutable PurchaseOrder. PurchaseOrder's own constructor is private. The Builder is the only path in, from anywhere outside this class.
+Here is something a plain set of setters could never give you. Setting a gift message also marks the order as gift wrapped. Because a gift message on an unwrapped box makes no sense. And that rule lives in exactly one place. Not repeated at every call. Not left to a comment that says, remember to wrap it. It is enforced once, inside the one method that can enforce it.
 
-## Scene 9 — Required Facts, Optional Pieces
+## 12. Checked Only When You Say You're Done
 
-Here's the code. The two facts that are always required — order id, and customer id — are the only two arguments the Builder's constructor takes, and that constructor is private, reached only through the static builder method. Every optional piece, by contrast, starts at a sensible default and has no constructor argument at all. There's nothing to skip past, because there was never a positional slot for it in the first place.
+And this is the moment the order is checked for completeness. Not when an item is added, and not when the address is set. Only in build. If there are no items, build refuses, saying a purchase order needs at least one item. If there is no address, it refuses, saying a purchase order needs a shipping address. Why can't an earlier method check this? Because adding an item cannot know whether you are about to add more, or whether you are finished. Only build marks the moment you say you are done.
 
-## Scene 10 — One Method, One Piece
+## 13. The Product Stops Watching the Builder
 
-Every method follows the same shape: set one piece, then return this. Returning the same builder is what lets the next call chain straight off the end of it, with no temporary variable anywhere. And look at that call underneath. Compare it to the nine-parameter constructor from scene three. You don't have to ask which argument is which any more — every piece announces itself by name, in whatever order you happened to write it.
+One more detail, easy to miss, and important. When build creates the order, it takes a copy of the Builder's list of items. A snapshot, not the same list. So imagine keeping the same Builder, adding another item, and building a second order. The first order has one item. The second has two. The first order did not silently gain the new item. Once build returns, the order no longer depends on the Builder at all.
 
-## Scene 11 — A Rule That Lives in One Place
+## 14. The Director, the Java Way
 
-Here's the part a plain bag of setters could never give you. Setting a gift message also sets gift wrapped to true, because a gift message on a box that isn't wrapped makes no sense in this domain. And that rule lives in exactly one place. Not repeated at every call site, not left to a comment saying "remember to also wrap it" — it's enforced, once, inside the one method that can enforce it.
+The Gang of Four book describes one more role, called the Director. Its job is to know fixed recipes for common orders. In everyday Java, a director is usually just a static method. Here, a class called Purchase Order Presets has a method called express order. It sets the address, marks it priority, adds a same-day shipping note, and adds the items. Notice that the preset only ever uses the Builder's public methods. So the purchase order's private details can change tomorrow, and not one preset needs to change.
 
-## Scene 12 — Checked Only When You Say You're Done
+## 15. Running It
 
-And this is the moment completeness gets checked. Not addItem, not shippingAddress — build. Why can't an earlier method check this instead? Because addItem has no way of knowing whether you're about to call shippingAddress next, or whether you're finished. Only build marks the moment you've declared yourself done, so it's the only method that can honestly ask "is this actually complete?"
+Let's run the demo. First, one order built by hand, with a gift message and a coupon. It is gift wrapped automatically, because it has a message. Then three presets: a gift order, a standard order, and an express order. Each one does exactly what its name says. Then the reused Builder. The first order has one item, and the second has two. Neither affects the other. And finally, two orders are rejected on purpose. One with no items, and one with no address. Both are caught before any purchase order is ever created.
 
-## Scene 13 — The Product Stops Watching the Builder
+## 16. Where It Stops
 
-One more detail, easy to miss and important. The constructor takes List dot copyOf of the builder's items — a snapshot, not the same list. So keep the same builder around, add another item, and build a second order from it. The first order you built does not silently gain the new item. It already took its own copy. The product stops watching the builder the instant build returns.
+Now the honest part. Every pattern has limits. First, a builder is an extra object. For every order you build, a Builder exists briefly too. For an order placed a few times a second, that costs nothing. For something created millions of times in a tight loop, it is worth thinking about. Second, it is more code to write, for a type with few choices to make. That is why this project's line items and addresses are plain records, with ordinary constructors. Two or three required values, and no options. A builder there would be ceremony for no reason.
 
-## Scene 14 — The Director, the Java Way
+## 17. How It Relates to the Others
 
-The Gang of Four book gives builder a fourth role, a Director, usually its own interface and class, whose whole job is to know fixed recipes for common configurations. In idiomatic Java, that's usually just a static method, and that's exactly what PurchaseOrderPresets is here. Look closely: expressOrder never touches a PurchaseOrder field, or the constructor. It only ever calls Builder's public methods. Which means PurchaseOrder can change its private representation tomorrow, and not one preset has to change with it.
+So how does the Builder relate to the other creational patterns? A static factory method answers: give me one that does this. A simple factory answers: which one? using a helper with a switch. An abstract factory answers: which whole matching set? And a builder answers a different question. Not which object, but which pieces, for one object, built up gradually. And they are not rivals. The builder method on the purchase order is itself a static factory method. It just returns something that collects more information, before building anything.
 
-## Scene 15 — Running It
+## 18. One Sentence to Keep
 
-Let's run it, and see the whole story on one screen. One order built by hand, with a gift message and a coupon chained straight on. Three presets, each reading exactly like what it configures. The reused-builder proof, one order with one item, the next with two, neither reaching into the other. And at the bottom, two orders rejected on purpose — one with no items, one with no address — both caught as IllegalStateException before a single PurchaseOrder object was ever created.
+If you keep one sentence from this video, keep this one. A constructor makes you decide the whole object in one call. A builder lets you decide it one piece at a time, and checks it is complete only when you say you are done. The project has full notes, an animated walkthrough, and a teaching plan. Try adding an option of your own to the purchase order. That is the best way to make it stick.
 
-## Scene 16 — Where It Stops
+## 19. Thanks for Watching
 
-Now the honest part. Every pattern has a ceiling. A builder is a second object. Briefly, for every PurchaseOrder you build, a Builder exists too. For an order placed a few times a second, that's nothing. For something constructed millions of times in a hot loop, it's a real allocation to weigh. It's also more typing, for a type that has nothing to decide. And the required fields don't disappear — the Builder's own constructor still takes them positionally, it's just a much shorter list. Which is exactly why LineItem and Address in this project are plain records, with ordinary public constructors. Two or three required fields, no options, no rules between them — a builder there would be ceremony around a non-problem.
-
-## Scene 17 — How It Relates to the Others
-
-So where does builder sit next to the other creational patterns? Static factory answers "give me one that does this", with no factory class at all. Simple factory moves "which one?" into a helper with a switch. Abstract factory answers "which whole matching set?", one choice producing several related objects. And builder answers a different question entirely: not which object, but which pieces, assembled in what order, for one object. And here's the nice part. They're not rivals. PurchaseOrder dot builder is itself a static factory method — it just happens to return something whose whole job is collecting more information before it builds anything.
-
-## Scene 18 — One Sentence to Keep
-
-If you keep one sentence from all of this, keep this one. A constructor makes you decide the whole object in one call. A builder lets you decide it a piece at a time, and checks it is complete only when you say you are done. There's a full set of notes in the project, an animated walkthrough you can step through at your own pace, and a session plan if you fancy teaching this to somebody else. Go add an option of your own to PurchaseOrder. That's the best way to make it stick.
-
-## Scene 19 — Thanks for Watching
-
-And that's the builder pattern. If you got something out of this, do give it a thumbs up, and subscribe. It genuinely helps the channel, and it's what makes more of these possible. And if there's a pattern you'd like me to cover next, drop it in the comments. I read every one. All the source code, the written notes and the diagrams are in the repository. Thanks for watching, and I'll see you in the next one.
+That's the Builder pattern. The full source code, written notes, and diagrams are all in the repository. If there is a pattern you would like to see covered, suggest it in the comments. If this helped, a like really does help other people find it. And subscribe, if you'd like the rest of the series. Thanks for watching.

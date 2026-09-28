@@ -20,42 +20,6 @@ it steps sideways to the last value that passed, and writes down that it did so.
 
 ![Externalised configuration data flow diagram](images/data-flow-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-flowchart TD
-    Person(["somebody types 35 into a box<br/>marketing, on a Friday at 16:30"])
-    Store["the configuration source<br/>stores text, because storing text is all it does"]
-    Read["the checkout asks, inside the quote<br/>not once at startup"]
-    Reach{"did the source answer?"}
-    Parse{"is it a well-formed amount?"}
-    Range{"is it between £5.00 and £200.00?"}
-    Good["the value is put in force<br/>and remembered as the last good one"]
-    Last["the last value that passed validation"]
-    Default["the default compiled into the code"]
-    Reject["a rejection, written down<br/>with the value and the reason"]
-    Basket(["a basket arrives<br/>ORD-7102, 4800 pence"])
-    Quote(["a delivery charge<br/>FREE, and where the threshold came from"])
-    Audit["the change log<br/>who, what, when, and the value it displaced"]
-
-    Person --> Store --> Read --> Reach
-    Reach -- "no" --> Default
-    Reach -- "yes" --> Parse
-    Parse -- "the word fifty" --> Reject
-    Range -- "minus one pound" --> Reject
-    Parse -- "yes" --> Range
-    Range -- "yes" --> Good
-    Reject --> Last
-    Good --> Quote
-    Last --> Quote
-    Default --> Quote
-    Basket --> Quote
-    Person -.-> Audit
-```
-
-</details>
-
 ## The three things this flow proves
 
 **The read is on the request path, and that is the whole pattern.** The arrow from the

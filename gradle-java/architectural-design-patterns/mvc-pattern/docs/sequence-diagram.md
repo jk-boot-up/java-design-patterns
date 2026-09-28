@@ -14,34 +14,6 @@ of asking.
 
 ![MVC pattern sequence diagram](images/sequence-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant Ada as Customer
-    participant Ctrl as OrderSummaryController
-    participant Svc as PlaceOrderService «application»
-    participant Orders as OrderTable «infrastructure»
-    participant Model as OrderSummaryModel
-    participant Screen as ScreenSummaryView
-    participant Email as EmailConfirmationView
-
-    Ada->>Ctrl: check out — 1 machine, 1 grinder, 2 bags of beans
-    Ctrl->>Svc: place(request)
-    Svc-->>Ctrl: placed, ord-1001, £382.50
-    Ctrl->>Orders: find(ord-1001)
-    Orders-->>Ctrl: the saved order, three lines
-    Ctrl->>Model: of(order)
-    Ctrl->>Screen: render(model)
-    Screen-->>Ctrl: "Total: £382.50"
-    Ctrl->>Email: render(model)
-    Email-->>Ctrl: "...for £382.50 is confirmed."
-```
-
-</details>
-
 Say the load-bearing sentence aloud, because it is the one a picture cannot
 carry on its own: **the model is built once, from what was actually saved,
 and handed downward to every view — no view is ever handed anything it

@@ -6,25 +6,4 @@ Say it in words. At startup the container creates the four rule beans and puts t
 
 ![Strategy with Spring pattern sequence diagram](images/sequence-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant C as container
-    participant R as four rules
-    participant S as SelectedShipping
-    C->>R: create the beans
-    C->>S: constructor(map, name)
-    S->>S: rules.get(name)
-    alt found
-        S-->>C: ready
-    else not found
-        S-->>C: IllegalArgumentException
-    end
-```
-
-</details>
-
 The load-bearing sentence: **a wrong name is found at startup, not at checkout.**

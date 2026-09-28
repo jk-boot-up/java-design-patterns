@@ -6,28 +6,4 @@ Say it in words. Clerk A asks the lock manager for the blue mug and gets it, wit
 
 ![Pessimistic Offline Lock pattern sequence diagram](images/sequence-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant A as clerk A
-    participant B as clerk B
-    participant L as lock manager
-    participant S as store
-    A->>L: acquire MUG-BLUE
-    L-->>A: granted
-    B->>L: acquire MUG-BLUE
-    L-->>B: refused, locked by A
-    A->>S: write
-    S->>L: does A hold the lock?
-    L-->>S: yes
-    A->>L: release
-    B->>L: acquire MUG-BLUE
-    L-->>B: granted
-```
-
-</details>
-
 The load-bearing sentence: **the clash never starts, because the second clerk is stopped at the door.**

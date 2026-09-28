@@ -4,41 +4,6 @@
 
 ![Singleton pattern class diagram](images/class-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-classDiagram
-    direction TB
-
-    class OrderSequenceGenerator {
-        <<enumeration>>
-        INSTANCE
-        -counter AtomicLong
-        +nextOrderNumber() String
-    }
-
-    class LegacyOrderSequenceGenerator {
-        <<the trap>>
-        -instance LegacyOrderSequenceGenerator$
-        -counter int
-        -LegacyOrderSequenceGenerator()
-        +getInstance()$ LegacyOrderSequenceGenerator
-        +nextOrderNumber() String
-    }
-
-    class OrderSequenceGeneratorDemo {
-        +main(String[]) void
-    }
-
-    OrderSequenceGeneratorDemo ..> OrderSequenceGenerator : INSTANCE.nextOrderNumber()
-    OrderSequenceGeneratorDemo ..> LegacyOrderSequenceGenerator : getInstance(), then attacks it
-    OrderSequenceGenerator ..> OrderSequenceGenerator : reflection and serialization both rejected
-    LegacyOrderSequenceGenerator ..> LegacyOrderSequenceGenerator : reflection and serialization both succeed
-```
-
-</details>
-
 The shape to notice: `OrderSequenceGenerator` has no `getInstance()` method
 and no private constructor to guard, because an `enum` constant is not
 constructed by ordinary code at all — `INSTANCE` is a field the compiler
@@ -49,30 +14,7 @@ and every one of those three pieces is a place a guarantee can leak.
 
 ## What the caller can see
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-flowchart TB
-    subgraph outside["Calling code"]
-        normal["OrderSequenceGenerator.INSTANCE.nextOrderNumber()"]
-        attacker["Constructor.newInstance() / ObjectInputStream.readObject()"]
-    end
-
-    subgraph inside["com.jk.explore.singleton"]
-        good["OrderSequenceGenerator<br/><b>enum, one constant</b><br/>INSTANCE"]
-        legacy["LegacyOrderSequenceGenerator<br/><b>class, private constructor</b><br/>getInstance()"]
-    end
-
-    normal --> good
-    attacker -.->|"IllegalArgumentException"| good
-    attacker -->|"succeeds — a second instance"| legacy
-
-    style good fill:#dcfce7,stroke:#15803d,stroke-width:2px
-    style legacy fill:#fee2e2,stroke:#b91c1c
-```
-
-</details>
+![Class diagram 2](images/class-diagram-2.png)
 
 ## Notes
 

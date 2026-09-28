@@ -177,7 +177,7 @@ ORDER = [
     ("architectural-design-patterns", "pipe-and-filter-architecture"),
     ("architectural-design-patterns", "mvp-and-mvvm"),
     ("architectural-design-patterns", "onion-architecture"),
-    ("architectural-design-patterns", "serverless"),
+    ("architectural-design-patterns", "°serverless"),
     ("platform-design-patterns", "blue-green-and-canary"),
     ("platform-design-patterns", "feature-toggle"),
     ("platform-design-patterns", "service-mesh"),
@@ -209,6 +209,7 @@ ORDER = [
     ("micro-services-design-patterns", "database-per-service-with-containers"),
     ("micro-services-design-patterns", "leader-election-with-kubernetes"),
     ("micro-services-design-patterns", "transactional-outbox-with-debezium"),
+    ("platform-design-patterns", "externalised-configuration-with-spring-cloud-config"),
 ]
 
 # Per-project title and tag material. The title is what gets pasted into
@@ -883,6 +884,10 @@ META = {
     "transactional-outbox-with-debezium": {
         "title": 'Transactional Outbox with Debezium',
         "tags": ['transactional outbox', 'debezium', 'change data capture', 'kafka'],
+    },
+    "externalised-configuration-with-spring-cloud-config": {
+        "title": 'Externalised Configuration with Spring Cloud Config',
+        "tags": ['externalised configuration', 'spring cloud config', 'spring boot', 'refresh scope'],
     },
 }
 

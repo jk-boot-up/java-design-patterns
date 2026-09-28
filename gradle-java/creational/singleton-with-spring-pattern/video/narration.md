@@ -2,64 +2,64 @@
 
 ## 1. Singleton with Spring
 
-Hello, and welcome. This video explains the Singleton pattern with Spring Boot, in Java, and it is written and presented by Jayasekhar Konduru. It is the framework version of the Singleton video. That one built an order number sequencer that checkout, the admin console and a retry job all share, and closed the reflection and serialization holes with a single element enum. This one shows the same idea inside Spring Boot. The plain definition, in short: in Spring, a singleton is a scope. The container keeps one instance, and hands it to everyone who asks. By the end you will see the same sequencer as a Spring bean shared by three callers, then see how the guarantee weakens: a plain new, a second container, a changed scope, and a thread-unsafe counter.
+Hello, and welcome. This video explains the Singleton pattern, in Java, using Spring Boot. This video is presented by Jayasekhar Konduru. First, a simple definition. The Singleton pattern makes sure there is exactly one instance of a class, shared by everyone. In Spring, singleton is a scope. The container keeps one instance, and hands it to everyone who asks. Think of a shared office printer. Everyone on the floor sends their pages to the same machine. This is the framework version of the Singleton video, with the same order number generator. We will share the generator as a Spring bean, between three callers. Then we will hear how the guarantee weakens. A plain new, a second container, a changed scope, and a counter that is not thread-safe.
 
 ## 2. The Partner Project
 
-This video assumes the Singleton video. If you have not seen it, start there. It shares one order number sequencer between checkout, the admin console and a retry job, and closes the reflection and serialization holes with an enum. This one uses the same example. It does not teach the pattern again. It shows what Spring Boot does with it.
+Before we start, a quick note. This video has a partner: the hand-built Singleton video. That one shares one order number generator between checkout, the admin console, and a retry job. And it closes the reflection and serialization tricks, using an enum. If you are new to the pattern, watch that one first. Here, we ask what Spring Boot does with the same idea.
 
 ## 3. Before The First Line
 
-Before the first line of code, what Spring Boot is. Spring is a framework whose core is a container that creates your objects and hands them out. By default it keeps one instance of each bean, per container. And a promise: skipping this video loses none of the pattern. The hand-built one teaches all of it.
+One thing is new in this project: Spring Boot. At its heart, Spring is a container that creates your objects, and hands them out. By default, it keeps one instance of each bean, per container. And one promise. If you skip this video, you lose none of the pattern. This one is about the tool.
 
 ## 4. One Bean, Shared
 
-First, the good news. Checkout, the admin console and the retry job are each handed a generator by the container, and it is the same object. The numbers run one, two, three across all three callers. Notice what is missing. No private constructor. No static field. Spring did the sharing.
+First demo: one bean, shared. Checkout, the admin console, and the retry job are each given a generator by the container. And it is the very same object. The order numbers run one, two, three, across all three callers. Notice what is missing. No private constructor. No static field. Spring did the sharing.
 
 ## 5. Nothing Stops new
 
-Second, nothing stops a plain new. The constructor is public, because Spring wants it that way. So anyone can build a second generator, and it starts again at order one. The hand-built singleton made this impossible. Here it is only a convention.
+Second demo: nothing stops a plain new. The generator's constructor is public, because Spring needs it that way. So anyone can create a second generator. And it starts again at order one. The hand-built enum singleton made this impossible. Here, it is only a convention.
 
 ## 6. One Per Container
 
-Third, the word singleton is per container. Start the application twice in one program, and each container has its own generator. Context A issues order one. Context B issues order one. The same order number goes to two customers. An enum could not do that.
+Third demo: singleton means one per container. Start the application twice, inside one program. Each container has its own generator. Container A issues order one. Container B also issues order one. The same order number goes to two customers. An enum could never do that.
 
 ## 7. A Scope Change
 
-Fourth, a scope change. Change one word in the bean definition, singleton to prototype, and each caller is handed its own generator. Checkout says order one. Admin says order one. Nothing fails. The compiler is silent. The only sign is duplicate numbers in production.
+Fourth demo: a scope change. Change one word in the bean definition, from singleton to prototype. Now each caller gets its own generator. Checkout says order one. The admin console also says order one. Nothing fails, and the compiler says nothing. The only sign is duplicate order numbers, in production.
 
 ## 8. When Is It Built?
 
-Fifth, when is it built. By default, at startup, before any caller asks. The count is one. With lazy initialization, the count is zero after startup, and one after the first caller. Eager finds a broken constructor at startup. Lazy finds it in front of a customer.
+Fifth demo: when is the singleton created? By default, at startup, before any caller asks. The count of generators built is one. With lazy creation switched on, the count is zero after startup. And one after the first caller arrives. Eager creation finds a broken constructor at startup. Lazy creation finds it in front of a customer.
 
 ## 9. Shared Means Shared By Threads
 
-Last, threads. A singleton is shared by every thread, and Spring does not protect its fields. A plain long, held between the read and the write, gives two customers the same number. An atomic long, hit by four threads, gives ten thousand distinct numbers. Spring shares the bean. Keeping its state safe is still your job.
+Last demo: shared means shared by threads. A singleton is used by every thread, and Spring does not protect its fields. With a plain number as the counter, two threads both read the same value. So two customers both get order number one. With an Atomic Long, four threads request two thousand five hundred numbers each. And they get ten thousand different numbers. Spring shares the bean. Keeping its data safe is still your job.
 
 ## 10. The Verdict
 
-My verdict, plainly. Let the container own the single instance. Keep the state inside it thread safe. Make sure only one container runs. And use the enum when no container is around.
+So, here is the verdict. Let the container own the single instance. Keep the data inside it thread-safe. Make sure only one container runs. And use the enum singleton when there is no container around.
 
 ## 11. How To Recognise It
 
-How do you recognise this in code you did not write? A class with no private constructor and no getInstance method, passed in through a constructor. A component or service with no scope named, because the default is singleton.
+How can you spot this in code someone else wrote? Look for a class with no private constructor, and no get instance method, passed in through a constructor. And a component or service with no scope named. Because the default scope is singleton.
 
 ## 12. Where You Have Met This
 
-You have met this in every service and repository you have written. The default scope is singleton, so most of them already are.
+Where have you met this before? In every service and repository class you have written. The default scope is singleton, so most of them already are.
 
 ## 13. What Was Used
 
-For the record. Spring Boot four point one point one. No web server, no database, and no web starter.
+For the record, here are the versions. Spring Boot four point one point one. No web server, no database, and no web library.
 
 ## 14. What Is Real Here
 
-The same honest admission as everywhere in this course. Everything is real: Spring's containers and scopes. The thread collision is forced with a gate, so it happens every time.
+A quick, honest note about this demo. Spring's containers and scopes are real. The thread collision is forced with a gate, so it happens every time.
 
 ## 15. When This Is Too Much
 
-So when is it too much? For a class with no state, the question hardly matters. It bites when the bean holds a counter, a cache or a connection.
+So, when does this matter? For a class that holds no data, it hardly matters. It bites when the bean holds a counter, a cache, or a connection.
 
 ## 16. Thanks for Watching
 
-That's Singleton with Spring. If you take one sentence away, take this one: a Spring singleton is one per container, and only as safe as the state inside it. The full source, the written notes, the diagrams and an animated walkthrough are all in the repository. If you try one exercise, make the constructor private, and see what Spring does. If this helped, a like genuinely does help other people find it, and subscribe if you would like the rest of the series. Thanks for watching.
+That's Singleton with Spring. If you remember one sentence, make it this one. A Spring singleton is one per container, and only as safe as the data inside it. The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. Here is one exercise to try. Make the generator's constructor private. Then see what Spring does. If this helped, a like really does help other people find it. And subscribe, if you'd like the rest of the series. Thanks for watching.

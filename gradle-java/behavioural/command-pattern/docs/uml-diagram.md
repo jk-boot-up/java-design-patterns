@@ -9,50 +9,6 @@ divergence is entirely in **what gets written down at step 3**.
 
 ![Command pattern sequence diagram](images/uml-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-sequenceDiagram
-    autonumber
-    actor Customer
-    participant Naive as NaiveCartEditor
-    participant History as CartHistory
-    participant Add as AddItemCommand
-    participant Cart
-
-    rect rgb(255, 235, 235)
-        note over Customer, Cart: The trap -- the note records the request
-        Customer->>Naive: addItem("H-100", 2)
-        Naive->>Cart: putLine(H-100 x 5)
-        Naive->>Naive: push Change("add", "H-100", 2)
-        Customer->>Naive: undo()
-        Naive->>Naive: pop Change("add", ...)
-        Naive->>Cart: removeLine("H-100")
-        Cart-->>Customer: 0 headphones -- the first 3 are gone
-    end
-
-    rect rgb(235, 250, 240)
-        note over Customer, Cart: The pattern -- the command records the cart
-        Customer->>History: execute(new AddItemCommand("H-100", 2))
-        History->>Add: execute(cart)
-        Add->>Cart: quantityOf("H-100")
-        Cart-->>Add: 3
-        Add->>Add: previousQuantity = 3
-        Add->>Cart: putLine(H-100 x 5)
-        History->>History: done.push(command), undone.clear()
-
-        Customer->>History: undo()
-        History->>History: command = done.pop()
-        History->>Add: undo(cart)
-        Add->>Cart: putLine(H-100 x 3)
-        History->>History: undone.push(command)
-        Cart-->>Customer: 3 headphones -- exactly as before
-    end
-```
-
-</details>
-
 ## Reading It
 
 **Steps 1 to 7 — the naive run.** Everything here is reasonable. The editor

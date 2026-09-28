@@ -8,101 +8,6 @@ caller outside the package is allowed to see.
 
 ![Static factory method class diagram](images/class-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-classDiagram
-    direction TB
-
-    class StaticFactoryDemo {
-        +main(String[]) void
-    }
-
-    class CheckoutService {
-        +checkout(Order, Discount) Receipt
-    }
-
-    class Discount {
-        <<interface>>
-        +appliedTo(Order) Money
-        +describe() String
-        +none()$ Discount
-        +percentage(int)$ Discount
-        +amountOff(Money)$ Discount
-        +freeShipping()$ Discount
-        +bestOf(Discount, Discount)$ Discount
-        +forCoupon(String)$ Discount
-    }
-
-    class NoDiscount {
-        -NoDiscount()
-        ~INSTANCE NoDiscount
-    }
-
-    class PercentageDiscount {
-        -percent int
-    }
-
-    class AmountOffDiscount {
-        -amount Money
-    }
-
-    class FreeShippingDiscount {
-        -FreeShippingDiscount()
-        ~INSTANCE FreeShippingDiscount
-    }
-
-    class BestOfDiscount {
-        -first Discount
-        -second Discount
-    }
-
-    class Money {
-        -Money(long)
-        -pence long
-        +zero()$ Money
-        +pounds(double)$ Money
-        +pence(long)$ Money
-        +parse(String)$ Money
-    }
-
-    class Order {
-        <<record>>
-        +subtotal Money
-        +shipping Money
-    }
-
-    class Receipt {
-        <<record>>
-        +discountLabel String
-        +total Money
-    }
-
-    StaticFactoryDemo ..> CheckoutService : uses
-    StaticFactoryDemo ..> Discount : asks for one
-    CheckoutService ..> Discount : applies
-    CheckoutService ..> Order
-    CheckoutService ..> Receipt
-
-    Discount <|.. NoDiscount
-    Discount <|.. PercentageDiscount
-    Discount <|.. AmountOffDiscount
-    Discount <|.. FreeShippingDiscount
-    Discount <|.. BestOfDiscount
-
-    Discount ..> NoDiscount : creates
-    Discount ..> PercentageDiscount : creates
-    Discount ..> AmountOffDiscount : creates
-    Discount ..> FreeShippingDiscount : creates
-    Discount ..> BestOfDiscount : creates
-
-    Order *-- Money
-    Receipt *-- Money
-```
-
-</details>
-
 Look at where the `creates` arrows start. They leave `Discount` — the
 interface itself. In every other factory pattern the arrows leave a separate
 factory object. Here the type is its own factory, and that is the whole idea.
@@ -111,39 +16,7 @@ factory object. Here the type is its own factory, and that is the whole idea.
 
 ![The package boundary](images/boundary.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-flowchart TB
-    subgraph outside["Any other package"]
-        caller["your code<br/><i>Discount.percentage(10)</i>"]
-    end
-
-    subgraph inside["com.jk.explore.staticfactory"]
-        door["Discount<br/><b>public interface</b><br/>6 static factory methods"]
-        subgraph hidden["package-private — invisible outside"]
-            n["NoDiscount"]
-            p["PercentageDiscount"]
-            a["AmountOffDiscount"]
-            f["FreeShippingDiscount"]
-            b["BestOfDiscount"]
-        end
-    end
-
-    caller -->|"the only way in"| door
-    door --> n
-    door --> p
-    door --> a
-    door --> f
-    door --> b
-
-    style door fill:#dbeafe,stroke:#1d4ed8,stroke-width:2px
-    style hidden fill:#fef3c7,stroke:#b45309,stroke-dasharray: 5 5
-    style caller fill:#f1f5f9,stroke:#475569
-```
-
-</details>
+![Class diagram 2](images/class-diagram-2.png)
 
 Five classes implement `Discount`, and not one of them is public. Your code
 cannot name them, cannot `new` them, and never finds out how many there are.

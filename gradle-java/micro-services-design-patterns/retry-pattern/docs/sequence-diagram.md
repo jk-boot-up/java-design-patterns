@@ -16,43 +16,6 @@ are the reason a thousand shops that all failed together do not all come back to
 
 ![Retry with backoff sequence diagram](images/sequence-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant S as CheckoutService
-    participant R as Retrier
-    participant G as PaymentGateway
-    participant B as the bank
-    participant Log as CallLog
-
-    S->>S: build PaymentRequest(ORD-5001, £449.99, key)
-    Note over S: 0ms — built once, before any attempt.<br/>Everything below depends on this being outside the loop.
-
-    S->>R: run(the request)
-    R->>G: charge(request)
-    G->>B: take £449.99
-    B-->>G: approved, chg-1
-    G--xR: the reply never arrives
-    Note over G,R: 50ms — the money is gone and<br/>the shop does not know it
-
-    R->>Log: note(RETRYABLE, "attempt 1 failed, Payments did not answer")
-    R->>R: wait 103ms
-    Note over R: 100ms of backoff plus 3ms of jitter
-
-    R->>G: charge(the same request, the same key)
-    G->>G: I have seen this key — already charged
-    G-->>R: chg-1, the original receipt
-    Note over G,R: 203ms — REPLAYED, and the bank<br/>was never asked a second time
-
-    R-->>S: Receipt chg-1
-    Note over S,G: card charged 1 time, £449.99 in total
-```
-
-</details>
-
 ## Reading the timings
 
 **At 50ms the shop is already wrong about the world.** The money has left the customer's

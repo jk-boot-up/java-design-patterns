@@ -2,56 +2,56 @@
 
 ## 1. MVP and MVVM
 
-Hello, and welcome. This video explains the MVP and MVVM pattern in Java, and it is written and presented by Jayasekhar Konduru. The plain definition: M V P and M V V M both take the rules out of the screen. In M V P, a presenter tells a passive view what to show. In M V V M, the view binds to state that a view model keeps up to date. This is another project in the architecture category, whose subject is how a whole application is arranged, and who may depend on whom. In our online store, the cart screen shows a total, a count and a checkout button, and the rules for them are tangled into the screen. By the end you will see a screen whose rules cannot be checked without opening a window, see a presenter tell a passive view, see the view make no decisions, see a view bind to state, see two screens share one view model, and see the bill, which is a long interface on one side and hidden wiring on the other.
+Hello, and welcome. This video explains the M V P and M V V M patterns, in Java. This video is presented by Jayasekhar Konduru. First, a simple definition. Both patterns take the rules out of the screen. In M V P, which stands for Model, View, Presenter, a presenter tells a passive screen exactly what to show. In M V V M, which stands for Model, View, View Model, the screen connects itself to some state, and updates whenever that state changes. Think of a stage play. In M V P, a director stands in the wings and tells each actor every move. In M V V M, the actors watch a scoreboard, and react to it by themselves. In our online store, the cart screen shows a total, an item count, and a checkout button. Right now, the rules for those are tangled into the screen. In this video, we untangle them both ways, and then compare the costs.
 
 ## 2. The Scenario
 
-Here is the scenario. The cart screen shows a total, an item count, and a checkout button. The button is on only when the cart is not empty. The question: where do these rules live?
+Here is the scenario. The cart screen shows three things. The total price. The number of items. And a checkout button. The checkout button is switched on only when the cart is not empty. So here is the question. Where should these rules live?
 
 ## 3. The Screen Decides
 
-First, the screen decides. To check the total and the checkout rule, a screen was needed. One window was opened. The rules are welded to the widgets.
+First, the old way: the screen decides everything. To check the total, and the checkout rule, we had to create a real screen. One window was opened, just to run a test. The rules are welded to the screen's buttons and labels.
 
 ## 4. The Pattern
 
-The pattern. Keep the rules out of the screen. In M V P, a presenter tells a passive view what to show. In M V V M, a view model keeps state, and the view binds to it.
+Now, the pattern. Keep the rules out of the screen. In M V P, a presenter holds the rules. It tells a passive screen what to show. In M V V M, a view model holds the rules and the state. The screen connects to that state once, and follows it from then on. This connecting is called binding.
 
 ## 5. A Presenter Tells A Passive View
 
-Second, M V P: a presenter tells a passive view. After two adds, the view was told: show the total, twenty five pounds fifty; show the count, two; enable checkout. Windows opened: none. The rules were checked with no screen.
+Second demo: M V P, where a presenter tells a passive screen. We add two items to the cart. The presenter then gives the screen three instructions. Show the total, twenty-five pounds fifty. Show the count, two. And switch the checkout button on. How many windows were opened? None. The rules were checked with no screen at all, using a fake view.
 
 ## 6. The View Makes No Decisions
 
-Third, the view makes no decisions. An empty cart: total zero, count zero, checkout off. Add one item and remove it, and the last three calls are the same. The presenter decides that checkout is off again. The view just obeys.
+Third demo: the screen makes no decisions. With an empty cart, the presenter says: total zero, count zero, checkout off. Now add one item, then remove it again. The presenter's last three instructions are exactly the same. The presenter decided that checkout is off again. The screen just obeys.
 
 ## 7. The View Binds To State
 
-Fourth, M V V M: the view binds to state. The screen starts as zero, no items, checkout off. After two adds it shows twenty five pounds fifty, two items, checkout on. Nobody told the screen. It bound once. The view model holds no reference to any view.
+Fourth demo: M V V M, where the screen binds to state. The screen starts by showing zero, no items, and checkout off. We add two items. The screen now shows twenty-five pounds fifty, two items, and checkout on. Nobody told the screen to update. It bound to the view model once, at the start. And the view model holds no reference to any screen at all.
 
 ## 8. Many Views, One View Model
 
-Fifth, many views, one view model. A phone screen and a watch screen bind to the same view model. Both show sixteen pounds, one item, checkout on. A second screen cost no change to the view model.
+Fifth demo: many screens, one view model. A phone screen and a watch screen both bind to the same view model. Both show sixteen pounds, one item, and checkout on. Adding that second screen needed no change to the view model at all.
 
 ## 9. The Bill
 
-Last, the bill. In M V V M, a screen that forgot to bind the total draws a question mark. Nothing failed. It is just wrong. In M V P, the view interface has three methods, and each new thing on the screen adds one to the interface, the presenter, and every view. M V V M hides the wiring in the binding. M V P spells it out, and gets long.
+Finally, the costs of each. In M V V M, imagine a screen that forgot to bind the total. It shows a question mark. Nothing fails, and no error appears. It is simply wrong. In M V P, the screen's interface has three methods. Every new item on the screen adds another method, to the interface, the presenter, and every screen. So M V V M hides the wiring inside the binding. And M V P spells every step out, and grows long.
 
 ## 10. How To Recognise It
 
-How do you recognise this in code you did not write? A Presenter that holds a View interface. A ViewModel with observable properties, LiveData, StateFlow or ObservableField. Data binding in WPF, Android, SwiftUI or Angular. A View implemented by a test double.
+How can you spot these patterns in code someone else wrote? For M V P, look for a presenter that holds a view interface. And a view implemented by a fake, in tests. For M V V M, look for a view model with observable properties. Names like Live Data, State Flow, or Observable Field. And data binding in frameworks like W P F, Android, Swift U I, or Angular.
 
 ## 11. The Verdict
 
-Here is my verdict, plainly. Take the rules out of the screen either way. Use MVP when you want every step visible and easy to check with a fake view. Use MVVM when your platform has good binding, and several screens share one state. Test the presenter or the view model with no screen, and check the bindings too.
+So, here is the verdict. Either way, take the rules out of the screen. Choose M V P when you want every step visible, and easy to check with a fake screen. Choose M V V M when your platform has good binding, and several screens share one state. And in both cases, test the presenter or the view model with no screen. Then check the bindings too.
 
 ## 12. What Is Real Here
 
-The same honest admission as everywhere in this course. Everything is plain Java. Every number quoted comes from this program's own output. Nothing depends on a clock, so every run is the same.
+A quick, honest note about this demo. Everything is plain Java. Every number you heard comes from the program's own output. And nothing depends on the clock, so every run gives the same result.
 
 ## 13. When This Is Too Much
 
-So when is it too much? For a static page, or a screen with two fields, the extra layer is more than the problem. Keep it for screens with rules that you want to check on their own.
+So, when is this too much? For a static page, or a screen with just two fields, the extra layer is bigger than the problem. Keep it for screens with rules that you want to check on their own.
 
 ## 14. Thanks for Watching
 
-That's MVP and MVVM. If you take one sentence away, take this one: M V P and M V V M keep the rules out of the screen, and the price is a longer interface on one side, and hidden wiring on the other. The full source, the written notes, the diagrams and an animated walkthrough are all in the repository, running offline with nothing installed but a Java development kit. If you try one exercise, add a warning line that shows when the total is over five hundred pounds, first in the presenter, then in the view model. If this helped, a like genuinely does help other people find it, and subscribe if you would like the rest of the series. Thanks for watching.
+That's M V P and M V V M. If you remember one sentence, make it this one. Both keep the rules out of the screen, and the price is a longer interface on one side, and hidden wiring on the other. The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. Here is one exercise to try. Add a warning that appears when the total is over five hundred pounds. Build it first in the presenter, and then in the view model. If this helped, a like really does help other people find it. And subscribe, if you'd like the rest of the series. Thanks for watching.

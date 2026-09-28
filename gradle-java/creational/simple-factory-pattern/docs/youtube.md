@@ -21,20 +21,20 @@ Learn the Simple Factory pattern in Java 21 by building an online store's paymen
 
 CHAPTERS
 00:00 Introduction
-00:54 The Scenario
-01:25 One Interface, Four Implementations
-01:55 The Problem — Everyone Chooses for Themselves
-02:19 Why That Hurts
-02:47 The Simple Factory
-03:21 Remember It With a Coffee Shop
-03:52 The Four Roles
-04:33 A Product — Small, Focused, Unaware
-05:01 The Factory — One Switch, One Place
-05:40 What the Factory Gives You
-06:20 The Client — This Is the Whole Thing
-06:48 Running It
-07:13 Wrap Up
-07:55 Thanks for Watching
+00:52 The Scenario
+01:22 One Interface, Four Implementations
+01:57 The Problem — Everyone Chooses for Themselves
+02:24 Why That Hurts
+02:51 The Simple Factory
+03:25 Remember It With a Coffee Shop
+03:54 The Four Roles
+04:29 A Product — Small, Focused, Unaware
+04:56 The Factory — One Switch, One Place
+05:33 What the Factory Gives You
+06:10 The Client — This Is the Whole Thing
+06:36 Running It
+07:06 Wrap Up
+07:38 Thanks for Watching
 
 SOURCE CODE, WRITTEN NOTES AND AN INTERACTIVE ANIMATION
 https://github.com/jk-boot-up/java-design-patterns/tree/main/gradle-java/creational/simple-factory-pattern
@@ -49,20 +49,20 @@ YouTube renders these as chapters only if there are at least three and the first
 
 ```
 00:00 Introduction
-00:54 The Scenario
-01:25 One Interface, Four Implementations
-01:55 The Problem — Everyone Chooses for Themselves
-02:19 Why That Hurts
-02:47 The Simple Factory
-03:21 Remember It With a Coffee Shop
-03:52 The Four Roles
-04:33 A Product — Small, Focused, Unaware
-05:01 The Factory — One Switch, One Place
-05:40 What the Factory Gives You
-06:20 The Client — This Is the Whole Thing
-06:48 Running It
-07:13 Wrap Up
-07:55 Thanks for Watching
+00:52 The Scenario
+01:22 One Interface, Four Implementations
+01:57 The Problem — Everyone Chooses for Themselves
+02:24 Why That Hurts
+02:51 The Simple Factory
+03:25 Remember It With a Coffee Shop
+03:54 The Four Roles
+04:29 A Product — Small, Focused, Unaware
+04:56 The Factory — One Switch, One Place
+05:33 What the Factory Gives You
+06:10 The Client — This Is the Whole Thing
+06:36 Running It
+07:06 Wrap Up
+07:38 Thanks for Watching
 ```
 
 ## Tags
@@ -101,4 +101,4 @@ Add a card partway through pointing at the playlist, so a viewer who arrives at 
 
 ## Runtime
 
-Approximately 08:21, narrated at 145 words per minute.
+Approximately 08:10, narrated at 145 words per minute.

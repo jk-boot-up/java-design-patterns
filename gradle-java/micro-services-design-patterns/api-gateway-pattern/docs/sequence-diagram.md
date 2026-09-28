@@ -19,50 +19,6 @@ already returned, and the timeline would be a lie.
 
 ![API Gateway pattern sequence diagram](images/sequence-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant App as MobileApp
-    participant GW as ProductPageGateway
-    participant Auth as AuthService
-    participant Cat as Catalog
-    participant Pri as Pricing
-    participant Inv as Inventory
-    participant Rec as Recommendations
-
-    Note over App,GW: 0ms — one call leaves the phone
-    App->>GW: productPage(token, SKU-1001)
-    Note over App,GW: 100ms — halfway, the slow hop paid out and back
-
-    GW->>Auth: check(token)
-    Auth-->>GW: CUST-001
-    Note over GW,Auth: 100ms — one token check, for the whole page
-
-    GW->>Cat: product(SKU-1001)
-    Cat-->>GW: Barista Pro Espresso Machine
-    Note over GW,Cat: 110ms
-
-    GW->>Pri: price(SKU-1001)
-    Pri-->>GW: £449.99
-    Note over GW,Pri: 120ms
-
-    GW->>Inv: inStock(SKU-1001)
-    Inv-->>GW: true
-    Note over GW,Inv: 130ms
-
-    GW->>Rec: alsoBought(SKU-1001)
-    Rec-->>GW: SKU-2001, SKU-2002
-    Note over GW,Rec: 140ms — the only call allowed to fail
-
-    GW-->>App: ProductPage
-    Note over App,GW: 240ms — the shopper sees a page
-```
-
-</details>
-
 ## Reading the timings
 
 **0ms to 240ms, and four calls inside.** The four internal calls occupy 100ms to 140ms —

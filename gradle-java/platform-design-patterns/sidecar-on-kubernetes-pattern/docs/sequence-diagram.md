@@ -6,25 +6,4 @@ Say it in words. Checkout makes a payment by calling its own local port, eighty-
 
 ![Sidecar on Kubernetes pattern sequence diagram](images/sequence-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant C as checkout
-    participant P as sidecar proxy
-    participant K as kubelet
-    C->>P: pay, on localhost:8081
-    P-->>C: paid
-    Note over P: the proxy process dies
-    C->>P: pay
-    P--xC: connection refused
-    K->>P: restart this container alone
-    C->>P: pay
-    P-->>C: paid
-```
-
-</details>
-
 The load-bearing sentence: **a crash does not take a neighbour with it, and what is shared is the Pod.**

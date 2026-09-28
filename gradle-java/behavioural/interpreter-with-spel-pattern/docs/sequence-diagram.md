@@ -6,23 +6,4 @@ Say it in words. The promotion book is built from four lines of text. For each l
 
 ![Interpreter with SpEL pattern sequence diagram](images/sequence-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant B as PromotionBook
-    participant P as parser
-    participant E as tree
-    participant O as order
-    B->>P: parseExpression(text), four times
-    P-->>B: trees, kept
-    B->>E: getValue(read-only context on order)
-    E->>O: getCountry, getBasketPence
-    E-->>B: true or false
-```
-
-</details>
-
 The load-bearing sentence: **parsing happens once, evaluation once per order.**

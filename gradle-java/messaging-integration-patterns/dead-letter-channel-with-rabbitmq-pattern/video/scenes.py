@@ -10,53 +10,54 @@ SCENES = [
         key='01-poster', kind='poster', title='Dead Letter Channel with RabbitMQ',
         body=None,
         narration=(
-            'Hello, and welcome. This video explains the Dead Letter '
-            'Channel pattern with RabbitMQ, in Java, and it is written '
-            'and presented by Jayasekhar Konduru. [[slnc 300]] The plain '
-            'definition, in short: a dead letter channel is somewhere for '
-            'a message to go when it can never be handled, so that it '
-            'stops blocking the messages behind it and a person can look '
-            'at it later. Think of a sorting office. A parcel with an '
+            'Hello, and welcome. [[slnc 400]] This video explains the '
+            'Dead Letter Channel pattern, in Java, using RabbitMQ. [[slnc '
+            '300]] This video is presented by Jayasekhar Konduru. [[slnc '
+            '600]] First, a simple definition. [[slnc 300]] A dead letter '
+            'channel is somewhere for a message to go when it can never '
+            'be handled. [[slnc 300]] So it stops blocking the messages '
+            'behind it, and a person can look at it later. [[slnc 600]] '
+            'Think of a sorting office. [[slnc 300]] A parcel with an '
             'address nobody can read does not sit at the front of the '
-            'belt for ever. It is taken off, put on a shelf with a note '
-            'saying why, and the belt keeps moving. [[slnc 350]] In our '
-            'online store, the belt is a queue of orders, the parcel is '
-            'an order whose address nothing can read, and the shelf is a '
-            'second queue that a person looks at in the morning. [[slnc '
-            '300]] What is new in this video is who makes the decision. '
-            'This is the real version of the hand-built one, and here a '
-            'real broker takes the order out of the queue, and writes '
-            'down its own reason for the death.'
+            'belt forever. [[slnc 300]] It is taken off, put on a shelf '
+            'with a note saying why, and the belt keeps moving. [[slnc '
+            '700]] In our online store, the belt is a queue of orders. '
+            '[[slnc 300]] The parcel is an order whose address cannot be '
+            'read. [[slnc 300]] And the shelf is a second queue that a '
+            'person checks in the morning. [[slnc 500]] What is new here '
+            'is who decides. [[slnc 300]] A real broker takes the order '
+            'off the queue, and writes down its own reason.'
         ),
     ),
     dict(
         key='02-partner', kind='bullets', title='The Partner Video',
         body=['Dead Letter Channel, the', 'hand-built video, builds all of', 'this in plain Java.', '', 'It has the whole idea: try a few', 'times, then move the message', 'aside with its reason.', '', 'If you have not seen it, start', 'there.'],
         narration=(
-            'This video assumes the Dead Letter Channel video. If you '
-            'have not seen it, start there. It builds the whole thing in '
-            'plain Java, with nothing installed: a worker tries a few '
-            'times, then moves the message aside with its reason. [[slnc '
-            '300]] This one uses the same online store, and the same '
-            'orders. It does not teach the pattern again. It shows what a '
-            'real broker does with it.'
+            'Before we start, a quick note. [[slnc 300]] This video has a '
+            'partner: the hand-built Dead Letter Channel video. [[slnc '
+            '400]] That one builds the whole idea in plain Java, with '
+            'nothing installed. [[slnc 300]] A worker tries a few times, '
+            'then moves the message aside, with its reason. [[slnc 500]] '
+            'Here, we use the same online store, and the same orders. '
+            '[[slnc 300]] We will not teach the pattern again. [[slnc '
+            '300]] Instead, we hear what a real broker does with it.'
         ),
     ),
     dict(
         key='03-words', kind='bullets', title='Three Words First',
         body=['A queue is the line orders wait', 'in.', '', 'An exchange is the sorting desk.', 'You hand it a message, and it', 'decides which queues get a copy.', '', 'Refusing an order is the worker', 'saying it will not finish this', 'one.'],
         narration=(
-            'Three words before the first line of code, because RabbitMQ '
-            'brings its own vocabulary and it is easier in plain '
-            'language. [[slnc 250]] A queue is the line that orders wait '
-            'in. [[slnc 200]] An exchange is the sorting desk. You hand a '
-            'message to the desk and the desk decides which queues get a '
-            'copy. The desk that dead orders are handed to is what '
-            'RabbitMQ calls a dead letter exchange. [[slnc 250]] And '
-            'refusing an order is the worker telling the broker it will '
-            'not finish this one. The worker can refuse it and ask for it '
-            'back, which puts it at the head of the line again, or refuse '
-            'it for good, which hands it to the desk.'
+            'First, three words, in plain language. [[slnc 500]] A queue '
+            'is the line that orders wait in. [[slnc 400]] An exchange is '
+            'the sorting desk. [[slnc 300]] You hand a message to the '
+            'desk, and it decides which queues get a copy. [[slnc 300]] '
+            'The desk that dead orders are handed to is called a dead '
+            'letter exchange. [[slnc 500]] And refusing an order is the '
+            'worker telling the broker it will not finish this one. '
+            '[[slnc 300]] The worker can refuse it and ask for it back, '
+            'which puts it at the front of the line again. [[slnc 300]] '
+            'Or it can refuse it for good, which hands it to the dead '
+            'letter desk.'
         ),
     ),
     dict(
@@ -71,14 +72,15 @@ SCENES = [
   the two good orders behind it
   never get their turn.""",
         narration=(
-            'First, an order that can never succeed. Four orders go on a '
-            'queue with no rule written on it. The second has an address '
-            'nothing can read. The worker takes it, fails, refuses it, '
-            'and asks for it back, and the broker puts it back at the '
-            'head of the line. Over twelve turns, eleven of them go to '
-            'that same order. One order was handled, three are still '
-            'waiting, and the two good orders behind the bad one never '
-            'get their turn.'
+            'First demo: an order that can never succeed. [[slnc 400]] '
+            'Four orders go onto a queue with no rule. [[slnc 300]] The '
+            'second one has an address that cannot be read. [[slnc 500]] '
+            'The worker takes it, fails, refuses it, and asks for it '
+            'back. [[slnc 300]] And the broker puts it back at the front '
+            'of the line. [[slnc 500]] Over twelve turns, eleven go to '
+            'that same bad order. [[slnc 300]] One order is handled, and '
+            'three are still waiting. [[slnc 300]] The two good orders '
+            'behind the bad one never get a turn.'
         ),
     ),
     dict(
@@ -93,17 +95,18 @@ SCENES = [
 
   the broker did the moving.""",
         narration=(
-            'Second, a rule written on the queue. When the shop declares '
-            'the queue it names a desk to send a dead order to, and a '
-            'second queue is tied to that desk. The worker gives each '
-            'order three deliveries, and on the third failure it refuses '
-            'the unreadable one for good. From that moment the worker '
-            'does nothing more. The broker takes the order out of the '
-            'queue and puts it on the second queue. Three orders were '
-            'handled, nothing is waiting, one is parked, and it took '
-            'seven deliveries in all. One of those orders had failed once '
-            'on a payment gateway timeout, and went through on its second '
-            'delivery. A slow day is not a dead order.'
+            'Second demo: a rule written on the queue. [[slnc 400]] When '
+            'the shop creates the queue, it names a desk for dead orders. '
+            '[[slnc 300]] And a second queue is connected to that desk. '
+            '[[slnc 500]] The worker gives each order three tries. [[slnc '
+            '300]] On the third failure, it refuses the unreadable order '
+            'for good. [[slnc 300]] From that moment, the worker does '
+            'nothing more. [[slnc 300]] The broker moves the order to the '
+            'second queue. [[slnc 500]] Three orders are handled. [[slnc '
+            '300]] Nothing is waiting. [[slnc 300]] One order is parked. '
+            '[[slnc 500]] One of the handled orders had failed once, on a '
+            'payment timeout, and went through on its second try. [[slnc '
+            '300]] A slow moment is not a dead order.'
         ),
     ),
     dict(
@@ -116,13 +119,14 @@ SCENES = [
   the order is kept exactly as
   the shop sent it.""",
         narration=(
-            'Third, the broker writes down why. The parked order comes '
-            'back with a note attached to it, and the broker wrote that '
-            'note, not the application. The note says the queue the order '
-            'died in, how many times it has died, which is once, and one '
-            'word for the reason, which is rejected. The order itself is '
-            'exactly what the shop sent, so a person can read it, and put '
-            'it back.'
+            'Third demo: the broker writes down why. [[slnc 400]] The '
+            'parked order comes back with a note attached. [[slnc 300]] '
+            'And the broker wrote that note, not the application. [[slnc '
+            '500]] It says which queue the order died in, and that it has '
+            'died once. [[slnc 300]] And it gives one word for the '
+            'reason: rejected. [[slnc 500]] The order itself is exactly '
+            'what the shop sent. [[slnc 300]] So a person can read it, '
+            'and put it back.'
         ),
     ),
     dict(
@@ -136,16 +140,17 @@ SCENES = [
   the queue held two, a third
   arrived. still waiting: 2.""",
         narration=(
-            'Fourth, deaths nobody chose. Two more orders die, and no '
-            'worker touches either of them. The first sat in a queue that '
-            'was given a time limit of five hundred milliseconds, and '
-            'nobody read it in time, so the broker parked it, and its '
-            'word for that is expired. The second was in a queue that was '
-            'told to hold only two orders, and a third arrived, so the '
-            'broker pushed the oldest one out to make room, and its word '
-            'for that is maxlen. Two orders are left waiting there. This '
-            'is the part the hand-built version cannot show, because in '
-            'plain Java nothing but the worker can act.'
+            'Fourth demo: deaths nobody chose. [[slnc 400]] Two more '
+            'orders die, and no worker touches either one. [[slnc 500]] '
+            'The first sat in a queue with a time limit of half a second. '
+            '[[slnc 300]] Nobody read it in time, so the broker parked '
+            'it. [[slnc 300]] Its reason word is: expired. [[slnc 500]] '
+            'The second was in a queue told to hold only two orders. '
+            '[[slnc 300]] A third arrived, so the broker pushed the '
+            'oldest one out, to make room. [[slnc 300]] Its reason word '
+            'is: max length. [[slnc 500]] This is what the hand-built '
+            'version cannot show. [[slnc 300]] In plain Java, only the '
+            'worker can act.'
         ),
     ),
     dict(
@@ -159,15 +164,16 @@ SCENES = [
 
   a replay does not restore order.""",
         narration=(
-            'Fifth, fix it, and put it back. Before the fix, three orders '
-            'were handled and one was parked. An operator finds the '
-            'cause, fixes the address parser, and publishes the parked '
-            'order back onto the working queue, where it goes through. '
-            'But notice where it ended up: it was handled last, behind '
-            'the two orders that were behind it, because a replay puts a '
-            'message at the back of the line. And it goes back as a new '
-            'message, so the note the broker wrote is gone unless the '
-            'operator copies it across first.'
+            'Fifth demo: fix it, and put it back. [[slnc 400]] Before the '
+            'fix, three orders are handled, and one is parked. [[slnc '
+            '500]] An operator finds the cause, and fixes the address '
+            'reader. [[slnc 300]] Then sends the parked order back onto '
+            'the working queue. [[slnc 300]] And it goes through. [[slnc '
+            '500]] But notice where it ended up: handled last, behind the '
+            'two orders that were behind it. [[slnc 300]] A replay goes '
+            'to the back of the line. [[slnc 500]] And it goes back as a '
+            "new message. [[slnc 300]] So the broker's note is lost, "
+            'unless the operator copies it across first.'
         ),
     ),
     dict(
@@ -181,83 +187,89 @@ SCENES = [
   11 queues, 1 exchange, and a
   broker to run.""",
         narration=(
-            'Last, the bill. Forty orders, half of them unreadable. '
-            'Twenty are shipped and twenty are parked, and every one of '
-            'those forty was paid for by a customer who was told the '
-            'order went through. The working queue reports nothing '
-            'waiting, so every dashboard shows the shop perfectly '
-            'healthy. The loss is all in the parked queue, and nothing '
-            'tells anyone to look at it. That queue needs an owner, an '
-            'alert on how deep it is getting, and a limit on how long an '
-            'order may stay in it, because every parked order is a copy '
-            'of a customer address. And a broker is another thing to run: '
-            'this demo declared eleven queues and one exchange in one '
-            'container.'
+            'Finally, the cost: nobody is looking. [[slnc 400]] Forty '
+            'orders, and half of them cannot be read. [[slnc 300]] Twenty '
+            'are shipped, and twenty are parked. [[slnc 300]] And all '
+            'forty customers were told their order went through. [[slnc '
+            '500]] The working queue shows nothing waiting. [[slnc 300]] '
+            'So every dashboard shows a perfectly healthy shop. [[slnc '
+            '500]] The loss is all in the parked queue. [[slnc 300]] And '
+            'nothing tells anyone to look at it. [[slnc 500]] That queue '
+            'needs an owner, an alert as it fills up, and a limit on how '
+            'long an order may stay. [[slnc 300]] Because every parked '
+            "order is a copy of a customer's address. [[slnc 500]] And a "
+            'broker is one more thing to run.'
         ),
     ),
     dict(
         key='10-three', kind='bullets', title='The Three Reasons',
         body=['rejected: a worker refused it and', 'did not ask for it back.', '', 'expired: it sat past the time', 'limit on the queue.', '', 'maxlen: the queue was full, and', 'this was the oldest one in it.'],
         narration=(
-            'The three reasons in one place, because they are the whole '
-            'difference between this video and the hand-built one. '
-            '[[slnc 250]] Rejected means a worker refused the message and '
-            'did not ask for it back. [[slnc 200]] Expired means it sat '
-            'in the queue past the time limit. [[slnc 200]] And maxlen '
-            'means the queue was full and this was the oldest message in '
-            'it. The worker started the first one. The broker did the '
-            'other two on its own.'
+            'Here are the three reasons, together, because they are the '
+            'whole difference from the hand-built video. [[slnc 500]] '
+            'Rejected means a worker refused the message, and did not ask '
+            'for it back. [[slnc 300]] Expired means it waited in the '
+            'queue past its time limit. [[slnc 300]] And max length means '
+            'the queue was full, and this was the oldest message in it. '
+            '[[slnc 500]] The worker caused the first one. [[slnc 300]] '
+            'The broker did the other two on its own.'
         ),
     ),
     dict(
         key='11-verdict', kind='bullets', title='The Verdict',
         body=['Write the rule on every queue', 'where a message can fail for ever.', '', 'Try a few times, then refuse it', 'for good. Let the broker move it.', '', 'Read the note it leaves.', '', 'Alert on the depth. Give the queue', 'an owner.'],
         narration=(
-            'My verdict, plainly. Write the rule on every queue where a '
-            'message can fail for ever. Let the worker try a few times, '
-            'for the failures that pass on their own, and then refuse for '
-            'good, for the ones that do not. Let the broker do the '
-            'moving, because it will still do it when your process has '
-            'crashed. Read the note it leaves, because at three in the '
-            'morning it is the only account of the death you will have. '
-            'Then put an alert on the depth of the parked queue, give the '
-            'queue an owner, and decide how long an order may stay in it.'
+            'So, here is the verdict. [[slnc 400]] Write the rule on '
+            'every queue where a message could fail forever. [[slnc 500]] '
+            'Let the worker try a few times, for failures that pass on '
+            'their own. [[slnc 300]] Then refuse for good, for the ones '
+            'that do not. [[slnc 500]] Let the broker do the moving. '
+            '[[slnc 300]] It will still do it even if your program has '
+            'crashed. [[slnc 500]] Read the note the broker leaves. '
+            '[[slnc 300]] In the middle of the night, it may be the only '
+            'record of what happened. [[slnc 500]] Then add an alert as '
+            'the parked queue fills, give it an owner, and decide how '
+            'long an order may stay.'
         ),
     ),
     dict(
         key='12-recognise', kind='bullets', title='How To Recognise It',
         body=['A queue declared with', '`x-dead-letter-exchange`.', '', 'A queue name ending in `.dlq` or', '`.parked`.', '', 'A reject or nack with requeue set', 'to false.', '', 'An `x-death` header being read.'],
         narration=(
-            'How do you recognise this in code you did not write? A queue '
-            'declared with an argument called x dash dead dash letter '
-            'dash exchange. A queue whose name ends in dot d l q, or dot '
-            'parked. A consumer calling reject or nack with requeue set '
-            'to false. And somewhere, code reading a header called x dash '
-            'death out of a message. In Amazon’s queue service the '
-            'same thing is called a redrive policy.'
+            'How can you spot this pattern in code someone else wrote? '
+            '[[slnc 400]] Look for a queue created with a dead letter '
+            'exchange setting. [[slnc 300]] Look for a queue whose name '
+            'ends in D L Q, or parked. [[slnc 300]] Look for a worker '
+            'that refuses a message, with requeue set to false. [[slnc '
+            '300]] And look for code reading a message header called x '
+            "death. [[slnc 500]] In Amazon's queue service, the same idea "
+            'is called a redrive policy.'
         ),
     ),
     dict(
         key='13-versions', kind='bullets', title='What Was Used',
         body=['RabbitMQ 4.3.6, in a container.', '', 'The RabbitMQ Java client 5.36.0.', '', 'Testcontainers 2.0.5.', '', 'Docker 24 or later, running.'],
         narration=(
-            'For the record. RabbitMQ, four point three point six, in a '
-            'container. The RabbitMQ Java client, five point three six '
-            'point zero. Testcontainers, two point zero point five. '
-            'And Docker, twenty four or later, running before you start.'
+            'For the record, here are the versions. [[slnc 300]] RabbitMQ '
+            'four point three point six, in a container. [[slnc 300]] The '
+            'RabbitMQ Java client, five point thirty-six. [[slnc 300]] '
+            'Testcontainers two point zero point five. [[slnc 300]] And '
+            'Docker, version twenty-four or later, running before you '
+            'start.'
         ),
     ),
     dict(
         key='14-real', kind='bullets', title='What Is Real Here',
         body=['Everything is real: a real broker', 'in a container, real queues, and', 'the broker\'s own reasons.', '', 'The demo starts the container and', 'takes it away again.', '', 'Every wait is a poll on a real', 'condition, never a fixed pause.'],
         narration=(
-            'The same honest admission as everywhere in this course. '
-            'Everything here is real: a real broker in a container, real '
-            'queues, and reasons the broker wrote itself. The demo starts '
-            'the container and takes it away again, so nothing is '
-            'installed and nothing is left running. And every wait in the '
-            'code is a poll on a real condition with a time limit, never '
-            'a fixed pause, so the same numbers come out on every '
+            'A quick, honest note about this demo. [[slnc 400]] '
+            'Everything here is real. [[slnc 300]] A real broker in a '
+            'container, real queues, and reasons the broker wrote itself. '
+            '[[slnc 500]] The demo starts the container, and removes it '
+            'again. [[slnc 300]] So nothing is installed, and nothing is '
+            'left running. [[slnc 500]] And every wait checks a real '
+            'condition, with a time limit, instead of pausing for a fixed '
+            'time. [[slnc 300]] So the same numbers come out on every '
             'machine.'
         ),
     ),
@@ -265,28 +277,30 @@ SCENES = [
         key='15-too-much', kind='bullets', title='When This Is Too Much',
         body=['For a queue where a message can', 'never be permanently bad, or where', 'losing one costs nothing, this is', 'more to run than it is worth.', '', 'Where a message can be poison, its', 'absence is the outage.'],
         narration=(
-            'So when is this too much? For a queue where a message can '
-            'never be permanently bad, or where losing one costs nothing, '
-            'this is more to run than it is worth. But where a message '
-            'can be poison, not having it is the outage.'
+            'So, when is this too much? [[slnc 400]] For a queue where a '
+            'message can never be permanently bad, or where losing one '
+            'costs nothing, it is more to run than it is worth. [[slnc '
+            '400]] But where a message can be poison, not having a dead '
+            'letter channel is the outage.'
         ),
     ),
     dict(
         key='16-outro', kind='outro', title='Thanks for Watching',
         body=['Full source, notes, diagrams and an animated walkthrough', 'are in the repository.', 'Give the parked queue a time limit of its own, and decide', 'where an order goes when it dies a second time.'],
         narration=(
-            "That's the Dead Letter Channel with RabbitMQ. [[slnc 250]] "
-            'If you take one sentence away, take this one: the '
-            'application writes a rule on the queue, and from then on the '
-            'broker decides when a message is dead and writes down why. '
-            '[[slnc 350]] The full source, the written notes, the '
-            'diagrams and an animated walkthrough are all in the '
-            'repository. [[slnc 300]] If you try one exercise, give the '
-            'parked queue a time limit of its own, and decide where an '
-            'order should go when it dies a second time. [[slnc 300]] If '
-            'this helped, a like genuinely does help other people find '
-            'it, and subscribe if you would like the rest of the series. '
-            '[[slnc 250]] Thanks for watching.'
+            "That's the Dead Letter Channel, with RabbitMQ. [[slnc 400]] "
+            'If you remember one sentence, make it this one. [[slnc 300]] '
+            'The application writes a rule on the queue, and from then '
+            'on, the broker decides when a message is dead, and writes '
+            'down why. [[slnc 500]] The full source code, written notes, '
+            'diagrams, and an animated walkthrough are all in the '
+            'repository. [[slnc 500]] Here is one exercise to try. [[slnc '
+            '300]] Give the parked queue a time limit of its own. [[slnc '
+            '300]] And decide where an order should go if it dies a '
+            'second time. [[slnc 500]] If this helped, a like really does '
+            'help other people find it. [[slnc 300]] And subscribe, if '
+            "you'd like the rest of the series. [[slnc 400]] Thanks for "
+            'watching.'
         ),
     ),
 ]

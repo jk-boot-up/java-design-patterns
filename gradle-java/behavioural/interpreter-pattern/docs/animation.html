@@ -586,5 +586,103 @@ document.addEventListener("keydown", e => {
 setAudio(false);
 reset();
 </script>
+<!-- videokit:narration -->
+<script>
+/* videokit narration player: a Narration on/off switch and a play/pause
+   button for the current step. It watches the page's own narration text,
+   works out which step is showing, and plays audio/step-N.m4a beside the
+   page (rendered by tools/videokit; not embedded, so the page stays small).
+   If the page already plays its own clips, only the pause button is added. */
+(function () {
+  "use strict";
+  var STEPS = ["A code, a percentage, and a condition. Written as Java, the first one is four lines and there is nothing wrong with it. The trouble is not the first promotion. It is the fourth, because by then each new one is written by copying the one above it.", "SAVE fifteen was meant to be a UK order over one hundred pounds. That it was UK only sat in the paragraph above the sentence somebody read, so no line of code was ever written for it. Every large overseas order now takes fifteen percent off.", "FREESHIP was copied from a welcome offer that retired last spring, and the first order check came along with it. A returning UK shopper with three items is offered nothing. Nobody reports that one, because a missing discount looks exactly like a shopper who did not qualify.", "Country is UK and basket over one hundred. That is the offer, in the words it was written in, and it can live in a database or a spreadsheet rather than in a source file. The people who own the promotions can read it, which means they can check it.", "An And rule holding two leaves. This tree is not a description of the rule. It is the rule -- the thing the checkout will actually obey. Two kinds of class, and that is the entire pattern: a leaf holds a value, and a connective holds other rules.", "Country is asks the order for its country, compares it, and answers. One comparison, and no other rule inside it. That is a terminal expression, and every terminal in this project is about that size.", "Basket over asks for the basket total, and one hundred and twenty is more than one hundred. Note that only the leaves ever touch the order. The connective above them never reads it at all, which is why it can be reused in a language it knows nothing about.", "Every part said yes, so the And rule says yes. Read it again and notice what is missing: it does not know what its parts are, whether they are leaves, or how deep the tree below it goes. It only ever asks. Put a whole other tree in either slot and not one line of this changes.", "Describe walks the same nodes and gives back the sentence. It is rebuilt from the objects the checkout obeyed, not remembered from the line that was read in, so the audit log and the code cannot drift apart. That is what makes why did this order get fifteen percent off a question the program can answer.", "Country is says no, and the And rule stops there -- basket over is never even asked. Zero percent, which is what the offer always said. Same order, same shop, and the only difference is that the rule is an object rather than a branch somebody copied.", "Basket over two hundred, or items at least ten. That shape appears nowhere in the code -- it is an Or rule, and the shop has never had one. Adding it is one line of text. No new class, nothing recompiled, nothing deployed.", "Basket ovr fifty. The parser does not guess -- it names the phrase it cannot read and refuses the promotion as it is being saved. Compare that with a mistyped Java condition, which is valid Java, compiles, ships, and misprices an order on Friday with nothing to object to it."];
+  var norm = function (s) { return String(s || "").replace(/\s+/g, " ").trim(); };
+  var box = document.getElementById("narration") || document.querySelector(".narration");
+  if (!box || !STEPS.length) return;
+
+  var pageOwnsAudio = !!document.getElementById("audio");
+  var current = null, step = -1, on = false;
+  try { on = localStorage.getItem("vk-narration") === "on"; } catch (e) {}
+
+  // Remember whichever clip the page (or this script) last started.
+  var realPlay = HTMLMediaElement.prototype.play;
+  HTMLMediaElement.prototype.play = function () {
+    if (current && current !== this) { try { current.pause(); } catch (e) {} }
+    current = this;
+    this.addEventListener("play", label);
+    this.addEventListener("pause", label);
+    this.addEventListener("ended", label);
+    var p = realPlay.apply(this, arguments);
+    label();
+    return p;
+  };
+
+  var bar = document.querySelector(".controls") || box.parentNode;
+  function button(id, text) {
+    var b = document.createElement("button");
+    b.id = id; b.type = "button"; b.textContent = text;
+    bar.appendChild(b);
+    return b;
+  }
+  var narrBtn = pageOwnsAudio ? null : button("vk-narration", "");
+  var stepBtn = button("vk-step-audio", "");
+  var note = document.createElement("span");
+  note.id = "vk-note";
+  note.style.cssText = "color:#94a3b8;font-size:.8rem;margin-left:8px";
+  bar.appendChild(note);
+
+  function stepFor(text) {
+    var t = norm(text);
+    for (var i = 0; i < STEPS.length; i++) {
+      var s = norm(STEPS[i]);
+      if (s && t.indexOf(s.slice(0, 60)) !== -1) return i;
+    }
+    return -1;
+  }
+  function stop() { if (current) { try { current.pause(); } catch (e) {} } current = null; label(); }
+  function play(i) {
+    if (i < 0) return;
+    var a = new Audio("audio/step-" + (i + 1) + ".m4a");
+    a.play().then(function () { note.textContent = ""; }, function (e) {
+      note.textContent = e && e.name === "NotAllowedError"
+        ? "Click Play step to hear this step."
+        : "Narration audio not found: run tools/videokit/videokit.sh animation <project>.";
+      label();
+    });
+  }
+  function label() {
+    if (narrBtn) narrBtn.textContent = (on ? "🔊 Narration: on" : "🔇 Narration: off");
+    if (narrBtn) narrBtn.setAttribute("aria-pressed", String(on));
+    var playing = current && !current.paused && !current.ended;
+    var paused = current && current.paused && !current.ended;
+    stepBtn.textContent = playing ? "⏸ Pause step" : paused ? "▶ Resume step" : "▶ Play step";
+    stepBtn.disabled = step < 0;
+  }
+
+  if (narrBtn) narrBtn.addEventListener("click", function () {
+    on = !on;
+    try { localStorage.setItem("vk-narration", on ? "on" : "off"); } catch (e) {}
+    if (on) { if (step >= 0) play(step); } else stop();
+    label();
+  });
+  stepBtn.addEventListener("click", function () {
+    if (current && !current.ended) {
+      if (current.paused) current.play(); else current.pause();
+    } else play(step);
+  });
+
+  function changed() {
+    var i = stepFor(box.textContent);
+    if (i === step) return;
+    step = i;
+    if (!pageOwnsAudio) { stop(); if (on) play(i); }
+    label();
+  }
+  new MutationObserver(changed).observe(box, { childList: true, subtree: true, characterData: true });
+  changed();
+  label();
+})();
+</script>
+<!-- /videokit:narration -->
 </body>
 </html>

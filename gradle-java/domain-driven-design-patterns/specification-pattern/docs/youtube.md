@@ -19,19 +19,19 @@ The first two lines are what a viewer sees above the fold, so they carry the hoo
 ```
 CHAPTERS
 00:00 Introduction
-00:47 The Scenario
-01:03 The Same Rule, Written Three Times
-01:26 The Pattern
-01:43 The Rule, Named Once
-02:01 Rules Combine
-02:17 A Rule Can Say Why Not
-02:34 The Same Rule, Two Jobs
-02:49 The Bill
-03:12 How To Recognise It
-03:32 The Verdict
-03:53 What Is Real Here
-04:08 When This Is Too Much
-04:20 Thanks for Watching
+00:52 The Scenario
+01:09 The Same Rule, Written Three Times
+01:37 The Pattern
+01:52 The Rule, Named Once
+02:12 Rules Combine
+02:31 A Rule Can Say Why Not
+02:54 The Same Rule, Two Jobs
+03:15 The Bill
+03:40 How To Recognise It
+04:02 The Verdict
+04:28 What Is Real Here
+04:43 When This Is Too Much
+04:55 Thanks for Watching
 
 SOURCE CODE, WRITTEN NOTES AND AN INTERACTIVE ANIMATION
 https://github.com/jk-boot-up/java-design-patterns/tree/main/gradle-java/domain-driven-design-patterns/specification-pattern
@@ -46,19 +46,19 @@ YouTube renders these as chapters only if there are at least three and the first
 
 ```
 00:00 Introduction
-00:47 The Scenario
-01:03 The Same Rule, Written Three Times
-01:26 The Pattern
-01:43 The Rule, Named Once
-02:01 Rules Combine
-02:17 A Rule Can Say Why Not
-02:34 The Same Rule, Two Jobs
-02:49 The Bill
-03:12 How To Recognise It
-03:32 The Verdict
-03:53 What Is Real Here
-04:08 When This Is Too Much
-04:20 Thanks for Watching
+00:52 The Scenario
+01:09 The Same Rule, Written Three Times
+01:37 The Pattern
+01:52 The Rule, Named Once
+02:12 Rules Combine
+02:31 A Rule Can Say Why Not
+02:54 The Same Rule, Two Jobs
+03:15 The Bill
+03:40 How To Recognise It
+04:02 The Verdict
+04:28 What Is Real Here
+04:43 When This Is Too Much
+04:55 Thanks for Watching
 ```
 
 ## Tags
@@ -97,4 +97,4 @@ Add a card partway through pointing at the playlist, so a viewer who arrives at 
 
 ## Runtime
 
-Approximately 05:00, narrated at 145 words per minute.
+Approximately 05:33, narrated at 145 words per minute.

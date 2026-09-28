@@ -6,23 +6,4 @@ Say it in words. The page calls fetch. The call goes to the proxy, which asks th
 
 ![Circuit Breaker with Resilience4j pattern sequence diagram](images/sequence-diagram.png)
 
-<details>
-<summary>Mermaid source</summary>
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant P as page
-    participant X as proxy
-    participant B as breaker
-    participant S as service
-    P->>X: fetch(sku)
-    X->>B: may I?
-    B-->>X: no, open
-    X-->>P: fallback: empty list
-    Note over S: not called
-```
-
-</details>
-
 The load-bearing sentence: **an open breaker never touches the service.**
