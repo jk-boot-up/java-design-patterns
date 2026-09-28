@@ -31,8 +31,9 @@ def steps(html_path):
     return json.loads(out)
 
 
-def inject(html, texts):
-    js = (WEB / "player.js").read_text().replace("__VK_STEPS__", json.dumps(texts))
+def inject(html, texts, audio_dir="audio"):
+    js = (WEB / "player.js").read_text().replace("__VK_STEPS__", json.dumps(texts)) \
+        .replace("__VK_AUDIO_DIR__", audio_dir)
     block = "%s\n<script>\n%s</script>\n%s\n" % (BEGIN, js, END)
     html = BLOCK.sub("", html)
     i = html.lower().rfind("</body>")
@@ -53,7 +54,7 @@ def voice(texts, settings, out_dir, force=False):
         if narrate.FORBIDDEN.search(text):
             raise SystemExit("animation step %d claims to be the author; fix the page" % n)
         engine = engine or tts.from_settings(settings)
-        samples, _ = narrate.speak(engine, text, settings.sentence_gap)
+        samples, _ = narrate.speak(engine, text, settings.sentence_gap, settings.pause_scale)
         with tempfile.TemporaryDirectory() as tmp:
             wav = Path(tmp) / "s.wav"
             sf.write(wav, samples, engine.sample_rate)
@@ -85,7 +86,16 @@ def build(project, force=False):
     texts = steps(page)
     if not any(texts):
         raise SystemExit("no step narration found in %s" % page)
-    n = voice(texts, project.settings(), page.parent / "audio", force)
+    settings = project.settings()
+    if settings.version:
+        # A version gets its own clips and its own copy of the page; the
+        # published animation.html and docs/audio/ are left untouched.
+        audio_dir = "audio-" + settings.version
+        n = voice(texts, settings, page.parent / audio_dir, force)
+        out = page.with_name("animation-%s.html" % settings.version)
+        out.write_text(inject(page.read_text(), texts, audio_dir))
+        return "%d steps, %d voiced -> %s" % (len(texts), n, out.name)
+    n = voice(texts, settings, page.parent / "audio", force)
     html = page.read_text()
     new = inject(html, texts)
     if new != html:

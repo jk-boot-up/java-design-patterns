@@ -21,17 +21,17 @@ CHAPTERS
 00:00 Introduction
 00:54 The Scenario
 01:11 One Message, One Picker
-01:25 The Pattern
-01:39 Split It
-01:53 The Parts Finish In Any Order
-02:04 Gather Them By The Id
-02:21 A Part Never Arrives
-02:45 The Bill
-03:03 How To Recognise It
-03:24 The Verdict
-03:47 What Is Real Here
-04:00 When This Is Too Much
-04:12 Thanks for Watching
+01:26 The Pattern
+01:43 Split It
+01:59 The Parts Finish In Any Order
+02:12 Gather Them By The Id
+02:29 A Part Never Arrives
+02:54 The Bill
+03:18 How To Recognise It
+03:43 The Verdict
+04:10 What Is Real Here
+04:24 When This Is Too Much
+04:37 Thanks for Watching
 
 SOURCE CODE, WRITTEN NOTES AND AN INTERACTIVE ANIMATION
 https://github.com/jk-boot-up/java-design-patterns/tree/main/gradle-java/messaging-integration-patterns/splitter-aggregator-pattern
@@ -48,17 +48,17 @@ YouTube renders these as chapters only if there are at least three and the first
 00:00 Introduction
 00:54 The Scenario
 01:11 One Message, One Picker
-01:25 The Pattern
-01:39 Split It
-01:53 The Parts Finish In Any Order
-02:04 Gather Them By The Id
-02:21 A Part Never Arrives
-02:45 The Bill
-03:03 How To Recognise It
-03:24 The Verdict
-03:47 What Is Real Here
-04:00 When This Is Too Much
-04:12 Thanks for Watching
+01:26 The Pattern
+01:43 Split It
+01:59 The Parts Finish In Any Order
+02:12 Gather Them By The Id
+02:29 A Part Never Arrives
+02:54 The Bill
+03:18 How To Recognise It
+03:43 The Verdict
+04:10 What Is Real Here
+04:24 When This Is Too Much
+04:37 Thanks for Watching
 ```
 
 ## Tags
@@ -97,4 +97,4 @@ Add a card partway through pointing at the playlist, so a viewer who arrives at 
 
 ## Runtime
 
-Approximately 04:52, narrated at 145 words per minute.
+Approximately 05:16, narrated at 145 words per minute.

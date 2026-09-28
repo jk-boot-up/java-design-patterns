@@ -20,18 +20,18 @@ The first two lines are what a viewer sees above the fold, so they carry the hoo
 CHAPTERS
 00:00 Introduction
 00:50 The Scenario
-01:05 Checkout Calls The Warehouse
-01:21 The Pattern
-01:33 A Channel Between Them
-01:45 The Receiver Is Away
-02:01 An Envelope
-02:17 One Channel, One Kind Of Message
-02:31 The Bill
-02:55 How To Recognise It
-03:16 The Verdict
-03:37 What Is Real Here
-03:50 When This Is Too Much
-04:00 Thanks for Watching
+01:06 Checkout Calls The Warehouse
+01:24 The Pattern
+01:37 A Channel Between Them
+01:51 The Receiver Is Away
+02:09 An Envelope
+02:33 One Channel, One Kind Of Message
+02:49 The Bill
+03:17 How To Recognise It
+03:39 The Verdict
+04:02 What Is Real Here
+04:15 When This Is Too Much
+04:28 Thanks for Watching
 
 SOURCE CODE, WRITTEN NOTES AND AN INTERACTIVE ANIMATION
 https://github.com/jk-boot-up/java-design-patterns/tree/main/gradle-java/messaging-integration-patterns/message-channel-pattern
@@ -47,18 +47,18 @@ YouTube renders these as chapters only if there are at least three and the first
 ```
 00:00 Introduction
 00:50 The Scenario
-01:05 Checkout Calls The Warehouse
-01:21 The Pattern
-01:33 A Channel Between Them
-01:45 The Receiver Is Away
-02:01 An Envelope
-02:17 One Channel, One Kind Of Message
-02:31 The Bill
-02:55 How To Recognise It
-03:16 The Verdict
-03:37 What Is Real Here
-03:50 When This Is Too Much
-04:00 Thanks for Watching
+01:06 Checkout Calls The Warehouse
+01:24 The Pattern
+01:37 A Channel Between Them
+01:51 The Receiver Is Away
+02:09 An Envelope
+02:33 One Channel, One Kind Of Message
+02:49 The Bill
+03:17 How To Recognise It
+03:39 The Verdict
+04:02 What Is Real Here
+04:15 When This Is Too Much
+04:28 Thanks for Watching
 ```
 
 ## Tags
@@ -97,4 +97,4 @@ Add a card partway through pointing at the playlist, so a viewer who arrives at 
 
 ## Runtime
 
-Approximately 04:40, narrated at 145 words per minute.
+Approximately 05:06, narrated at 145 words per minute.

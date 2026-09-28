@@ -4,7 +4,8 @@
   "group": "creational",
   "note": "9:47 runtime",
   "script": "done",
-  "updated": "2026-09-28 02:40",
+  "updated": "2026-09-28 17:49",
+  "v:amy-slow": "done",
   "video": "done"
  },
  "active-object": {
@@ -12,7 +13,8 @@
   "group": "concurrency-design-patterns",
   "note": "7:01 runtime",
   "script": "done",
-  "updated": "2026-09-28 02:18",
+  "updated": "2026-09-28 17:15",
+  "v:amy-slow": "done",
   "video": "done"
  },
  "active-object-with-spring": {
@@ -20,7 +22,8 @@
   "group": "concurrency-design-patterns",
   "note": "6:23 runtime",
   "script": "done",
-  "updated": "2026-09-28 02:19",
+  "updated": "2026-09-28 17:17",
+  "v:amy-slow": "done",
   "video": "done"
  },
  "active-record": {
@@ -28,7 +31,8 @@
   "group": "enterprise-design-patterns",
   "note": "5:15 runtime",
   "script": "done",
-  "updated": "2026-09-28 03:04",
+  "updated": "2026-09-28 18:17",
+  "v:amy-slow": "done",
   "video": "done"
  },
  "actor": {
@@ -36,7 +40,8 @@
   "group": "concurrency-design-patterns",
   "note": "5:39 runtime",
   "script": "done",
-  "updated": "2026-09-28 02:21",
+  "updated": "2026-09-28 17:18",
+  "v:amy-slow": "done",
   "video": "done"
  },
  "adapter": {
@@ -44,7 +49,8 @@
   "group": "structural",
   "note": "",
   "script": "done",
-  "updated": "2026-09-28 00:53",
+  "updated": "2026-09-28 21:45",
+  "v:amy-slow": "done",
   "video": "queued"
  },
  "aggregate": {
@@ -52,7 +58,8 @@
   "group": "domain-driven-design-patterns",
   "note": "5:40 runtime",
   "script": "done",
-  "updated": "2026-09-28 02:56",
+  "updated": "2026-09-28 18:08",
+  "v:amy-slow": "done",
   "video": "done"
  },
  "anti-corruption-layer": {
@@ -60,31 +67,35 @@
   "group": "domain-driven-design-patterns",
   "note": "5:42 runtime",
   "script": "done",
-  "updated": "2026-09-28 02:58",
+  "updated": "2026-09-28 18:11",
+  "v:amy-slow": "done",
   "video": "done"
  },
  "api-composition": {
-  "animation": "pending",
+  "animation": "done",
   "group": "micro-services-design-patterns",
-  "note": "",
+  "note": "13:00 runtime",
   "script": "done",
-  "updated": "2026-09-27 21:26",
-  "video": "queued"
+  "updated": "2026-09-28 09:45",
+  "v:amy-slow": "done",
+  "video": "done"
  },
  "api-gateway": {
-  "animation": "pending",
+  "animation": "done",
   "group": "micro-services-design-patterns",
   "note": "",
   "script": "done",
-  "updated": "2026-09-27 21:27",
-  "video": "queued"
+  "updated": "2026-09-28 19:46",
+  "v:amy-slow": "done",
+  "video": "done"
  },
  "api-gateway-with-spring-cloud-gateway": {
-  "animation": "pending",
+  "animation": "done",
   "group": "micro-services-design-patterns",
   "note": "7:17 runtime",
   "script": "done",
-  "updated": "2026-09-27 20:31",
+  "updated": "2026-09-28 19:38",
+  "v:amy-slow": "done",
   "video": "done"
  },
  "backends-for-frontends": {
@@ -92,7 +103,8 @@
   "group": "platform-design-patterns",
   "note": "",
   "script": "done",
-  "updated": "2026-09-27 21:50",
+  "updated": "2026-09-28 21:04",
+  "v:amy-slow": "done",
   "video": "queued"
  },
  "balking": {
@@ -100,7 +112,8 @@
   "group": "concurrency-design-patterns",
   "note": "5:23 runtime",
   "script": "done",
-  "updated": "2026-09-28 02:22",
+  "updated": "2026-09-28 17:20",
+  "v:amy-slow": "done",
   "video": "done"
  },
  "blue-green-and-canary": {
@@ -108,7 +121,8 @@
   "group": "platform-design-patterns",
   "note": "",
   "script": "done",
-  "updated": "2026-09-28 00:42",
+  "updated": "2026-09-28 21:03",
+  "v:amy-slow": "done",
   "video": "queued"
  },
  "blue-green-and-canary-with-kubernetes": {
@@ -116,7 +130,8 @@
   "group": "platform-design-patterns",
   "note": "",
   "script": "done",
-  "updated": "2026-09-28 00:42",
+  "updated": "2026-09-28 21:06",
+  "v:amy-slow": "done",
   "video": "queued"
  },
  "bounded-context": {
@@ -124,7 +139,8 @@
   "group": "domain-driven-design-patterns",
   "note": "5:27 runtime",
   "script": "done",
-  "updated": "2026-09-28 02:59",
+  "updated": "2026-09-28 18:11",
+  "v:amy-slow": "done",
   "video": "done"
  },
  "bridge": {
@@ -132,7 +148,8 @@
   "group": "structural",
   "note": "",
   "script": "done",
-  "updated": "2026-09-28 00:53",
+  "updated": "2026-09-28 21:50",
+  "v:amy-slow": "done",
   "video": "queued"
  },
  "builder": {
@@ -140,47 +157,53 @@
   "group": "creational",
   "note": "10:05 runtime",
   "script": "done",
-  "updated": "2026-09-28 02:42",
+  "updated": "2026-09-28 17:51",
+  "v:amy-slow": "done",
   "video": "done"
  },
  "bulkhead": {
-  "animation": "pending",
+  "animation": "done",
   "group": "micro-services-design-patterns",
-  "note": "",
+  "note": "13:25 runtime",
   "script": "done",
-  "updated": "2026-09-27 21:29",
-  "video": "queued"
+  "updated": "2026-09-28 19:45",
+  "v:amy-slow": "done",
+  "video": "done"
  },
  "bulkhead-with-resilience4j": {
-  "animation": "pending",
+  "animation": "done",
   "group": "micro-services-design-patterns",
-  "note": "",
+  "note": "6:22 runtime",
   "script": "done",
-  "updated": "2026-09-27 21:29",
-  "video": "queued"
+  "updated": "2026-09-28 19:41",
+  "v:amy-slow": "done",
+  "video": "done"
  },
  "cache-aside": {
-  "animation": "pending",
+  "animation": "done",
   "group": "micro-services-design-patterns",
-  "note": "",
+  "note": "6:03 runtime",
   "script": "done",
-  "updated": "2026-09-27 21:30",
-  "video": "queued"
+  "updated": "2026-09-28 19:44",
+  "v:amy-slow": "done",
+  "video": "done"
  },
  "cache-aside-with-redis": {
-  "animation": "pending",
+  "animation": "done",
   "group": "micro-services-design-patterns",
-  "note": "",
+  "note": "10:56 runtime",
   "script": "done",
-  "updated": "2026-09-27 21:31",
-  "video": "queued"
+  "updated": "2026-09-28 19:50",
+  "v:amy-slow": "done",
+  "video": "done"
  },
  "callback": {
   "animation": "done",
   "group": "foundational-design-patterns",
   "note": "4:55 runtime",
   "script": "done",
-  "updated": "2026-09-28 03:54",
+  "updated": "2026-09-28 18:48",
+  "v:amy-slow": "done",
   "video": "done"
  },
  "chain-of-responsibility": {
@@ -188,7 +211,8 @@
   "group": "behavioural",
   "note": "11:39 runtime",
   "script": "done",
-  "updated": "2026-09-28 01:34",
+  "updated": "2026-09-28 16:35",
+  "v:amy-slow": "done",
   "video": "done"
  },
  "chain-of-responsibility-with-spring": {
@@ -196,39 +220,44 @@
   "group": "behavioural",
   "note": "5:40 runtime",
   "script": "done",
-  "updated": "2026-09-28 01:34",
+  "updated": "2026-09-28 16:34",
+  "v:amy-slow": "done",
   "video": "done"
  },
  "circuit-breaker": {
-  "animation": "pending",
+  "animation": "done",
   "group": "micro-services-design-patterns",
-  "note": "",
+  "note": "14:26 runtime",
   "script": "done",
-  "updated": "2026-09-27 21:31",
-  "video": "queued"
+  "updated": "2026-09-28 19:52",
+  "v:amy-slow": "done",
+  "video": "done"
  },
  "circuit-breaker-with-resilience4j": {
-  "animation": "pending",
+  "animation": "done",
   "group": "micro-services-design-patterns",
-  "note": "",
+  "note": "6:14 runtime",
   "script": "done",
-  "updated": "2026-09-27 21:32",
-  "video": "queued"
+  "updated": "2026-09-28 19:52",
+  "v:amy-slow": "done",
+  "video": "done"
  },
  "claim-check": {
-  "animation": "pending",
+  "animation": "done",
   "group": "micro-services-design-patterns",
   "note": "",
   "script": "done",
-  "updated": "2026-09-27 21:32",
+  "updated": "2026-09-28 19:55",
+  "v:amy-slow": "done",
   "video": "queued"
  },
  "claim-check-with-s3": {
-  "animation": "pending",
+  "animation": "done",
   "group": "micro-services-design-patterns",
   "note": "",
   "script": "done",
-  "updated": "2026-09-27 21:33",
+  "updated": "2026-09-28 19:58",
+  "v:amy-slow": "done",
   "video": "queued"
  },
  "clean-architecture": {
@@ -236,7 +265,8 @@
   "group": "architectural-design-patterns",
   "note": "10:18 runtime",
   "script": "done",
-  "updated": "2026-09-28 01:07",
+  "updated": "2026-09-28 16:09",
+  "v:amy-slow": "done",
   "video": "done"
  },
  "clean-architecture-with-spring": {
@@ -244,7 +274,8 @@
   "group": "architectural-design-patterns",
   "note": "7:54 runtime",
   "script": "done",
-  "updated": "2026-09-28 01:08",
+  "updated": "2026-09-28 16:08",
+  "v:amy-slow": "done",
   "video": "done"
  },
  "command": {
@@ -252,23 +283,26 @@
   "group": "behavioural",
   "note": "11:24 runtime",
   "script": "done",
-  "updated": "2026-09-28 01:38",
+  "updated": "2026-09-28 16:40",
+  "v:amy-slow": "done",
   "video": "done"
  },
  "competing-consumers": {
-  "animation": "pending",
+  "animation": "done",
   "group": "micro-services-design-patterns",
   "note": "",
   "script": "done",
-  "updated": "2026-09-27 21:33",
+  "updated": "2026-09-28 19:58",
+  "v:amy-slow": "done",
   "video": "queued"
  },
  "competing-consumers-with-rabbitmq": {
-  "animation": "pending",
+  "animation": "done",
   "group": "micro-services-design-patterns",
   "note": "",
   "script": "done",
-  "updated": "2026-09-27 21:34",
+  "updated": "2026-09-28 20:03",
+  "v:amy-slow": "done",
   "video": "queued"
  },
  "composite": {
@@ -276,7 +310,8 @@
   "group": "structural",
   "note": "",
   "script": "done",
-  "updated": "2026-09-28 00:54",
+  "updated": "2026-09-28 21:51",
+  "v:amy-slow": "done",
   "video": "queued"
  },
  "consumer-driven-contract": {
@@ -284,7 +319,8 @@
   "group": "platform-design-patterns",
   "note": "",
   "script": "done",
-  "updated": "2026-09-28 00:42",
+  "updated": "2026-09-28 21:07",
+  "v:amy-slow": "done",
   "video": "queued"
  },
  "consumer-driven-contract-with-pact": {
@@ -292,31 +328,35 @@
   "group": "platform-design-patterns",
   "note": "",
   "script": "done",
-  "updated": "2026-09-28 00:43",
+  "updated": "2026-09-28 21:09",
+  "v:amy-slow": "done",
   "video": "queued"
  },
  "content-based-router": {
-  "animation": "pending",
+  "animation": "done",
   "group": "messaging-integration-patterns",
   "note": "5:46 runtime",
   "script": "done",
-  "updated": "2026-09-28 04:08",
+  "updated": "2026-09-28 19:15",
+  "v:amy-slow": "done",
   "video": "done"
  },
  "content-based-router-with-camel": {
-  "animation": "pending",
+  "animation": "done",
   "group": "messaging-integration-patterns",
-  "note": "",
+  "note": "10:20 runtime",
   "script": "done",
-  "updated": "2026-09-28 03:56",
-  "video": "building"
+  "updated": "2026-09-28 19:19",
+  "v:amy-slow": "done",
+  "video": "done"
  },
  "cqrs": {
-  "animation": "pending",
+  "animation": "done",
   "group": "micro-services-design-patterns",
   "note": "",
   "script": "done",
-  "updated": "2026-09-27 21:35",
+  "updated": "2026-09-28 20:05",
+  "v:amy-slow": "done",
   "video": "queued"
  },
  "data-mapper": {
@@ -324,7 +364,8 @@
   "group": "enterprise-design-patterns",
   "note": "6:25 runtime",
   "script": "done",
-  "updated": "2026-09-28 03:05",
+  "updated": "2026-09-28 18:21",
+  "v:amy-slow": "done",
   "video": "done"
  },
  "database-per-service": {
@@ -332,7 +373,8 @@
   "group": "micro-services-design-patterns",
   "note": "",
   "script": "done",
-  "updated": "2026-09-27 21:36",
+  "updated": "2026-09-28 20:10",
+  "v:amy-slow": "done",
   "video": "queued"
  },
  "database-per-service-with-containers": {
@@ -340,31 +382,35 @@
   "group": "micro-services-design-patterns",
   "note": "",
   "script": "done",
-  "updated": "2026-09-27 21:36",
+  "updated": "2026-09-28 20:11",
+  "v:amy-slow": "done",
   "video": "queued"
  },
  "dead-letter-channel": {
-  "animation": "pending",
+  "animation": "done",
   "group": "messaging-integration-patterns",
-  "note": "",
+  "note": "5:28 runtime",
   "script": "done",
-  "updated": "2026-09-28 04:08",
-  "video": "building"
+  "updated": "2026-09-28 19:19",
+  "v:amy-slow": "done",
+  "video": "done"
  },
  "dead-letter-channel-with-rabbitmq": {
-  "animation": "pending",
+  "animation": "done",
   "group": "messaging-integration-patterns",
-  "note": "",
+  "note": "8:15 runtime",
   "script": "done",
-  "updated": "2026-09-27 21:22",
-  "video": "queued"
+  "updated": "2026-09-28 19:24",
+  "v:amy-slow": "done",
+  "video": "done"
  },
  "decorator": {
   "animation": "pending",
   "group": "structural",
   "note": "",
   "script": "done",
-  "updated": "2026-09-28 00:54",
+  "updated": "2026-09-28 21:54",
+  "v:amy-slow": "done",
   "video": "queued"
  },
  "delegation": {
@@ -372,7 +418,8 @@
   "group": "foundational-design-patterns",
   "note": "5:05 runtime",
   "script": "done",
-  "updated": "2026-09-28 04:01",
+  "updated": "2026-09-28 18:50",
+  "v:amy-slow": "done",
   "video": "done"
  },
  "dependency-injection": {
@@ -380,7 +427,8 @@
   "group": "foundational-design-patterns",
   "note": "6:53 runtime",
   "script": "done",
-  "updated": "2026-09-28 04:08",
+  "updated": "2026-09-28 18:52",
+  "v:amy-slow": "done",
   "video": "done"
  },
  "dependency-injection-with-spring": {
@@ -388,7 +436,8 @@
   "group": "foundational-design-patterns",
   "note": "5:47 runtime",
   "script": "done",
-  "updated": "2026-09-28 04:13",
+  "updated": "2026-09-28 18:54",
+  "v:amy-slow": "done",
   "video": "done"
  },
  "distributed-tracing": {
@@ -396,7 +445,8 @@
   "group": "platform-design-patterns",
   "note": "",
   "script": "done",
-  "updated": "2026-09-28 00:44",
+  "updated": "2026-09-28 21:13",
+  "v:amy-slow": "done",
   "video": "queued"
  },
  "domain-event": {
@@ -404,7 +454,8 @@
   "group": "domain-driven-design-patterns",
   "note": "5:48 runtime",
   "script": "done",
-  "updated": "2026-09-28 03:01",
+  "updated": "2026-09-28 18:14",
+  "v:amy-slow": "done",
   "video": "done"
  },
  "double-checked-locking": {
@@ -412,7 +463,8 @@
   "group": "concurrency-design-patterns",
   "note": "5:48 runtime",
   "script": "done",
-  "updated": "2026-09-28 02:24",
+  "updated": "2026-09-28 17:21",
+  "v:amy-slow": "done",
   "video": "done"
  },
  "dto": {
@@ -420,31 +472,35 @@
   "group": "enterprise-design-patterns",
   "note": "6:19 runtime",
   "script": "done",
-  "updated": "2026-09-28 03:07",
+  "updated": "2026-09-28 18:21",
+  "v:amy-slow": "done",
   "video": "done"
  },
  "event-bus": {
-  "animation": "pending",
+  "animation": "done",
   "group": "messaging-integration-patterns",
-  "note": "",
+  "note": "5:28 runtime",
   "script": "done",
-  "updated": "2026-09-27 21:23",
-  "video": "queued"
+  "updated": "2026-09-28 19:23",
+  "v:amy-slow": "done",
+  "video": "done"
  },
  "event-bus-with-nats": {
-  "animation": "pending",
+  "animation": "done",
   "group": "messaging-integration-patterns",
-  "note": "",
+  "note": "8:39 runtime",
   "script": "done",
-  "updated": "2026-09-27 21:23",
-  "video": "queued"
+  "updated": "2026-09-28 19:27",
+  "v:amy-slow": "done",
+  "video": "done"
  },
  "event-driven-architecture": {
   "animation": "done",
   "group": "architectural-design-patterns",
   "note": "5:36 runtime",
   "script": "done",
-  "updated": "2026-09-28 01:10",
+  "updated": "2026-09-28 16:11",
+  "v:amy-slow": "done",
   "video": "done"
  },
  "event-driven-architecture-with-kafka": {
@@ -452,7 +508,8 @@
   "group": "architectural-design-patterns",
   "note": "6:46 runtime",
   "script": "done",
-  "updated": "2026-09-28 01:12",
+  "updated": "2026-09-28 16:12",
+  "v:amy-slow": "done",
   "video": "done"
  },
  "event-sourcing": {
@@ -460,7 +517,8 @@
   "group": "platform-design-patterns",
   "note": "",
   "script": "done",
-  "updated": "2026-09-28 00:44",
+  "updated": "2026-09-28 21:15",
+  "v:amy-slow": "done",
   "video": "queued"
  },
  "event-sourcing-with-eventstoredb": {
@@ -468,7 +526,8 @@
   "group": "platform-design-patterns",
   "note": "",
   "script": "done",
-  "updated": "2026-09-28 00:45",
+  "updated": "2026-09-28 21:18",
+  "v:amy-slow": "done",
   "video": "queued"
  },
  "execute-around": {
@@ -476,7 +535,8 @@
   "group": "foundational-design-patterns",
   "note": "5:13 runtime",
   "script": "done",
-  "updated": "2026-09-28 04:21",
+  "updated": "2026-09-28 18:56",
+  "v:amy-slow": "done",
   "video": "done"
  },
  "externalised-configuration": {
@@ -484,7 +544,8 @@
   "group": "platform-design-patterns",
   "note": "",
   "script": "done",
-  "updated": "2026-09-28 00:46",
+  "updated": "2026-09-28 21:23",
+  "v:amy-slow": "done",
   "video": "queued"
  },
  "externalised-configuration-with-spring-cloud-config": {
@@ -492,7 +553,8 @@
   "group": "platform-design-patterns",
   "note": "",
   "script": "done",
-  "updated": "2026-09-28 00:47",
+  "updated": "2026-09-28 21:23",
+  "v:amy-slow": "done",
   "video": "queued"
  },
  "facade": {
@@ -500,7 +562,8 @@
   "group": "structural",
   "note": "",
   "script": "done",
-  "updated": "2026-09-28 00:55",
+  "updated": "2026-09-28 21:55",
+  "v:amy-slow": "done",
   "video": "queued"
  },
  "factory-method": {
@@ -508,7 +571,8 @@
   "group": "creational",
   "note": "8:20 runtime",
   "script": "done",
-  "updated": "2026-09-28 02:44",
+  "updated": "2026-09-28 17:54",
+  "v:amy-slow": "done",
   "video": "done"
  },
  "feature-toggle": {
@@ -516,7 +580,8 @@
   "group": "platform-design-patterns",
   "note": "",
   "script": "done",
-  "updated": "2026-09-28 00:47",
+  "updated": "2026-09-28 21:26",
+  "v:amy-slow": "done",
   "video": "queued"
  },
  "feature-toggle-with-flagd": {
@@ -524,15 +589,17 @@
   "group": "platform-design-patterns",
   "note": "",
   "script": "done",
-  "updated": "2026-09-28 00:48",
+  "updated": "2026-09-28 21:26",
+  "v:amy-slow": "done",
   "video": "queued"
  },
  "fluent-interface": {
-  "animation": "pending",
+  "animation": "done",
   "group": "foundational-design-patterns",
   "note": "5:27 runtime",
   "script": "done",
-  "updated": "2026-09-28 02:50",
+  "updated": "2026-09-28 18:57",
+  "v:amy-slow": "done",
   "video": "done"
  },
  "flyweight": {
@@ -540,7 +607,8 @@
   "group": "structural",
   "note": "",
   "script": "done",
-  "updated": "2026-09-28 00:55",
+  "updated": "2026-09-28 21:58",
+  "v:amy-slow": "done",
   "video": "queued"
  },
  "fork-join": {
@@ -548,7 +616,8 @@
   "group": "concurrency-design-patterns",
   "note": "5:48 runtime",
   "script": "done",
-  "updated": "2026-09-28 02:25",
+  "updated": "2026-09-28 17:23",
+  "v:amy-slow": "done",
   "video": "done"
  },
  "front-controller": {
@@ -556,7 +625,8 @@
   "group": "enterprise-design-patterns",
   "note": "5:37 runtime",
   "script": "done",
-  "updated": "2026-09-28 03:08",
+  "updated": "2026-09-28 18:24",
+  "v:amy-slow": "done",
   "video": "done"
  },
  "future-promise": {
@@ -564,15 +634,17 @@
   "group": "concurrency-design-patterns",
   "note": "7:20 runtime",
   "script": "done",
-  "updated": "2026-09-28 02:26",
+  "updated": "2026-09-28 17:26",
+  "v:amy-slow": "done",
   "video": "done"
  },
  "future-promise-with-spring": {
   "animation": "done",
   "group": "concurrency-design-patterns",
-  "note": "6:52 runtime",
+  "note": "",
   "script": "done",
-  "updated": "2026-09-28 02:27",
+  "updated": "2026-09-28 17:45",
+  "v:amy-slow": "done",
   "video": "done"
  },
  "gateway": {
@@ -580,7 +652,8 @@
   "group": "enterprise-design-patterns",
   "note": "5:37 runtime",
   "script": "done",
-  "updated": "2026-09-28 03:10",
+  "updated": "2026-09-28 18:25",
+  "v:amy-slow": "done",
   "video": "done"
  },
  "guarded-suspension": {
@@ -588,7 +661,8 @@
   "group": "concurrency-design-patterns",
   "note": "5:31 runtime",
   "script": "done",
-  "updated": "2026-09-28 02:29",
+  "updated": "2026-09-28 17:29",
+  "v:amy-slow": "done",
   "video": "done"
  },
  "hexagonal-architecture": {
@@ -596,7 +670,8 @@
   "group": "architectural-design-patterns",
   "note": "9:07 runtime",
   "script": "done",
-  "updated": "2026-09-28 01:13",
+  "updated": "2026-09-28 16:15",
+  "v:amy-slow": "done",
   "video": "done"
  },
  "hexagonal-architecture-with-spring-boot": {
@@ -604,7 +679,8 @@
   "group": "architectural-design-patterns",
   "note": "5:49 runtime",
   "script": "done",
-  "updated": "2026-09-28 01:14",
+  "updated": "2026-09-28 16:15",
+  "v:amy-slow": "done",
   "video": "done"
  },
  "idempotent-consumer": {
@@ -612,7 +688,8 @@
   "group": "micro-services-design-patterns",
   "note": "",
   "script": "done",
-  "updated": "2026-09-27 21:37",
+  "updated": "2026-09-28 20:15",
+  "v:amy-slow": "done",
   "video": "queued"
  },
  "idempotent-consumer-with-kafka": {
@@ -620,7 +697,8 @@
   "group": "micro-services-design-patterns",
   "note": "",
   "script": "done",
-  "updated": "2026-09-27 21:38",
+  "updated": "2026-09-28 20:16",
+  "v:amy-slow": "done",
   "video": "queued"
  },
  "identity-map": {
@@ -628,7 +706,8 @@
   "group": "enterprise-design-patterns",
   "note": "6:14 runtime",
   "script": "done",
-  "updated": "2026-09-28 03:11",
+  "updated": "2026-09-28 18:27",
+  "v:amy-slow": "done",
   "video": "done"
  },
  "identity-map-with-jpa": {
@@ -636,7 +715,8 @@
   "group": "enterprise-design-patterns",
   "note": "6:28 runtime",
   "script": "done",
-  "updated": "2026-09-28 03:12",
+  "updated": "2026-09-28 18:28",
+  "v:amy-slow": "done",
   "video": "done"
  },
  "interpreter": {
@@ -644,7 +724,8 @@
   "group": "behavioural",
   "note": "10:36 runtime",
   "script": "done",
-  "updated": "2026-09-28 01:42",
+  "updated": "2026-09-28 16:41",
+  "v:amy-slow": "done",
   "video": "done"
  },
  "interpreter-with-spel": {
@@ -652,7 +733,8 @@
   "group": "behavioural",
   "note": "6:12 runtime",
   "script": "done",
-  "updated": "2026-09-28 01:43",
+  "updated": "2026-09-28 16:43",
+  "v:amy-slow": "done",
   "video": "done"
  },
  "iterator": {
@@ -660,7 +742,8 @@
   "group": "behavioural",
   "note": "9:31 runtime",
   "script": "done",
-  "updated": "2026-09-28 01:46",
+  "updated": "2026-09-28 16:46",
+  "v:amy-slow": "done",
   "video": "done"
  },
  "layered-architecture": {
@@ -668,7 +751,8 @@
   "group": "architectural-design-patterns",
   "note": "10:53 runtime",
   "script": "done",
-  "updated": "2026-09-28 01:15",
+  "updated": "2026-09-28 16:19",
+  "v:amy-slow": "done",
   "video": "done"
  },
  "layered-architecture-with-spring-boot": {
@@ -676,7 +760,8 @@
   "group": "architectural-design-patterns",
   "note": "6:08 runtime",
   "script": "done",
-  "updated": "2026-09-28 01:17",
+  "updated": "2026-09-28 16:18",
+  "v:amy-slow": "done",
   "video": "done"
  },
  "lazy-load": {
@@ -684,7 +769,8 @@
   "group": "enterprise-design-patterns",
   "note": "6:01 runtime",
   "script": "done",
-  "updated": "2026-09-28 03:14",
+  "updated": "2026-09-28 18:30",
+  "v:amy-slow": "done",
   "video": "done"
  },
  "lazy-load-with-hibernate": {
@@ -692,7 +778,8 @@
   "group": "enterprise-design-patterns",
   "note": "6:31 runtime",
   "script": "done",
-  "updated": "2026-09-28 03:15",
+  "updated": "2026-09-28 18:32",
+  "v:amy-slow": "done",
   "video": "done"
  },
  "leader-election": {
@@ -700,7 +787,8 @@
   "group": "micro-services-design-patterns",
   "note": "",
   "script": "done",
-  "updated": "2026-09-27 21:38",
+  "updated": "2026-09-28 20:18",
+  "v:amy-slow": "done",
   "video": "queued"
  },
  "leader-election-with-kubernetes": {
@@ -708,7 +796,8 @@
   "group": "micro-services-design-patterns",
   "note": "",
   "script": "done",
-  "updated": "2026-09-27 21:39",
+  "updated": "2026-09-28 20:22",
+  "v:amy-slow": "done",
   "video": "queued"
  },
  "load-balancing": {
@@ -716,7 +805,8 @@
   "group": "micro-services-design-patterns",
   "note": "",
   "script": "done",
-  "updated": "2026-09-27 21:40",
+  "updated": "2026-09-28 20:25",
+  "v:amy-slow": "done",
   "video": "queued"
  },
  "load-balancing-with-spring-cloud-loadbalancer": {
@@ -724,7 +814,8 @@
   "group": "micro-services-design-patterns",
   "note": "",
   "script": "done",
-  "updated": "2026-09-27 21:40",
+  "updated": "2026-09-28 20:25",
+  "v:amy-slow": "done",
   "video": "queued"
  },
  "mediator": {
@@ -732,7 +823,8 @@
   "group": "behavioural",
   "note": "10:10 runtime",
   "script": "done",
-  "updated": "2026-09-28 01:50",
+  "updated": "2026-09-28 16:48",
+  "v:amy-slow": "done",
   "video": "done"
  },
  "memento": {
@@ -740,31 +832,35 @@
   "group": "behavioural",
   "note": "10:00 runtime",
   "script": "done",
-  "updated": "2026-09-28 01:53",
+  "updated": "2026-09-28 16:51",
+  "v:amy-slow": "done",
   "video": "done"
  },
  "message-channel": {
-  "animation": "pending",
+  "animation": "done",
   "group": "messaging-integration-patterns",
-  "note": "",
+  "note": "5:07 runtime",
   "script": "done",
-  "updated": "2026-09-27 21:24",
-  "video": "queued"
+  "updated": "2026-09-28 19:27",
+  "v:amy-slow": "done",
+  "video": "done"
  },
  "message-channel-with-rabbitmq": {
-  "animation": "pending",
+  "animation": "done",
   "group": "messaging-integration-patterns",
-  "note": "",
+  "note": "10:06 runtime",
   "script": "done",
-  "updated": "2026-09-27 21:24",
-  "video": "queued"
+  "updated": "2026-09-28 19:32",
+  "v:amy-slow": "done",
+  "video": "done"
  },
  "microkernel": {
   "animation": "done",
   "group": "architectural-design-patterns",
   "note": "5:37 runtime",
   "script": "done",
-  "updated": "2026-09-28 01:19",
+  "updated": "2026-09-28 16:20",
+  "v:amy-slow": "done",
   "video": "done"
  },
  "monitor-object": {
@@ -772,23 +868,25 @@
   "group": "concurrency-design-patterns",
   "note": "7:04 runtime",
   "script": "done",
-  "updated": "2026-09-28 02:30",
+  "updated": "2026-09-28 17:32",
+  "v:amy-slow": "done",
   "video": "done"
  },
  "multiton": {
-  "animation": "pending",
+  "animation": "done",
   "group": "foundational-design-patterns",
   "note": "5:04 runtime",
   "script": "done",
-  "updated": "2026-09-28 02:57",
+  "updated": "2026-09-28 18:58",
+  "v:amy-slow": "done",
   "video": "done"
  },
  "mvc": {
   "animation": "done",
   "group": "architectural-design-patterns",
-  "note": "10:03 runtime",
   "script": "done",
-  "updated": "2026-09-28 01:20",
+  "updated": "2026-09-28 17:12",
+  "v:amy-slow": "done",
   "video": "done"
  },
  "mvc-with-spring-mvc": {
@@ -796,7 +894,8 @@
   "group": "architectural-design-patterns",
   "note": "5:36 runtime",
   "script": "done",
-  "updated": "2026-09-28 01:20",
+  "updated": "2026-09-28 16:23",
+  "v:amy-slow": "done",
   "video": "done"
  },
  "mvp-and-mvvm": {
@@ -804,31 +903,35 @@
   "group": "architectural-design-patterns",
   "note": "5:57 runtime",
   "script": "done",
-  "updated": "2026-09-28 01:22",
+  "updated": "2026-09-28 16:26",
+  "v:amy-slow": "done",
   "video": "done"
  },
  "null-object": {
-  "animation": "pending",
+  "animation": "done",
   "group": "foundational-design-patterns",
   "note": "6:00 runtime",
   "script": "done",
-  "updated": "2026-09-28 02:59",
+  "updated": "2026-09-28 19:00",
+  "v:amy-slow": "done",
   "video": "done"
  },
  "object-pool": {
-  "animation": "pending",
+  "animation": "done",
   "group": "foundational-design-patterns",
   "note": "6:19 runtime",
   "script": "done",
-  "updated": "2026-09-28 03:06",
+  "updated": "2026-09-28 19:02",
+  "v:amy-slow": "done",
   "video": "done"
  },
  "object-pool-with-hikaricp": {
-  "animation": "pending",
+  "animation": "done",
   "group": "foundational-design-patterns",
   "note": "5:53 runtime",
   "script": "done",
-  "updated": "2026-09-28 03:08",
+  "updated": "2026-09-28 19:04",
+  "v:amy-slow": "done",
   "video": "done"
  },
  "observer": {
@@ -836,7 +939,8 @@
   "group": "behavioural",
   "note": "10:20 runtime",
   "script": "done",
-  "updated": "2026-09-28 01:57",
+  "updated": "2026-09-28 16:53",
+  "v:amy-slow": "done",
   "video": "done"
  },
  "observer-with-spring": {
@@ -844,7 +948,8 @@
   "group": "behavioural",
   "note": "5:53 runtime",
   "script": "done",
-  "updated": "2026-09-28 01:58",
+  "updated": "2026-09-28 16:54",
+  "v:amy-slow": "done",
   "video": "done"
  },
  "onion-architecture": {
@@ -852,7 +957,8 @@
   "group": "architectural-design-patterns",
   "note": "5:58 runtime",
   "script": "done",
-  "updated": "2026-09-28 01:24",
+  "updated": "2026-09-28 16:27",
+  "v:amy-slow": "done",
   "video": "done"
  },
  "optimistic-offline-lock": {
@@ -860,7 +966,8 @@
   "group": "enterprise-design-patterns",
   "note": "5:29 runtime",
   "script": "done",
-  "updated": "2026-09-28 03:16",
+  "updated": "2026-09-28 18:33",
+  "v:amy-slow": "done",
   "video": "done"
  },
  "pessimistic-offline-lock": {
@@ -868,7 +975,8 @@
   "group": "enterprise-design-patterns",
   "note": "5:31 runtime",
   "script": "done",
-  "updated": "2026-09-28 03:18",
+  "updated": "2026-09-28 18:35",
+  "v:amy-slow": "done",
   "video": "done"
  },
  "pipe-and-filter-architecture": {
@@ -876,7 +984,8 @@
   "group": "architectural-design-patterns",
   "note": "5:50 runtime",
   "script": "done",
-  "updated": "2026-09-28 01:26",
+  "updated": "2026-09-28 16:29",
+  "v:amy-slow": "done",
   "video": "done"
  },
  "pipes-and-filters": {
@@ -884,7 +993,8 @@
   "group": "micro-services-design-patterns",
   "note": "",
   "script": "done",
-  "updated": "2026-09-27 21:41",
+  "updated": "2026-09-28 20:28",
+  "v:amy-slow": "done",
   "video": "queued"
  },
  "producer-consumer": {
@@ -892,7 +1002,8 @@
   "group": "concurrency-design-patterns",
   "note": "8:00 runtime",
   "script": "done",
-  "updated": "2026-09-28 02:31",
+  "updated": "2026-09-28 17:35",
+  "v:amy-slow": "done",
   "video": "done"
  },
  "prototype": {
@@ -900,7 +1011,8 @@
   "group": "creational",
   "note": "9:06 runtime",
   "script": "done",
-  "updated": "2026-09-28 02:46",
+  "updated": "2026-09-28 17:56",
+  "v:amy-slow": "done",
   "video": "done"
  },
  "prototype-with-spring": {
@@ -908,7 +1020,8 @@
   "group": "creational",
   "note": "5:08 runtime",
   "script": "done",
-  "updated": "2026-09-28 02:47",
+  "updated": "2026-09-28 17:57",
+  "v:amy-slow": "done",
   "video": "done"
  },
  "proxy": {
@@ -916,7 +1029,8 @@
   "group": "structural",
   "note": "",
   "script": "done",
-  "updated": "2026-09-28 00:56",
+  "updated": "2026-09-28 22:00",
+  "v:amy-slow": "done",
   "video": "queued"
  },
  "proxy-with-spring": {
@@ -924,7 +1038,8 @@
   "group": "structural",
   "note": "",
   "script": "done",
-  "updated": "2026-09-28 00:56",
+  "updated": "2026-09-28 22:00",
+  "v:amy-slow": "done",
   "video": "queued"
  },
  "publisher-subscriber": {
@@ -932,7 +1047,8 @@
   "group": "micro-services-design-patterns",
   "note": "",
   "script": "done",
-  "updated": "2026-09-27 21:41",
+  "updated": "2026-09-28 20:28",
+  "v:amy-slow": "done",
   "video": "queued"
  },
  "publisher-subscriber-with-redis": {
@@ -940,7 +1056,8 @@
   "group": "micro-services-design-patterns",
   "note": "",
   "script": "done",
-  "updated": "2026-09-27 21:42",
+  "updated": "2026-09-28 20:32",
+  "v:amy-slow": "done",
   "video": "queued"
  },
  "queue-based-load-leveling": {
@@ -948,7 +1065,8 @@
   "group": "micro-services-design-patterns",
   "note": "",
   "script": "done",
-  "updated": "2026-09-27 21:42",
+  "updated": "2026-09-28 20:31",
+  "v:amy-slow": "done",
   "video": "queued"
  },
  "queue-based-load-leveling-with-sqs": {
@@ -956,7 +1074,8 @@
   "group": "micro-services-design-patterns",
   "note": "",
   "script": "done",
-  "updated": "2026-09-27 21:43",
+  "updated": "2026-09-28 20:36",
+  "v:amy-slow": "done",
   "video": "queued"
  },
  "rate-limiter": {
@@ -964,7 +1083,8 @@
   "group": "micro-services-design-patterns",
   "note": "",
   "script": "done",
-  "updated": "2026-09-27 21:43",
+  "updated": "2026-09-28 20:35",
+  "v:amy-slow": "done",
   "video": "queued"
  },
  "rate-limiter-with-redis": {
@@ -972,7 +1092,8 @@
   "group": "micro-services-design-patterns",
   "note": "",
   "script": "done",
-  "updated": "2026-09-27 21:44",
+  "updated": "2026-09-28 20:41",
+  "v:amy-slow": "done",
   "video": "queued"
  },
  "read-write-lock": {
@@ -980,23 +1101,26 @@
   "group": "concurrency-design-patterns",
   "note": "6:54 runtime",
   "script": "done",
-  "updated": "2026-09-28 02:32",
+  "updated": "2026-09-28 17:37",
+  "v:amy-slow": "done",
   "video": "done"
  },
  "registry": {
-  "animation": "pending",
+  "animation": "done",
   "group": "foundational-design-patterns",
   "note": "5:42 runtime",
   "script": "done",
-  "updated": "2026-09-28 03:15",
+  "updated": "2026-09-28 19:06",
+  "v:amy-slow": "done",
   "video": "done"
  },
  "registry-with-spring": {
-  "animation": "pending",
+  "animation": "done",
   "group": "foundational-design-patterns",
   "note": "5:49 runtime",
   "script": "done",
-  "updated": "2026-09-28 03:16",
+  "updated": "2026-09-28 19:08",
+  "v:amy-slow": "done",
   "video": "done"
  },
  "repository": {
@@ -1004,7 +1128,8 @@
   "group": "enterprise-design-patterns",
   "note": "6:10 runtime",
   "script": "done",
-  "updated": "2026-09-28 03:19",
+  "updated": "2026-09-28 18:37",
+  "v:amy-slow": "done",
   "video": "done"
  },
  "repository-with-spring-data": {
@@ -1012,7 +1137,8 @@
   "group": "enterprise-design-patterns",
   "note": "6:19 runtime",
   "script": "done",
-  "updated": "2026-09-28 03:23",
+  "updated": "2026-09-28 18:39",
+  "v:amy-slow": "done",
   "video": "done"
  },
  "retry": {
@@ -1020,7 +1146,8 @@
   "group": "micro-services-design-patterns",
   "note": "",
   "script": "done",
-  "updated": "2026-09-27 21:45",
+  "updated": "2026-09-28 20:43",
+  "v:amy-slow": "done",
   "video": "queued"
  },
  "retry-with-resilience4j": {
@@ -1028,7 +1155,8 @@
   "group": "micro-services-design-patterns",
   "note": "",
   "script": "done",
-  "updated": "2026-09-27 21:45",
+  "updated": "2026-09-28 20:43",
+  "v:amy-slow": "done",
   "video": "queued"
  },
  "saga": {
@@ -1036,7 +1164,8 @@
   "group": "micro-services-design-patterns",
   "note": "",
   "script": "done",
-  "updated": "2026-09-27 21:46",
+  "updated": "2026-09-28 20:51",
+  "v:amy-slow": "done",
   "video": "queued"
  },
  "scatter-gather": {
@@ -1044,7 +1173,8 @@
   "group": "micro-services-design-patterns",
   "note": "",
   "script": "done",
-  "updated": "2026-09-27 21:46",
+  "updated": "2026-09-28 20:46",
+  "v:amy-slow": "done",
   "video": "queued"
  },
  "serverless": {
@@ -1052,7 +1182,8 @@
   "group": "architectural-design-patterns",
   "note": "5:48 runtime",
   "script": "done",
-  "updated": "2026-09-28 01:28",
+  "updated": "2026-09-28 16:29",
+  "v:amy-slow": "done",
   "video": "done"
  },
  "serverless-with-localstack": {
@@ -1060,7 +1191,8 @@
   "group": "architectural-design-patterns",
   "note": "6:26 runtime",
   "script": "done",
-  "updated": "2026-09-28 01:29",
+  "updated": "2026-09-28 16:32",
+  "v:amy-slow": "done",
   "video": "done"
  },
  "service-discovery": {
@@ -1068,7 +1200,8 @@
   "group": "micro-services-design-patterns",
   "note": "",
   "script": "done",
-  "updated": "2026-09-27 21:47",
+  "updated": "2026-09-28 20:52",
+  "v:amy-slow": "done",
   "video": "queued"
  },
  "service-discovery-with-spring-cloud-consul": {
@@ -1076,7 +1209,8 @@
   "group": "micro-services-design-patterns",
   "note": "",
   "script": "done",
-  "updated": "2026-09-27 21:48",
+  "updated": "2026-09-28 20:53",
+  "v:amy-slow": "done",
   "video": "queued"
  },
  "service-layer": {
@@ -1084,23 +1218,26 @@
   "group": "enterprise-design-patterns",
   "note": "6:00 runtime",
   "script": "done",
-  "updated": "2026-09-28 03:28",
+  "updated": "2026-09-28 18:41",
+  "v:amy-slow": "done",
   "video": "done"
  },
  "service-locator": {
-  "animation": "pending",
+  "animation": "done",
   "group": "foundational-design-patterns",
   "note": "5:40 runtime",
   "script": "done",
-  "updated": "2026-09-28 03:29",
+  "updated": "2026-09-28 19:09",
+  "v:amy-slow": "done",
   "video": "done"
  },
  "service-locator-with-consul": {
-  "animation": "pending",
+  "animation": "done",
   "group": "foundational-design-patterns",
   "note": "6:33 runtime",
   "script": "done",
-  "updated": "2026-09-28 03:39",
+  "updated": "2026-09-28 19:12",
+  "v:amy-slow": "done",
   "video": "done"
  },
  "service-mesh": {
@@ -1108,7 +1245,8 @@
   "group": "platform-design-patterns",
   "note": "",
   "script": "done",
-  "updated": "2026-09-28 00:48",
+  "updated": "2026-09-28 21:28",
+  "v:amy-slow": "done",
   "video": "queued"
  },
  "service-mesh-with-envoy": {
@@ -1116,7 +1254,8 @@
   "group": "platform-design-patterns",
   "note": "",
   "script": "done",
-  "updated": "2026-09-28 00:49",
+  "updated": "2026-09-28 21:29",
+  "v:amy-slow": "done",
   "video": "queued"
  },
  "sidecar": {
@@ -1124,7 +1263,8 @@
   "group": "platform-design-patterns",
   "note": "",
   "script": "done",
-  "updated": "2026-09-28 00:50",
+  "updated": "2026-09-28 21:36",
+  "v:amy-slow": "done",
   "video": "queued"
  },
  "sidecar-java-proxy": {
@@ -1132,7 +1272,8 @@
   "group": "platform-design-patterns",
   "note": "",
   "script": "done",
-  "updated": "2026-09-28 00:50",
+  "updated": "2026-09-28 21:36",
+  "v:amy-slow": "done",
   "video": "queued"
  },
  "sidecar-on-kubernetes": {
@@ -1140,7 +1281,8 @@
   "group": "platform-design-patterns",
   "note": "",
   "script": "done",
-  "updated": "2026-09-28 00:51",
+  "updated": "2026-09-28 21:40",
+  "v:amy-slow": "done",
   "video": "queued"
  },
  "simple-factory": {
@@ -1148,7 +1290,8 @@
   "group": "creational",
   "note": "8:11 runtime",
   "script": "done",
-  "updated": "2026-09-28 02:49",
+  "updated": "2026-09-28 18:01",
+  "v:amy-slow": "done",
   "video": "done"
  },
  "singleton": {
@@ -1156,7 +1299,8 @@
   "group": "creational",
   "note": "7:43 runtime",
   "script": "done",
-  "updated": "2026-09-28 02:51",
+  "updated": "2026-09-28 18:01",
+  "v:amy-slow": "done",
   "video": "done"
  },
  "singleton-with-spring": {
@@ -1164,7 +1308,8 @@
   "group": "creational",
   "note": "5:43 runtime",
   "script": "done",
-  "updated": "2026-09-28 02:52",
+  "updated": "2026-09-28 18:05",
+  "v:amy-slow": "done",
   "video": "done"
  },
  "specification": {
@@ -1172,31 +1317,35 @@
   "group": "domain-driven-design-patterns",
   "note": "5:34 runtime",
   "script": "done",
-  "updated": "2026-09-28 03:02",
+  "updated": "2026-09-28 18:15",
+  "v:amy-slow": "done",
   "video": "done"
  },
  "splitter-aggregator": {
-  "animation": "pending",
+  "animation": "done",
   "group": "messaging-integration-patterns",
-  "note": "",
+  "note": "5:17 runtime",
   "script": "done",
-  "updated": "2026-09-27 21:25",
-  "video": "queued"
+  "updated": "2026-09-28 19:31",
+  "v:amy-slow": "done",
+  "video": "done"
  },
  "splitter-aggregator-with-camel": {
-  "animation": "pending",
+  "animation": "done",
   "group": "messaging-integration-patterns",
-  "note": "",
+  "note": "8:17 runtime",
   "script": "done",
-  "updated": "2026-09-27 21:25",
-  "video": "queued"
+  "updated": "2026-09-28 19:34",
+  "v:amy-slow": "done",
+  "video": "done"
  },
  "state": {
   "animation": "done",
   "group": "behavioural",
   "note": "10:44 runtime",
   "script": "done",
-  "updated": "2026-09-28 02:03",
+  "updated": "2026-09-28 16:59",
+  "v:amy-slow": "done",
   "video": "done"
  },
  "static-factory": {
@@ -1204,7 +1353,8 @@
   "group": "creational",
   "note": "10:46 runtime",
   "script": "done",
-  "updated": "2026-09-28 02:55",
+  "updated": "2026-09-28 18:07",
+  "v:amy-slow": "done",
   "video": "done"
  },
  "strangler-fig": {
@@ -1212,7 +1362,8 @@
   "group": "platform-design-patterns",
   "note": "",
   "script": "done",
-  "updated": "2026-09-28 00:51",
+  "updated": "2026-09-28 21:41",
+  "v:amy-slow": "done",
   "video": "queued"
  },
  "strangler-fig-with-nginx": {
@@ -1220,7 +1371,8 @@
   "group": "platform-design-patterns",
   "note": "",
   "script": "done",
-  "updated": "2026-09-28 00:52",
+  "updated": "2026-09-28 21:46",
+  "v:amy-slow": "done",
   "video": "queued"
  },
  "strategy": {
@@ -1228,7 +1380,8 @@
   "group": "behavioural",
   "note": "9:14 runtime",
   "script": "done",
-  "updated": "2026-09-28 02:06",
+  "updated": "2026-09-28 16:58",
+  "v:amy-slow": "done",
   "video": "done"
  },
  "strategy-with-spring": {
@@ -1236,7 +1389,8 @@
   "group": "behavioural",
   "note": "5:22 runtime",
   "script": "done",
-  "updated": "2026-09-28 02:07",
+  "updated": "2026-09-28 17:02",
+  "v:amy-slow": "done",
   "video": "done"
  },
  "template-method": {
@@ -1244,7 +1398,8 @@
   "group": "behavioural",
   "note": "11:15 runtime",
   "script": "done",
-  "updated": "2026-09-28 02:11",
+  "updated": "2026-09-28 17:06",
+  "v:amy-slow": "done",
   "video": "done"
  },
  "template-method-with-spring": {
@@ -1252,7 +1407,8 @@
   "group": "behavioural",
   "note": "6:23 runtime",
   "script": "done",
-  "updated": "2026-09-28 02:12",
+  "updated": "2026-09-28 17:05",
+  "v:amy-slow": "done",
   "video": "done"
  },
  "thread-local-storage": {
@@ -1260,7 +1416,8 @@
   "group": "concurrency-design-patterns",
   "note": "5:49 runtime",
   "script": "done",
-  "updated": "2026-09-28 02:34",
+  "updated": "2026-09-28 17:39",
+  "v:amy-slow": "done",
   "video": "done"
  },
  "thread-pool": {
@@ -1268,7 +1425,8 @@
   "group": "concurrency-design-patterns",
   "note": "7:28 runtime",
   "script": "done",
-  "updated": "2026-09-28 02:35",
+  "updated": "2026-09-28 17:42",
+  "v:amy-slow": "done",
   "video": "done"
  },
  "thread-pool-with-spring": {
@@ -1276,7 +1434,8 @@
   "group": "concurrency-design-patterns",
   "note": "6:02 runtime",
   "script": "done",
-  "updated": "2026-09-28 02:36",
+  "updated": "2026-09-28 17:43",
+  "v:amy-slow": "done",
   "video": "done"
  },
  "timeout": {
@@ -1284,7 +1443,8 @@
   "group": "micro-services-design-patterns",
   "note": "",
   "script": "done",
-  "updated": "2026-09-27 21:48",
+  "updated": "2026-09-28 20:55",
+  "v:amy-slow": "done",
   "video": "queued"
  },
  "transaction-script": {
@@ -1292,7 +1452,8 @@
   "group": "enterprise-design-patterns",
   "note": "5:23 runtime",
   "script": "done",
-  "updated": "2026-09-28 03:34",
+  "updated": "2026-09-28 18:43",
+  "v:amy-slow": "done",
   "video": "done"
  },
  "transactional-outbox": {
@@ -1300,7 +1461,8 @@
   "group": "micro-services-design-patterns",
   "note": "",
   "script": "done",
-  "updated": "2026-09-27 21:49",
+  "updated": "2026-09-28 20:59",
+  "v:amy-slow": "done",
   "video": "queued"
  },
  "transactional-outbox-with-debezium": {
@@ -1308,7 +1470,8 @@
   "group": "micro-services-design-patterns",
   "note": "",
   "script": "done",
-  "updated": "2026-09-27 21:49",
+  "updated": "2026-09-28 21:00",
+  "v:amy-slow": "done",
   "video": "queued"
  },
  "two-phase-termination": {
@@ -1316,15 +1479,17 @@
   "group": "concurrency-design-patterns",
   "note": "5:38 runtime",
   "script": "done",
-  "updated": "2026-09-28 02:38",
+  "updated": "2026-09-28 17:46",
+  "v:amy-slow": "done",
   "video": "done"
  },
  "type-object": {
-  "animation": "pending",
+  "animation": "done",
   "group": "foundational-design-patterns",
   "note": "5:30 runtime",
   "script": "done",
-  "updated": "2026-09-28 03:56",
+  "updated": "2026-09-28 19:13",
+  "v:amy-slow": "done",
   "video": "done"
  },
  "unit-of-work": {
@@ -1332,7 +1497,8 @@
   "group": "enterprise-design-patterns",
   "note": "6:16 runtime",
   "script": "done",
-  "updated": "2026-09-28 03:40",
+  "updated": "2026-09-28 18:45",
+  "v:amy-slow": "done",
   "video": "done"
  },
  "unit-of-work-with-spring": {
@@ -1340,7 +1506,8 @@
   "group": "enterprise-design-patterns",
   "note": "6:21 runtime",
   "script": "done",
-  "updated": "2026-09-28 03:45",
+  "updated": "2026-09-28 18:47",
+  "v:amy-slow": "done",
   "video": "done"
  },
  "value-object": {
@@ -1348,7 +1515,8 @@
   "group": "domain-driven-design-patterns",
   "note": "5:45 runtime",
   "script": "done",
-  "updated": "2026-09-28 03:03",
+  "updated": "2026-09-28 18:17",
+  "v:amy-slow": "done",
   "video": "done"
  },
  "visitor": {
@@ -1356,7 +1524,8 @@
   "group": "behavioural",
   "note": "12:13 runtime",
   "script": "done",
-  "updated": "2026-09-28 02:17",
+  "updated": "2026-09-28 17:14",
+  "v:amy-slow": "done",
   "video": "done"
  }
 }

@@ -19,21 +19,21 @@ The first two lines are what a viewer sees above the fold, so they carry the hoo
 ```
 CHAPTERS
 00:00 Introduction
-00:58 The Scenario
-01:36 No Cache
-01:54 Redis's Words
-02:39 Look Aside, In Redis
-03:10 Another Process Can See It
-03:57 Where The Price Lives
-04:30 Real Expiry
-05:12 A Plain Write
-05:54 One Argument
-06:29 A Real Stampede
-07:38 The Bill
-08:24 What The Simulation Left Out
-09:11 The Verdict
-09:44 What Is Real, And When Not
-10:24 Thanks for Watching
+00:57 The Scenario
+01:37 No Cache
+01:55 Redis's Words
+02:38 Look Aside, In Redis
+03:12 Another Process Can See It
+04:00 Where The Price Lives
+04:27 Real Expiry
+05:07 A Plain Write
+05:48 One Argument
+06:24 A Real Stampede
+07:33 The Bill
+08:09 What The Simulation Left Out
+08:54 The Verdict
+09:32 What Is Real, And When Not
+10:15 Thanks for Watching
 
 SOURCE CODE, WRITTEN NOTES AND AN INTERACTIVE ANIMATION
 https://github.com/jk-boot-up/java-design-patterns/tree/main/gradle-java/micro-services-design-patterns/cache-aside-with-redis-pattern
@@ -48,21 +48,21 @@ YouTube renders these as chapters only if there are at least three and the first
 
 ```
 00:00 Introduction
-00:58 The Scenario
-01:36 No Cache
-01:54 Redis's Words
-02:39 Look Aside, In Redis
-03:10 Another Process Can See It
-03:57 Where The Price Lives
-04:30 Real Expiry
-05:12 A Plain Write
-05:54 One Argument
-06:29 A Real Stampede
-07:38 The Bill
-08:24 What The Simulation Left Out
-09:11 The Verdict
-09:44 What Is Real, And When Not
-10:24 Thanks for Watching
+00:57 The Scenario
+01:37 No Cache
+01:55 Redis's Words
+02:38 Look Aside, In Redis
+03:12 Another Process Can See It
+04:00 Where The Price Lives
+04:27 Real Expiry
+05:07 A Plain Write
+05:48 One Argument
+06:24 A Real Stampede
+07:33 The Bill
+08:09 What The Simulation Left Out
+08:54 The Verdict
+09:32 What Is Real, And When Not
+10:15 Thanks for Watching
 ```
 
 ## Tags
@@ -101,4 +101,4 @@ Add a card partway through pointing at the playlist, so a viewer who arrives at 
 
 ## Runtime
 
-Approximately 11:03, narrated at 145 words per minute.
+Approximately 10:55, narrated at 145 words per minute.

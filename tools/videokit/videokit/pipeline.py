@@ -49,7 +49,8 @@ def stage_video(project, settings, opts):
                                  settings.true_peak, settings.loudness_range)
     video.mux(b / "joined.mp4", b / "narration.wav", project.mp4, loud, settings.audio_bitrate)
     video.extract_audio(project.mp4, project.m4a)
-    video.copy_poster(b / (project.scenes[0]["key"] + ".png"), project.poster)
+    if not settings.version:          # a version never replaces the published poster
+        video.copy_poster(b / (project.scenes[0]["key"] + ".png"), project.poster)
     (b / "timeline.json").write_text(json.dumps(durations, indent=1))
 
     gaps = video.audio_gaps(project.mp4)
@@ -72,6 +73,8 @@ def stage_subtitles(project, settings, opts):
 
 
 def stage_docs(project, settings, opts):
+    if settings.version:
+        return "skipped for version %s (docs describe the main build)" % settings.version
     done = publish.run(project, opts["log"])
     return ", ".join(done) if done else "no shared docs generators found - skipped"
 

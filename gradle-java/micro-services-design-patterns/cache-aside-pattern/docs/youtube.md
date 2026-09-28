@@ -19,19 +19,19 @@ The first two lines are what a viewer sees above the fold, so they carry the hoo
 ```
 CHAPTERS
 00:00 Introduction
-00:53 The Scenario
-01:06 No Cache
-01:18 The Pattern
-01:35 Look Aside
-01:51 Writes
-02:10 A Time Limit On Staleness
-02:31 A Stampede
-02:51 The Bill
-03:10 How To Recognise It
-03:27 The Verdict
-03:50 What Is Real Here
-04:03 When This Is Too Much
-04:15 Thanks for Watching
+01:04 The Scenario
+01:20 No Cache
+01:32 The Pattern
+01:55 Look Aside
+02:15 Writes
+02:44 A Time Limit On Staleness
+03:12 A Stampede
+03:40 The Bill
+04:01 How To Recognise It
+04:24 The Verdict
+04:48 What Is Real Here
+05:02 When This Is Too Much
+05:17 Thanks for Watching
 
 SOURCE CODE, WRITTEN NOTES AND AN INTERACTIVE ANIMATION
 https://github.com/jk-boot-up/java-design-patterns/tree/main/gradle-java/micro-services-design-patterns/cache-aside-pattern
@@ -46,19 +46,19 @@ YouTube renders these as chapters only if there are at least three and the first
 
 ```
 00:00 Introduction
-00:53 The Scenario
-01:06 No Cache
-01:18 The Pattern
-01:35 Look Aside
-01:51 Writes
-02:10 A Time Limit On Staleness
-02:31 A Stampede
-02:51 The Bill
-03:10 How To Recognise It
-03:27 The Verdict
-03:50 What Is Real Here
-04:03 When This Is Too Much
-04:15 Thanks for Watching
+01:04 The Scenario
+01:20 No Cache
+01:32 The Pattern
+01:55 Look Aside
+02:15 Writes
+02:44 A Time Limit On Staleness
+03:12 A Stampede
+03:40 The Bill
+04:01 How To Recognise It
+04:24 The Verdict
+04:48 What Is Real Here
+05:02 When This Is Too Much
+05:17 Thanks for Watching
 ```
 
 ## Tags
@@ -97,4 +97,4 @@ Add a card partway through pointing at the playlist, so a viewer who arrives at 
 
 ## Runtime
 
-Approximately 04:56, narrated at 145 words per minute.
+Approximately 06:02, narrated at 145 words per minute.

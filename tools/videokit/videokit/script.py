@@ -21,7 +21,7 @@ class Phrase:
     pause: float   # seconds of silence after it
 
 
-def phrases(narration, sentence_gap=0.45):
+def phrases(narration, sentence_gap=0.45, pause_scale=1.0):
     """Split narration into the phrases to speak, each with its pause."""
     out = []
     tokens = MARKER.split(narration)          # text, ms, text, ms, ..., text
@@ -31,7 +31,7 @@ def phrases(narration, sentence_gap=0.45):
         sentences = [s.strip() for s in SENTENCE.findall(chunk) if s.strip()]
         for j, s in enumerate(sentences):
             last = j == len(sentences) - 1
-            gap = int(tokens[i + 1]) / 1000.0 if last and marked else sentence_gap
+            gap = int(tokens[i + 1]) / 1000.0 * pause_scale if last and marked else sentence_gap
             out.append(Phrase(s, gap))
     if out:
         # The scene's closing silence is the pipeline's tail pad, not a phrase's.
@@ -71,8 +71,17 @@ def split_cues(text, max_chars=84):
 # How things must be *said*, applied to each phrase just before it reaches
 # the voice engine, so captions and narration.md keep the written form.
 # "ID" is an identifier and must be read "I D", never as the word "id".
-LEXICON_VERSION = 1
+LEXICON_VERSION = 4
+# How the author's name should sound. English voices mangle the written
+# spelling (Jaya-SEK-har, kon-DUR-oo); this respelling gives the Telugu
+# stress: JAH-ya-SHAY-kar KON-du-ru.
+AUTHOR_SPOKEN = "Jaya Shaykar"      # first name only, by the author's choice
+
 LEXICON = [
+    (re.compile(r"\bJayasekhar(?:\s+Konduru)?\b", re.I), AUTHOR_SPOKEN),
+    (re.compile(r"\bAPIs\b"), "A P eyes"),
+    (re.compile(r"\b((?:[A-Z] )+)Is\b"), r"\1eyes"),      # "A P Is" -> "A P eyes"
+    (re.compile(r"\bAPI\b"), "A P I"),
     (re.compile(r"\b(ID|Id|id)s\b"), "I Ds"),
     (re.compile(r"\b(ID|Id|id)\b"), "I D"),
     (re.compile(r"(?<=[a-z])Ids\b"), " I Ds"),     # orderIds -> order I Ds
@@ -80,8 +89,14 @@ LEXICON = [
 ]
 
 
+# A run of single capital letters is spelled out ("A P I", "S Q S"). Voices
+# read a lone "A" as the article ("apee") and "ay" as "eye" ("ipi"); espeak
+# says "eh" as the letter A, so "A P I" is spoken "eh P I".
+LETTERS = re.compile(r"\b[A-Z](?: [A-Z])+\b")
+
+
 def speakable(text):
     """The text as the voice should pronounce it."""
     for pattern, spoken in LEXICON:
         text = pattern.sub(spoken, text)
-    return text
+    return LETTERS.sub(lambda m: re.sub(r"\bA\b", "eh", m.group(0)), text)

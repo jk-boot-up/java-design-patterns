@@ -21,8 +21,11 @@ class Project:
         self.dir = self.video_dir.parent
         self.name = self.dir.name                       # e.g. retry-pattern
         self.slug = self.name.removesuffix("-pattern")  # e.g. retry
-        self.build = self.video_dir / "build"
-        stem = self.video_dir / (self.name + "-explained")
+        # A named version builds beside the main one and never overwrites it.
+        self.version = config.load(self.video_dir).version
+        tag = "-" + self.version if self.version else ""
+        self.build = self.video_dir / ("build" + tag)
+        stem = self.video_dir / (self.name + "-explained" + tag)
         self.mp4 = stem.with_suffix(".mp4")
         self.m4a = stem.with_suffix(".m4a")
         self.srt = stem.with_suffix(".srt")

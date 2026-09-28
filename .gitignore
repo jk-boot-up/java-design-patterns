@@ -77,9 +77,16 @@ venv/
 Thumbs.db
 
 # Voice auditions: rendered audio is not committed.
-**/video/voice-samples/*.m4a
+**/video/voice-samples/**/*.m4a
 tools/videokit/.stop
 tools/videokit/rollout-state.lock
 
 # Per-project video build logs.
 **/video/.build.log
+
+# Named alternative builds (videokit --version=<name>): outputs are not committed.
+**/video/build-*/
+**/docs/audio-*/
+**/video/*-explained-*.mp4
+**/video/*-explained-*.m4a
+**/video/*-explained-*.srt

@@ -19,21 +19,21 @@ The first two lines are what a viewer sees above the fold, so they carry the hoo
 ```
 CHAPTERS
 00:00 Introduction
-00:52 The Partner Project
-01:13 Before The First Line
-01:34 One Compartment For Everything
-01:49 A Compartment Each
-02:04 What A Full Compartment Does
-02:20 The Cost Of The Wall
-02:34 The Annotation Is A Proxy
-02:49 A Compartment With Its Own Threads
-03:10 The Verdict
-03:24 How To Recognise It
-03:35 Where You Have Met This
-03:40 What Was Used
-03:50 What Is Real Here
-04:02 When This Is Too Much
-04:10 Thanks for Watching
+01:05 The Partner Project
+01:28 Before The First Line
+01:54 One Compartment For Everything
+02:16 A Compartment Each
+02:33 What A Full Compartment Does
+02:53 The Cost Of The Wall
+03:13 The Annotation Is A Proxy
+03:50 A Compartment With Its Own Threads
+04:19 The Verdict
+04:39 How To Recognise It
+04:50 Where You Have Met This
+04:58 What Was Used
+05:11 What Is Real Here
+05:27 When This Is Too Much
+05:40 Thanks for Watching
 
 SOURCE CODE, WRITTEN NOTES AND AN INTERACTIVE ANIMATION
 https://github.com/jk-boot-up/java-design-patterns/tree/main/gradle-java/micro-services-design-patterns/bulkhead-with-resilience4j-pattern
@@ -48,21 +48,21 @@ YouTube renders these as chapters only if there are at least three and the first
 
 ```
 00:00 Introduction
-00:52 The Partner Project
-01:13 Before The First Line
-01:34 One Compartment For Everything
-01:49 A Compartment Each
-02:04 What A Full Compartment Does
-02:20 The Cost Of The Wall
-02:34 The Annotation Is A Proxy
-02:49 A Compartment With Its Own Threads
-03:10 The Verdict
-03:24 How To Recognise It
-03:35 Where You Have Met This
-03:40 What Was Used
-03:50 What Is Real Here
-04:02 When This Is Too Much
-04:10 Thanks for Watching
+01:05 The Partner Project
+01:28 Before The First Line
+01:54 One Compartment For Everything
+02:16 A Compartment Each
+02:33 What A Full Compartment Does
+02:53 The Cost Of The Wall
+03:13 The Annotation Is A Proxy
+03:50 A Compartment With Its Own Threads
+04:19 The Verdict
+04:39 How To Recognise It
+04:50 Where You Have Met This
+04:58 What Was Used
+05:11 What Is Real Here
+05:27 When This Is Too Much
+05:40 Thanks for Watching
 ```
 
 ## Tags
@@ -101,4 +101,4 @@ Add a card partway through pointing at the playlist, so a viewer who arrives at 
 
 ## Runtime
 
-Approximately 04:45, narrated at 145 words per minute.
+Approximately 06:21, narrated at 145 words per minute.

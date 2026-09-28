@@ -626,5 +626,103 @@ document.addEventListener("keydown", e => {
 setAudio(false);
 reset();
 </script>
+<!-- videokit:narration -->
+<script>
+/* videokit narration player: a Narration on/off switch and a play/pause
+   button for the current step. It watches the page's own narration text,
+   works out which step is showing, and plays audio/step-N.m4a beside the
+   page (rendered by tools/videokit; not embedded, so the page stays small).
+   If the page already plays its own clips, only the pause button is added. */
+(function () {
+  "use strict";
+  var STEPS = ["A shopper opens one of their orders. The page shows the order reference, a line for each thing they bought with its name and its price, the total, and underneath, where the parcel has got to. Utterly unremarkable \u2014 except that three different services own those facts, and there is no database join any more. Orders knows what was bought. Catalog knows what a sku is actually called. Shipping knows where the parcel is.", "This is what everybody writes first, and it is three lines of entirely ordinary Java. Fetch the order. Ask Catalog for the names. Ask Shipping for the status. Be fair to it: there is no bug here. It returns exactly the right page, and every test written against it passes. A code review waves it through without a comment, because the cost is not in the code at all.", "Read the third call again. Shipping left at ninety milliseconds. But what does Shipping actually need? The order id \u2014 and the order id arrived at thirty. It sat and waited sixty milliseconds for Catalog's answer, and then never looked at it. That is not a bug anybody could point at in a diff. It is what a sequence of statements does, and it is why nobody ever notices the day a page got slower.", "The fix is to stop waiting. Except notice what this page cannot do: it cannot send all three calls at zero milliseconds. Catalog has to be told which skus to look up, and only Orders knows which skus are on the order. So the shape is one call, and then two together. Working out which calls genuinely depend on which is most of the job here, and it is exactly where the instinct to just parallelise everything comes unstuck.", "Catalog and Shipping now depart at the same instant. Catalog comes back at ninety, Shipping at a hundred and fifty, and the page is finished the moment the slower of the two lands. A hundred and fifty milliseconds instead of two hundred and ten. Nothing got faster \u2014 Shipping still takes its full hundred and twenty. What changed is that nobody is queuing. Sequential calls cost the sum of their latencies. Parallel calls cost the maximum.", "Here is the same outage given to both versions. The sequential one fetches the order, gets the product names, then calls Shipping \u2014 and throws. And look at what goes down with it: the order and the names had already arrived, sitting in local variables, perfectly good. Both thrown away. The shopper is shown an error page assembled out of two correct answers that nobody looked at.", "The fan-out does something different, and it is four lines. Each call runs inside a try, and when one throws, the exception is caught and parked on that branch rather than allowed to escape. Nothing else is disturbed. Catalog's answer is still there. The order is still there. And now the composer can ask, afterwards, one branch at a time, whether that particular absence is actually fatal.", "So which absences are fatal? That has to be decided in advance, and in this project it is not a config file and not an annotation. It is which of two methods the composer calls on a branch. One of them rethrows whatever was caught \u2014 that is for data the page genuinely needs. The other substitutes a fallback \u2014 that is for data the page can do without. One line per dependency, written deliberately by somebody who knows what the page is for.", "So the shopper still sees what they bought, the quantities, and what it cost \u2014 because none of that was ever Shipping's to know. And where the delivery section would be, the page says it cannot check this right now, and lists delivery status as missing. That list matters. A page that quietly drops the delivery section looks exactly like a page for an order that has not shipped yet, and the shopper cannot tell the two apart.", "There is a temptation here worth naming out loud. Instead of saying we cannot check, you could write in transit. It is nearly always true, it reads better, and nobody complains. Do not do it. A shopper who is told their parcel is in transit will not ring up about the one that never left. The page is allowed to say it does not know. It is not allowed to make something up \u2014 and there is a test in this project whose only job is to stop somebody being helpful here.", "Now the other direction. If Orders does not answer, the composer does not degrade anything \u2014 it throws, and the shopper gets an honest error. That is correct, not a gap in the pattern. A page with no order on it is not a partial page, it is a blank one. And because the failure happens before the fan-out even exists, Catalog is never called at all. Being able to say this one is required is as much a part of the pattern as being able to degrade.", "Last one, and it is arithmetic rather than code. Suppose each of these three services is up ninety-nine point nine percent of the time. That is a good service: about forty-three minutes of downtime a month. So how good is a page that needs all three? Not ninety-nine point nine. The page is up only when all three are up at the same moment, and those probabilities multiply \u2014 ninety-nine point seven percent, which is a hundred and twenty-nine minutes a month. Three excellent services make a page worse than any of them. And the way out is not better services. It is needing fewer of them."];
+  var norm = function (s) { return String(s || "").replace(/\s+/g, " ").trim(); };
+  var box = document.getElementById("narration") || document.querySelector(".narration");
+  if (!box || !STEPS.length) return;
+
+  var pageOwnsAudio = !!document.getElementById("audio");
+  var current = null, step = -1, on = false;
+  try { on = localStorage.getItem("vk-narration") === "on"; } catch (e) {}
+
+  // Remember whichever clip the page (or this script) last started.
+  var realPlay = HTMLMediaElement.prototype.play;
+  HTMLMediaElement.prototype.play = function () {
+    if (current && current !== this) { try { current.pause(); } catch (e) {} }
+    current = this;
+    this.addEventListener("play", label);
+    this.addEventListener("pause", label);
+    this.addEventListener("ended", label);
+    var p = realPlay.apply(this, arguments);
+    label();
+    return p;
+  };
+
+  var bar = document.querySelector(".controls") || box.parentNode;
+  function button(id, text) {
+    var b = document.createElement("button");
+    b.id = id; b.type = "button"; b.textContent = text;
+    bar.appendChild(b);
+    return b;
+  }
+  var narrBtn = pageOwnsAudio ? null : button("vk-narration", "");
+  var stepBtn = button("vk-step-audio", "");
+  var note = document.createElement("span");
+  note.id = "vk-note";
+  note.style.cssText = "color:#94a3b8;font-size:.8rem;margin-left:8px";
+  bar.appendChild(note);
+
+  function stepFor(text) {
+    var t = norm(text);
+    for (var i = 0; i < STEPS.length; i++) {
+      var s = norm(STEPS[i]);
+      if (s && t.indexOf(s.slice(0, 60)) !== -1) return i;
+    }
+    return -1;
+  }
+  function stop() { if (current) { try { current.pause(); } catch (e) {} } current = null; label(); }
+  function play(i) {
+    if (i < 0) return;
+    var a = new Audio("audio/step-" + (i + 1) + ".m4a");
+    a.play().then(function () { note.textContent = ""; }, function (e) {
+      note.textContent = e && e.name === "NotAllowedError"
+        ? "Click Play step to hear this step."
+        : "Narration audio not found: run tools/videokit/videokit.sh animation <project>.";
+      label();
+    });
+  }
+  function label() {
+    if (narrBtn) narrBtn.textContent = (on ? "🔊 Narration: on" : "🔇 Narration: off");
+    if (narrBtn) narrBtn.setAttribute("aria-pressed", String(on));
+    var playing = current && !current.paused && !current.ended;
+    var paused = current && current.paused && !current.ended;
+    stepBtn.textContent = playing ? "⏸ Pause step" : paused ? "▶ Resume step" : "▶ Play step";
+    stepBtn.disabled = step < 0;
+  }
+
+  if (narrBtn) narrBtn.addEventListener("click", function () {
+    on = !on;
+    try { localStorage.setItem("vk-narration", on ? "on" : "off"); } catch (e) {}
+    if (on) { if (step >= 0) play(step); } else stop();
+    label();
+  });
+  stepBtn.addEventListener("click", function () {
+    if (current && !current.ended) {
+      if (current.paused) current.play(); else current.pause();
+    } else play(step);
+  });
+
+  function changed() {
+    var i = stepFor(box.textContent);
+    if (i === step) return;
+    step = i;
+    if (!pageOwnsAudio) { stop(); if (on) play(i); }
+    label();
+  }
+  new MutationObserver(changed).observe(box, { childList: true, subtree: true, characterData: true });
+  changed();
+  label();
+})();
+</script>
+<!-- /videokit:narration -->
 </body>
 </html>

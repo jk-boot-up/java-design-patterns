@@ -18,11 +18,11 @@ import soundfile as sf
 from . import audio, script, tts
 
 
-def speak(engine, narration, sentence_gap=0.45):
+def speak(engine, narration, sentence_gap=0.45, pause_scale=1.0):
     """Narration markup -> (samples, [{"text", "start", "end"}, ...])."""
     sr = engine.sample_rate
     parts, timings, clock = [], [], 0.0
-    for p in script.phrases(narration, sentence_gap):
+    for p in script.phrases(narration, sentence_gap, pause_scale):
         speech = audio.trim_silence(engine.speak(script.speakable(p.text)), sr)
         start, clock = clock, clock + len(speech) / sr
         timings.append({"text": p.text, "start": round(start, 3), "end": round(clock, 3)})
@@ -64,7 +64,8 @@ def narrate_scenes(scenes, settings, out_dir, force=False):
                 and json.loads(meta.read_text()).get("cache") == key:
             continue
         engine = engine or tts.from_settings(settings)
-        samples, timings = speak(engine, scene["narration"], settings.sentence_gap)
+        samples, timings = speak(engine, scene["narration"], settings.sentence_gap,
+                                 settings.pause_scale)
         sf.write(wav, samples, engine.sample_rate)
         meta.write_text(json.dumps({"cache": key, "phrases": timings}, indent=1))
         voiced += 1

@@ -10,7 +10,7 @@ from pathlib import Path
 
 import soundfile as sf
 
-from . import audio, narrate, tts
+from . import audio, config, narrate, tts
 
 
 def parse_voice(spec):
@@ -29,7 +29,8 @@ def render(text, out_dir, voices):
     for n, spec in enumerate(voices, start=1):
         engine_name, voice, speed, rate = parse_voice(spec)
         engine = tts.get(engine_name, voice, speed, rate)
-        samples, _ = narrate.speak(engine, text)
+        s = config.load()
+        samples, _ = narrate.speak(engine, text, s.sentence_gap, s.pause_scale)
         stem = out_dir / ("%02d-%s-%s" % (n, engine_name, voice))
         wav = stem.with_suffix(".wav")
         sf.write(wav, samples, engine.sample_rate)

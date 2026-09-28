@@ -633,5 +633,103 @@ document.addEventListener("keydown", e => {
 setAudio(false);
 reset();
 </script>
+<!-- videokit:narration -->
+<script>
+/* videokit narration player: a Narration on/off switch and a play/pause
+   button for the current step. It watches the page's own narration text,
+   works out which step is showing, and plays audio/step-N.m4a beside the
+   page (rendered by tools/videokit; not embedded, so the page stays small).
+   If the page already plays its own clips, only the pause button is added. */
+(function () {
+  "use strict";
+  var STEPS = ["A shop runs on one application with one thread pool. Two of the jobs it does matter here. Checkout takes a shopper's money: it is fast, it is correct, and nobody has ever filed a bug against it. The supplier feed imports a catalogue overnight: nobody is waiting for it, and if it finished an hour late nothing bad would happen. Both of them ask the same pool for a thread. That is an entirely ordinary way to build a service, and for a long time it is the right one.", "One night the partner API the feed calls stops answering promptly. Not failing \u2014 answering, but slowly. Here is the fact everything else follows from: a job that is waiting still holds its thread. It is using no processor time, it is doing nothing whatsoever, but that thread belongs to it until the call comes back. The first import batch starts, and takes one.", "Batch two, batch three, batch four. Each one makes its call, each one waits, each one holds a thread. Four batches, four threads, and the pool has four threads. Nothing here has failed. Nothing has thrown. Every one of these jobs is behaving exactly as designed, and the pool is behaving exactly as designed, and the shop is about to stop selling.", "Now checkout needs a thread, and there is not one. So look at the program output and read what is missing rather than what is there. There is no line for checkout. Not a slow line, not an error line \u2014 no line at all, because it never started. Absence is the symptom, and that is precisely what makes this so hard to diagnose while it is happening: there is nothing in the log to read.", "It would honestly be easier if checkout were faulty. It is not. There is a test in this project that takes exactly the same checkout job, runs it the moment a thread is free, and watches it complete perfectly. It was starved, not broken \u2014 and from outside those two look identical. So the sentence that matters is this one: the shop stopped selling because of a background job that nobody was waiting for. And notice how invisible that is. Neither job mentions the other. No import, no call, no shared field. They are coupled only by a resource neither of them names.", "Four threads was too few, so use forty. That buys time and nothing else. Whenever the partner API is slow enough for long enough, the feed will take forty threads instead of four, and checkout will be starved at forty exactly as it was at four. The number changes; the failure does not. And it is worse than a draw, because the bigger the pool, the longer it takes anyone to notice, and the more memory the eventual pile-up consumes.", "Then somebody suggests an unbounded queue. Never turn a job away \u2014 just let them all wait their turn. That sounds generous, and it is the more dangerous of the two. What it actually does is convert a fast, visible failure into a slow, invisible one: jobs pile up until the process runs out of memory, and every caller sits waiting for work that will not start for minutes. A queue that never says no is not generous. It is a slow leak with good manners.", "The two jobs are connected only by the pool they share. So stop sharing it. Give the feed two threads of its own and checkout two threads of its own. That is the entire mechanism: a fixed pool, a bounded queue, and a name for the worker. There is no algorithm here, nothing adaptive, nothing to tune at runtime. Say it out loud, because it is the point \u2014 a bulkhead is not a clever piece of machinery. It is a decision to stop sharing, and the pattern lives in having two of them rather than in anything either one does.", "Same slow partner, same four batches, same instant. Two batches run and two wait for a feed thread. And checkout asks for a thread and gets one immediately, and the shopper pays. Read the thread names, because they are the entire argument. Feed-worker and checkout-worker. Those are different threads, and no amount of demand on one side can produce a thread on the other.", "Here is the question worth asking before believing any of this. How do we know the partition did that, and not the partner API quietly recovering at the convenient moment? A lucky run would look exactly the same. So there is a test whose whole job is to assert that the feed is still jammed \u2014 two threads busy, two jobs queued \u2014 at the instant the sale goes through. Without it you have not shown isolation, you have shown a coincidence. Nothing about the partner API was fixed. That is the claim.", "Two threads busy and a queue that holds two: four batches fit. A fifth is refused, and the refusal comes back in zero milliseconds. That feels hostile and it is the opposite. The caller finds out instantly and still has time to do something useful \u2014 shed the batch, degrade, write it down for tonight. It is the circuit breaker's fast failure applied to a queue rather than to a broken service. Refusing is a feature.", "One last picture, and it should be uncomfortable. On a quiet afternoon the feed has two threads busy with two jobs queued behind them, and checkout has two threads sitting completely idle. Two threads doing nothing, beside two jobs waiting for a thread, and they are not allowed to help. One shared pool of four would have run all four batches at once and finished the import sooner. So partitioned pools are idle capacity by design \u2014 not a bug, not a tuning problem. That is what you are buying with. Draw the walls along what must survive, keep it to two or three, and be able to say the price out loud."];
+  var norm = function (s) { return String(s || "").replace(/\s+/g, " ").trim(); };
+  var box = document.getElementById("narration") || document.querySelector(".narration");
+  if (!box || !STEPS.length) return;
+
+  var pageOwnsAudio = !!document.getElementById("audio");
+  var current = null, step = -1, on = false;
+  try { on = localStorage.getItem("vk-narration") === "on"; } catch (e) {}
+
+  // Remember whichever clip the page (or this script) last started.
+  var realPlay = HTMLMediaElement.prototype.play;
+  HTMLMediaElement.prototype.play = function () {
+    if (current && current !== this) { try { current.pause(); } catch (e) {} }
+    current = this;
+    this.addEventListener("play", label);
+    this.addEventListener("pause", label);
+    this.addEventListener("ended", label);
+    var p = realPlay.apply(this, arguments);
+    label();
+    return p;
+  };
+
+  var bar = document.querySelector(".controls") || box.parentNode;
+  function button(id, text) {
+    var b = document.createElement("button");
+    b.id = id; b.type = "button"; b.textContent = text;
+    bar.appendChild(b);
+    return b;
+  }
+  var narrBtn = pageOwnsAudio ? null : button("vk-narration", "");
+  var stepBtn = button("vk-step-audio", "");
+  var note = document.createElement("span");
+  note.id = "vk-note";
+  note.style.cssText = "color:#94a3b8;font-size:.8rem;margin-left:8px";
+  bar.appendChild(note);
+
+  function stepFor(text) {
+    var t = norm(text);
+    for (var i = 0; i < STEPS.length; i++) {
+      var s = norm(STEPS[i]);
+      if (s && t.indexOf(s.slice(0, 60)) !== -1) return i;
+    }
+    return -1;
+  }
+  function stop() { if (current) { try { current.pause(); } catch (e) {} } current = null; label(); }
+  function play(i) {
+    if (i < 0) return;
+    var a = new Audio("audio/step-" + (i + 1) + ".m4a");
+    a.play().then(function () { note.textContent = ""; }, function (e) {
+      note.textContent = e && e.name === "NotAllowedError"
+        ? "Click Play step to hear this step."
+        : "Narration audio not found: run tools/videokit/videokit.sh animation <project>.";
+      label();
+    });
+  }
+  function label() {
+    if (narrBtn) narrBtn.textContent = (on ? "🔊 Narration: on" : "🔇 Narration: off");
+    if (narrBtn) narrBtn.setAttribute("aria-pressed", String(on));
+    var playing = current && !current.paused && !current.ended;
+    var paused = current && current.paused && !current.ended;
+    stepBtn.textContent = playing ? "⏸ Pause step" : paused ? "▶ Resume step" : "▶ Play step";
+    stepBtn.disabled = step < 0;
+  }
+
+  if (narrBtn) narrBtn.addEventListener("click", function () {
+    on = !on;
+    try { localStorage.setItem("vk-narration", on ? "on" : "off"); } catch (e) {}
+    if (on) { if (step >= 0) play(step); } else stop();
+    label();
+  });
+  stepBtn.addEventListener("click", function () {
+    if (current && !current.ended) {
+      if (current.paused) current.play(); else current.pause();
+    } else play(step);
+  });
+
+  function changed() {
+    var i = stepFor(box.textContent);
+    if (i === step) return;
+    step = i;
+    if (!pageOwnsAudio) { stop(); if (on) play(i); }
+    label();
+  }
+  new MutationObserver(changed).observe(box, { childList: true, subtree: true, characterData: true });
+  changed();
+  label();
+})();
+</script>
+<!-- /videokit:narration -->
 </body>
 </html>

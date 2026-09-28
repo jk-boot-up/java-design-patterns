@@ -21,21 +21,21 @@ Learn the circuit breaker pattern in Java 21, starting from a service that has s
 
 CHAPTERS
 00:00 Introduction
-01:11 The Scenario
-02:19 The Obvious Answer — Just Try Again
-03:09 Act One — Retry, Applied To An Outage
-04:01 Three Costs — And The Third Closes The Shop
-05:03 The Fuse Box
-06:02 One Word That Reads Backwards
-06:56 The Whole Decision, In One Method
-08:04 Act Two — Six Pages, With A Breaker
-09:33 The Pieces, And What Each One Decides
-11:09 Act Three — It Lets Itself Back In
-12:18 Now The Half That Gets Left Out
-13:16 Act Four — Checkout, Where There Is No Fallback
-14:23 Act Five — The Fallback That Lies
-15:35 What It Costs, And When Not To
-16:45 Thanks for Watching
+01:05 The Scenario
+01:55 The Obvious Answer — Just Try Again
+02:33 Act One — Retry, Applied To An Outage
+03:11 Three Costs — And The Third Closes The Shop
+04:08 The Fuse Box
+04:52 One Word That Reads Backwards
+05:34 The Whole Decision, In One Method
+06:30 Act Two — Six Pages, With A Breaker
+07:34 The Pieces, And What Each One Decides
+08:41 Act Three — It Lets Itself Back In
+09:39 Now The Half That Gets Left Out
+10:27 Act Four — Checkout, Where There Is No Fallback
+11:20 Act Five — The Fallback That Lies
+12:22 What It Costs, And When Not To
+13:17 Thanks for Watching
 
 SOURCE CODE, WRITTEN NOTES AND AN INTERACTIVE ANIMATION
 https://github.com/jk-boot-up/java-design-patterns/tree/main/gradle-java/micro-services-design-patterns/circuit-breaker-pattern
@@ -50,21 +50,21 @@ YouTube renders these as chapters only if there are at least three and the first
 
 ```
 00:00 Introduction
-01:11 The Scenario
-02:19 The Obvious Answer — Just Try Again
-03:09 Act One — Retry, Applied To An Outage
-04:01 Three Costs — And The Third Closes The Shop
-05:03 The Fuse Box
-06:02 One Word That Reads Backwards
-06:56 The Whole Decision, In One Method
-08:04 Act Two — Six Pages, With A Breaker
-09:33 The Pieces, And What Each One Decides
-11:09 Act Three — It Lets Itself Back In
-12:18 Now The Half That Gets Left Out
-13:16 Act Four — Checkout, Where There Is No Fallback
-14:23 Act Five — The Fallback That Lies
-15:35 What It Costs, And When Not To
-16:45 Thanks for Watching
+01:05 The Scenario
+01:55 The Obvious Answer — Just Try Again
+02:33 Act One — Retry, Applied To An Outage
+03:11 Three Costs — And The Third Closes The Shop
+04:08 The Fuse Box
+04:52 One Word That Reads Backwards
+05:34 The Whole Decision, In One Method
+06:30 Act Two — Six Pages, With A Breaker
+07:34 The Pieces, And What Each One Decides
+08:41 Act Three — It Lets Itself Back In
+09:39 Now The Half That Gets Left Out
+10:27 Act Four — Checkout, Where There Is No Fallback
+11:20 Act Five — The Fallback That Lies
+12:22 What It Costs, And When Not To
+13:17 Thanks for Watching
 ```
 
 ## Tags
@@ -103,4 +103,4 @@ Add a card partway through pointing at the playlist, so a viewer who arrives at 
 
 ## Runtime
 
-Approximately 18:05, narrated at 145 words per minute.
+Approximately 14:25, narrated at 145 words per minute.

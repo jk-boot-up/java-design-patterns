@@ -623,5 +623,103 @@ document.addEventListener("keydown", e => {
 setAudio(false);
 reset();
 </script>
+<!-- videokit:narration -->
+<script>
+/* videokit narration player: a Narration on/off switch and a play/pause
+   button for the current step. It watches the page's own narration text,
+   works out which step is showing, and plays audio/step-N.m4a beside the
+   page (rendered by tools/videokit; not embedded, so the page stays small).
+   If the page already plays its own clips, only the pause button is added. */
+(function () {
+  "use strict";
+  var STEPS = ["The product page shows an espresso machine, and underneath it a row of suggestions from a separate Recommendations service. This morning Recommendations has stopped answering. Not refusing \u2014 that would be easy. It accepts the connection, says nothing, and three seconds later the call gives up with a timeout. Every call, for as long as the outage lasts.", "The instinct is to reach for the pattern that worked last time: the call failed, so try it again. Three attempts, three timeouts, nine seconds \u2014 and the page the shopper finally gets is identical to the page they would have had at zero seconds. Every one of those nine seconds bought nothing, and a service already on its knees has just received three times the traffic.", "For those nine seconds a request thread is sitting idle, waiting for an answer that is not coming. Threads are finite. A thousand shoppers browsing product pages during the outage are a thousand threads held open on a feature nobody needs \u2014 and when they run out, checkout stops working too. Say that plainly: the espresso machines stop selling because the suggestions are broken.", "When something goes badly wrong with the wiring, the fuse trips, and it stays tripped. It does not flick itself back on hopefully every few seconds. Later somebody flips the switch back on, once, to see. That is the whole pattern. One piece of vocabulary first, because it catches everybody: closed is the healthy state. A closed circuit is one where current flows, so calls go through. An open circuit is a broken one.", "While the breaker is closed every call goes through, and failures in a row are counted. One, two, three. Note the word consecutive: a success does not merely stop the count, it resets it to zero. A service that answers three times and fails once is not down \u2014 it is a service having a bad moment, and that is the retry pattern's job, not this one's.", "The third consecutive failure opens the breaker. It notes the time and stops calling. From this moment nothing reaches Recommendations at all, for five seconds \u2014 and the point of tripping is not to punish Recommendations. It is to stop one broken feature consuming the threads that the rest of the shop needs.", "The fourth shopper arrives, the breaker refuses without making a call, and the page goes out without suggestions. Look at what stopped happening: the clock stopped moving. Nine thousand, nine thousand, nine thousand. Once the breaker is open a page costs nothing at all to serve. Six pages, three calls made, three refused, and every one of those pages is a page somebody can buy from.", "Be honest about the trade, because it is the thing most descriptions skip. The first three shoppers paid three seconds each. A breaker never protects the people who discover an outage; it protects everybody after them. What it prevents is the outage being rediscovered, at full price, by every single shopper for as long as it lasts.", "The wait is over, so the breaker moves to half-open and lets exactly one call through. It works, so the breaker closes and normal service resumes. Nobody was paged, nobody logged in, nobody deployed anything. And notice how cheap the probe is: one call. Had Recommendations still been down, that single shopper would have waited three seconds, the breaker would have reopened for another full five, and everybody else would have carried on being served instantly.", "Here is the sentence the rest depends on. A breaker does not make failures disappear. It makes them fail fast \u2014 and what that speed buys you depends entirely on what you were calling. On the product page, speed bought a fallback, because suggestions are optional and an empty row of them is a true statement. At checkout there is nothing to fall back to. There is no substitute for taking the money.", "Yes, and this is the part worth keeping. What it buys at checkout is a fast, honest no instead of a spinner. Both messages say exactly the same thing; one arrives after three seconds and the other in a hundredth of a second, and telling somebody their basket is safe straight away is a genuinely better product. It also stops a thousand shoppers each holding a thread open to discover the same outage.", "This last class is wired identically to the honest one, and differs in one catch block: when payments cannot be reached it returns a made-up receipt. Nothing throws. No alert fires. Every dashboard is green, the shopper is thanked, and the warehouse ships an espresso machine that nobody paid for. The rule that tells the two fallbacks apart is one word. An empty list of suggestions is true. A receipt for money that never moved is not."];
+  var norm = function (s) { return String(s || "").replace(/\s+/g, " ").trim(); };
+  var box = document.getElementById("narration") || document.querySelector(".narration");
+  if (!box || !STEPS.length) return;
+
+  var pageOwnsAudio = !!document.getElementById("audio");
+  var current = null, step = -1, on = false;
+  try { on = localStorage.getItem("vk-narration") === "on"; } catch (e) {}
+
+  // Remember whichever clip the page (or this script) last started.
+  var realPlay = HTMLMediaElement.prototype.play;
+  HTMLMediaElement.prototype.play = function () {
+    if (current && current !== this) { try { current.pause(); } catch (e) {} }
+    current = this;
+    this.addEventListener("play", label);
+    this.addEventListener("pause", label);
+    this.addEventListener("ended", label);
+    var p = realPlay.apply(this, arguments);
+    label();
+    return p;
+  };
+
+  var bar = document.querySelector(".controls") || box.parentNode;
+  function button(id, text) {
+    var b = document.createElement("button");
+    b.id = id; b.type = "button"; b.textContent = text;
+    bar.appendChild(b);
+    return b;
+  }
+  var narrBtn = pageOwnsAudio ? null : button("vk-narration", "");
+  var stepBtn = button("vk-step-audio", "");
+  var note = document.createElement("span");
+  note.id = "vk-note";
+  note.style.cssText = "color:#94a3b8;font-size:.8rem;margin-left:8px";
+  bar.appendChild(note);
+
+  function stepFor(text) {
+    var t = norm(text);
+    for (var i = 0; i < STEPS.length; i++) {
+      var s = norm(STEPS[i]);
+      if (s && t.indexOf(s.slice(0, 60)) !== -1) return i;
+    }
+    return -1;
+  }
+  function stop() { if (current) { try { current.pause(); } catch (e) {} } current = null; label(); }
+  function play(i) {
+    if (i < 0) return;
+    var a = new Audio("audio/step-" + (i + 1) + ".m4a");
+    a.play().then(function () { note.textContent = ""; }, function (e) {
+      note.textContent = e && e.name === "NotAllowedError"
+        ? "Click Play step to hear this step."
+        : "Narration audio not found: run tools/videokit/videokit.sh animation <project>.";
+      label();
+    });
+  }
+  function label() {
+    if (narrBtn) narrBtn.textContent = (on ? "🔊 Narration: on" : "🔇 Narration: off");
+    if (narrBtn) narrBtn.setAttribute("aria-pressed", String(on));
+    var playing = current && !current.paused && !current.ended;
+    var paused = current && current.paused && !current.ended;
+    stepBtn.textContent = playing ? "⏸ Pause step" : paused ? "▶ Resume step" : "▶ Play step";
+    stepBtn.disabled = step < 0;
+  }
+
+  if (narrBtn) narrBtn.addEventListener("click", function () {
+    on = !on;
+    try { localStorage.setItem("vk-narration", on ? "on" : "off"); } catch (e) {}
+    if (on) { if (step >= 0) play(step); } else stop();
+    label();
+  });
+  stepBtn.addEventListener("click", function () {
+    if (current && !current.ended) {
+      if (current.paused) current.play(); else current.pause();
+    } else play(step);
+  });
+
+  function changed() {
+    var i = stepFor(box.textContent);
+    if (i === step) return;
+    step = i;
+    if (!pageOwnsAudio) { stop(); if (on) play(i); }
+    label();
+  }
+  new MutationObserver(changed).observe(box, { childList: true, subtree: true, characterData: true });
+  changed();
+  label();
+})();
+</script>
+<!-- /videokit:narration -->
 </body>
 </html>

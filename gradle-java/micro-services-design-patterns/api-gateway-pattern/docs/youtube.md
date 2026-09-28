@@ -1,4 +1,4 @@
-# YouTube — API Gateway Design Pattern
+# YouTube — API Gateway Pattern
 
 Everything needed to publish `video/api-gateway-pattern-explained.mp4`. Copy the fields straight out of this file.
 
@@ -7,7 +7,7 @@ Chapter timings are generated from the video's `.srt`. Re-run `python3 docs/make
 ## Title
 
 ```
-API Gateway Design Pattern in Java - Explained - One Front Door for the Store
+API Gateway in Java - One Front Door for the Store
 ```
 
 50 characters — under the 60 YouTube shows before truncating in search results.
@@ -17,30 +17,30 @@ API Gateway Design Pattern in Java - Explained - One Front Door for the Store
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
-Learn the API Gateway pattern in Java, starting from a mobile app that makes four calls to build one product page and checks the same token four times. We price what that costs on a phone on a train rather than in a data centre, watch one optional service go down and take the whole page with it, then put a single address in front of the four and move the joining behind it. The gateway is one method with one catch block, and that catch block is the pattern: it decides that recommendations may be missing and that the catalog may not. Because both versions render the same page, the tests assert round trips, token checks and elapsed time instead of the output. We finish with the honest costs — one more hop, one more thing to deploy, and a new single point of failure — and with the line between a gateway and a facade.
+Learn the API Gateway pattern in Java 21, starting from a mobile app that makes four calls to build one product page and checks the same token four times. We price what that costs on a phone on a train rather than in a data centre, watch one optional service go down and take the whole page with it, then put a single address in front of the four and move the joining behind it. The gateway is one method with one catch block, and that catch block is the pattern: it decides that recommendations may be missing and that the catalog may not. Because both versions render the same page, the tests assert round trips, token checks and elapsed time instead of the output. We finish with the honest costs — one more hop, one more thing to deploy, and a new single point of failure — and with the line between a gateway and a facade.
 
 CHAPTERS
 00:00 Introduction
 01:00 The Scenario
-02:02 Four Calls From a Phone on a Train
-03:07 The Naive Approach — The App Does the Joining
-04:01 Why That Hurts
-05:19 The API Gateway Pattern
-06:12 An Analogy
-07:25 The Roles
-08:45 The Gateway — and the One Catch Block
-10:23 The Same Outage, Both Ways
-11:44 The Tests — Asserting the Cost, Not the Page
-13:00 Running It — Five Acts
-14:26 What to Remember
-15:32 The Costs, Honestly
-16:41 Thanks for Watching
+01:44 Four Calls From a Phone on a Train
+02:30 The Naive Approach — The App Does the Joining
+03:10 Why That Hurts
+04:01 The API Gateway Pattern
+04:42 An Analogy
+05:32 The Roles
+06:18 The Gateway — and the One Catch Block
+07:18 The Same Outage, Both Ways
+08:11 The Tests — Asserting the Cost, Not the Page
+08:53 Running It — Five Acts
+09:52 What to Remember
+10:36 The Costs, Honestly
+11:23 Thanks for Watching
 
 SOURCE CODE, WRITTEN NOTES AND AN INTERACTIVE ANIMATION
 https://github.com/jk-boot-up/java-design-patterns/tree/main/gradle-java/micro-services-design-patterns/api-gateway-pattern
 
 WHAT YOU NEED FIRST
-Java and a working knowledge of classes and interfaces. No prior design-pattern knowledge is assumed. The full prerequisites are in docs/prerequisites.md in the repository.
+Java 21 and a working knowledge of classes and interfaces. No prior design-pattern knowledge is assumed. The full prerequisites are in docs/prerequisites.md in the repository.
 ```
 
 ## Chapters
@@ -50,19 +50,19 @@ YouTube renders these as chapters only if there are at least three and the first
 ```
 00:00 Introduction
 01:00 The Scenario
-02:02 Four Calls From a Phone on a Train
-03:07 The Naive Approach — The App Does the Joining
-04:01 Why That Hurts
-05:19 The API Gateway Pattern
-06:12 An Analogy
-07:25 The Roles
-08:45 The Gateway — and the One Catch Block
-10:23 The Same Outage, Both Ways
-11:44 The Tests — Asserting the Cost, Not the Page
-13:00 Running It — Five Acts
-14:26 What to Remember
-15:32 The Costs, Honestly
-16:41 Thanks for Watching
+01:44 Four Calls From a Phone on a Train
+02:30 The Naive Approach — The App Does the Joining
+03:10 Why That Hurts
+04:01 The API Gateway Pattern
+04:42 An Analogy
+05:32 The Roles
+06:18 The Gateway — and the One Catch Block
+07:18 The Same Outage, Both Ways
+08:11 The Tests — Asserting the Cost, Not the Page
+08:53 Running It — Five Acts
+09:52 What to Remember
+10:36 The Costs, Honestly
+11:23 Thanks for Watching
 ```
 
 ## Tags
@@ -101,4 +101,4 @@ Add a card partway through pointing at the playlist, so a viewer who arrives at 
 
 ## Runtime
 
-Approximately 17:37, narrated at 145 words per minute.
+Approximately 12:14, narrated at 145 words per minute.

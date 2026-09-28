@@ -20,20 +20,20 @@ The first two lines are what a viewer sees above the fold, so they carry the hoo
 CHAPTERS
 00:00 Introduction
 01:09 The Scenario
-01:34 One Queue For Everything
-01:59 The Words, In Plain Language
-02:44 The Route Reads And Chooses
-03:33 The Route, As Written
-04:06 The First Yes Wins
-04:43 A Message No Question Claims
-05:25 The One Line That Keeps It
-05:54 A New Question
-06:30 The Bill
-07:15 What The Simulation Left Out
-07:53 How To Recognise It
-08:22 The Verdict
-08:51 What Is Real, And When Not
-09:29 Thanks for Watching
+01:36 One Queue For Everything
+02:01 The Words, In Plain Language
+02:47 The Route Reads And Chooses
+03:37 The Route, As Written
+04:10 The First Yes Wins
+04:48 A Message No Question Claims
+05:35 The One Line That Keeps It
+06:04 A New Question
+06:39 The Bill
+07:20 What The Simulation Left Out
+07:59 How To Recognise It
+08:29 The Verdict
+09:00 What Is Real, And When Not
+09:42 Thanks for Watching
 
 SOURCE CODE, WRITTEN NOTES AND AN INTERACTIVE ANIMATION
 https://github.com/jk-boot-up/java-design-patterns/tree/main/gradle-java/messaging-integration-patterns/content-based-router-with-camel-pattern
@@ -49,20 +49,20 @@ YouTube renders these as chapters only if there are at least three and the first
 ```
 00:00 Introduction
 01:09 The Scenario
-01:34 One Queue For Everything
-01:59 The Words, In Plain Language
-02:44 The Route Reads And Chooses
-03:33 The Route, As Written
-04:06 The First Yes Wins
-04:43 A Message No Question Claims
-05:25 The One Line That Keeps It
-05:54 A New Question
-06:30 The Bill
-07:15 What The Simulation Left Out
-07:53 How To Recognise It
-08:22 The Verdict
-08:51 What Is Real, And When Not
-09:29 Thanks for Watching
+01:36 One Queue For Everything
+02:01 The Words, In Plain Language
+02:47 The Route Reads And Chooses
+03:37 The Route, As Written
+04:10 The First Yes Wins
+04:48 A Message No Question Claims
+05:35 The One Line That Keeps It
+06:04 A New Question
+06:39 The Bill
+07:20 What The Simulation Left Out
+07:59 How To Recognise It
+08:29 The Verdict
+09:00 What Is Real, And When Not
+09:42 Thanks for Watching
 ```
 
 ## Tags
@@ -101,4 +101,4 @@ Add a card partway through pointing at the playlist, so a viewer who arrives at 
 
 ## Runtime
 
-Approximately 10:04, narrated at 145 words per minute.
+Approximately 10:19, narrated at 145 words per minute.

@@ -19,21 +19,21 @@ The first two lines are what a viewer sees above the fold, so they carry the hoo
 ```
 CHAPTERS
 00:00 Introduction
-00:50 The Partner Project
-01:14 Before The First Line
-01:35 Healthy
-01:48 The Service Goes Down
-02:08 Open: Fail Fast
-02:28 Half-Open: One Probe
-02:47 What Counts As A Failure
-03:08 The Annotation Is A Proxy
-03:31 The Verdict
-03:47 How To Recognise It
-03:59 Where You Have Met This
-04:07 What Was Used
-04:17 What Is Real Here
-04:31 When This Is Too Much
-04:38 Thanks for Watching
+00:59 The Partner Project
+01:25 Before The First Line
+01:56 Healthy
+02:09 The Service Goes Down
+02:31 Open: Fail Fast
+02:55 Half-Open: One Probe
+03:16 What Counts As A Failure
+03:42 The Annotation Is A Proxy
+04:20 The Verdict
+04:38 How To Recognise It
+04:50 Where You Have Met This
+04:59 What Was Used
+05:13 What Is Real Here
+05:27 When This Is Too Much
+05:35 Thanks for Watching
 
 SOURCE CODE, WRITTEN NOTES AND AN INTERACTIVE ANIMATION
 https://github.com/jk-boot-up/java-design-patterns/tree/main/gradle-java/micro-services-design-patterns/circuit-breaker-with-resilience4j-pattern
@@ -48,21 +48,21 @@ YouTube renders these as chapters only if there are at least three and the first
 
 ```
 00:00 Introduction
-00:50 The Partner Project
-01:14 Before The First Line
-01:35 Healthy
-01:48 The Service Goes Down
-02:08 Open: Fail Fast
-02:28 Half-Open: One Probe
-02:47 What Counts As A Failure
-03:08 The Annotation Is A Proxy
-03:31 The Verdict
-03:47 How To Recognise It
-03:59 Where You Have Met This
-04:07 What Was Used
-04:17 What Is Real Here
-04:31 When This Is Too Much
-04:38 Thanks for Watching
+00:59 The Partner Project
+01:25 Before The First Line
+01:56 Healthy
+02:09 The Service Goes Down
+02:31 Open: Fail Fast
+02:55 Half-Open: One Probe
+03:16 What Counts As A Failure
+03:42 The Annotation Is A Proxy
+04:20 The Verdict
+04:38 How To Recognise It
+04:50 Where You Have Met This
+04:59 What Was Used
+05:13 What Is Real Here
+05:27 When This Is Too Much
+05:35 Thanks for Watching
 ```
 
 ## Tags
@@ -101,4 +101,4 @@ Add a card partway through pointing at the playlist, so a viewer who arrives at 
 
 ## Runtime
 
-Approximately 05:12, narrated at 145 words per minute.
+Approximately 06:13, narrated at 145 words per minute.

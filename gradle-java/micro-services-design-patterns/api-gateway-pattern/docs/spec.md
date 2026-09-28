@@ -171,7 +171,7 @@ watches the second one. It must run in this order:
 | Stream start | Both streams at exactly 0.000 s | Otherwise the video track starts 21 ms late and players show black at 0:00 |
 | Narration | macOS `say`, voice Samantha, 145 wpm | The pace educational YouTube converges on for technical material |
 | Inter-scene pause | 0.9 s of appended silence | So slides do not snap past the moment a sentence ends |
-| Runtime | ~17:38 over 15 scenes, 260 subtitle cues |  |
+| Runtime | ~12:15 over 15 scenes, 169 subtitle cues |  |
 
 ### 5.3 The two defects this pipeline exists to prevent
 
@@ -284,8 +284,8 @@ uploading is copy-and-paste rather than reconstruction. Seven sections
 are required:
 
 1. **Title** — the exact string, ≤ 60 characters so search does not
-   truncate it, leading with the pattern name. Currently *"API Gateway Design Pattern in Java - Explained - One Front Door for the Store"*,
-   77 characters. The suffix after the dash names the worked e-commerce scenario, so the title says what the viewer will actually watch rather than only which pattern it is about.
+   truncate it, leading with the pattern name. Currently *"API Gateway in Java - One Front Door for the Store"*,
+   50 characters. The suffix after the dash names the worked e-commerce scenario, so the title says what the viewer will actually watch rather than only which pattern it is about.
 2. **Description** — first two lines carry the hook, because that is what
    shows above the fold; then what the video covers, the chapters, the
    repository link, the prerequisites.
@@ -333,8 +333,8 @@ version, which governs all fourteen projects, is in
 - [ ] `docs/youtube.md` has all seven sections, and its chapter timings match the current `.srt`.
 - [ ] `video/README.md` describes the pipeline as it actually is.
 
-Last verified: all eleven items pass. The delivered MP4 measures -16.02 LUFS
-integrated, -3.77 dBTP true peak, and both streams start at 0.000.
+Last verified: all eleven items pass. The delivered MP4 measures -16.07 LUFS
+integrated, -1.28 dBTP true peak, and both streams start at 0.000.
 
 ---
 

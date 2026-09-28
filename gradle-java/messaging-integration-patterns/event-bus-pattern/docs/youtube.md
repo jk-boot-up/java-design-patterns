@@ -19,19 +19,19 @@ The first two lines are what a viewer sees above the fold, so they carry the hoo
 ```
 CHAPTERS
 00:00 Introduction
-00:52 The Scenario
-01:08 Everyone Knows Everyone
-01:22 The Pattern
-01:35 Everyone Knows The Bus
-01:51 By Type
-02:06 One Failing Subscriber
-02:19 An Event Nobody Hears
-02:39 The Bill
-03:05 How To Recognise It
-03:24 The Verdict
-03:51 What Is Real Here
-04:04 When This Is Too Much
-04:16 Thanks for Watching
+00:57 The Scenario
+01:13 Everyone Knows Everyone
+01:30 The Pattern
+01:43 Everyone Knows The Bus
+02:00 By Type
+02:19 One Failing Subscriber
+02:35 An Event Nobody Hears
+02:59 The Bill
+03:31 How To Recognise It
+03:53 The Verdict
+04:22 What Is Real Here
+04:35 When This Is Too Much
+04:50 Thanks for Watching
 
 SOURCE CODE, WRITTEN NOTES AND AN INTERACTIVE ANIMATION
 https://github.com/jk-boot-up/java-design-patterns/tree/main/gradle-java/messaging-integration-patterns/event-bus-pattern
@@ -46,19 +46,19 @@ YouTube renders these as chapters only if there are at least three and the first
 
 ```
 00:00 Introduction
-00:52 The Scenario
-01:08 Everyone Knows Everyone
-01:22 The Pattern
-01:35 Everyone Knows The Bus
-01:51 By Type
-02:06 One Failing Subscriber
-02:19 An Event Nobody Hears
-02:39 The Bill
-03:05 How To Recognise It
-03:24 The Verdict
-03:51 What Is Real Here
-04:04 When This Is Too Much
-04:16 Thanks for Watching
+00:57 The Scenario
+01:13 Everyone Knows Everyone
+01:30 The Pattern
+01:43 Everyone Knows The Bus
+02:00 By Type
+02:19 One Failing Subscriber
+02:35 An Event Nobody Hears
+02:59 The Bill
+03:31 How To Recognise It
+03:53 The Verdict
+04:22 What Is Real Here
+04:35 When This Is Too Much
+04:50 Thanks for Watching
 ```
 
 ## Tags
@@ -97,4 +97,4 @@ Add a card partway through pointing at the playlist, so a viewer who arrives at 
 
 ## Runtime
 
-Approximately 04:56, narrated at 145 words per minute.
+Approximately 05:27, narrated at 145 words per minute.

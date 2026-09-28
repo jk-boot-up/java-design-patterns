@@ -1,4 +1,4 @@
-# YouTube — API Composition Design Pattern
+# YouTube — API Composition Pattern
 
 Everything needed to publish `video/api-composition-pattern-explained.mp4`. Copy the fields straight out of this file.
 
@@ -7,7 +7,7 @@ Chapter timings are generated from the video's `.srt`. Re-run `python3 docs/make
 ## Title
 
 ```
-API Composition Design Pattern in Java - Explained
+API Composition in Java - The Order Details Page
 ```
 
 48 characters — under the 60 YouTube shows before truncating in search results.
@@ -21,21 +21,21 @@ Learn API composition in Java 21: one ordinary order page, three services that o
 
 CHAPTERS
 00:00 Introduction
-01:16 The Scenario
-02:24 The Obvious Answer — Three Calls
-03:05 Act One — Three Calls, One After Another
-03:45 Sixty Of Those Milliseconds Bought Nothing
-04:44 The Sandwich From Three Shops
-06:02 It Is Rarely One Flat Fan-Out
-07:01 One Call, Then Two Together
-07:51 Act Two — The Same Calls, Sent Together
-08:50 Who Decides What
-10:10 Act Three — Shipping Stops Answering
-11:32 Name The Gap. Never Fill It In.
-12:46 Act Four — And When Orders Is Down
-13:38 Act Five — Why Any Of This Matters
-15:05 What It Costs
-16:31 Thanks for Watching
+01:06 The Scenario
+01:52 The Obvious Answer — Three Calls
+02:22 Act One — Three Calls, One After Another
+02:55 Sixty Of Those Milliseconds Bought Nothing
+03:35 The Sandwich From Three Shops
+04:31 It Is Rarely One Flat Fan-Out
+05:12 One Call, Then Two Together
+05:52 Act Two — The Same Calls, Sent Together
+06:38 Who Decides What
+07:38 Act Three — Shipping Stops Answering
+08:37 Name The Gap. Never Fill It In.
+09:24 Act Four — And When Orders Is Down
+10:06 Act Five — Why Any Of This Matters
+11:11 What It Costs
+12:03 Thanks for Watching
 
 SOURCE CODE, WRITTEN NOTES AND AN INTERACTIVE ANIMATION
 https://github.com/jk-boot-up/java-design-patterns/tree/main/gradle-java/micro-services-design-patterns/api-composition-pattern
@@ -50,21 +50,21 @@ YouTube renders these as chapters only if there are at least three and the first
 
 ```
 00:00 Introduction
-01:16 The Scenario
-02:24 The Obvious Answer — Three Calls
-03:05 Act One — Three Calls, One After Another
-03:45 Sixty Of Those Milliseconds Bought Nothing
-04:44 The Sandwich From Three Shops
-06:02 It Is Rarely One Flat Fan-Out
-07:01 One Call, Then Two Together
-07:51 Act Two — The Same Calls, Sent Together
-08:50 Who Decides What
-10:10 Act Three — Shipping Stops Answering
-11:32 Name The Gap. Never Fill It In.
-12:46 Act Four — And When Orders Is Down
-13:38 Act Five — Why Any Of This Matters
-15:05 What It Costs
-16:31 Thanks for Watching
+01:06 The Scenario
+01:52 The Obvious Answer — Three Calls
+02:22 Act One — Three Calls, One After Another
+02:55 Sixty Of Those Milliseconds Bought Nothing
+03:35 The Sandwich From Three Shops
+04:31 It Is Rarely One Flat Fan-Out
+05:12 One Call, Then Two Together
+05:52 Act Two — The Same Calls, Sent Together
+06:38 Who Decides What
+07:38 Act Three — Shipping Stops Answering
+08:37 Name The Gap. Never Fill It In.
+09:24 Act Four — And When Orders Is Down
+10:06 Act Five — Why Any Of This Matters
+11:11 What It Costs
+12:03 Thanks for Watching
 ```
 
 ## Tags
@@ -103,4 +103,4 @@ Add a card partway through pointing at the playlist, so a viewer who arrives at 
 
 ## Runtime
 
-Approximately 18:04, narrated at 145 words per minute.
+Approximately 12:59, narrated at 145 words per minute.

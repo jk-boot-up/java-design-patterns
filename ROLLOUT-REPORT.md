@@ -1,14 +1,15 @@
 # Rollout Report
 
-Progress of bringing every project into line with [`AUDIO-VIDEO-SPEC.md`](AUDIO-VIDEO-SPEC.md). Updated automatically by `tools/videokit/videokit.sh rollout`; last update 2026-09-28 08:36.
+Progress of bringing every project into line with [`AUDIO-VIDEO-SPEC.md`](AUDIO-VIDEO-SPEC.md). Updated automatically by `tools/videokit/videokit.sh rollout`; last update 2026-09-28 22:06.
 
 | Stage | Done | Queued | Failed | Pending | Total |
 | --- | ---: | ---: | ---: | ---: | ---: |
 | Narration rewritten (simple, audio-first, third-person credit) | 170 | 0 | 0 | 0 | 170 |
-| Video + audio rebuilt with the sample 03 voice | 97 | 73 | 0 | 0 | 170 |
-| Animation narration + step play/pause, self-contained | 85 | 0 | 0 | 85 | 170 |
+| Video + audio rebuilt with the sample 03 voice | 114 | 56 | 0 | 0 | 170 |
+| Animation narration + step play/pause, self-contained | 119 | 0 | 0 | 51 | 170 |
+| Version `amy-slow` (video + audio + animation, main build kept) | 170 | 0 | 0 | 0 | 170 |
 
-**85 of 170 projects complete, 85 remaining.**
+**114 of 170 projects complete, 56 remaining.**
 
 
 ## architectural-design-patterns
@@ -24,7 +25,7 @@ Progress of bringing every project into line with [`AUDIO-VIDEO-SPEC.md`](AUDIO-
 | layered-architecture | ✅ | ✅ | ✅ | 10:53 runtime |
 | layered-architecture-with-spring-boot | ✅ | ✅ | ✅ | 6:08 runtime |
 | microkernel | ✅ | ✅ | ✅ | 5:37 runtime |
-| mvc | ✅ | ✅ | ✅ | 10:03 runtime |
+| mvc | ✅ | ✅ | ✅ |  |
 | mvc-with-spring-mvc | ✅ | ✅ | ✅ | 5:36 runtime |
 | mvp-and-mvvm | ✅ | ✅ | ✅ | 5:57 runtime |
 | onion-architecture | ✅ | ✅ | ✅ | 5:58 runtime |
@@ -64,7 +65,7 @@ Progress of bringing every project into line with [`AUDIO-VIDEO-SPEC.md`](AUDIO-
 | double-checked-locking | ✅ | ✅ | ✅ | 5:48 runtime |
 | fork-join | ✅ | ✅ | ✅ | 5:48 runtime |
 | future-promise | ✅ | ✅ | ✅ | 7:20 runtime |
-| future-promise-with-spring | ✅ | ✅ | ✅ | 6:52 runtime |
+| future-promise-with-spring | ✅ | ✅ | ✅ |  |
 | guarded-suspension | ✅ | ✅ | ✅ | 5:31 runtime |
 | monitor-object | ✅ | ✅ | ✅ | 7:04 runtime |
 | producer-consumer | ✅ | ✅ | ✅ | 8:00 runtime |
@@ -130,50 +131,50 @@ Progress of bringing every project into line with [`AUDIO-VIDEO-SPEC.md`](AUDIO-
 | dependency-injection | ✅ | ✅ | ✅ | 6:53 runtime |
 | dependency-injection-with-spring | ✅ | ✅ | ✅ | 5:47 runtime |
 | execute-around | ✅ | ✅ | ✅ | 5:13 runtime |
-| fluent-interface | ✅ | ✅ | ⏳ | 5:27 runtime |
-| multiton | ✅ | ✅ | ⏳ | 5:04 runtime |
-| null-object | ✅ | ✅ | ⏳ | 6:00 runtime |
-| object-pool | ✅ | ✅ | ⏳ | 6:19 runtime |
-| object-pool-with-hikaricp | ✅ | ✅ | ⏳ | 5:53 runtime |
-| registry | ✅ | ✅ | ⏳ | 5:42 runtime |
-| registry-with-spring | ✅ | ✅ | ⏳ | 5:49 runtime |
-| service-locator | ✅ | ✅ | ⏳ | 5:40 runtime |
-| service-locator-with-consul | ✅ | ✅ | ⏳ | 6:33 runtime |
-| type-object | ✅ | ✅ | ⏳ | 5:30 runtime |
+| fluent-interface | ✅ | ✅ | ✅ | 5:27 runtime |
+| multiton | ✅ | ✅ | ✅ | 5:04 runtime |
+| null-object | ✅ | ✅ | ✅ | 6:00 runtime |
+| object-pool | ✅ | ✅ | ✅ | 6:19 runtime |
+| object-pool-with-hikaricp | ✅ | ✅ | ✅ | 5:53 runtime |
+| registry | ✅ | ✅ | ✅ | 5:42 runtime |
+| registry-with-spring | ✅ | ✅ | ✅ | 5:49 runtime |
+| service-locator | ✅ | ✅ | ✅ | 5:40 runtime |
+| service-locator-with-consul | ✅ | ✅ | ✅ | 6:33 runtime |
+| type-object | ✅ | ✅ | ✅ | 5:30 runtime |
 
 ## messaging-integration-patterns
 
 | Project | Script | Video | Animation | Note |
 | --- | :---: | :---: | :---: | --- |
-| content-based-router | ✅ | ✅ | ⏳ | 5:46 runtime |
-| content-based-router-with-camel | ✅ | 🔨 | ⏳ |  |
-| dead-letter-channel | ✅ | 🔨 | ⏳ |  |
-| dead-letter-channel-with-rabbitmq | ✅ | 🕒 | ⏳ |  |
-| event-bus | ✅ | 🕒 | ⏳ |  |
-| event-bus-with-nats | ✅ | 🕒 | ⏳ |  |
-| message-channel | ✅ | 🕒 | ⏳ |  |
-| message-channel-with-rabbitmq | ✅ | 🕒 | ⏳ |  |
-| splitter-aggregator | ✅ | 🕒 | ⏳ |  |
-| splitter-aggregator-with-camel | ✅ | 🕒 | ⏳ |  |
+| content-based-router | ✅ | ✅ | ✅ | 5:46 runtime |
+| content-based-router-with-camel | ✅ | ✅ | ✅ | 10:20 runtime |
+| dead-letter-channel | ✅ | ✅ | ✅ | 5:28 runtime |
+| dead-letter-channel-with-rabbitmq | ✅ | ✅ | ✅ | 8:15 runtime |
+| event-bus | ✅ | ✅ | ✅ | 5:28 runtime |
+| event-bus-with-nats | ✅ | ✅ | ✅ | 8:39 runtime |
+| message-channel | ✅ | ✅ | ✅ | 5:07 runtime |
+| message-channel-with-rabbitmq | ✅ | ✅ | ✅ | 10:06 runtime |
+| splitter-aggregator | ✅ | ✅ | ✅ | 5:17 runtime |
+| splitter-aggregator-with-camel | ✅ | ✅ | ✅ | 8:17 runtime |
 
 ## micro-services-design-patterns
 
 | Project | Script | Video | Animation | Note |
 | --- | :---: | :---: | :---: | --- |
-| api-composition | ✅ | 🕒 | ⏳ |  |
-| api-gateway | ✅ | 🕒 | ⏳ |  |
-| api-gateway-with-spring-cloud-gateway | ✅ | ✅ | ⏳ | 7:17 runtime |
-| bulkhead | ✅ | 🕒 | ⏳ |  |
-| bulkhead-with-resilience4j | ✅ | 🕒 | ⏳ |  |
-| cache-aside | ✅ | 🕒 | ⏳ |  |
-| cache-aside-with-redis | ✅ | 🕒 | ⏳ |  |
-| circuit-breaker | ✅ | 🕒 | ⏳ |  |
-| circuit-breaker-with-resilience4j | ✅ | 🕒 | ⏳ |  |
-| claim-check | ✅ | 🕒 | ⏳ |  |
-| claim-check-with-s3 | ✅ | 🕒 | ⏳ |  |
-| competing-consumers | ✅ | 🕒 | ⏳ |  |
-| competing-consumers-with-rabbitmq | ✅ | 🕒 | ⏳ |  |
-| cqrs | ✅ | 🕒 | ⏳ |  |
+| api-composition | ✅ | ✅ | ✅ | 13:00 runtime |
+| api-gateway | ✅ | ✅ | ✅ |  |
+| api-gateway-with-spring-cloud-gateway | ✅ | ✅ | ✅ | 7:17 runtime |
+| bulkhead | ✅ | ✅ | ✅ | 13:25 runtime |
+| bulkhead-with-resilience4j | ✅ | ✅ | ✅ | 6:22 runtime |
+| cache-aside | ✅ | ✅ | ✅ | 6:03 runtime |
+| cache-aside-with-redis | ✅ | ✅ | ✅ | 10:56 runtime |
+| circuit-breaker | ✅ | ✅ | ✅ | 14:26 runtime |
+| circuit-breaker-with-resilience4j | ✅ | ✅ | ✅ | 6:14 runtime |
+| claim-check | ✅ | 🕒 | ✅ |  |
+| claim-check-with-s3 | ✅ | 🕒 | ✅ |  |
+| competing-consumers | ✅ | 🕒 | ✅ |  |
+| competing-consumers-with-rabbitmq | ✅ | 🕒 | ✅ |  |
+| cqrs | ✅ | 🕒 | ✅ |  |
 | database-per-service | ✅ | 🕒 | ⏳ |  |
 | database-per-service-with-containers | ✅ | 🕒 | ⏳ |  |
 | idempotent-consumer | ✅ | 🕒 | ⏳ |  |

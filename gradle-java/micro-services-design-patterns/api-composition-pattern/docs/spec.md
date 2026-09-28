@@ -169,7 +169,7 @@ watches the second one. It must run in this order:
 | Stream start | Both streams at exactly 0.000 s | Otherwise the video track starts 21 ms late and players show black at 0:00 |
 | Narration | macOS `say`, voice Samantha, 145 wpm | The pace educational YouTube converges on for technical material |
 | Inter-scene pause | 0.9 s of appended silence | So slides do not snap past the moment a sentence ends |
-| Runtime | ~18:05 over 16 scenes, 263 subtitle cues |  |
+| Runtime | ~13:00 over 16 scenes, 185 subtitle cues |  |
 
 ### 5.3 The two defects this pipeline exists to prevent
 
@@ -282,8 +282,8 @@ uploading is copy-and-paste rather than reconstruction. Seven sections
 are required:
 
 1. **Title** — the exact string, ≤ 60 characters so search does not
-   truncate it, leading with the pattern name. Currently *"API Composition Design Pattern in Java - Explained"*,
-   50 characters. The `- Explained` suffix is a term people actually search for, and it makes no promise the video has to keep.
+   truncate it, leading with the pattern name. Currently *"API Composition in Java - The Order Details Page"*,
+   48 characters. The suffix after the dash names the worked e-commerce scenario, so the title says what the viewer will actually watch rather than only which pattern it is about.
 2. **Description** — first two lines carry the hook, because that is what
    shows above the fold; then what the video covers, the chapters, the
    repository link, the prerequisites.
@@ -331,8 +331,8 @@ version, which governs all fourteen projects, is in
 - [ ] `docs/youtube.md` has all seven sections, and its chapter timings match the current `.srt`.
 - [ ] `video/README.md` describes the pipeline as it actually is.
 
-Last verified: all eleven items pass. The delivered MP4 measures -16.01 LUFS
-integrated, -3.93 dBTP true peak, and both streams start at 0.000.
+Last verified: all eleven items pass. The delivered MP4 measures -16.07 LUFS
+integrated, -0.92 dBTP true peak, and both streams start at 0.000.
 
 ---
 

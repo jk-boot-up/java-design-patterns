@@ -19,20 +19,20 @@ The first two lines are what a viewer sees above the fold, so they carry the hoo
 ```
 CHAPTERS
 00:00 Introduction
-00:57 The Partner Video
-01:21 Three Words First
-01:58 An Order That Can Never Succeed
-02:25 A Rule Written On The Queue
-03:03 The Broker Writes Down Why
-03:27 Deaths Nobody Chose
-04:04 Fix It, And Put It Back
-04:36 The Bill: Nobody Is Looking
-05:15 The Three Reasons
-05:39 The Verdict
-06:10 How To Recognise It
-06:36 What Was Used
-06:54 What Is Real Here
-07:20 When This Is Too Much
+00:56 The Partner Video
+01:23 Three Words First
+01:56 An Order That Can Never Succeed
+02:24 A Rule Written On The Queue
+03:02 The Broker Writes Down Why
+03:26 Deaths Nobody Chose
+04:00 Fix It, And Put It Back
+04:32 The Bill: Nobody Is Looking
+05:09 The Three Reasons
+05:34 The Verdict
+06:06 How To Recognise It
+06:32 What Was Used
+06:50 What Is Real Here
+07:18 When This Is Too Much
 07:34 Thanks for Watching
 
 SOURCE CODE, WRITTEN NOTES AND AN INTERACTIVE ANIMATION
@@ -48,20 +48,20 @@ YouTube renders these as chapters only if there are at least three and the first
 
 ```
 00:00 Introduction
-00:57 The Partner Video
-01:21 Three Words First
-01:58 An Order That Can Never Succeed
-02:25 A Rule Written On The Queue
-03:03 The Broker Writes Down Why
-03:27 Deaths Nobody Chose
-04:04 Fix It, And Put It Back
-04:36 The Bill: Nobody Is Looking
-05:15 The Three Reasons
-05:39 The Verdict
-06:10 How To Recognise It
-06:36 What Was Used
-06:54 What Is Real Here
-07:20 When This Is Too Much
+00:56 The Partner Video
+01:23 Three Words First
+01:56 An Order That Can Never Succeed
+02:24 A Rule Written On The Queue
+03:02 The Broker Writes Down Why
+03:26 Deaths Nobody Chose
+04:00 Fix It, And Put It Back
+04:32 The Bill: Nobody Is Looking
+05:09 The Three Reasons
+05:34 The Verdict
+06:06 How To Recognise It
+06:32 What Was Used
+06:50 What Is Real Here
+07:18 When This Is Too Much
 07:34 Thanks for Watching
 ```
 
@@ -101,4 +101,4 @@ Add a card partway through pointing at the playlist, so a viewer who arrives at 
 
 ## Runtime
 
-Approximately 08:12, narrated at 145 words per minute.
+Approximately 08:14, narrated at 145 words per minute.

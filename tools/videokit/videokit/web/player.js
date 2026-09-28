@@ -52,7 +52,7 @@
   function stop() { if (current) { try { current.pause(); } catch (e) {} } current = null; label(); }
   function play(i) {
     if (i < 0) return;
-    var a = new Audio("audio/step-" + (i + 1) + ".m4a");
+    var a = new Audio("__VK_AUDIO_DIR__/step-" + (i + 1) + ".m4a");
     a.play().then(function () { note.textContent = ""; }, function (e) {
       note.textContent = e && e.name === "NotAllowedError"
         ? "Click Play step to hear this step."

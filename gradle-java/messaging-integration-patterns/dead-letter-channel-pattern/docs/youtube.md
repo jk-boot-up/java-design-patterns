@@ -19,19 +19,19 @@ The first two lines are what a viewer sees above the fold, so they carry the hoo
 ```
 CHAPTERS
 00:00 Introduction
-00:51 The Scenario
-01:07 A Message That Can Never Succeed
-01:24 The Pattern
-01:37 A Dead Letter Channel
-01:52 It Says Why
-02:07 A Slow Day Is Not A Dead Letter
-02:26 Fix It, And Replay
-02:42 The Bill: Nobody Is Looking
-03:07 How To Recognise It
-03:28 The Verdict
-03:49 What Is Real Here
-04:02 When This Is Too Much
-04:16 Thanks for Watching
+00:56 The Scenario
+01:12 A Message That Can Never Succeed
+01:32 The Pattern
+01:46 A Dead Letter Channel
+02:02 It Says Why
+02:22 A Slow Day Is Not A Dead Letter
+02:45 Fix It, And Replay
+03:03 The Bill: Nobody Is Looking
+03:35 How To Recognise It
+03:56 The Verdict
+04:23 What Is Real Here
+04:36 When This Is Too Much
+04:51 Thanks for Watching
 
 SOURCE CODE, WRITTEN NOTES AND AN INTERACTIVE ANIMATION
 https://github.com/jk-boot-up/java-design-patterns/tree/main/gradle-java/messaging-integration-patterns/dead-letter-channel-pattern
@@ -46,19 +46,19 @@ YouTube renders these as chapters only if there are at least three and the first
 
 ```
 00:00 Introduction
-00:51 The Scenario
-01:07 A Message That Can Never Succeed
-01:24 The Pattern
-01:37 A Dead Letter Channel
-01:52 It Says Why
-02:07 A Slow Day Is Not A Dead Letter
-02:26 Fix It, And Replay
-02:42 The Bill: Nobody Is Looking
-03:07 How To Recognise It
-03:28 The Verdict
-03:49 What Is Real Here
-04:02 When This Is Too Much
-04:16 Thanks for Watching
+00:56 The Scenario
+01:12 A Message That Can Never Succeed
+01:32 The Pattern
+01:46 A Dead Letter Channel
+02:02 It Says Why
+02:22 A Slow Day Is Not A Dead Letter
+02:45 Fix It, And Replay
+03:03 The Bill: Nobody Is Looking
+03:35 How To Recognise It
+03:56 The Verdict
+04:23 What Is Real Here
+04:36 When This Is Too Much
+04:51 Thanks for Watching
 ```
 
 ## Tags
@@ -97,4 +97,4 @@ Add a card partway through pointing at the playlist, so a viewer who arrives at 
 
 ## Runtime
 
-Approximately 04:53, narrated at 145 words per minute.
+Approximately 05:27, narrated at 145 words per minute.

@@ -38,12 +38,14 @@ class Settings:
     loudness_range: float = 11.0
     audio_bitrate: str = "192k"
     caption_chars: int = 84
+    pause_scale: float = 1.0     # multiplies every [[slnc N]] pause
+    version: str = ""            # named alternative build, e.g. amy-slow
 
     def voice_id(self):
         """Everything that changes the sound of the speech, for cache keys."""
         from .script import LEXICON_VERSION
-        return "%s:%s:%s:%s:%s:lex%d" % (self.engine, self.voice, self.speed,
-                                         self.rate, self.sentence_gap, LEXICON_VERSION)
+        return "%s:%s:%s:%s:%s:%s:lex%d" % (self.engine, self.voice, self.speed, self.rate,
+                                            self.sentence_gap, self.pause_scale, LEXICON_VERSION)
 
 
 def load(video_dir=None):
@@ -52,8 +54,14 @@ def load(video_dir=None):
     fields = {f.name: f.type for f in dataclasses.fields(Settings)}
     cast = {"str": str, "float": float, "int": int, str: str, float: float, int: int}
 
-    if video_dir is not None:
-        toml = Path(video_dir) / "videokit.toml"
+    # A version (VIDEOKIT_VERSION=amy-slow) layers video/videokit-<version>.toml
+    # on top of videokit.toml and writes to separate outputs (see project.py).
+    version = os.environ.get("VIDEOKIT_VERSION", "")
+    names = ["videokit.toml"] + (["videokit-%s.toml" % version] if version else [])
+    for name in (names if video_dir is not None else []):
+        toml = Path(video_dir) / name
+        if version and name != "videokit.toml" and not toml.exists():
+            raise ValueError("no %s for version %r" % (toml, version))
         if toml.exists():
             for section in tomllib.loads(toml.read_text()).values():
                 for k, v in (section.items() if isinstance(section, dict) else []):

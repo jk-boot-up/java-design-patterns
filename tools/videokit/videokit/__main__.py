@@ -21,6 +21,10 @@ from .project import Project
 
 def main(argv):
     flags = {a for a in argv if a.startswith("--")}
+    for f in flags:                       # --version=amy-slow: a named alternative build
+        if f.startswith("--version="):
+            import os
+            os.environ["VIDEOKIT_VERSION"] = f.split("=", 1)[1]
     args = [a for a in argv if not a.startswith("--")]
     if not args or args[0] in ("help", "-h"):
         print(__doc__.strip())

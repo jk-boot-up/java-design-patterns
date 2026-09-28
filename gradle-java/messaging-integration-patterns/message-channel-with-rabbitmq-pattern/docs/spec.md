@@ -149,7 +149,7 @@ watches the second one. It must run in this order:
 | Stream start | Both streams at exactly 0.000 s | Otherwise the video track starts 21 ms late and players show black at 0:00 |
 | Narration | macOS `say`, voice Samantha, 145 wpm | The pace educational YouTube converges on for technical material |
 | Inter-scene pause | 0.9 s of appended silence | So slides do not snap past the moment a sentence ends |
-| Runtime | ~10:55 over 16 scenes, 169 subtitle cues |  |
+| Runtime | ~10:06 over 16 scenes, 151 subtitle cues |  |
 
 ### 5.3 The two defects this pipeline exists to prevent
 
@@ -311,8 +311,8 @@ version, which governs all fourteen projects, is in
 - [ ] `docs/youtube.md` has all seven sections, and its chapter timings match the current `.srt`.
 - [ ] `video/README.md` describes the pipeline as it actually is.
 
-Last verified: all eleven items pass. The delivered MP4 measures -16.02 LUFS
-integrated, -3.97 dBTP true peak, and both streams start at 0.000.
+Last verified: all eleven items pass. The delivered MP4 measures -16.08 LUFS
+integrated, -1.34 dBTP true peak, and both streams start at 0.000.
 
 ---
 

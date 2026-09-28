@@ -1,0 +1,14 @@
+# Version "amy-slow": the sample the author liked
+# (sample-voices/23-piper-en_US-amy-medium-slower.m4a). Build with
+#   tools/videokit/videokit.sh all api-composition --version=amy-slow
+#   tools/videokit/videokit.sh animation api-composition --version=amy-slow
+# Outputs sit beside the main ones with an -amy-slow suffix.
+
+[voice]
+engine = "piper"
+voice  = "en_US-amy-medium"
+speed  = 0.8
+
+[pacing]
+sentence_gap = 0.7
+pause_scale  = 1.5

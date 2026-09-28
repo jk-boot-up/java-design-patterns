@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rate Limiter with Redis — Animated Walkthrough</title>
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 24px;
+    background: #0f172a; color: #e2e8f0;
+    font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
+    padding-top: calc(24px + env(safe-area-inset-top, 0px));
+    padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+  }
+  h1 { font-size: 1.4rem; margin: 0 0 4px; }
+  p.sub { color: #94a3b8; margin: 0 0 20px; max-width: 70ch; }
+  .wrap { max-width: 1100px; margin: 0 auto; }
+  .stage {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+    margin-bottom: 16px;
+  }
+  @media (max-width: 760px) { .stage { grid-template-columns: 1fr; } }
+  .boxes { display: flex; flex-direction: column; gap: 10px; }
+  .row {
+    border: 2px solid #334155; border-radius: 10px; padding: 12px 16px;
+    background: #1e293b; transition: all .25s ease; opacity: .55;
+  }
+  .row .name { font-weight: 700; font-size: 1rem; }
+  .row .job { color: #94a3b8; font-size: .82rem; margin-top: 2px; }
+  .row.active { opacity: 1; box-shadow: 0 0 0 2px currentColor inset; }
+  .row.wrong { border-color: #f87171; color: #f87171; }
+  .row.wrong.active { background: #3f1d24; }
+  .row.ok { border-color: #34d399; color: #34d399; }
+  .row.ok.active { background: #10261f; }
+  .row.amber { border-color: #fbbf24; color: #fbbf24; }
+  .row.amber.active { background: #2a2110; }
+  .row.dim { opacity: .22; }
+  .console {
+    background: #020617; border: 1px solid #334155; border-radius: 10px;
+    padding: 16px; font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    font-size: .86rem; line-height: 1.55; overflow-y: auto; min-height: 320px;
+    white-space: pre-wrap;
+  }
+  #console-lines span.ok { color: #34d399; }
+  #console-lines span.bad { color: #f87171; }
+  #console-lines span.amber { color: #fbbf24; }
+  #console-lines span.muted { color: #94a3b8; }
+  .narration {
+    background: #1e293b; border: 1px solid #334155; border-radius: 10px;
+    padding: 14px 18px; margin-bottom: 16px; min-height: 3.2em;
+  }
+  .controls { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  button {
+    background: #334155; color: #e2e8f0; border: 1px solid #475569;
+    border-radius: 8px; padding: 10px 18px; font-size: .92rem; cursor: pointer;
+  }
+  button:hover { background: #475569; }
+  button#play { background: #7c3aed; border-color: #7c3aed; }
+  button#play:hover { background: #8b5cf6; }
+  button#audio.on { background: #0f766e; border-color: #14b8a6; }
+  #progress { color: #94a3b8; font-size: .85rem; margin-left: auto; }
+  .audio-note { color: #94a3b8; font-size: .78rem; margin: 10px 0 0; min-height: 1em; }
+  .step-label {
+    font-size: .78rem; text-transform: uppercase; letter-spacing: .04em;
+    color: #a78bfa; font-weight: 700; margin-bottom: 4px;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Rate Limiter with Redis — Step by Step</h1>
+  <p class="sub">
+    Six acts, the same ones the demo prints against a real Redis; the second takes two steps. Green is a limit
+    that held, amber is a search refused or a server doing its own sums, red is a limit that leaked
+    or a limiter with no answer.
+  </p>
+
+  <div class="narration">
+    <div class="step-label" id="step-label">Ready</div>
+    <div id="narration">Press Step or Play to begin.</div>
+  </div>
+
+  <div class="stage">
+    <div class="boxes" id="boxes">
+      <div class="row" id="row-client">
+        <div class="name">client-42</div>
+        <div class="job">a price-comparison robot; sends product searches as fast as it can</div>
+      </div>
+      <div class="row" id="row-srv">
+        <div class="name">search servers</div>
+        <div class="job">3 or 6 copies behind a load balancer, each running Bucket4j</div>
+      </div>
+      <div class="row" id="row-redis">
+        <div class="name">Redis key search-limit:client-42</div>
+        <div class="job">the one bucket every server spends from, in a container the demo starts and stops</div>
+      </div>
+      <div class="row" id="row-clock">
+        <div class="name">each server's clock</div>
+        <div class="job">Bucket4j does the refill sums with it; Redis never looks at a clock</div>
+      </div>
+    </div>
+    <div class="console"><div id="console-lines"></div></div>
+  </div>
+
+  <div class="controls">
+    <button id="step">Step &#9656;</button>
+    <button id="play">Play &#9654;</button>
+    <button id="reset">Reset &#8635;</button>
+    <button id="audio" aria-pressed="false">&#128263; Narration: off</button>
+    <span id="progress">0 / 0</span>
+  </div>
+  <p class="audio-note" id="audio-note"></p>
+</div>
+
+<script>
+const STEPS = [
+  {
+    label: "Act 1 — a bucket in each server",
+    narration: "The rule is ten searches per client, filled back up once an hour. Three copies of the search service each keep their own bucket in their own memory. client-42 sends ninety searches, dealt to the servers in turn, and each server lets ten through: thirty in all, not ten. Scaled out to six servers, the same ninety get sixty through. Every server added loosens the limit by another ten.",
+    rows: { client: "active amber", srv: "active wrong" },
+    console: [
+      ["the rule: 10 searches per client, refilled once an hour", "muted"],
+      ["3 servers, own buckets: 30 allowed, not 10", "bad"],
+      ["6 servers, the same 90: 60 allowed", "bad"],
+    ],
+  },
+  {
+    label: "Act 2 — one bucket in Redis",
+    narration: "Now no server keeps a bucket. Each has its own connection to one Redis, a separate program that keeps small values under names, and every server asks it on every search. client-42 sends ninety through three servers: ten allowed, eighty refused. Scaled out to six servers, a second client, client-77, sends ninety: still ten. Redis holds two keys, one per client, however many servers there are.",
+    rows: { srv: "active ok", redis: "active ok" },
+    console: [
+      ["3 servers, one Redis. client-42 sends 90", "muted"],
+      ["10 allowed, 80 refused", "ok"],
+      ["6 servers, client-77 sends 90: 10 allowed", "ok"],
+      ["Redis holds 2 keys: one per client", "ok"],
+    ],
+  },
+  {
+    label: "Act 2, continued — a server restarts",
+    narration: "Server one is restarted, and comes back with empty memory. client-42's next search is refused, and the refusal says to come back in sixty minutes. The bucket was never in the server, so restarting the server does not refill it.",
+    rows: { client: "active amber", redis: "active ok" },
+    console: [
+      ["server-1 restarted with empty memory", "muted"],
+      ["client-42's next search: refused", "amber"],
+      ["retry after 60 minutes", "ok"],
+    ],
+  },
+  {
+    label: "Act 3 — all at the same moment",
+    narration: "Ninety searches, thirty on each of three servers, each on its own thread, held at a gate and released at the same instant. Exactly ten are allowed. No server holds a lock. Each writes its answer back only if the bucket has not changed since it read it, and reads again if it has.",
+    rows: { srv: "active amber", redis: "active ok" },
+    console: [
+      ["90 released at the same instant, 90 threads", "muted"],
+      ["10 allowed, 80 refused", "ok"],
+      ["write only if unchanged, else read again", "amber"],
+    ],
+  },
+  {
+    label: "Act 4 — why not just a number in Redis?",
+    narration: "The count is now a plain number, read and written in two steps. One token is left. Server one reads one. Server two reads one. Both write back zero and both serve: two searches from one token, and Redis afterwards says zero, so nothing looks wrong. Again, but each write lands only if the number is still what was read: server two's write is turned down, it reads again, finds zero, and refuses. One search from one token. Bucket4j does the second, on every search.",
+    rows: { srv: "active wrong", redis: "active amber" },
+    console: [
+      ["one token left. both servers read 1", "muted"],
+      ["both write 0: 2 searches from 1 token", "bad"],
+      ["write only if still 1: 1 search from 1 token", "ok"],
+      ["1 refused, 1 retry", "amber"],
+    ],
+  },
+  {
+    label: "Act 5 — whose clock?",
+    narration: "Two servers with correct clocks spend client-42's ten searches, and the next is refused. A third server's clock runs one hour fast. client-42 sends twenty searches through it, and ten are allowed. The fast server decided the hour was up, refilled the bucket, and Redis stored its answer. Redis keeps the bucket; the sums are done on each server, with that server's clock. The clocks must agree.",
+    rows: { client: "active amber", redis: "active amber", clock: "active wrong" },
+    console: [
+      ["correct clocks: 10 spent. the next: refused", "muted"],
+      ["server-3's clock runs one hour fast", "amber"],
+      ["20 sent through it: 10 allowed", "bad"],
+      ["the sums are done on each server", "amber"],
+    ],
+  },
+  {
+    label: "Act 6 — the bill",
+    narration: "One thousand different clients search once each, and Redis holds one thousand keys. Each is set to delete itself in sixty minutes, when its bucket would be full again. Then Redis is stopped. Five searches get five errors from the limiter, and no answer. Let them through, and there is no limit. Refuse them, and five real customers see an error. The shop must choose. And every search now waits for a trip to Redis: one container, for six servers.",
+    rows: { srv: "active amber", redis: "active wrong" },
+    console: [
+      ["1000 clients: 1000 keys, each gone in 60 minutes", "muted"],
+      ["Redis stopped. 5 searches: 5 errors", "bad"],
+      ["let through or refuse: the shop must choose", "amber"],
+      ["1 container for 6 servers", "amber"],
+    ],
+  },
+];
+
+const rowIds = ["client", "srv", "redis", "clock"];
+const stepLabel = document.getElementById("step-label");
+const narrationEl = document.getElementById("narration");
+const consoleEl = document.getElementById("console-lines");
+const progressEl = document.getElementById("progress");
+const stepBtn = document.getElementById("step");
+const playBtn = document.getElementById("play");
+const resetBtn = document.getElementById("reset");
+const audioBtn = document.getElementById("audio");
+const audioNote = document.getElementById("audio-note");
+
+let i = -1;
+let timer = null;
+let audioOn = false;
+let current = null;
+
+const clips = STEPS.map((_, k) => {
+  const a = new Audio("audio/step-" + (k + 1) + ".m4a");
+  a.preload = "none";
+  return a;
+});
+
+function stopAudio() {
+  if (!current) return;
+  current.pause();
+  current.currentTime = 0;
+  current.onended = null;
+  current = null;
+}
+
+function playClip(k) {
+  stopAudio();
+  if (!audioOn || k < 0 || k >= clips.length) return;
+  const a = clips[k];
+  current = a;
+  a.currentTime = 0;
+  a.onended = () => { current = null; };
+  a.play().catch(() => {
+    current = null;
+    audioNote.textContent =
+      "Narration audio could not be played. Run docs/make_animation_audio.sh to generate the clips.";
+  });
+}
+
+function setAudio(on) {
+  audioOn = on;
+  audioBtn.classList.toggle("on", on);
+  audioBtn.setAttribute("aria-pressed", String(on));
+  audioBtn.innerHTML = (on ? "\u{1F50A}" : "\u{1F507}") + " Narration: " + (on ? "on" : "off");
+  audioNote.textContent = on ? "Each step is read aloud as it appears." : "";
+  if (!on) stopAudio();
+}
+
+function clearRows() {
+  for (const id of rowIds) {
+    document.getElementById("row-" + id).className = "row";
+  }
+}
+
+function render() {
+  clearRows();
+  if (i < 0) {
+    stepLabel.textContent = "Ready";
+    narrationEl.textContent = "Press Step or Play to begin.";
+    consoleEl.innerHTML = "";
+    progressEl.textContent = "0 / " + STEPS.length;
+    return;
+  }
+  const s = STEPS[i];
+  stepLabel.textContent = s.label;
+  narrationEl.textContent = s.narration;
+  for (const id of rowIds) {
+    const el = document.getElementById("row-" + id);
+    const cls = s.rows[id];
+    el.className = "row " + (cls ? cls : "dim");
+  }
+  consoleEl.innerHTML = s.console
+    .map(([text, cls]) => '<span class="' + cls + '">' + text + "</span>")
+    .join("\n");
+  progressEl.textContent = (i + 1) + " / " + STEPS.length;
+}
+
+function step() {
+  if (i >= STEPS.length - 1) { stopPlay(); return; }
+  i += 1;
+  render();
+  playClip(i);
+}
+
+function reset() {
+  stopPlay();
+  stopAudio();
+  i = -1;
+  render();
+}
+
+function startPlay() {
+  if (timer) return;
+  playBtn.innerHTML = "Pause &#10074;&#10074;";
+  timer = setInterval(() => {
+    if (i >= STEPS.length - 1) { stopPlay(); return; }
+    step();
+  }, 9000);
+}
+
+function stopPlay() {
+  if (timer) clearInterval(timer);
+  timer = null;
+  playBtn.innerHTML = "Play &#9654;";
+}
+
+stepBtn.addEventListener("click", () => { stopPlay(); step(); });
+resetBtn.addEventListener("click", reset);
+playBtn.addEventListener("click", () => { if (timer) stopPlay(); else startPlay(); });
+audioBtn.addEventListener("click", () => setAudio(!audioOn));
+
+render();
+</script>
+<!-- videokit:narration -->
+<script>
+/* videokit narration player: a Narration on/off switch and a play/pause
+   button for the current step. It watches the page's own narration text,
+   works out which step is showing, and plays audio/step-N.m4a beside the
+   page (rendered by tools/videokit; not embedded, so the page stays small).
+   If the page already plays its own clips, only the pause button is added. */
+(function () {
+  "use strict";
+  var STEPS = ["The rule is ten searches per client, filled back up once an hour. Three copies of the search service each keep their own bucket in their own memory. client-42 sends ninety searches, dealt to the servers in turn, and each server lets ten through: thirty in all, not ten. Scaled out to six servers, the same ninety get sixty through. Every server added loosens the limit by another ten.", "Now no server keeps a bucket. Each has its own connection to one Redis, a separate program that keeps small values under names, and every server asks it on every search. client-42 sends ninety through three servers: ten allowed, eighty refused. Scaled out to six servers, a second client, client-77, sends ninety: still ten. Redis holds two keys, one per client, however many servers there are.", "Server one is restarted, and comes back with empty memory. client-42's next search is refused, and the refusal says to come back in sixty minutes. The bucket was never in the server, so restarting the server does not refill it.", "Ninety searches, thirty on each of three servers, each on its own thread, held at a gate and released at the same instant. Exactly ten are allowed. No server holds a lock. Each writes its answer back only if the bucket has not changed since it read it, and reads again if it has.", "The count is now a plain number, read and written in two steps. One token is left. Server one reads one. Server two reads one. Both write back zero and both serve: two searches from one token, and Redis afterwards says zero, so nothing looks wrong. Again, but each write lands only if the number is still what was read: server two's write is turned down, it reads again, finds zero, and refuses. One search from one token. Bucket4j does the second, on every search.", "Two servers with correct clocks spend client-42's ten searches, and the next is refused. A third server's clock runs one hour fast. client-42 sends twenty searches through it, and ten are allowed. The fast server decided the hour was up, refilled the bucket, and Redis stored its answer. Redis keeps the bucket; the sums are done on each server, with that server's clock. The clocks must agree.", "One thousand different clients search once each, and Redis holds one thousand keys. Each is set to delete itself in sixty minutes, when its bucket would be full again. Then Redis is stopped. Five searches get five errors from the limiter, and no answer. Let them through, and there is no limit. Refuse them, and five real customers see an error. The shop must choose. And every search now waits for a trip to Redis: one container, for six servers."];
+  var norm = function (s) { return String(s || "").replace(/\s+/g, " ").trim(); };
+  var box = document.getElementById("narration") || document.querySelector(".narration");
+  if (!box || !STEPS.length) return;
+
+  var pageOwnsAudio = !!document.getElementById("audio");
+  var current = null, step = -1, on = false;
+  try { on = localStorage.getItem("vk-narration") === "on"; } catch (e) {}
+
+  // Remember whichever clip the page (or this script) last started.
+  var realPlay = HTMLMediaElement.prototype.play;
+  HTMLMediaElement.prototype.play = function () {
+    if (current && current !== this) { try { current.pause(); } catch (e) {} }
+    current = this;
+    this.addEventListener("play", label);
+    this.addEventListener("pause", label);
+    this.addEventListener("ended", label);
+    var p = realPlay.apply(this, arguments);
+    label();
+    return p;
+  };
+
+  var bar = document.querySelector(".controls") || box.parentNode;
+  function button(id, text) {
+    var b = document.createElement("button");
+    b.id = id; b.type = "button"; b.textContent = text;
+    bar.appendChild(b);
+    return b;
+  }
+  var narrBtn = pageOwnsAudio ? null : button("vk-narration", "");
+  var stepBtn = button("vk-step-audio", "");
+  var note = document.createElement("span");
+  note.id = "vk-note";
+  note.style.cssText = "color:#94a3b8;font-size:.8rem;margin-left:8px";
+  bar.appendChild(note);
+
+  function stepFor(text) {
+    var t = norm(text);
+    for (var i = 0; i < STEPS.length; i++) {
+      var s = norm(STEPS[i]);
+      if (s && t.indexOf(s.slice(0, 60)) !== -1) return i;
+    }
+    return -1;
+  }
+  function stop() { if (current) { try { current.pause(); } catch (e) {} } current = null; label(); }
+  function play(i) {
+    if (i < 0) return;
+    var a = new Audio("audio-amy-slow/step-" + (i + 1) + ".m4a");
+    a.play().then(function () { note.textContent = ""; }, function (e) {
+      note.textContent = e && e.name === "NotAllowedError"
+        ? "Click Play step to hear this step."
+        : "Narration audio not found: run tools/videokit/videokit.sh animation <project>.";
+      label();
+    });
+  }
+  function label() {
+    if (narrBtn) narrBtn.textContent = (on ? "🔊 Narration: on" : "🔇 Narration: off");
+    if (narrBtn) narrBtn.setAttribute("aria-pressed", String(on));
+    var playing = current && !current.paused && !current.ended;
+    var paused = current && current.paused && !current.ended;
+    stepBtn.textContent = playing ? "⏸ Pause step" : paused ? "▶ Resume step" : "▶ Play step";
+    stepBtn.disabled = step < 0;
+  }
+
+  if (narrBtn) narrBtn.addEventListener("click", function () {
+    on = !on;
+    try { localStorage.setItem("vk-narration", on ? "on" : "off"); } catch (e) {}
+    if (on) { if (step >= 0) play(step); } else stop();
+    label();
+  });
+  stepBtn.addEventListener("click", function () {
+    if (current && !current.ended) {
+      if (current.paused) current.play(); else current.pause();
+    } else play(step);
+  });
+
+  function changed() {
+    var i = stepFor(box.textContent);
+    if (i === step) return;
+    step = i;
+    if (!pageOwnsAudio) { stop(); if (on) play(i); }
+    label();
+  }
+  new MutationObserver(changed).observe(box, { childList: true, subtree: true, characterData: true });
+  changed();
+  label();
+})();
+</script>
+<!-- /videokit:narration -->
+</body>
+</html>

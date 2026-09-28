@@ -8,6 +8,11 @@
                                           switch the project to videokit, queue its build
     videokit.sh rollout worker            build queued projects one by one (run it in
                                           the background; it waits for new work)
+    videokit.sh rollout version <name> [from-slug]
+                                          add version <name> to every project: copy
+                                          video/videokit-<name>.toml from <from-slug>,
+                                          then build video+audio+animation for each,
+                                          keeping the main build. Run several at once.
 
 Progress is saved after every step in tools/videokit/rollout-state.json and
 summarised in ROLLOUT-REPORT.md at the repository root, so the work can stop
@@ -113,6 +118,92 @@ def claim():
         return queued[0]
 
 
+def claim_version(name):
+    """Atomically take the next project still needing version <name>, or None."""
+    key = "v:" + name
+    with open(STATE.with_suffix(".lock"), "w") as lock:
+        fcntl.flock(lock, fcntl.LOCK_EX)
+        state = load()
+        todo = [s for s, v in sorted(state.items(), key=lambda kv: (kv[1]["group"], kv[0]))
+                if v.get(key, "pending") == "pending"]
+        if not todo:
+            return None
+        state[todo[0]].update({key: "building", "updated": time.strftime("%Y-%m-%d %H:%M")})
+        save(state)
+        return todo[0]
+
+
+def version_worker(name, source="api-composition"):
+    """Build version <name> for every project, one at a time; stop when none left."""
+    template = Project.locate(source).video_dir / ("videokit-%s.toml" % name)
+    if not template.exists():
+        raise SystemExit("no %s to copy" % template)
+    by_slug = {p.slug: p for p in projects()}
+    while True:
+        if (REPO / "tools/videokit/.stop").exists():
+            print("version: stop file found, stopping")
+            return
+        slug = claim_version(name)
+        if slug is None:
+            print("version: nothing left for %s" % name)
+            return
+        p, t = by_slug[slug], time.time()
+        toml = p.video_dir / template.name
+        if not toml.exists():
+            toml.write_text(template.read_text())
+        result, tail = "done", ""
+        for cmd in (["all", slug], ["animation", slug]):
+            r = subprocess.run([str(LAUNCHER), *cmd, "--version=" + name],
+                               capture_output=True, text=True)
+            if r.returncode != 0:
+                result = "failed"
+                tail = ((r.stdout + r.stderr).strip().splitlines()[-1:] or [""])[0]
+                break
+        mark(slug, **{"v:" + name: result}, **({"note": tail[:120].replace("|", "/")} if tail else {}))
+        print("version %s: %s %s (%.0fs)" % (name, slug, result.upper() if tail else result,
+                                             time.time() - t), flush=True)
+
+
+def version_outputs_ok(p, name):
+    tag = "-explained-%s" % name
+    files = [p.video_dir / (p.name + tag + ext) for ext in (".mp4", ".m4a", ".srt")]
+    anim = p.dir / "docs" / "animation.html"
+    if anim.exists():
+        files.append(anim.with_name("animation-%s.html" % name))
+    return all(f.exists() and f.stat().st_size > 0 for f in files)
+
+
+def watch_version(name, minutes=10):
+    """Check every <minutes>; exit (to alert) when finished, on a real failure, or if
+    the workers have died. A failure whose outputs all exist is the runtime crashing
+    at shutdown after the work was written, so it is marked done; otherwise it is
+    retried once before being reported."""
+    key, by_slug = "v:" + name, {p.slug: p for p in projects()}
+    while True:
+        state = load()
+        for slug, v in state.items():
+            if v.get(key) == "failed":
+                if version_outputs_ok(by_slug[slug], name):
+                    mark(slug, **{key: "done", "note": ""})
+                elif not v.get("retried"):
+                    mark(slug, **{key: "pending", "retried": True})
+                else:
+                    print("watch: %s failed twice: %s" % (slug, v.get("note", "")))
+                    return
+        state = load()
+        n = {k: sum(1 for v in state.values() if v.get(key, "pending") == k)
+             for k in ("done", "building", "pending", "failed")}
+        workers = subprocess.run(["pgrep", "-f", "rollout version " + name],
+                                 capture_output=True, text=True).stdout.split()
+        if n["done"] == len(state):
+            print("watch: all %d projects done" % n["done"])
+            return
+        if not workers:
+            print("watch: workers stopped with %d done, %d pending" % (n["done"], n["pending"]))
+            return
+        time.sleep(minutes * 60)
+
+
 def write_report(state):
     rows = sorted(state.items(), key=lambda kv: (kv[1]["group"], kv[0]))
     total = len(rows)
@@ -134,6 +225,13 @@ def write_report(state):
         queued = count(stage, "queued") + count(stage, "building")
         out.append("| %s | %d | %d | %d | %d | %d |" % (
             label, done, queued, failed, total - done - failed - queued, total))
+    versions = sorted({k[2:] for _, v in rows for k in v if k.startswith("v:")})
+    for name in versions:
+        key = "v:" + name
+        done, failed = count(key, "done"), count(key, "failed")
+        queued = count(key, "building")
+        out.append("| Version `%s` (video + audio + animation, main build kept) | %d | %d | %d | %d | %d |"
+                   % (name, done, queued, failed, total - done - failed - queued, total))
     complete = sum(1 for _, v in rows if all(v.get(s) == "done" for s in STAGES))
     out += ["", "**%d of %d projects complete, %d remaining.**" % (complete, total, total - complete), ""]
 
@@ -147,6 +245,32 @@ def write_report(state):
             slug, *(icon.get(v.get(s, "pending"), v.get(s)) for s in STAGES),
             v.get("note", "")))
     REPORT.write_text("\n".join(out) + "\n")
+    for name in versions:
+        write_version_report(rows, name, icon)
+
+
+def write_version_report(rows, name, icon):
+    """REPORT-<name>.md: one row per project for the version rollout."""
+    key, total = "v:" + name, len(rows)
+    n = {k: sum(1 for _, v in rows if v.get(key, "pending") == k)
+         for k in ("done", "building", "failed", "pending")}
+    out = ["# Rollout Report — version `%s`" % name, "",
+           "New video, audio-only file, subtitles and animation narration for every project, "
+           "built as version `%s` beside the existing build, which is kept. Settings: "
+           "`video/videokit-%s.toml` in each project. Updated automatically; last update %s."
+           % (name, name, time.strftime("%Y-%m-%d %H:%M")), "",
+           "| Done | Building | Failed | Pending | Total |", "| ---: | ---: | ---: | ---: | ---: |",
+           "| %d | %d | %d | %d | %d |" % (n["done"], n["building"], n["failed"], n["pending"], total), "",
+           "Outputs per project: `video/<project>-explained-%s.mp4`, `.m4a`, `.srt`, "
+           "`docs/animation-%s.html` and `docs/audio-%s/`." % (name, name, name)]
+    group = None
+    for slug, v in rows:
+        if v["group"] != group:
+            group = v["group"]
+            out += ["", "## %s" % group, "", "| Project | Status | Note |", "| --- | :---: | --- |"]
+        st = v.get(key, "pending")
+        out.append("| %s | %s | %s |" % (slug, icon.get(st, st), v.get("note", "") if st == "failed" else ""))
+    (REPO / ("ROLLOUT-REPORT-%s.md" % name)).write_text("\n".join(out) + "\n")
 
 
 # ------------------------------------------------------------- scripts ----
@@ -314,6 +438,9 @@ def main(args):
         for stage in STAGES:
             n = sum(1 for v in state.values() if v.get(stage) == "done")
             print("  %-9s %3d / %d done" % (stage, n, len(state)))
+        for key in sorted({k for v in state.values() for k in v if k.startswith("v:")}):
+            n = sum(1 for v in state.values() if v.get(key) == "done")
+            print("  %-9s %3d / %d done" % (key, n, len(state)))
     elif cmd == "next":
         n = int(args[1]) if len(args) > 1 else 1
         state = load()
@@ -327,6 +454,10 @@ def main(args):
         print("%s: script applied, video queued" % p.slug)
     elif cmd == "worker":
         worker()
+    elif cmd == "watch":
+        watch_version(args[1])
+    elif cmd == "version":
+        version_worker(args[1], *(args[2:3]))
     elif cmd == "animations":
         animations()
     else:

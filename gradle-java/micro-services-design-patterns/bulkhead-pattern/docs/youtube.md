@@ -21,21 +21,21 @@ Learn the bulkhead pattern in Java 21, starting from one thread pool doing two j
 
 CHAPTERS
 00:00 Introduction
-01:06 The Scenario
-02:22 One Pool, Shared By Everything
-03:06 Act One — One Shared Pool Of Four
-03:58 Starved, Not Broken
-04:58 The Ship's Hull
-06:14 Two Tempting Fixes, Both Wrong
-07:29 The Whole Mechanism
-08:27 Act Two — Two Bulkheads
-09:16 Who Owns What
-10:47 How Do We Know It Was The Wall?
-11:47 Act Three — A Fifth Batch, With Nowhere To Go
-12:42 Refusing Immediately Is A Feature
-13:39 Act Four — What The Partition Costs
-14:40 So Where Do The Walls Go?
-15:49 Thanks for Watching
+00:56 The Scenario
+01:50 One Pool, Shared By Everything
+02:22 Act One — One Shared Pool Of Four
+03:05 Starved, Not Broken
+03:54 The Ship's Hull
+04:45 Two Tempting Fixes, Both Wrong
+05:43 The Whole Mechanism
+06:28 Act Two — Two Bulkheads
+07:07 Who Owns What
+08:19 How Do We Know It Was The Wall?
+09:00 Act Three — A Fifth Batch, With Nowhere To Go
+09:46 Refusing Immediately Is A Feature
+10:31 Act Four — What The Partition Costs
+11:19 So Where Do The Walls Go?
+12:20 Thanks for Watching
 
 SOURCE CODE, WRITTEN NOTES AND AN INTERACTIVE ANIMATION
 https://github.com/jk-boot-up/java-design-patterns/tree/main/gradle-java/micro-services-design-patterns/bulkhead-pattern
@@ -50,21 +50,21 @@ YouTube renders these as chapters only if there are at least three and the first
 
 ```
 00:00 Introduction
-01:06 The Scenario
-02:22 One Pool, Shared By Everything
-03:06 Act One — One Shared Pool Of Four
-03:58 Starved, Not Broken
-04:58 The Ship's Hull
-06:14 Two Tempting Fixes, Both Wrong
-07:29 The Whole Mechanism
-08:27 Act Two — Two Bulkheads
-09:16 Who Owns What
-10:47 How Do We Know It Was The Wall?
-11:47 Act Three — A Fifth Batch, With Nowhere To Go
-12:42 Refusing Immediately Is A Feature
-13:39 Act Four — What The Partition Costs
-14:40 So Where Do The Walls Go?
-15:49 Thanks for Watching
+00:56 The Scenario
+01:50 One Pool, Shared By Everything
+02:22 Act One — One Shared Pool Of Four
+03:05 Starved, Not Broken
+03:54 The Ship's Hull
+04:45 Two Tempting Fixes, Both Wrong
+05:43 The Whole Mechanism
+06:28 Act Two — Two Bulkheads
+07:07 Who Owns What
+08:19 How Do We Know It Was The Wall?
+09:00 Act Three — A Fifth Batch, With Nowhere To Go
+09:46 Refusing Immediately Is A Feature
+10:31 Act Four — What The Partition Costs
+11:19 So Where Do The Walls Go?
+12:20 Thanks for Watching
 ```
 
 ## Tags
@@ -103,4 +103,4 @@ Add a card partway through pointing at the playlist, so a viewer who arrives at 
 
 ## Runtime
 
-Approximately 17:17, narrated at 145 words per minute.
+Approximately 13:24, narrated at 145 words per minute.

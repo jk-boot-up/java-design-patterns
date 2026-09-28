@@ -19,21 +19,21 @@ The first two lines are what a viewer sees above the fold, so they carry the hoo
 ```
 CHAPTERS
 00:00 Introduction
-01:09 The Partner Project
-01:35 Before The First Line
-02:18 Everyone Knows Everyone
-02:45 Everyone Knows The Bus
-03:14 Subscribing By Name
-03:57 One Failing Subscriber
-04:28 An Event Nobody Hears
-05:24 Ask, Do Not Tell
-05:50 The Bill
-06:37 The Opposite Trade
-07:13 The Verdict
-07:50 How To Recognise It
-08:18 What Was Used
-08:40 What Is Real Here
-09:03 Thanks for Watching
+00:57 The Partner Project
+01:19 Before The First Line
+01:57 Everyone Knows Everyone
+02:23 Everyone Knows The Bus
+02:52 Subscribing By Name
+03:30 One Failing Subscriber
+03:55 An Event Nobody Hears
+04:46 Ask, Do Not Tell
+05:10 The Bill
+05:45 The Opposite Trade
+06:22 The Verdict
+06:56 How To Recognise It
+07:19 What Was Used
+07:40 What Is Real Here
+08:01 Thanks for Watching
 
 SOURCE CODE, WRITTEN NOTES AND AN INTERACTIVE ANIMATION
 https://github.com/jk-boot-up/java-design-patterns/tree/main/gradle-java/messaging-integration-patterns/event-bus-with-nats-pattern
@@ -48,21 +48,21 @@ YouTube renders these as chapters only if there are at least three and the first
 
 ```
 00:00 Introduction
-01:09 The Partner Project
-01:35 Before The First Line
-02:18 Everyone Knows Everyone
-02:45 Everyone Knows The Bus
-03:14 Subscribing By Name
-03:57 One Failing Subscriber
-04:28 An Event Nobody Hears
-05:24 Ask, Do Not Tell
-05:50 The Bill
-06:37 The Opposite Trade
-07:13 The Verdict
-07:50 How To Recognise It
-08:18 What Was Used
-08:40 What Is Real Here
-09:03 Thanks for Watching
+00:57 The Partner Project
+01:19 Before The First Line
+01:57 Everyone Knows Everyone
+02:23 Everyone Knows The Bus
+02:52 Subscribing By Name
+03:30 One Failing Subscriber
+03:55 An Event Nobody Hears
+04:46 Ask, Do Not Tell
+05:10 The Bill
+05:45 The Opposite Trade
+06:22 The Verdict
+06:56 How To Recognise It
+07:19 What Was Used
+07:40 What Is Real Here
+08:01 Thanks for Watching
 ```
 
 ## Tags
@@ -101,4 +101,4 @@ Add a card partway through pointing at the playlist, so a viewer who arrives at 
 
 ## Runtime
 
-Approximately 09:39, narrated at 145 words per minute.
+Approximately 08:39, narrated at 145 words per minute.

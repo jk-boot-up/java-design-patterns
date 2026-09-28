@@ -19,21 +19,21 @@ The first two lines are what a viewer sees above the fold, so they carry the hoo
 ```
 CHAPTERS
 00:00 Introduction
-01:12 The Scenario
-01:37 One Picker, One Order
-02:00 Camel's Three Words
-02:34 Camel Splits The Order
-02:58 They Come Back In Any Order
-03:27 The Completion Condition
-03:57 A Deadline
-04:40 The Whole Difference
-05:03 The Bill
-05:45 What The Simulation Left Out
-06:21 How To Recognise It
-06:49 The Verdict
-07:18 What Is Real Here
-07:45 When This Is Too Much
-08:08 Thanks for Watching
+01:04 The Scenario
+01:28 One Picker, One Order
+01:50 Camel's Three Words
+02:23 Camel Splits The Order
+02:47 They Come Back In Any Order
+03:14 The Completion Condition
+03:42 A Deadline
+04:18 The Whole Difference
+04:42 The Bill
+05:25 What The Simulation Left Out
+05:56 How To Recognise It
+06:19 The Verdict
+06:47 What Is Real Here
+07:13 When This Is Too Much
+07:35 Thanks for Watching
 
 SOURCE CODE, WRITTEN NOTES AND AN INTERACTIVE ANIMATION
 https://github.com/jk-boot-up/java-design-patterns/tree/main/gradle-java/messaging-integration-patterns/splitter-aggregator-with-camel-pattern
@@ -48,21 +48,21 @@ YouTube renders these as chapters only if there are at least three and the first
 
 ```
 00:00 Introduction
-01:12 The Scenario
-01:37 One Picker, One Order
-02:00 Camel's Three Words
-02:34 Camel Splits The Order
-02:58 They Come Back In Any Order
-03:27 The Completion Condition
-03:57 A Deadline
-04:40 The Whole Difference
-05:03 The Bill
-05:45 What The Simulation Left Out
-06:21 How To Recognise It
-06:49 The Verdict
-07:18 What Is Real Here
-07:45 When This Is Too Much
-08:08 Thanks for Watching
+01:04 The Scenario
+01:28 One Picker, One Order
+01:50 Camel's Three Words
+02:23 Camel Splits The Order
+02:47 They Come Back In Any Order
+03:14 The Completion Condition
+03:42 A Deadline
+04:18 The Whole Difference
+04:42 The Bill
+05:25 What The Simulation Left Out
+05:56 How To Recognise It
+06:19 The Verdict
+06:47 What Is Real Here
+07:13 When This Is Too Much
+07:35 Thanks for Watching
 ```
 
 ## Tags
@@ -101,4 +101,4 @@ Add a card partway through pointing at the playlist, so a viewer who arrives at 
 
 ## Runtime
 
-Approximately 08:50, narrated at 145 words per minute.
+Approximately 08:17, narrated at 145 words per minute.

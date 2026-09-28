@@ -9,6 +9,8 @@ import importlib
 
 ENGINES = {
     "kokoro": "videokit.tts.kokoro:KokoroEngine",   # open source, Apache 2.0
+    "piper": "videokit.tts.piper:PiperEngine",      # open source, MIT
+    "coqui": "videokit.tts.coqui:CoquiEngine",      # open source, MPL 2.0 (own venv)
     "say": "videokit.tts.say:SayEngine",            # macOS built-in voices
 }
 

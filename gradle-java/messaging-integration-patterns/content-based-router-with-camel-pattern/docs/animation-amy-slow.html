@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Content-Based Router with Camel — Animated Walkthrough</title>
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 24px;
+    background: #0f172a; color: #e2e8f0;
+    font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
+    padding-top: calc(24px + env(safe-area-inset-top, 0px));
+    padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+  }
+  h1 { font-size: 1.4rem; margin: 0 0 4px; }
+  p.sub { color: #94a3b8; margin: 0 0 20px; max-width: 70ch; }
+  .wrap { max-width: 1100px; margin: 0 auto; }
+  .stage {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+    margin-bottom: 16px;
+  }
+  @media (max-width: 760px) { .stage { grid-template-columns: 1fr; } }
+  .boxes { display: flex; flex-direction: column; gap: 10px; }
+  .row {
+    border: 2px solid #334155; border-radius: 10px; padding: 12px 16px;
+    background: #1e293b; transition: all .25s ease; opacity: .55;
+  }
+  .row .name { font-weight: 700; font-size: 1rem; }
+  .row .job { color: #94a3b8; font-size: .82rem; margin-top: 2px; }
+  .row.active { opacity: 1; box-shadow: 0 0 0 2px currentColor inset; }
+  .row.wrong { border-color: #f87171; color: #f87171; }
+  .row.wrong.active { background: #3f1d24; }
+  .row.ok { border-color: #34d399; color: #34d399; }
+  .row.ok.active { background: #10261f; }
+  .row.amber { border-color: #fbbf24; color: #fbbf24; }
+  .row.amber.active { background: #2a2110; }
+  .row.dim { opacity: .22; }
+  .console {
+    background: #020617; border: 1px solid #334155; border-radius: 10px;
+    padding: 16px; font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    font-size: .86rem; line-height: 1.55; overflow-y: auto; min-height: 320px;
+    white-space: pre-wrap;
+  }
+  #console-lines span.ok { color: #34d399; }
+  #console-lines span.bad { color: #f87171; }
+  #console-lines span.amber { color: #fbbf24; }
+  #console-lines span.muted { color: #94a3b8; }
+  .narration {
+    background: #1e293b; border: 1px solid #334155; border-radius: 10px;
+    padding: 14px 18px; margin-bottom: 16px; min-height: 3.2em;
+  }
+  .controls { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  button {
+    background: #334155; color: #e2e8f0; border: 1px solid #475569;
+    border-radius: 8px; padding: 10px 18px; font-size: .92rem; cursor: pointer;
+  }
+  button:hover { background: #475569; }
+  button#play { background: #7c3aed; border-color: #7c3aed; }
+  button#play:hover { background: #8b5cf6; }
+  button#audio.on { background: #0f766e; border-color: #14b8a6; }
+  #progress { color: #94a3b8; font-size: .85rem; margin-left: auto; }
+  .audio-note { color: #94a3b8; font-size: .78rem; margin: 10px 0 0; min-height: 1em; }
+  .step-label {
+    font-size: .78rem; text-transform: uppercase; letter-spacing: .04em;
+    color: #a78bfa; font-weight: 700; margin-bottom: 4px;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Content-Based Router with Camel — Step by Step</h1>
+  <p class="sub">
+    Six acts, the same ones the demo prints. Green is an order that reached a queue somebody
+    reads, amber is a question whose order or wording changed the answer, red is an order lost
+    or stuck in the wrong place.
+  </p>
+
+  <div class="narration">
+    <div class="step-label" id="step-label">Ready</div>
+    <div id="narration">Press Step or Play to begin.</div>
+  </div>
+
+  <div class="stage">
+    <div class="boxes" id="boxes">
+      <div class="row" id="row-shop">
+        <div class="name">the shop</div>
+        <div class="job">posts every order to one queue, and says nothing about where it should go</div>
+      </div>
+      <div class="row" id="row-rabbit">
+        <div class="name">RabbitMQ, in a container</div>
+        <div class="job">one exchange, ten queues; deletes a message once told it was handled</div>
+      </div>
+      <div class="row" id="row-route">
+        <div class="name">Camel route</div>
+        <div class="job">asks its questions in order; the first yes decides</div>
+      </div>
+      <div class="row" id="row-otherwise">
+        <div class="name">otherwise branch</div>
+        <div class="job">where an order goes when every question says no, if one is written</div>
+      </div>
+      <div class="row" id="row-errors">
+        <div class="name">router-errors</div>
+        <div class="job">where an order goes when a branch fails, if somebody says so</div>
+      </div>
+    </div>
+    <div class="console"><div id="console-lines"></div></div>
+  </div>
+
+  <div class="controls">
+    <button id="step">Step &#9656;</button>
+    <button id="play">Play &#9654;</button>
+    <button id="reset">Reset &#8635;</button>
+    <button id="audio" aria-pressed="false">&#128263; Narration: off</button>
+    <span id="progress">0 / 0</span>
+  </div>
+  <p class="audio-note" id="audio-note"></p>
+</div>
+
+<script>
+const STEPS = [
+  {
+    label: "Act 1 — one queue for everything",
+    narration: "Act one. There is no router. All six orders are put on the warehouse's own queue, and the warehouse sorts out what it can. It ships the three physical ones and can do nothing with the other three: two gift cards and a subscription. So the warehouse grows an if for every kind of order.",
+    rows: { shop: "active amber", rabbit: "active wrong" },
+    console: [
+      ["all 6 orders on the warehouse's own queue", "amber"],
+      ["shipped 3, could do nothing with 3", "bad"],
+    ],
+  },
+  {
+    label: "Act 2 — the route reads the content and chooses",
+    narration: "Act two. A Camel route reads the orders queue and asks four questions in order: high value, digital, express, physical. The first yes decides. Order one goes to express shipping. Orders two and four go to digital delivery. Order three, worth twelve hundred pounds, goes to fraud review. Order six goes to standard shipping. Order five, the subscription, is claimed by no question and takes the otherwise branch to manual review.",
+    rows: { rabbit: "active ok", route: "active ok", otherwise: "active ok" },
+    console: [
+      ["ORD-1 -> express-shipping", "ok"],
+      ["ORD-2, ORD-4 -> digital-delivery", "ok"],
+      ["ORD-3 -> fraud-review", "ok"],
+      ["ORD-6 -> standard-shipping", "ok"],
+      ["ORD-5 -> manual-review (otherwise)", "amber"],
+      ["4 questions, in a fixed order", "muted"],
+    ],
+  },
+  {
+    label: "Act 3 — the first question answered yes wins",
+    narration: "Act three. One digital gift card, worth fifteen hundred pounds, goes through two routes with the same four questions in two orders. With the value question asked first, it goes to fraud review. With it asked last, the digital question says yes first, and it goes to digital delivery. Camel does not warn you when the order changes.",
+    rows: { route: "active amber" },
+    console: [
+      ["gift card worth 1500.00", "muted"],
+      ["high value asked first: fraud-review", "ok"],
+      ["high value asked last: digital-delivery", "bad"],
+    ],
+  },
+  {
+    label: "Act 4 — a message no question claims",
+    narration: "Act four. A subscription order, and every question says no. With an otherwise branch it lands in manual review. With no otherwise branch the route simply ends, tells the broker the order was handled, and the broker deletes it. Messages left anywhere in the shop: zero. With an otherwise branch named for the problem, it lands on a queue called unclaimed, where somebody can look at it.",
+    rows: { rabbit: "active wrong", route: "active wrong", otherwise: "active ok" },
+    console: [
+      ["with otherwise: manual-review", "ok"],
+      ["no otherwise: messages left anywhere: 0", "bad"],
+      ["otherwise named for it: unclaimed", "ok"],
+    ],
+  },
+  {
+    label: "Act 5 — a new question, and nobody else changes",
+    narration: "Act five. A fifth question is added, for orders from the European Union, asked after the other four. No sender and no receiving queue is touched. An EU subscription that used to go to manual review now goes to the tax check. Order six, a parcel from the EU, still goes to standard shipping, because the physical question says yes first.",
+    rows: { route: "active ok" },
+    console: [
+      ["questions before: 4, after: 5", "muted"],
+      ["EU subscription: manual-review -> eu-vat-check", "ok"],
+      ["ORD-6: still standard-shipping", "amber"],
+    ],
+  },
+  {
+    label: "Act 6 — the bill",
+    narration: "Act six. The bill. The sender calls parcels goods instead of physical, and order nine lands in manual review without a word. The fraud branch is broken: Camel tries it three times, then puts the order on the errors queue, which holds one. And there is something to run: one container, one exchange and ten queues.",
+    rows: { shop: "active wrong", route: "active amber", errors: "active ok" },
+    console: [
+      ["kind=goods: ORD-9 lands on manual-review, quietly", "bad"],
+      ["fraud branch broken: tried 3 times", "amber"],
+      ["router-errors now holds 1", "ok"],
+      ["1 container, 1 exchange, 10 queues", "muted"],
+    ],
+  },
+];
+
+const rowIds = ["shop", "rabbit", "route", "otherwise", "errors"];
+const stepLabel = document.getElementById("step-label");
+const narrationEl = document.getElementById("narration");
+const consoleEl = document.getElementById("console-lines");
+const progressEl = document.getElementById("progress");
+const stepBtn = document.getElementById("step");
+const playBtn = document.getElementById("play");
+const resetBtn = document.getElementById("reset");
+const audioBtn = document.getElementById("audio");
+const audioNote = document.getElementById("audio-note");
+
+let i = -1;
+let timer = null;
+let audioOn = false;
+let current = null;
+
+const clips = STEPS.map((_, k) => {
+  const a = new Audio("audio/step-" + (k + 1) + ".m4a");
+  a.preload = "none";
+  return a;
+});
+
+function stopAudio() {
+  if (!current) return;
+  current.pause();
+  current.currentTime = 0;
+  current.onended = null;
+  current = null;
+}
+
+function playClip(k) {
+  stopAudio();
+  if (!audioOn || k < 0 || k >= clips.length) return;
+  const a = clips[k];
+  current = a;
+  a.currentTime = 0;
+  a.onended = () => { current = null; };
+  a.play().catch(() => {
+    current = null;
+    audioNote.textContent =
+      "Narration audio could not be played. Run docs/make_animation_audio.sh to generate the clips.";
+  });
+}
+
+function setAudio(on) {
+  audioOn = on;
+  audioBtn.classList.toggle("on", on);
+  audioBtn.setAttribute("aria-pressed", String(on));
+  audioBtn.innerHTML = (on ? "\u{1F50A}" : "\u{1F507}") + " Narration: " + (on ? "on" : "off");
+  audioNote.textContent = on ? "Each step is read aloud as it appears." : "";
+  if (!on) stopAudio();
+}
+
+function clearRows() {
+  for (const id of rowIds) {
+    document.getElementById("row-" + id).className = "row";
+  }
+}
+
+function render() {
+  clearRows();
+  if (i < 0) {
+    stepLabel.textContent = "Ready";
+    narrationEl.textContent = "Press Step or Play to begin.";
+    consoleEl.innerHTML = "";
+    progressEl.textContent = "0 / " + STEPS.length;
+    return;
+  }
+  const s = STEPS[i];
+  stepLabel.textContent = s.label;
+  narrationEl.textContent = s.narration;
+  for (const id of rowIds) {
+    const el = document.getElementById("row-" + id);
+    const cls = s.rows[id];
+    el.className = "row " + (cls ? cls : "dim");
+  }
+  consoleEl.innerHTML = s.console
+    .map(([text, cls]) => '<span class="' + cls + '">' + text + "</span>")
+    .join("\n");
+  progressEl.textContent = (i + 1) + " / " + STEPS.length;
+}
+
+function step() {
+  if (i >= STEPS.length - 1) { stopPlay(); return; }
+  i += 1;
+  render();
+  playClip(i);
+}
+
+function reset() {
+  stopPlay();
+  stopAudio();
+  i = -1;
+  render();
+}
+
+function startPlay() {
+  if (timer) return;
+  playBtn.innerHTML = "Pause &#10074;&#10074;";
+  timer = setInterval(() => {
+    if (i >= STEPS.length - 1) { stopPlay(); return; }
+    step();
+  }, 9000);
+}
+
+function stopPlay() {
+  if (timer) clearInterval(timer);
+  timer = null;
+  playBtn.innerHTML = "Play &#9654;";
+}
+
+stepBtn.addEventListener("click", () => { stopPlay(); step(); });
+resetBtn.addEventListener("click", reset);
+playBtn.addEventListener("click", () => { if (timer) stopPlay(); else startPlay(); });
+audioBtn.addEventListener("click", () => setAudio(!audioOn));
+
+render();
+</script>
+<!-- videokit:narration -->
+<script>
+/* videokit narration player: a Narration on/off switch and a play/pause
+   button for the current step. It watches the page's own narration text,
+   works out which step is showing, and plays audio/step-N.m4a beside the
+   page (rendered by tools/videokit; not embedded, so the page stays small).
+   If the page already plays its own clips, only the pause button is added. */
+(function () {
+  "use strict";
+  var STEPS = ["Act one. There is no router. All six orders are put on the warehouse's own queue, and the warehouse sorts out what it can. It ships the three physical ones and can do nothing with the other three: two gift cards and a subscription. So the warehouse grows an if for every kind of order.", "Act two. A Camel route reads the orders queue and asks four questions in order: high value, digital, express, physical. The first yes decides. Order one goes to express shipping. Orders two and four go to digital delivery. Order three, worth twelve hundred pounds, goes to fraud review. Order six goes to standard shipping. Order five, the subscription, is claimed by no question and takes the otherwise branch to manual review.", "Act three. One digital gift card, worth fifteen hundred pounds, goes through two routes with the same four questions in two orders. With the value question asked first, it goes to fraud review. With it asked last, the digital question says yes first, and it goes to digital delivery. Camel does not warn you when the order changes.", "Act four. A subscription order, and every question says no. With an otherwise branch it lands in manual review. With no otherwise branch the route simply ends, tells the broker the order was handled, and the broker deletes it. Messages left anywhere in the shop: zero. With an otherwise branch named for the problem, it lands on a queue called unclaimed, where somebody can look at it.", "Act five. A fifth question is added, for orders from the European Union, asked after the other four. No sender and no receiving queue is touched. An EU subscription that used to go to manual review now goes to the tax check. Order six, a parcel from the EU, still goes to standard shipping, because the physical question says yes first.", "Act six. The bill. The sender calls parcels goods instead of physical, and order nine lands in manual review without a word. The fraud branch is broken: Camel tries it three times, then puts the order on the errors queue, which holds one. And there is something to run: one container, one exchange and ten queues."];
+  var norm = function (s) { return String(s || "").replace(/\s+/g, " ").trim(); };
+  var box = document.getElementById("narration") || document.querySelector(".narration");
+  if (!box || !STEPS.length) return;
+
+  var pageOwnsAudio = !!document.getElementById("audio");
+  var current = null, step = -1, on = false;
+  try { on = localStorage.getItem("vk-narration") === "on"; } catch (e) {}
+
+  // Remember whichever clip the page (or this script) last started.
+  var realPlay = HTMLMediaElement.prototype.play;
+  HTMLMediaElement.prototype.play = function () {
+    if (current && current !== this) { try { current.pause(); } catch (e) {} }
+    current = this;
+    this.addEventListener("play", label);
+    this.addEventListener("pause", label);
+    this.addEventListener("ended", label);
+    var p = realPlay.apply(this, arguments);
+    label();
+    return p;
+  };
+
+  var bar = document.querySelector(".controls") || box.parentNode;
+  function button(id, text) {
+    var b = document.createElement("button");
+    b.id = id; b.type = "button"; b.textContent = text;
+    bar.appendChild(b);
+    return b;
+  }
+  var narrBtn = pageOwnsAudio ? null : button("vk-narration", "");
+  var stepBtn = button("vk-step-audio", "");
+  var note = document.createElement("span");
+  note.id = "vk-note";
+  note.style.cssText = "color:#94a3b8;font-size:.8rem;margin-left:8px";
+  bar.appendChild(note);
+
+  function stepFor(text) {
+    var t = norm(text);
+    for (var i = 0; i < STEPS.length; i++) {
+      var s = norm(STEPS[i]);
+      if (s && t.indexOf(s.slice(0, 60)) !== -1) return i;
+    }
+    return -1;
+  }
+  function stop() { if (current) { try { current.pause(); } catch (e) {} } current = null; label(); }
+  function play(i) {
+    if (i < 0) return;
+    var a = new Audio("audio-amy-slow/step-" + (i + 1) + ".m4a");
+    a.play().then(function () { note.textContent = ""; }, function (e) {
+      note.textContent = e && e.name === "NotAllowedError"
+        ? "Click Play step to hear this step."
+        : "Narration audio not found: run tools/videokit/videokit.sh animation <project>.";
+      label();
+    });
+  }
+  function label() {
+    if (narrBtn) narrBtn.textContent = (on ? "🔊 Narration: on" : "🔇 Narration: off");
+    if (narrBtn) narrBtn.setAttribute("aria-pressed", String(on));
+    var playing = current && !current.paused && !current.ended;
+    var paused = current && current.paused && !current.ended;
+    stepBtn.textContent = playing ? "⏸ Pause step" : paused ? "▶ Resume step" : "▶ Play step";
+    stepBtn.disabled = step < 0;
+  }
+
+  if (narrBtn) narrBtn.addEventListener("click", function () {
+    on = !on;
+    try { localStorage.setItem("vk-narration", on ? "on" : "off"); } catch (e) {}
+    if (on) { if (step >= 0) play(step); } else stop();
+    label();
+  });
+  stepBtn.addEventListener("click", function () {
+    if (current && !current.ended) {
+      if (current.paused) current.play(); else current.pause();
+    } else play(step);
+  });
+
+  function changed() {
+    var i = stepFor(box.textContent);
+    if (i === step) return;
+    step = i;
+    if (!pageOwnsAudio) { stop(); if (on) play(i); }
+    label();
+  }
+  new MutationObserver(changed).observe(box, { childList: true, subtree: true, characterData: true });
+  changed();
+  label();
+})();
+</script>
+<!-- /videokit:narration -->
+</body>
+</html>

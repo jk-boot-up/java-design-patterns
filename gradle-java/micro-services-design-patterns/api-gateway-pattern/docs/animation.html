@@ -599,5 +599,103 @@ document.addEventListener("keydown", e => {
 setAudio(false);
 reset();
 </script>
+<!-- videokit:narration -->
+<script>
+/* videokit narration player: a Narration on/off switch and a play/pause
+   button for the current step. It watches the page's own narration text,
+   works out which step is showing, and plays audio/step-N.m4a beside the
+   page (rendered by tools/videokit; not embedded, so the page stays small).
+   If the page already plays its own clips, only the pause button is added. */
+(function () {
+  "use strict";
+  var STEPS = ["The product page for an espresso machine needs four answers, and in a shop built out of services they belong to four different teams. The obvious app asks all four itself. It works, and every test you would think to write for it passes.", "A round trip from a phone on a train to the data centre and back is about two hundred milliseconds, and almost none of that is the work. It is the distance, the radio and setting up a secure connection. The catalog service also checks the shopper's token before it answers.", "Price, stock, suggestions: three more round trips, three more token checks. Eight hundred milliseconds of a shopper looking at a half-drawn screen, and the same security decision made four times in four different codebases.", "The name arrived. The price arrived. The stock flag arrived. All three are thrown away with the error, because a row of suggestions nobody would miss did not answer. The shopper wanted to know what an espresso machine costs, and now they cannot find out.", "The gateway is the only thing in the system that knows the product page is made of four parts. The app now makes one call, to one address, and gets back one object already shaped the way the page wants to be drawn.", "At a hundred milliseconds the gateway establishes who is calling, and nothing behind it has to ask again. One security decision, in one place, rather than four copies of it drifting apart in four codebases.", "Catalog answers at a hundred and ten, pricing at a hundred and twenty, inventory at a hundred and thirty. These are calls inside the data centre, so each one costs about ten milliseconds rather than two hundred. The same four services; a different network.", "There is exactly one try and catch in the gateway, and it is wrapped around exactly this call. The catch writes the word degraded into the timeline and returns an empty list. The shopper gets the name, the price, the stock and no suggestions, in two hundred and forty milliseconds. Nobody tells them anything is wrong, because from where they are standing, nothing is.", "This time the service that knows the product's own name is down, and the gateway does not degrade. It refuses, and the shopper is told in a hundred and ten milliseconds that the page cannot be shown right now. A product page with no product on it is not a degraded page. It is a blank one.", "It joins and it forwards. It does not price anything, apply a discount, or decide whether a product may be sold. A gateway that fills up with business rules becomes a bottleneck that owns no data and that nobody dares change \u2014 the receptionist who starts deciding the room rate.", "Both versions return the same page, so a test that checks the page would pass on either and prove nothing. Instead the tests assert one remote call against four, one token check against four, and two hundred and forty milliseconds against eight hundred \u2014 exact numbers, because the clock is simulated.", "One crossing of the slow network, one token check, one address for the client to know, and one place where the question of what to do when a service does not answer finally has an owner. That last one is not in the textbook definition, and it is the half that earns its keep."];
+  var norm = function (s) { return String(s || "").replace(/\s+/g, " ").trim(); };
+  var box = document.getElementById("narration") || document.querySelector(".narration");
+  if (!box || !STEPS.length) return;
+
+  var pageOwnsAudio = !!document.getElementById("audio");
+  var current = null, step = -1, on = false;
+  try { on = localStorage.getItem("vk-narration") === "on"; } catch (e) {}
+
+  // Remember whichever clip the page (or this script) last started.
+  var realPlay = HTMLMediaElement.prototype.play;
+  HTMLMediaElement.prototype.play = function () {
+    if (current && current !== this) { try { current.pause(); } catch (e) {} }
+    current = this;
+    this.addEventListener("play", label);
+    this.addEventListener("pause", label);
+    this.addEventListener("ended", label);
+    var p = realPlay.apply(this, arguments);
+    label();
+    return p;
+  };
+
+  var bar = document.querySelector(".controls") || box.parentNode;
+  function button(id, text) {
+    var b = document.createElement("button");
+    b.id = id; b.type = "button"; b.textContent = text;
+    bar.appendChild(b);
+    return b;
+  }
+  var narrBtn = pageOwnsAudio ? null : button("vk-narration", "");
+  var stepBtn = button("vk-step-audio", "");
+  var note = document.createElement("span");
+  note.id = "vk-note";
+  note.style.cssText = "color:#94a3b8;font-size:.8rem;margin-left:8px";
+  bar.appendChild(note);
+
+  function stepFor(text) {
+    var t = norm(text);
+    for (var i = 0; i < STEPS.length; i++) {
+      var s = norm(STEPS[i]);
+      if (s && t.indexOf(s.slice(0, 60)) !== -1) return i;
+    }
+    return -1;
+  }
+  function stop() { if (current) { try { current.pause(); } catch (e) {} } current = null; label(); }
+  function play(i) {
+    if (i < 0) return;
+    var a = new Audio("audio/step-" + (i + 1) + ".m4a");
+    a.play().then(function () { note.textContent = ""; }, function (e) {
+      note.textContent = e && e.name === "NotAllowedError"
+        ? "Click Play step to hear this step."
+        : "Narration audio not found: run tools/videokit/videokit.sh animation <project>.";
+      label();
+    });
+  }
+  function label() {
+    if (narrBtn) narrBtn.textContent = (on ? "🔊 Narration: on" : "🔇 Narration: off");
+    if (narrBtn) narrBtn.setAttribute("aria-pressed", String(on));
+    var playing = current && !current.paused && !current.ended;
+    var paused = current && current.paused && !current.ended;
+    stepBtn.textContent = playing ? "⏸ Pause step" : paused ? "▶ Resume step" : "▶ Play step";
+    stepBtn.disabled = step < 0;
+  }
+
+  if (narrBtn) narrBtn.addEventListener("click", function () {
+    on = !on;
+    try { localStorage.setItem("vk-narration", on ? "on" : "off"); } catch (e) {}
+    if (on) { if (step >= 0) play(step); } else stop();
+    label();
+  });
+  stepBtn.addEventListener("click", function () {
+    if (current && !current.ended) {
+      if (current.paused) current.play(); else current.pause();
+    } else play(step);
+  });
+
+  function changed() {
+    var i = stepFor(box.textContent);
+    if (i === step) return;
+    step = i;
+    if (!pageOwnsAudio) { stop(); if (on) play(i); }
+    label();
+  }
+  new MutationObserver(changed).observe(box, { childList: true, subtree: true, characterData: true });
+  changed();
+  label();
+})();
+</script>
+<!-- /videokit:narration -->
 </body>
 </html>
