@@ -90,3 +90,7 @@ tools/videokit/rollout-state.lock
 **/video/*-explained-*.mp4
 **/video/*-explained-*.m4a
 **/video/*-explained-*.srt
+
+# Rollout progress reports: regenerated locally by tools/videokit, not committed.
+/ROLLOUT-REPORT.md
+/ROLLOUT-REPORT-*.md
