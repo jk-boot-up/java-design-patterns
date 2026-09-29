@@ -1,0 +1,451 @@
+# pattern.toml for the Servant project. See tools/patternkit.
+
+[project]
+slug = "servant"
+category = "behavioural"
+title = "Servant"
+package = "servant"
+main_class = "ServantDemo"
+tagline = "One helper serves them all"
+bold = "Put behaviour that many unrelated classes need into one separate helper, the servant, which works on anything that offers a small interface."
+domain_note = ""
+thumb_lines = ["SERVANT"]
+thumb_code = "servant.postage(item)"
+youtube_title = "Servant"
+youtube_tags = ["servant pattern", "behavioural patterns", "interfaces", "code reuse", "java"]
+
+[readme]
+intro = """
+Servant is a behavioural pattern for sharing behaviour between classes that
+have nothing else in common. Instead of copying the same method into each
+class, or forcing them all under one parent class, you write the behaviour
+once, in a separate class called the servant. Each class only promises a small
+interface, the few facts the servant needs, and the servant does the work.
+
+The classes stay small and free to belong to whatever family they like, and the
+behaviour lives in exactly one place.
+"""
+analogy = """
+Think of a car wash. Every car in town gets washed, but no car carries its own
+brushes and soap. The car wash does not care about the make or the model. It
+only needs a car that fits through the door. When the car wash changes its
+prices, it changes them once, for every car.
+"""
+scenario = """
+The online store posts parcels, letters and gift cards. Each kind of item had
+its own copy of the postage sum. When the carrier raised its prices, someone
+updated the parcel's copy and missed the other two, so letters and gift cards
+were undercharged.
+"""
+costs = [
+    "**The behaviour is not on the object.** There is no `parcel.postage()`; you have to know the servant exists to find it.",
+    "**Items show more of themselves.** Each item must expose its weight and city to anyone, so the servant can read them.",
+    "**Easy to overdo.** Pulling every method out into servants leaves classes that only hold data and do nothing.",
+]
+too_much = """
+When the classes already share a natural parent, a method on that parent is
+simpler. And when only one class needs the behaviour, it belongs in that class.
+A servant is worth it when several unrelated classes need the same job done.
+"""
+met_before = [
+    "`java.util.Collections.sort(list)`: one class that sorts any `List` of `Comparable` things.",
+    "`Files`, `Objects` and other Java utility classes that work on anything with the right interface.",
+    "Printing and export helpers that turn any object with a few getters into a label or a CSV row.",
+    "Service classes in Spring applications that operate on plain data objects.",
+]
+where = """
+This project is in [behavioural](..), next to [Visitor](../visitor-pattern),
+which also keeps an operation outside the classes it works on, but lets the
+operation differ for each class. A servant does the same job for all of them.
+"""
+
+[[act]]
+title = "Copied postage"
+summary = "The carrier's new rates reached the parcel's copy (£6.00) but not the letter's or gift card's (£2.50, should be £2.80)."
+detail = """
+Postage is now 120 pence plus 160 pence for every started kilo. The parcel's
+copy of the sum was updated: 2300 grams costs £6.00. The letter's and gift
+card's copies still use the old rates and charge £2.50 instead of £2.80. A
+shared parent class could have held one copy, but it would tie every item into
+one family tree just to be posted.
+"""
+speech = """
+First demo: each item carries its own copy of the postage sum. [[slnc 400]] The carrier's new rates are one pound twenty, plus one pound sixty for every started kilo. [[slnc 600]]
+The parcel's copy was updated. [[slnc 300]] Two point three kilos costs six pounds. [[slnc 500]]
+The letter's copy was missed. [[slnc 300]] It charges two pounds fifty, not two eighty. [[slnc 300]] So was the gift card's. [[slnc 600]]
+Each copy looks fine on its own. [[slnc 300]] Together, they disagree.
+"""
+rows = { parcel = "active ok", letter = "active wrong", gift = "active wrong" }
+console = [
+    ["parcel, 2300 g: £6.00 (updated)", "ok"],
+    ["letter, 80 g: £2.50 (should be £2.80)", "bad"],
+    ["gift card, 20 g: £2.50 (missed)", "bad"],
+]
+
+[[act]]
+title = "One servant"
+summary = "ShippingServant labels the parcel £6.00 and the letter and gift card £2.80 each, from one copy of the rates."
+detail = """
+`ShippingServant` holds the rates and the sum, once. Each item only implements
+`Shippable`: a name, a weight in grams and a city. The servant prints a label
+for each: parcel £6.00, letter £2.80, gift card £2.80. The items hold no
+shipping code at all.
+"""
+speech = """
+Second demo: one shipping servant serves every item. [[slnc 400]] The rates and the sum now live in one class, the servant. [[slnc 500]]
+Each item only promises three things. [[slnc 300]] Its name, its weight, and the city it is going to. [[slnc 600]]
+The servant prints a label for each. [[slnc 300]] Parcel, six pounds. [[slnc 300]] Letter, two eighty. [[slnc 300]] Gift card, two eighty. [[slnc 500]]
+The items hold no shipping code at all.
+"""
+rows = { servant = "active ok", parcel = "active ok", letter = "active ok", gift = "active ok" }
+console = [
+    ["PARCEL-1 | 2300 g | to Leeds | £6.00", "ok"],
+    ["LETTER-1 | 80 g | to Bath | £2.80", "ok"],
+    ["GIFTCARD-1 | 20 g | to York | £2.80", "ok"],
+]
+
+[[act]]
+title = "A new kind of item"
+summary = "A 180 kg pallet to Hull is labelled £289.20 with no new shipping code; it only says its name, weight and city."
+detail = """
+The shop starts sending pallets. `Pallet` implements `Shippable`, and the same
+servant labels it: 180,000 grams to Hull, £289.20. No postage code was written
+for pallets.
+"""
+speech = """
+Third demo: a new kind of item. [[slnc 400]] The shop starts sending pallets. [[slnc 500]]
+A pallet only says its name, its weight, and its city. [[slnc 300]] The same servant labels it. [[slnc 300]] One hundred and eighty kilos, to Hull, two hundred and eighty-nine pounds twenty. [[slnc 500]]
+Not one line of postage code was written for pallets.
+"""
+rows = { servant = "active ok", pallet = "active ok" }
+console = [
+    ["PALLET-1 | 180000 g | to Hull | £289.20", "ok"],
+    ["no new shipping code", "ok"],
+]
+
+[[act]]
+title = "Tested alone"
+summary = "A made-up 1001 g item costs £4.40, two started kilos; the servant keeps no state between items."
+detail = """
+Because the servant only needs a `Shippable`, it can be tested with a made-up
+item. 1001 grams is two started kilos: £4.40. The servant keeps nothing
+between calls, so one instance serves every item in the shop.
+"""
+speech = """
+Fourth demo: the servant can be tested on its own. [[slnc 400]] A test makes up an item of one thousand and one grams. [[slnc 300]] That is two started kilos: four pounds forty. [[slnc 600]]
+No real parcel, letter or pallet was needed. [[slnc 500]]
+And the servant keeps nothing between calls. [[slnc 300]] One servant object serves every item in the shop.
+"""
+rows = { servant = "active ok", test = "active ok" }
+console = [
+    ["made-up 1001 g item: £4.40", "ok"],
+    ["one servant, no state kept", "ok"],
+]
+
+[[act]]
+title = "The bill"
+summary = "There is no parcel.postage(), so the servant must be known; every item must expose its weight and city."
+detail = """
+The behaviour is no longer on the item. A developer typing `parcel.` finds no
+postage method and has to know the servant exists. And every item now exposes
+its weight and city to anyone who asks, because the servant needs them.
+"""
+speech = """
+Fifth demo: the bill. [[slnc 400]] The behaviour is not on the item any more. [[slnc 300]] A developer looking for parcel dot postage finds nothing. [[slnc 300]] They have to know the servant exists. [[slnc 600]]
+And every item now shows its weight and city, to anyone who asks. [[slnc 300]] Because the servant needs them.
+"""
+rows = { servant = "active amber", parcel = "active amber" }
+console = [
+    ["no parcel.postage(): find the servant", "amber"],
+    ["every item exposes weight and city", "amber"],
+]
+
+[animation]
+subtitle = "Parcels, letters, gift cards and pallets hold no shipping code; one servant labels anything Shippable."
+boxes = [
+    ["parcel", "Parcel", "2300 g to Leeds"],
+    ["letter", "Letter", "80 g to Bath"],
+    ["gift", "Gift card", "20 g to York, also a Voucher"],
+    ["pallet", "Pallet", "180 kg to Hull, added later"],
+    ["servant", "Shipping servant", "rates, postage, label"],
+    ["test", "Made-up item", "for testing the servant"],
+]
+
+[docs.problem]
+scenario = """
+The store posts parcels, letters and gift cards, each a different class with
+nothing in common except that it can be posted.
+"""
+naive = """
+`CopiedPostage` keeps one copy of the sum per kind of item. A price change
+reached one copy and missed two, so letters and gift cards were charged £2.50
+instead of £2.80.
+"""
+deliver = [
+    "The drifted copies shown: £6.00, £2.50, £2.50.",
+    "A `Shippable` interface with only what shipping needs.",
+    "A stateless `ShippingServant` that prices and labels any Shippable.",
+    "A new item type shipped with no new shipping code.",
+    "The servant tested with a made-up item.",
+    "Every printed result asserted by a test.",
+]
+
+[docs.prerequisites]
+required = [
+    "Java basics: interfaces, records, methods.",
+    "The idea of an interface as a small promise.",
+]
+not_required = [
+    "Any other design pattern. Visitor is compared, not required.",
+]
+
+[docs.session]
+objectives = [
+    "Explain why copies of the same behaviour drift apart.",
+    "Say why a shared parent class is not always possible or wanted.",
+    "Write a servant that depends only on a small interface.",
+    "Name the cost: behaviour you cannot find on the object.",
+]
+walkthrough = """
+Run `./gradlew run` and read act one: three copies, two of them wrong. Then
+open `Shippable` (three methods) and `ShippingServant` (two). Point out that
+`Items` contains no shipping code at all, and that `GiftCard` is also a
+`Voucher`, which is why a shared parent class would not fit.
+"""
+exercises = [
+    "Add international postage: double the rate when the city is outside the UK. Where does the change go?",
+    "Add a `CustomsServant` that uses the gift card's value. What interface does it need?",
+    "Make the servant refuse items over 200 kg.",
+    "Write a test with a made-up item that proves 0 grams is charged as one started kilo.",
+]
+
+[docs.explained]
+sentence = """
+A servant is a separate class that performs one job for many unrelated classes,
+each of which only offers a small interface with the facts the job needs.
+"""
+verdict = """
+Use a servant when several unrelated classes need the same behaviour and a
+shared parent class does not fit. Keep the interface small, keep the servant
+stateless, and name it so developers can find it.
+"""
+recognise = [
+    "Classes named `...Service`, `...Helper` or `...s` (like `Collections`) that take an interface as a parameter.",
+    "Small interfaces such as `Comparable`, `Shippable`, `Printable`.",
+    "Several classes implementing the same small interface only to be handled by one helper.",
+]
+
+[spec]
+purpose = """
+Teach Servant with an online store's postage: three copies of the sum drifting
+(£6.00, £2.50, £2.50), then a ShippingServant over a Shippable interface that
+labels a parcel, letter, gift card and a new pallet (£289.20) consistently and
+is tested with a made-up item.
+"""
+nongoals = [
+    "Not a real carrier's price list. The rates are illustrative.",
+    "Not dependency injection. The servant is created with `new`.",
+]
+problem = """
+The same behaviour copied into several unrelated classes drifts apart when it
+changes.
+"""
+roles = [
+    ["The pattern", "`ShippingServant`"],
+    ["What it needs", "`Shippable`"],
+    ["The served", "`Items.Parcel`, `Letter`, `GiftCard`, `Pallet`"],
+    ["The naive version", "`CopiedPostage`"],
+    ["Entry point", "`ServantDemo`, five acts"],
+]
+requirements = [
+    "**One copy:** the rates and the sum exist only in the servant.",
+    "**Small interface:** `Shippable` has three methods.",
+    "**Stateless:** one servant serves every item.",
+    "**Open to new items:** a pallet needs no shipping code.",
+    "**Every printed result is asserted** in `DemoRunsTest`.",
+]
+
+[[diagram]]
+name = "architecture-diagram"
+kind = "flow"
+title = "Servant — the pieces"
+caption = "Many unrelated items, one interface, one servant."
+nodes = [
+    { id = "p", label = "Parcel", sub = "Shippable", col = 0, row = 0, colour = "client" },
+    { id = "l", label = "Letter", sub = "Shippable", col = 0, row = 1, colour = "client" },
+    { id = "g", label = "GiftCard", sub = "Shippable, Voucher", col = 0, row = 2, colour = "client" },
+    { id = "s", label = "ShippingServant", sub = "rates, postage, label", col = 1, row = 1, colour = "accent" },
+    { id = "o", label = "Label", sub = "name | grams | city | price", col = 2, row = 1, colour = "green" },
+]
+edges = [
+    { from = "s", to = "p", label = "reads" },
+    { from = "s", to = "l", label = "reads" },
+    { from = "s", to = "g", label = "reads" },
+    { from = "s", to = "o", label = "prints" },
+]
+
+[[diagram]]
+name = "class-diagram"
+kind = "class"
+title = "Servant — classes"
+caption = "The servant depends on the interface, never on the item classes."
+nodes = [
+    { id = "i", label = "«interface» Shippable", sub = ["+ name()", "+ grams()", "+ city()"], col = 1, row = 0, colour = "accent" },
+    { id = "s", label = "ShippingServant", sub = ["- basePence, perKiloPence", "+ postage(Shippable)", "+ label(Shippable)"], col = 2, row = 0, colour = "green" },
+    { id = "p", label = "«record» Parcel", sub = ["name, grams, city"], col = 0, row = 1, colour = "client" },
+    { id = "g", label = "«record» GiftCard", sub = ["name, grams, city", "valuePence (Voucher)"], col = 1, row = 1, colour = "client" },
+    { id = "pl", label = "«record» Pallet", sub = ["name, grams, city"], col = 2, row = 1, colour = "client" },
+]
+edges = [
+    { from = "s", to = "i", label = "uses" },
+    { from = "p", to = "i", label = "implements" },
+    { from = "g", to = "i", label = "implements" },
+    { from = "pl", to = "i", label = "implements" },
+]
+
+[[diagram]]
+name = "data-flow-diagram"
+kind = "flow"
+title = "Servant — pricing a letter"
+caption = "Three facts in, one label out."
+nodes = [
+    { id = "a", label = "LETTER-1", sub = "80 g, Bath", col = 0, row = 0, colour = "client" },
+    { id = "b", label = "1 started kilo", sub = "(80 + 999) / 1000", col = 1, row = 0, colour = "amber" },
+    { id = "c", label = "120 + 160 = 280p", sub = "one copy of the rates", col = 2, row = 0, colour = "accent" },
+    { id = "d", label = "LETTER-1 | 80 g | to Bath | £2.80", sub = "the label", col = 2, row = 1, colour = "green" },
+]
+edges = [
+    { from = "a", to = "b", label = "grams()" },
+    { from = "b", to = "c", label = "postage" },
+    { from = "c", to = "d", label = "label" },
+]
+
+[[diagram]]
+name = "sequence-diagram"
+kind = "sequence"
+title = "Servant — labelling a pallet"
+caption = "The servant asks only what Shippable promises."
+participants = ["Demo", "ShippingServant", "Pallet"]
+steps = [
+    ["Demo", "ShippingServant", "label(pallet)"],
+    ["ShippingServant", "Pallet", "name(), grams(), city()"],
+    ["Pallet", "ShippingServant", "PALLET-1, 180000, Hull", "reply"],
+    ["ShippingServant", "Demo", "... | £289.20", "reply"],
+]
+
+[[diagram]]
+name = "uml-diagram"
+kind = "sequence"
+title = "1. Copies drift"
+caption = "A price change reaches one copy and misses another."
+participants = ["Carrier", "Parcel copy", "Letter copy"]
+steps = [
+    ["Carrier", "Parcel copy", "new rates"],
+    ["note", "Letter copy", "not updated"],
+    ["note", "Letter copy", "still £2.50"],
+]
+
+[[diagram]]
+name = "uml-diagram-2"
+kind = "sequence"
+title = "2. Testing the servant alone"
+caption = "A made-up item is enough."
+participants = ["Test", "ShippingServant", "Made-up item"]
+steps = [
+    ["Test", "ShippingServant", "postage(item)"],
+    ["ShippingServant", "Made-up item", "grams()"],
+    ["Made-up item", "ShippingServant", "1001", "reply"],
+    ["ShippingServant", "Test", "440 pence", "reply"],
+]
+
+[poster]
+headline = [["SERVANT", "text"]]
+before = { code = "parcel.postage()", note = "3 copies, 2 out of date", tag = "BEFORE" }
+after = { code = "servant.postage(item)", note = "one copy, every item", tag = "AFTER" }
+taglines = [["One helper serves them all", "gold"]]
+
+[[scene]]
+key = "01-poster"
+kind = "poster"
+title = "Servant"
+narration = """
+Hello, and welcome. [[slnc 400]] This video explains the Servant pattern, in Java. [[slnc 300]]
+This video is presented by Jayasekhar Konduru. [[slnc 600]]
+First, a simple definition. [[slnc 300]] A servant is a separate class that does one job for many classes that have nothing else in common. [[slnc 300]] Each class only offers a few facts. [[slnc 300]] The servant does the work, written once. [[slnc 600]]
+Think of a car wash. [[slnc 300]] Every car gets washed, but no car carries its own brushes and soap. [[slnc 300]] The car wash does not care about the make or model. [[slnc 300]] When its prices change, they change once, for every car. [[slnc 700]]
+In this video, the domain is an online shop. [[slnc 300]] It posts parcels, letters and gift cards, and later, pallets. [[slnc 500]]
+By the end, you will hear how copies of the same code drift apart. [[slnc 300]] How one servant fixes it. [[slnc 300]] How a new kind of item needs no new code. [[slnc 300]] And what the pattern costs.
+"""
+
+[[scene]]
+key = "02-scenario"
+kind = "bullets"
+title = "The Scenario"
+body = ["The shop posts parcels, letters", "and gift cards.", "", "Each kind of item had its own", "copy of the postage sum.", "", "Then the carrier raised its prices."]
+narration = """
+Here is the scenario. [[slnc 400]] The shop posts parcels, letters, and gift cards. [[slnc 300]] Each one is a different class. [[slnc 500]]
+Each had its own copy of the postage sum. [[slnc 300]] A base price, plus a charge for every started kilo. [[slnc 500]]
+Then the carrier raised its prices. [[slnc 300]] Someone had to update every copy.
+"""
+
+[[scene]]
+key = "03-acts"
+kind = "acts"
+title = "acts"
+
+[[scene]]
+key = "04-pattern"
+kind = "bullets"
+title = "The Pattern"
+body = ["Write the behaviour once,", "in a separate class: the servant.", "", "Each class offers a small interface:", "the facts the servant needs.", "", "The servant does the work."]
+narration = """
+Let's name the pattern. [[slnc 400]] Write the behaviour once, in a separate class. [[slnc 300]] That class is the servant. [[slnc 500]]
+Each class that needs the job done offers a small interface. [[slnc 300]] Just the facts the servant needs. [[slnc 300]] Here: a name, a weight, and a city. [[slnc 500]]
+The servant takes any object with that interface, and does the work.
+"""
+
+[[scene]]
+key = "05-roles"
+kind = "bullets"
+title = "Who Does What"
+body = ["Shippable: name, grams, city", "Parcel, Letter, GiftCard, Pallet:", "the served, no shipping code", "ShippingServant: rates, postage, label", "CopiedPostage: the old way"]
+narration = """
+Here is who does what. [[slnc 400]] Shippable is the small interface: name, grams, and city. [[slnc 500]]
+Parcel, letter, gift card, and pallet are the served. [[slnc 300]] They implement Shippable, and hold no shipping code. [[slnc 500]]
+The shipping servant holds the rates, works out the postage, and prints the label. [[slnc 500]]
+And copied postage is the old way, kept for comparison.
+"""
+
+[[scene]]
+key = "06-recognise"
+kind = "bullets"
+title = "Where You Have Seen It"
+body = ["Collections.sort(list)", "Java's Files and Objects classes", "Label and export helpers", "Spring service classes"]
+narration = """
+You have probably met this pattern already. [[slnc 400]] Collections dot sort is a servant. [[slnc 300]] It sorts any list of things that can be compared. [[slnc 500]]
+Java's Files and Objects classes work the same way. [[slnc 500]]
+And so do label printers, export helpers, and many service classes in Spring applications.
+"""
+
+[[scene]]
+key = "07-verdict"
+kind = "bullets"
+title = "When To Use It"
+body = ["Several unrelated classes need", "the same job done.", "", "Keep the interface small.", "Keep the servant stateless.", "Name it so people find it."]
+narration = """
+So, when should you use it? [[slnc 400]] When several unrelated classes need the same job done, and a shared parent class does not fit. [[slnc 500]]
+Keep the interface small. [[slnc 300]] Keep the servant free of state. [[slnc 300]] And give it a name people will find. [[slnc 500]]
+When only one class needs the behaviour, keep it in that class.
+"""
+
+[[scene]]
+key = "08-outro"
+kind = "outro"
+title = "Thanks for Watching"
+body = ["Full source, notes, diagrams and an animated walkthrough", "are in the repository. Add international", "postage in one place."]
+narration = """
+That's the Servant pattern. [[slnc 400]] If you remember one sentence, make it this one. [[slnc 300]] When many unrelated classes need the same job, write it once, in a servant. [[slnc 500]]
+The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. [[slnc 300]] It runs offline, with nothing installed except a Java development kit. [[slnc 500]]
+Here is one exercise to try. [[slnc 300]] Add international postage, and notice that only the servant changes. [[slnc 500]]
+If this helped, a like really does help other people find it. [[slnc 300]] And subscribe, if you'd like the rest of the series. [[slnc 400]] Thanks for watching.
+"""

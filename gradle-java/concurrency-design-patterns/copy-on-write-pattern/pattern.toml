@@ -1,0 +1,449 @@
+# pattern.toml for the Copy-on-Write project. See tools/patternkit.
+
+[project]
+slug = "copy-on-write"
+category = "concurrency-design-patterns"
+title = "Copy-on-Write"
+package = "copyonwrite"
+main_class = "CopyOnWriteDemo"
+tagline = "Read freely, copy to change"
+bold = "Let readers use the current copy with no locks at all, and make every writer copy the whole thing, change the copy, and swap it in."
+domain_note = ""
+thumb_lines = ["COPY-ON-WRITE"]
+thumb_code = "CopyOnWriteArrayList"
+youtube_title = "Copy-on-Write"
+youtube_tags = ["copy on write", "CopyOnWriteArrayList", "concurrency", "lock free reads", "java"]
+
+[readme]
+intro = """
+Copy-on-Write is a concurrency pattern for data that is read far more often
+than it changes. Readers use the current version directly, with no locks. A
+writer never changes that version: it copies it, changes the copy, and
+replaces the current version with the copy in one step. A reader half way
+through the old version carries on undisturbed, and the next reader sees the
+new one.
+
+Java's `CopyOnWriteArrayList` and `CopyOnWriteArraySet` work this way, and
+they are the usual home for lists of listeners.
+"""
+analogy = """
+Think of a restaurant's printed menus. Diners read them at their tables, as
+long as they like. To change a dish, the manager does not cross it out on the
+menus in people's hands; they print a whole new batch and swap them in at the
+door. Diners already reading finish with the old menu; new diners get the new
+one. Reprinting for every small change is expensive, so it suits menus that
+rarely change.
+"""
+scenario = """
+When a product's price changes, the online store tells a list of listeners:
+the web page cache, the loyalty service, the phone app. Prices change
+constantly; the list of listeners rarely does. The list was a plain
+`ArrayList`, and when the loyalty service subscribed the email service while
+being told about a price change, the notification loop crashed half way.
+"""
+costs = [
+    "**Every write copies everything.** Adding 10,000 listeners one by one copied almost 50 million references.",
+    "**Readers may see an old version.** A reader that started before a change finishes with the old list.",
+    "**Writers wait for each other.** Writes are serialised by a lock.",
+]
+too_much = """
+For data that changes often, such as a shopping basket or an order queue,
+copying on every write is far too costly: use a concurrent collection or a
+lock instead. Copy-on-write is for small collections that are read constantly
+and changed rarely.
+"""
+met_before = [
+    "`java.util.concurrent.CopyOnWriteArrayList` and `CopyOnWriteArraySet`.",
+    "Listener and observer lists in Swing, Spring and many libraries.",
+    "Linux's `fork()`, which shares memory between processes until one writes to it.",
+    "Snapshots in file systems such as ZFS and Btrfs.",
+]
+where = """
+This project is in [concurrency-design-patterns](..), next to
+[Read-Write Lock](../read-write-lock-pattern), which also favours readers but
+makes them take a lock, and near
+[Immutable Object](../../foundational-design-patterns/immutable-object-pattern),
+the idea copy-on-write is built on.
+"""
+
+[[act]]
+title = "A plain list, changed while read"
+summary = "The loyalty service subscribes the email service mid-notification: ConcurrentModificationException; the phone app never hears."
+detail = """
+The listeners are kept in a plain `ArrayList`. The kettle's price changes and
+the loop starts telling each listener. The loyalty service, when told,
+subscribes the email service, which adds to the list being looped over. The
+loop throws `ConcurrentModificationException` after the web page cache and
+the loyalty service, and the phone app never hears the new price.
+"""
+speech = """
+First demo: a plain list, changed while it is being read. [[slnc 400]] The kettle's price changes. [[slnc 300]] The shop tells each listener in turn. [[slnc 500]]
+The web page cache hears it. [[slnc 300]] The loyalty service hears it, and subscribes the email service, adding to the list as it goes. [[slnc 600]]
+The loop crashes, with a concurrent modification exception. [[slnc 300]] The phone app never hears about the new price.
+"""
+rows = { plain = "active wrong", loyalty = "active amber", app = "active wrong" }
+console = [
+    ["loyalty subscribes email mid-loop", "amber"],
+    ["ConcurrentModificationException", "bad"],
+    ["the phone app never heard", "bad"],
+]
+
+[[act]]
+title = "A copy-on-write list"
+summary = "The same thing with a copy-on-write list: all 3 listeners hear the first change, all 4 hear the next."
+detail = """
+`CowList` keeps its listeners in an array that is never changed once
+published. The loop reads the current array; the loyalty service's
+subscription copies the array, adds the email service, and swaps the copy in.
+All three original listeners hear the first change, and all four hear the
+next one.
+"""
+speech = """
+Second demo: a copy-on-write list. [[slnc 400]] The same thing happens. [[slnc 300]] The loyalty service subscribes the email service while being told. [[slnc 500]]
+This time, the loop is reading an array that nobody will ever change. [[slnc 300]] The new subscription copies the array, adds to the copy, and swaps it in. [[slnc 600]]
+The first change reaches all three listeners. [[slnc 300]] The next change reaches all four.
+"""
+rows = { cow = "active ok", loyalty = "active ok", app = "active ok", email = "active ok" }
+console = [
+    ["first change: web cache, loyalty, app", "ok"],
+    ["next change: + email service", "ok"],
+]
+
+[[act]]
+title = "Readers never lock"
+summary = "100,000 notification passes while another thread subscribes and unsubscribes 1,000 times: 0 failures, 0 reader locks."
+detail = """
+One thread runs a hundred thousand notification passes over the list while
+another subscribes and unsubscribes a thousand times. Readers never take a
+lock and never see a half-changed list: zero failures.
+"""
+speech = """
+Third demo: readers never lock, and are never disturbed. [[slnc 400]] One thread tells the listeners about prices, a hundred thousand times. [[slnc 300]] At the same moment, another thread subscribes and unsubscribes, a thousand times. [[slnc 600]]
+Failures: zero. [[slnc 300]] Locks taken by the readers: zero.
+"""
+rows = { cow = "active ok", readers = "active ok", writer = "active amber" }
+console = [
+    ["100,000 passes, 1,000 changes", "muted"],
+    ["failures: 0; reader locks: 0", "ok"],
+]
+
+[[act]]
+title = "Snapshots"
+summary = "A reader started with 3 listeners; a fourth was added; the reader finishes with 3."
+detail = """
+A reader starts going through the list when it has three listeners. A fourth
+is added before it finishes. The reader completes its pass over the three it
+started with; the next reader will see four.
+"""
+speech = """
+Fourth demo: each reader sees a snapshot. [[slnc 400]] A reader starts going through the list. [[slnc 300]] It has three listeners. [[slnc 500]]
+Before it finishes, a fourth is added. [[slnc 500]]
+The reader finishes with the three it started with. [[slnc 300]] Like a diner with the old menu. [[slnc 300]] The next reader sees four.
+"""
+rows = { cow = "active ok", readers = "active amber" }
+console = [
+    ["reader started with 3 listeners", "muted"],
+    ["the list now has 4", "amber"],
+]
+
+[[act]]
+title = "The bill"
+summary = "Adding 10,000 listeners one at a time copies 49,995,000 references."
+detail = """
+Every write copies the whole array. Adding ten thousand listeners one at a
+time copied 49,995,000 references in total. That is fine for a list read
+constantly and changed rarely, and wrong for anything that changes all the
+time.
+"""
+speech = """
+Fifth demo: the bill. [[slnc 400]] Every write copies everything. [[slnc 500]]
+Add ten thousand listeners, one at a time. [[slnc 300]] Nearly fifty million references are copied along the way. [[slnc 600]]
+That is fine for a list that is read constantly and changed rarely. [[slnc 300]] It is wrong for anything that changes all the time.
+"""
+rows = { cow = "active amber", writer = "active wrong" }
+console = [
+    ["10,000 adds: 49,995,000 copies", "bad"],
+    ["for lists that rarely change", "amber"],
+]
+
+[animation]
+subtitle = "Price changes are sent to listeners by reading a list that is never changed; a new subscription copies the list and swaps it in."
+boxes = [
+    ["plain", "ArrayList", "the old way"],
+    ["cow", "Copy-on-write list", "an array never changed"],
+    ["readers", "Notification loop", "reads, no lock"],
+    ["writer", "Subscribe", "copy, add, swap"],
+    ["loyalty", "Loyalty service", "subscribes email"],
+    ["app", "Phone app", "a listener"],
+    ["email", "Email service", "the new listener"],
+]
+
+[docs.problem]
+scenario = """
+Price changes are sent to a list of listeners; the list is read constantly
+and changed rarely, sometimes by a listener while it is being notified.
+"""
+naive = """
+A plain `ArrayList` of listeners throws `ConcurrentModificationException`
+when a listener subscribes another during a notification, and the rest never
+hear.
+"""
+deliver = [
+    "The ArrayList failure shown mid-notification.",
+    "A hand-written copy-on-write list that survives it.",
+    "Concurrent readers and writers with no failures and no reader locks.",
+    "A reader's snapshot shown.",
+    "The copying cost counted.",
+    "Every printed result asserted by a test.",
+]
+
+[docs.prerequisites]
+required = [
+    "Java basics: lists, iterators, lambdas, threads at a beginner level.",
+]
+not_required = [
+    "The Java memory model in depth. `volatile` is explained where it is used.",
+]
+
+[docs.session]
+objectives = [
+    "Explain why changing a list while iterating it fails.",
+    "Describe copy, change, swap.",
+    "Explain why readers need no lock.",
+    "Decide when copying on every write is too costly.",
+]
+walkthrough = """
+Run `./gradlew run` and read act one: a subscription during a notification
+crashes the loop. Open `CowList`: `add` copies, `iterator` takes the array as
+it is. Then show that Java's `CopyOnWriteArrayList` does the same, and end on
+act five's copy count.
+"""
+exercises = [
+    "Replace CowList with `CopyOnWriteArrayList` and run the demo again.",
+    "Add `addAll` that copies once for many listeners. How many copies does act five need now?",
+    "Try act three with a `Collections.synchronizedList`. What happens to the readers?",
+]
+
+[docs.explained]
+sentence = """
+Copy-on-write lets readers use the current version with no locks and makes
+every writer copy it, change the copy and swap it in.
+"""
+verdict = """
+Use copy-on-write for small collections that are read constantly and changed
+rarely, above all lists of listeners. Use `CopyOnWriteArrayList` rather than
+writing your own, and choose something else for data that changes often.
+"""
+recognise = [
+    "`CopyOnWriteArrayList` or `CopyOnWriteArraySet` fields named `listeners` or `subscribers`.",
+    "A `volatile` array or list replaced whole on every change.",
+    "Iteration with no locks over shared data.",
+]
+
+[spec]
+purpose = """
+Teach Copy-on-Write with an online store's price-change listeners: an
+ArrayList crashing when a listener subscribes another mid-notification, then
+a copy-on-write list that survives it, readers with no locks under concurrent
+changes, snapshots, and 49,995,000 references copied for 10,000 adds.
+"""
+nongoals = [
+    "Not a replacement for CopyOnWriteArrayList. The hand-written list shows how it works.",
+    "Not benchmarks. Copies are counted, not timed.",
+]
+problem = """
+A list read constantly and changed occasionally, sometimes during a read,
+fails with a plain collection and slows readers with a locked one.
+"""
+roles = [
+    ["The pattern", "`CowList`"],
+    ["The listeners", "`PriceListener`"],
+    ["The naive version", "`ArrayList` in act one"],
+    ["Entry point", "`CopyOnWriteDemo`, five acts"],
+]
+requirements = [
+    "**No reader locks:** iteration takes the published array.",
+    "**Copy, change, swap:** writes never change a published array.",
+    "**Snapshots:** an iterator sees the list as it was when it started.",
+    "**Counted cost:** copies are counted.",
+    "**Every printed result is asserted** in `DemoRunsTest`.",
+]
+
+[[diagram]]
+name = "architecture-diagram"
+kind = "flow"
+title = "Copy-on-Write — the pieces"
+caption = "Readers read the current array; a writer builds the next one."
+nodes = [
+    { id = "r", label = "Notification loop", sub = "reads, no lock", col = 0, row = 0, colour = "client" },
+    { id = "a", label = "array v1", sub = "3 listeners, never changed", col = 1, row = 0, colour = "accent" },
+    { id = "w", label = "subscribe(email)", sub = "copy + add", col = 0, row = 1, colour = "amber" },
+    { id = "b", label = "array v2", sub = "4 listeners", col = 1, row = 1, colour = "green" },
+    { id = "l", label = "CowList.items", sub = "points at the latest", col = 2, row = 0, colour = "accent" },
+]
+edges = [
+    { from = "r", to = "a", label = "iterates" },
+    { from = "w", to = "b", label = "builds" },
+    { from = "b", to = "l", label = "swap in" },
+    { from = "l", to = "a", label = "was", dashed = true },
+]
+
+[[diagram]]
+name = "class-diagram"
+kind = "class"
+title = "Copy-on-Write — classes"
+caption = "A volatile array, copied by writers."
+nodes = [
+    { id = "c", label = "CowList<T>", sub = ["- volatile Object[] items", "+ add(t): copy, add, swap", "+ remove(t)", "+ iterator(): snapshot"], col = 0, row = 0, colour = "accent" },
+    { id = "p", label = "«interface» PriceListener", sub = ["+ priceChanged(sku, pence)"], col = 1, row = 0, colour = "client" },
+]
+edges = [
+    { from = "c", to = "p", label = "holds" },
+]
+
+[[diagram]]
+name = "data-flow-diagram"
+kind = "flow"
+title = "Copy-on-Write — a subscription during a notification"
+caption = "The loop never sees a half-changed list."
+nodes = [
+    { id = "a", label = "loop over [cache, loyalty, app]", sub = "v1", col = 0, row = 0, colour = "client" },
+    { id = "b", label = "loyalty subscribes email", sub = "writer", col = 1, row = 0, colour = "amber" },
+    { id = "c", label = "[cache, loyalty, app, email]", sub = "v2, swapped in", col = 2, row = 0, colour = "green" },
+    { id = "d", label = "loop finishes v1", sub = "app is told", col = 1, row = 1, colour = "green" },
+]
+edges = [
+    { from = "a", to = "b", label = "" },
+    { from = "b", to = "c", label = "copy" },
+    { from = "a", to = "d", label = "carries on" },
+]
+
+[[diagram]]
+name = "sequence-diagram"
+kind = "sequence"
+title = "Copy-on-Write — writer and reader together"
+caption = "Neither waits for the other."
+participants = ["Reader", "CowList", "Writer"]
+steps = [
+    ["Reader", "CowList", "iterator()"],
+    ["CowList", "Reader", "array v1", "reply"],
+    ["Writer", "CowList", "add(email)"],
+    ["note", "CowList", "copy v1 -> v2, swap"],
+    ["note", "Reader", "still reading v1"],
+]
+
+[[diagram]]
+name = "uml-diagram"
+kind = "sequence"
+title = "1. The plain list"
+caption = "Changed during the loop."
+participants = ["Loop", "ArrayList", "Loyalty"]
+steps = [
+    ["Loop", "Loyalty", "priceChanged"],
+    ["Loyalty", "ArrayList", "add(email)"],
+    ["Loop", "ArrayList", "next()"],
+    ["ArrayList", "Loop", "ConcurrentModificationException", "reply"],
+]
+
+[[diagram]]
+name = "uml-diagram-2"
+kind = "sequence"
+title = "2. The cost of a write"
+caption = "The whole array is copied."
+participants = ["Writer", "CowList"]
+steps = [
+    ["Writer", "CowList", "add(listener 10,000)"],
+    ["note", "CowList", "copy 9,999 references"],
+]
+
+[poster]
+headline = [["COPY-ON-WRITE", "text"]]
+before = { code = "new ArrayList<>()", note = "crashed mid-notification", tag = "BEFORE" }
+after = { code = "CopyOnWriteArrayList", note = "readers never disturbed", tag = "AFTER" }
+taglines = [["Read freely, copy to change", "gold"]]
+
+[[scene]]
+key = "01-poster"
+kind = "poster"
+title = "Copy-on-Write"
+narration = """
+Hello, and welcome. [[slnc 400]] This video explains the Copy-on-Write pattern, in Java. [[slnc 300]]
+This video is presented by Jayasekhar Konduru. [[slnc 600]]
+First, a simple definition. [[slnc 300]] With copy-on-write, readers use the current version of the data, with no locks at all. [[slnc 300]] A writer never changes that version. [[slnc 300]] It makes a copy, changes the copy, and swaps it in. [[slnc 600]]
+Think of a restaurant's printed menus. [[slnc 300]] Diners read them for as long as they like. [[slnc 300]] To change a dish, the manager prints a whole new batch, and swaps them in at the door. [[slnc 300]] Diners already reading finish with the old menu. [[slnc 700]]
+In this video, the domain is an online shop. [[slnc 300]] When a price changes, it tells a list of listeners: the web page cache, the loyalty service, and the phone app. [[slnc 500]]
+By the end, you will hear how a plain list crashes when it changes while being read. [[slnc 300]] How copy-on-write fixes it. [[slnc 300]] Why readers never lock. [[slnc 300]] And what every write costs.
+"""
+
+[[scene]]
+key = "02-scenario"
+kind = "bullets"
+title = "The Scenario"
+body = ["A price changes: tell every listener.", "", "Prices change all the time.", "Listeners rarely change.", "", "Listeners were in a plain ArrayList."]
+narration = """
+Here is the scenario. [[slnc 400]] When a price changes, the shop tells every listener on a list. [[slnc 500]]
+Prices change all the time. [[slnc 300]] The list of listeners rarely changes. [[slnc 300]] But sometimes a listener adds another, while it is being told. [[slnc 500]]
+The listeners were kept in a plain array list.
+"""
+
+[[scene]]
+key = "03-acts"
+kind = "acts"
+title = "acts"
+
+[[scene]]
+key = "04-pattern"
+kind = "bullets"
+title = "The Pattern"
+body = ["Readers: take the current array,", "no lock.", "", "Writers: copy it, change the copy,", "swap it in.", "", "A published array never changes."]
+narration = """
+Let's name the pattern. [[slnc 400]] Readers take the current array, and read it with no lock. [[slnc 500]]
+Writers copy the array, change the copy, and swap it in, in one step. [[slnc 500]]
+The rule that makes it safe: once an array is published, nobody ever changes it again.
+"""
+
+[[scene]]
+key = "05-roles"
+kind = "bullets"
+title = "Who Does What"
+body = ["CowList: the array and the swap", "PriceListener: who is told", "The notification loop: a reader", "Subscribe: a writer", "ArrayList: the old way"]
+narration = """
+Here is who does what. [[slnc 400]] Cow list holds the array, and swaps in new copies. [[slnc 500]]
+A price listener is anyone who wants to be told about price changes. [[slnc 500]]
+The notification loop is a reader. [[slnc 300]] Subscribing is a write. [[slnc 500]]
+And the plain array list is the old way, kept for comparison.
+"""
+
+[[scene]]
+key = "06-recognise"
+kind = "bullets"
+title = "Where You Have Seen It"
+body = ["CopyOnWriteArrayList", "Listener lists in Swing and Spring", "fork() in Linux", "File system snapshots"]
+narration = """
+You have probably met this pattern already. [[slnc 400]] Java's copy on write array list, and copy on write array set. [[slnc 500]]
+Listener lists in Swing, Spring, and many libraries use them. [[slnc 500]]
+Linux shares memory between processes until one writes to it. [[slnc 300]] And file systems use the same trick for snapshots.
+"""
+
+[[scene]]
+key = "07-verdict"
+kind = "bullets"
+title = "When To Use It"
+body = ["Small collections, read constantly,", "changed rarely: listeners.", "", "Use CopyOnWriteArrayList.", "", "Changes often? Something else."]
+narration = """
+So, when should you use it? [[slnc 400]] For small collections that are read constantly, and changed rarely. [[slnc 300]] Lists of listeners are the classic case. [[slnc 500]]
+Use Java's copy on write array list, rather than writing your own. [[slnc 500]]
+And for data that changes often, choose a concurrent collection, or a lock.
+"""
+
+[[scene]]
+key = "08-outro"
+kind = "outro"
+title = "Thanks for Watching"
+body = ["Full source, notes, diagrams and an animated walkthrough", "are in the repository. Swap in", "CopyOnWriteArrayList."]
+narration = """
+That's the Copy-on-Write pattern. [[slnc 400]] If you remember one sentence, make it this one. [[slnc 300]] Readers read freely, and writers copy, change, and swap. [[slnc 500]]
+The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. [[slnc 300]] It runs offline, with nothing installed except a Java development kit. [[slnc 500]]
+Here is one exercise to try. [[slnc 300]] Replace the hand-written list with Java's copy on write array list, and run the demo again. [[slnc 500]]
+If this helped, a like really does help other people find it. [[slnc 300]] And subscribe, if you'd like the rest of the series. [[slnc 400]] Thanks for watching.
+"""

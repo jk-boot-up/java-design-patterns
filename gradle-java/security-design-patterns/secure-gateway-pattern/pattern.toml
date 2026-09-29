@@ -1,0 +1,441 @@
+# pattern.toml for the Secure Gateway project. See tools/patternkit.
+
+[project]
+slug = "secure-gateway"
+category = "security-design-patterns"
+title = "Secure Gateway"
+package = "securegateway"
+main_class = "SecureGatewayDemo"
+tagline = "Only the gate faces the internet"
+bold = "Put a hardened gatekeeper, holding no secrets and no data, between the internet and the trusted services, and let through only requests of an allowed shape."
+domain_note = ""
+thumb_lines = ["SECURE", "GATEWAY"]
+thumb_code = "allow-list at the gate"
+youtube_title = "Secure Gateway (Gatekeeper)"
+youtube_tags = ["secure gateway", "gatekeeper pattern", "allow list", "defense in depth", "security", "java"]
+
+[readme]
+intro = """
+Secure Gateway, also called the Gatekeeper pattern, protects trusted services
+by never letting the internet reach them. A separate gatekeeper is the only
+machine exposed to the public. It holds no passwords and no data. It checks
+every request against a short list of allowed shapes, such as "GET an order by
+its number", removes anything meant only for internal use, limits sizes, and
+only then passes the request on to the trusted service behind it.
+
+If the gatekeeper is ever broken into, the attacker finds nothing useful on
+it: no database password, no customer data, only a narrow path to the
+services behind.
+"""
+analogy = """
+Think of a bank. Customers never walk into the vault. They talk to a teller
+behind a counter, who has no key to the vault and can only pass on a few kinds
+of request: pay in, take out, check a balance. Anything else, the teller
+simply refuses. Even a robber who got past the counter would not find the
+vault key there.
+"""
+scenario = """
+The online store's order service answered the internet directly, and it held
+the database password. It also had features meant only for internal tools: a
+header that switched on admin mode, and an admin export page. From outside,
+anyone could send that header, or reach the export with a path such as
+`/orders/../admin/export`, and download every order.
+"""
+costs = [
+    "**An extra hop.** Every request passes one more machine, adding a little time.",
+    "**A list to keep in step.** A new endpoint is blocked until someone adds it to the gate's allow-list.",
+    "**Not the only defence.** The trusted services must still check their own inputs and access; the gate reduces risk, it does not remove it.",
+]
+too_much = """
+A service with no secrets and no private data, such as a public product
+catalogue, gains little from a separate gatekeeper. It pays off in front of
+services that hold credentials or sensitive data.
+"""
+met_before = [
+    "A web application firewall or reverse proxy in a DMZ, in front of internal services.",
+    "NGINX or Envoy configured with an allow-list of paths and methods.",
+    "Cloud API gateways with request validation and size limits.",
+]
+where = """
+This project is in [security-design-patterns](..). It is close to
+[Gateway Offloading](../../micro-services-design-patterns/gateway-offloading-pattern),
+which moves shared chores into a gateway; this one is about keeping the
+trusted services out of reach.
+"""
+
+[[act]]
+title = "The service faces the internet"
+summary = "The order service is public and holds the database password: a spoofed X-Internal-Admin header and the path /orders/../admin/export both export all 12,000 orders."
+detail = """
+The order service answers the internet directly. A normal request for order 7
+works. But a request with the internal-tools header `X-Internal-Admin: true`
+exports all twelve thousand orders, and so does `/orders/../admin/export`,
+which the service tidies into `/admin/export`. And the machine the internet
+talks to holds the database password.
+"""
+speech = """
+First demo: the order service faces the internet directly. [[slnc 400]] A normal request for order seven works. [[slnc 600]]
+But the service also has features meant only for internal tools. [[slnc 300]] A special header that switches on admin mode. [[slnc 300]] And an admin export page. [[slnc 600]]
+Someone outside sends that header. [[slnc 300]] They get an export of all twelve thousand orders. [[slnc 500]]
+Someone else asks for the orders path, then dot dot, then the admin export. [[slnc 300]] The service tidies the path, and exports everything again. [[slnc 600]]
+And this machine, facing the internet, holds the database password.
+"""
+rows = { internet = "active wrong", orders = "active wrong" }
+console = [
+    ["X-Internal-Admin: export of 12000 orders", "bad"],
+    ["/orders/../admin/export: export", "bad"],
+    ["database password on this machine", "bad"],
+]
+
+[[act]]
+title = "A gatekeeper in front"
+summary = "Only the gatekeeper faces the internet; it strips internal headers, so the spoofed header now just returns order 7."
+detail = """
+Now the order service is moved off the internet, and a gatekeeper stands in
+front. The gatekeeper strips every header whose name starts with
+`X-Internal-`. The same spoofed request now just returns order 7: the admin
+header never reaches the service.
+"""
+speech = """
+Second demo: a gatekeeper in front. [[slnc 400]] The order service is moved off the internet. [[slnc 300]] Only the gatekeeper can be reached from outside. [[slnc 600]]
+The gatekeeper removes every internal header from incoming requests. [[slnc 500]]
+The same spoofed request now just returns order seven. [[slnc 300]] The admin header never reaches the service.
+"""
+rows = { gate = "active ok", orders = "active ok" }
+console = [
+    ["GET /orders/7: 200 order 7", "ok"],
+    ["spoofed header: stripped, order 7", "ok"],
+]
+
+[[act]]
+title = "An allow-list"
+summary = "Only GET /orders/<number> and POST /orders pass: the traversal gets 404 and DELETE gets 405 at the gate; POST /orders creates an order."
+detail = """
+The gatekeeper lets through only two shapes of request: GET an order by its
+number, and POST a new order. The path with dot dot does not match, and is
+stopped with 404. DELETE on an order is stopped with 405, method not allowed.
+A normal POST creates an order.
+"""
+speech = """
+Third demo: only allowed shapes of request pass. [[slnc 400]] The gatekeeper has a list of two. [[slnc 300]] Get an order by its number. [[slnc 300]] And create a new order. [[slnc 600]]
+The path with dot dot does not match. [[slnc 300]] Stopped at the gate. [[slnc 500]]
+A request to delete an order. [[slnc 300]] Stopped, method not allowed. [[slnc 500]]
+A normal new order passes, and is created.
+"""
+rows = { gate = "active ok" }
+console = [
+    ["traversal: 404 at the gate", "ok"],
+    ["DELETE: 405 at the gate", "ok"],
+    ["POST /orders: 201 created", "ok"],
+]
+
+[[act]]
+title = "Size and shape limits"
+summary = "A 5 MB body gets 413; /orders/7 OR 1=1 does not match the number pattern and gets 404; 3 passed, 4 refused."
+detail = """
+The gatekeeper also limits size: a five-megabyte order is refused with 413,
+too large. And an order number must be digits only, so `/orders/7 OR 1=1`, an
+attempt to trick the database, does not match and is refused. So far, three
+requests have passed and four were stopped at the gate.
+"""
+speech = """
+Fourth demo: size and shape limits. [[slnc 400]] A five megabyte order is refused. [[slnc 300]] Too large. [[slnc 600]]
+An order number must be digits only. [[slnc 300]] So a request for order seven, followed by a trick aimed at the database, does not match. [[slnc 300]] Refused. [[slnc 600]]
+So far, three requests passed. [[slnc 300]] And four were stopped at the gate.
+"""
+rows = { gate = "active ok" }
+console = [
+    ["5 MB body: 413 too large", "ok"],
+    ["/orders/7 OR 1=1: 404", "ok"],
+    ["passed 3, refused 4", "muted"],
+]
+
+[[act]]
+title = "The bill"
+summary = "A broken-into gatekeeper holds no credentials; but every request pays an extra hop, and new endpoints wait for the allow-list."
+detail = """
+If the gatekeeper itself is broken into, it holds no credentials and no data.
+But every request pays an extra hop, and every new endpoint stays blocked
+until someone adds it to the gate's list. The trusted services must still
+check their own inputs: the gate is one layer, not the only one.
+"""
+speech = """
+Fifth demo: the bill. [[slnc 400]] If the gatekeeper itself is broken into, the attacker finds no password, and no data. [[slnc 600]]
+But every request pays for one extra hop. [[slnc 300]] And every new endpoint stays blocked, until someone adds it to the gate's list. [[slnc 600]]
+And the services behind must still check their own inputs. [[slnc 300]] The gate is one layer of defence, not the only one.
+"""
+rows = { gate = "active amber" }
+console = [
+    ["gatekeeper holds credentials: false", "ok"],
+    ["an extra hop, a list to keep", "amber"],
+]
+
+[animation]
+subtitle = "Requests from the internet meet the gatekeeper; only allowed shapes reach the order service."
+boxes = [
+    ["internet", "Internet", "anyone"],
+    ["gate", "Gatekeeper", "no secrets, allow-list"],
+    ["orders", "Order service", "holds the DB password"],
+]
+
+[docs.problem]
+scenario = """
+The store's order service answered the internet directly and held the
+database password.
+"""
+naive = """
+Internal-only features, a spoofable admin header and a path to the admin
+export, were reachable by anyone.
+"""
+deliver = [
+    "A directly exposed service leaking every order two ways.",
+    "A gatekeeper that strips internal headers.",
+    "An allow-list of request shapes.",
+    "Size and pattern limits.",
+    "The costs and the limits of the gate.",
+    "Every printed result asserted by a test.",
+]
+
+[docs.prerequisites]
+required = [
+    "Java basics: records, `Pattern`.",
+    "HTTP methods, paths, headers and status codes.",
+]
+not_required = [
+    "A real proxy or firewall. Requests are records.",
+]
+
+[docs.session]
+objectives = [
+    "Explain why trusted services should not face the internet.",
+    "Write an allow-list of request shapes.",
+    "Strip internal headers at the boundary.",
+    "Keep secrets off the internet-facing machine.",
+]
+walkthrough = """
+Run `./gradlew run` and compare act one's two exports with acts two and
+three. Open `Gatekeeper.handle`: size, path, method, strip, forward. End on
+act five's `false`.
+"""
+exercises = [
+    "Add `GET /orders/<number>/invoice` to the allow-list.",
+    "Rate-limit refused requests per caller.",
+    "Make `OrderService` reject paths containing `..` itself, as a second layer.",
+]
+
+[docs.explained]
+sentence = """
+A Secure Gateway is a secret-free gatekeeper that is the only thing the
+internet can reach, passing on only requests of an allowed shape.
+"""
+verdict = """
+Put a gatekeeper in front of any service holding credentials or sensitive
+data. Keep it free of secrets, allow-list request shapes, strip internal
+headers, limit sizes, and still validate inside the services.
+"""
+recognise = [
+    "A DMZ or public subnet holding only proxies.",
+    "Proxy rules listing allowed methods and paths.",
+    "Headers such as `X-Internal-...` removed at the edge.",
+]
+
+[spec]
+purpose = """
+Teach Secure Gateway with an online store's order service: a publicly
+exposed service leaking every order through a spoofed header and a path trick,
+a secret-free gatekeeper stripping internal headers, an allow-list of request
+shapes, size and pattern limits, and the costs.
+"""
+nongoals = [
+    "Not a real proxy, TLS or firewall. The network boundary is simulated.",
+]
+problem = """
+A service holding secrets and internal features, exposed directly to the
+internet, can be reached in ways it never intended.
+"""
+roles = [
+    ["The pattern", "`Gatekeeper`"],
+    ["The trusted service", "`OrderService`"],
+    ["A request", "`HttpRequest`"],
+    ["Entry point", "`SecureGatewayDemo`, five acts"],
+]
+requirements = [
+    "**Allow-list:** only `GET /orders/<1-9 digits>` and `POST /orders` pass.",
+    "**Strip:** `X-Internal-` headers never reach the service.",
+    "**Limit:** bodies over 1,000,000 bytes are refused.",
+    "**Every printed result is asserted** in `DemoRunsTest`.",
+]
+
+[[diagram]]
+name = "architecture-diagram"
+kind = "flow"
+title = "Secure Gateway — the pieces"
+caption = "Only the gatekeeper faces the internet."
+nodes = [
+    { id = "i", label = "Internet", sub = "anyone", col = 0, row = 0, colour = "red" },
+    { id = "g", label = "Gatekeeper", sub = "no secrets, allow-list", col = 1, row = 0, colour = "accent" },
+    { id = "o", label = "Order service", sub = "trusted", col = 2, row = 0, colour = "green" },
+    { id = "d", label = "Database", sub = "password only here", col = 3, row = 0, colour = "green" },
+]
+edges = [
+    { from = "i", to = "g", label = "" },
+    { from = "g", to = "o", label = "allowed only" },
+    { from = "o", to = "d", label = "" },
+]
+
+[[diagram]]
+name = "class-diagram"
+kind = "class"
+title = "Secure Gateway — classes"
+caption = "The gate forwards; the service holds the secret."
+nodes = [
+    { id = "g", label = "Gatekeeper", sub = ["- allowed: routes", "+ handle(request)", "+ hasCredentials(): false"], col = 0, row = 0, colour = "accent" },
+    { id = "o", label = "OrderService", sub = ["- databasePassword", "+ handle(request)"], col = 1, row = 0, colour = "green" },
+    { id = "r", label = "«record» HttpRequest", sub = ["method, path", "headers, bodyBytes"], col = 0, row = 1, colour = "client" },
+]
+edges = [
+    { from = "g", to = "o", label = "forwards to" },
+    { from = "g", to = "r", label = "checks" },
+]
+
+[[diagram]]
+name = "data-flow-diagram"
+kind = "flow"
+title = "Secure Gateway — inside the gate"
+caption = "Four checks before anything is forwarded."
+nodes = [
+    { id = "a", label = "Size", sub = "413 over 1 MB", col = 0, row = 0, colour = "accent" },
+    { id = "b", label = "Path allowed?", sub = "404 if not", col = 1, row = 0, colour = "accent" },
+    { id = "c", label = "Method allowed?", sub = "405 if not", col = 2, row = 0, colour = "accent" },
+    { id = "d", label = "Strip X-Internal-", sub = "then forward", col = 3, row = 0, colour = "green" },
+]
+edges = [
+    { from = "a", to = "b", label = "" },
+    { from = "b", to = "c", label = "" },
+    { from = "c", to = "d", label = "" },
+]
+
+[[diagram]]
+name = "sequence-diagram"
+kind = "sequence"
+title = "Secure Gateway — a spoofed header"
+caption = "Stripped before it reaches the service."
+participants = ["Internet", "Gatekeeper", "Order service"]
+steps = [
+    ["Internet", "Gatekeeper", "GET /orders/7, X-Internal-Admin"],
+    ["note", "Gatekeeper", "allowed shape; strip header"],
+    ["Gatekeeper", "Order service", "GET /orders/7"],
+    ["Order service", "Internet", "200 order 7", "reply"],
+]
+
+[[diagram]]
+name = "uml-diagram"
+kind = "sequence"
+title = "1. Directly exposed"
+caption = "The path trick reaches the admin export."
+participants = ["Internet", "Order service"]
+steps = [
+    ["Internet", "Order service", "GET /orders/../admin/export"],
+    ["Order service", "Internet", "200 all 12000 orders", "reply"],
+]
+
+[[diagram]]
+name = "uml-diagram-2"
+kind = "sequence"
+title = "2. Behind the gate"
+caption = "The same trick stops at the gate."
+participants = ["Internet", "Gatekeeper"]
+steps = [
+    ["Internet", "Gatekeeper", "GET /orders/../admin/export"],
+    ["Gatekeeper", "Internet", "404 stopped at the gate", "reply"],
+]
+
+[poster]
+headline = [["SECURE", "text"], ["GATEWAY", "text"]]
+before = { code = "order service on the internet", note = "12000 orders exported", tag = "BEFORE" }
+after = { code = "gatekeeper + allow-list", note = "stopped at the gate", tag = "AFTER" }
+taglines = [["Only the gate faces the internet", "gold"]]
+
+[[scene]]
+key = "01-poster"
+kind = "poster"
+title = "Secure Gateway"
+narration = """
+Hello, and welcome. [[slnc 400]] This video explains the Secure Gateway pattern, also called the Gatekeeper, in Java. [[slnc 300]]
+This video is presented by Jayasekhar Konduru. [[slnc 600]]
+First, a simple definition. [[slnc 300]] The services that hold passwords and data never face the internet. [[slnc 300]] A separate gatekeeper does. [[slnc 300]] It holds no secrets. [[slnc 300]] And it only lets through requests of a few allowed shapes. [[slnc 600]]
+Think of a bank. [[slnc 300]] Customers never walk into the vault. [[slnc 300]] They talk to a teller, who has no vault key, and can only pass on a few kinds of request. [[slnc 300]] Anything else is refused. [[slnc 700]]
+In this video, the domain is an online shop's order service, which holds the database password. [[slnc 500]]
+By the end, you will hear how two tricks exported every order. [[slnc 300]] How a gatekeeper strips what is internal. [[slnc 300]] How a short allow-list stops the rest. [[slnc 300]] And what the gate costs.
+"""
+
+[[scene]]
+key = "02-scenario"
+kind = "bullets"
+title = "The Scenario"
+body = ["The order service faced the internet.", "", "It held the database password.", "", "It had internal-only features:", "an admin header, an export page."]
+narration = """
+Here is the scenario. [[slnc 400]] The shop's order service answered the internet directly. [[slnc 500]]
+It held the database password. [[slnc 500]]
+And it had features meant only for internal tools. [[slnc 300]] A header that switched on admin mode. [[slnc 300]] And a page that exported every order.
+"""
+
+[[scene]]
+key = "03-acts"
+kind = "acts"
+title = "acts"
+
+[[scene]]
+key = "04-pattern"
+kind = "bullets"
+title = "The Pattern"
+body = ["Only the gatekeeper is public.", "", "It holds no secrets.", "", "Allow-list, strip, limit,", "then forward."]
+narration = """
+Let's name the pattern. [[slnc 400]] Only the gatekeeper can be reached from the internet. [[slnc 500]]
+It holds no passwords, and no data. [[slnc 500]]
+It checks each request against an allow-list, strips anything internal, limits sizes. [[slnc 300]] And only then forwards it.
+"""
+
+[[scene]]
+key = "05-roles"
+kind = "bullets"
+title = "Who Does What"
+body = ["Gatekeeper: checks and forwards", "OrderService: trusted, holds the secret", "HttpRequest: method, path, headers, size"]
+narration = """
+Here is who does what. [[slnc 400]] The gatekeeper checks each request, and forwards only the allowed ones. [[slnc 500]]
+The order service is trusted. [[slnc 300]] It holds the database password, and can only be reached through the gate. [[slnc 500]]
+And a request carries its method, path, headers, and size.
+"""
+
+[[scene]]
+key = "06-recognise"
+kind = "bullets"
+title = "Where You Have Seen It"
+body = ["Reverse proxies in a DMZ", "Web application firewalls", "NGINX or Envoy allow-lists", "Cloud gateway request validation"]
+narration = """
+You have probably met this pattern already. [[slnc 400]] Reverse proxies placed in a separate network zone, in front of internal services. [[slnc 500]]
+Web application firewalls. [[slnc 300]] And proxies configured with a list of allowed paths. [[slnc 500]]
+Cloud gateways can also validate requests before they reach a service.
+"""
+
+[[scene]]
+key = "07-verdict"
+kind = "bullets"
+title = "When To Use It"
+body = ["Services with secrets or", "sensitive data.", "", "No secrets on the gate.", "Allow-list, strip, limit.", "Still validate inside."]
+narration = """
+So, when should you use it? [[slnc 400]] In front of any service holding passwords or sensitive data. [[slnc 500]]
+Keep the gate free of secrets. [[slnc 300]] Allow-list request shapes, strip internal headers, and limit sizes. [[slnc 300]] And still validate inside the services.
+"""
+
+[[scene]]
+key = "08-outro"
+kind = "outro"
+title = "Thanks for Watching"
+body = ["Full source, notes, diagrams and an animated walkthrough", "are in the repository. Add the invoice", "path to the allow-list."]
+narration = """
+That's the Secure Gateway pattern. [[slnc 400]] If you remember one sentence, make it this one. [[slnc 300]] Let only a gate with nothing to steal face the internet. [[slnc 500]]
+The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. [[slnc 300]] It runs offline, with nothing installed except a Java development kit. [[slnc 500]]
+Here is one exercise to try. [[slnc 300]] Add an invoice page for each order to the gate's allow-list. [[slnc 500]]
+If this helped, a like really does help other people find it. [[slnc 300]] And subscribe, if you'd like the rest of the series. [[slnc 400]] Thanks for watching.
+"""

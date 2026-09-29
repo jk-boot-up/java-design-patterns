@@ -1,0 +1,448 @@
+# pattern.toml for the Context Map and Shared Kernel project. See tools/patternkit.
+
+[project]
+slug = "context-map"
+category = "domain-driven-design-patterns"
+title = "Context Map and Shared Kernel"
+package = "contextmap"
+main_class = "ContextMapDemo"
+tagline = "Draw the borders, share a little"
+bold = "Write down how the parts of a system relate, check the code against that map, and where two parts must agree exactly, share a tiny kernel that both own."
+domain_note = ""
+thumb_lines = ["CONTEXT MAP", "SHARED KERNEL"]
+thumb_code = "kernel -> sales, shipping"
+youtube_title = "Context Map and Shared Kernel"
+youtube_tags = ["context map", "shared kernel", "domain driven design", "ddd", "bounded context", "java"]
+
+[readme]
+intro = """
+In domain-driven design, a large system is split into bounded contexts: parts
+such as sales, shipping and the catalogue, each with its own model and team. A
+context map is the drawing of how those parts relate: who supplies whom, who
+must conform to whom, who translates. Shared Kernel is one of those
+relationships: a small piece of model, such as an address and an amount of
+money, that two contexts share and change only by agreement.
+
+The map is most useful when it is not just a drawing. Kept as code, it can be
+checked against the program's actual imports on every build.
+"""
+analogy = """
+Think of two neighbouring houses that share a garden wall and a gate. Each
+family runs its own house as it likes, but the wall and the gate belong to
+both, and neither can knock them down or move them without asking the other.
+A street map shows which houses share what with whom, so nobody is surprised.
+"""
+scenario = """
+The online store has a sales context that takes orders, a shipping context
+that prints labels, and a catalogue that supplies prices. Sales and shipping
+each kept their own Address class, and a converter copied one into the other.
+When sales added a flat number, the converter dropped it, and parcels waited
+at the main door of blocks of flats.
+"""
+costs = [
+    "**A kernel changes slowly.** Every change to it needs both teams to agree, test and release together.",
+    "**Kernels grow.** It is tempting to add \"just one more\" shared class; keep it to a handful.",
+    "**A map to maintain.** The map is only useful while it matches the code, which is why it is checked.",
+]
+too_much = """
+A small program built by one team has one context and needs no map. And when
+two contexts only need to exchange data, not share a model, a published
+language (an agreed message format) or an anti-corruption layer keeps them
+more independent than a shared kernel.
+"""
+met_before = [
+    "A shared `common` or `core` library used by two services.",
+    "Context map diagrams in architecture documents, with arrows marked upstream and downstream.",
+    "ArchUnit or module rules that say which packages may depend on which.",
+]
+where = """
+This project is in [domain-driven-design-patterns](..), next to
+[Bounded Context](../bounded-context-pattern), which defines the parts, and
+[Anti-Corruption Layer](../anti-corruption-layer-pattern), another
+relationship a context map can show.
+"""
+
+[[act]]
+title = "Two copies of an address"
+summary = "Sales' address has a flat number; the converter to shipping's address drops it: the label says 4 Mill Lane, Leeds."
+detail = """
+In the `before` package, sales has `SalesAddress` with a flat, and shipping
+has `ShippingAddress` without one. A converter copies between them. Priya
+types "Flat 2, 4 Mill Lane, Leeds"; the shipping label reads "4 Mill Lane,
+Leeds". The flat was lost between the two contexts.
+"""
+speech = """
+First demo: sales and shipping each keep their own address. [[slnc 400]] Sales added a flat number to its address. [[slnc 300]] Shipping's address never had one. [[slnc 500]]
+A converter copies one into the other. [[slnc 500]]
+Priya types: flat two, four Mill Lane, Leeds. [[slnc 300]] The shipping label says: four Mill Lane, Leeds. [[slnc 600]]
+The flat number was lost between the two parts of the shop. [[slnc 300]] The parcel waits at the main door.
+"""
+rows = { sales = "active amber", converter = "active wrong", shipping = "active wrong" }
+console = [
+    ["typed: Flat 2, 4 Mill Lane, Leeds", "muted"],
+    ["label: 4 Mill Lane, Leeds", "bad"],
+    ["the flat was lost", "bad"],
+]
+
+[[act]]
+title = "A shared kernel"
+summary = "Sales and shipping share kernel.Address and kernel.Money: the order is £38.00 and the label keeps Flat 2."
+detail = """
+A small `kernel` package holds `Address` and `Money`, owned by both teams.
+Sales places `ORD-1` for £38.00 with a kernel address; shipping prints the
+label from the same address: "Flat 2, 4 Mill Lane, Leeds, insured for
+£38.00". The converter is gone.
+"""
+speech = """
+Second demo: a shared kernel. [[slnc 400]] A small shared package holds two classes: address, and money. [[slnc 300]] Both teams own it together. [[slnc 600]]
+Sales places order one, for thirty-eight pounds. [[slnc 300]] Shipping prints the label from the very same address. [[slnc 500]]
+Flat two, four Mill Lane, Leeds. [[slnc 300]] Insured for thirty-eight pounds. [[slnc 300]] There is no converter to lose anything.
+"""
+rows = { kernel = "active ok", sales = "active ok", shipping = "active ok" }
+console = [
+    ["sales: ORD-1 for £38.00", "ok"],
+    ["label: Flat 2, 4 Mill Lane, Leeds", "ok"],
+    ["no converter", "ok"],
+]
+
+[[act]]
+title = "The context map"
+summary = "Three relationships: catalogue supplies sales; the kernel is shared by sales and by shipping; shipping does not know sales."
+detail = """
+`ContextMap.RELATIONSHIPS` writes down how the contexts relate: the catalogue
+is sales' supplier (sales asks it for prices); sales and shipping share the
+kernel. Shipping does not know that sales exists.
+"""
+speech = """
+Third demo: the context map. [[slnc 400]] It writes down who depends on whom, and how. [[slnc 500]]
+The catalogue supplies sales: sales asks it for prices. [[slnc 300]] Sales and shipping share the kernel: address and money. [[slnc 500]]
+And shipping does not know that sales exists. [[slnc 300]] It only knows the kernel.
+"""
+rows = { map = "active ok", catalog = "active ok", kernel = "active ok" }
+console = [
+    ["catalog -> sales: customer/supplier", "ok"],
+    ["kernel -> sales: shared kernel", "ok"],
+    ["kernel -> shipping: shared kernel", "ok"],
+]
+
+[[act]]
+title = "The map, checked"
+summary = "Scanning imports finds 0 the map does not allow; shipping importing sales is reported."
+detail = """
+The map also lists what each context may import. `ContextMap.surprises` reads
+every source file: zero imports the map does not allow. When someone adds an
+import of `sales.Sales` to shipping, the check reports it, so the drawing and
+the code cannot drift apart.
+"""
+speech = """
+Fourth demo: the map is checked against the code. [[slnc 400]] A small check reads every source file, and looks at what it imports. [[slnc 500]]
+Imports the map does not allow: zero. [[slnc 600]]
+Then someone takes a shortcut. [[slnc 300]] In shipping, they import the sales order. [[slnc 500]]
+The check reports it: shipping imports sales, which the map does not allow.
+"""
+rows = { check = "active ok", shipping = "active amber" }
+console = [
+    ["imports the map does not allow: 0", "ok"],
+    ["shipping adds: import ...sales.Sales", "amber"],
+    ["check: not allowed by the map", "ok"],
+]
+
+[[act]]
+title = "The bill"
+summary = "Adding a postcode to Address needs both teams; keep the kernel to 2 classes."
+detail = """
+A shared kernel changes slowly: adding a postcode to `Address` needs both
+teams to agree, test and release together. The answer is to keep it tiny,
+here two classes, and leave everything else inside its own context.
+"""
+speech = """
+Fifth demo: the bill. [[slnc 400]] A shared kernel changes slowly. [[slnc 300]] Adding a postcode to the address needs both teams to agree, test, and release together. [[slnc 600]]
+So keep the kernel tiny. [[slnc 300]] Here, two classes. [[slnc 300]] Everything else stays inside its own context.
+"""
+rows = { kernel = "active amber" }
+console = [
+    ["a kernel change: both teams", "amber"],
+    ["keep it tiny: 2 classes", "amber"],
+]
+
+[animation]
+subtitle = "Sales and shipping share a tiny kernel; the catalogue supplies sales; a map of these relationships is checked against the code."
+boxes = [
+    ["sales", "Sales", "takes orders"],
+    ["shipping", "Shipping", "prints labels"],
+    ["converter", "Address converter", "the old way, drops the flat"],
+    ["kernel", "Shared kernel", "Address, Money"],
+    ["catalog", "Catalogue", "supplies prices"],
+    ["map", "Context map", "who depends on whom"],
+    ["check", "Import check", "code must match the map"],
+]
+
+[docs.problem]
+scenario = """
+Sales takes orders, shipping prints labels, and the catalogue supplies prices.
+Sales and shipping both need addresses and amounts of money.
+"""
+naive = """
+Each context keeps its own Address, and a converter copies between them. A
+flat number added in sales is dropped on the way to shipping.
+"""
+deliver = [
+    "The converter shown losing the flat.",
+    "A two-class shared kernel used by both contexts.",
+    "A context map written as code.",
+    "An import check that the code matches the map.",
+    "Every printed result asserted by a test.",
+]
+
+[docs.prerequisites]
+required = [
+    "Java basics: packages, imports, records.",
+    "The idea of a bounded context: a part of the system with its own model.",
+]
+not_required = [
+    "Microservices. The contexts here are packages in one program.",
+]
+
+[docs.session]
+objectives = [
+    "Explain what a context map shows.",
+    "Decide when two contexts should share a kernel.",
+    "Keep a kernel small and jointly owned.",
+    "Check the code against the map.",
+]
+walkthrough = """
+Run `./gradlew run` and read act one: the flat lost in the converter. Open the
+`kernel` package: two records. Then open `ContextMap`: three relationships and
+a list of allowed imports. Add the shortcut import to shipping and watch the
+test fail.
+"""
+exercises = [
+    "Add a postcode to the kernel's Address. Which contexts must change?",
+    "Add a payments context that sales depends on through an anti-corruption layer, and put it on the map.",
+    "Make the map print itself as a list a new team member could read on day one.",
+]
+
+[docs.explained]
+sentence = """
+A context map records how the parts of a system relate; a shared kernel is a
+tiny model two parts share and change only together.
+"""
+verdict = """
+Draw a context map as soon as a system has more than one team or model, and
+keep it as code that is checked. Share a kernel only for the few concepts that
+must match exactly, keep it tiny, and change it by agreement.
+"""
+recognise = [
+    "A small shared `kernel`, `common` or `shared` package used by two areas.",
+    "Architecture tests listing which packages may import which.",
+    "Diagrams with arrows labelled upstream, downstream, conformist or ACL.",
+]
+
+[spec]
+purpose = """
+Teach Context Map and Shared Kernel with an online store: sales and shipping
+each keeping an Address and losing a flat number in a converter, then a
+two-class shared kernel, a context map as code (catalogue supplies sales;
+kernel shared by sales and shipping), and an import check that reports a
+shortcut from shipping to sales.
+"""
+nongoals = [
+    "Not services or networks. Contexts are packages.",
+    "Not the full catalogue of context relationships. Three are shown.",
+]
+problem = """
+Two contexts keeping their own copies of the same concept lose information
+when they convert between them, and nobody can see which parts depend on
+which.
+"""
+roles = [
+    ["The kernel", "`kernel.Address`, `kernel.Money`"],
+    ["The contexts", "`sales.Sales`, `shipping.Shipping`, `catalog.Catalog`"],
+    ["The map", "`ContextMap`"],
+    ["The naive version", "`before.Separate`"],
+    ["Entry point", "`ContextMapDemo`, five acts"],
+]
+requirements = [
+    "**One Address:** sales and shipping use the kernel's.",
+    "**Tiny kernel:** two classes.",
+    "**Map as code:** relationships and allowed imports in one class.",
+    "**Checked:** a test fails on an import the map does not allow.",
+    "**Every printed result is asserted** in `DemoRunsTest`.",
+]
+
+[[diagram]]
+name = "architecture-diagram"
+kind = "flow"
+title = "Context Map — the map"
+caption = "The catalogue supplies sales; sales and shipping share a tiny kernel."
+nodes = [
+    { id = "c", label = "Catalogue", sub = "prices", col = 0, row = 0, colour = "client" },
+    { id = "s", label = "Sales", sub = "orders", col = 1, row = 0, colour = "accent" },
+    { id = "k", label = "Shared kernel", sub = "Address, Money", col = 1, row = 1, colour = "amber" },
+    { id = "h", label = "Shipping", sub = "labels", col = 2, row = 1, colour = "accent" },
+]
+edges = [
+    { from = "c", to = "s", label = "customer/supplier" },
+    { from = "k", to = "s", label = "shared" },
+    { from = "k", to = "h", label = "shared" },
+]
+
+[[diagram]]
+name = "class-diagram"
+kind = "class"
+title = "Context Map — classes"
+caption = "Two kernel records used by both contexts."
+nodes = [
+    { id = "a", label = "«record» kernel.Address", sub = ["flat, street, city", "+ label()"], col = 1, row = 0, colour = "amber" },
+    { id = "m", label = "«record» kernel.Money", sub = ["pence", "+ plus(Money)"], col = 1, row = 1, colour = "amber" },
+    { id = "s", label = "sales.Sales", sub = ["+ placeOrder(id, address, skus)"], col = 0, row = 0, colour = "accent" },
+    { id = "h", label = "shipping.Shipping", sub = ["+ label(parcel, address, money)"], col = 2, row = 0, colour = "accent" },
+    { id = "cm", label = "ContextMap", sub = ["RELATIONSHIPS", "+ surprises(src)"], col = 0, row = 1, colour = "green" },
+]
+edges = [
+    { from = "s", to = "a", label = "uses" },
+    { from = "h", to = "a", label = "uses" },
+    { from = "s", to = "m", label = "uses" },
+]
+
+[[diagram]]
+name = "data-flow-diagram"
+kind = "flow"
+title = "Context Map — one address, two contexts"
+caption = "Nothing is converted, so nothing is lost."
+nodes = [
+    { id = "a", label = "Flat 2, 4 Mill Lane, Leeds", sub = "kernel.Address", col = 0, row = 0, colour = "amber" },
+    { id = "b", label = "ORD-1, £38.00", sub = "sales", col = 1, row = 0, colour = "accent" },
+    { id = "c", label = "PARCEL-1 to Flat 2, ...", sub = "shipping", col = 2, row = 0, colour = "green" },
+]
+edges = [
+    { from = "a", to = "b", label = "placeOrder" },
+    { from = "b", to = "c", label = "same Address" },
+]
+
+[[diagram]]
+name = "sequence-diagram"
+kind = "sequence"
+title = "Context Map — an order becomes a parcel"
+caption = "Sales asks the catalogue; shipping reads the kernel."
+participants = ["Sales", "Catalogue", "Shipping"]
+steps = [
+    ["Sales", "Catalogue", "price(KETTLE-1), price(MUG-1)"],
+    ["Catalogue", "Sales", "£30.00, £8.00", "reply"],
+    ["Sales", "Shipping", "label(PARCEL-1, address, £38.00)"],
+    ["Shipping", "Sales", "PARCEL-1 to Flat 2, ...", "reply"],
+]
+
+[[diagram]]
+name = "uml-diagram"
+kind = "sequence"
+title = "1. The converter"
+caption = "The flat does not survive."
+participants = ["Sales", "Converter", "Shipping"]
+steps = [
+    ["Sales", "Converter", "SalesAddress(Flat 2, ...)"],
+    ["Converter", "Shipping", "ShippingAddress(4 Mill Lane, Leeds)"],
+    ["note", "Shipping", "no flat"],
+]
+
+[[diagram]]
+name = "uml-diagram-2"
+kind = "sequence"
+title = "2. The import check"
+caption = "The code must match the map."
+participants = ["Build", "ContextMap", "Shipping.java"]
+steps = [
+    ["Build", "ContextMap", "surprises(src)"],
+    ["ContextMap", "Shipping.java", "read imports"],
+    ["note", "ContextMap", "imports sales: not allowed"],
+    ["ContextMap", "Build", "1 surprise: fail", "reply"],
+]
+
+[poster]
+headline = [["CONTEXT MAP", "text"], ["SHARED KERNEL", "text"]]
+before = { code = "convert(SalesAddress)", note = "the flat was lost", tag = "BEFORE" }
+after = { code = "kernel.Address", note = "one address, both teams", tag = "AFTER" }
+taglines = [["Draw the borders, share a little", "gold"]]
+
+[[scene]]
+key = "01-poster"
+kind = "poster"
+title = "Context Map and Shared Kernel"
+narration = """
+Hello, and welcome. [[slnc 400]] This video explains the Context Map and Shared Kernel patterns, from domain-driven design, in Java. [[slnc 300]]
+This video is presented by Jayasekhar Konduru. [[slnc 600]]
+First, a simple definition. [[slnc 300]] A big system is split into parts, each with its own model and team. [[slnc 300]] A context map writes down how those parts relate. [[slnc 300]] A shared kernel is a tiny piece of model that two parts share, and change only together. [[slnc 600]]
+Think of two neighbouring houses with a shared garden wall. [[slnc 300]] Each family runs its own house. [[slnc 300]] But neither can move the wall without asking the other. [[slnc 300]] And a street map shows who shares what with whom. [[slnc 700]]
+In this video, the domain is an online shop. [[slnc 300]] Sales takes orders. [[slnc 300]] Shipping prints labels. [[slnc 300]] And the catalogue supplies prices. [[slnc 500]]
+By the end, you will hear how two copies of an address lost a flat number. [[slnc 300]] How a shared kernel fixes it. [[slnc 300]] How to keep a map that is checked. [[slnc 300]] And what sharing costs.
+"""
+
+[[scene]]
+key = "02-scenario"
+kind = "bullets"
+title = "The Scenario"
+body = ["Sales: takes orders.", "Shipping: prints labels.", "Catalogue: supplies prices.", "", "Sales and shipping each kept", "their own Address class."]
+narration = """
+Here is the scenario. [[slnc 400]] The shop has three parts, called contexts. [[slnc 300]] Sales takes orders. [[slnc 300]] Shipping prints labels. [[slnc 300]] The catalogue supplies prices. [[slnc 600]]
+Sales and shipping both need addresses. [[slnc 300]] Each kept its own address class. [[slnc 300]] And a converter copied one into the other.
+"""
+
+[[scene]]
+key = "03-acts"
+kind = "acts"
+title = "acts"
+
+[[scene]]
+key = "04-pattern"
+kind = "bullets"
+title = "The Pattern"
+body = ["Context map: which parts exist,", "and how each pair relates.", "", "Shared kernel: a tiny model", "two parts own together.", "", "Check the map against the code."]
+narration = """
+Let's name the patterns. [[slnc 400]] A context map lists the parts of the system, and how each pair relates. [[slnc 300]] Who supplies whom. [[slnc 300]] Who shares what. [[slnc 500]]
+A shared kernel is one of those relationships. [[slnc 300]] A tiny model that two parts own together, and change only by agreement. [[slnc 500]]
+And the map is kept as code, and checked against the imports on every build.
+"""
+
+[[scene]]
+key = "05-roles"
+kind = "bullets"
+title = "Who Does What"
+body = ["kernel: Address, Money", "sales, shipping, catalog: contexts", "ContextMap: relationships + check", "before.Separate: the old way"]
+narration = """
+Here is who does what. [[slnc 400]] The kernel package holds address and money, shared by sales and shipping. [[slnc 500]]
+Sales, shipping, and catalogue are the contexts, each a package with its own code. [[slnc 500]]
+The context map class lists the relationships, and checks that the imports agree. [[slnc 300]] And the before package is the old way, kept for comparison.
+"""
+
+[[scene]]
+key = "06-recognise"
+kind = "bullets"
+title = "Where You Have Seen It"
+body = ["A shared common library", "Context map diagrams", "Architecture tests on imports"]
+narration = """
+You have probably met these patterns already. [[slnc 400]] A small shared common library, used by two services, is a shared kernel. [[slnc 500]]
+Architecture documents often draw context maps, with arrows marked upstream and downstream. [[slnc 500]]
+And architecture tests that say which packages may import which keep the map honest.
+"""
+
+[[scene]]
+key = "07-verdict"
+kind = "bullets"
+title = "When To Use It"
+body = ["More than one team or model?", "Draw a map, keep it as code.", "", "Share a kernel only for the", "few things that must match.", "Keep it tiny."]
+narration = """
+So, when should you use them? [[slnc 400]] As soon as a system has more than one team, or more than one model, draw a context map. [[slnc 300]] Keep it as code, and check it. [[slnc 500]]
+Share a kernel only for the few concepts that must match exactly. [[slnc 300]] Keep it tiny, and change it together.
+"""
+
+[[scene]]
+key = "08-outro"
+kind = "outro"
+title = "Thanks for Watching"
+body = ["Full source, notes, diagrams and an animated walkthrough", "are in the repository. Add a postcode to the", "kernel's Address."]
+narration = """
+That's the Context Map and Shared Kernel patterns. [[slnc 400]] If you remember one sentence, make it this one. [[slnc 300]] Draw the borders, check them, and share only a little. [[slnc 500]]
+The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. [[slnc 300]] It runs offline, with nothing installed except a Java development kit. [[slnc 500]]
+Here is one exercise to try. [[slnc 300]] Add a postcode to the kernel's address, and count which contexts must change. [[slnc 500]]
+If this helped, a like really does help other people find it. [[slnc 300]] And subscribe, if you'd like the rest of the series. [[slnc 400]] Thanks for watching.
+"""

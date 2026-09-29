@@ -1,0 +1,447 @@
+# pattern.toml for the Marker Interface project. See tools/patternkit.
+
+[project]
+slug = "marker-interface"
+category = "foundational-design-patterns"
+title = "Marker Interface"
+package = "markerinterface"
+main_class = "MarkerInterfaceDemo"
+tagline = "An empty interface that says a lot"
+bold = "Mark a type with an empty interface, so code and the compiler can tell what kind of thing it is, instead of trusting free-text tags."
+domain_note = ""
+thumb_lines = ["MARKER", "INTERFACE"]
+thumb_code = "implements Perishable"
+youtube_title = "Marker Interface"
+youtube_tags = ["marker interface", "java interfaces", "annotations", "type safety", "design patterns"]
+
+[readme]
+intro = """
+A marker interface is an interface with no methods at all. Its name is the
+whole message: a class that implements `Perishable` is saying "I must travel
+cold". Code can ask `item instanceof Perishable`, and, more usefully, a method
+can accept only `Perishable` things, so the compiler refuses anything else.
+
+Java itself uses markers: `Serializable` and `Cloneable` are the famous ones.
+They are the typed alternative to tags, flags and strings, which are easy to
+misspell and impossible for the compiler to check.
+"""
+analogy = """
+Think of the stickers on a delivery box. A handwritten note saying "keep cold"
+can be misspelt, smudged, or written in a way nobody recognises. A printed,
+standard "keep cold" sticker is the same everywhere, recognised at a glance,
+and the chilled van only accepts boxes that carry it.
+"""
+scenario = """
+The online store sells milk, cream and yoghurt that must travel with ice packs,
+mugs that need bubble wrap, and kettles that need nothing special. Care
+instructions were free-text tags typed in by whoever added the product. One
+milk was tagged "Perishable" with a capital P, and some cream "perishible".
+Both went out in a plain box.
+"""
+costs = [
+    "**Yes or no only.** A marker cannot say how cold; that needs a method (then it is no longer a marker) or an annotation with a value.",
+    "**Cannot be taken off.** A subclass inherits the mark and has no way to remove it.",
+    "**Casts appear.** Code that receives a `Perishable` sometimes has to cast it back to a product.",
+]
+too_much = """
+When the extra information needs values (a maximum temperature, a hazard
+class), or must be read by tools and frameworks rather than by the compiler,
+an annotation such as `@Chilled(maxC = 5)` fits better. Markers are for simple
+yes-or-no facts about a type that the compiler should check.
+"""
+met_before = [
+    "`java.io.Serializable`, `java.lang.Cloneable` and `java.util.RandomAccess`.",
+    "`java.rmi.Remote`, marking objects that can be called over the network.",
+    "Annotations such as `@FunctionalInterface` and `@Entity`, the other way to mark a type.",
+]
+where = """
+This project is in [foundational-design-patterns](..), next to
+[Extension Object](../extension-object-pattern), which attaches roles to
+individual objects at run time. A marker belongs to the whole type and is fixed
+when the code compiles.
+"""
+
+[[act]]
+title = "Free-text tags"
+summary = "MILK-1 tagged \"perishable\" gets ice packs; MILK-2 \"Perishable\" and CREAM-1 \"perishible\" go in a plain box."
+detail = """
+`TaggedProduct` keeps care instructions as a list of strings. The packer looks
+for exactly "perishable". The first milk gets ice packs. The second, tagged
+with a capital P, and the cream, tagged with a spelling mistake, go out in a
+plain box. Nothing complained.
+"""
+speech = """
+First demo: care instructions as free-text tags. [[slnc 400]] Whoever adds a product types its tags. [[slnc 300]] The packer looks for the word perishable, and adds ice packs. [[slnc 600]]
+The first milk is tagged perishable. [[slnc 300]] Ice packs. [[slnc 500]]
+The second milk is tagged Perishable, with a capital P. [[slnc 300]] Plain box. [[slnc 500]]
+The cream is tagged with a spelling mistake. [[slnc 300]] Plain box. [[slnc 600]]
+Two of three dairy products shipped warm, and nothing complained.
+"""
+rows = { tags = "active wrong", packer = "active wrong" }
+console = [
+    ["MILK-1: ice packs  [perishable]", "ok"],
+    ["MILK-2: plain box  [Perishable]", "bad"],
+    ["CREAM-1: plain box  [perishible]", "bad"],
+]
+
+[[act]]
+title = "A marker interface"
+summary = "Milk implements Perishable and gets ice packs, the mug is Fragile and gets bubble wrap, the kettle gets a plain box."
+detail = """
+`Perishable` and `Fragile` are empty interfaces. `Milk` implements
+`Perishable`, `Mug` implements `Fragile`, `Kettle` implements neither. The
+packer asks `instanceof`: milk gets ice packs, the mug bubble wrap, the kettle
+a plain box. A misspelt interface name simply would not compile.
+"""
+speech = """
+Second demo: a marker interface. [[slnc 400]] Perishable is now an interface with no methods at all. [[slnc 300]] Its name is the whole message. [[slnc 600]]
+Milk implements Perishable. [[slnc 300]] A mug implements Fragile. [[slnc 300]] A kettle implements neither. [[slnc 500]]
+The packer asks each product: are you perishable? [[slnc 300]] Are you fragile? [[slnc 500]]
+Milk gets ice packs. [[slnc 300]] The mug gets bubble wrap. [[slnc 300]] The kettle gets a plain box. [[slnc 500]]
+And a spelling mistake in the interface name would not even compile.
+"""
+rows = { marker = "active ok", packer = "active ok", milk = "active ok", mug = "active ok" }
+console = [
+    ["MILK-1: ice packs", "ok"],
+    ["MUG-1: bubble wrap", "ok"],
+    ["KETTLE-1: plain box", "ok"],
+]
+
+[[act]]
+title = "The compiler checks"
+summary = "sendChilled accepts only Perishable things: milk is taken; passing a kettle does not compile."
+detail = """
+`Packer.sendChilled` takes a `Perishable` parameter. Milk is accepted by the
+chilled van. Writing `sendChilled(kettle)` does not compile, because a kettle
+is not `Perishable`. The rule is enforced before the program runs.
+"""
+speech = """
+Third demo: the compiler checks who can use the chilled courier. [[slnc 400]] The courier's send method only accepts things that are perishable. [[slnc 500]]
+Milk: the chilled van takes it. [[slnc 500]]
+A kettle: the code does not even compile. [[slnc 300]] The mistake is caught before the program ever runs.
+"""
+rows = { courier = "active ok", milk = "active ok" }
+console = [
+    ["chilled van takes MILK-1", "ok"],
+    ["sendChilled(kettle): does not compile", "ok"],
+]
+
+[[act]]
+title = "The mark is passed on"
+summary = "YoghurtMultipack extends Yoghurt and gets ice packs, although its team never wrote Perishable."
+detail = """
+Another team writes `YoghurtMultipack extends Yoghurt`. They never mention
+`Perishable`, but `Yoghurt` implements it, so the multipack is perishable too
+and gets ice packs.
+"""
+speech = """
+Fourth demo: the mark is passed on to subclasses. [[slnc 400]] Another team writes a yoghurt multipack. [[slnc 300]] It extends yoghurt. [[slnc 500]]
+The team never wrote the word perishable. [[slnc 300]] But yoghurt is perishable, so the multipack is too. [[slnc 300]] It gets ice packs.
+"""
+rows = { yoghurt = "active ok", packer = "active ok" }
+console = [
+    ["YOG-6: ice packs", "ok"],
+    ["its team never wrote Perishable", "muted"],
+]
+
+[[act]]
+title = "The bill"
+summary = "A marker cannot say how cold (that needs a method or an annotation), and a subclass cannot remove the mark."
+detail = """
+A marker answers yes or no. It cannot say how cold: that needs a method, which
+makes it no longer a marker, or an annotation like `@Chilled(maxC = 5)`. And a
+subclass cannot take the mark off: a dried yoghurt snack extending `Yoghurt`
+would still get ice packs.
+"""
+speech = """
+Fifth demo: the bill. [[slnc 400]] A marker says yes or no, and nothing more. [[slnc 300]] It cannot say how cold. [[slnc 300]] For that you need a method, or an annotation with a value. [[slnc 600]]
+And a subclass cannot take the mark off. [[slnc 300]] A dried yoghurt snack, extending yoghurt, would still get ice packs.
+"""
+rows = { marker = "active amber" }
+console = [
+    ["cannot say how cold", "amber"],
+    ["cannot be removed by a subclass", "amber"],
+]
+
+[animation]
+subtitle = "Empty interfaces mark products as perishable or fragile; the packer and the compiler both read the mark."
+boxes = [
+    ["tags", "Free-text tags", "\"perishable\", \"Perishable\", ..."],
+    ["marker", "Perishable, Fragile", "empty interfaces"],
+    ["milk", "Milk", "Perishable"],
+    ["mug", "Mug", "Fragile"],
+    ["yoghurt", "YoghurtMultipack", "inherits Perishable"],
+    ["packer", "Packer", "ice packs, bubble wrap"],
+    ["courier", "Chilled courier", "accepts Perishable only"],
+]
+
+[docs.problem]
+scenario = """
+Products need different care in transit: cold, padded, or nothing special.
+"""
+naive = """
+`TaggedProduct` stores care instructions as free text. A capital letter or a
+typo means the packer misses the tag, and dairy goes out warm.
+"""
+deliver = [
+    "Tags shown failing on case and spelling.",
+    "Empty marker interfaces and a packer that reads them.",
+    "A method that only accepts perishable items, checked by the compiler.",
+    "A mark inherited by a subclass.",
+    "The limits shown: no values, no removal.",
+    "Every printed result asserted by a test.",
+]
+
+[docs.prerequisites]
+required = [
+    "Java basics: interfaces, `instanceof`, inheritance.",
+]
+not_required = [
+    "Annotations. They are compared as the alternative.",
+]
+
+[docs.session]
+objectives = [
+    "Say what a marker interface is and why it has no methods.",
+    "Use a marker in `instanceof` and as a parameter type.",
+    "Explain why the compiler catches what tags cannot.",
+    "Choose between a marker and an annotation.",
+]
+walkthrough = """
+Run `./gradlew run` and read act one aloud: a capital letter ships milk warm.
+Open `Markers`: two interfaces, no methods. Then show `sendChilled(Perishable)`
+and try passing a kettle in the IDE to see the compiler error.
+"""
+exercises = [
+    "Add a `Hazardous` marker for batteries and a packer rule for it.",
+    "Replace `Perishable` with an annotation `@Chilled(maxC = 5)`. What does the compiler stop checking?",
+    "Write a test that every class in the dairy package is Perishable.",
+]
+
+[docs.explained]
+sentence = """
+A marker interface is an empty interface whose name tells code and the
+compiler something about a type, replacing free-text tags that can be
+misspelt.
+"""
+verdict = """
+Use markers for simple yes-or-no facts about a type that the compiler should
+check, especially as method parameter types. Use an annotation when the fact
+needs values or is read by frameworks.
+"""
+recognise = [
+    "`implements Serializable`, `Cloneable`, `RandomAccess`.",
+    "Interfaces with no methods whose name is an adjective.",
+    "Methods whose parameter type is such an interface.",
+]
+
+[spec]
+purpose = """
+Teach Marker Interface with an online store's packing: free-text tags failing
+on case and spelling, then empty Perishable and Fragile interfaces read by a
+packer, a chilled courier that only accepts Perishable at compile time, a mark
+inherited by a subclass, and the limits of yes-or-no marks.
+"""
+nongoals = [
+    "Not annotation processing. Annotations are named as the alternative.",
+    "Not cold-chain rules. Temperatures are not modelled.",
+]
+problem = """
+Care instructions kept as free text are misspelt and missed, and nothing checks
+them.
+"""
+roles = [
+    ["The markers", "`Markers.Perishable`, `Markers.Fragile`"],
+    ["The marked", "`Products.Milk`, `Mug`, `Yoghurt`, `YoghurtMultipack`"],
+    ["The readers", "`Packer.pack`, `Packer.sendChilled`"],
+    ["The naive version", "`TaggedProduct`"],
+    ["Entry point", "`MarkerInterfaceDemo`, five acts"],
+]
+requirements = [
+    "**Empty:** markers declare no methods, asserted by a test.",
+    "**Checked:** `sendChilled` accepts only `Perishable`.",
+    "**Inherited:** a subclass of a perishable product is perishable.",
+    "**Every printed result is asserted** in `DemoRunsTest`.",
+]
+
+[[diagram]]
+name = "architecture-diagram"
+kind = "flow"
+title = "Marker Interface — the pieces"
+caption = "Products carry marks in their type; the packer and the courier read them."
+nodes = [
+    { id = "m", label = "Milk", sub = "Perishable", col = 0, row = 0, colour = "client" },
+    { id = "g", label = "Mug", sub = "Fragile", col = 0, row = 1, colour = "client" },
+    { id = "k", label = "Kettle", sub = "no mark", col = 0, row = 2, colour = "client" },
+    { id = "p", label = "Packer", sub = "instanceof", col = 1, row = 1, colour = "accent" },
+    { id = "c", label = "Chilled courier", sub = "sendChilled(Perishable)", col = 2, row = 0, colour = "green" },
+]
+edges = [
+    { from = "m", to = "p", label = "ice packs" },
+    { from = "g", to = "p", label = "bubble wrap" },
+    { from = "k", to = "p", label = "plain box" },
+    { from = "m", to = "c", label = "accepted" },
+]
+
+[[diagram]]
+name = "class-diagram"
+kind = "class"
+title = "Marker Interface — classes"
+caption = "Two empty interfaces; products implement the ones that apply."
+nodes = [
+    { id = "pe", label = "«interface» Perishable", sub = ["(no methods)"], col = 0, row = 0, colour = "accent" },
+    { id = "fr", label = "«interface» Fragile", sub = ["(no methods)"], col = 2, row = 0, colour = "accent" },
+    { id = "mi", label = "«record» Milk", sub = ["sku"], col = 0, row = 1, colour = "client" },
+    { id = "yo", label = "Yoghurt", sub = ["sku"], col = 1, row = 1, colour = "client" },
+    { id = "mu", label = "«record» Mug", sub = ["sku"], col = 2, row = 1, colour = "client" },
+    { id = "ym", label = "YoghurtMultipack", sub = ["extends Yoghurt"], col = 1, row = 2, colour = "green" },
+]
+edges = [
+    { from = "mi", to = "pe", label = "implements" },
+    { from = "yo", to = "pe", label = "implements" },
+    { from = "mu", to = "fr", label = "implements" },
+    { from = "ym", to = "yo", label = "extends" },
+]
+
+[[diagram]]
+name = "data-flow-diagram"
+kind = "flow"
+title = "Marker Interface — tags against types"
+caption = "A tag depends on spelling; a type does not."
+nodes = [
+    { id = "a", label = "\"Perishable\"", sub = "a tag", col = 0, row = 0, colour = "red" },
+    { id = "b", label = "plain box", sub = "tag missed", col = 1, row = 0, colour = "red" },
+    { id = "c", label = "implements Perishable", sub = "a type", col = 0, row = 1, colour = "green" },
+    { id = "d", label = "ice packs", sub = "always", col = 1, row = 1, colour = "green" },
+]
+edges = [
+    { from = "a", to = "b", label = "contains(\"perishable\")?" },
+    { from = "c", to = "d", label = "instanceof" },
+]
+
+[[diagram]]
+name = "sequence-diagram"
+kind = "sequence"
+title = "Marker Interface — packing milk"
+caption = "The packer asks the type."
+participants = ["Warehouse", "Packer", "Milk"]
+steps = [
+    ["Warehouse", "Packer", "pack(milk)"],
+    ["Packer", "Milk", "instanceof Perishable?"],
+    ["Milk", "Packer", "yes", "reply"],
+    ["Packer", "Warehouse", "MILK-1: ice packs", "reply"],
+]
+
+[[diagram]]
+name = "uml-diagram"
+kind = "sequence"
+title = "1. The compiler refuses a kettle"
+caption = "The parameter type is the rule."
+participants = ["Code", "Compiler"]
+steps = [
+    ["Code", "Compiler", "sendChilled(kettle)"],
+    ["Compiler", "Code", "Kettle is not Perishable", "reply"],
+]
+
+[[diagram]]
+name = "uml-diagram-2"
+kind = "sequence"
+title = "2. A misspelt tag"
+caption = "Nothing checks a string."
+participants = ["Packer", "TaggedProduct"]
+steps = [
+    ["Packer", "TaggedProduct", "tags contains \"perishable\"?"],
+    ["TaggedProduct", "Packer", "no (\"perishible\")", "reply"],
+    ["note", "Packer", "plain box"],
+]
+
+[poster]
+headline = [["MARKER", "text"], ["INTERFACE", "text"]]
+before = { code = "tags: \"perishible\"", note = "shipped warm", tag = "BEFORE" }
+after = { code = "implements Perishable", note = "checked by the compiler", tag = "AFTER" }
+taglines = [["An empty interface that says a lot", "gold"]]
+
+[[scene]]
+key = "01-poster"
+kind = "poster"
+title = "Marker Interface"
+narration = """
+Hello, and welcome. [[slnc 400]] This video explains the Marker Interface pattern, in Java. [[slnc 300]]
+This video is presented by Jayasekhar Konduru. [[slnc 600]]
+First, a simple definition. [[slnc 300]] A marker interface is an interface with no methods at all. [[slnc 300]] Its name is the whole message. [[slnc 300]] A class that implements Perishable is saying: I must travel cold. [[slnc 300]] And the compiler can check it. [[slnc 600]]
+Think of the stickers on a delivery box. [[slnc 300]] A handwritten note saying keep cold can be misspelt, or missed. [[slnc 300]] A printed, standard sticker is recognised at a glance. [[slnc 300]] And the chilled van only accepts boxes that carry it. [[slnc 700]]
+In this video, the domain is an online shop. [[slnc 300]] It sells milk and yoghurt that need ice packs, mugs that need bubble wrap, and kettles that need nothing special. [[slnc 500]]
+By the end, you will hear how free-text tags fail. [[slnc 300]] How a marker interface fixes it. [[slnc 300]] How the compiler joins in. [[slnc 300]] And what a marker cannot do.
+"""
+
+[[scene]]
+key = "02-scenario"
+kind = "bullets"
+title = "The Scenario"
+body = ["Milk, cream, yoghurt: ice packs.", "Mugs: bubble wrap.", "Kettles: nothing special.", "", "Care instructions were", "free-text tags."]
+narration = """
+Here is the scenario. [[slnc 400]] Milk, cream, and yoghurt must travel with ice packs. [[slnc 300]] Mugs need bubble wrap. [[slnc 300]] Kettles need nothing special. [[slnc 600]]
+Care instructions were free-text tags. [[slnc 300]] Whoever added a product typed them in. [[slnc 500]]
+And the packer looked for exact words.
+"""
+
+[[scene]]
+key = "03-acts"
+kind = "acts"
+title = "acts"
+
+[[scene]]
+key = "04-pattern"
+kind = "bullets"
+title = "The Pattern"
+body = ["An interface with no methods.", "The name is the message.", "", "Ask: instanceof Perishable.", "Accept: sendChilled(Perishable)."]
+narration = """
+Let's name the pattern. [[slnc 400]] Declare an interface with no methods. [[slnc 300]] Its name is the message: Perishable. [[slnc 500]]
+Classes that must travel cold implement it. [[slnc 500]]
+Code can ask whether something is perishable. [[slnc 300]] And a method can accept only perishable things, so the compiler refuses everything else.
+"""
+
+[[scene]]
+key = "05-roles"
+kind = "bullets"
+title = "Who Does What"
+body = ["Perishable, Fragile: the markers", "Milk, Mug, Yoghurt: marked products", "Packer: reads the marks", "Chilled courier: perishables only", "TaggedProduct: the old way"]
+narration = """
+Here is who does what. [[slnc 400]] Perishable and Fragile are the markers: two empty interfaces. [[slnc 500]]
+Milk, mug, and yoghurt are the marked products. [[slnc 500]]
+The packer reads the marks and adds ice packs or bubble wrap. [[slnc 300]] The chilled courier only accepts perishables. [[slnc 500]]
+And tagged product is the old way, kept for comparison.
+"""
+
+[[scene]]
+key = "06-recognise"
+kind = "bullets"
+title = "Where You Have Seen It"
+body = ["java.io.Serializable", "java.lang.Cloneable", "java.util.RandomAccess", "Annotations: the other way to mark"]
+narration = """
+You have met this pattern in Java itself. [[slnc 400]] Serializable is a marker. [[slnc 300]] So are Cloneable and Random Access. [[slnc 500]]
+None of them has a method. [[slnc 300]] Their names are the message. [[slnc 500]]
+And annotations, such as Functional Interface, are the other way to mark a type.
+"""
+
+[[scene]]
+key = "07-verdict"
+kind = "bullets"
+title = "When To Use It"
+body = ["Simple yes-or-no facts about", "a type, checked by the compiler.", "", "Need a value, like how cold?", "Use an annotation."]
+narration = """
+So, when should you use it? [[slnc 400]] For simple yes-or-no facts about a type, that the compiler should check. [[slnc 300]] Especially as the type of a method parameter. [[slnc 500]]
+When the fact needs a value, such as how cold, use an annotation instead. [[slnc 300]] You lose the compiler's check, but you gain the value.
+"""
+
+[[scene]]
+key = "08-outro"
+kind = "outro"
+title = "Thanks for Watching"
+body = ["Full source, notes, diagrams and an animated walkthrough", "are in the repository. Add a Hazardous marker", "for batteries."]
+narration = """
+That's the Marker Interface pattern. [[slnc 400]] If you remember one sentence, make it this one. [[slnc 300]] Put the fact in the type, and let the compiler check it. [[slnc 500]]
+The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. [[slnc 300]] It runs offline, with nothing installed except a Java development kit. [[slnc 500]]
+Here is one exercise to try. [[slnc 300]] Add a hazardous marker for batteries, and a packing rule for it. [[slnc 500]]
+If this helped, a like really does help other people find it. [[slnc 300]] And subscribe, if you'd like the rest of the series. [[slnc 400]] Thanks for watching.
+"""

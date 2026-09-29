@@ -1,0 +1,443 @@
+# pattern.toml for the Secrets Manager project. See tools/patternkit.
+
+[project]
+slug = "secrets-manager"
+category = "security-design-patterns"
+title = "Secrets Manager"
+package = "secrets"
+main_class = "SecretsManagerDemo"
+tagline = "Keys out of the code"
+bold = "Keep passwords and keys out of code and builds, in one guarded store that hands each service only the secrets it is allowed, logs every read, and lets a secret be rotated without a rebuild."
+domain_note = ""
+thumb_lines = ["SECRETS", "MANAGER"]
+thumb_code = "manager.read(\"payment-key\")"
+youtube_title = "Secrets Manager"
+youtube_tags = ["secrets manager", "vault", "key rotation", "credentials", "security", "java"]
+
+[readme]
+intro = """
+Every service needs secrets: database passwords, keys for payment companies,
+signing keys. The easy mistake is to write them into configuration files that
+are committed with the code. Then everyone who can read the repository can
+read the secret, it stays in the history for ever, and changing it means
+editing, rebuilding and redeploying every service that uses it.
+
+A Secrets Manager is one guarded store for secrets. Services fetch what they
+need at run time. Each service may read only the secrets it has been granted,
+every read is logged, and a secret can be rotated to a new version, which the
+services pick up within minutes, without anyone touching the code.
+"""
+analogy = """
+Think of the key cabinet in a hotel office. Keys are not taped to the doors
+or copied for every member of staff. They hang in one locked cabinet. Each
+person may take only the keys their job needs, every key taken is written in a
+book, and if a key is lost, the lock is changed and a new key hung in the
+cabinet. Nobody has to rebuild the hotel.
+"""
+scenario = """
+The online store's payment key was written in a configuration file committed
+with the code, and built into three services: checkout, refunds and
+subscriptions. Forty people could read the repository, and so could read the
+key. Changing it meant editing, rebuilding and redeploying all three services.
+"""
+costs = [
+    "**A critical dependency.** If the manager is down when a service starts, the service cannot get its keys; cache sensibly and run the manager for high availability.",
+    "**Secret zero.** Each service needs one first credential to reach the manager; use the platform's own identity for it rather than another stored password.",
+    "**Rotation has moving parts.** Services cache keys, so an old key must stay valid for a grace period, or services must fetch again when a key is refused.",
+]
+too_much = """
+A learning project on one laptop can use environment variables. Once a
+secret guards real money or real data, or is shared by several services, it
+belongs in a manager.
+"""
+met_before = [
+    "HashiCorp Vault, AWS Secrets Manager, Azure Key Vault and Google Secret Manager.",
+    "Kubernetes Secrets, often fed from one of the above.",
+    "Spring Cloud Vault, which loads secrets into Spring configuration.",
+]
+where = """
+This project is in [security-design-patterns](..), next to
+[Token Authentication](../token-authentication-pattern), whose signing key is
+exactly the kind of secret that belongs here.
+"""
+
+[[act]]
+title = "A key in the code"
+summary = "The payment key is built into 3 services and readable by the 40 people with repository access; changing it means rebuilding all 3."
+detail = """
+The payment key is written in a configuration file that is committed with the
+code and built into checkout, refunds and subscriptions. All forty people who
+can read the repository can read the key, and every old copy of it stays in
+the history. Changing it means editing, rebuilding and redeploying three
+services.
+"""
+speech = """
+First demo: the payment key is written in the code. [[slnc 400]] It sits in a configuration file, committed with everything else. [[slnc 600]]
+It is built into three services. [[slnc 300]] Checkout, refunds, and subscriptions. [[slnc 500]]
+Forty people can read the repository. [[slnc 300]] So forty people can read the key. [[slnc 300]] And every old copy stays in the history. [[slnc 600]]
+Changing it means editing, rebuilding and redeploying three services.
+"""
+rows = { code = "active wrong", services = "active amber" }
+console = [
+    ["key built into 3 services", "bad"],
+    ["readable by 40 people", "bad"],
+]
+
+[[act]]
+title = "A key in the manager"
+summary = "Checkout reads the key at run time and charges 20.00; catalog asks for it and is refused, because it was never granted."
+detail = """
+Now the key lives in a secrets manager, granted to the three payment services
+only. Checkout reads it when it runs and charges 20.00. The catalog service
+asks for the same key and is refused: it was never granted it. The key is in
+no source file and no build.
+"""
+speech = """
+Second demo: the key lives in a secrets manager. [[slnc 400]] It is granted to the three payment services, and nobody else. [[slnc 600]]
+Checkout reads the key while it runs. [[slnc 300]] And charges twenty. [[slnc 500]]
+The catalog service asks for the same key. [[slnc 300]] Refused. [[slnc 300]] It was never granted it. [[slnc 600]]
+The key is in no source file, and no build.
+"""
+rows = { manager = "active ok", services = "active ok" }
+console = [
+    ["checkout: charged 20.00", "ok"],
+    ["catalog: may not read payment-key", "ok"],
+]
+
+[[act]]
+title = "Rotation without a rebuild"
+summary = "Rotated to version 2: at minute 2 checkout still uses v1 (still accepted), at minute 5 its cache refreshes to v2, and v1 is cancelled at minute 10."
+detail = """
+The key is rotated to version 2, and the payment company accepts both for a
+while. At minute 2, checkout is still using its cached version 1, which still
+works. At minute 5, its five-minute cache runs out and it fetches version 2.
+At minute 10, version 1 is cancelled, and checkout carries on charging. No
+code changed, nothing was rebuilt.
+"""
+speech = """
+Third demo: rotating the key, with no rebuild. [[slnc 400]] Rotating means replacing it with a new version. [[slnc 600]]
+The key becomes version two. [[slnc 300]] For a while, the payment company accepts both. [[slnc 500]]
+Two minutes later, checkout is still using its saved copy of version one. [[slnc 300]] It still works. [[slnc 500]]
+At five minutes, checkout's copy expires, and it fetches version two. [[slnc 500]]
+At ten minutes, version one is cancelled. [[slnc 300]] Checkout carries on charging. [[slnc 300]] Nothing was rebuilt.
+"""
+rows = { manager = "active ok", services = "active ok", provider = "active ok" }
+console = [
+    ["minute 2: v1, charged", "ok"],
+    ["minute 5: v2, charged", "ok"],
+    ["minute 10: v1 cancelled, still charging", "ok"],
+]
+
+[[act]]
+title = "A leak"
+summary = "The key leaks: it is rotated and cancelled at once; the attacker is refused, and checkout, refused once, fetches v3 and charges."
+detail = """
+Version 2 leaks. It is rotated to version 3 and cancelled at once, with no
+grace period. The attacker's charge is refused. Checkout's cached copy is
+refused too, so on a refusal it fetches again straight away, gets version 3,
+and charges. No code change, no rebuild, no redeploy.
+"""
+speech = """
+Fourth demo: the key leaks. [[slnc 400]] It is rotated to version three, and the leaked key is cancelled at once. [[slnc 600]]
+The attacker tries to charge nine hundred and ninety-nine. [[slnc 300]] Refused. [[slnc 500]]
+Checkout's saved copy is refused too. [[slnc 300]] So, on a refusal, it fetches the key again straight away. [[slnc 300]] It gets version three, and charges. [[slnc 600]]
+No code change. [[slnc 300]] No rebuild. [[slnc 300]] No redeploy.
+"""
+rows = { manager = "active ok", provider = "active ok" }
+console = [
+    ["leaked key: refused", "ok"],
+    ["checkout refetches: v3, charged", "ok"],
+]
+
+[[act]]
+title = "The bill"
+summary = "5 reads logged, including catalog's denial; the manager is now critical, and each service needs a first credential to reach it."
+detail = """
+Every read is logged: five so far, including catalog's refusal. But every
+service now depends on the manager: if it is down when a service starts, the
+service cannot get its keys. And each service still needs one first
+credential to reach the manager, best given by the platform itself rather
+than stored as yet another password.
+"""
+speech = """
+Fifth demo: the bill. [[slnc 400]] Every read is logged. [[slnc 300]] Five so far, including the catalog's refusal. [[slnc 600]]
+But now every service depends on the manager. [[slnc 300]] If it is down when a service starts, the service cannot get its keys. [[slnc 600]]
+And each service still needs one first credential, just to reach the manager. [[slnc 300]] Let the platform provide that identity, rather than storing another password.
+"""
+rows = { manager = "active amber" }
+console = [
+    ["5 reads logged", "muted"],
+    ["manager down: no keys", "bad"],
+    ["secret zero: platform identity", "amber"],
+]
+
+[animation]
+subtitle = "Services fetch the payment key from the secrets manager at run time and use it with the payment company."
+boxes = [
+    ["code", "Source code", "no secrets"],
+    ["manager", "Secrets manager", "granted, logged, versioned"],
+    ["services", "Payment services", "cache for 5 minutes"],
+    ["provider", "Payment company", "accepts current keys"],
+]
+
+[docs.problem]
+scenario = """
+The store's payment key was committed in configuration and built into three
+services.
+"""
+naive = """
+Forty people could read it, it lived in the history, and changing it meant
+rebuilding three services.
+"""
+deliver = [
+    "A hard-coded key and its exposure.",
+    "A secrets manager with per-service grants and an audit log.",
+    "Rotation with a cache and a grace period.",
+    "An emergency rotation with refetch on refusal.",
+    "The costs: availability and secret zero.",
+    "Every printed result asserted by a test.",
+]
+
+[docs.prerequisites]
+required = [
+    "Java basics: `Map`, `Set`, exceptions.",
+]
+not_required = [
+    "Vault or a cloud account. The manager is a plain class.",
+]
+
+[docs.session]
+objectives = [
+    "Explain the risks of secrets in code.",
+    "Grant secrets per service and audit reads.",
+    "Rotate a secret with caching and a grace period.",
+    "Respond to a leak without a redeploy.",
+]
+walkthrough = """
+Run `./gradlew run` and follow act three's minutes 2, 5 and 10. Open
+`CachedSecret`: a value, a time, and `refresh`. End on act four's refetch.
+"""
+exercises = [
+    "Make `SecretsManager.read` fail while the manager is down, and have `CachedSecret` keep its last value.",
+    "Store the database password too, granted to one service only.",
+    "Replace `SecretsManager` with Spring Cloud Vault against a local Vault.",
+]
+
+[docs.explained]
+sentence = """
+A Secrets Manager keeps secrets in one guarded store, grants each service only
+what it needs, logs every read, and rotates secrets without rebuilds.
+"""
+verdict = """
+Take every real secret out of code and builds. Grant per service, log reads,
+cache for minutes, fetch again on refusal, rotate regularly, and give services
+a platform identity to reach the manager.
+"""
+recognise = [
+    "Configuration like `${vault:secret/payment-key}`.",
+    "Startup code calling a secrets client.",
+    "Rotation schedules and audit logs in a vault console.",
+]
+
+[spec]
+purpose = """
+Teach Secrets Manager with an online store's payment key: a hard-coded key
+exposed to forty people and three builds, a manager with grants and an audit
+log, rotation with caching and a grace period, an emergency rotation after a
+leak, and the costs.
+"""
+nongoals = [
+    "Not encryption at rest or a real vault. The manager is in memory.",
+]
+problem = """
+Secrets in code and builds are widely readable, permanent in history, and
+expensive to change.
+"""
+roles = [
+    ["The pattern", "`SecretsManager`"],
+    ["A service's copy", "`CachedSecret`"],
+    ["The external company", "`PaymentProvider`"],
+    ["The old way", "`HardCodedConfig`"],
+    ["Entry point", "`SecretsManagerDemo`, five acts"],
+]
+requirements = [
+    "**Granted:** only listed services may read a secret.",
+    "**Audited:** every read is logged, granted or denied.",
+    "**Rotatable:** `rotate` changes what is handed out, with no code change.",
+    "**Every printed result is asserted** in `DemoRunsTest`.",
+]
+
+[[diagram]]
+name = "architecture-diagram"
+kind = "flow"
+title = "Secrets Manager — the pieces"
+caption = "The key never touches the code."
+nodes = [
+    { id = "m", label = "Secrets manager", sub = "granted, logged, versioned", col = 0, row = 0, colour = "accent" },
+    { id = "s", label = "Payment services", sub = "cache 5 minutes", col = 1, row = 0, colour = "green" },
+    { id = "p", label = "Payment company", sub = "accepts current keys", col = 2, row = 0, colour = "client" },
+    { id = "c", label = "Catalog", sub = "not granted", col = 1, row = 1, colour = "red" },
+]
+edges = [
+    { from = "s", to = "m", label = "read" },
+    { from = "s", to = "p", label = "charge" },
+    { from = "c", to = "m", label = "denied" },
+]
+
+[[diagram]]
+name = "class-diagram"
+kind = "class"
+title = "Secrets Manager — classes"
+caption = "A store, and a service's cached copy."
+nodes = [
+    { id = "m", label = "SecretsManager", sub = ["+ store(name, value, services)", "+ read(service, name)", "+ rotate(name, value)", "+ audit()"], col = 0, row = 0, colour = "accent" },
+    { id = "c", label = "CachedSecret", sub = ["+ get(now)", "+ refresh(now)"], col = 1, row = 0, colour = "green" },
+    { id = "p", label = "PaymentProvider", sub = ["+ enable(key) / cancel(key)", "+ charge(key, amount)"], col = 1, row = 1, colour = "client" },
+]
+edges = [
+    { from = "c", to = "m", label = "reads" },
+]
+
+[[diagram]]
+name = "data-flow-diagram"
+kind = "flow"
+title = "Secrets Manager — a rotation"
+caption = "Old and new overlap, then the old is cancelled."
+nodes = [
+    { id = "a", label = "Minute 0", sub = "rotate to v2", col = 0, row = 0, colour = "accent" },
+    { id = "b", label = "Minute 2", sub = "cache: v1, accepted", col = 1, row = 0, colour = "amber" },
+    { id = "c", label = "Minute 5", sub = "cache refreshes: v2", col = 2, row = 0, colour = "green" },
+    { id = "d", label = "Minute 10", sub = "v1 cancelled", col = 3, row = 0, colour = "green" },
+]
+edges = [
+    { from = "a", to = "b", label = "" },
+    { from = "b", to = "c", label = "" },
+    { from = "c", to = "d", label = "" },
+]
+
+[[diagram]]
+name = "sequence-diagram"
+kind = "sequence"
+title = "Secrets Manager — a charge"
+caption = "The key is fetched, not built in."
+participants = ["Checkout", "Secrets manager", "Payment company"]
+steps = [
+    ["Checkout", "Secrets manager", "read payment-key"],
+    ["Secrets manager", "Checkout", "pay-key-v1 (logged)", "reply"],
+    ["Checkout", "Payment company", "charge 20.00 with key"],
+    ["Payment company", "Checkout", "charged", "reply"],
+]
+
+[[diagram]]
+name = "uml-diagram"
+kind = "sequence"
+title = "1. Not granted"
+caption = "Catalog cannot read the payment key."
+participants = ["Catalog", "Secrets manager"]
+steps = [
+    ["Catalog", "Secrets manager", "read payment-key"],
+    ["Secrets manager", "Catalog", "denied (logged)", "reply"],
+]
+
+[[diagram]]
+name = "uml-diagram-2"
+kind = "sequence"
+title = "2. After a leak"
+caption = "Refused once, fetch again."
+participants = ["Checkout", "Payment company", "Secrets manager"]
+steps = [
+    ["Checkout", "Payment company", "charge with v2"],
+    ["Payment company", "Checkout", "refused: unknown key", "reply"],
+    ["Checkout", "Secrets manager", "read again"],
+    ["Secrets manager", "Checkout", "pay-key-v3", "reply"],
+]
+
+[poster]
+headline = [["SECRETS", "text"], ["MANAGER", "text"]]
+before = { code = "PAYMENT_KEY = \"pay-key-v1\"", note = "40 people can read it", tag = "BEFORE" }
+after = { code = "manager.read(\"payment-key\")", note = "granted, logged, rotatable", tag = "AFTER" }
+taglines = [["Keys out of the code", "gold"]]
+
+[[scene]]
+key = "01-poster"
+kind = "poster"
+title = "Secrets Manager"
+narration = """
+Hello, and welcome. [[slnc 400]] This video explains the Secrets Manager pattern, in Java. [[slnc 300]]
+This video is presented by Jayasekhar Konduru. [[slnc 600]]
+First, a simple definition. [[slnc 300]] Passwords and keys are kept out of the code. [[slnc 300]] They live in one guarded store. [[slnc 300]] Each service gets only the secrets it is allowed. [[slnc 300]] Every read is logged. [[slnc 300]] And a secret can be replaced, without rebuilding anything. [[slnc 600]]
+Think of the key cabinet in a hotel office. [[slnc 300]] Keys are not taped to the doors. [[slnc 300]] Each member of staff takes only the keys their job needs, and each one is written in a book. [[slnc 300]] If a key is lost, the lock is changed, and a new key hangs in the cabinet. [[slnc 700]]
+In this video, the domain is an online shop's key for its card-payment company. [[slnc 500]]
+By the end, you will hear why a key in the code is a problem. [[slnc 300]] How a secrets manager hands it out. [[slnc 300]] How to replace a key with no rebuild. [[slnc 300]] And what to do when a key leaks.
+"""
+
+[[scene]]
+key = "02-scenario"
+kind = "bullets"
+title = "The Scenario"
+body = ["The payment key was in", "a committed config file.", "", "Built into 3 services.", "", "40 people could read it."]
+narration = """
+Here is the scenario. [[slnc 400]] The shop's payment key was written in a configuration file, committed with the code. [[slnc 500]]
+It was built into three services. [[slnc 500]]
+Forty people could read the repository. [[slnc 300]] So forty people could read the key.
+"""
+
+[[scene]]
+key = "03-acts"
+kind = "acts"
+title = "acts"
+
+[[scene]]
+key = "04-pattern"
+kind = "bullets"
+title = "The Pattern"
+body = ["Secrets live in one guarded store.", "", "Granted per service.", "Every read logged.", "Rotated without a rebuild."]
+narration = """
+Let's name the pattern. [[slnc 400]] Secrets live in one guarded store, never in code. [[slnc 500]]
+Each service is granted only what it needs. [[slnc 300]] Every read is logged. [[slnc 500]]
+And a secret can be rotated, with no rebuild.
+"""
+
+[[scene]]
+key = "05-roles"
+kind = "bullets"
+title = "Who Does What"
+body = ["SecretsManager: store, grant, log, rotate", "CachedSecret: a service's copy, 5 minutes", "PaymentProvider: accepts current keys", "HardCodedConfig: the old way"]
+narration = """
+Here is who does what. [[slnc 400]] The secrets manager stores secrets, checks grants, logs reads, and rotates versions. [[slnc 500]]
+Each service keeps a cached copy for five minutes, and fetches again when the copy expires, or is refused. [[slnc 500]]
+The payment company accepts whichever keys are current. [[slnc 300]] And the hard-coded configuration is the old way.
+"""
+
+[[scene]]
+key = "06-recognise"
+kind = "bullets"
+title = "Where You Have Seen It"
+body = ["HashiCorp Vault", "AWS, Azure and Google secret stores", "Kubernetes Secrets", "Spring Cloud Vault"]
+narration = """
+You have probably met this pattern already. [[slnc 400]] HashiCorp Vault. [[slnc 500]]
+The secret stores of every big cloud provider. [[slnc 300]] Kubernetes Secrets. [[slnc 500]]
+And Spring Cloud Vault, which loads secrets into a Spring application.
+"""
+
+[[scene]]
+key = "07-verdict"
+kind = "bullets"
+title = "When To Use It"
+body = ["Any real secret.", "", "Grant per service.", "Cache for minutes.", "Refetch on refusal.", "Rotate regularly."]
+narration = """
+So, when should you use it? [[slnc 400]] For any secret that guards real money, or real data. [[slnc 500]]
+Grant it per service. [[slnc 300]] Cache it for minutes. [[slnc 300]] Fetch again when it is refused. [[slnc 300]] And rotate it regularly.
+"""
+
+[[scene]]
+key = "08-outro"
+kind = "outro"
+title = "Thanks for Watching"
+body = ["Full source, notes, diagrams and an animated walkthrough", "are in the repository. Survive the", "manager being down."]
+narration = """
+That's the Secrets Manager pattern. [[slnc 400]] If you remember one sentence, make it this one. [[slnc 300]] Keep keys out of the code, and change them without a rebuild. [[slnc 500]]
+The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. [[slnc 300]] It runs offline, with nothing installed except a Java development kit. [[slnc 500]]
+Here is one exercise to try. [[slnc 300]] Make the cached copy keep working while the manager is down. [[slnc 500]]
+If this helped, a like really does help other people find it. [[slnc 300]] And subscribe, if you'd like the rest of the series. [[slnc 400]] Thanks for watching.
+"""

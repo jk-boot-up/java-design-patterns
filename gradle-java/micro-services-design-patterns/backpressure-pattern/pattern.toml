@@ -1,0 +1,428 @@
+# pattern.toml for the Backpressure project. See tools/patternkit.
+
+[project]
+slug = "backpressure"
+category = "micro-services-design-patterns"
+title = "Backpressure"
+package = "backpressure"
+main_class = "BackpressureDemo"
+tagline = "Only send what can be handled"
+bold = "Let a slow consumer push back on a fast producer, by bounding what waits, asking for work in batches, or dropping stale updates, instead of buffering until memory runs out."
+domain_note = ""
+thumb_lines = ["BACK", "PRESSURE"]
+thumb_code = "request(10)"
+youtube_title = "Backpressure"
+youtube_tags = ["backpressure", "reactive streams", "flow control", "java flow", "microservices", "java"]
+
+[readme]
+intro = """
+Backpressure is a way for a slow consumer to tell a fast producer to slow
+down. Without it, whatever the consumer cannot handle yet piles up in memory
+until the service falls over. With it, the amount of waiting work is bounded:
+the producer is made to wait, the consumer asks only for what it can handle,
+or old updates are dropped when only the latest matters.
+
+Java has the Reactive Streams interfaces built in, in `java.util.concurrent.Flow`:
+a subscriber calls `request(n)`, and the publisher may send at most `n` items.
+"""
+analogy = """
+Think of a kitchen and its waiters. If the waiters keep taking orders faster
+than the chefs can cook, the ticket rail overflows and everything is late. A
+good kitchen tells the front of house to stop seating tables for a while. The
+pressure travels back from the kitchen to the door.
+"""
+scenario = """
+The online store's search indexer reads a supplier's product feed. The
+supplier sends a thousand products a second; the indexer handles a hundred.
+Everything the indexer has not reached waits in memory. After ten seconds nine
+thousand products are waiting, and the pile grows by nine hundred a second.
+"""
+costs = [
+    "**The waiting moves upstream.** The supplier's feed took 100 seconds instead of 10; it must be able to cope with being slowed.",
+    "**Dropping loses data.** Keeping only the latest is right for stock levels, wrong for orders.",
+    "**Harder code.** Request counts and completion signals are easy to get subtly wrong; use a library where you can.",
+]
+too_much = """
+When the producer is never faster than the consumer, or the volume is small
+and bounded, a plain queue is enough. Backpressure pays off when a fast source
+can outrun a slow sink for long periods.
+"""
+met_before = [
+    "`java.util.concurrent.Flow` and `SubmissionPublisher`.",
+    "Project Reactor, RxJava, Akka Streams and Kafka consumers pulling at their own pace.",
+    "A bounded `ArrayBlockingQueue`, whose `put` waits when it is full.",
+    "TCP flow control, which slows the sender when the receiver's window is full.",
+]
+where = """
+This project is in [micro-services-design-patterns](..), and near
+[Priority Queue](../priority-queue-pattern), which decides the order work is
+taken in, where backpressure decides how much is let in.
+"""
+
+[[act]]
+title = "No backpressure"
+summary = "The supplier sends 1,000 products a second, the indexer handles 100: after 10 seconds 9,000 wait in memory, growing by 900 a second."
+detail = """
+The supplier pushes as fast as it can and the indexer buffers everything it
+has not reached yet. After ten seconds, a thousand are indexed and nine
+thousand are waiting in memory, a pile that grows by nine hundred every
+second. A bigger feed, or a slower indexer, and the service runs out of memory.
+"""
+speech = """
+First demo: no backpressure. [[slnc 400]] The supplier sends a thousand products a second. [[slnc 300]] The indexer handles a hundred. [[slnc 600]]
+Everything not yet indexed waits in memory. [[slnc 300]] After ten seconds, nine thousand products are waiting. [[slnc 300]] And the pile grows by nine hundred every second. [[slnc 600]]
+A bigger feed, and the service runs out of memory.
+"""
+rows = { supplier = "active amber", buffer = "active wrong", indexer = "active amber" }
+console = [
+    ["1000 a second in, 100 a second out", "muted"],
+    ["after 10 s: 9000 waiting in memory", "bad"],
+    ["growing by 900 a second", "bad"],
+]
+
+[[act]]
+title = "A bounded buffer"
+summary = "A buffer of 500: when it is full the supplier waits. Never more than 500 waiting; all 10,000 indexed in 100 seconds."
+detail = """
+The buffer now holds at most five hundred products. When it is full, the
+supplier has to wait for space. Memory stays flat, never more than five
+hundred waiting, and all ten thousand products are indexed in a hundred
+seconds, the indexer's own pace.
+"""
+speech = """
+Second demo: a bounded buffer. [[slnc 400]] The buffer holds at most five hundred products. [[slnc 300]] When it is full, the supplier waits. [[slnc 600]]
+Never more than five hundred are waiting. [[slnc 300]] All ten thousand are indexed, in a hundred seconds. [[slnc 500]]
+The supplier has been slowed to the indexer's pace.
+"""
+rows = { supplier = "active amber", buffer = "active ok", indexer = "active ok" }
+console = [
+    ["buffer of 500: never more than 500 waiting", "ok"],
+    ["all 10000 indexed in 100 s", "ok"],
+]
+
+[[act]]
+title = "Ask for what you can handle"
+summary = "With Java's Flow interfaces, the indexer requests 10 at a time: all 10,000 indexed, never more than 10 in flight."
+detail = """
+Instead of the producer pushing, the consumer pulls. Using Java's own `Flow`
+interfaces, the indexer calls `request(10)`, indexes those ten, then asks for
+ten more. The publisher never sends anything it was not asked for, so at most
+ten products are ever in flight.
+"""
+speech = """
+Third demo: the consumer asks for what it can handle. [[slnc 400]] Java has this built in, in the Flow interfaces. [[slnc 600]]
+The indexer asks for ten products. [[slnc 300]] It indexes them. [[slnc 300]] Then it asks for ten more. [[slnc 500]]
+The supplier never sends anything that was not asked for. [[slnc 300]] All ten thousand are indexed. [[slnc 300]] And never more than ten are in flight.
+"""
+rows = { supplier = "active ok", indexer = "active ok" }
+console = [
+    ["indexer: request(10), index, request(10)", "muted"],
+    ["10000 indexed, at most 10 in flight", "ok"],
+]
+
+[[act]]
+title = "Keep only the latest"
+summary = "1,000 stock-level updates for 10 products: only 10 are delivered, the latest for each."
+detail = """
+Some data does not need every value. A warehouse sends a thousand stock-level
+updates for ten products. The consumer only needs the current level, so a
+conflator keeps one pending value per product and drops the older ones: ten
+updates are delivered, the latest for each.
+"""
+speech = """
+Fourth demo: when only the latest value matters, drop the rest. [[slnc 400]] The warehouse sends a thousand stock-level updates, for ten products. [[slnc 600]]
+The shop only needs the current stock level. [[slnc 300]] So it keeps one pending value per product. [[slnc 300]] A newer one replaces the older one. [[slnc 500]]
+Only ten updates are delivered. [[slnc 300]] The latest for each product.
+"""
+rows = { buffer = "active ok", indexer = "active ok" }
+console = [
+    ["1000 updates for 10 products", "muted"],
+    ["10 delivered, the latest for each", "ok"],
+]
+
+[[act]]
+title = "The bill"
+summary = "The supplier's feed took 100 seconds instead of 10, so it must cope with being slowed; dropping only suits data where the latest is all that matters."
+detail = """
+Backpressure does not make the work faster; it moves the waiting upstream. The
+supplier's feed took a hundred seconds instead of ten, so the supplier must
+be able to cope with being slowed. And dropping is only safe for data where
+the latest value is all that matters, never for orders or payments.
+"""
+speech = """
+Fifth demo: the bill. [[slnc 400]] Backpressure does not make the work faster. [[slnc 300]] It moves the waiting upstream. [[slnc 600]]
+The supplier's feed took a hundred seconds, instead of ten. [[slnc 300]] So the supplier must cope with being slowed. [[slnc 600]]
+And dropping is only safe when the latest value is all that matters. [[slnc 300]] Never for orders, or payments.
+"""
+rows = { supplier = "active amber" }
+console = [
+    ["feed took 100 s instead of 10", "amber"],
+    ["drop only when the latest is enough", "amber"],
+]
+
+[animation]
+subtitle = "A fast supplier feeds a slow search indexer; the indexer pushes back."
+boxes = [
+    ["supplier", "Supplier feed", "1000 a second"],
+    ["buffer", "Buffer", "bounded"],
+    ["indexer", "Search indexer", "100 a second"],
+]
+
+[docs.problem]
+scenario = """
+A supplier sends a thousand products a second; the search indexer handles a
+hundred.
+"""
+naive = """
+Buffering everything the indexer has not reached means memory grows by nine
+hundred products a second until the service falls over.
+"""
+deliver = [
+    "An unbounded buffer growing without limit.",
+    "A bounded buffer that makes the producer wait.",
+    "A pull-based subscriber using `java.util.concurrent.Flow`.",
+    "A conflator that keeps only the latest update.",
+    "The costs named: slower producers and lost data.",
+    "Every printed result asserted by a test.",
+]
+
+[docs.prerequisites]
+required = [
+    "Java basics: records, interfaces, `Map`.",
+]
+not_required = [
+    "A reactive library. The JDK's `Flow` interfaces are enough.",
+]
+
+[docs.session]
+objectives = [
+    "Explain what happens when a producer outruns a consumer.",
+    "Bound a buffer so the producer waits.",
+    "Implement pull with `Flow.Subscription.request(n)`.",
+    "Decide when dropping stale data is safe.",
+]
+walkthrough = """
+Run `./gradlew run` and compare act one's 9000 waiting with act two's 500.
+Open `Indexer.onNext`: the next `request` is only made when a batch is done.
+End on act four's 10 delivered out of 1000.
+"""
+exercises = [
+    "Replace `FeedSimulation`'s bounded buffer with a real `ArrayBlockingQueue` and two threads.",
+    "Use the JDK's `SubmissionPublisher` instead of `PullPublisher`.",
+    "Drop the oldest product when the buffer is full, instead of making the supplier wait.",
+]
+
+[docs.explained]
+sentence = """
+Backpressure lets a slow consumer control how fast a producer sends, so
+waiting work stays bounded instead of filling memory.
+"""
+verdict = """
+Use backpressure wherever a fast source can outrun a slow sink for long:
+bound every buffer, prefer consumers that pull, and drop only data where the
+latest value is enough. Make sure the producer can cope with being slowed.
+"""
+recognise = [
+    "`Flow.Subscriber` calling `subscription.request(n)`.",
+    "Bounded queues whose `put` blocks, or `offer` that returns false.",
+    "Operators named `onBackpressureBuffer`, `onBackpressureDrop` or `onBackpressureLatest`.",
+]
+
+[spec]
+purpose = """
+Teach Backpressure with an online store's search indexer reading a fast
+supplier feed: an unbounded buffer growing without limit, a bounded buffer
+slowing the supplier, a pull-based subscriber with Java's Flow interfaces, a
+conflator keeping only the latest stock levels, and the cost of each.
+"""
+nongoals = [
+    "Not real threads or time. Seconds are simulated so results are exact.",
+]
+problem = """
+A producer faster than its consumer fills memory with waiting work until the
+service fails.
+"""
+roles = [
+    ["The naive and bounded buffers", "`FeedSimulation.run`"],
+    ["The producer that sends only on request", "`PullPublisher`"],
+    ["The consumer that asks in batches", "`Indexer`"],
+    ["Keep only the latest", "`Conflator`"],
+    ["Entry point", "`BackpressureDemo`, five acts"],
+]
+requirements = [
+    "**Bounded:** waiting work never exceeds the buffer's capacity.",
+    "**Pull:** the publisher never sends more than was requested.",
+    "**Latest only:** the conflator delivers one value per product.",
+    "**Every printed result is asserted** in `DemoRunsTest`.",
+]
+
+[[diagram]]
+name = "architecture-diagram"
+kind = "flow"
+title = "Backpressure — the pieces"
+caption = "Demand flows back from the indexer to the supplier."
+nodes = [
+    { id = "s", label = "Supplier feed", sub = "1000 a second", col = 0, row = 0, colour = "amber" },
+    { id = "b", label = "Bounded buffer", sub = "at most 500", col = 1, row = 0, colour = "accent" },
+    { id = "i", label = "Search indexer", sub = "100 a second", col = 2, row = 0, colour = "green" },
+]
+edges = [
+    { from = "s", to = "b", label = "products" },
+    { from = "b", to = "i", label = "request(10)" },
+]
+
+[[diagram]]
+name = "class-diagram"
+kind = "class"
+title = "Backpressure — classes"
+caption = "The JDK's Flow interfaces carry the demand."
+nodes = [
+    { id = "p", label = "PullPublisher", sub = ["implements Flow.Publisher", "+ subscribe(subscriber)", "+ maxOutstanding()"], col = 0, row = 0, colour = "accent" },
+    { id = "i", label = "Indexer", sub = ["implements Flow.Subscriber", "+ onNext(product)", "  request(batch) when done"], col = 1, row = 0, colour = "green" },
+    { id = "c", label = "Conflator", sub = ["+ offer(sku, level)", "+ drain()"], col = 0, row = 1, colour = "client" },
+    { id = "f", label = "FeedSimulation", sub = ["+ run(products,", "  capacity, seconds)"], col = 1, row = 1, colour = "client" },
+]
+edges = [
+    { from = "i", to = "p", label = "request(n)" },
+]
+
+[[diagram]]
+name = "data-flow-diagram"
+kind = "flow"
+title = "Backpressure — three answers"
+caption = "Wait, pull, or drop the stale."
+nodes = [
+    { id = "a", label = "No backpressure", sub = "9000 waiting and growing", col = 0, row = 0, colour = "red" },
+    { id = "b", label = "Bounded buffer", sub = "at most 500 waiting", col = 1, row = 0, colour = "green" },
+    { id = "c", label = "Pull in batches", sub = "at most 10 in flight", col = 0, row = 1, colour = "green" },
+    { id = "d", label = "Latest only", sub = "1000 updates, 10 delivered", col = 1, row = 1, colour = "green" },
+]
+edges = []
+
+[[diagram]]
+name = "sequence-diagram"
+kind = "sequence"
+title = "Backpressure — pull"
+caption = "Nothing is sent that was not asked for."
+participants = ["Indexer", "Publisher"]
+steps = [
+    ["Indexer", "Publisher", "request(10)"],
+    ["Publisher", "Indexer", "10 products", "reply"],
+    ["note", "Indexer", "index them"],
+    ["Indexer", "Publisher", "request(10)"],
+    ["Publisher", "Indexer", "10 products", "reply"],
+]
+
+[[diagram]]
+name = "uml-diagram"
+kind = "sequence"
+title = "1. No backpressure"
+caption = "The pile grows."
+participants = ["Supplier", "Buffer", "Indexer"]
+steps = [
+    ["Supplier", "Buffer", "1000 a second"],
+    ["Buffer", "Indexer", "100 a second"],
+    ["note", "Buffer", "+900 a second"],
+]
+
+[[diagram]]
+name = "uml-diagram-2"
+kind = "sequence"
+title = "2. A bounded buffer"
+caption = "The supplier waits."
+participants = ["Supplier", "Buffer", "Indexer"]
+steps = [
+    ["Supplier", "Buffer", "until 500 waiting"],
+    ["note", "Supplier", "waits for space"],
+    ["Buffer", "Indexer", "100 a second"],
+]
+
+[poster]
+headline = [["BACK", "text"], ["PRESSURE", "text"]]
+before = { code = "push everything", note = "9000 waiting and growing", tag = "BEFORE" }
+after = { code = "request(10)", note = "at most 10 in flight", tag = "AFTER" }
+taglines = [["Only send what can be handled", "gold"]]
+
+[[scene]]
+key = "01-poster"
+kind = "poster"
+title = "Backpressure"
+narration = """
+Hello, and welcome. [[slnc 400]] This video explains the Backpressure pattern, in Java. [[slnc 300]]
+This video is presented by Jayasekhar Konduru. [[slnc 600]]
+First, a simple definition. [[slnc 300]] Backpressure lets a slow consumer tell a fast producer to slow down. [[slnc 300]] So the work waiting in between stays small, instead of filling memory. [[slnc 600]]
+Think of a busy restaurant. [[slnc 300]] If the waiters take orders faster than the chefs can cook, the ticket rail overflows. [[slnc 300]] A good kitchen tells the front of house to stop seating tables for a while. [[slnc 300]] The pressure travels back, from the kitchen to the door. [[slnc 700]]
+In this video, the domain is an online shop's search indexer. [[slnc 300]] It reads a supplier's product feed, which is much faster than the indexer. [[slnc 500]]
+By the end, you will hear how the waiting pile grows without limit. [[slnc 300]] Three ways to push back. [[slnc 300]] And what backpressure costs.
+"""
+
+[[scene]]
+key = "02-scenario"
+kind = "bullets"
+title = "The Scenario"
+body = ["The supplier sends 1,000 products a second.", "", "The indexer handles 100 a second.", "", "The rest waits in memory."]
+narration = """
+Here is the scenario. [[slnc 400]] The shop's search indexer reads a supplier's product feed. [[slnc 500]]
+The supplier sends a thousand products a second. [[slnc 300]] The indexer can handle a hundred. [[slnc 500]]
+Everything it has not reached yet waits in memory.
+"""
+
+[[scene]]
+key = "03-acts"
+kind = "acts"
+title = "acts"
+
+[[scene]]
+key = "04-pattern"
+kind = "bullets"
+title = "The Pattern"
+body = ["The consumer controls the pace.", "", "Bound every buffer.", "Pull in batches.", "Or keep only the latest."]
+narration = """
+Let's name the pattern. [[slnc 400]] The consumer controls the pace, not the producer. [[slnc 500]]
+There are three common ways. [[slnc 300]] Bound the buffer, so the producer waits when it is full. [[slnc 300]] Let the consumer ask for a batch at a time. [[slnc 300]] Or, when only the latest value matters, drop the older ones.
+"""
+
+[[scene]]
+key = "05-roles"
+kind = "bullets"
+title = "Who Does What"
+body = ["PullPublisher: sends only on request", "Indexer: asks for 10 at a time", "Conflator: keeps the latest per product", "FeedSimulation: unbounded vs bounded"]
+narration = """
+Here is who does what. [[slnc 400]] The publisher is the supplier's feed. [[slnc 300]] It sends only as many products as it has been asked for. [[slnc 500]]
+The indexer is the subscriber. [[slnc 300]] It asks for ten, indexes them, then asks again. [[slnc 500]]
+The conflator keeps one pending stock level per product. [[slnc 300]] And the feed simulation compares an unbounded buffer with a bounded one.
+"""
+
+[[scene]]
+key = "06-recognise"
+kind = "bullets"
+title = "Where You Have Seen It"
+body = ["java.util.concurrent.Flow", "Reactor, RxJava, Akka Streams", "Bounded blocking queues", "TCP flow control"]
+narration = """
+You have probably met this pattern already. [[slnc 400]] Java's Flow interfaces are the Reactive Streams standard. [[slnc 500]]
+Reactor, RxJava and Akka Streams are all built on it. [[slnc 300]] A bounded blocking queue makes the producer wait when it is full. [[slnc 500]]
+And the network itself does it. [[slnc 300]] TCP slows the sender when the receiver cannot keep up.
+"""
+
+[[scene]]
+key = "07-verdict"
+kind = "bullets"
+title = "When To Use It"
+body = ["A fast source can outrun", "a slow sink.", "", "Bound every buffer.", "Prefer pull.", "Drop only stale data."]
+narration = """
+So, when should you use it? [[slnc 400]] Whenever a fast source can outrun a slow consumer for long. [[slnc 500]]
+Bound every buffer. [[slnc 300]] Prefer consumers that ask for work. [[slnc 300]] Drop only data where the latest value is enough. [[slnc 500]]
+And make sure the producer can cope with being slowed.
+"""
+
+[[scene]]
+key = "08-outro"
+kind = "outro"
+title = "Thanks for Watching"
+body = ["Full source, notes, diagrams and an animated walkthrough", "are in the repository. Try the JDK's", "SubmissionPublisher."]
+narration = """
+That's the Backpressure pattern. [[slnc 400]] If you remember one sentence, make it this one. [[slnc 300]] Let the slow side set the pace, or memory will set it for you. [[slnc 500]]
+The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. [[slnc 300]] It runs offline, with nothing installed except a Java development kit. [[slnc 500]]
+Here is one exercise to try. [[slnc 300]] Replace the hand-written publisher with the JDK's submission publisher. [[slnc 500]]
+If this helped, a like really does help other people find it. [[slnc 300]] And subscribe, if you'd like the rest of the series. [[slnc 400]] Thanks for watching.
+"""

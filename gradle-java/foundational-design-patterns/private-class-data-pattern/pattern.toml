@@ -1,0 +1,435 @@
+# pattern.toml for the Private Class Data project. See tools/patternkit.
+
+[project]
+slug = "private-class-data"
+category = "foundational-design-patterns"
+title = "Private Class Data"
+package = "privateclassdata"
+main_class = "PrivateClassDataDemo"
+tagline = "Protect the data from its own class"
+bold = "Put the figures a class must never change into a private, unchangeable data object, so not even the class's own methods can overwrite them."
+domain_note = ""
+thumb_lines = ["PRIVATE", "CLASS DATA"]
+thumb_code = "private final InvoiceData data"
+youtube_title = "Private Class Data"
+youtube_tags = ["private class data", "encapsulation", "design patterns", "immutability", "java"]
+
+[readme]
+intro = """
+Private Class Data is a small pattern about protecting a class from itself.
+Ordinary encapsulation hides fields from other classes, but the class's own
+methods can still change them, by accident or as a shortcut. With private
+class data, the values that must never change after construction move into a
+separate data object with final fields and no setters. The class holds it
+privately and can read it, but not write it.
+
+Anything that is genuinely meant to change, such as a counter, stays an
+ordinary field beside it. The class decides, field by field, what may change.
+"""
+analogy = """
+Think of a museum exhibit in a glass case. The staff look after it every day:
+they clean the glass, count the visitors, change the label lights. But the
+exhibit itself is locked inside, and nobody, not even the staff, can pick it up
+and alter it. The things that are meant to change sit outside the glass.
+"""
+scenario = """
+The online store prints invoices, and staff sometimes print one with a staff
+discount shown. The invoice's print method took a shortcut: it subtracted the
+discount from its own stored total before printing. Printing it twice took the
+discount twice, and the invoice itself now said £81 instead of £100.
+"""
+costs = [
+    "**One more class.** Every protected class gains a data class beside it.",
+    "**One more hop.** Every read becomes `data.netPence()` instead of `netPence`.",
+    "**Ceremony for small classes.** For a class with two fields and no risky methods, final fields alone are enough.",
+]
+too_much = """
+If every field of a class should be unchangeable, make the whole class
+immutable instead: final fields, or a record. Private Class Data is for classes
+that mix protected figures with working state that must change, or for older
+code where you want to lock down a group of fields without rewriting the class.
+"""
+met_before = [
+    "Final fields grouped into a record inside a service or entity.",
+    "Configuration objects passed into a class and kept read-only.",
+    "The \"memento\" of an object's state, kept apart from the object.",
+]
+where = """
+This project is in [foundational-design-patterns](..), next to
+[Immutable Object](../immutable-object-pattern), which makes a whole object
+unchangeable. Private Class Data protects part of an object and lets the rest
+change.
+"""
+
+[[act]]
+title = "A method changes its own figures"
+summary = "Printing INV-7 with a 10% staff discount shows £90.00, then £81.00; the invoice itself now says £81.00."
+detail = """
+`LooseInvoice` keeps its total as an ordinary field. Its
+`printWithStaffDiscount` method subtracts the discount from that field before
+printing. The first print shows £90.00. The second takes ten percent again and
+shows £81.00. The invoice, issued for £100.00, now says £81.00.
+"""
+speech = """
+First demo: the invoice's own method changes its figures. [[slnc 400]] Invoice seven is for one hundred pounds. [[slnc 300]] It is printed with a ten percent staff discount shown. [[slnc 600]]
+The print method takes a shortcut. [[slnc 300]] It takes the discount off the stored total, then prints it. [[slnc 500]]
+First print: ninety pounds. [[slnc 300]] Second print: eighty-one pounds. [[slnc 600]]
+The invoice itself now says eighty-one pounds. [[slnc 300]] It was issued for one hundred.
+"""
+rows = { loose = "active wrong" }
+console = [
+    ["first print:  £90.00", "ok"],
+    ["second print: £81.00", "bad"],
+    ["the invoice now says £81.00", "bad"],
+]
+
+[[act]]
+title = "Private class data"
+summary = "The figures move into a private InvoiceData record; printed three times, it shows £90.00 each time and still says £100.00."
+detail = """
+`Invoice` keeps its number, customer and total in a private `InvoiceData`
+record. The print method works out the discounted figure in a local variable.
+Printed three times, it shows £90.00 each time, and the invoice still says
+£100.00.
+"""
+speech = """
+Second demo: the figures live in a private data object. [[slnc 400]] The invoice's number, customer, and total move into a small record. [[slnc 300]] The invoice keeps that record privately. [[slnc 600]]
+Now the print method works out the discount in a local variable. [[slnc 300]] It cannot change the stored total. [[slnc 500]]
+Print it three times. [[slnc 300]] Ninety pounds, every time. [[slnc 300]] And the invoice still says one hundred.
+"""
+rows = { invoice = "active ok", data = "active ok" }
+console = [
+    ["print 1, 2, 3: £90.00", "ok"],
+    ["the invoice still says £100.00", "ok"],
+]
+
+[[act]]
+title = "Nothing can write"
+summary = "InvoiceData has 0 setters and final fields; the loose invoice's shortcut would not compile."
+detail = """
+`InvoiceData` is a record: its fields are final and it has no setters. The
+invoice can read `data.netPence()` but has no way to write it. The loose
+invoice's shortcut, assigning a new total, would simply not compile.
+"""
+speech = """
+Third demo: nothing can write the figures, not even the invoice itself. [[slnc 400]] The data record has no setters. [[slnc 300]] Its fields are final, which means they are set once, and never again. [[slnc 600]]
+So the shortcut from the first demo would not even compile. [[slnc 300]] The mistake is stopped before the program ever runs.
+"""
+rows = { data = "active ok" }
+console = [
+    ["InvoiceData setters: 0", "ok"],
+    ["the shortcut would not compile", "ok"],
+]
+
+[[act]]
+title = "Working state beside the data"
+summary = "The invoice counts its prints (3) while its figures stay at £100.00."
+detail = """
+Not everything must be frozen. The invoice keeps an ordinary `timesPrinted`
+counter beside its data, and it reads three. The figures are unchanged at
+£100.00. The class decides, field by field, which values may change.
+"""
+speech = """
+Fourth demo: working state can still change, beside the data. [[slnc 400]] The invoice counts how many times it was printed. [[slnc 300]] That counter is an ordinary field, and it says three. [[slnc 500]]
+The figures in the data object have not moved. [[slnc 300]] Still one hundred pounds. [[slnc 500]]
+Like the museum case: the visitor count changes, the exhibit does not.
+"""
+rows = { invoice = "active ok", counter = "active ok", data = "active ok" }
+console = [
+    ["times printed: 3", "ok"],
+    ["figures unchanged: £100.00", "ok"],
+]
+
+[[act]]
+title = "The bill"
+summary = "One more class and one more hop on every read; for a small class with no risky methods it is ceremony."
+detail = """
+Every protected class gains a data class, and every read goes through it:
+`data.netPence()` instead of `netPence`. For a class with two fields and no
+risky methods, final fields alone would do.
+"""
+speech = """
+Fifth demo: the bill. [[slnc 400]] There is one more class, the data record. [[slnc 300]] And every read takes one more hop, through the data object. [[slnc 600]]
+For a small class with no risky methods, that is just ceremony. [[slnc 300]] Final fields alone would be enough.
+"""
+rows = { data = "active amber" }
+console = [
+    ["every read: data.netPence()", "amber"],
+    ["small, safe classes: ceremony", "amber"],
+]
+
+[animation]
+subtitle = "The invoice's figures sit in a private, unchangeable data object; printing reads them but cannot change them."
+boxes = [
+    ["loose", "LooseInvoice", "total is a plain field"],
+    ["invoice", "Invoice", "prints, counts prints"],
+    ["data", "InvoiceData", "number, customer, total: final"],
+    ["counter", "timesPrinted", "allowed to change"],
+]
+
+[docs.problem]
+scenario = """
+Invoices are printed, sometimes with a staff discount shown.
+"""
+naive = """
+`LooseInvoice` subtracts the discount from its own stored total before
+printing, so every print takes the discount again: £100, then £90, then £81.
+"""
+deliver = [
+    "The drifting total shown: £90.00, then £81.00.",
+    "Figures held in a private record with final fields and no setters.",
+    "Repeated prints showing the same figure while the total stays at £100.00.",
+    "An ordinary counter kept beside the protected data.",
+    "Every printed result asserted by a test.",
+]
+
+[docs.prerequisites]
+required = [
+    "Java basics: classes, fields, `final`, records.",
+]
+not_required = [
+    "Reflection. The demo uses it once to count setters; you do not need to understand it.",
+]
+
+[docs.session]
+objectives = [
+    "Explain how a class can damage its own data.",
+    "Move protected fields into a private, final data object.",
+    "Keep working state that must change beside it.",
+    "Tell this pattern apart from a fully immutable object.",
+]
+walkthrough = """
+Run `./gradlew run` and read act one: the same invoice printed twice gives two
+different totals. Open `LooseInvoice.printWithStaffDiscount` and find the line
+that does it. Then open `Invoice`: one private record, one counter.
+"""
+exercises = [
+    "Add a `VAT rate` to InvoiceData and a method that prints the total with VAT.",
+    "Try writing `data.netPence = 0` inside Invoice and read the compiler's message.",
+    "Add a credit note: a new Invoice with a negative total, rather than changing the old one.",
+]
+
+[docs.explained]
+sentence = """
+Private class data moves the values a class must never change into a private,
+unchangeable data object, so not even the class's own methods can overwrite
+them.
+"""
+verdict = """
+Use it for classes that hold important figures alongside working state, or to
+lock down a group of fields in older code. When everything should be
+unchangeable, make the whole object immutable instead.
+"""
+recognise = [
+    "A class holding a `private final SomethingData data` field.",
+    "Records or final-field classes named `...Data`, `...State` or `...Details` inside another class.",
+    "Getters that forward to `data.x()`.",
+]
+
+[spec]
+purpose = """
+Teach Private Class Data with an online store's invoices: a print method that
+subtracts a staff discount from its own total (£100 to £90 to £81), then the
+figures in a private final record so prints show £90.00 each time, no setters,
+and a print counter kept beside the data.
+"""
+nongoals = [
+    "Not full immutability. Covered by Immutable Object.",
+    "Not tax rules. The discount is a plain percentage.",
+]
+problem = """
+A class's own methods can change fields that should never change after
+construction.
+"""
+roles = [
+    ["The pattern", "`Invoice` with a private `InvoiceData`"],
+    ["The protected data", "`InvoiceData`"],
+    ["The naive version", "`LooseInvoice`"],
+    ["Entry point", "`PrivateClassDataDemo`, five acts"],
+]
+requirements = [
+    "**Final figures:** `InvoiceData` has final fields and no setters.",
+    "**Private:** the data object is not exposed; only its values are read.",
+    "**Stable prints:** repeated prints show the same figure.",
+    "**Working state allowed:** the print counter changes.",
+    "**Every printed result is asserted** in `DemoRunsTest`.",
+]
+
+[[diagram]]
+name = "architecture-diagram"
+kind = "flow"
+title = "Private Class Data — the pieces"
+caption = "The invoice reads its data but cannot write it; the counter sits outside."
+nodes = [
+    { id = "p", label = "printWithStaffDiscount", sub = "reads, works locally", col = 0, row = 0, colour = "client" },
+    { id = "i", label = "Invoice", sub = "private final data", col = 1, row = 0, colour = "accent" },
+    { id = "d", label = "InvoiceData", sub = "INV-7, Priya, £100.00", col = 2, row = 0, colour = "green" },
+    { id = "c", label = "timesPrinted", sub = "may change", col = 1, row = 1, colour = "amber" },
+]
+edges = [
+    { from = "p", to = "i", label = "called on" },
+    { from = "i", to = "d", label = "reads only" },
+    { from = "i", to = "c", label = "increments" },
+]
+
+[[diagram]]
+name = "class-diagram"
+kind = "class"
+title = "Private Class Data — classes"
+caption = "One record of final fields, held privately."
+nodes = [
+    { id = "i", label = "Invoice", sub = ["- final InvoiceData data", "- int timesPrinted", "+ printWithStaffDiscount(%)", "+ netPence()"], col = 0, row = 0, colour = "accent" },
+    { id = "d", label = "«record» InvoiceData", sub = ["number, customer", "netPence", "(no setters)"], col = 1, row = 0, colour = "green" },
+    { id = "l", label = "LooseInvoice", sub = ["- long netPence", "print changes it"], col = 2, row = 0, colour = "red" },
+]
+edges = [
+    { from = "i", to = "d", label = "holds" },
+]
+
+[[diagram]]
+name = "data-flow-diagram"
+kind = "flow"
+title = "Private Class Data — printing twice"
+caption = "The loose invoice drifts; the protected one does not."
+nodes = [
+    { id = "a", label = "LooseInvoice £100", sub = "stored", col = 0, row = 0, colour = "client" },
+    { id = "b", label = "£90 stored", sub = "after print 1", col = 1, row = 0, colour = "red" },
+    { id = "c", label = "£81 stored", sub = "after print 2", col = 2, row = 0, colour = "red" },
+    { id = "d", label = "Invoice £100", sub = "stored", col = 0, row = 1, colour = "client" },
+    { id = "e", label = "£100 stored", sub = "after 3 prints", col = 2, row = 1, colour = "green" },
+]
+edges = [
+    { from = "a", to = "b", label = "print" },
+    { from = "b", to = "c", label = "print" },
+    { from = "d", to = "e", label = "print x 3" },
+]
+
+[[diagram]]
+name = "sequence-diagram"
+kind = "sequence"
+title = "Private Class Data — one print"
+caption = "Read the data, compute locally, count the print."
+participants = ["Staff", "Invoice", "InvoiceData"]
+steps = [
+    ["Staff", "Invoice", "printWithStaffDiscount(10)"],
+    ["Invoice", "InvoiceData", "netPence()"],
+    ["InvoiceData", "Invoice", "10000", "reply"],
+    ["note", "Invoice", "local: 9000; timesPrinted++"],
+    ["Invoice", "Staff", "INV-7: £90.00", "reply"],
+]
+
+[[diagram]]
+name = "uml-diagram"
+kind = "sequence"
+title = "1. The loose invoice's shortcut"
+caption = "The stored total is overwritten."
+participants = ["Staff", "LooseInvoice"]
+steps = [
+    ["Staff", "LooseInvoice", "printWithStaffDiscount(10)"],
+    ["note", "LooseInvoice", "netPence = 9000"],
+    ["Staff", "LooseInvoice", "printWithStaffDiscount(10)"],
+    ["note", "LooseInvoice", "netPence = 8100"],
+]
+
+[[diagram]]
+name = "uml-diagram-2"
+kind = "sequence"
+title = "2. Trying to write the data"
+caption = "The compiler refuses."
+participants = ["Invoice", "InvoiceData"]
+steps = [
+    ["Invoice", "InvoiceData", "data.netPence = 0"],
+    ["note", "InvoiceData", "final: does not compile"],
+]
+
+[poster]
+headline = [["PRIVATE", "text"], ["CLASS DATA", "text"]]
+before = { code = "netPence -= discount", note = "£100, £90, £81", tag = "BEFORE" }
+after = { code = "private final InvoiceData", note = "£100, every time", tag = "AFTER" }
+taglines = [["Protect the data from its own class", "gold"]]
+
+[[scene]]
+key = "01-poster"
+kind = "poster"
+title = "Private Class Data"
+narration = """
+Hello, and welcome. [[slnc 400]] This video explains the Private Class Data pattern, in Java. [[slnc 300]]
+This video is presented by Jayasekhar Konduru. [[slnc 600]]
+First, a simple definition. [[slnc 300]] Private class data moves the values a class must never change into a separate, private data object. [[slnc 300]] That object cannot be changed. [[slnc 300]] So not even the class's own methods can overwrite those values. [[slnc 600]]
+Think of a museum exhibit in a glass case. [[slnc 300]] The staff clean the glass and count the visitors every day. [[slnc 300]] But nobody, not even the staff, can pick up the exhibit and alter it. [[slnc 700]]
+In this video, the domain is an online shop. [[slnc 300]] It prints invoices, and staff sometimes print one with a staff discount shown. [[slnc 500]]
+By the end, you will hear how a class can damage its own data. [[slnc 300]] How a private data object stops it. [[slnc 300]] How working state can still change. [[slnc 300]] And when this is just ceremony.
+"""
+
+[[scene]]
+key = "02-scenario"
+kind = "bullets"
+title = "The Scenario"
+body = ["Invoice INV-7: £100.00.", "", "Staff print it with a 10%", "staff discount shown.", "", "The print method took a shortcut."]
+narration = """
+Here is the scenario. [[slnc 400]] Invoice seven is for one hundred pounds. [[slnc 500]]
+Staff can print it with a ten percent staff discount shown, for their own records. [[slnc 500]]
+The print method took a shortcut. [[slnc 300]] Let's see what that did.
+"""
+
+[[scene]]
+key = "03-acts"
+kind = "acts"
+title = "acts"
+
+[[scene]]
+key = "04-pattern"
+kind = "bullets"
+title = "The Pattern"
+body = ["Values that must never change:", "a private data object with", "final fields and no setters.", "", "Working state that may change:", "ordinary fields beside it."]
+narration = """
+Let's name the pattern. [[slnc 400]] Find the values that must never change after the object is made. [[slnc 300]] Move them into a small data object, with final fields and no setters. [[slnc 300]] Keep it private. [[slnc 500]]
+Values that are meant to change, such as a counter, stay ordinary fields beside it. [[slnc 500]]
+The class can read its data. [[slnc 300]] It cannot write it.
+"""
+
+[[scene]]
+key = "05-roles"
+kind = "bullets"
+title = "Who Does What"
+body = ["Invoice: prints, counts prints", "InvoiceData: number, customer, total", "timesPrinted: may change", "LooseInvoice: the old way"]
+narration = """
+Here is who does what. [[slnc 400]] The invoice prints itself, and counts how often. [[slnc 500]]
+Invoice data is a record holding the number, the customer, and the total. [[slnc 300]] Set once, never changed. [[slnc 500]]
+Times printed is the ordinary field beside it. [[slnc 500]]
+And loose invoice is the old way, kept for comparison.
+"""
+
+[[scene]]
+key = "06-recognise"
+kind = "bullets"
+title = "Where You Have Seen It"
+body = ["private final ...Data data;", "Read-only configuration objects", "Records inside services", "and entities"]
+narration = """
+You have probably met this pattern already. [[slnc 400]] Any class holding a private final field of some data type, and reading from it, is using it. [[slnc 500]]
+Read-only configuration objects passed into a service are the same idea. [[slnc 500]]
+And records kept inside services and entities, to group the values that must not change.
+"""
+
+[[scene]]
+key = "07-verdict"
+kind = "bullets"
+title = "When To Use It"
+body = ["Important figures beside", "working state that changes.", "", "Locking down fields in", "older code.", "", "Everything fixed? Make the", "whole object immutable."]
+narration = """
+So, when should you use it? [[slnc 400]] When a class holds important figures alongside working state that must change. [[slnc 500]]
+Or when you want to lock down a group of fields in older code, without rewriting the class. [[slnc 500]]
+And when every value should be fixed, skip this. [[slnc 300]] Make the whole object immutable instead.
+"""
+
+[[scene]]
+key = "08-outro"
+kind = "outro"
+title = "Thanks for Watching"
+body = ["Full source, notes, diagrams and an animated walkthrough", "are in the repository. Try writing to the data", "and read the compiler's answer."]
+narration = """
+That's the Private Class Data pattern. [[slnc 400]] If you remember one sentence, make it this one. [[slnc 300]] Protect the figures that must not change, even from their own class. [[slnc 500]]
+The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. [[slnc 300]] It runs offline, with nothing installed except a Java development kit. [[slnc 500]]
+Here is one exercise to try. [[slnc 300]] Inside the invoice, try to change the stored total. [[slnc 300]] And read what the compiler says. [[slnc 500]]
+If this helped, a like really does help other people find it. [[slnc 300]] And subscribe, if you'd like the rest of the series. [[slnc 400]] Thanks for watching.
+"""

@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Memoization Pattern — Animated Walkthrough</title>
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 24px;
+    background: #0f172a; color: #e2e8f0;
+    font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
+    padding-top: calc(24px + env(safe-area-inset-top, 0px));
+    padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+  }
+  h1 { font-size: 1.4rem; margin: 0 0 4px; }
+  p.sub { color: #94a3b8; margin: 0 0 20px; max-width: 70ch; }
+  .wrap { max-width: 1100px; margin: 0 auto; }
+  .stage { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+  @media (max-width: 760px) { .stage { grid-template-columns: 1fr; } }
+  .boxes { display: flex; flex-direction: column; gap: 10px; }
+  .row { border: 2px solid #334155; border-radius: 10px; padding: 12px 16px;
+         background: #1e293b; transition: all .25s ease; opacity: .55; }
+  .row .name { font-weight: 700; font-size: 1rem; }
+  .row .job { color: #94a3b8; font-size: .82rem; margin-top: 2px; }
+  .row.active { opacity: 1; box-shadow: 0 0 0 2px currentColor inset; }
+  .row.wrong { border-color: #f87171; color: #f87171; }
+  .row.wrong.active { background: #3f1d24; }
+  .row.ok { border-color: #34d399; color: #34d399; }
+  .row.ok.active { background: #10261f; }
+  .row.amber { border-color: #fbbf24; color: #fbbf24; }
+  .row.amber.active { background: #2a2110; }
+  .row.dim { opacity: .22; }
+  .console { background: #020617; border: 1px solid #334155; border-radius: 10px; padding: 16px;
+             font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: .86rem;
+             line-height: 1.55; overflow-y: auto; min-height: 320px; white-space: pre-wrap; }
+  #console-lines span.ok { color: #34d399; }
+  #console-lines span.bad { color: #f87171; }
+  #console-lines span.amber { color: #fbbf24; }
+  #console-lines span.muted { color: #94a3b8; }
+  .narration { background: #1e293b; border: 1px solid #334155; border-radius: 10px;
+               padding: 14px 18px; margin-bottom: 16px; min-height: 3.2em; }
+  .controls { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  button { background: #334155; color: #e2e8f0; border: 1px solid #475569; border-radius: 8px;
+           padding: 10px 18px; font-size: .92rem; cursor: pointer; }
+  button:hover { background: #475569; }
+  button:disabled { opacity: .45; cursor: default; }
+  button#play { background: #7c3aed; border-color: #7c3aed; }
+  button#play:hover { background: #8b5cf6; }
+  #progress { color: #94a3b8; font-size: .85rem; margin-left: auto; }
+  .step-label { font-size: .78rem; text-transform: uppercase; letter-spacing: .04em;
+                color: #a78bfa; font-weight: 700; margin-bottom: 4px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Memoization — Step by Step</h1>
+  <p class="sub">The same question is worked out once and remembered; later askers read the answer from the memo.</p>
+
+  <div class="narration">
+    <div class="step-label" id="step-label">Ready</div>
+    <div id="narration">Press Step or Play to begin.</div>
+  </div>
+
+  <div class="stage">
+    <div class="boxes" id="boxes">
+      <div class="row" id="row-plain">
+        <div class="name">Plain recursion</div>
+        <div class="job">asks the same questions again</div>
+      </div>
+      <div class="row" id="row-memo">
+        <div class="name">Memo</div>
+        <div class="job">argument -> answer</div>
+      </div>
+      <div class="row" id="row-carrier">
+        <div class="name">Carrier quote</div>
+        <div class="job">200 ms per call</div>
+      </div>
+      <div class="row" id="row-rate">
+        <div class="name">Exchange rate</div>
+        <div class="job">changes at noon</div>
+      </div>
+    </div>
+    <div class="console"><div id="console-lines"></div></div>
+  </div>
+
+  <div class="controls">
+    <button id="step">Step ▸</button>
+    <button id="play">Play ▶</button>
+    <button id="reset">Reset ↺</button>
+    <span id="progress">0 / 0</span>
+  </div>
+</div>
+
+<script>
+const STEPS = [
+ {
+  "label": "Act 1 — The same questions again",
+  "narration": "First demo: the cheapest way to buy twenty-five mugs, worked out plainly. The offers are: one for four pounds, two for seven, three for ten, and five for fifteen. The method says: the best price for twenty-five is the cheapest of: one offer, plus the best price for whatever is left. That is correct. The answer is seventy-five pounds. But it took nearly ten million calls. The best price for twenty mugs was worked out again, every single time it was needed.",
+  "rows": {
+   "plain": "active wrong"
+  },
+  "console": [
+   [
+    "best price for 25: £75.00",
+    "ok"
+   ],
+   [
+    "after 9,749,473 calls",
+    "bad"
+   ]
+  ]
+ },
+ {
+  "label": "Act 2 — Memoized",
+  "narration": "Second demo: memoized. The same method, with one change. Before working out an answer, it looks in a notebook. After working one out, it writes it down. Each size, from nought to twenty-five, is worked out exactly once. Twenty-six calls. The same seventy-five pounds.",
+  "rows": {
+   "memo": "active ok"
+  },
+  "console": [
+   [
+    "best price for 25: £75.00",
+    "ok"
+   ],
+   [
+    "after 26 calls",
+    "ok"
+   ]
+  ]
+ },
+ {
+  "label": "Act 3 — A reusable memo",
+  "narration": "Third demo: a reusable memo, around a slow shipping quote. Asking the carrier takes two hundred milliseconds. One thousand product page views ask for a quote. They come from twelve postcode areas. With the memo, the carrier is called twelve times. Two point four seconds of waiting, instead of two hundred seconds.",
+  "rows": {
+   "memo": "active ok",
+   "carrier": "active ok"
+  },
+  "console": [
+   [
+    "1000 views, 12 areas",
+    "muted"
+   ],
+   [
+    "carrier calls: 12",
+    "ok"
+   ],
+   [
+    "2,400 ms instead of 200,000 ms",
+    "ok"
+   ]
+  ]
+ },
+ {
+  "label": "Act 4 — Not safe to memoize",
+  "narration": "Fourth demo: a function that is not safe to memoize. Converting pounds to euros uses today's exchange rate. In the morning, one hundred pounds is one hundred and sixteen euros. The memo writes that down. At noon, the rate changes. The real price is now one hundred and twelve euros. But the memo still says one hundred and sixteen. The answer depended on the time, not only on the price.",
+  "rows": {
+   "memo": "active wrong",
+   "rate": "active amber"
+  },
+  "console": [
+   [
+    "morning: £100.00 is €116.00",
+    "muted"
+   ],
+   [
+    "noon: memo says €116.00",
+    "bad"
+   ],
+   [
+    "real price: €112.00",
+    "ok"
+   ]
+  ]
+ },
+ {
+  "label": "Act 5 — The bill",
+  "narration": "Fifth demo: the bill. A memo never forgets. Ask it about one hundred thousand different postcodes, and it keeps one hundred thousand answers in memory. Real caches add a size limit, and an expiry time.",
+  "rows": {
+   "memo": "active amber"
+  },
+  "console": [
+   [
+    "100,000 answers kept in memory",
+    "amber"
+   ],
+   [
+    "real caches: size limit + expiry",
+    "amber"
+   ]
+  ]
+ }
+];
+const rowIds = ["plain", "memo", "carrier", "rate"];
+const stepLabel = document.getElementById("step-label");
+const narrationEl = document.getElementById("narration");
+const consoleEl = document.getElementById("console-lines");
+const progressEl = document.getElementById("progress");
+const playBtn = document.getElementById("play");
+let i = -1, timer = null;
+
+function esc(t) { return t.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+
+function render() {
+  for (const id of rowIds) document.getElementById("row-" + id).className = "row";
+  if (i < 0) {
+    stepLabel.textContent = "Ready";
+    narrationEl.textContent = "Press Step or Play to begin.";
+    consoleEl.innerHTML = "";
+    progressEl.textContent = "0 / " + STEPS.length;
+    return;
+  }
+  const s = STEPS[i];
+  stepLabel.textContent = s.label;
+  narrationEl.textContent = s.narration;
+  for (const id of rowIds) {
+    const cls = s.rows[id];
+    document.getElementById("row-" + id).className = "row " + (cls ? cls : "dim");
+  }
+  consoleEl.innerHTML = s.console.map(([t, c]) => '<span class="' + c + '">' + esc(t) + "</span>").join("\n");
+  progressEl.textContent = (i + 1) + " / " + STEPS.length;
+}
+function step() { if (i >= STEPS.length - 1) { stopPlay(); return; } i += 1; render(); }
+function reset() { stopPlay(); i = -1; render(); }
+// While a step's narration is playing, Play waits for it to finish.
+function speaking() { return typeof window.vkSpeaking === "function" && window.vkSpeaking(); }
+function startPlay() {
+  if (timer) return;
+  playBtn.textContent = "Pause ❚❚";
+  let quiet = 0;
+  timer = setInterval(() => {
+    if (speaking()) { quiet = 0; return; }
+    if (++quiet < 6) return;                     // 6 × 500 ms of reading time
+    quiet = 0;
+    if (i >= STEPS.length - 1) { stopPlay(); return; }
+    step();
+  }, 500);
+  if (i < 0) step();
+}
+function stopPlay() { if (timer) clearInterval(timer); timer = null; playBtn.textContent = "Play ▶"; }
+
+document.getElementById("step").addEventListener("click", () => { stopPlay(); step(); });
+document.getElementById("reset").addEventListener("click", reset);
+playBtn.addEventListener("click", () => { if (timer) stopPlay(); else startPlay(); });
+render();
+</script>
+<!-- videokit:narration -->
+<script>
+/* videokit narration player: a Narration on/off switch and a play/pause
+   button for the current step. It watches the page's own narration text,
+   works out which step is showing, and plays audio/step-N.m4a beside the
+   page (rendered by tools/videokit; not embedded, so the page stays small).
+   If the page already plays its own clips, only the pause button is added. */
+(function () {
+  "use strict";
+  var STEPS = ["First demo: the cheapest way to buy twenty-five mugs, worked out plainly. The offers are: one for four pounds, two for seven, three for ten, and five for fifteen. The method says: the best price for twenty-five is the cheapest of: one offer, plus the best price for whatever is left. That is correct. The answer is seventy-five pounds. But it took nearly ten million calls. The best price for twenty mugs was worked out again, every single time it was needed.", "Second demo: memoized. The same method, with one change. Before working out an answer, it looks in a notebook. After working one out, it writes it down. Each size, from nought to twenty-five, is worked out exactly once. Twenty-six calls. The same seventy-five pounds.", "Third demo: a reusable memo, around a slow shipping quote. Asking the carrier takes two hundred milliseconds. One thousand product page views ask for a quote. They come from twelve postcode areas. With the memo, the carrier is called twelve times. Two point four seconds of waiting, instead of two hundred seconds.", "Fourth demo: a function that is not safe to memoize. Converting pounds to euros uses today's exchange rate. In the morning, one hundred pounds is one hundred and sixteen euros. The memo writes that down. At noon, the rate changes. The real price is now one hundred and twelve euros. But the memo still says one hundred and sixteen. The answer depended on the time, not only on the price.", "Fifth demo: the bill. A memo never forgets. Ask it about one hundred thousand different postcodes, and it keeps one hundred thousand answers in memory. Real caches add a size limit, and an expiry time."];
+  var norm = function (s) { return String(s || "").replace(/\s+/g, " ").trim(); };
+  var box = document.getElementById("narration") || document.querySelector(".narration");
+  if (!box || !STEPS.length) return;
+
+  var pageOwnsAudio = !!document.getElementById("audio");
+  var current = null, step = -1, on = false;
+  try { on = localStorage.getItem("vk-narration") === "on"; } catch (e) {}
+
+  // Remember whichever clip the page (or this script) last started.
+  var realPlay = HTMLMediaElement.prototype.play;
+  HTMLMediaElement.prototype.play = function () {
+    if (current && current !== this) { try { current.pause(); } catch (e) {} }
+    current = this;
+    this.addEventListener("play", label);
+    this.addEventListener("pause", label);
+    this.addEventListener("ended", label);
+    var p = realPlay.apply(this, arguments);
+    label();
+    return p;
+  };
+
+  // Lets a page's Play button wait for the step's narration to finish.
+  window.vkSpeaking = function () { return !!(current && !current.paused && !current.ended); };
+
+  var bar = document.querySelector(".controls") || box.parentNode;
+  function button(id, text) {
+    var b = document.createElement("button");
+    b.id = id; b.type = "button"; b.textContent = text;
+    bar.appendChild(b);
+    return b;
+  }
+  var narrBtn = pageOwnsAudio ? null : button("vk-narration", "");
+  var stepBtn = button("vk-step-audio", "");
+  var note = document.createElement("span");
+  note.id = "vk-note";
+  note.style.cssText = "color:#94a3b8;font-size:.8rem;margin-left:8px";
+  bar.appendChild(note);
+
+  function stepFor(text) {
+    var t = norm(text);
+    for (var i = 0; i < STEPS.length; i++) {
+      var s = norm(STEPS[i]);
+      if (s && t.indexOf(s.slice(0, 60)) !== -1) return i;
+    }
+    return -1;
+  }
+  function stop() { if (current) { try { current.pause(); } catch (e) {} } current = null; label(); }
+  function play(i) {
+    if (i < 0) return;
+    var a = new Audio("audio/step-" + (i + 1) + ".m4a");
+    a.play().then(function () { note.textContent = ""; }, function (e) {
+      note.textContent = e && e.name === "NotAllowedError"
+        ? "Click Play step to hear this step."
+        : "Narration audio not found: run tools/videokit/videokit.sh animation <project>.";
+      label();
+    });
+  }
+  function label() {
+    if (narrBtn) narrBtn.textContent = (on ? "🔊 Narration: on" : "🔇 Narration: off");
+    if (narrBtn) narrBtn.setAttribute("aria-pressed", String(on));
+    var playing = current && !current.paused && !current.ended;
+    var paused = current && current.paused && !current.ended;
+    stepBtn.textContent = playing ? "⏸ Pause step" : paused ? "▶ Resume step" : "▶ Play step";
+    stepBtn.disabled = step < 0;
+  }
+
+  if (narrBtn) narrBtn.addEventListener("click", function () {
+    on = !on;
+    try { localStorage.setItem("vk-narration", on ? "on" : "off"); } catch (e) {}
+    if (on) { if (step >= 0) play(step); } else stop();
+    label();
+  });
+  stepBtn.addEventListener("click", function () {
+    if (current && !current.ended) {
+      if (current.paused) current.play(); else current.pause();
+    } else play(step);
+  });
+
+  function changed() {
+    var i = stepFor(box.textContent);
+    if (i === step) return;
+    step = i;
+    if (!pageOwnsAudio) { stop(); if (on) play(i); }
+    label();
+  }
+  new MutationObserver(changed).observe(box, { childList: true, subtree: true, characterData: true });
+  changed();
+  label();
+})();
+</script>
+<!-- /videokit:narration -->
+</body>
+</html>

@@ -1,0 +1,478 @@
+# pattern.toml for the Blackboard project. See tools/patternkit.
+
+[project]
+slug = "blackboard"
+category = "behavioural"
+title = "Blackboard"
+package = "blackboard"
+main_class = "BlackboardDemo"
+tagline = "Experts share one board"
+bold = "Let independent experts read and add to one shared board, and let a controller choose who goes next and stop as soon as the answer is known."
+domain_note = ""
+thumb_lines = ["BLACKBOARD"]
+thumb_code = "board.post(fact)"
+youtube_title = "Blackboard"
+youtube_tags = ["blackboard pattern", "behavioural patterns", "fraud detection", "knowledge sources", "java"]
+
+[readme]
+intro = """
+Blackboard is a behavioural pattern for problems that no single piece of code
+can solve alone, and where the steps cannot be fixed in advance. Several
+independent experts, called knowledge sources, share one board of facts. Each
+expert says when it has what it needs, and then adds what it knows. A
+controller decides which ready expert goes next, and stops as soon as the
+answer is clear.
+
+No expert calls another, or even knows the others exist. That makes it easy to
+add a new one, and lets the controller skip expensive work that is no longer
+needed.
+"""
+analogy = """
+Think of an incident room in a detective story. A big board on the wall holds
+every clue so far. The fingerprint expert cannot start until the lab sends a
+print. The phone analyst adds a name once the call records arrive. Nobody
+waits in a fixed queue: whoever can add something steps up. And the lead
+detective decides who speaks next, and closes the case the moment there is
+enough to go on.
+"""
+scenario = """
+Before the online store accepts an order, it checks for fraud: where the card
+is from, where the shopper is, how many orders the account placed in the last
+hour, how big the order is, and whether the device looks like a real phone.
+All of it lived in one method that ran every check, in a fixed order, every
+time, including an 800 millisecond device check after the answer was already
+clear.
+"""
+costs = [
+    "**No fixed story.** The order of the checks is chosen at run time, so the log is the only record of what happened and why.",
+    "**Everything is shared.** Every expert can read every fact on the board, including sensitive ones such as the card number.",
+    "**A controller to get right.** When to stop, and which expert goes first, are real decisions hidden in one class.",
+    "**Harder to test end to end.** Each expert is easy to test alone; the combination depends on the facts.",
+]
+too_much = """
+When the steps are always the same and always in the same order, a plain
+method or a Chain of Responsibility is simpler and easier to read. The
+blackboard earns its keep when experts depend on each other's results in
+changing ways, when new experts arrive often, or when skipping work matters.
+"""
+met_before = [
+    "Fraud and risk engines that combine many independent signals into one score.",
+    "Speech recognition and early AI systems such as Hearsay-II, where the pattern was born.",
+    "Rule engines such as Drools, whose rules fire when the facts they need are present.",
+    "Multi-agent AI setups where agents post findings to a shared memory.",
+]
+where = """
+This project is in [behavioural](..), next to
+[Chain of Responsibility](../chain-of-responsibility-pattern), which passes a
+request along a fixed line of handlers. A blackboard has no fixed line: whoever
+is ready goes next.
+"""
+
+[[act]]
+title = "Every check, every time"
+summary = "One method runs all 6 checks in a fixed order: the risky order is rejected after 902 ms, including an 800 ms check it did not need."
+detail = """
+`FraudCheckAll` runs every check, in an order written by hand: both country
+lookups must come before comparing them. For the risky order, the answer is
+clear after the five cheap checks, but the 800 millisecond device check runs
+anyway, for 902 milliseconds in total. Adding a check means editing this
+method and finding the right place for it.
+"""
+speech = """
+First demo: one method runs every check, in a fixed order. [[slnc 400]] Card country. [[slnc 200]] Shopper's country. [[slnc 200]] Do they match. [[slnc 200]] Orders in the last hour. [[slnc 200]] Order value. [[slnc 200]] And a device check that takes eight hundred milliseconds. [[slnc 600]]
+A risky order comes in. [[slnc 300]] After the five cheap checks, the answer is already clear: reject. [[slnc 300]] But the slow device check runs anyway. [[slnc 300]] Nine hundred and two milliseconds in total. [[slnc 600]]
+And adding a new check means editing this one method, and getting the order right by hand.
+"""
+rows = { method = "active wrong" }
+console = [
+    ["risky order: REJECT after all 6 checks", "amber"],
+    ["902 ms, 800 of them not needed", "bad"],
+    ["a new check means editing this method", "bad"],
+]
+
+[[act]]
+title = "The blackboard"
+summary = "Checks post facts to a shared board as soon as they have what they need; the good order is approved at risk 0."
+detail = """
+Each check is now a knowledge source that only says what it needs and what it
+adds. The good order goes on the board. The controller lets the cheapest ready
+check go first: order value, then card country and IP country. Once both
+countries are on the board, the country comparison becomes ready. Velocity and
+the device check follow. Six checks, risk zero: approved.
+"""
+speech = """
+Second demo: the blackboard. [[slnc 400]] Each check is now an independent expert. [[slnc 300]] It only says two things. [[slnc 300]] What facts it needs, and what it adds. [[slnc 600]]
+A good order goes on the board. [[slnc 300]] A controller looks for experts that are ready, and lets the cheapest go first. [[slnc 500]]
+Order value is ready straight away. [[slnc 300]] Then card country, and I P country. [[slnc 300]] The moment both countries are on the board, the comparison becomes ready. [[slnc 300]] Nobody had to write that order down. [[slnc 600]]
+Six checks, and a risk score of zero. [[slnc 300]] Approved.
+"""
+rows = { board = "active ok", controller = "active ok", card = "active ok", ip = "active ok", match = "active ok" }
+console = [
+    ["order value, card country, IP country", "ok"],
+    ["country match: ready once both are posted", "ok"],
+    ["good order: APPROVE, risk 0, 6 checks", "ok"],
+]
+
+[[act]]
+title = "Stopping early"
+summary = "Card from GB, shopper in RU (+40) and 5 orders in an hour (+30): rejected at 70 after 5 checks and 102 ms; the device check never runs."
+detail = """
+The risky order uses a British card from a Russian address, and the account
+placed five orders in the last hour. The country match adds 40 risk and the
+velocity check adds 30. At 70, above the rejection line of 60, the controller
+stops. Five checks, 102 milliseconds; the 800 millisecond device check never
+runs.
+"""
+speech = """
+Third demo: the controller stops as soon as it can decide. [[slnc 400]] The risky order has a British card, but the shopper is in Russia. [[slnc 300]] Forty risk points. [[slnc 500]]
+The account placed five orders in the last hour. [[slnc 300]] Thirty more. [[slnc 500]]
+The score is seventy. [[slnc 300]] Anything over sixty is rejected. [[slnc 300]] So the controller stops. [[slnc 600]]
+Five checks, one hundred and two milliseconds. [[slnc 300]] The slow device check never runs.
+"""
+rows = { board = "active amber", controller = "active ok", match = "active wrong", velocity = "active wrong" }
+console = [
+    ["card from GB, shopper in RU: +40", "bad"],
+    ["5 orders in the last hour: +30", "bad"],
+    ["REJECT at 70 after 5 checks, 102 ms", "ok"],
+]
+
+[[act]]
+title = "A new expert"
+summary = "A gift-card check is added to the list without changing any other; £300 of gift cards is rejected, where it would have been approved."
+detail = """
+Fraudsters start buying gift cards. A new knowledge source is written: over
+£200 of gift cards adds 60 risk. It is added to the list; no other check, and
+not the controller, changes. An order for six gift cards worth £300 is now
+rejected. Without the new expert, it would have been approved.
+"""
+speech = """
+Fourth demo: a new expert joins. [[slnc 400]] Fraudsters start buying gift cards. [[slnc 300]] So a new check is written. [[slnc 300]] Over two hundred pounds of gift cards adds sixty risk points. [[slnc 600]]
+It is simply added to the list of experts. [[slnc 300]] No other check changes, and neither does the controller. [[slnc 500]]
+Six gift cards, three hundred pounds. [[slnc 300]] Rejected. [[slnc 300]] Without the new expert, it would have been approved.
+"""
+rows = { gift = "active ok", board = "active ok", controller = "active ok" }
+console = [
+    ["6 gift cards, £300: REJECT, +60", "ok"],
+    ["without the new check: APPROVE", "bad"],
+]
+
+[[act]]
+title = "The bill"
+summary = "The order of checks is chosen at run time, so only the log tells the story; every check can read every fact."
+detail = """
+Nobody wrote down the order of events: it depends on which facts arrived and
+what each check costs, so the log is the only story of a decision. And the
+board is shared: every check can read every fact on it, including the card
+number, which is exactly what a privacy review will ask about.
+"""
+speech = """
+Fifth demo: the bill. [[slnc 400]] Nobody wrote down the order of events. [[slnc 300]] It is chosen while the program runs. [[slnc 300]] So when someone asks why an order was rejected, the log is the only story. [[slnc 600]]
+And the board is shared. [[slnc 300]] Every expert can read every fact on it. [[slnc 300]] Including the card number.
+"""
+rows = { board = "active amber", controller = "active amber" }
+console = [
+    ["order chosen at run time: the log is the story", "amber"],
+    ["every check can read the card number", "amber"],
+]
+
+[animation]
+subtitle = "Fraud checks post facts to one shared board; the controller runs the cheapest ready check and stops once it can decide."
+boxes = [
+    ["method", "One big method", "every check, fixed order"],
+    ["board", "Blackboard", "facts + risk score"],
+    ["controller", "Controller", "cheapest ready check next"],
+    ["card", "Card country", "needs the card"],
+    ["ip", "IP country", "needs the IP address"],
+    ["match", "Country match", "needs both countries"],
+    ["velocity", "Order velocity", "orders in the last hour"],
+    ["gift", "Gift cards", "added later"],
+]
+
+[docs.problem]
+scenario = """
+Before accepting an order, the store runs six fraud checks: card country, IP
+country, whether they match, orders in the last hour, order value, and a slow
+device check.
+"""
+naive = """
+`FraudCheckAll` runs every check in a hand-written order, every time. It spends
+902 milliseconds on an order whose answer was clear after 102, and every new
+check means editing it.
+"""
+deliver = [
+    "The fixed method shown spending 902 ms, 800 of them unneeded.",
+    "Checks as independent knowledge sources that declare what they need and add.",
+    "A controller that runs the cheapest ready check and stops at the rejection line.",
+    "A new check added without changing any other code.",
+    "Every printed result asserted by a test.",
+]
+
+[docs.prerequisites]
+required = [
+    "Java basics: interfaces, records, lists, maps, lambdas.",
+    "`Optional` and `Comparator` at a beginner level.",
+]
+not_required = [
+    "Any rule engine or AI library.",
+    "Fraud expertise. The rules are deliberately simple.",
+]
+
+[docs.session]
+objectives = [
+    "Describe the three parts: the board, the knowledge sources and the controller.",
+    "Write a knowledge source that says when it is ready.",
+    "Explain how the controller saves work by stopping early.",
+    "Add a knowledge source without changing the others.",
+]
+walkthrough = """
+Run `./gradlew run` and compare act one with act three: 902 milliseconds
+against 102. Then open `Checks.countryMatch()` and point out that it only says
+it needs two facts; nothing says when it runs. Finish in `Controller.decide`,
+a short loop that is the whole pattern.
+"""
+exercises = [
+    "Add a check that needs the device result and adds risk for a new device on an old account.",
+    "Make the controller approve early when every remaining check could not reach 60.",
+    "Hide the card number from every check except the card country check.",
+    "Print the log as a numbered story a support agent could read.",
+]
+
+[docs.explained]
+sentence = """
+A blackboard lets independent experts read and add to one shared set of facts,
+while a controller chooses which ready expert goes next and stops when the
+answer is known.
+"""
+verdict = """
+Use it when many independent pieces of knowledge combine into one decision,
+their order depends on what is known, and new pieces arrive often: fraud,
+diagnosis, recommendations. Keep each expert small, log every contribution,
+and decide carefully what the board may expose.
+"""
+recognise = [
+    "A shared context or facts map that many small classes read and write.",
+    "Classes with a `canHandle` or `ready` method and an `apply` or `contribute` method.",
+    "A loop that picks the next rule or agent until a score or a goal is reached.",
+    "Rule engines and risk scoring services.",
+]
+
+[spec]
+purpose = """
+Teach Blackboard with an online store's fraud checks: a fixed method spending
+902 ms, then independent knowledge sources on a shared board with a controller
+that runs the cheapest ready check, approves a good order, rejects a risky one
+at risk 70 after 102 ms, and accepts a new gift-card check without other changes.
+"""
+nongoals = [
+    "Not a rule engine. Drools is named, not used.",
+    "Not real fraud scoring. Rules and thresholds are illustrative.",
+    "Not concurrency. Checks run one at a time.",
+]
+problem = """
+One method that runs every check in a fixed order wastes time after the answer
+is clear and must be edited for every new check.
+"""
+roles = [
+    ["The board", "`Blackboard`"],
+    ["The experts", "`KnowledgeSource`, `Checks`"],
+    ["The organiser", "`Controller`"],
+    ["The naive version", "`FraudCheckAll`"],
+    ["Entry point", "`BlackboardDemo`, five acts"],
+]
+requirements = [
+    "**Independent experts:** no check refers to another.",
+    "**Ready, not ordered:** a check runs when its facts are on the board.",
+    "**Cheapest first, stop early:** the controller stops at a risk of 60.",
+    "**Open to new experts:** a new check changes nothing else.",
+    "**Every printed result is asserted** in `DemoRunsTest`.",
+]
+
+[[diagram]]
+name = "architecture-diagram"
+kind = "flow"
+title = "Blackboard — the pieces"
+caption = "The controller asks the experts who is ready; the experts only talk to the board."
+nodes = [
+    { id = "co", label = "Controller", sub = "cheapest ready, stop at 60", col = 0, row = 1, colour = "accent" },
+    { id = "bb", label = "Blackboard", sub = "facts + risk", col = 1, row = 1, colour = "amber" },
+    { id = "k1", label = "Card / IP country", sub = "look up countries", col = 2, row = 0, colour = "client" },
+    { id = "k2", label = "Country match", sub = "needs both", col = 2, row = 1, colour = "client" },
+    { id = "k3", label = "Velocity, value, device", sub = "add risk", col = 2, row = 2, colour = "client" },
+]
+edges = [
+    { from = "co", to = "bb", label = "risk()" },
+    { from = "k1", to = "bb", label = "post" },
+    { from = "k2", to = "bb", label = "read, add risk" },
+    { from = "k3", to = "bb", label = "read, add risk" },
+]
+
+[[diagram]]
+name = "class-diagram"
+kind = "class"
+title = "Blackboard — classes"
+caption = "One interface for every expert; the controller depends only on that interface."
+nodes = [
+    { id = "ks", label = "«interface» KnowledgeSource", sub = ["+ costMs()", "+ ready(Blackboard)", "+ contribute(Blackboard)"], col = 1, row = 0, colour = "accent" },
+    { id = "bb", label = "Blackboard", sub = ["+ has, get, post", "+ addRisk, risk()", "+ log()"], col = 2, row = 0, colour = "amber" },
+    { id = "co", label = "Controller", sub = ["+ decide(Blackboard)", "REJECT_AT = 60"], col = 0, row = 0, colour = "client" },
+    { id = "ck", label = "Checks.Check", sub = ["needs, posts, body", "six checks + gift cards"], col = 1, row = 1, colour = "green" },
+    { id = "fa", label = "FraudCheckAll", sub = ["+ decide(order)", "every check, fixed order"], col = 0, row = 1, colour = "red" },
+]
+edges = [
+    { from = "co", to = "ks", label = "asks" },
+    { from = "ck", to = "ks", label = "implements" },
+    { from = "ks", to = "bb", label = "reads, writes" },
+]
+
+[[diagram]]
+name = "data-flow-diagram"
+kind = "flow"
+title = "Blackboard — the risky order"
+caption = "Facts unlock checks; risk passes 60 and the controller stops."
+nodes = [
+    { id = "a", label = "card 4000-GB, IP 95.31.18.9", sub = "the order", col = 0, row = 0, colour = "client" },
+    { id = "b", label = "cardCountry GB, ipCountry RU", sub = "two lookups", col = 1, row = 0, colour = "amber" },
+    { id = "c", label = "+40 risk", sub = "countries differ", col = 2, row = 0, colour = "red" },
+    { id = "d", label = "+30 risk", sub = "5 orders in an hour", col = 2, row = 1, colour = "red" },
+    { id = "e", label = "REJECT at 70", sub = "device check skipped", col = 1, row = 1, colour = "green" },
+]
+edges = [
+    { from = "a", to = "b", label = "post" },
+    { from = "b", to = "c", label = "match ready" },
+    { from = "c", to = "d", label = "velocity" },
+    { from = "d", to = "e", label = "over 60" },
+]
+
+[[diagram]]
+name = "sequence-diagram"
+kind = "sequence"
+title = "Blackboard — one round of the controller"
+caption = "Ask who is ready, run the cheapest, check the score."
+participants = ["Controller", "Checks", "Blackboard"]
+steps = [
+    ["Controller", "Checks", "ready(board)?"],
+    ["Checks", "Controller", "country match (1 ms)", "reply"],
+    ["Controller", "Checks", "contribute(board)"],
+    ["Checks", "Blackboard", "addRisk(40)"],
+    ["Controller", "Blackboard", "risk()"],
+    ["Blackboard", "Controller", "40: keep going", "reply"],
+]
+
+[[diagram]]
+name = "uml-diagram"
+kind = "sequence"
+title = "1. A check waits for its facts"
+caption = "Country match is not ready until both countries are posted."
+participants = ["Controller", "Country match", "Blackboard"]
+steps = [
+    ["Controller", "Country match", "ready?"],
+    ["Country match", "Blackboard", "has cardCountry, ipCountry?"],
+    ["Blackboard", "Country match", "not yet", "reply"],
+    ["note", "Controller", "runs a lookup instead"],
+]
+
+[[diagram]]
+name = "uml-diagram-2"
+kind = "sequence"
+title = "2. Stopping early"
+caption = "The expensive check is never asked."
+participants = ["Controller", "Blackboard", "Device check"]
+steps = [
+    ["Controller", "Blackboard", "risk()"],
+    ["Blackboard", "Controller", "70", "reply"],
+    ["note", "Controller", "70 >= 60: REJECT"],
+    ["note", "Device check", "never runs"],
+]
+
+[poster]
+headline = [["BLACKBOARD", "text"]]
+before = { code = "runAllChecks(order)", note = "902 ms, fixed order", tag = "BEFORE" }
+after = { code = "board.post(fact)", note = "102 ms, stops early", tag = "AFTER" }
+taglines = [["Experts share one board", "gold"]]
+
+[[scene]]
+key = "01-poster"
+kind = "poster"
+title = "Blackboard"
+narration = """
+Hello, and welcome. [[slnc 400]] This video explains the Blackboard pattern, in Java. [[slnc 300]]
+This video is presented by Jayasekhar Konduru. [[slnc 600]]
+First, a simple definition. [[slnc 300]] In the blackboard pattern, several independent experts share one board of facts. [[slnc 300]] Each expert adds what it knows, as soon as it has what it needs. [[slnc 300]] And a controller decides who goes next, and stops as soon as the answer is clear. [[slnc 600]]
+Think of an incident room in a detective story. [[slnc 300]] A board on the wall holds every clue so far. [[slnc 300]] Whoever can add something steps up. [[slnc 300]] And the lead detective closes the case the moment there is enough to go on. [[slnc 700]]
+In this video, the domain is an online shop. [[slnc 300]] Before it accepts an order, it checks for fraud. [[slnc 300]] Where the card is from, where the shopper is, how many orders they placed recently, and more. [[slnc 500]]
+By the end, you will hear why one method that runs every check wastes time. [[slnc 300]] How experts on a shared board fix it. [[slnc 300]] How the controller stops early. [[slnc 300]] And what the pattern costs.
+"""
+
+[[scene]]
+key = "02-scenario"
+kind = "bullets"
+title = "The Scenario"
+body = ["Six fraud checks before an order:", "card country, shopper country,", "do they match, orders this hour,", "order value, device check.", "", "One method ran them all, every time."]
+narration = """
+Here is the scenario. [[slnc 400]] Before accepting an order, the shop runs six fraud checks. [[slnc 500]]
+Where is the card from? [[slnc 300]] Where is the shopper? [[slnc 300]] Do those match? [[slnc 300]] How many orders did this account place in the last hour? [[slnc 300]] How big is the order? [[slnc 300]] And is the device a real phone? [[slnc 300]] That last check is slow: eight hundred milliseconds. [[slnc 600]]
+Each check adds risk points. [[slnc 300]] Sixty or more, and the order is rejected.
+"""
+
+[[scene]]
+key = "03-acts"
+kind = "acts"
+title = "acts"
+
+[[scene]]
+key = "04-pattern"
+kind = "bullets"
+title = "The Pattern"
+body = ["A board of facts, shared by all.", "", "Experts: \"I need these facts,", "and I add this one.\"", "", "A controller: who is ready,", "who goes next, when to stop."]
+narration = """
+Let's name the pattern. [[slnc 400]] There are three parts. [[slnc 500]]
+The blackboard holds the facts, shared by everyone. [[slnc 500]]
+The experts, called knowledge sources, each say which facts they need, and what they add. [[slnc 300]] They never call each other. [[slnc 500]]
+And the controller asks who is ready, picks who goes next, and decides when to stop.
+"""
+
+[[scene]]
+key = "05-roles"
+kind = "bullets"
+title = "Who Does What"
+body = ["Blackboard: facts, risk, a log", "KnowledgeSource: ready? contribute", "Checks: the six fraud checks", "Controller: cheapest ready, stop at 60", "FraudCheckAll: the old way"]
+narration = """
+Here is who does what. [[slnc 400]] The blackboard holds the facts, the risk score, and a log of every contribution. [[slnc 500]]
+Knowledge source is the interface every expert follows. [[slnc 300]] Are you ready? [[slnc 300]] Then contribute. [[slnc 500]]
+The checks class holds the six fraud experts, and later the gift card one. [[slnc 500]]
+The controller runs the cheapest ready expert, and stops at sixty. [[slnc 300]] And fraud check all is the old way, kept for comparison.
+"""
+
+[[scene]]
+key = "06-recognise"
+kind = "bullets"
+title = "Where You Have Seen It"
+body = ["Fraud and risk engines", "Rule engines such as Drools", "Early speech recognition", "AI agents sharing a memory"]
+narration = """
+You have probably met this pattern already. [[slnc 400]] Fraud and risk engines combine many independent signals into one score. [[slnc 500]]
+Rule engines such as Drools fire a rule when the facts it needs are present. [[slnc 500]]
+The pattern was born in early speech recognition systems. [[slnc 300]] And today, AI agents that post findings to a shared memory are using it again.
+"""
+
+[[scene]]
+key = "07-verdict"
+kind = "bullets"
+title = "When To Use It"
+body = ["Many independent pieces of", "knowledge, one decision,", "order depends on the facts.", "", "Keep experts small.", "Log every contribution.", "Guard what the board shows."]
+narration = """
+So, when should you use it? [[slnc 400]] When many independent pieces of knowledge combine into one decision. [[slnc 300]] When their order depends on what is already known. [[slnc 300]] And when new pieces arrive often. [[slnc 500]]
+Keep each expert small. [[slnc 300]] Log every contribution. [[slnc 300]] And decide carefully what the board may show to each expert. [[slnc 500]]
+When the steps are always the same, a plain method is simpler.
+"""
+
+[[scene]]
+key = "08-outro"
+kind = "outro"
+title = "Thanks for Watching"
+body = ["Full source, notes, diagrams and an animated walkthrough", "are in the repository. Hide the card number", "from every check but one."]
+narration = """
+That's the Blackboard pattern. [[slnc 400]] If you remember one sentence, make it this one. [[slnc 300]] Let experts share one board, and stop as soon as the answer is known. [[slnc 500]]
+The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. [[slnc 300]] It runs offline, with nothing installed except a Java development kit. [[slnc 500]]
+Here is one exercise to try. [[slnc 300]] Hide the card number from every check, except the one that needs it. [[slnc 500]]
+If this helped, a like really does help other people find it. [[slnc 300]] And subscribe, if you'd like the rest of the series. [[slnc 400]] Thanks for watching.
+"""

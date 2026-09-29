@@ -1,0 +1,432 @@
+# pattern.toml for the Write-Through Cache project. See tools/patternkit.
+
+[project]
+slug = "write-through-cache"
+category = "micro-services-design-patterns"
+title = "Write-Through Cache"
+package = "writethrough"
+main_class = "WriteThroughDemo"
+tagline = "Change both, together, every time"
+bold = "Send every write through the cache, which writes the database first and then itself before returning, so reads from the cache always match the database."
+domain_note = ""
+thumb_lines = ["WRITE-THROUGH", "CACHE"]
+thumb_code = "store.put(sku, price)"
+youtube_title = "Write-Through Cache"
+youtube_tags = ["write through cache", "caching", "cache consistency", "microservices", "java"]
+
+[readme]
+intro = """
+Write-Through is a caching pattern. Reads are served from a fast cache, and
+every write goes through that same cache: it writes the database, and as soon
+as the database accepts, it updates its own copy, before telling the caller
+the write is done. Nothing writes to the database around the cache.
+
+Because the cache and the database always change together, a read from the
+cache is never out of date. The price is that every write waits for the
+database, and the cache fills with everything that was ever written.
+"""
+analogy = """
+Think of a supermarket where the price on the till and the label on the shelf
+must match. Under write-through, the person who changes a price in the till
+system also changes the shelf label, straight away, before moving on to the
+next product. Nobody changes the till price and leaves the label for later,
+so a customer never sees one price and pays another.
+"""
+scenario = """
+The online store's product page reads prices from a cache, and checkout
+reads them from the database. A nightly job updates prices by writing
+straight to the database. One night it cut the kettle to £27.00 and forgot to
+clear the cache: the page kept showing £30.00 while checkout charged £27.00.
+"""
+costs = [
+    "**Every write waits.** 1000 nightly price updates spend 20 seconds waiting for the database.",
+    "**The cache fills.** Everything written goes into the cache, even products nobody will look at.",
+    "**All writes must go through it.** A single job that writes around the cache brings back stale reads.",
+]
+too_much = """
+When writes are frequent and speed matters more than immediate safety,
+write-behind is faster. When most written data is rarely read, cache-aside
+(load on first read) keeps the cache smaller. Write-through suits data that is
+read often and must never be seen out of date, such as prices.
+"""
+met_before = [
+    "Hazelcast and Ehcache `write-through` configuration with a `CacheWriter`.",
+    "Spring's `@CachePut`, which updates the cache when a method writes.",
+    "CPU caches, which can be configured write-through to main memory.",
+]
+where = """
+This project is in [micro-services-design-patterns](..), next to
+[Write-Behind Cache](../write-behind-cache-pattern), which writes the database
+later, and [Cache-Aside](../cache-aside-pattern), which loads the cache on
+reads.
+"""
+
+[[act]]
+title = "A write round the cache"
+summary = "The price job writes £27.00 straight to the database; the page (cache) shows £30.00 while checkout charges £27.00."
+detail = """
+`CacheAside` serves the product page from a cache. The nightly price job
+writes the kettle's new price, £27.00, straight to the database and forgets
+the cache. The product page still shows £30.00; checkout, reading the
+database, charges £27.00.
+"""
+speech = """
+First demo: a price change goes round the cache. [[slnc 400]] The product page reads prices from a fast cache. [[slnc 300]] Checkout reads them from the database. [[slnc 600]]
+The nightly job cuts the kettle to twenty-seven pounds. [[slnc 300]] It writes straight to the database, and forgets the cache. [[slnc 500]]
+The page still shows thirty pounds. [[slnc 300]] Checkout charges twenty-seven. [[slnc 300]] The customer sees one price, and pays another.
+"""
+rows = { job = "active amber", cache = "active wrong", db = "active ok" }
+console = [
+    ["page (cache): £30.00", "bad"],
+    ["checkout (database): £27.00", "amber"],
+]
+
+[[act]]
+title = "Write-through"
+summary = "The job calls store.put: the database, then the cache, before returning; page and checkout both show £27.00."
+detail = """
+The job now calls `WriteThroughStore.put`, which writes the database and
+then updates the cache before returning. The product page and checkout both
+show £27.00.
+"""
+speech = """
+Second demo: write-through. [[slnc 400]] Every write now goes through the cache. [[slnc 500]]
+The job asks the store to set the kettle to twenty-seven pounds. [[slnc 300]] The store writes the database. [[slnc 300]] Then it updates its own copy. [[slnc 300]] Only then does it return. [[slnc 600]]
+The page says twenty-seven. [[slnc 300]] Checkout says twenty-seven.
+"""
+rows = { store = "active ok", cache = "active ok", db = "active ok" }
+console = [
+    ["store.put: database, then cache", "ok"],
+    ["page £27.00; checkout £27.00", "ok"],
+]
+
+[[act]]
+title = "Fast reads"
+summary = "100 page views: 0 database reads; all served from the cache."
+detail = """
+A hundred product page views are all answered from the cache: zero database
+reads. The cache already holds the latest price, because every write put it
+there.
+"""
+speech = """
+Third demo: reads come from the cache. [[slnc 400]] A hundred people view the kettle. [[slnc 500]]
+Database reads: zero. [[slnc 300]] Every view was answered from the cache. [[slnc 300]] And every answer was up to date.
+"""
+rows = { cache = "active ok", page = "active ok" }
+console = [
+    ["100 page views: 0 database reads", "ok"],
+]
+
+[[act]]
+title = "A refused write"
+summary = "The database is read-only; the £25.00 write fails and the cache is untouched: both still say £27.00."
+detail = """
+The database goes read-only for maintenance. The price job tries £25.00; the
+database refuses, so the store never updates its cache. Page and database both
+still say £27.00: the two never disagree.
+"""
+speech = """
+Fourth demo: a refused write changes nothing. [[slnc 400]] The database is read-only, for maintenance. [[slnc 500]]
+The price job tries twenty-five pounds. [[slnc 300]] The database refuses. [[slnc 300]] Because the store writes the database first, it never touches its cache. [[slnc 600]]
+Both still say twenty-seven. [[slnc 300]] They never disagree.
+"""
+rows = { store = "active amber", db = "active wrong", cache = "active ok" }
+console = [
+    ["£25.00: database is read-only", "amber"],
+    ["page and database: both £27.00", "ok"],
+]
+
+[[act]]
+title = "The bill"
+summary = "1000 nightly price updates spend 20 s waiting for the database, and all 1000 sit in the cache."
+detail = """
+Every write waits for the database. The nightly job's 1000 price updates spend
+20 seconds waiting, where write-behind would return at once. And all 1000
+prices now sit in the cache, though most of those products will never be
+viewed.
+"""
+speech = """
+Fifth demo: the bill. [[slnc 400]] Every write waits for the database. [[slnc 300]] A thousand price updates spend twenty seconds waiting. [[slnc 600]]
+And all thousand prices now sit in the cache. [[slnc 300]] Though most of those products will never be viewed.
+"""
+rows = { store = "active amber", cache = "active amber" }
+console = [
+    ["1000 updates: 20.0 s waiting", "amber"],
+    ["1000 entries cached, few viewed", "amber"],
+]
+
+[animation]
+subtitle = "Every price change goes through the cache, which writes the database and then itself; pages read from the cache."
+boxes = [
+    ["job", "Price job", "changes prices"],
+    ["store", "Write-through store", "database, then cache"],
+    ["cache", "Cache", "what pages read"],
+    ["db", "Database", "the source of truth"],
+    ["page", "Product page", "reads the cache"],
+]
+
+[docs.problem]
+scenario = """
+The product page reads prices from a cache; checkout reads the database; a
+nightly job changes prices.
+"""
+naive = """
+The job writes straight to the database and forgets the cache: the page shows
+£30.00 while checkout charges £27.00.
+"""
+deliver = [
+    "The stale page shown after a write round the cache.",
+    "A write-through store keeping cache and database equal.",
+    "Reads served from the cache with no database reads.",
+    "A refused database write leaving the cache untouched.",
+    "The write cost counted.",
+    "Every printed result asserted by a test.",
+]
+
+[docs.prerequisites]
+required = [
+    "Java basics: classes, maps, exceptions.",
+    "What a cache is.",
+]
+not_required = [
+    "A cache product. The cache is a map.",
+]
+
+[docs.session]
+objectives = [
+    "Explain how writes that bypass a cache make it stale.",
+    "Write the database first, then the cache.",
+    "Explain why a failed write must not touch the cache.",
+    "Choose between write-through, write-behind and cache-aside.",
+]
+walkthrough = """
+Run `./gradlew run` and read act one's two prices. Open
+`WriteThroughStore.put`: two lines, in that order. Ask what would happen if
+they were swapped, then run act four.
+"""
+exercises = [
+    "Swap the two lines in `put` and write a test that fails because of it.",
+    "Only cache products that have been read at least once.",
+    "Make the price job update 1000 prices with one batched database write.",
+]
+
+[docs.explained]
+sentence = """
+A write-through cache takes every write, writes the database, then updates
+itself before returning, so reads from it always match the database.
+"""
+verdict = """
+Use write-through for data that is read often and must never be stale, and
+make it the only way to write that data. Accept slower writes, and limit what
+the cache keeps.
+"""
+recognise = [
+    "A store with `put` that writes the database and then the cache.",
+    "`@CachePut` on update methods.",
+    "Cache configuration with a `CacheWriter` or `write-through: true`.",
+]
+
+[spec]
+purpose = """
+Teach Write-Through Cache with an online store's prices: a job writing round
+the cache leaving the page at £30.00 while checkout charges £27.00, then a
+write-through store keeping both at £27.00, 100 page views with 0 database
+reads, a refused write changing nothing, and 20 s of waiting for 1000 updates.
+"""
+nongoals = [
+    "Not a cache product or eviction.",
+    "Not concurrency between writers.",
+]
+problem = """
+When writes go to the database around the cache, the cache keeps serving old
+values.
+"""
+roles = [
+    ["The pattern", "`WriteThroughStore`"],
+    ["The source of truth", "`Database`"],
+    ["The naive version", "`CacheAside` with a forgetful price job"],
+    ["Entry point", "`WriteThroughDemo`, five acts"],
+]
+requirements = [
+    "**Never stale:** after any successful write, cache and database agree.",
+    "**Database first:** a refused write leaves the cache unchanged.",
+    "**Fast reads:** repeated reads hit the cache.",
+    "**Every printed result is asserted** in `DemoRunsTest`.",
+]
+
+[[diagram]]
+name = "architecture-diagram"
+kind = "flow"
+title = "Write-Through Cache — the pieces"
+caption = "Writes go through the store; reads come from its cache."
+nodes = [
+    { id = "j", label = "Price job", sub = "put(sku, price)", col = 0, row = 0, colour = "client" },
+    { id = "s", label = "WriteThroughStore", sub = "database, then cache", col = 1, row = 0, colour = "accent" },
+    { id = "d", label = "Database", sub = "1. write", col = 2, row = 0, colour = "green" },
+    { id = "c", label = "Cache", sub = "2. update", col = 1, row = 1, colour = "amber" },
+    { id = "p", label = "Product page", sub = "get(sku)", col = 0, row = 1, colour = "client" },
+]
+edges = [
+    { from = "j", to = "s", label = "put" },
+    { from = "s", to = "d", label = "write" },
+    { from = "s", to = "c", label = "update" },
+    { from = "p", to = "c", label = "read" },
+]
+
+[[diagram]]
+name = "class-diagram"
+kind = "class"
+title = "Write-Through Cache — classes"
+caption = "One store in front of the database."
+nodes = [
+    { id = "s", label = "WriteThroughStore", sub = ["- cache", "+ get(sku)", "+ put(sku, pence)"], col = 0, row = 0, colour = "accent" },
+    { id = "d", label = "Database", sub = ["+ read, write", "+ setReadOnly"], col = 1, row = 0, colour = "green" },
+    { id = "a", label = "CacheAside", sub = ["writes round the cache"], col = 2, row = 0, colour = "red" },
+]
+edges = [
+    { from = "s", to = "d", label = "writes first" },
+    { from = "a", to = "d", label = "writes directly", dashed = true },
+]
+
+[[diagram]]
+name = "data-flow-diagram"
+kind = "flow"
+title = "Write-Through Cache — a price change"
+caption = "Both copies change before the job carries on."
+nodes = [
+    { id = "a", label = "KETTLE-1 -> £27.00", sub = "price job", col = 0, row = 0, colour = "client" },
+    { id = "b", label = "database: £27.00", sub = "first", col = 1, row = 0, colour = "green" },
+    { id = "c", label = "cache: £27.00", sub = "second", col = 2, row = 0, colour = "amber" },
+    { id = "d", label = "page and checkout: £27.00", sub = "", col = 2, row = 1, colour = "accent" },
+]
+edges = [
+    { from = "a", to = "b", label = "" },
+    { from = "b", to = "c", label = "" },
+    { from = "c", to = "d", label = "" },
+]
+
+[[diagram]]
+name = "sequence-diagram"
+kind = "sequence"
+title = "Write-Through Cache — put"
+caption = "The caller waits for both."
+participants = ["Price job", "Store", "Database", "Cache"]
+steps = [
+    ["Price job", "Store", "put(KETTLE-1, 2700)"],
+    ["Store", "Database", "write"],
+    ["Database", "Store", "ok", "reply"],
+    ["Store", "Cache", "update"],
+    ["Store", "Price job", "done", "reply"],
+]
+
+[[diagram]]
+name = "uml-diagram"
+kind = "sequence"
+title = "1. Writing round the cache"
+caption = "The cache never hears."
+participants = ["Price job", "Database", "Cache"]
+steps = [
+    ["Price job", "Database", "write £27.00"],
+    ["note", "Cache", "still £30.00"],
+]
+
+[[diagram]]
+name = "uml-diagram-2"
+kind = "sequence"
+title = "2. A refused write"
+caption = "The cache is not touched."
+participants = ["Store", "Database", "Cache"]
+steps = [
+    ["Store", "Database", "write £25.00"],
+    ["Database", "Store", "read-only", "reply"],
+    ["note", "Cache", "still £27.00"],
+]
+
+[poster]
+headline = [["WRITE-THROUGH", "text"], ["CACHE", "text"]]
+before = { code = "db.write(price)", note = "page £30, till £27", tag = "BEFORE" }
+after = { code = "store.put(sku, price)", note = "both £27, always", tag = "AFTER" }
+taglines = [["Change both, together, every time", "gold"]]
+
+[[scene]]
+key = "01-poster"
+kind = "poster"
+title = "Write-Through Cache"
+narration = """
+Hello, and welcome. [[slnc 400]] This video explains the Write-Through Cache pattern, in Java. [[slnc 300]]
+This video is presented by Jayasekhar Konduru. [[slnc 600]]
+First, a simple definition. [[slnc 300]] With a write-through cache, every write goes through the cache. [[slnc 300]] It writes the database, then updates its own copy, before saying the write is done. [[slnc 300]] So reads from the cache always match the database. [[slnc 600]]
+Think of a supermarket, where the till price and the shelf label must match. [[slnc 300]] Whoever changes a price in the till also changes the shelf label, straight away, before moving on. [[slnc 300]] A customer never sees one price and pays another. [[slnc 700]]
+In this video, the domain is an online shop. [[slnc 300]] Its product page reads prices from a cache, and a nightly job changes prices. [[slnc 500]]
+By the end, you will hear how a write round the cache causes trouble. [[slnc 300]] How write-through fixes it. [[slnc 300]] What happens when a write fails. [[slnc 300]] And what it costs.
+"""
+
+[[scene]]
+key = "02-scenario"
+kind = "bullets"
+title = "The Scenario"
+body = ["Product page: reads a cache.", "Checkout: reads the database.", "", "A nightly job changes prices", "in the database."]
+narration = """
+Here is the scenario. [[slnc 400]] The product page reads prices from a fast cache. [[slnc 300]] Checkout reads them from the database. [[slnc 600]]
+A nightly job changes prices. [[slnc 300]] It wrote them straight into the database.
+"""
+
+[[scene]]
+key = "03-acts"
+kind = "acts"
+title = "acts"
+
+[[scene]]
+key = "04-pattern"
+kind = "bullets"
+title = "The Pattern"
+body = ["Every write goes through the cache.", "", "Database first, then the cache,", "then return.", "", "Reads come from the cache."]
+narration = """
+Let's name the pattern. [[slnc 400]] Every write goes through the cache. [[slnc 300]] Nothing writes around it. [[slnc 500]]
+The cache writes the database first. [[slnc 300]] Then it updates itself. [[slnc 300]] Only then does it tell the caller the write is done. [[slnc 500]]
+And reads come from the cache, which is always up to date.
+"""
+
+[[scene]]
+key = "05-roles"
+kind = "bullets"
+title = "Who Does What"
+body = ["WriteThroughStore: get and put", "Database: the source of truth", "CacheAside: the old way"]
+narration = """
+Here is who does what. [[slnc 400]] The write-through store has two methods. [[slnc 300]] Get reads from the cache. [[slnc 300]] Put writes the database, then the cache. [[slnc 500]]
+The database is the source of truth. [[slnc 300]] And cache aside, with the forgetful price job, is the old way, kept for comparison.
+"""
+
+[[scene]]
+key = "06-recognise"
+kind = "bullets"
+title = "Where You Have Seen It"
+body = ["Hazelcast, Ehcache write-through", "Spring @CachePut", "CPU write-through caches"]
+narration = """
+You have probably met this pattern already. [[slnc 400]] Caches such as Hazelcast and Ehcache can be configured to write through. [[slnc 500]]
+Spring's cache put annotation updates the cache whenever a method writes. [[slnc 500]]
+And computer processors have write-through caches, between the processor and main memory.
+"""
+
+[[scene]]
+key = "07-verdict"
+kind = "bullets"
+title = "When To Use It"
+body = ["Read often, must never be stale:", "prices, stock levels.", "", "Make it the only way to write.", "", "Writes fast and many?", "Consider write-behind."]
+narration = """
+So, when should you use it? [[slnc 400]] For data that is read often, and must never be out of date. [[slnc 300]] Prices, and stock levels. [[slnc 500]]
+Make it the only way to write that data. [[slnc 500]]
+And when writes are many, and speed matters more, consider write-behind instead.
+"""
+
+[[scene]]
+key = "08-outro"
+kind = "outro"
+title = "Thanks for Watching"
+body = ["Full source, notes, diagrams and an animated walkthrough", "are in the repository. Swap the two lines", "in put, and see what breaks."]
+narration = """
+That's the Write-Through Cache pattern. [[slnc 400]] If you remember one sentence, make it this one. [[slnc 300]] Change the database and the cache together, every time, through one door. [[slnc 500]]
+The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. [[slnc 300]] It runs offline, with nothing installed except a Java development kit. [[slnc 500]]
+Here is one exercise to try. [[slnc 300]] Swap the two lines in put, and write a test that shows what breaks. [[slnc 500]]
+If this helped, a like really does help other people find it. [[slnc 300]] And subscribe, if you'd like the rest of the series. [[slnc 400]] Thanks for watching.
+"""

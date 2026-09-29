@@ -1,0 +1,421 @@
+# pattern.toml for the Priority Queue project. See tools/patternkit.
+
+[project]
+slug = "priority-queue"
+category = "micro-services-design-patterns"
+title = "Priority Queue"
+package = "priorityqueue"
+main_class = "PriorityQueueDemo"
+tagline = "Urgent work goes first"
+bold = "Let urgent messages overtake routine ones in the queue, and keep a share of capacity for routine work so it is never starved."
+domain_note = ""
+thumb_lines = ["PRIORITY", "QUEUE"]
+thumb_code = "same-day first"
+youtube_title = "Priority Queue"
+youtube_tags = ["priority queue", "message priority", "cloud patterns", "starvation", "microservices", "java"]
+
+[readme]
+intro = """
+Priority Queue is a cloud design pattern for work queues. Messages carry a
+priority, and consumers take the highest-priority message first, however
+long lower-priority ones have been waiting. It can be one queue that orders by
+priority, or separate queues per priority, each with its own consumers.
+
+Urgent work is never stuck behind a backlog of routine work. The danger is the
+opposite: if urgent work never stops coming, routine work never gets done,
+so a share of capacity is kept for it.
+"""
+analogy = """
+Think of the fast-track lane at airport security. Passengers with a tight
+connection skip the long queue. But the airport keeps at least one officer on
+the ordinary lane, or those passengers would miss their flights too. And if
+every ticket came with fast track, the fast lane would just be another queue.
+"""
+scenario = """
+The online store's warehouse pickers work through a queue of orders, ten a
+minute. Same-day orders must be picked before the courier's van leaves at 9:05.
+On a busy morning, a hundred standard orders arrived at 9:00 and five same-day
+orders at 9:01. First come, first served, the same-day orders were picked at
+9:10, and the van left without them.
+"""
+costs = [
+    "**Starvation.** With twelve same-day orders a minute and capacity for ten, standard orders were never picked, until a share was reserved.",
+    "**Priorities get abused.** Once people learn that urgent jumps the queue, everything becomes urgent.",
+    "**More to run.** Several queues or a priority rule, reserved shares, and settings to watch.",
+]
+too_much = """
+When all work has the same deadline, one first-in-first-out queue is simpler
+and fairer. Priorities pay off when some work has a real, earlier deadline
+than the rest.
+"""
+met_before = [
+    "`java.util.PriorityQueue` and `PriorityBlockingQueue`.",
+    "RabbitMQ priority queues and separate SQS queues per priority.",
+    "Hospital triage and airport fast-track lanes.",
+]
+where = """
+This project is in [micro-services-design-patterns](..), and near
+[Scheduler](../../concurrency-design-patterns/scheduler-pattern), which applies
+the same idea to threads waiting for a shared resource.
+"""
+
+[[act]]
+title = "First come, first served"
+summary = "100 standard orders at 9:00, 5 same-day at 9:01, 10 picked a minute: the last same-day order is picked at 9:10, after the van left."
+detail = """
+Pickers take ten orders a minute from a first-in-first-out queue. A hundred
+standard orders arrive at 9:00 and five same-day orders at 9:01. The same-day
+orders wait behind every standard one, and the last is picked at 9:10: the
+van left at 9:05.
+"""
+speech = """
+First demo: one queue, first come, first served. [[slnc 400]] The pickers do ten orders a minute. [[slnc 500]]
+At nine o'clock, a hundred standard orders arrive. [[slnc 300]] At one minute past, five same-day orders. [[slnc 300]] The van leaves at five past. [[slnc 600]]
+The same-day orders wait behind all hundred. [[slnc 300]] The last one is picked at ten past nine. [[slnc 300]] The van has gone.
+"""
+rows = { queue = "active wrong", pickers = "active amber" }
+console = [
+    ["100 standard at 9:00; 5 same-day at 9:01", "muted"],
+    ["last same-day picked at 9:10", "bad"],
+    ["the van left at 9:05", "bad"],
+]
+
+[[act]]
+title = "A priority queue"
+summary = "Same-day first: all 5 picked by 9:01, in time for the van."
+detail = """
+The queue now orders by priority: same-day before standard, then oldest
+first. All five same-day orders are picked in the 9:01 minute, in time for the
+van, and the standard orders carry on straight after.
+"""
+speech = """
+Second demo: a priority queue. [[slnc 400]] Same-day orders now go first. [[slnc 300]] Then, oldest first. [[slnc 600]]
+All five same-day orders are picked by one minute past nine. [[slnc 300]] In time for the van. [[slnc 500]]
+The standard orders carry on straight after.
+"""
+rows = { queue = "active ok", pickers = "active ok" }
+console = [
+    ["same-day picked by 9:01", "ok"],
+    ["standard orders straight after", "ok"],
+]
+
+[[act]]
+title = "A flood of standard orders"
+summary = "Even with 1,000 standard orders queued ahead, same-day orders are picked by 9:01."
+detail = """
+A thousand standard orders arrive first. It makes no difference to the
+same-day orders: they overtake the whole backlog and are still picked by 9:01.
+"""
+speech = """
+Third demo: a flood of standard orders makes no difference. [[slnc 400]] This time, a thousand standard orders arrive first. [[slnc 500]]
+The same-day orders overtake all of them. [[slnc 300]] Still picked by one minute past nine.
+"""
+rows = { queue = "active ok" }
+console = [
+    ["1000 standard ahead: same-day by 9:01", "ok"],
+]
+
+[[act]]
+title = "Starvation, and a reserved share"
+summary = "12 same-day orders a minute against 10 picks: 0 of 20 standard orders picked; reserving 2 picks a minute gets all 20 done."
+detail = """
+In a rush, twelve same-day orders arrive every minute, more than the pickers'
+ten. With strict priority, none of the twenty standard orders is picked in
+ten minutes. Keeping two picks a minute for the oldest standard orders gets
+all twenty done.
+"""
+speech = """
+Fourth demo: too many urgent orders starve the rest. [[slnc 400]] Twelve same-day orders arrive every minute. [[slnc 300]] The pickers can do ten. [[slnc 600]]
+With strict priority, standard orders are never picked. [[slnc 300]] Zero of twenty, in ten minutes. [[slnc 600]]
+Now keep two picks a minute for the oldest standard orders. [[slnc 300]] All twenty are picked.
+"""
+rows = { queue = "active amber", pickers = "active amber" }
+console = [
+    ["strict: standard picked 0 of 20", "bad"],
+    ["2 reserved per minute: 20 of 20", "ok"],
+]
+
+[[act]]
+title = "The bill"
+summary = "Sellers learn that same-day jumps the queue and mark every order same-day; priorities need rules about who may set them."
+detail = """
+Marketplace sellers notice that same-day orders jump the queue, and start
+marking every order same-day. Now nothing is urgent. Priorities need rules
+about who may set them, and more queues and settings to watch.
+"""
+speech = """
+Fifth demo: the bill. [[slnc 400]] If everything is urgent, nothing is. [[slnc 500]]
+Marketplace sellers learn that same-day jumps the queue. [[slnc 300]] So they mark every order same-day. [[slnc 600]]
+Priorities need rules about who may set them. [[slnc 300]] And more queues, and settings, to watch.
+"""
+rows = { queue = "active wrong" }
+console = [
+    ["every order marked same-day", "bad"],
+    ["rules for who sets priority", "amber"],
+]
+
+[animation]
+subtitle = "Pickers take ten orders a minute; same-day orders overtake standard ones, with a share kept for standard work."
+boxes = [
+    ["queue", "Order queue", "same-day first"],
+    ["pickers", "Pickers", "10 a minute"],
+]
+
+[docs.problem]
+scenario = """
+Pickers work through orders ten a minute; same-day orders must reach the van
+by 9:05.
+"""
+naive = """
+A first-in-first-out queue makes same-day orders wait behind every standard
+order, and they miss the van.
+"""
+deliver = [
+    "Same-day orders missing the van with a FIFO queue.",
+    "A priority queue getting them picked in the first minute.",
+    "The same result with a thousand standard orders queued.",
+    "Starvation shown, and fixed with a reserved share.",
+    "The abuse risk named.",
+    "Every printed result asserted by a test.",
+]
+
+[docs.prerequisites]
+required = [
+    "Java basics: records, `Queue`, `Comparator`.",
+]
+not_required = [
+    "A message broker. Time is counted in minutes.",
+]
+
+[docs.session]
+objectives = [
+    "Explain when a FIFO queue fails a deadline.",
+    "Order a queue by priority, then age.",
+    "Prevent starvation with a reserved share.",
+    "Decide who is allowed to set priorities.",
+]
+walkthrough = """
+Run `./gradlew run` and compare act one's 9:10 with act two's 9:01. Open
+`Picking.priority`: one comparator. End on act four's two numbers: 0 of 20 and
+20 of 20.
+"""
+exercises = [
+    "Add a third priority, express, above same-day.",
+    "Promote standard orders older than 15 minutes instead of reserving picks.",
+    "Only allow same-day on orders placed before 11:00.",
+]
+
+[docs.explained]
+sentence = """
+A priority queue lets urgent messages overtake routine ones, with a share of
+capacity kept so routine work still gets done.
+"""
+verdict = """
+Use priorities when some work has a genuinely earlier deadline. Order by
+priority then age, reserve capacity or age waiting work to prevent
+starvation, and control who can mark work urgent.
+"""
+recognise = [
+    "`PriorityQueue` or `PriorityBlockingQueue` with a comparator.",
+    "Separate queues named `high`, `normal`, `low`.",
+    "Message headers carrying a priority.",
+]
+
+[spec]
+purpose = """
+Teach Priority Queue with an online store's warehouse picking: same-day orders
+missing a 9:05 van behind 100 standard orders, then a priority queue picking
+them by 9:01 even behind 1,000, starvation of standard orders in a same-day
+rush fixed with a reserved share, and the abuse of priorities.
+"""
+nongoals = [
+    "Not real time or a message broker. Minutes are simulated.",
+]
+problem = """
+A first-come queue makes urgent work wait behind routine work, so deadlines
+are missed.
+"""
+roles = [
+    ["The pattern", "`Picking.priority`"],
+    ["The worker", "`Picking.run`"],
+    ["The work", "`Order`"],
+    ["The naive version", "`Picking.fifo`"],
+    ["Entry point", "`PriorityQueueDemo`, five acts"],
+]
+requirements = [
+    "**Urgent first:** same-day orders are picked before standard ones.",
+    "**Age second:** within a priority, oldest first.",
+    "**No starvation:** a reserved share serves standard orders.",
+    "**Every printed result is asserted** in `DemoRunsTest`.",
+]
+
+[[diagram]]
+name = "architecture-diagram"
+kind = "flow"
+title = "Priority Queue — the pieces"
+caption = "Same-day orders overtake; a share is kept for standard."
+nodes = [
+    { id = "s", label = "Same-day orders", sub = "urgent", col = 0, row = 0, colour = "amber" },
+    { id = "t", label = "Standard orders", sub = "routine", col = 0, row = 1, colour = "client" },
+    { id = "q", label = "Priority queue", sub = "same-day, then oldest", col = 1, row = 0, colour = "accent" },
+    { id = "p", label = "Pickers", sub = "10 a minute, 2 kept for standard", col = 2, row = 0, colour = "green" },
+]
+edges = [
+    { from = "s", to = "q", label = "" },
+    { from = "t", to = "q", label = "" },
+    { from = "q", to = "p", label = "next" },
+]
+
+[[diagram]]
+name = "class-diagram"
+kind = "class"
+title = "Priority Queue — classes"
+caption = "One comparator makes the difference."
+nodes = [
+    { id = "p", label = "Picking", sub = ["+ fifo()", "+ priority()", "+ run(queue, arrivals,", "  minutes, reserved)"], col = 0, row = 0, colour = "accent" },
+    { id = "o", label = "«record» Order", sub = ["id, sameDay", "arrivedMinute, seq"], col = 1, row = 0, colour = "client" },
+]
+edges = [
+    { from = "p", to = "o", label = "orders" },
+]
+
+[[diagram]]
+name = "data-flow-diagram"
+kind = "flow"
+title = "Priority Queue — two queues compared"
+caption = "The same arrivals, two outcomes."
+nodes = [
+    { id = "a", label = "FIFO", sub = "same-day at 9:10", col = 0, row = 0, colour = "red" },
+    { id = "b", label = "missed the van", sub = "", col = 2, row = 0, colour = "red" },
+    { id = "c", label = "Priority", sub = "same-day at 9:01", col = 0, row = 1, colour = "green" },
+    { id = "d", label = "on the van", sub = "", col = 2, row = 1, colour = "green" },
+]
+edges = [
+    { from = "a", to = "b", label = "" },
+    { from = "c", to = "d", label = "" },
+]
+
+[[diagram]]
+name = "sequence-diagram"
+kind = "sequence"
+title = "Priority Queue — 9:01"
+caption = "The pickers take same-day orders first."
+participants = ["Same-day", "Queue", "Pickers"]
+steps = [
+    ["Same-day", "Queue", "5 orders"],
+    ["Pickers", "Queue", "next 10"],
+    ["Queue", "Pickers", "SAME-1 ... SAME-5, STD-11 ...", "reply"],
+]
+
+[[diagram]]
+name = "uml-diagram"
+kind = "sequence"
+title = "1. Starvation"
+caption = "Urgent work never stops coming."
+participants = ["Same-day", "Queue", "Standard"]
+steps = [
+    ["Same-day", "Queue", "12 a minute"],
+    ["note", "Queue", "10 picks, all same-day"],
+    ["note", "Standard", "never picked"],
+]
+
+[[diagram]]
+name = "uml-diagram-2"
+kind = "sequence"
+title = "2. A reserved share"
+caption = "Two picks a minute for the oldest standard."
+participants = ["Pickers", "Queue"]
+steps = [
+    ["Pickers", "Queue", "2 oldest standard"],
+    ["Pickers", "Queue", "8 same-day"],
+]
+
+[poster]
+headline = [["PRIORITY", "text"], ["QUEUE", "text"]]
+before = { code = "first come, first served", note = "same-day missed the van", tag = "BEFORE" }
+after = { code = "same-day first", note = "picked by 9:01", tag = "AFTER" }
+taglines = [["Urgent work goes first", "gold"]]
+
+[[scene]]
+key = "01-poster"
+kind = "poster"
+title = "Priority Queue"
+narration = """
+Hello, and welcome. [[slnc 400]] This video explains the Priority Queue pattern, in Java. [[slnc 300]]
+This video is presented by Jayasekhar Konduru. [[slnc 600]]
+First, a simple definition. [[slnc 300]] In a priority queue, urgent messages overtake routine ones. [[slnc 300]] However long the routine ones have been waiting. [[slnc 300]] And a share of capacity is kept, so routine work still gets done. [[slnc 600]]
+Think of the fast-track lane at airport security. [[slnc 300]] Passengers with a tight connection skip the long queue. [[slnc 300]] But at least one officer stays on the ordinary lane. [[slnc 300]] And if every ticket came with fast track, the fast lane would just be another queue. [[slnc 700]]
+In this video, the domain is an online shop's warehouse. [[slnc 300]] Pickers work through the orders, and same-day orders must catch the courier's van. [[slnc 500]]
+By the end, you will hear how same-day orders missed the van. [[slnc 300]] How a priority queue fixes it. [[slnc 300]] How to stop routine work being starved. [[slnc 300]] And what happens when everything is urgent.
+"""
+
+[[scene]]
+key = "02-scenario"
+kind = "bullets"
+title = "The Scenario"
+body = ["Pickers do 10 orders a minute.", "", "Same-day orders must reach", "the van by 9:05.", "", "One queue, first come first served."]
+narration = """
+Here is the scenario. [[slnc 400]] The warehouse pickers work through a queue of orders, ten a minute. [[slnc 500]]
+Same-day orders must be picked before the courier's van leaves, at five past nine. [[slnc 500]]
+The queue was first come, first served.
+"""
+
+[[scene]]
+key = "03-acts"
+kind = "acts"
+title = "acts"
+
+[[scene]]
+key = "04-pattern"
+kind = "bullets"
+title = "The Pattern"
+body = ["Each message has a priority.", "", "Highest priority first,", "then oldest first.", "", "Keep a share for routine work."]
+narration = """
+Let's name the pattern. [[slnc 400]] Each message carries a priority. [[slnc 500]]
+Workers take the highest priority first. [[slnc 300]] Within the same priority, the oldest first. [[slnc 500]]
+And keep a share of capacity for routine work, so it is never starved.
+"""
+
+[[scene]]
+key = "05-roles"
+kind = "bullets"
+title = "Who Does What"
+body = ["Order: same-day or not, and its age", "Picking.priority: the ordering", "Picking.run: 10 picks a minute", "Picking.fifo: the old way"]
+narration = """
+Here is who does what. [[slnc 400]] An order knows whether it is same-day, and when it arrived. [[slnc 500]]
+The priority queue orders same-day first, then oldest. [[slnc 500]]
+The run method is the pickers: ten a minute, with an optional share kept for standard orders. [[slnc 300]] And the first-in, first-out queue is the old way.
+"""
+
+[[scene]]
+key = "06-recognise"
+kind = "bullets"
+title = "Where You Have Seen It"
+body = ["java.util.PriorityQueue", "RabbitMQ priority queues", "High and low SQS queues", "Triage, fast-track lanes"]
+narration = """
+You have probably met this pattern already. [[slnc 400]] Java has a priority queue class. [[slnc 500]]
+RabbitMQ supports priorities on queues. [[slnc 300]] And many systems run separate high and low priority queues. [[slnc 500]]
+Hospital triage and airport fast-track lanes work the same way.
+"""
+
+[[scene]]
+key = "07-verdict"
+kind = "bullets"
+title = "When To Use It"
+body = ["Some work has a real,", "earlier deadline.", "", "Priority, then age.", "Reserve a share.", "Control who sets priority."]
+narration = """
+So, when should you use it? [[slnc 400]] When some work has a real, earlier deadline than the rest. [[slnc 500]]
+Order by priority, then by age. [[slnc 300]] Reserve a share for routine work. [[slnc 300]] And control who is allowed to mark work as urgent.
+"""
+
+[[scene]]
+key = "08-outro"
+kind = "outro"
+title = "Thanks for Watching"
+body = ["Full source, notes, diagrams and an animated walkthrough", "are in the repository. Promote orders older", "than 15 minutes."]
+narration = """
+That's the Priority Queue pattern. [[slnc 400]] If you remember one sentence, make it this one. [[slnc 300]] Let urgent work go first, but never let routine work wait for ever. [[slnc 500]]
+The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. [[slnc 300]] It runs offline, with nothing installed except a Java development kit. [[slnc 500]]
+Here is one exercise to try. [[slnc 300]] Promote standard orders that have waited more than fifteen minutes. [[slnc 500]]
+If this helped, a like really does help other people find it. [[slnc 300]] And subscribe, if you'd like the rest of the series. [[slnc 400]] Thanks for watching.
+"""

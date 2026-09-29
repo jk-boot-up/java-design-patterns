@@ -1,0 +1,427 @@
+# pattern.toml for the Polling Consumer project. See tools/patternkit.
+
+[project]
+slug = "polling-consumer"
+category = "messaging-integration-patterns"
+title = "Polling Consumer"
+package = "pollingconsumer"
+main_class = "PollingConsumerDemo"
+tagline = "Take messages when you are ready"
+bold = "Let the consumer decide when to take messages: each time it is ready, it asks the queue for as many as it can handle, and everything else waits safely in the queue."
+domain_note = ""
+thumb_lines = ["POLLING", "CONSUMER"]
+thumb_code = "queue.poll(max 5)"
+youtube_title = "Polling Consumer"
+youtube_tags = ["polling consumer", "enterprise integration patterns", "long polling", "back pressure", "messaging", "java"]
+
+[readme]
+intro = """
+Polling Consumer is one of the Enterprise Integration Patterns. A consumer can
+receive messages in two ways. An event-driven consumer has messages pushed to
+it the moment they arrive. A polling consumer pulls: whenever it is ready, it
+asks the queue for the next messages, as many as it can handle, and the rest
+stay in the queue until it asks again.
+
+The consumer sets its own pace, a burst cannot overwhelm it, and pausing is
+simply not asking. The cost is choosing how often to ask: too often wastes
+requests, too rarely leaves messages waiting.
+"""
+analogy = """
+Think of a post office box instead of home delivery. The courier does not ring
+your doorbell while you are in the shower; letters wait safely in the box
+until you go and collect them. If you go every five minutes, you mostly walk
+there for nothing. If you go once a day, a letter can wait a day.
+"""
+scenario = """
+The online store's warehouse label printer can hold ten jobs in its buffer
+and prints five labels a tenth of a second. Orders were pushed at it the
+moment they arrived. During a burst of fifty orders, forty were refused
+because the printer was busy.
+"""
+costs = [
+    "**Waiting for the next poll.** A message that arrives just after a poll waits until the next one.",
+    "**Empty polls.** A quiet minute polled every tenth of a second is 600 requests that find nothing.",
+    "**The consumer must keep asking.** Someone has to run the polling loop and stop it cleanly.",
+]
+too_much = """
+When messages are rare and must be handled the instant they arrive, and the
+consumer can always keep up, an event-driven consumer is simpler. Many
+systems combine the two: long polling, where each request waits for up to
+some seconds for a message to arrive.
+"""
+met_before = [
+    "Kafka consumers calling `poll()` in a loop.",
+    "Amazon SQS `ReceiveMessage` with long polling.",
+    "Spring Integration's polling channel adapters.",
+    "Checking email with IMAP rather than push notifications.",
+]
+where = """
+This project is in [messaging-integration-patterns](..), next to
+[Message Channel](../message-channel-pattern), the queue a polling consumer
+reads, and near [Backpressure](../../micro-services-design-patterns/backpressure-pattern),
+the wider idea of consumers setting the pace.
+"""
+
+[[act]]
+title = "Pushed at the printer"
+summary = "A burst of 50 orders pushed at a printer with a 10-job buffer: 10 printed, 40 refused."
+detail = """
+Each order is pushed at `LabelPrinter` the moment it arrives. The printer's
+buffer holds ten jobs. A burst of fifty arrives at once: ten are accepted,
+forty are refused with "printer busy".
+"""
+speech = """
+First demo: orders pushed at the printer as they arrive. [[slnc 400]] The printer's buffer holds ten jobs. [[slnc 500]]
+A burst of fifty orders arrives at once. [[slnc 300]] They are all pushed at the printer. [[slnc 600]]
+Ten are accepted. [[slnc 300]] Forty are refused: printer busy.
+"""
+rows = { orders = "active amber", printer = "active wrong" }
+console = [
+    ["burst of 50; buffer holds 10", "muted"],
+    ["printed: 10, refused: 40", "bad"],
+]
+
+[[act]]
+title = "A polling consumer"
+summary = "Every tick the printer asks for up to 5: all 50 printed in 10 ticks (1.0 s), none refused."
+detail = """
+Orders now go into a queue. `PollingConsumer.tick` asks the queue for up to
+five orders, as many as the printer can print in one tick. All fifty are
+printed in ten ticks, one second, and none is refused: the queue holds the
+rest until the printer asks.
+"""
+speech = """
+Second demo: a polling consumer. [[slnc 400]] The orders go into a queue. [[slnc 300]] The printer asks the queue for work, when it is ready. [[slnc 500]]
+Every tenth of a second, it asks for up to five. [[slnc 300]] As many as it can print. [[slnc 600]]
+All fifty are printed, in one second. [[slnc 300]] None refused. [[slnc 300]] The queue held the rest until the printer asked.
+"""
+rows = { queue = "active ok", consumer = "active ok", printer = "active ok" }
+console = [
+    ["asks for up to 5 per tick", "muted"],
+    ["printed 50 of 50 in 10 ticks; refused 0", "ok"],
+]
+
+[[act]]
+title = "Pausing"
+summary = "Paper runs out: polling stops for 3 s; 15 orders wait in the queue; when polling resumes, all 20 print."
+detail = """
+After one tick the paper runs out, so the consumer is paused: it simply stops
+polling for three seconds. Five labels are printed and fifteen orders wait
+safely in the queue. When paper is loaded and polling resumes, all twenty are
+printed and none is lost.
+"""
+speech = """
+Third demo: pausing is simply not polling. [[slnc 400]] The printer runs out of paper. [[slnc 300]] It stops asking the queue for three seconds. [[slnc 600]]
+Five labels were printed. [[slnc 300]] Fifteen orders wait, safely, in the queue. [[slnc 500]]
+Paper is loaded. [[slnc 300]] Polling resumes. [[slnc 300]] All twenty are printed. [[slnc 300]] None was lost.
+"""
+rows = { consumer = "active amber", queue = "active ok", printer = "active amber" }
+console = [
+    ["paused: printed 5, waiting 15", "amber"],
+    ["resumed: printed 20 of 20", "ok"],
+]
+
+[[act]]
+title = "How often to poll"
+summary = "A quiet minute polled every 0.1 s is 600 polls, all empty; long polling needs 3."
+detail = """
+In a quiet minute with no orders, polling every tenth of a second makes 600
+requests, all of them empty. Long polling, where each request waits up to 20
+seconds for something to arrive, covers the same minute with three.
+"""
+speech = """
+Fourth demo: how often should you ask, when nothing is happening? [[slnc 400]] A quiet minute. [[slnc 300]] No orders at all. [[slnc 500]]
+Asking every tenth of a second, the printer makes six hundred requests. [[slnc 300]] Every one finds nothing. [[slnc 600]]
+With long polling, each request waits up to twenty seconds for something to arrive. [[slnc 300]] The same quiet minute takes three requests.
+"""
+rows = { consumer = "active amber", queue = "active amber" }
+console = [
+    ["every 0.1 s: 600 polls, 600 empty", "amber"],
+    ["long polling (20 s): 3 requests", "ok"],
+]
+
+[[act]]
+title = "The bill"
+summary = "An order arriving just after a poll waits a whole interval; poll often and waste, or rarely and wait."
+detail = """
+A message that arrives just after a poll waits until the next one: up to a
+whole interval. Polling often wastes requests, polling rarely adds waiting.
+Long polling is the usual middle way.
+"""
+speech = """
+Fifth demo: the bill. [[slnc 400]] An order that arrives just after a poll waits until the next one. [[slnc 300]] Up to a whole interval. [[slnc 600]]
+Poll often, and you waste requests. [[slnc 300]] Poll rarely, and orders wait. [[slnc 500]]
+Long polling is the usual middle way.
+"""
+rows = { consumer = "active amber" }
+console = [
+    ["just missed a poll: wait a whole interval", "amber"],
+    ["often = waste; rarely = waiting", "amber"],
+]
+
+[animation]
+subtitle = "Orders wait in a queue; the label printer asks for as many as it can print each time it is ready."
+boxes = [
+    ["orders", "Order burst", "50 at once"],
+    ["queue", "Queue", "holds what is not taken"],
+    ["consumer", "Polling consumer", "asks for up to 5"],
+    ["printer", "Label printer", "5 per tick, buffer of 10"],
+]
+
+[docs.problem]
+scenario = """
+A label printer prints five labels per tick and holds ten jobs; orders arrive
+in bursts.
+"""
+naive = """
+Orders are pushed at the printer as they arrive; in a burst of fifty, forty
+are refused.
+"""
+deliver = [
+    "Refusals counted when orders are pushed.",
+    "A polling consumer printing all fifty at its own pace.",
+    "Pausing by not polling, with nothing lost.",
+    "Empty polls counted, and long polling compared.",
+    "The waiting cost of polling named.",
+    "Every printed result asserted by a test.",
+]
+
+[docs.prerequisites]
+required = [
+    "Java basics: classes, `Deque`, loops.",
+]
+not_required = [
+    "Kafka or SQS. The queue is in memory and time is counted in ticks.",
+]
+
+[docs.session]
+objectives = [
+    "Tell a polling consumer from an event-driven one.",
+    "Let a consumer take only what it can handle.",
+    "Pause and resume without losing messages.",
+    "Choose a polling interval, and know what long polling is.",
+]
+walkthrough = """
+Run `./gradlew run` and compare act one's 40 refusals with act two's none.
+Open `PollingConsumer.tick`: ask for up to five, print them. End on acts four
+and five: how often would you poll in a real shop?
+"""
+exercises = [
+    "Poll faster when the last poll was full and slower when it was empty.",
+    "Print a warning when the queue holds more than 100 orders.",
+    "Rewrite the consumer with `BlockingQueue.poll(timeout)` for real long polling.",
+]
+
+[docs.explained]
+sentence = """
+A polling consumer takes messages from a queue when it is ready, as many as it
+can handle, so it sets its own pace and can pause without losing anything.
+"""
+verdict = """
+Use polling consumers when a consumer must control its own pace, handle
+bursts or pause safely. Take only what you can handle, use long polling to
+avoid empty requests, and accept a small wait for the next poll.
+"""
+recognise = [
+    "Loops that call `poll()`, `receive()` or `ReceiveMessage` with a batch size.",
+    "Settings for polling interval, max messages and wait time.",
+    "Consumers that pause by simply not polling.",
+]
+
+[spec]
+purpose = """
+Teach Polling Consumer with an online store's label printer: 40 of 50 orders
+refused when pushed, then a polling consumer printing all 50 in 10 ticks,
+pausing with 15 orders safely queued, 600 empty polls in a quiet minute
+against 3 long polls, and the cost of waiting for the next poll.
+"""
+nongoals = [
+    "Not real time. Time is counted in ticks.",
+    "Not a real queue product. Long polling is described, not built.",
+]
+problem = """
+Pushing messages at a consumer as they arrive overwhelms it during a burst
+and gives it no way to pause.
+"""
+roles = [
+    ["The pattern", "`PollingConsumer`"],
+    ["The consumer's work", "`LabelPrinter`"],
+    ["The queue", "`Deque<String>`"],
+    ["Entry point", "`PollingConsumerDemo`, five acts"],
+]
+requirements = [
+    "**Own pace:** at most five orders per tick.",
+    "**Nothing refused:** the queue holds the rest.",
+    "**Safe pause:** paused ticks take nothing.",
+    "**Every printed result is asserted** in `DemoRunsTest`.",
+]
+
+[[diagram]]
+name = "architecture-diagram"
+kind = "flow"
+title = "Polling Consumer — the pieces"
+caption = "The printer asks; the queue answers with what it can take."
+nodes = [
+    { id = "o", label = "Orders", sub = "arrive in bursts", col = 0, row = 0, colour = "client" },
+    { id = "q", label = "Queue", sub = "holds them", col = 1, row = 0, colour = "amber" },
+    { id = "c", label = "PollingConsumer", sub = "up to 5 per tick", col = 2, row = 0, colour = "accent" },
+    { id = "p", label = "Label printer", sub = "", col = 2, row = 1, colour = "green" },
+]
+edges = [
+    { from = "o", to = "q", label = "add" },
+    { from = "c", to = "q", label = "poll" },
+    { from = "c", to = "p", label = "print" },
+]
+
+[[diagram]]
+name = "class-diagram"
+kind = "class"
+title = "Polling Consumer — classes"
+caption = "The consumer owns the loop and the pace."
+nodes = [
+    { id = "c", label = "PollingConsumer", sub = ["- queue, printer", "+ tick(): taken", "+ pause(), resume()"], col = 0, row = 0, colour = "accent" },
+    { id = "p", label = "LabelPrinter", sub = ["BUFFER = 10", "PER_TICK = 5", "+ push(order) (old way)"], col = 1, row = 0, colour = "green" },
+]
+edges = [
+    { from = "c", to = "p", label = "feeds" },
+]
+
+[[diagram]]
+name = "data-flow-diagram"
+kind = "flow"
+title = "Polling Consumer — a burst drained"
+caption = "Fifty orders in, five per tick out."
+nodes = [
+    { id = "a", label = "50 in the queue", sub = "tick 0", col = 0, row = 0, colour = "amber" },
+    { id = "b", label = "45 left", sub = "tick 1: 5 printed", col = 1, row = 0, colour = "amber" },
+    { id = "c", label = "0 left", sub = "tick 10: 50 printed", col = 2, row = 0, colour = "green" },
+]
+edges = [
+    { from = "a", to = "b", label = "poll 5" },
+    { from = "b", to = "c", label = "... 9 more" },
+]
+
+[[diagram]]
+name = "sequence-diagram"
+kind = "sequence"
+title = "Polling Consumer — one tick"
+caption = "Ask, take, print."
+participants = ["Consumer", "Queue", "Printer"]
+steps = [
+    ["Consumer", "Queue", "up to 5, please"],
+    ["Queue", "Consumer", "ORD-1 ... ORD-5", "reply"],
+    ["Consumer", "Printer", "print 5"],
+]
+
+[[diagram]]
+name = "uml-diagram"
+kind = "sequence"
+title = "1. Pushed"
+caption = "The printer cannot say not now."
+participants = ["Orders", "Printer"]
+steps = [
+    ["Orders", "Printer", "ORD-11"],
+    ["Printer", "Orders", "refused: busy", "reply"],
+]
+
+[[diagram]]
+name = "uml-diagram-2"
+kind = "sequence"
+title = "2. Paused"
+caption = "Not asking is enough."
+participants = ["Consumer", "Queue"]
+steps = [
+    ["note", "Consumer", "paused: no polls"],
+    ["note", "Queue", "15 orders waiting"],
+    ["Consumer", "Queue", "resume: up to 5"],
+]
+
+[poster]
+headline = [["POLLING", "text"], ["CONSUMER", "text"]]
+before = { code = "printer.push(order)", note = "40 of 50 refused", tag = "BEFORE" }
+after = { code = "queue.poll(max 5)", note = "50 of 50 printed", tag = "AFTER" }
+taglines = [["Take messages when you are ready", "gold"]]
+
+[[scene]]
+key = "01-poster"
+kind = "poster"
+title = "Polling Consumer"
+narration = """
+Hello, and welcome. [[slnc 400]] This video explains the Polling Consumer pattern, in Java. [[slnc 300]]
+This video is presented by Jayasekhar Konduru. [[slnc 600]]
+First, a simple definition. [[slnc 300]] A polling consumer decides when to take messages. [[slnc 300]] Each time it is ready, it asks the queue for as many as it can handle. [[slnc 300]] Everything else waits safely in the queue. [[slnc 600]]
+Think of a post office box, instead of home delivery. [[slnc 300]] Nobody rings your doorbell while you are in the shower. [[slnc 300]] Letters wait in the box until you go and collect them. [[slnc 700]]
+In this video, the domain is an online shop's warehouse. [[slnc 300]] Its label printer can only print so fast, and orders arrive in bursts. [[slnc 500]]
+By the end, you will hear what happens when orders are pushed at the printer. [[slnc 300]] How polling fixes it. [[slnc 300]] How to pause safely. [[slnc 300]] And how often to ask.
+"""
+
+[[scene]]
+key = "02-scenario"
+kind = "bullets"
+title = "The Scenario"
+body = ["The label printer: 5 labels", "per tenth of a second.", "It can hold 10 jobs.", "", "Orders arrive in bursts."]
+narration = """
+Here is the scenario. [[slnc 400]] The warehouse label printer prints five labels every tenth of a second. [[slnc 300]] It can hold ten jobs waiting. [[slnc 600]]
+Orders arrive in bursts. [[slnc 300]] And each order was pushed straight at the printer, the moment it arrived.
+"""
+
+[[scene]]
+key = "03-acts"
+kind = "acts"
+title = "acts"
+
+[[scene]]
+key = "04-pattern"
+kind = "bullets"
+title = "The Pattern"
+body = ["Messages wait in a queue.", "", "When ready, the consumer asks", "for as many as it can handle.", "", "Pausing is simply not asking."]
+narration = """
+Let's name the pattern. [[slnc 400]] Messages wait in a queue. [[slnc 500]]
+When the consumer is ready, it asks for as many as it can handle. [[slnc 300]] No more. [[slnc 500]]
+And to pause, the consumer simply stops asking. [[slnc 300]] Nothing is lost.
+"""
+
+[[scene]]
+key = "05-roles"
+kind = "bullets"
+title = "Who Does What"
+body = ["Queue: holds the orders", "PollingConsumer: asks, each tick", "LabelPrinter: prints", "push(): the old way"]
+narration = """
+Here is who does what. [[slnc 400]] The queue holds the orders. [[slnc 500]]
+The polling consumer asks the queue for up to five, each tick, and can be paused. [[slnc 500]]
+The label printer prints. [[slnc 300]] And pushing at the printer is the old way, kept for comparison.
+"""
+
+[[scene]]
+key = "06-recognise"
+kind = "bullets"
+title = "Where You Have Seen It"
+body = ["Kafka consumer poll()", "Amazon SQS long polling", "Spring Integration pollers", "Checking email with IMAP"]
+narration = """
+You have probably met this pattern already. [[slnc 400]] Kafka consumers call poll, in a loop. [[slnc 500]]
+Amazon's simple queue service offers long polling. [[slnc 300]] Spring Integration has pollers. [[slnc 500]]
+And an email program that checks for new mail every few minutes is a polling consumer.
+"""
+
+[[scene]]
+key = "07-verdict"
+kind = "bullets"
+title = "When To Use It"
+body = ["The consumer must set its pace,", "handle bursts, or pause safely.", "", "Take only what you can handle.", "Use long polling."]
+narration = """
+So, when should you use it? [[slnc 400]] When a consumer must set its own pace, handle bursts, or pause safely. [[slnc 500]]
+Take only what you can handle. [[slnc 300]] Use long polling to avoid empty requests. [[slnc 500]]
+And accept that a message may wait a little, for the next poll.
+"""
+
+[[scene]]
+key = "08-outro"
+kind = "outro"
+title = "Thanks for Watching"
+body = ["Full source, notes, diagrams and an animated walkthrough", "are in the repository. Poll faster when busy,", "slower when quiet."]
+narration = """
+That's the Polling Consumer pattern. [[slnc 400]] If you remember one sentence, make it this one. [[slnc 300]] Take messages when you are ready, and let the queue hold the rest. [[slnc 500]]
+The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. [[slnc 300]] It runs offline, with nothing installed except a Java development kit. [[slnc 500]]
+Here is one exercise to try. [[slnc 300]] Poll faster when the last poll was full, and slower when it was empty. [[slnc 500]]
+If this helped, a like really does help other people find it. [[slnc 300]] And subscribe, if you'd like the rest of the series. [[slnc 400]] Thanks for watching.
+"""

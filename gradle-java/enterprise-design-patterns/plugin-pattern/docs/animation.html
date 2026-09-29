@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Plugin Pattern — Animated Walkthrough</title>
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 24px;
+    background: #0f172a; color: #e2e8f0;
+    font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
+    padding-top: calc(24px + env(safe-area-inset-top, 0px));
+    padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+  }
+  h1 { font-size: 1.4rem; margin: 0 0 4px; }
+  p.sub { color: #94a3b8; margin: 0 0 20px; max-width: 70ch; }
+  .wrap { max-width: 1100px; margin: 0 auto; }
+  .stage { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+  @media (max-width: 760px) { .stage { grid-template-columns: 1fr; } }
+  .boxes { display: flex; flex-direction: column; gap: 10px; }
+  .row { border: 2px solid #334155; border-radius: 10px; padding: 12px 16px;
+         background: #1e293b; transition: all .25s ease; opacity: .55; }
+  .row .name { font-weight: 700; font-size: 1rem; }
+  .row .job { color: #94a3b8; font-size: .82rem; margin-top: 2px; }
+  .row.active { opacity: 1; box-shadow: 0 0 0 2px currentColor inset; }
+  .row.wrong { border-color: #f87171; color: #f87171; }
+  .row.wrong.active { background: #3f1d24; }
+  .row.ok { border-color: #34d399; color: #34d399; }
+  .row.ok.active { background: #10261f; }
+  .row.amber { border-color: #fbbf24; color: #fbbf24; }
+  .row.amber.active { background: #2a2110; }
+  .row.dim { opacity: .22; }
+  .console { background: #020617; border: 1px solid #334155; border-radius: 10px; padding: 16px;
+             font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: .86rem;
+             line-height: 1.55; overflow-y: auto; min-height: 320px; white-space: pre-wrap; }
+  #console-lines span.ok { color: #34d399; }
+  #console-lines span.bad { color: #f87171; }
+  #console-lines span.amber { color: #fbbf24; }
+  #console-lines span.muted { color: #94a3b8; }
+  .narration { background: #1e293b; border: 1px solid #334155; border-radius: 10px;
+               padding: 14px 18px; margin-bottom: 16px; min-height: 3.2em; }
+  .controls { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  button { background: #334155; color: #e2e8f0; border: 1px solid #475569; border-radius: 8px;
+           padding: 10px 18px; font-size: .92rem; cursor: pointer; }
+  button:hover { background: #475569; }
+  button:disabled { opacity: .45; cursor: default; }
+  button#play { background: #7c3aed; border-color: #7c3aed; }
+  button#play:hover { background: #8b5cf6; }
+  #progress { color: #94a3b8; font-size: .85rem; margin-left: auto; }
+  .step-label { font-size: .78rem; text-transform: uppercase; letter-spacing: .04em;
+                color: #a78bfa; font-weight: 700; margin-bottom: 4px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Plugin — Step by Step</h1>
+  <p class="sub">Checkout names only interfaces; a configuration file per environment says which class plays each part.</p>
+
+  <div class="narration">
+    <div class="step-label" id="step-label">Ready</div>
+    <div id="narration">Press Step or Play to begin.</div>
+  </div>
+
+  <div class="stage">
+    <div class="boxes" id="boxes">
+      <div class="row" id="row-code">
+        <div class="name">Scattered ifs</div>
+        <div class="job">each picks its own</div>
+      </div>
+      <div class="row" id="row-config">
+        <div class="name">plugins-<env>.properties</div>
+        <div class="job">interface = class</div>
+      </div>
+      <div class="row" id="row-factory">
+        <div class="name">PluginFactory</div>
+        <div class="job">reads, creates, checks</div>
+      </div>
+      <div class="row" id="row-fake">
+        <div class="name">FakeGateway</div>
+        <div class="job">dev, staging</div>
+      </div>
+      <div class="row" id="row-sandbox">
+        <div class="name">SandboxEmailer</div>
+        <div class="job">dev, staging</div>
+      </div>
+      <div class="row" id="row-smtp">
+        <div class="name">SmtpEmailer</div>
+        <div class="job">prod only</div>
+      </div>
+    </div>
+    <div class="console"><div id="console-lines"></div></div>
+  </div>
+
+  <div class="controls">
+    <button id="step">Step ▸</button>
+    <button id="play">Play ▶</button>
+    <button id="reset">Reset ↺</button>
+    <span id="progress">0 / 0</span>
+  </div>
+</div>
+
+<script>
+const STEPS = [
+ {
+  "label": "Act 1 — Choices scattered in code",
+  "narration": "First demo: each place picks its own implementation, from the environment name. The shop runs in development, staging, and production. Only production should charge real cards, or send real emails. When staging was added, the payment code was updated. Staging uses the fake gateway. The email code was missed. It only knew about development. So staging fell through to the real emailer, and sent a real customer an email.",
+  "rows": {
+   "code": "active wrong",
+   "fake": "active ok",
+   "smtp": "active wrong"
+  },
+  "console": [
+   [
+    "staging: fake gateway approved £63.44",
+    "ok"
+   ],
+   [
+    "staging: REAL email to priya@example.com",
+    "bad"
+   ]
+  ]
+ },
+ {
+  "label": "Act 2 — Plugins from configuration",
+  "narration": "Second demo: plugins, chosen by configuration. Each environment has one small file. It says which class plays each part. Payment gateway: the fake one. Emailer: the sandbox one. One factory reads the file and creates the objects. Checkout only ever names the interfaces. In development, the gateway is fake and the emails stay in a sandbox. In production, the card is really charged, and the email is really sent.",
+  "rows": {
+   "config": "active ok",
+   "factory": "active ok",
+   "fake": "active ok",
+   "sandbox": "active ok"
+  },
+  "console": [
+   [
+    "dev: fake gateway, sandbox inbox",
+    "ok"
+   ],
+   [
+    "prod: REAL card, REAL email",
+    "ok"
+   ],
+   [
+    "Checkout names only interfaces",
+    "ok"
+   ]
+  ]
+ },
+ {
+  "label": "Act 3 — A new environment",
+  "narration": "Third demo: a new environment is a new file, not new code. Staging gets its own file. Two lines. Fake gateway, sandbox emailer. No Java changes at all. And there is no second place to forget. Priya's email stays in the sandbox inbox.",
+  "rows": {
+   "config": "active ok",
+   "sandbox": "active ok"
+  },
+  "console": [
+   [
+    "staging: fake gateway approved £63.44",
+    "ok"
+   ],
+   [
+    "staging: sandbox inbox kept email",
+    "ok"
+   ],
+   [
+    "2 lines of config; no Java changed",
+    "ok"
+   ]
+  ]
+ },
+ {
+  "label": "Act 4 — Caught at startup",
+  "narration": "Fourth demo: a bad entry is caught when the shop starts. Someone misspells a class name in the demo environment's file. When the shop starts, the factory tries to create every plugin, once. It reports: cannot create sandbox emaler, for the emailer. The mistake is found before the first customer, not by the first customer.",
+  "rows": {
+   "factory": "active amber",
+   "config": "active wrong"
+  },
+  "console": [
+   [
+    "startup check: cannot create",
+    "bad"
+   ],
+   [
+    "  ...$SandboxEmaler for Emailer",
+    "bad"
+   ],
+   [
+    "found before the first customer",
+    "ok"
+   ]
+  ]
+ },
+ {
+  "label": "Act 5 — The bill",
+  "narration": "Fifth demo: the bill. The compiler cannot see the wiring. A misspelt class name is a startup error, not a compile error. And if a developer searches the code for who uses the sandbox emailer, they find nothing. It is only named in text files.",
+  "rows": {
+   "config": "active amber"
+  },
+  "console": [
+   [
+    "misspelling: a startup error",
+    "amber"
+   ],
+   [
+    "find usages: nothing",
+    "amber"
+   ]
+  ]
+ }
+];
+const rowIds = ["code", "config", "factory", "fake", "sandbox", "smtp"];
+const stepLabel = document.getElementById("step-label");
+const narrationEl = document.getElementById("narration");
+const consoleEl = document.getElementById("console-lines");
+const progressEl = document.getElementById("progress");
+const playBtn = document.getElementById("play");
+let i = -1, timer = null;
+
+function esc(t) { return t.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+
+function render() {
+  for (const id of rowIds) document.getElementById("row-" + id).className = "row";
+  if (i < 0) {
+    stepLabel.textContent = "Ready";
+    narrationEl.textContent = "Press Step or Play to begin.";
+    consoleEl.innerHTML = "";
+    progressEl.textContent = "0 / " + STEPS.length;
+    return;
+  }
+  const s = STEPS[i];
+  stepLabel.textContent = s.label;
+  narrationEl.textContent = s.narration;
+  for (const id of rowIds) {
+    const cls = s.rows[id];
+    document.getElementById("row-" + id).className = "row " + (cls ? cls : "dim");
+  }
+  consoleEl.innerHTML = s.console.map(([t, c]) => '<span class="' + c + '">' + esc(t) + "</span>").join("\n");
+  progressEl.textContent = (i + 1) + " / " + STEPS.length;
+}
+function step() { if (i >= STEPS.length - 1) { stopPlay(); return; } i += 1; render(); }
+function reset() { stopPlay(); i = -1; render(); }
+// While a step's narration is playing, Play waits for it to finish.
+function speaking() { return typeof window.vkSpeaking === "function" && window.vkSpeaking(); }
+function startPlay() {
+  if (timer) return;
+  playBtn.textContent = "Pause ❚❚";
+  let quiet = 0;
+  timer = setInterval(() => {
+    if (speaking()) { quiet = 0; return; }
+    if (++quiet < 6) return;                     // 6 × 500 ms of reading time
+    quiet = 0;
+    if (i >= STEPS.length - 1) { stopPlay(); return; }
+    step();
+  }, 500);
+  if (i < 0) step();
+}
+function stopPlay() { if (timer) clearInterval(timer); timer = null; playBtn.textContent = "Play ▶"; }
+
+document.getElementById("step").addEventListener("click", () => { stopPlay(); step(); });
+document.getElementById("reset").addEventListener("click", reset);
+playBtn.addEventListener("click", () => { if (timer) stopPlay(); else startPlay(); });
+render();
+</script>
+<!-- videokit:narration -->
+<script>
+/* videokit narration player: a Narration on/off switch and a play/pause
+   button for the current step. It watches the page's own narration text,
+   works out which step is showing, and plays audio/step-N.m4a beside the
+   page (rendered by tools/videokit; not embedded, so the page stays small).
+   If the page already plays its own clips, only the pause button is added. */
+(function () {
+  "use strict";
+  var STEPS = ["First demo: each place picks its own implementation, from the environment name. The shop runs in development, staging, and production. Only production should charge real cards, or send real emails. When staging was added, the payment code was updated. Staging uses the fake gateway. The email code was missed. It only knew about development. So staging fell through to the real emailer, and sent a real customer an email.", "Second demo: plugins, chosen by configuration. Each environment has one small file. It says which class plays each part. Payment gateway: the fake one. Emailer: the sandbox one. One factory reads the file and creates the objects. Checkout only ever names the interfaces. In development, the gateway is fake and the emails stay in a sandbox. In production, the card is really charged, and the email is really sent.", "Third demo: a new environment is a new file, not new code. Staging gets its own file. Two lines. Fake gateway, sandbox emailer. No Java changes at all. And there is no second place to forget. Priya's email stays in the sandbox inbox.", "Fourth demo: a bad entry is caught when the shop starts. Someone misspells a class name in the demo environment's file. When the shop starts, the factory tries to create every plugin, once. It reports: cannot create sandbox emaler, for the emailer. The mistake is found before the first customer, not by the first customer.", "Fifth demo: the bill. The compiler cannot see the wiring. A misspelt class name is a startup error, not a compile error. And if a developer searches the code for who uses the sandbox emailer, they find nothing. It is only named in text files."];
+  var norm = function (s) { return String(s || "").replace(/\s+/g, " ").trim(); };
+  var box = document.getElementById("narration") || document.querySelector(".narration");
+  if (!box || !STEPS.length) return;
+
+  var pageOwnsAudio = !!document.getElementById("audio");
+  var current = null, step = -1, on = false;
+  try { on = localStorage.getItem("vk-narration") === "on"; } catch (e) {}
+
+  // Remember whichever clip the page (or this script) last started.
+  var realPlay = HTMLMediaElement.prototype.play;
+  HTMLMediaElement.prototype.play = function () {
+    if (current && current !== this) { try { current.pause(); } catch (e) {} }
+    current = this;
+    this.addEventListener("play", label);
+    this.addEventListener("pause", label);
+    this.addEventListener("ended", label);
+    var p = realPlay.apply(this, arguments);
+    label();
+    return p;
+  };
+
+  // Lets a page's Play button wait for the step's narration to finish.
+  window.vkSpeaking = function () { return !!(current && !current.paused && !current.ended); };
+
+  var bar = document.querySelector(".controls") || box.parentNode;
+  function button(id, text) {
+    var b = document.createElement("button");
+    b.id = id; b.type = "button"; b.textContent = text;
+    bar.appendChild(b);
+    return b;
+  }
+  var narrBtn = pageOwnsAudio ? null : button("vk-narration", "");
+  var stepBtn = button("vk-step-audio", "");
+  var note = document.createElement("span");
+  note.id = "vk-note";
+  note.style.cssText = "color:#94a3b8;font-size:.8rem;margin-left:8px";
+  bar.appendChild(note);
+
+  function stepFor(text) {
+    var t = norm(text);
+    for (var i = 0; i < STEPS.length; i++) {
+      var s = norm(STEPS[i]);
+      if (s && t.indexOf(s.slice(0, 60)) !== -1) return i;
+    }
+    return -1;
+  }
+  function stop() { if (current) { try { current.pause(); } catch (e) {} } current = null; label(); }
+  function play(i) {
+    if (i < 0) return;
+    var a = new Audio("audio/step-" + (i + 1) + ".m4a");
+    a.play().then(function () { note.textContent = ""; }, function (e) {
+      note.textContent = e && e.name === "NotAllowedError"
+        ? "Click Play step to hear this step."
+        : "Narration audio not found: run tools/videokit/videokit.sh animation <project>.";
+      label();
+    });
+  }
+  function label() {
+    if (narrBtn) narrBtn.textContent = (on ? "🔊 Narration: on" : "🔇 Narration: off");
+    if (narrBtn) narrBtn.setAttribute("aria-pressed", String(on));
+    var playing = current && !current.paused && !current.ended;
+    var paused = current && current.paused && !current.ended;
+    stepBtn.textContent = playing ? "⏸ Pause step" : paused ? "▶ Resume step" : "▶ Play step";
+    stepBtn.disabled = step < 0;
+  }
+
+  if (narrBtn) narrBtn.addEventListener("click", function () {
+    on = !on;
+    try { localStorage.setItem("vk-narration", on ? "on" : "off"); } catch (e) {}
+    if (on) { if (step >= 0) play(step); } else stop();
+    label();
+  });
+  stepBtn.addEventListener("click", function () {
+    if (current && !current.ended) {
+      if (current.paused) current.play(); else current.pause();
+    } else play(step);
+  });
+
+  function changed() {
+    var i = stepFor(box.textContent);
+    if (i === step) return;
+    step = i;
+    if (!pageOwnsAudio) { stop(); if (on) play(i); }
+    label();
+  }
+  new MutationObserver(changed).observe(box, { childList: true, subtree: true, characterData: true });
+  changed();
+  label();
+})();
+</script>
+<!-- /videokit:narration -->
+</body>
+</html>

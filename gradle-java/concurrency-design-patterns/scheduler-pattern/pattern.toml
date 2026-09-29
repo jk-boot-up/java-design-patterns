@@ -1,0 +1,437 @@
+# pattern.toml for the Scheduler project. See tools/patternkit.
+
+[project]
+slug = "scheduler"
+category = "concurrency-design-patterns"
+title = "Scheduler"
+package = "scheduler"
+main_class = "SchedulerDemo"
+tagline = "A policy decides who goes next"
+bold = "When threads queue for one shared resource, let a scheduler with a replaceable policy decide whose turn is next, instead of whoever happens to grab the lock."
+domain_note = ""
+thumb_lines = ["SCHEDULER"]
+thumb_code = "scheduler.enter(job)"
+youtube_title = "Scheduler"
+youtube_tags = ["scheduler pattern", "concurrency patterns", "priority", "starvation", "java"]
+
+[readme]
+intro = """
+Scheduler is a concurrency pattern for a shared resource that only one thread
+can use at a time, when the order of use matters. Each thread asks the
+scheduler for its turn and waits. When the resource becomes free, the
+scheduler's policy (express first, smallest first, oldest first) picks which
+waiting thread goes next.
+
+The policy lives in one place and can be swapped without touching the threads
+or the resource. Because priority rules can leave some threads waiting for
+ever, a good scheduler also ages long-waiting requests so everyone is served
+eventually.
+"""
+analogy = """
+Think of the triage nurse in a hospital's emergency department. Patients are
+not seen in the order they walked in. The nurse decides who goes next, by how
+urgent each case is. And a patient with a sprained wrist who has watched ten
+urgent cases go ahead is eventually moved up, so nobody waits all night.
+"""
+scenario = """
+The online store's warehouse has one label printer shared by six packing
+stations. Express orders must catch the afternoon van. The printer was
+protected by a fair lock, which serves jobs in the order they arrived, so
+express labels waited behind every standard label that arrived first.
+"""
+costs = [
+    "**Someone has to decide, every time.** Each job takes the scheduler's lock, joins its list, and is woken to check whether it is next.",
+    "**Starvation.** Express-first alone printed a standard job last during an express rush; ageing is needed to prevent it.",
+    "**One more moving part.** The policy is simple to swap but easy to get subtly wrong.",
+]
+too_much = """
+When the order of use does not matter, a plain lock or a fair lock is simpler.
+And when work can be queued rather than waited for, a priority queue in front
+of a worker thread does the same job with less machinery.
+"""
+met_before = [
+    "Operating system CPU schedulers and I/O schedulers.",
+    "`PriorityBlockingQueue` feeding a worker thread.",
+    "Print queues, and job schedulers in build servers.",
+    "Kubernetes pod priority and preemption.",
+]
+where = """
+This project is in [concurrency-design-patterns](..), next to
+[Monitor Object](../monitor-object-pattern), which guards a resource without
+deciding the order, and
+[Producer-Consumer](../producer-consumer-pattern).
+"""
+
+[[act]]
+title = "A fair lock"
+summary = "Jobs print in arrival order: STD-1, STD-2, STD-3, then EXP-1, EXP-2, EXP-3; express waits behind every standard job."
+detail = """
+A bulk job is printing. Three standard jobs arrive, then three express ones.
+The printer is guarded by a fair `ReentrantLock`, which serves strictly in
+arrival order: STD-1, STD-2, STD-3, EXP-1, EXP-2, EXP-3. The express labels
+wait behind every standard one.
+"""
+speech = """
+First demo: a fair lock, first come, first served. [[slnc 400]] The printer is busy with a bulk job. [[slnc 300]] Three standard jobs arrive. [[slnc 300]] Then three express jobs. [[slnc 600]]
+The lock serves them in the order they arrived. [[slnc 300]] Standard one, two, three. [[slnc 300]] Then express one, two, three. [[slnc 500]]
+The express orders waited behind every standard order, and may miss the van.
+"""
+rows = { printer = "active amber", fair = "active wrong" }
+console = [
+    ["printed: STD-1, STD-2, STD-3,", "bad"],
+    ["         EXP-1, EXP-2, EXP-3", "bad"],
+]
+
+[[act]]
+title = "Express first"
+summary = "A scheduler with an express-first policy prints EXP-1, EXP-2, EXP-3, then STD-1, STD-2, STD-3."
+detail = """
+Each station now calls `scheduler.enter(job)`, which waits until the printer
+is free and the policy picks that job. With `EXPRESS_FIRST`, the order is
+EXP-1, EXP-2, EXP-3, then STD-1, STD-2, STD-3.
+"""
+speech = """
+Second demo: a scheduler, with an express-first policy. [[slnc 400]] Each station asks the scheduler for its turn, and waits. [[slnc 500]]
+When the printer is free, the policy chooses who goes next. [[slnc 600]]
+Express one, two, three. [[slnc 300]] Then standard one, two, three.
+"""
+rows = { printer = "active ok", scheduler = "active ok", policy = "active ok" }
+console = [
+    ["printed: EXP-1, EXP-2, EXP-3,", "ok"],
+    ["         STD-1, STD-2, STD-3", "ok"],
+]
+
+[[act]]
+title = "A replaceable policy"
+summary = "Swapping in smallest-first prints STD-2, EXP-2, STD-3, EXP-3, EXP-1, STD-1; nothing else changed."
+detail = """
+The policy is a comparator. Swapping `EXPRESS_FIRST` for `SMALLEST_FIRST`
+prints the jobs with the fewest labels first: STD-2, EXP-2, STD-3, EXP-3,
+EXP-1, STD-1. The stations and the printer did not change.
+"""
+speech = """
+Third demo: the policy is replaceable. [[slnc 400]] Swap in a different rule: smallest job first. [[slnc 500]]
+The jobs with the fewest labels print first, whatever their type. [[slnc 500]]
+One line changed. [[slnc 300]] The stations and the printer did not.
+"""
+rows = { scheduler = "active ok", policy = "active amber" }
+console = [
+    ["smallest first:", "muted"],
+    ["STD-2, EXP-2, STD-3, EXP-3, EXP-1, STD-1", "ok"],
+]
+
+[[act]]
+title = "Nobody waits for ever"
+summary = "In an express rush, express-first prints STD-1 last; promoting after 3 passes prints it fourth."
+detail = """
+One standard job arrives, then five express ones. With express-first alone,
+the standard job is printed last, and in a longer rush it would never be
+printed. With ageing, a job overtaken three times is promoted: STD-1 prints
+fourth, after EXP-3.
+"""
+speech = """
+Fourth demo: nobody waits for ever. [[slnc 400]] One standard job arrives. [[slnc 300]] Then a rush of five express jobs. [[slnc 600]]
+With express first alone, the standard job goes last. [[slnc 300]] In a longer rush, it would never print. [[slnc 500]]
+Now add a rule: a job overtaken three times moves to the front. [[slnc 300]] The standard job prints fourth.
+"""
+rows = { scheduler = "active ok", policy = "active ok" }
+console = [
+    ["express only: STD-1 printed last", "bad"],
+    ["promote after 3: STD-1 printed 4th", "ok"],
+]
+
+[[act]]
+title = "The bill"
+summary = "Every job takes the scheduler's lock, joins its list and is woken to check; every priority rule needs a starvation guard."
+detail = """
+Deciding costs something every time: each job takes the scheduler's lock,
+joins its list, and is woken to check whether it is next. And every priority
+rule needs a guard against starving the jobs it does not favour.
+"""
+speech = """
+Fifth demo: the bill. [[slnc 400]] Someone has to decide, every time. [[slnc 300]] Each job takes the scheduler's lock, joins its list, and is woken to check whether it is next. [[slnc 600]]
+And every priority rule needs a guard, so the jobs it does not favour are never starved.
+"""
+rows = { scheduler = "active amber" }
+console = [
+    ["lock, list, wake, check: every job", "amber"],
+    ["every priority needs a guard", "amber"],
+]
+
+[animation]
+subtitle = "Packing stations ask the scheduler for the label printer; a replaceable policy picks whose turn is next."
+boxes = [
+    ["stations", "6 packing stations", "standard and express"],
+    ["fair", "Fair lock", "the old way: arrival order"],
+    ["scheduler", "Scheduler", "enter(job), done()"],
+    ["policy", "Policy", "express first, smallest first"],
+    ["printer", "Label printer", "one job at a time"],
+]
+
+[docs.problem]
+scenario = """
+Six packing stations share one label printer; express orders must catch the
+afternoon van.
+"""
+naive = """
+A fair lock serves jobs in arrival order, so express labels wait behind every
+standard label that arrived first.
+"""
+deliver = [
+    "Arrival order shown with a fair lock.",
+    "A scheduler with an express-first policy.",
+    "The policy swapped for smallest-first with no other change.",
+    "Starvation shown, and prevented by ageing.",
+    "Every printed order asserted by a test.",
+]
+
+[docs.prerequisites]
+required = [
+    "Java basics: threads, `Comparator`.",
+    "What a lock is.",
+]
+not_required = [
+    "Operating system scheduling theory.",
+]
+
+[docs.session]
+objectives = [
+    "Explain why a lock alone cannot choose who goes next.",
+    "Build a scheduler around a lock, a condition and a policy.",
+    "Swap policies.",
+    "Prevent starvation with ageing.",
+]
+walkthrough = """
+Run `./gradlew run` and read act one's print order aloud. Open
+`Scheduler.enter`: add to the list, wait until free and chosen, remove. Then
+show that the two policies are one-line comparators. End on act four's two
+orders side by side.
+"""
+exercises = [
+    "Add a policy: oldest first, but express jobs count as 30 seconds older.",
+    "Give each job a deadline and print the one closest to its deadline first.",
+    "Replace the scheduler with a `PriorityBlockingQueue` and one printing thread. What changes for the stations?",
+]
+
+[docs.explained]
+sentence = """
+A scheduler makes threads ask for their turn at a shared resource and lets a
+replaceable policy decide whose turn comes next.
+"""
+verdict = """
+Use a scheduler when the order of access to a shared resource matters and may
+change. Keep the policy in one comparator, add ageing so nobody starves, and
+prefer a priority queue and worker when callers need not wait.
+"""
+recognise = [
+    "`enter`/`leave` or `acquire`/`release` methods around a condition and a list of waiters.",
+    "Comparators named for a policy: `EXPRESS_FIRST`, `SHORTEST_JOB_FIRST`.",
+    "Ageing or promotion counters on waiting jobs.",
+]
+
+[spec]
+purpose = """
+Teach Scheduler with an online store's shared label printer: a fair lock
+printing express jobs last, then a scheduler with express-first and
+smallest-first policies, starvation during an express rush prevented by
+promoting a job overtaken three times.
+"""
+nongoals = [
+    "Not real printers. Printing is a short sleep.",
+    "Not operating system scheduling.",
+]
+problem = """
+A lock decides who uses a shared resource by who arrives or grabs it first,
+not by what matters to the business.
+"""
+roles = [
+    ["The pattern", "`Scheduler`"],
+    ["The policies", "`Scheduler.EXPRESS_FIRST`, `SMALLEST_FIRST`"],
+    ["The jobs", "`PrintJob`"],
+    ["The resource and stations", "`Printer`"],
+    ["The naive version", "`Printer.fairLock()`"],
+    ["Entry point", "`SchedulerDemo`, five acts"],
+]
+requirements = [
+    "**Policy decides:** the order follows the comparator, asserted.",
+    "**Replaceable:** a second policy needs no other change.",
+    "**No starvation:** ageing promotes an overtaken job.",
+    "**Every printed order is asserted** in `DemoRunsTest`.",
+]
+
+[[diagram]]
+name = "architecture-diagram"
+kind = "flow"
+title = "Scheduler — the pieces"
+caption = "Stations ask; the policy picks; the printer serves one at a time."
+nodes = [
+    { id = "s", label = "Packing stations", sub = "enter(job)", col = 0, row = 0, colour = "client" },
+    { id = "c", label = "Scheduler", sub = "waiting list", col = 1, row = 0, colour = "accent" },
+    { id = "p", label = "Policy", sub = "comparator + ageing", col = 1, row = 1, colour = "amber" },
+    { id = "r", label = "Label printer", sub = "one at a time", col = 2, row = 0, colour = "green" },
+]
+edges = [
+    { from = "s", to = "c", label = "ask for a turn" },
+    { from = "c", to = "p", label = "who is next?" },
+    { from = "c", to = "r", label = "your turn" },
+]
+
+[[diagram]]
+name = "class-diagram"
+kind = "class"
+title = "Scheduler — classes"
+caption = "A lock, a condition, a list, and a comparator."
+nodes = [
+    { id = "s", label = "Scheduler", sub = ["- lock, condition", "- List<PrintJob> waiting", "- Comparator policy", "+ enter(job), done()"], col = 0, row = 0, colour = "accent" },
+    { id = "j", label = "PrintJob", sub = ["id, express, labels", "arrived, passedOver"], col = 1, row = 0, colour = "client" },
+    { id = "p", label = "Printer", sub = ["Gate: fairLock or scheduler", "+ run(gate, jobs)"], col = 2, row = 0, colour = "green" },
+]
+edges = [
+    { from = "s", to = "j", label = "orders" },
+    { from = "p", to = "s", label = "uses" },
+]
+
+[[diagram]]
+name = "data-flow-diagram"
+kind = "flow"
+title = "Scheduler — ageing"
+caption = "A job overtaken three times moves to the front."
+nodes = [
+    { id = "a", label = "STD-1 waits", sub = "passed over 0", col = 0, row = 0, colour = "client" },
+    { id = "b", label = "EXP-1, EXP-2, EXP-3 print", sub = "passed over 3", col = 1, row = 0, colour = "amber" },
+    { id = "c", label = "STD-1 promoted", sub = "prints 4th", col = 2, row = 0, colour = "green" },
+]
+edges = [
+    { from = "a", to = "b", label = "overtaken" },
+    { from = "b", to = "c", label = "3 times" },
+]
+
+[[diagram]]
+name = "sequence-diagram"
+kind = "sequence"
+title = "Scheduler — whose turn?"
+caption = "Everyone waits; the policy picks one."
+participants = ["STD-1", "Scheduler", "EXP-1"]
+steps = [
+    ["STD-1", "Scheduler", "enter(STD-1)"],
+    ["EXP-1", "Scheduler", "enter(EXP-1)"],
+    ["note", "Scheduler", "printer free: policy picks EXP-1"],
+    ["Scheduler", "EXP-1", "your turn", "reply"],
+    ["EXP-1", "Scheduler", "done()"],
+    ["Scheduler", "STD-1", "your turn", "reply"],
+]
+
+[[diagram]]
+name = "uml-diagram"
+kind = "sequence"
+title = "1. A fair lock"
+caption = "Arrival order, whatever the job."
+participants = ["STD-1", "Fair lock", "EXP-1"]
+steps = [
+    ["STD-1", "Fair lock", "lock() (arrived first)"],
+    ["EXP-1", "Fair lock", "lock() (waits)"],
+    ["Fair lock", "STD-1", "yours", "reply"],
+]
+
+[[diagram]]
+name = "uml-diagram-2"
+kind = "sequence"
+title = "2. Swapping the policy"
+caption = "One comparator; nothing else changes."
+participants = ["Setup", "Scheduler"]
+steps = [
+    ["Setup", "Scheduler", "new Scheduler(SMALLEST_FIRST)"],
+    ["note", "Scheduler", "fewest labels first"],
+]
+
+[poster]
+headline = [["SCHEDULER", "text"]]
+before = { code = "new ReentrantLock(true)", note = "express printed last", tag = "BEFORE" }
+after = { code = "scheduler.enter(job)", note = "express first, nobody starves", tag = "AFTER" }
+taglines = [["A policy decides who goes next", "gold"]]
+
+[[scene]]
+key = "01-poster"
+kind = "poster"
+title = "Scheduler"
+narration = """
+Hello, and welcome. [[slnc 400]] This video explains the Scheduler pattern, in Java. [[slnc 300]]
+This video is presented by Jayasekhar Konduru. [[slnc 600]]
+First, a simple definition. [[slnc 300]] When many threads wait for one shared resource, a scheduler decides whose turn comes next. [[slnc 300]] It follows a policy, such as most urgent first. [[slnc 300]] And the policy can be swapped, without touching anything else. [[slnc 600]]
+Think of the triage nurse in a hospital's emergency department. [[slnc 300]] Patients are not seen in the order they walked in. [[slnc 300]] The nurse decides, by urgency. [[slnc 300]] And someone who has waited a very long time is eventually moved up. [[slnc 700]]
+In this video, the domain is an online shop's warehouse. [[slnc 300]] Six packing stations share one label printer. [[slnc 300]] Express orders must catch the afternoon van. [[slnc 500]]
+By the end, you will hear why a lock alone serves the wrong job first. [[slnc 300]] How a scheduler fixes it. [[slnc 300]] How to swap the policy. [[slnc 300]] And how to make sure nobody waits for ever.
+"""
+
+[[scene]]
+key = "02-scenario"
+kind = "bullets"
+title = "The Scenario"
+body = ["One label printer.", "Six packing stations.", "", "Express orders must catch", "the afternoon van.", "", "A fair lock guarded the printer."]
+narration = """
+Here is the scenario. [[slnc 400]] The warehouse has one label printer, and six packing stations. [[slnc 500]]
+Some orders are express, and must catch the afternoon van. [[slnc 500]]
+The printer was guarded by a fair lock. [[slnc 300]] A fair lock serves whoever arrived first.
+"""
+
+[[scene]]
+key = "03-acts"
+kind = "acts"
+title = "acts"
+
+[[scene]]
+key = "04-pattern"
+kind = "bullets"
+title = "The Pattern"
+body = ["Threads ask the scheduler for a turn.", "", "When the resource is free,", "the policy picks who is next.", "", "Age long waiters so nobody", "starves."]
+narration = """
+Let's name the pattern. [[slnc 400]] Each thread asks the scheduler for its turn, and waits. [[slnc 500]]
+When the resource is free, the policy picks who goes next. [[slnc 300]] The policy is a simple rule, kept in one place. [[slnc 500]]
+And long waiters are aged, so nobody is starved.
+"""
+
+[[scene]]
+key = "05-roles"
+kind = "bullets"
+title = "Who Does What"
+body = ["Scheduler: enter, done, the waiting list", "Policy: a comparator", "PrintJob: express or not, size, age", "Printer: the shared resource", "Fair lock: the old way"]
+narration = """
+Here is who does what. [[slnc 400]] The scheduler keeps the waiting list. [[slnc 300]] Stations call enter, and done. [[slnc 500]]
+The policy is a comparator: express first, or smallest first. [[slnc 500]]
+A print job knows if it is express, how many labels it has, and how often it has been overtaken. [[slnc 500]]
+The printer is the shared resource. [[slnc 300]] And the fair lock is the old way, kept for comparison.
+"""
+
+[[scene]]
+key = "06-recognise"
+kind = "bullets"
+title = "Where You Have Seen It"
+body = ["Operating system CPU schedulers", "PriorityBlockingQueue + a worker", "Print queues, build servers", "Kubernetes pod priority"]
+narration = """
+You have probably met this pattern already. [[slnc 400]] Your operating system schedules which program runs on the processor next. [[slnc 500]]
+A priority blocking queue in front of one worker thread does the same job. [[slnc 500]]
+Print queues and build servers schedule their jobs. [[slnc 300]] And Kubernetes schedules containers by priority.
+"""
+
+[[scene]]
+key = "07-verdict"
+kind = "bullets"
+title = "When To Use It"
+body = ["The order of access matters,", "and may change.", "", "Policy in one comparator.", "Age long waiters.", "", "Callers need not wait? A priority queue."]
+narration = """
+So, when should you use it? [[slnc 400]] When the order of access to a shared resource matters, and may change. [[slnc 500]]
+Keep the policy in one comparator. [[slnc 300]] Age long waiters, so nobody starves. [[slnc 500]]
+And when callers do not need to wait for their turn, a priority queue and one worker thread is simpler.
+"""
+
+[[scene]]
+key = "08-outro"
+kind = "outro"
+title = "Thanks for Watching"
+body = ["Full source, notes, diagrams and an animated walkthrough", "are in the repository. Add a deadline", "policy."]
+narration = """
+That's the Scheduler pattern. [[slnc 400]] If you remember one sentence, make it this one. [[slnc 300]] Let a policy decide who goes next, and make sure nobody waits for ever. [[slnc 500]]
+The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. [[slnc 300]] It runs offline, with nothing installed except a Java development kit. [[slnc 500]]
+Here is one exercise to try. [[slnc 300]] Give each job a deadline, and print the one closest to its deadline first. [[slnc 500]]
+If this helped, a like really does help other people find it. [[slnc 300]] And subscribe, if you'd like the rest of the series. [[slnc 400]] Thanks for watching.
+"""

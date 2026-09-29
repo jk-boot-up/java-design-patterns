@@ -1,0 +1,441 @@
+# pattern.toml for the Gateway Offloading project. See tools/patternkit.
+
+[project]
+slug = "gateway-offloading"
+category = "micro-services-design-patterns"
+title = "Gateway Offloading"
+package = "gatewayoffloading"
+main_class = "GatewayOffloadingDemo"
+tagline = "Do the shared chores once"
+bold = "Move the chores every service needs, such as sign-in checks, rate limiting and compression, out of the services and into the gateway in front of them, so they are done once and the same way."
+domain_note = ""
+thumb_lines = ["GATEWAY", "OFFLOADING"]
+thumb_code = "one check, at the door"
+youtube_title = "Gateway Offloading"
+youtube_tags = ["gateway offloading", "api gateway", "rate limiting", "authentication", "microservices", "java"]
+
+[readme]
+intro = """
+Gateway Offloading is a cloud design pattern. Many services need the same
+chores done on every request: check who the caller is, stop callers who send
+too much, compress the response, log it. When each service does these itself,
+each team writes its own copy, and the copies drift apart.
+
+The pattern moves those shared chores into the gateway that already sits in
+front of the services. The gateway does them once, the same way for everyone,
+and passes on only requests that passed. The services are left to do their
+own business.
+"""
+analogy = """
+Think of an office building with a reception desk. Visitors show their ID and
+sign in once, at the front door. The teams upstairs do not each check
+passports at their own door; they trust that anyone in the corridor has
+already been checked. That only works if there is no side door.
+"""
+scenario = """
+The online store has three services: catalog, cart and orders. Each one
+checked the customer's sign-in token itself, with its own copy of the code.
+The orders team's copy forgot to check whether the token had expired, so a
+customer whose sign-in expired an hour ago could still see and place orders.
+"""
+costs = [
+    "**No side doors.** The services now trust the gateway; a call straight to the orders service, claiming to be another customer, was accepted.",
+    "**One place for everything.** A gateway fault, a slow gateway or a bad setting hits every page at once.",
+    "**Scope creep.** Only shared, generic chores belong in the gateway; business rules must stay in the services.",
+]
+too_much = """
+With one or two services, a shared library does the job without an extra hop.
+Offloading pays off when many services, often written by different teams or
+in different languages, need exactly the same chores.
+"""
+met_before = [
+    "API gateways: Kong, NGINX, Envoy, AWS API Gateway, Spring Cloud Gateway.",
+    "TLS termination at a load balancer.",
+    "Rate-limiting and JWT-validation plugins on a gateway.",
+]
+where = """
+This project is in [micro-services-design-patterns](..). The
+[API Gateway](../api-gateway-pattern) project shows the gateway as a single
+entry point that routes and combines calls; this one is about what the gateway
+takes off the services' hands.
+"""
+
+[[act]]
+title = "Every service checks for itself"
+summary = "An expired token: catalog and cart refuse it with 401, but orders answers 200, because its copy of the check forgot expiry."
+detail = """
+Catalog, cart and orders each check the sign-in token with their own copy of
+the code. A customer's token expired a minute ago. Catalog and cart refuse it
+with 401. Orders answers 200, because the orders team's copy never checks
+expiry. Three copies of the same check, and one of them is wrong.
+"""
+speech = """
+First demo: every service checks the sign-in token itself. [[slnc 400]] The customer's token expired a minute ago. [[slnc 600]]
+The catalog service refuses it. [[slnc 300]] The cart service refuses it. [[slnc 300]] But the orders service lets the customer in. [[slnc 600]]
+The orders team's copy of the check forgot about expiry. [[slnc 300]] Three copies of the same check, and one of them is wrong.
+"""
+rows = { catalog = "active ok", cart = "active ok", orders = "active wrong" }
+console = [
+    ["expired -> catalog: 401", "ok"],
+    ["expired -> cart: 401", "ok"],
+    ["expired -> orders: 200", "bad"],
+]
+
+[[act]]
+title = "One check, at the gateway"
+summary = "The gateway checks the token once: an expired token gets 401 from every service; a valid one reaches orders, which holds no sign-in code."
+detail = """
+Now the gateway checks the token once, before routing. The same expired
+token is refused with 401 for catalog, cart and orders alike. A valid token
+reaches the orders service, which is told who the customer is in a header.
+The services hold no sign-in code at all.
+"""
+speech = """
+Second demo: the gateway checks the token, once. [[slnc 400]] Every request passes through the gateway first. [[slnc 600]]
+The expired token is refused for all three services. [[slnc 300]] The same way, every time. [[slnc 500]]
+A valid token gets through. [[slnc 300]] The gateway tells the orders service who the customer is. [[slnc 500]]
+The services hold no sign-in code at all.
+"""
+rows = { gateway = "active ok", catalog = "active ok", cart = "active ok", orders = "active ok" }
+console = [
+    ["expired -> all three: 401", "ok"],
+    ["valid -> orders: 200", "ok"],
+]
+
+[[act]]
+title = "Rate limiting"
+summary = "5 requests a second per customer: of 8 requests, 5 pass and 3 are refused with 429; the orders service sees only 5."
+detail = """
+The gateway also limits each customer to five requests a second. A customer
+sends eight in one second: five pass and three are refused with status 429,
+too many requests. The orders service only ever sees five, and none of the
+services had to write a rate limiter.
+"""
+speech = """
+Third demo: rate limiting. [[slnc 400]] The gateway allows each customer five requests a second. [[slnc 600]]
+A customer sends eight requests in one second. [[slnc 300]] Five pass. [[slnc 300]] Three are refused, with too many requests. [[slnc 500]]
+The orders service only ever sees five. [[slnc 300]] And no service had to write a rate limiter.
+"""
+rows = { gateway = "active ok", orders = "active ok" }
+console = [
+    ["8 requests: 5 passed, 3 refused (429)", "ok"],
+    ["orders saw 5", "ok"],
+]
+
+[[act]]
+title = "Compression"
+summary = "A 10,094-byte catalog page is gzipped at the gateway to under a fifth of its size, with no compression code in the catalog service."
+detail = """
+The catalog page is ten thousand bytes of JSON. For clients that accept it,
+the gateway compresses the response with gzip, to under a fifth of its size.
+One compressor at the gateway, instead of one in every service.
+"""
+speech = """
+Fourth demo: compression. [[slnc 400]] The catalog page is about ten thousand bytes. [[slnc 600]]
+The gateway compresses it, for every browser that accepts compression. [[slnc 300]] It shrinks to under a fifth of its size. [[slnc 500]]
+One compressor at the gateway. [[slnc 300]] Not one in every service.
+"""
+rows = { gateway = "active ok", catalog = "active ok" }
+console = [
+    ["catalog: 10094 bytes plain", "muted"],
+    ["gzipped: under a fifth", "ok"],
+]
+
+[[act]]
+title = "The bill"
+summary = "A call straight to the orders service, claiming to be ben, is answered 200: services must only be reachable through the gateway."
+detail = """
+The services now trust whatever the gateway tells them. So a call that goes
+straight to the orders service, skipping the gateway and claiming to be
+another customer, is accepted. The services must only be reachable through
+the gateway. And with everything going through one place, a gateway fault
+or a slow gateway hits every page at once.
+"""
+speech = """
+Fifth demo: the bill. [[slnc 400]] The services now trust whatever the gateway tells them. [[slnc 600]]
+So a call that skips the gateway, and goes straight to the orders service claiming to be another customer, is accepted. [[slnc 600]]
+The services must only be reachable through the gateway. [[slnc 500]]
+And everything goes through one place. [[slnc 300]] If the gateway fails, or slows down, every page does.
+"""
+rows = { orders = "active wrong", gateway = "active amber" }
+console = [
+    ["straight to orders as ben: 200", "bad"],
+    ["no side doors", "amber"],
+]
+
+[animation]
+subtitle = "Every request passes the gateway, which checks sign-in, limits rates and compresses, before the services see it."
+boxes = [
+    ["gateway", "Gateway", "sign-in, limits, gzip"],
+    ["catalog", "Catalog", "products"],
+    ["cart", "Cart", "basket"],
+    ["orders", "Orders", "checkout"],
+]
+
+[docs.problem]
+scenario = """
+Catalog, cart and orders each checked the sign-in token with their own copy
+of the code.
+"""
+naive = """
+Three copies drift apart: the orders service never checked expiry, so an
+expired sign-in still worked there.
+"""
+deliver = [
+    "Three services checking tokens themselves, one wrongly.",
+    "A gateway that checks sign-in once for all.",
+    "Per-customer rate limiting at the gateway.",
+    "Gzip compression at the gateway.",
+    "The side-door risk shown, and the single point named.",
+    "Every printed result asserted by a test.",
+]
+
+[docs.prerequisites]
+required = [
+    "Java basics: records, interfaces, `Map`.",
+    "HTTP status codes 200, 401, 404 and 429.",
+]
+not_required = [
+    "A real HTTP server. Requests and responses are plain records.",
+]
+
+[docs.session]
+objectives = [
+    "Spot duplicated cross-cutting code across services.",
+    "Move sign-in checks, rate limiting and compression into a gateway.",
+    "Pass the checked identity on to the services.",
+    "Explain why services must not be reachable around the gateway.",
+]
+walkthrough = """
+Run `./gradlew run` and compare act one's 200 from orders with act two's 401.
+Open `Gateway.handle`: four numbered steps. Then open `ShopService`: no
+sign-in code at all. End on act five's side door.
+"""
+exercises = [
+    "Add request logging to the gateway: one line per request, with the customer and status.",
+    "Make the services refuse calls without a secret header only the gateway adds.",
+    "Cache catalog responses at the gateway for five seconds.",
+]
+
+[docs.explained]
+sentence = """
+Gateway Offloading moves the chores every service needs into the gateway in
+front of them, so they are done once and the same way.
+"""
+verdict = """
+Offload generic, shared chores, such as sign-in checks, rate limits,
+compression, TLS and logging, when many services need them. Keep business
+rules in the services, block every side door, and run the gateway as the
+critical component it now is.
+"""
+recognise = [
+    "Gateway plugins for JWT validation, rate limiting or gzip.",
+    "Services reading the caller from a header such as `X-User-Id`.",
+    "TLS ending at a load balancer, with plain HTTP behind it.",
+]
+
+[spec]
+purpose = """
+Teach Gateway Offloading with an online store's catalog, cart and orders
+services: duplicated sign-in checks with one forgetting expiry, a gateway
+doing the check once, per-customer rate limiting, gzip compression, and the
+side-door and single-point risks.
+"""
+nongoals = [
+    "Not a real HTTP server or real JWTs. Requests are records and tokens are simple strings.",
+]
+problem = """
+Every service re-implements the same cross-cutting chores, and the copies
+drift apart.
+"""
+roles = [
+    ["The pattern", "`Gateway`"],
+    ["The slimmed-down services", "`ShopService`"],
+    ["The old way", "`SelfCheckingService`"],
+    ["Sign-in tokens", "`Tokens`"],
+    ["Entry point", "`GatewayOffloadingDemo`, five acts"],
+]
+requirements = [
+    "**One check:** the gateway refuses missing and expired tokens for every route.",
+    "**Pass on identity:** services receive the customer in `X-Customer`.",
+    "**Rate limit:** at most five requests per customer per second.",
+    "**Every printed result is asserted** in `DemoRunsTest`.",
+]
+
+[[diagram]]
+name = "architecture-diagram"
+kind = "flow"
+title = "Gateway Offloading — the pieces"
+caption = "Shared chores at the door; business in the services."
+nodes = [
+    { id = "c", label = "Customer", sub = "browser", col = 0, row = 1, colour = "client" },
+    { id = "g", label = "Gateway", sub = "sign-in, limits, gzip", col = 1, row = 1, colour = "accent" },
+    { id = "a", label = "Catalog", sub = "", col = 2, row = 0, colour = "green" },
+    { id = "b", label = "Cart", sub = "", col = 2, row = 1, colour = "green" },
+    { id = "o", label = "Orders", sub = "", col = 2, row = 2, colour = "green" },
+]
+edges = [
+    { from = "c", to = "g", label = "token" },
+    { from = "g", to = "a", label = "X-Customer" },
+    { from = "g", to = "b", label = "" },
+    { from = "g", to = "o", label = "" },
+]
+
+[[diagram]]
+name = "class-diagram"
+kind = "class"
+title = "Gateway Offloading — classes"
+caption = "The services lose their sign-in code."
+nodes = [
+    { id = "g", label = "Gateway", sub = ["+ route(prefix, service)", "+ handle(request)", "+ tick(second)"], col = 0, row = 0, colour = "accent" },
+    { id = "s", label = "«interface» Service", sub = ["+ handle(request)"], col = 1, row = 0, colour = "client" },
+    { id = "p", label = "ShopService", sub = ["no sign-in code"], col = 1, row = 1, colour = "green" },
+    { id = "o", label = "SelfCheckingService", sub = ["its own token check"], col = 0, row = 1, colour = "red" },
+]
+edges = [
+    { from = "g", to = "s", label = "routes to" },
+    { from = "p", to = "s", label = "implements" },
+    { from = "o", to = "s", label = "implements" },
+]
+
+[[diagram]]
+name = "data-flow-diagram"
+kind = "flow"
+title = "Gateway Offloading — inside the gateway"
+caption = "Four steps, in order."
+nodes = [
+    { id = "a", label = "1. Sign-in", sub = "401 if missing or expired", col = 0, row = 0, colour = "accent" },
+    { id = "b", label = "2. Rate limit", sub = "429 over 5 a second", col = 1, row = 0, colour = "accent" },
+    { id = "c", label = "3. Route", sub = "add X-Customer", col = 2, row = 0, colour = "accent" },
+    { id = "d", label = "4. Compress", sub = "gzip if accepted", col = 3, row = 0, colour = "green" },
+]
+edges = [
+    { from = "a", to = "b", label = "" },
+    { from = "b", to = "c", label = "" },
+    { from = "c", to = "d", label = "" },
+]
+
+[[diagram]]
+name = "sequence-diagram"
+kind = "sequence"
+title = "Gateway Offloading — a valid request"
+caption = "The orders service only does orders."
+participants = ["Customer", "Gateway", "Orders"]
+steps = [
+    ["Customer", "Gateway", "GET /orders, token"],
+    ["note", "Gateway", "token valid, 1 of 5"],
+    ["Gateway", "Orders", "X-Customer: ana"],
+    ["Orders", "Customer", "200 orders for ana", "reply"],
+]
+
+[[diagram]]
+name = "uml-diagram"
+kind = "sequence"
+title = "1. An expired token"
+caption = "Stopped at the door."
+participants = ["Customer", "Gateway", "Orders"]
+steps = [
+    ["Customer", "Gateway", "GET /orders, expired"],
+    ["Gateway", "Customer", "401 token expired", "reply"],
+]
+
+[[diagram]]
+name = "uml-diagram-2"
+kind = "sequence"
+title = "2. The side door"
+caption = "Why services must not be reachable directly."
+participants = ["Attacker", "Orders"]
+steps = [
+    ["Attacker", "Orders", "X-Customer: ben"],
+    ["Orders", "Attacker", "200 orders for ben", "reply"],
+]
+
+[poster]
+headline = [["GATEWAY", "text"], ["OFFLOADING", "text"]]
+before = { code = "3 services, 3 token checks", note = "orders forgot expiry", tag = "BEFORE" }
+after = { code = "one check, at the gateway", note = "401 for all three", tag = "AFTER" }
+taglines = [["Do the shared chores once", "gold"]]
+
+[[scene]]
+key = "01-poster"
+kind = "poster"
+title = "Gateway Offloading"
+narration = """
+Hello, and welcome. [[slnc 400]] This video explains the Gateway Offloading pattern, in Java. [[slnc 300]]
+This video is presented by Jayasekhar Konduru. [[slnc 600]]
+First, a simple definition. [[slnc 300]] Many services need the same chores done on every request. [[slnc 300]] Checking who the caller is. [[slnc 300]] Stopping callers who send too much. [[slnc 300]] Compressing the answer. [[slnc 500]] Gateway offloading moves those chores into the gateway in front of the services. [[slnc 300]] So they are done once, the same way for everyone. [[slnc 600]]
+Think of an office building with a reception desk. [[slnc 300]] Visitors sign in once, at the front door. [[slnc 300]] The teams upstairs do not each check passports at their own door. [[slnc 700]]
+In this video, the domain is an online shop, with three services. [[slnc 300]] Catalog, cart, and orders. [[slnc 500]]
+By the end, you will hear how three copies of a sign-in check drifted apart. [[slnc 300]] How the gateway takes over sign-in, rate limits and compression. [[slnc 300]] And why there must be no side door.
+"""
+
+[[scene]]
+key = "02-scenario"
+kind = "bullets"
+title = "The Scenario"
+body = ["Catalog, cart and orders.", "", "Each checks the sign-in token", "with its own copy of the code.", "", "Orders forgot to check expiry."]
+narration = """
+Here is the scenario. [[slnc 400]] The shop has three services. [[slnc 300]] Catalog, cart and orders. [[slnc 500]]
+Each one checked the customer's sign-in token itself, with its own copy of the code. [[slnc 500]]
+The orders team's copy forgot to check whether the token had expired.
+"""
+
+[[scene]]
+key = "03-acts"
+kind = "acts"
+title = "acts"
+
+[[scene]]
+key = "04-pattern"
+kind = "bullets"
+title = "The Pattern"
+body = ["Shared chores move to the gateway.", "", "Sign-in, rate limits, compression.", "", "Services keep only their business."]
+narration = """
+Let's name the pattern. [[slnc 400]] The chores every service needs move into the gateway. [[slnc 500]]
+Checking sign-in. [[slnc 300]] Limiting how often each customer can call. [[slnc 300]] Compressing responses. [[slnc 500]]
+The services keep only their own business.
+"""
+
+[[scene]]
+key = "05-roles"
+kind = "bullets"
+title = "Who Does What"
+body = ["Gateway: sign-in, limit, route, compress", "ShopService: just its own job", "SelfCheckingService: the old way", "Tokens: the customer's sign-in"]
+narration = """
+Here is who does what. [[slnc 400]] The gateway does four steps, in order. [[slnc 300]] Check sign-in. [[slnc 300]] Check the rate limit. [[slnc 300]] Route the request, saying who the customer is. [[slnc 300]] And compress the answer. [[slnc 500]]
+The shop services just do their own job. [[slnc 500]]
+The self-checking service is the old way, with its own copy of the check.
+"""
+
+[[scene]]
+key = "06-recognise"
+kind = "bullets"
+title = "Where You Have Seen It"
+body = ["Kong, NGINX, Envoy", "AWS API Gateway", "Spring Cloud Gateway", "TLS at the load balancer"]
+narration = """
+You have probably met this pattern already. [[slnc 400]] Gateways such as Kong, NGINX, and Envoy have plugins for sign-in checks and rate limits. [[slnc 500]]
+Cloud gateways, and Spring Cloud Gateway, do the same. [[slnc 500]]
+And a load balancer that handles encryption is offloading too.
+"""
+
+[[scene]]
+key = "07-verdict"
+kind = "bullets"
+title = "When To Use It"
+body = ["Many services need the same chores.", "", "Keep business rules out.", "Block every side door.", "Treat the gateway as critical."]
+narration = """
+So, when should you use it? [[slnc 400]] When many services need exactly the same chores. [[slnc 500]]
+Keep business rules out of the gateway. [[slnc 300]] Make sure nobody can reach the services around it. [[slnc 300]] And run the gateway as the critical piece it now is.
+"""
+
+[[scene]]
+key = "08-outro"
+kind = "outro"
+title = "Thanks for Watching"
+body = ["Full source, notes, diagrams and an animated walkthrough", "are in the repository. Close the side door", "with a gateway secret."]
+narration = """
+That's the Gateway Offloading pattern. [[slnc 400]] If you remember one sentence, make it this one. [[slnc 300]] Do the shared chores once, at the door. [[slnc 500]]
+The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. [[slnc 300]] It runs offline, with nothing installed except a Java development kit. [[slnc 500]]
+Here is one exercise to try. [[slnc 300]] Make the services refuse any call without a secret that only the gateway adds. [[slnc 500]]
+If this helped, a like really does help other people find it. [[slnc 300]] And subscribe, if you'd like the rest of the series. [[slnc 400]] Thanks for watching.
+"""

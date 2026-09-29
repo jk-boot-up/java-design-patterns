@@ -1,0 +1,436 @@
+# pattern.toml for the Message Filter project. See tools/patternkit.
+
+[project]
+slug = "message-filter"
+category = "messaging-integration-patterns"
+title = "Message Filter"
+package = "messagefilter"
+main_class = "MessageFilterDemo"
+tagline = "Only the messages you want"
+bold = "Put a filter between a channel and a receiver that passes on only the messages matching its rule, so neither the sender nor the receiver has to know about it."
+domain_note = ""
+thumb_lines = ["MESSAGE", "FILTER"]
+thumb_code = "new MessageFilter(gift, next)"
+youtube_title = "Message Filter"
+youtube_tags = ["message filter", "enterprise integration patterns", "publish subscribe", "messaging", "java"]
+
+[readme]
+intro = """
+Message Filter is one of the Enterprise Integration Patterns. On a
+publish-subscribe channel, every subscriber receives every message, even
+the ones it does not care about. A message filter sits between the channel
+and one receiver, checks each message against a rule, and passes on only the
+ones that match. Everything else is dropped.
+
+The sender keeps sending everything, the receiver sees only what it wants,
+and the rule lives in one small, replaceable place. Filters can be chained to
+combine rules.
+"""
+analogy = """
+Think of the spam filter on your email. The world sends you everything; the
+filter decides what reaches your inbox. Senders do not know it exists, and you
+never have to open the junk. But a good spam filter does not delete mail: it
+puts it in a spam folder, because sometimes the rule is wrong.
+"""
+scenario = """
+Every order the online store takes is published on an orders channel. The
+gift-wrap service only cares about gift orders, and the loyalty service only
+about registered customers spending over £50. Both were handed every order and
+had to open and ignore most of them, each repeating its own checks.
+"""
+costs = [
+    "**Dropped means gone.** Fifteen messages were dropped across the demo's filters, and none was kept anywhere.",
+    "**Silent mistakes.** A wrong rule drops real orders without any error.",
+    "**Another hop.** Each filter is one more step every message passes through.",
+]
+too_much = """
+When the receiver genuinely needs to see every message, a filter is pointless.
+And when many receivers need very different subsets, a content-based router,
+or separate channels per kind of message, may be clearer than many filters.
+"""
+met_before = [
+    "Apache Camel's `filter` and Spring Integration's `<int:filter>`.",
+    "Subscription filters in cloud messaging, such as SNS or Azure Service Bus.",
+    "Kafka Streams' `filter` step.",
+    "Email rules and spam filters.",
+]
+where = """
+This project is in [messaging-integration-patterns](..), next to
+[Content-Based Router](../content-based-router-pattern), which sends each
+message to one of several places instead of keeping or dropping it, and
+[Dead Letter Channel](../dead-letter-channel-pattern), a home for messages
+that cannot be delivered.
+"""
+
+[[act]]
+title = "Everything to everyone"
+summary = "The gift-wrap service is handed 10 orders and wraps 2: 8 deliveries it had to open and ignore."
+detail = """
+`GiftWrapUnfiltered` subscribes to the orders channel and is handed all ten
+orders. It checks each one and wraps the two gift orders, ORD-2 and ORD-4.
+Eight deliveries were opened only to be ignored, and every other service
+repeats checks of its own.
+"""
+speech = """
+First demo: every service is handed every order. [[slnc 400]] Ten orders are published. [[slnc 300]] The gift-wrap service receives all ten. [[slnc 600]]
+It opens each one, and checks: is this a gift? [[slnc 300]] Two are: orders two and four. [[slnc 500]]
+Eight deliveries it had to open, and ignore. [[slnc 300]] And every other service repeats its own checks.
+"""
+rows = { channel = "active amber", gift = "active wrong" }
+console = [
+    ["handed 10 orders, wrapped ORD-2, ORD-4", "amber"],
+    ["8 opened and ignored", "bad"],
+]
+
+[[act]]
+title = "A filter"
+summary = "A gifts-only filter in front of the gift-wrap service: it receives ORD-2 and ORD-4; 8 dropped."
+detail = """
+A `MessageFilter` with the rule "gift orders only" subscribes to the channel
+in front of the gift-wrap service. The service receives exactly ORD-2 and
+ORD-4; the filter dropped eight. Checkout still sends every order and knows
+nothing about the filter.
+"""
+speech = """
+Second demo: a message filter, in front of the gift-wrap service. [[slnc 400]] The filter has one rule: gift orders only. [[slnc 600]]
+The gift-wrap service now receives exactly two orders. [[slnc 300]] The filter dropped the other eight. [[slnc 500]]
+Checkout still sends every order. [[slnc 300]] It does not know the filter exists.
+"""
+rows = { channel = "active ok", filter = "active ok", gift = "active ok" }
+console = [
+    ["gift-wrap receives: ORD-2, ORD-4", "ok"],
+    ["the filter dropped 8", "muted"],
+]
+
+[[act]]
+title = "Chained filters"
+summary = "Registered, then over £50: the loyalty service receives ORD-1, ORD-4 and ORD-6; 3 guests and 4 small orders dropped."
+detail = """
+Two filters are chained in front of the loyalty service: registered customers
+only, then orders over £50. It receives ORD-1, ORD-4 and ORD-6. The first
+filter dropped three guest orders, the second four orders under £50.
+"""
+speech = """
+Third demo: filters can be chained. [[slnc 400]] The loyalty service wants registered customers only. [[slnc 300]] And only orders over fifty pounds. [[slnc 600]]
+Two filters, one after the other. [[slnc 300]] The first drops three guest orders. [[slnc 300]] The second drops four small orders. [[slnc 500]]
+The loyalty service receives orders one, four, and six.
+"""
+rows = { filter = "active ok", filter2 = "active ok", loyalty = "active ok" }
+console = [
+    ["loyalty receives: ORD-1, ORD-4, ORD-6", "ok"],
+    ["dropped: 3 guests, then 4 under £50", "muted"],
+]
+
+[[act]]
+title = "A changed rule"
+summary = "Raising the threshold to £60 leaves ORD-1 and ORD-4; checkout and the loyalty service are unchanged."
+detail = """
+The bonus threshold rises to £60. Only the filter's rule changes; now the
+loyalty service receives ORD-1 and ORD-4. Checkout and the loyalty service
+were not touched.
+"""
+speech = """
+Fourth demo: the rule changes, and nothing else does. [[slnc 400]] The bonus threshold rises to sixty pounds. [[slnc 500]]
+Only the filter's rule changes. [[slnc 300]] The loyalty service now receives orders one and four. [[slnc 500]]
+Checkout and the loyalty service were not changed.
+"""
+rows = { filter2 = "active amber", loyalty = "active ok" }
+console = [
+    ["over £60: ORD-1, ORD-4", "ok"],
+    ["sender and receiver unchanged", "ok"],
+]
+
+[[act]]
+title = "The bill"
+summary = "15 messages were dropped across the filters and none was kept; a wrong rule would drop orders silently."
+detail = """
+Across the filters in this demo, fifteen messages were dropped and none was
+kept anywhere. If a rule is wrong, real orders vanish without an error. Count
+the drops, or send dropped messages to a discard channel, like a spam folder.
+"""
+speech = """
+Fifth demo: the bill. [[slnc 400]] A dropped message is gone. [[slnc 300]] Fifteen messages were dropped by the filters in this demo. [[slnc 300]] None was kept anywhere. [[slnc 600]]
+If a rule is wrong, real orders vanish, with no error. [[slnc 500]]
+So count the drops, or send them somewhere to be checked, like a spam folder.
+"""
+rows = { filter = "active amber", filter2 = "active amber" }
+console = [
+    ["15 messages dropped, none kept", "amber"],
+    ["count them, or keep them somewhere", "amber"],
+]
+
+[animation]
+subtitle = "Every order goes out on the channel; filters in front of each service pass on only the orders it wants."
+boxes = [
+    ["channel", "Orders channel", "every order"],
+    ["gift", "Gift-wrap service", "wants gift orders"],
+    ["filter", "Filter: gifts only", ""],
+    ["filter2", "Filters: registered, over £50", "chained"],
+    ["loyalty", "Loyalty service", "bonus for big orders"],
+]
+
+[docs.problem]
+scenario = """
+Every order is published to an orders channel read by several services, each
+interested in only some of the orders.
+"""
+naive = """
+Every service is handed every order and checks each one itself: the gift-wrap
+service opened ten orders to wrap two.
+"""
+deliver = [
+    "Wasted deliveries counted without a filter.",
+    "A filter passing only gift orders.",
+    "Chained filters for the loyalty service.",
+    "A rule changed without touching sender or receiver.",
+    "Drops counted, and the risk of silent loss shown.",
+    "Every printed result asserted by a test.",
+]
+
+[docs.prerequisites]
+required = [
+    "Java basics: records, lambdas, `Consumer` and `Predicate`.",
+]
+not_required = [
+    "A message broker. The channel is a list of subscribers.",
+]
+
+[docs.session]
+objectives = [
+    "Explain why receivers on a shared channel get too much.",
+    "Write a filter that keeps a receiver unaware of it.",
+    "Chain filters.",
+    "Decide what should happen to dropped messages.",
+]
+walkthrough = """
+Run `./gradlew run` and read act one. Open `MessageFilter`: a rule, a next
+step, a counter. Show that `Channel` and the receivers never mention filters.
+End on act five: where should the dropped fifteen go?
+"""
+exercises = [
+    "Send dropped messages to a discard channel and print them.",
+    "Add a filter that only lets through each customer's first order of the day.",
+    "Replace the two chained filters with one using `and`. What is lost?",
+]
+
+[docs.explained]
+sentence = """
+A message filter stands between a channel and a receiver and passes on only
+the messages that match its rule, so the receiver sees only what it wants.
+"""
+verdict = """
+Use filters to give receivers on a shared channel only what they need. Keep
+each rule small, chain them for combinations, and always count or keep what
+they drop.
+"""
+recognise = [
+    "`filter(...)` steps in Camel routes, Spring Integration flows or Kafka Streams.",
+    "Subscription filters on cloud topics.",
+    "Wrappers around consumers that check a condition before passing on.",
+]
+
+[spec]
+purpose = """
+Teach Message Filter with an online store's orders channel: the gift-wrap
+service opening 10 orders to wrap 2, then a gifts-only filter, chained
+registered and over-£50 filters for loyalty, a raised threshold with no other
+change, and 15 dropped messages kept nowhere.
+"""
+nongoals = [
+    "Not a message broker. Channels are in memory.",
+    "Not discard channels. They are an exercise.",
+]
+problem = """
+On a shared channel every receiver gets every message, and each repeats its
+own checks to ignore most of them.
+"""
+roles = [
+    ["The pattern", "`MessageFilter`"],
+    ["The channel", "`Channel`"],
+    ["The messages", "`OrderEvent`"],
+    ["The receivers", "`Services`"],
+    ["Entry point", "`MessageFilterDemo`, five acts"],
+]
+requirements = [
+    "**Invisible:** sender and receiver do not know about the filter.",
+    "**Chainable:** filters compose.",
+    "**Counted drops:** every filter counts what it drops.",
+    "**Every printed result is asserted** in `DemoRunsTest`.",
+]
+
+[[diagram]]
+name = "architecture-diagram"
+kind = "flow"
+title = "Message Filter — the pieces"
+caption = "Filters sit in front of receivers, not in the sender."
+nodes = [
+    { id = "c", label = "Checkout", sub = "sends every order", col = 0, row = 1, colour = "client" },
+    { id = "ch", label = "Orders channel", sub = "publish-subscribe", col = 1, row = 1, colour = "amber" },
+    { id = "f1", label = "Gifts only", sub = "one filter", col = 2, row = 0, colour = "accent" },
+    { id = "f2", label = "Registered, > £50", sub = "two filters", col = 2, row = 2, colour = "accent" },
+    { id = "g", label = "Gift-wrap", sub = "", col = 3, row = 0, colour = "green" },
+    { id = "l", label = "Loyalty", sub = "", col = 3, row = 2, colour = "green" },
+]
+edges = [
+    { from = "c", to = "ch", label = "send" },
+    { from = "ch", to = "f1", label = "" },
+    { from = "ch", to = "f2", label = "" },
+    { from = "f1", to = "g", label = "gifts" },
+    { from = "f2", to = "l", label = "big orders" },
+]
+
+[[diagram]]
+name = "class-diagram"
+kind = "class"
+title = "Message Filter — classes"
+caption = "A filter is just another subscriber that forwards some messages."
+nodes = [
+    { id = "f", label = "MessageFilter", sub = ["- Predicate keep", "- Consumer next", "+ accept(event)", "+ dropped()"], col = 0, row = 0, colour = "accent" },
+    { id = "c", label = "Channel", sub = ["+ subscribe(consumer)", "+ send(event)"], col = 1, row = 0, colour = "amber" },
+    { id = "e", label = "«record» OrderEvent", sub = ["orderId, customer", "registered, pence, gift"], col = 2, row = 0, colour = "client" },
+]
+edges = [
+    { from = "c", to = "f", label = "delivers to" },
+    { from = "f", to = "e", label = "tests" },
+]
+
+[[diagram]]
+name = "data-flow-diagram"
+kind = "flow"
+title = "Message Filter — ten orders, two filters"
+caption = "Each filter narrows the stream."
+nodes = [
+    { id = "a", label = "10 orders", sub = "", col = 0, row = 0, colour = "client" },
+    { id = "b", label = "7 registered", sub = "3 guests dropped", col = 1, row = 0, colour = "amber" },
+    { id = "c", label = "3 over £50", sub = "4 dropped", col = 2, row = 0, colour = "green" },
+]
+edges = [
+    { from = "a", to = "b", label = "registered?" },
+    { from = "b", to = "c", label = "over £50?" },
+]
+
+[[diagram]]
+name = "sequence-diagram"
+kind = "sequence"
+title = "Message Filter — one gift order"
+caption = "Passed on because it matches."
+participants = ["Channel", "Filter", "Gift-wrap"]
+steps = [
+    ["Channel", "Filter", "ORD-4 (gift)"],
+    ["Filter", "Gift-wrap", "ORD-4"],
+    ["Channel", "Filter", "ORD-5 (not a gift)"],
+    ["note", "Filter", "dropped"],
+]
+
+[[diagram]]
+name = "uml-diagram"
+kind = "sequence"
+title = "1. No filter"
+caption = "Every order to every service."
+participants = ["Channel", "Gift-wrap"]
+steps = [
+    ["Channel", "Gift-wrap", "ORD-1 ... ORD-10"],
+    ["note", "Gift-wrap", "opens 10, wraps 2"],
+]
+
+[[diagram]]
+name = "uml-diagram-2"
+kind = "sequence"
+title = "2. Changing the rule"
+caption = "Only the filter changes."
+participants = ["Setup", "Filter"]
+steps = [
+    ["Setup", "Filter", "rule: over £60"],
+    ["note", "Filter", "sender and receiver untouched"],
+]
+
+[poster]
+headline = [["MESSAGE", "text"], ["FILTER", "text"]]
+before = { code = "if (!order.gift()) return;", note = "in every receiver", tag = "BEFORE" }
+after = { code = "new MessageFilter(gift, next)", note = "only what you want", tag = "AFTER" }
+taglines = [["Only the messages you want", "gold"]]
+
+[[scene]]
+key = "01-poster"
+kind = "poster"
+title = "Message Filter"
+narration = """
+Hello, and welcome. [[slnc 400]] This video explains the Message Filter pattern, in Java. [[slnc 300]]
+This video is presented by Jayasekhar Konduru. [[slnc 600]]
+First, a simple definition. [[slnc 300]] A message filter sits between a channel of messages and one receiver. [[slnc 300]] It checks each message against a rule, and passes on only the ones that match. [[slnc 300]] The sender and the receiver never know it is there. [[slnc 600]]
+Think of the spam filter on your email. [[slnc 300]] The world sends you everything. [[slnc 300]] The filter decides what reaches your inbox. [[slnc 300]] And a good one keeps the rest in a spam folder, just in case. [[slnc 700]]
+In this video, the domain is an online shop. [[slnc 300]] Every order is published on an orders channel. [[slnc 300]] A gift-wrap service and a loyalty service each care about only some of them. [[slnc 500]]
+By the end, you will hear what happens when everyone gets everything. [[slnc 300]] How filters fix it. [[slnc 300]] How to chain them. [[slnc 300]] And where dropped messages go.
+"""
+
+[[scene]]
+key = "02-scenario"
+kind = "bullets"
+title = "The Scenario"
+body = ["Every order goes on one channel.", "", "Gift-wrap: gift orders only.", "Loyalty: registered customers,", "orders over £50."]
+narration = """
+Here is the scenario. [[slnc 400]] Every order the shop takes is published on one orders channel. [[slnc 500]]
+The gift-wrap service only cares about gift orders. [[slnc 300]] The loyalty service only cares about registered customers who spend over fifty pounds. [[slnc 500]]
+But the channel gives every service every order.
+"""
+
+[[scene]]
+key = "03-acts"
+kind = "acts"
+title = "acts"
+
+[[scene]]
+key = "04-pattern"
+kind = "bullets"
+title = "The Pattern"
+body = ["Between the channel and a receiver:", "a filter with one rule.", "", "Match: pass it on.", "No match: drop it, and count it.", "", "Filters can be chained."]
+narration = """
+Let's name the pattern. [[slnc 400]] Between the channel and a receiver, put a filter with one rule. [[slnc 500]]
+If a message matches, pass it on. [[slnc 300]] If not, drop it, and count it. [[slnc 500]]
+Filters can be chained, to combine rules. [[slnc 300]] And the sender and receiver stay exactly as they were.
+"""
+
+[[scene]]
+key = "05-roles"
+kind = "bullets"
+title = "Who Does What"
+body = ["Channel: every order to every subscriber", "MessageFilter: a rule and a next step", "Gift-wrap, loyalty: the receivers", "OrderEvent: the message"]
+narration = """
+Here is who does what. [[slnc 400]] The channel delivers every order to every subscriber. [[slnc 500]]
+A message filter is itself a subscriber. [[slnc 300]] It holds a rule, the next step to pass matches to, and a count of what it dropped. [[slnc 500]]
+The gift-wrap and loyalty services are the receivers. [[slnc 300]] And an order event is the message.
+"""
+
+[[scene]]
+key = "06-recognise"
+kind = "bullets"
+title = "Where You Have Seen It"
+body = ["Camel filter, Spring Integration filter", "Cloud subscription filters", "Kafka Streams filter", "Email rules and spam filters"]
+narration = """
+You have probably met this pattern already. [[slnc 400]] Apache Camel and Spring Integration both have a filter step. [[slnc 500]]
+Cloud messaging services let each subscription have a filter. [[slnc 300]] Kafka Streams has one too. [[slnc 500]]
+And every email rule, and every spam filter, is a message filter.
+"""
+
+[[scene]]
+key = "07-verdict"
+kind = "bullets"
+title = "When To Use It"
+body = ["Receivers on a shared channel", "that want only some messages.", "", "Small rules, chained.", "Always count or keep the drops."]
+narration = """
+So, when should you use it? [[slnc 400]] When receivers on a shared channel want only some of the messages. [[slnc 500]]
+Keep each rule small, and chain them. [[slnc 300]] And always count, or keep, what you drop. [[slnc 500]]
+When many receivers want very different subsets, a content-based router may be clearer.
+"""
+
+[[scene]]
+key = "08-outro"
+kind = "outro"
+title = "Thanks for Watching"
+body = ["Full source, notes, diagrams and an animated walkthrough", "are in the repository. Keep dropped messages", "in a discard channel."]
+narration = """
+That's the Message Filter pattern. [[slnc 400]] If you remember one sentence, make it this one. [[slnc 300]] Let a filter decide what reaches each receiver, and never lose track of what it drops. [[slnc 500]]
+The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. [[slnc 300]] It runs offline, with nothing installed except a Java development kit. [[slnc 500]]
+Here is one exercise to try. [[slnc 300]] Send dropped messages to a discard channel, and print them. [[slnc 500]]
+If this helped, a like really does help other people find it. [[slnc 300]] And subscribe, if you'd like the rest of the series. [[slnc 400]] Thanks for watching.
+"""

@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reactor Pattern — Animated Walkthrough</title>
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 24px;
+    background: #0f172a; color: #e2e8f0;
+    font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
+    padding-top: calc(24px + env(safe-area-inset-top, 0px));
+    padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+  }
+  h1 { font-size: 1.4rem; margin: 0 0 4px; }
+  p.sub { color: #94a3b8; margin: 0 0 20px; max-width: 70ch; }
+  .wrap { max-width: 1100px; margin: 0 auto; }
+  .stage { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+  @media (max-width: 760px) { .stage { grid-template-columns: 1fr; } }
+  .boxes { display: flex; flex-direction: column; gap: 10px; }
+  .row { border: 2px solid #334155; border-radius: 10px; padding: 12px 16px;
+         background: #1e293b; transition: all .25s ease; opacity: .55; }
+  .row .name { font-weight: 700; font-size: 1rem; }
+  .row .job { color: #94a3b8; font-size: .82rem; margin-top: 2px; }
+  .row.active { opacity: 1; box-shadow: 0 0 0 2px currentColor inset; }
+  .row.wrong { border-color: #f87171; color: #f87171; }
+  .row.wrong.active { background: #3f1d24; }
+  .row.ok { border-color: #34d399; color: #34d399; }
+  .row.ok.active { background: #10261f; }
+  .row.amber { border-color: #fbbf24; color: #fbbf24; }
+  .row.amber.active { background: #2a2110; }
+  .row.dim { opacity: .22; }
+  .console { background: #020617; border: 1px solid #334155; border-radius: 10px; padding: 16px;
+             font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: .86rem;
+             line-height: 1.55; overflow-y: auto; min-height: 320px; white-space: pre-wrap; }
+  #console-lines span.ok { color: #34d399; }
+  #console-lines span.bad { color: #f87171; }
+  #console-lines span.amber { color: #fbbf24; }
+  #console-lines span.muted { color: #94a3b8; }
+  .narration { background: #1e293b; border: 1px solid #334155; border-radius: 10px;
+               padding: 14px 18px; margin-bottom: 16px; min-height: 3.2em; }
+  .controls { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  button { background: #334155; color: #e2e8f0; border: 1px solid #475569; border-radius: 8px;
+           padding: 10px 18px; font-size: .92rem; cursor: pointer; }
+  button:hover { background: #475569; }
+  button:disabled { opacity: .45; cursor: default; }
+  button#play { background: #7c3aed; border-color: #7c3aed; }
+  button#play:hover { background: #8b5cf6; }
+  #progress { color: #94a3b8; font-size: .85rem; margin-left: auto; }
+  .step-label { font-size: .78rem; text-transform: uppercase; letter-spacing: .04em;
+                color: #a78bfa; font-weight: 700; margin-bottom: 4px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Reactor — Step by Step</h1>
+  <p class="sub">One reactor thread waits on every till's connection at once, and hands each event to a short handler.</p>
+
+  <div class="narration">
+    <div class="step-label" id="step-label">Ready</div>
+    <div id="narration">Press Step or Play to begin.</div>
+  </div>
+
+  <div class="stage">
+    <div class="boxes" id="boxes">
+      <div class="row" id="row-tills">
+        <div class="name">100 tills</div>
+        <div class="job">connected all day</div>
+      </div>
+      <div class="row" id="row-threads">
+        <div class="name">100 threads</div>
+        <div class="job">the old way, mostly idle</div>
+      </div>
+      <div class="row" id="row-selector">
+        <div class="name">Selector</div>
+        <div class="job">which connection is ready?</div>
+      </div>
+      <div class="row" id="row-reactor">
+        <div class="name">Reactor thread</div>
+        <div class="job">one, dispatches events</div>
+      </div>
+      <div class="row" id="row-accept">
+        <div class="name">Accept handler</div>
+        <div class="job">registers new clients</div>
+      </div>
+      <div class="row" id="row-read">
+        <div class="name">Read handler</div>
+        <div class="job">answers a line</div>
+      </div>
+      <div class="row" id="row-slow">
+        <div class="name">Slow handler</div>
+        <div class="job">300 ms report</div>
+      </div>
+    </div>
+    <div class="console"><div id="console-lines"></div></div>
+  </div>
+
+  <div class="controls">
+    <button id="step">Step ▸</button>
+    <button id="play">Play ▶</button>
+    <button id="reset">Reset ↺</button>
+    <span id="progress">0 / 0</span>
+  </div>
+</div>
+
+<script>
+const STEPS = [
+ {
+  "label": "Act 1 — A thread per connection",
+  "narration": "First demo: a thread for every connection. A hundred shop tills connect to the stock server. The server starts a thread for each one. That is a hundred threads. Almost all of them are idle, waiting for their till to ask something. Each one still holds memory. Till one asks: how many kettles are in stock? Four.",
+  "rows": {
+   "tills": "active amber",
+   "threads": "active wrong"
+  },
+  "console": [
+   [
+    "100 tills: 100 threads, mostly idle",
+    "bad"
+   ],
+   [
+    "stock KETTLE-1: 4",
+    "ok"
+   ]
+  ]
+ },
+ {
+  "label": "Act 2 — One reactor thread",
+  "narration": "Second demo: a reactor. One thread waits on every connection at once. Java gives us a selector for this. It sleeps until some connection is ready, then says which one. A hundred tills connect. Till one asks about kettles: four. Threads running handlers: one.",
+  "rows": {
+   "selector": "active ok",
+   "reactor": "active ok",
+   "tills": "active ok"
+  },
+  "console": [
+   [
+    "100 tills connect to the reactor",
+    "muted"
+   ],
+   [
+    "stock KETTLE-1: 4",
+    "ok"
+   ],
+   [
+    "threads running handlers: 1",
+    "ok"
+   ]
+  ]
+ },
+ {
+  "label": "Act 3 — A handler per event",
+  "narration": "Third demo: each kind of event has its handler. When a new connection arrives, the accept handler registers it, so the selector will watch it. When bytes arrive, the read handler answers the line. Till two asks the price of a mug. Eight hundred pence.",
+  "rows": {
+   "reactor": "active ok",
+   "accept": "active ok",
+   "read": "active ok"
+  },
+  "console": [
+   [
+    "new connection -> accept handler",
+    "ok"
+   ],
+   [
+    "bytes arrive -> read handler",
+    "ok"
+   ],
+   [
+    "price MUG-1: 800",
+    "ok"
+   ]
+  ]
+ },
+ {
+  "label": "Act 4 — Every till, one thread",
+  "narration": "Fourth demo: every till is answered by the one thread. All hundred tills ask at the same moment. The selector reports whichever connections are ready. The one thread answers them, one after another. A hundred correct answers. Still one thread.",
+  "rows": {
+   "reactor": "active ok",
+   "tills": "active ok"
+  },
+  "console": [
+   [
+    "100 tills ask at once",
+    "muted"
+   ],
+   [
+    "100 correct answers",
+    "ok"
+   ],
+   [
+    "threads running handlers: still 1",
+    "ok"
+   ]
+  ]
+ },
+ {
+  "label": "Act 5 — The bill",
+  "narration": "Fifth demo: the bill. Till two asks for a report. Its handler takes three hundred milliseconds. Meanwhile, till three asks a quick question. It waits over two hundred milliseconds, for an answer that takes microseconds. The only thread was busy. Like the waiter who stopped to cook. So handlers must never block, and slow work goes to another thread.",
+  "rows": {
+   "reactor": "active wrong",
+   "slow": "active wrong",
+   "tills": "active amber"
+  },
+  "console": [
+   [
+    "till 2: 300 ms report",
+    "amber"
+   ],
+   [
+    "till 3's quick question: over 200 ms",
+    "bad"
+   ],
+   [
+    "handlers must never block",
+    "amber"
+   ]
+  ]
+ }
+];
+const rowIds = ["tills", "threads", "selector", "reactor", "accept", "read", "slow"];
+const stepLabel = document.getElementById("step-label");
+const narrationEl = document.getElementById("narration");
+const consoleEl = document.getElementById("console-lines");
+const progressEl = document.getElementById("progress");
+const playBtn = document.getElementById("play");
+let i = -1, timer = null;
+
+function esc(t) { return t.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+
+function render() {
+  for (const id of rowIds) document.getElementById("row-" + id).className = "row";
+  if (i < 0) {
+    stepLabel.textContent = "Ready";
+    narrationEl.textContent = "Press Step or Play to begin.";
+    consoleEl.innerHTML = "";
+    progressEl.textContent = "0 / " + STEPS.length;
+    return;
+  }
+  const s = STEPS[i];
+  stepLabel.textContent = s.label;
+  narrationEl.textContent = s.narration;
+  for (const id of rowIds) {
+    const cls = s.rows[id];
+    document.getElementById("row-" + id).className = "row " + (cls ? cls : "dim");
+  }
+  consoleEl.innerHTML = s.console.map(([t, c]) => '<span class="' + c + '">' + esc(t) + "</span>").join("\n");
+  progressEl.textContent = (i + 1) + " / " + STEPS.length;
+}
+function step() { if (i >= STEPS.length - 1) { stopPlay(); return; } i += 1; render(); }
+function reset() { stopPlay(); i = -1; render(); }
+// While a step's narration is playing, Play waits for it to finish.
+function speaking() { return typeof window.vkSpeaking === "function" && window.vkSpeaking(); }
+function startPlay() {
+  if (timer) return;
+  playBtn.textContent = "Pause ❚❚";
+  let quiet = 0;
+  timer = setInterval(() => {
+    if (speaking()) { quiet = 0; return; }
+    if (++quiet < 6) return;                     // 6 × 500 ms of reading time
+    quiet = 0;
+    if (i >= STEPS.length - 1) { stopPlay(); return; }
+    step();
+  }, 500);
+  if (i < 0) step();
+}
+function stopPlay() { if (timer) clearInterval(timer); timer = null; playBtn.textContent = "Play ▶"; }
+
+document.getElementById("step").addEventListener("click", () => { stopPlay(); step(); });
+document.getElementById("reset").addEventListener("click", reset);
+playBtn.addEventListener("click", () => { if (timer) stopPlay(); else startPlay(); });
+render();
+</script>
+<!-- videokit:narration -->
+<script>
+/* videokit narration player: a Narration on/off switch and a play/pause
+   button for the current step. It watches the page's own narration text,
+   works out which step is showing, and plays audio/step-N.m4a beside the
+   page (rendered by tools/videokit; not embedded, so the page stays small).
+   If the page already plays its own clips, only the pause button is added. */
+(function () {
+  "use strict";
+  var STEPS = ["First demo: a thread for every connection. A hundred shop tills connect to the stock server. The server starts a thread for each one. That is a hundred threads. Almost all of them are idle, waiting for their till to ask something. Each one still holds memory. Till one asks: how many kettles are in stock? Four.", "Second demo: a reactor. One thread waits on every connection at once. Java gives us a selector for this. It sleeps until some connection is ready, then says which one. A hundred tills connect. Till one asks about kettles: four. Threads running handlers: one.", "Third demo: each kind of event has its handler. When a new connection arrives, the accept handler registers it, so the selector will watch it. When bytes arrive, the read handler answers the line. Till two asks the price of a mug. Eight hundred pence.", "Fourth demo: every till is answered by the one thread. All hundred tills ask at the same moment. The selector reports whichever connections are ready. The one thread answers them, one after another. A hundred correct answers. Still one thread.", "Fifth demo: the bill. Till two asks for a report. Its handler takes three hundred milliseconds. Meanwhile, till three asks a quick question. It waits over two hundred milliseconds, for an answer that takes microseconds. The only thread was busy. Like the waiter who stopped to cook. So handlers must never block, and slow work goes to another thread."];
+  var norm = function (s) { return String(s || "").replace(/\s+/g, " ").trim(); };
+  var box = document.getElementById("narration") || document.querySelector(".narration");
+  if (!box || !STEPS.length) return;
+
+  var pageOwnsAudio = !!document.getElementById("audio");
+  var current = null, step = -1, on = false;
+  try { on = localStorage.getItem("vk-narration") === "on"; } catch (e) {}
+
+  // Remember whichever clip the page (or this script) last started.
+  var realPlay = HTMLMediaElement.prototype.play;
+  HTMLMediaElement.prototype.play = function () {
+    if (current && current !== this) { try { current.pause(); } catch (e) {} }
+    current = this;
+    this.addEventListener("play", label);
+    this.addEventListener("pause", label);
+    this.addEventListener("ended", label);
+    var p = realPlay.apply(this, arguments);
+    label();
+    return p;
+  };
+
+  // Lets a page's Play button wait for the step's narration to finish.
+  window.vkSpeaking = function () { return !!(current && !current.paused && !current.ended); };
+
+  var bar = document.querySelector(".controls") || box.parentNode;
+  function button(id, text) {
+    var b = document.createElement("button");
+    b.id = id; b.type = "button"; b.textContent = text;
+    bar.appendChild(b);
+    return b;
+  }
+  var narrBtn = pageOwnsAudio ? null : button("vk-narration", "");
+  var stepBtn = button("vk-step-audio", "");
+  var note = document.createElement("span");
+  note.id = "vk-note";
+  note.style.cssText = "color:#94a3b8;font-size:.8rem;margin-left:8px";
+  bar.appendChild(note);
+
+  function stepFor(text) {
+    var t = norm(text);
+    for (var i = 0; i < STEPS.length; i++) {
+      var s = norm(STEPS[i]);
+      if (s && t.indexOf(s.slice(0, 60)) !== -1) return i;
+    }
+    return -1;
+  }
+  function stop() { if (current) { try { current.pause(); } catch (e) {} } current = null; label(); }
+  function play(i) {
+    if (i < 0) return;
+    var a = new Audio("audio/step-" + (i + 1) + ".m4a");
+    a.play().then(function () { note.textContent = ""; }, function (e) {
+      note.textContent = e && e.name === "NotAllowedError"
+        ? "Click Play step to hear this step."
+        : "Narration audio not found: run tools/videokit/videokit.sh animation <project>.";
+      label();
+    });
+  }
+  function label() {
+    if (narrBtn) narrBtn.textContent = (on ? "🔊 Narration: on" : "🔇 Narration: off");
+    if (narrBtn) narrBtn.setAttribute("aria-pressed", String(on));
+    var playing = current && !current.paused && !current.ended;
+    var paused = current && current.paused && !current.ended;
+    stepBtn.textContent = playing ? "⏸ Pause step" : paused ? "▶ Resume step" : "▶ Play step";
+    stepBtn.disabled = step < 0;
+  }
+
+  if (narrBtn) narrBtn.addEventListener("click", function () {
+    on = !on;
+    try { localStorage.setItem("vk-narration", on ? "on" : "off"); } catch (e) {}
+    if (on) { if (step >= 0) play(step); } else stop();
+    label();
+  });
+  stepBtn.addEventListener("click", function () {
+    if (current && !current.ended) {
+      if (current.paused) current.play(); else current.pause();
+    } else play(step);
+  });
+
+  function changed() {
+    var i = stepFor(box.textContent);
+    if (i === step) return;
+    step = i;
+    if (!pageOwnsAudio) { stop(); if (on) play(i); }
+    label();
+  }
+  new MutationObserver(changed).observe(box, { childList: true, subtree: true, characterData: true });
+  changed();
+  label();
+})();
+</script>
+<!-- /videokit:narration -->
+</body>
+</html>

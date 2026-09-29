@@ -1,0 +1,443 @@
+# pattern.toml for the Railway-Oriented Programming project. See tools/patternkit.
+
+[project]
+slug = "railway-oriented"
+category = "functional-design-patterns"
+title = "Railway-Oriented Programming"
+package = "railway"
+main_class = "RailwayDemo"
+tagline = "Two tracks: success and failure"
+bold = "Let every step return a result that is either a success or a failure, and chain the steps so that the first failure switches to a failure track and the remaining steps are skipped."
+domain_note = ""
+thumb_lines = ["RAILWAY-ORIENTED", "PROGRAMMING"]
+thumb_code = ".flatMap(this::charge)"
+youtube_title = "Railway-Oriented Programming"
+youtube_tags = ["railway oriented programming", "result type", "functional programming", "error handling", "flatmap", "java"]
+
+[readme]
+intro = """
+Railway-Oriented Programming is a functional way to handle errors in a chain
+of steps. Each step returns a `Result`: either a success carrying a value, or
+a failure carrying a reason. Picture two railway tracks side by side. Every
+step runs on the success track; if it fails, the train switches to the
+failure track, and every later step is skipped until the end of the line.
+
+The chain reads as a straight list of steps, `validate`, then `reserve`, then
+`charge`, then `email`, with no nested `if` statements and no exceptions to
+forget. At the end, the caller must say what to do with both tracks, so no
+failure can slip through unhandled. The name comes from Scott Wlaschin's
+talks on functional programming.
+"""
+analogy = """
+Think of an airport's baggage belt with inspection points. A healthy bag
+rides past check-in, the scanner and loading. If the scanner rejects a bag,
+it is pushed onto a side belt that runs straight to the end, where someone
+must deal with it. No later station ever sees that bag, and no bag can vanish
+without reaching one end or the other.
+"""
+scenario = """
+The online store's checkout had four steps: check the cart, reserve stock,
+charge the card, email the confirmation. Each step threw its own exception,
+and the web controller caught the ones its authors knew about. When the
+payments team later added a "card declined" exception, nothing forced anyone
+to catch it, and customers with declined cards saw "500 internal server
+error".
+"""
+costs = [
+    "**First failure only.** The chain stops at the first problem, so an empty cart with no card reports only the empty cart; showing every form error needs a different tool.",
+    "**An unfamiliar style in Java.** `flatMap` chains and a home-made `Result` type are new to many Java developers.",
+    "**Not for everything.** Truly unexpected failures, such as running out of memory, are still best left as exceptions.",
+]
+too_much = """
+For one or two steps, an `if` statement is clearer. The railway pays off for
+longer chains of steps that can each fail for business reasons.
+"""
+met_before = [
+    "`Optional.map` and `flatMap`, a railway whose failure track has no reason.",
+    "`CompletableFuture.thenCompose` and `exceptionally`.",
+    "Vavr's `Try` and `Either`, Kotlin's `Result`, Rust's `Result` and its `?` operator.",
+]
+where = """
+This project is in [functional-design-patterns](..), the first project of that
+category.
+"""
+
+[[act]]
+title = "Exceptions nobody caught"
+summary = "Out of stock is caught and returns 409; the declined-card exception, added later, was never caught, so the customer gets 500."
+detail = """
+Each checkout step throws its own exception. The controller catches the
+out-of-stock exception and returns 409. But the declined-card exception was
+added later by another team, and nothing forced anyone to handle it. It falls
+through to the catch-all, and a customer with a declined card sees "500
+internal server error".
+"""
+speech = """
+First demo: exceptions, and a catch nobody wrote. [[slnc 400]] Each checkout step throws its own kind of exception when something goes wrong. [[slnc 600]]
+Out of stock is caught. [[slnc 300]] The customer gets a clear message. [[slnc 600]]
+But the declined card exception was added later, by another team. [[slnc 300]] Nothing forced anyone to handle it. [[slnc 500]]
+A customer with a declined card sees, internal server error.
+"""
+rows = { validate = "active ok", reserve = "active ok", charge = "active wrong" }
+console = [
+    ["out of stock: 409", "ok"],
+    ["card declined: 500 internal error", "bad"],
+]
+
+[[act]]
+title = "The success track"
+summary = "Each step returns a Result and the steps are chained: 2 mugs with a good card are confirmed, and all four steps ran."
+detail = """
+Now each step returns a `Result` instead of throwing. The checkout is one
+straight chain: `validate`, `flatMap` `reserve`, `flatMap` `charge`,
+`flatMap` `email`. Two mugs with a good card travel the success track through
+all four steps, and the order is confirmed.
+"""
+speech = """
+Second demo: each step returns a result. [[slnc 400]] A result is either a success, carrying a value. [[slnc 300]] Or a failure, carrying a reason. [[slnc 600]]
+The checkout is one straight chain. [[slnc 300]] Validate. [[slnc 300]] Then reserve. [[slnc 300]] Then charge. [[slnc 300]] Then email. [[slnc 600]]
+Two mugs, with a good card. [[slnc 300]] All four steps run. [[slnc 300]] Order confirmed.
+"""
+rows = { validate = "active ok", reserve = "active ok", charge = "active ok", email = "active ok" }
+console = [
+    ["200 order ORD-1 confirmed", "ok"],
+    ["ran: validate, reserve, charge, email", "muted"],
+]
+
+[[act]]
+title = "Switching tracks"
+summary = "An empty cart fails at validate and the other three steps are skipped; a declined card fails at charge and email is skipped."
+detail = """
+An empty cart fails at the first step. The result switches to the failure
+track, and reserve, charge and email never run. A declined card gets through
+validate and reserve, fails at charge, and the email is skipped. Each failure
+says which step failed and why, and the controller must handle it, because
+the only way off the railway is to say what to do with both tracks.
+"""
+speech = """
+Third demo: a failure switches tracks. [[slnc 400]] An empty cart fails at the very first step. [[slnc 300]] Reserve, charge and email are all skipped. [[slnc 600]]
+A declined card gets through validate and reserve. [[slnc 300]] It fails at charge. [[slnc 300]] The email is skipped. [[slnc 600]]
+Each failure says which step failed, and why. [[slnc 300]] And the controller must deal with it. [[slnc 300]] The only way off the railway is to say what to do with both tracks.
+"""
+rows = { validate = "active ok", reserve = "active ok", charge = "active wrong", email = "active amber" }
+console = [
+    ["empty cart: 422 (at validate)", "amber"],
+    ["skipped: reserve, charge, email", "muted"],
+    ["declined: 422 (at charge)", "amber"],
+]
+
+[[act]]
+title = "Plain functions, and a way back"
+summary = "Adding 20% tax with map gives 23.98 for 2 mugs; recover turns an out-of-stock lamp into a back-order."
+detail = """
+A step that cannot fail, such as adding 20% tax, rides along with `map`: two
+mugs come to 23.98. And `recover` offers a way back to the success track: when
+the lamp is out of stock, the failure at reserve is turned into a back-order,
+and the customer is told they will get an email when it arrives.
+"""
+speech = """
+Fourth demo: plain steps, and a way back. [[slnc 400]] Adding twenty percent tax can never fail. [[slnc 300]] So it rides along with map. [[slnc 300]] Two mugs come to twenty-three ninety-eight. [[slnc 600]]
+And recover offers a way back to the success track. [[slnc 300]] The lamp is out of stock. [[slnc 300]] Instead of failing, the order becomes a back-order. [[slnc 300]] The customer will get an email when it arrives.
+"""
+rows = { reserve = "active amber", email = "active ok" }
+console = [
+    ["with 20% tax: 23.98", "ok"],
+    ["lamp out of stock: back-order", "ok"],
+]
+
+[[act]]
+title = "The bill"
+summary = "An empty cart with no card reports only \"the cart is empty\": the first failure stops everything."
+detail = """
+The first failure stops everything. A cart that is empty and has no card
+reports only the empty cart; the customer fixes that, submits again, and only
+then hears about the card. Showing every form error at once needs a different
+tool. And the style is unfamiliar in Java, so keep exceptions for the truly
+unexpected.
+"""
+speech = """
+Fifth demo: the bill. [[slnc 400]] The first failure stops everything. [[slnc 600]]
+A cart that is empty, and has no card. [[slnc 300]] Only the empty cart is reported. [[slnc 300]] The customer fixes it, tries again, and only then hears about the card. [[slnc 600]]
+Showing every form error at once needs a different tool. [[slnc 300]] And this style is unfamiliar in Java. [[slnc 300]] Keep exceptions for the truly unexpected.
+"""
+rows = { validate = "active amber" }
+console = [
+    ["empty and no card: 1 problem shown", "amber"],
+]
+
+[animation]
+subtitle = "Four checkout steps on a success track; a failure switches to the failure track and skips the rest."
+boxes = [
+    ["validate", "Validate", "cart and card"],
+    ["reserve", "Reserve", "stock"],
+    ["charge", "Charge", "the card"],
+    ["email", "Email", "confirmation"],
+]
+
+[docs.problem]
+scenario = """
+Checkout has four steps, each of which can fail for a business reason.
+"""
+naive = """
+Each step threw its own exception, and a new exception type slipped past the
+controller as a 500 error.
+"""
+deliver = [
+    "An uncaught exception turning a declined card into a 500.",
+    "A sealed `Result` type with `flatMap`, `map`, `recover` and `fold`.",
+    "A checkout chain that skips steps after a failure.",
+    "A plain tax step and a back-order recovery.",
+    "The first-failure-only limit.",
+    "Every printed result asserted by a test.",
+]
+
+[docs.prerequisites]
+required = [
+    "Java 21: records, sealed interfaces, pattern-matching `switch`.",
+    "Lambdas and method references.",
+]
+not_required = [
+    "Vavr or any functional library. `Result` is written here.",
+]
+
+[docs.session]
+objectives = [
+    "Explain two-track error handling.",
+    "Write a `Result` type with `flatMap` and `map`.",
+    "Chain steps so later ones are skipped after a failure.",
+    "Recover from a chosen failure.",
+]
+walkthrough = """
+Run `./gradlew run` and compare act one's 500 with act three's 422 at
+charge. Open `CheckoutSteps.checkout`: four lines. Then `Result.flatMap`: two
+cases. End on act five's single problem.
+"""
+exercises = [
+    "Add a step that applies a coupon and can fail when it has expired.",
+    "Add a `peek` method that logs the value without changing the track.",
+    "Rewrite the chain with Vavr's `Either`.",
+]
+
+[docs.explained]
+sentence = """
+Railway-Oriented Programming chains steps that each return success or
+failure, so the first failure skips the rest and must be handled at the end.
+"""
+verdict = """
+Use it for chains of steps that can fail for business reasons. Return
+`Result`s, chain with `flatMap`, lift plain steps with `map`, recover
+deliberately, and keep exceptions for the unexpected.
+"""
+recognise = [
+    "Methods returning `Result`, `Either` or `Try`.",
+    "Chains of `.flatMap(...)` calls.",
+    "A final `fold` or `match` that handles both outcomes.",
+]
+
+[spec]
+purpose = """
+Teach Railway-Oriented Programming with an online store's four-step checkout:
+an uncaught exception giving a 500, a Result chain on the success track,
+failures that skip later steps, `map` for tax and `recover` for back-orders,
+and the first-failure-only limit.
+"""
+nongoals = [
+    "Not a functional library. `Result` is a small sealed interface.",
+]
+problem = """
+Exceptions thrown from a chain of steps can be forgotten by the caller, and
+nested checks hide the flow.
+"""
+roles = [
+    ["The two tracks", "`Result`"],
+    ["The steps", "`CheckoutSteps`"],
+    ["The old way", "`ExceptionCheckout`"],
+    ["The data", "`Cart`"],
+    ["Entry point", "`RailwayDemo`, five acts"],
+]
+requirements = [
+    "**Skip:** after a failure, no later step runs.",
+    "**Located:** each failure names its step and reason.",
+    "**Handled:** leaving the chain requires `fold` with both branches.",
+    "**Every printed result is asserted** in `DemoRunsTest`.",
+]
+
+[[diagram]]
+name = "architecture-diagram"
+kind = "flow"
+title = "Railway-Oriented Programming — the tracks"
+caption = "A failure switches tracks; later steps are skipped."
+nodes = [
+    { id = "a", label = "Validate", sub = "", col = 0, row = 0, colour = "green" },
+    { id = "b", label = "Reserve", sub = "", col = 1, row = 0, colour = "green" },
+    { id = "c", label = "Charge", sub = "", col = 2, row = 0, colour = "green" },
+    { id = "d", label = "Email", sub = "confirmed", col = 3, row = 0, colour = "green" },
+    { id = "f", label = "Failure track", sub = "step and reason", col = 3, row = 1, colour = "red" },
+]
+edges = [
+    { from = "a", to = "b", label = "" },
+    { from = "b", to = "c", label = "" },
+    { from = "c", to = "d", label = "" },
+    { from = "c", to = "f", label = "declined" },
+]
+
+[[diagram]]
+name = "class-diagram"
+kind = "class"
+title = "Railway-Oriented Programming — classes"
+caption = "A sealed Result with two cases."
+nodes = [
+    { id = "r", label = "«sealed» Result<T>", sub = ["+ flatMap(next)", "+ map(plain)", "+ recover(fallback)", "+ fold(ok, fail)"], col = 0, row = 0, colour = "accent" },
+    { id = "s", label = "Success<T>", sub = ["value"], col = 1, row = 0, colour = "green" },
+    { id = "f", label = "Failure<T>", sub = ["step, reason"], col = 1, row = 1, colour = "red" },
+    { id = "c", label = "CheckoutSteps", sub = ["validate, reserve", "charge, email"], col = 0, row = 1, colour = "client" },
+]
+edges = [
+    { from = "s", to = "r", label = "implements" },
+    { from = "f", to = "r", label = "implements" },
+    { from = "c", to = "r", label = "returns" },
+]
+
+[[diagram]]
+name = "data-flow-diagram"
+kind = "flow"
+title = "Railway-Oriented Programming — an empty cart"
+caption = "Only the first step runs."
+nodes = [
+    { id = "a", label = "Validate", sub = "fails: cart empty", col = 0, row = 0, colour = "red" },
+    { id = "b", label = "Reserve", sub = "skipped", col = 1, row = 0, colour = "client" },
+    { id = "c", label = "Charge", sub = "skipped", col = 2, row = 0, colour = "client" },
+    { id = "d", label = "422", sub = "at validate", col = 3, row = 0, colour = "amber" },
+]
+edges = [
+    { from = "a", to = "b", label = "" },
+    { from = "b", to = "c", label = "" },
+    { from = "c", to = "d", label = "" },
+]
+
+[[diagram]]
+name = "sequence-diagram"
+kind = "sequence"
+title = "Railway-Oriented Programming — a declined card"
+caption = "Charge fails; email never runs."
+participants = ["Controller", "Chain", "Charge"]
+steps = [
+    ["Controller", "Chain", "checkout(cart)"],
+    ["Chain", "Charge", "charge(cart)"],
+    ["Charge", "Chain", "Failure(charge, declined)", "reply"],
+    ["note", "Chain", "email skipped"],
+    ["Chain", "Controller", "fold: 422 card declined", "reply"],
+]
+
+[[diagram]]
+name = "uml-diagram"
+kind = "sequence"
+title = "1. The old way"
+caption = "An exception nobody caught."
+participants = ["Controller", "Checkout"]
+steps = [
+    ["Controller", "Checkout", "place(cart)"],
+    ["Checkout", "Controller", "throws PaymentDeclined", "reply"],
+    ["note", "Controller", "no catch: 500"],
+]
+
+[[diagram]]
+name = "uml-diagram-2"
+kind = "sequence"
+title = "2. Recover"
+caption = "Back onto the success track."
+participants = ["Chain", "Recover"]
+steps = [
+    ["Chain", "Recover", "Failure(reserve, out of stock)"],
+    ["Recover", "Chain", "Success(back-order)", "reply"],
+]
+
+[poster]
+headline = [["RAILWAY-ORIENTED", "text"], ["PROGRAMMING", "text"]]
+before = { code = "throw new PaymentDeclined()", note = "uncaught: 500 error", tag = "BEFORE" }
+after = { code = ".flatMap(this::charge)", note = "422 card declined, at charge", tag = "AFTER" }
+taglines = [["Two tracks: success and failure", "gold"]]
+
+[[scene]]
+key = "01-poster"
+kind = "poster"
+title = "Railway-Oriented Programming"
+narration = """
+Hello, and welcome. [[slnc 400]] This video explains Railway-Oriented Programming, in Java. [[slnc 300]]
+This video is presented by Jayasekhar Konduru. [[slnc 600]]
+First, a simple definition. [[slnc 300]] Picture two railway tracks, side by side. [[slnc 300]] One for success, one for failure. [[slnc 300]] Each step of a task runs on the success track. [[slnc 300]] If a step fails, the train switches to the failure track. [[slnc 300]] And every later step is skipped. [[slnc 600]]
+Think of an airport baggage belt. [[slnc 300]] If the scanner rejects a bag, it is pushed onto a side belt that runs straight to the end. [[slnc 300]] No later station sees it. [[slnc 300]] And no bag can vanish without reaching one end or the other. [[slnc 700]]
+In this video, the domain is an online shop's checkout, with four steps. [[slnc 500]]
+By the end, you will hear how a forgotten exception became an error page. [[slnc 300]] How results keep the steps in a straight line. [[slnc 300]] How a failure skips the rest. [[slnc 300]] And where the railway stops helping.
+"""
+
+[[scene]]
+key = "02-scenario"
+kind = "bullets"
+title = "The Scenario"
+body = ["Checkout: validate, reserve,", "charge, email.", "", "Each step threw an exception.", "", "One was never caught."]
+narration = """
+Here is the scenario. [[slnc 400]] The shop's checkout has four steps. [[slnc 300]] Check the cart. [[slnc 300]] Reserve the stock. [[slnc 300]] Charge the card. [[slnc 300]] Email the confirmation. [[slnc 500]]
+Each step threw its own exception when something went wrong. [[slnc 500]]
+And when a new one was added, nobody caught it.
+"""
+
+[[scene]]
+key = "03-acts"
+kind = "acts"
+title = "acts"
+
+[[scene]]
+key = "04-pattern"
+kind = "bullets"
+title = "The Pattern"
+body = ["Each step returns a Result.", "", "Chain with flatMap.", "First failure skips the rest.", "", "fold handles both tracks."]
+narration = """
+Let's name the pattern. [[slnc 400]] Each step returns a result, success or failure. [[slnc 500]]
+The steps are chained with flat map. [[slnc 300]] The first failure skips the rest. [[slnc 500]]
+And at the end, fold makes the caller handle both tracks.
+"""
+
+[[scene]]
+key = "05-roles"
+kind = "bullets"
+title = "Who Does What"
+body = ["Result: Success or Failure", "flatMap: next step, if still on track", "map: a step that cannot fail", "recover: a way back", "fold: leave the railway"]
+narration = """
+Here is who does what. [[slnc 400]] Result is either a success, or a failure. [[slnc 500]]
+Flat map runs the next step, only while still on the success track. [[slnc 300]] Map runs a step that can never fail. [[slnc 500]]
+Recover offers a way back after a failure. [[slnc 300]] And fold leaves the railway, handling both tracks.
+"""
+
+[[scene]]
+key = "06-recognise"
+kind = "bullets"
+title = "Where You Have Seen It"
+body = ["Optional.flatMap", "CompletableFuture.thenCompose", "Vavr Try and Either", "Kotlin and Rust Result"]
+narration = """
+You have probably met this pattern already. [[slnc 400]] Java's optional has map and flat map. [[slnc 300]] It is a railway whose failure track has no reason. [[slnc 500]]
+Completable futures chain the same way. [[slnc 300]] The Vavr library has try and either. [[slnc 500]]
+And Kotlin and Rust both have a result type built in.
+"""
+
+[[scene]]
+key = "07-verdict"
+kind = "bullets"
+title = "When To Use It"
+body = ["Chains of steps that can fail.", "", "Return Results.", "Recover on purpose.", "Exceptions for the unexpected."]
+narration = """
+So, when should you use it? [[slnc 400]] For chains of steps that can each fail, for business reasons. [[slnc 500]]
+Return results. [[slnc 300]] Recover on purpose. [[slnc 300]] And keep exceptions for the truly unexpected.
+"""
+
+[[scene]]
+key = "08-outro"
+kind = "outro"
+title = "Thanks for Watching"
+body = ["Full source, notes, diagrams and an animated walkthrough", "are in the repository. Add a coupon step", "that can fail."]
+narration = """
+That's Railway-Oriented Programming. [[slnc 400]] If you remember one sentence, make it this one. [[slnc 300]] Every step returns success or failure, and the first failure skips the rest. [[slnc 500]]
+The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. [[slnc 300]] It runs offline, with nothing installed except a Java development kit. [[slnc 500]]
+Here is one exercise to try. [[slnc 300]] Add a coupon step that fails when the coupon has expired. [[slnc 500]]
+If this helped, a like really does help other people find it. [[slnc 300]] And subscribe, if you'd like the rest of the series. [[slnc 400]] Thanks for watching.
+"""

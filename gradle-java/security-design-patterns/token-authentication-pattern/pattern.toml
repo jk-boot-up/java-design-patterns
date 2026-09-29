@@ -1,0 +1,441 @@
+# pattern.toml for the Token Authentication project. See tools/patternkit.
+
+[project]
+slug = "token-authentication"
+category = "security-design-patterns"
+title = "Token Authentication"
+package = "tokenauth"
+main_class = "TokenAuthDemo"
+tagline = "Carry proof, not a session"
+bold = "After sign-in, give the client a signed token that says who they are and when it expires, so any server holding the key can check it without a shared session store."
+domain_note = ""
+thumb_lines = ["TOKEN", "AUTHENTICATION"]
+thumb_code = "header.payload.signature"
+youtube_title = "Token Authentication (JWT)"
+youtube_tags = ["token authentication", "jwt", "hmac", "stateless", "security", "java"]
+
+[readme]
+intro = """
+Token Authentication is how most modern web services remember who you are.
+After you sign in, the server gives you a token: a short piece of text that
+says who you are and when it expires, with a signature made from a secret key.
+You send it with every request. Any server holding the key can check the
+signature and trust what the token says, without looking anything up.
+
+The common format is the JSON Web Token (JWT): three parts separated by
+dots, a header, a payload and a signature. This project builds one with the
+JDK's own HMAC-SHA256, so every step is visible.
+"""
+analogy = """
+Think of a wristband at a music festival. At the gate your ticket is checked
+once, and you get a wristband printed with the date and a hologram. After
+that, any steward at any stage can glance at the band and let you in, without
+phoning the gate. The hologram is hard to fake, and the date means yesterday's
+band no longer works.
+"""
+scenario = """
+The online store runs its website on two servers behind a load balancer.
+When a customer signed in, the server they reached remembered them in its own
+memory. If their next request was sent to the other server, it had never heard
+of them, and asked them to sign in again.
+"""
+costs = [
+    "**Hard to take back.** A token stays valid until it expires; signing out early needs a revoked list, and every server must share it.",
+    "**Readable by anyone.** The payload is only encoded, not encrypted; never put secrets in it.",
+    "**The key is everything.** Anyone who steals the signing key can make a token for any customer, so it belongs in a secrets manager and must be rotated.",
+]
+too_much = """
+A single server rendering its own pages is well served by an ordinary
+session. Tokens pay off with several servers or services, or with mobile
+apps and other programs calling an A P I.
+"""
+met_before = [
+    "JWTs in `Authorization: Bearer` headers.",
+    "OAuth 2.0 access tokens and OpenID Connect ID tokens.",
+    "Spring Security's resource-server support and libraries such as jjwt and Nimbus.",
+]
+where = """
+This project is in [security-design-patterns](..), next to
+[Authorization Policy](../authorization-policy-pattern), which decides what a
+customer may do once the token has said who they are.
+"""
+
+[[act]]
+title = "Sessions on one server"
+summary = "ana signs in on server A; the next request to A shows ana's cart, but a request routed to B gets 401 please sign in."
+detail = """
+Ana signs in on server A, which remembers ana under a session identifier in
+its own memory. The next request, sent to A, shows ana's cart. But when the
+load balancer sends a request to server B, B has never heard of that session
+and replies 401, please sign in.
+"""
+speech = """
+First demo: sessions kept in one server's memory. [[slnc 400]] The shop runs on two servers, A and B. [[slnc 600]]
+Ana signs in on server A. [[slnc 300]] Server A remembers Ana, in its own memory. [[slnc 500]]
+The next request goes to server A. [[slnc 300]] It shows Ana's cart. [[slnc 500]]
+But the next one goes to server B. [[slnc 300]] B has never heard of Ana. [[slnc 300]] Please sign in.
+"""
+rows = { a = "active ok", b = "active wrong" }
+console = [
+    ["routed to A: 200 ana's cart", "ok"],
+    ["routed to B: 401 please sign in", "bad"],
+]
+
+[[act]]
+title = "A signed token"
+summary = "The token's payload names ana and an expiry 15 minutes ahead; server A and server B both accept it, with no shared session store."
+detail = """
+Now signing in returns a token. Its payload says the customer is ana and
+when the token expires, fifteen minutes later, and it carries a signature
+made with the shop's secret key. Both servers hold the key, so both check the
+signature themselves and show Ana's cart. There is no shared session store.
+"""
+speech = """
+Second demo: a signed token. [[slnc 400]] Signing in now returns a token. [[slnc 300]] A short piece of text. [[slnc 600]]
+It says the customer is Ana. [[slnc 300]] It says when it expires, in fifteen minutes. [[slnc 300]] And it carries a signature, made with the shop's secret key. [[slnc 600]]
+Both servers hold the key. [[slnc 300]] So both can check the signature themselves. [[slnc 500]]
+Server A shows Ana's cart. [[slnc 300]] So does server B. [[slnc 300]] With nothing shared between them.
+"""
+rows = { issuer = "active ok", a = "active ok", b = "active ok" }
+console = [
+    ["payload: sub ana, exp in 15 min", "muted"],
+    ["server A: 200", "ok"],
+    ["server B: 200", "ok"],
+]
+
+[[act]]
+title = "Forged and expired"
+summary = "Changing the payload to ben gives 401 bad signature; using the token after 15 minutes gives 401 expired."
+detail = """
+Someone edits the payload to say ben instead of ana. The signature no longer
+matches the payload, and the server refuses it: bad signature. And the
+genuine token, used after its fifteen minutes, is refused as expired.
+"""
+speech = """
+Third demo: forged and expired tokens. [[slnc 400]] Someone edits the token to say Ben instead of Ana. [[slnc 600]]
+The signature no longer matches. [[slnc 300]] Without the secret key, nobody can make a new one. [[slnc 300]] Refused. [[slnc 600]]
+And the genuine token, used after fifteen minutes. [[slnc 300]] Refused as expired.
+"""
+rows = { a = "active ok" }
+console = [
+    ["changed to ben: 401 bad signature", "ok"],
+    ["after 15 minutes: 401 expired", "ok"],
+]
+
+[[act]]
+title = "Signing out early"
+summary = "After ana signs out, the token alone still works; a revoked list stops it on A, but B, with its own list, still accepts it."
+detail = """
+Ana signs out, but the token itself still says it is valid for fifteen
+minutes, so a server accepts it. Server A adds the token's identifier to a
+revoked list and refuses it. But server B keeps its own list and still
+accepts it. The answer is short-lived tokens, and a revoked list shared by
+every server.
+"""
+speech = """
+Fourth demo: signing out early. [[slnc 400]] Ana signs out on a shared laptop. [[slnc 600]]
+But the token still says it is valid, for fifteen minutes. [[slnc 300]] So a server accepts it. [[slnc 600]]
+Server A adds the token to a revoked list. [[slnc 300]] Now A refuses it. [[slnc 500]]
+But server B has its own list. [[slnc 300]] B still accepts it. [[slnc 600]]
+So keep tokens short-lived. [[slnc 300]] And share any revoked list between every server.
+"""
+rows = { a = "active ok", b = "active wrong" }
+console = [
+    ["signed out, token alone: 200", "bad"],
+    ["server A with revoked list: 401", "ok"],
+    ["server B, own list: 200", "bad"],
+]
+
+[[act]]
+title = "The bill"
+summary = "The payload is only encoded, so anyone can read it; and anyone who steals the key can sign a token for any customer."
+detail = """
+The payload is only encoded, not encrypted: anyone who sees the token can read
+it, so it must never hold secrets. And everything rests on the key: whoever
+steals it can sign a token for any customer. Keep it in a secrets manager,
+and rotate it.
+"""
+speech = """
+Fifth demo: the bill. [[slnc 400]] The token's contents are only encoded, not hidden. [[slnc 300]] Anyone who sees the token can read it. [[slnc 300]] So never put secrets in it. [[slnc 600]]
+And everything rests on the key. [[slnc 300]] Whoever steals it can make a token for any customer. [[slnc 500]]
+Keep the key in a secrets manager. [[slnc 300]] And change it regularly.
+"""
+rows = { issuer = "active amber" }
+console = [
+    ["anyone can read the payload", "amber"],
+    ["a stolen key signs anyone in", "bad"],
+]
+
+[animation]
+subtitle = "Sign-in issues a signed token; either server checks it with the shared key."
+boxes = [
+    ["issuer", "Sign-in", "issues the token"],
+    ["a", "Server A", "checks the signature"],
+    ["b", "Server B", "checks the signature"],
+]
+
+[docs.problem]
+scenario = """
+The store runs on two servers behind a load balancer, and each kept its
+signed-in customers in its own memory.
+"""
+naive = """
+A request sent to the other server finds no session, and the customer is asked
+to sign in again.
+"""
+deliver = [
+    "Sessions failing across two servers.",
+    "A JWT-shaped token signed with HMAC-SHA256.",
+    "Forged and expired tokens refused.",
+    "Early sign-out and the revoked-list problem.",
+    "The key and payload warnings.",
+    "Every printed result asserted by a test.",
+]
+
+[docs.prerequisites]
+required = [
+    "Java basics: strings, `Base64`.",
+    "The idea of signing in.",
+]
+not_required = [
+    "A JWT library. The token is built with the JDK's `Mac` class.",
+]
+
+[docs.session]
+objectives = [
+    "Explain why in-memory sessions break with several servers.",
+    "Build and verify a signed token.",
+    "Explain why tampering and expiry are caught.",
+    "Handle early sign-out with short lifetimes and revocation.",
+]
+walkthrough = """
+Run `./gradlew run` and compare act one's 401 from B with act two's 200. Open
+`TokenService.issue` and `verify`: sign, then check signature, expiry and
+revocation in that order. End on act four's two servers.
+"""
+exercises = [
+    "Move the revoked list into a shared class both servers use.",
+    "Add a refresh token that is checked against a store.",
+    "Replace the hand-built token with the jjwt or Nimbus library.",
+]
+
+[docs.explained]
+sentence = """
+Token Authentication gives the client a signed statement of who it is and
+until when, which any server with the key can check on its own.
+"""
+verdict = """
+Use tokens when several servers or services must recognise the same customer.
+Keep them short-lived, put nothing secret in the payload, guard and rotate the
+key, and plan for early sign-out.
+"""
+recognise = [
+    "`Authorization: Bearer eyJ...` headers.",
+    "Three dot-separated base64 parts.",
+    "Claims named `sub`, `exp` and `jti`.",
+]
+
+[spec]
+purpose = """
+Teach Token Authentication with an online store on two servers: in-memory
+sessions failing across servers, a signed JWT-shaped token accepted by both,
+forged and expired tokens refused, early sign-out needing a shared revoked
+list, and the risks of readable payloads and stolen keys.
+"""
+nongoals = [
+    "Not a full JWT library or OAuth. The token has just the fields the demo needs.",
+]
+problem = """
+Sessions kept in one server's memory are unknown to every other server.
+"""
+roles = [
+    ["The pattern", "`TokenService`"],
+    ["A stateless server", "`TokenServer`"],
+    ["The old way", "`SessionServer`"],
+    ["A check's result", "`Verdict`"],
+    ["Entry point", "`TokenAuthDemo`, five acts"],
+]
+requirements = [
+    "**Signed:** any change to header or payload fails verification.",
+    "**Expiring:** a token is refused at or after its expiry time.",
+    "**Revocable:** a revoked token is refused by the service that revoked it.",
+    "**Every printed result is asserted** in `DemoRunsTest`.",
+]
+
+[[diagram]]
+name = "architecture-diagram"
+kind = "flow"
+title = "Token Authentication — the pieces"
+caption = "Each server checks the token itself."
+nodes = [
+    { id = "c", label = "Customer", sub = "holds the token", col = 0, row = 1, colour = "client" },
+    { id = "s", label = "Sign-in", sub = "issues and signs", col = 1, row = 0, colour = "accent" },
+    { id = "a", label = "Server A", sub = "checks with the key", col = 2, row = 1, colour = "green" },
+    { id = "b", label = "Server B", sub = "checks with the key", col = 2, row = 2, colour = "green" },
+]
+edges = [
+    { from = "c", to = "s", label = "sign in" },
+    { from = "c", to = "a", label = "Bearer token" },
+    { from = "c", to = "b", label = "Bearer token" },
+]
+
+[[diagram]]
+name = "class-diagram"
+kind = "class"
+title = "Token Authentication — classes"
+caption = "One service issues and verifies."
+nodes = [
+    { id = "t", label = "TokenService", sub = ["+ issue(customer, now, life)", "+ verify(token, now)", "+ revoke(token)"], col = 0, row = 0, colour = "accent" },
+    { id = "v", label = "«record» Verdict", sub = ["valid, customer, reason"], col = 1, row = 0, colour = "client" },
+    { id = "s", label = "TokenServer", sub = ["+ cart(token, now)"], col = 0, row = 1, colour = "green" },
+    { id = "o", label = "SessionServer", sub = ["+ signIn(customer)", "+ cart(sessionId)"], col = 1, row = 1, colour = "red" },
+]
+edges = [
+    { from = "t", to = "v", label = "returns" },
+    { from = "s", to = "t", label = "verifies with" },
+]
+
+[[diagram]]
+name = "data-flow-diagram"
+kind = "flow"
+title = "Token Authentication — checking a token"
+caption = "Signature, expiry, revocation, in that order."
+nodes = [
+    { id = "a", label = "Token", sub = "header.payload.sig", col = 0, row = 0, colour = "client" },
+    { id = "b", label = "Signature matches?", sub = "else: bad signature", col = 1, row = 0, colour = "accent" },
+    { id = "c", label = "Not expired?", sub = "else: expired", col = 2, row = 0, colour = "accent" },
+    { id = "d", label = "Not revoked?", sub = "then: the customer", col = 3, row = 0, colour = "green" },
+]
+edges = [
+    { from = "a", to = "b", label = "" },
+    { from = "b", to = "c", label = "" },
+    { from = "c", to = "d", label = "" },
+]
+
+[[diagram]]
+name = "sequence-diagram"
+kind = "sequence"
+title = "Token Authentication — sign in, then any server"
+caption = "No shared session store."
+participants = ["Customer", "Sign-in", "Server B"]
+steps = [
+    ["Customer", "Sign-in", "sign in as ana"],
+    ["Sign-in", "Customer", "signed token, 15 min", "reply"],
+    ["Customer", "Server B", "GET cart, Bearer token"],
+    ["note", "Server B", "signature ok, not expired"],
+    ["Server B", "Customer", "200 ana's cart", "reply"],
+]
+
+[[diagram]]
+name = "uml-diagram"
+kind = "sequence"
+title = "1. A forged token"
+caption = "The signature gives it away."
+participants = ["Attacker", "Server A"]
+steps = [
+    ["Attacker", "Server A", "token edited to ben"],
+    ["Server A", "Attacker", "401 bad signature", "reply"],
+]
+
+[[diagram]]
+name = "uml-diagram-2"
+kind = "sequence"
+title = "2. Sessions on one server"
+caption = "Server B never heard of ana."
+participants = ["Customer", "Server A", "Server B"]
+steps = [
+    ["Customer", "Server A", "sign in"],
+    ["Server A", "Customer", "session A-session-1", "reply"],
+    ["Customer", "Server B", "GET cart, A-session-1"],
+    ["Server B", "Customer", "401 please sign in", "reply"],
+]
+
+[poster]
+headline = [["TOKEN", "text"], ["AUTHENTICATION", "text"]]
+before = { code = "session in server A's memory", note = "server B: please sign in", tag = "BEFORE" }
+after = { code = "header.payload.signature", note = "any server can check it", tag = "AFTER" }
+taglines = [["Carry proof, not a session", "gold"]]
+
+[[scene]]
+key = "01-poster"
+kind = "poster"
+title = "Token Authentication"
+narration = """
+Hello, and welcome. [[slnc 400]] This video explains the Token Authentication pattern, in Java. [[slnc 300]]
+This video is presented by Jayasekhar Konduru. [[slnc 600]]
+First, a simple definition. [[slnc 300]] After you sign in, the server gives you a token. [[slnc 300]] A short piece of text that says who you are, and when it expires. [[slnc 300]] It is signed with a secret key. [[slnc 300]] So any server holding the key can trust it, without looking anything up. [[slnc 600]]
+Think of a wristband at a music festival. [[slnc 300]] Your ticket is checked once, at the gate. [[slnc 300]] Then any steward, at any stage, can glance at the band and let you in. [[slnc 300]] The hologram is hard to fake, and yesterday's band no longer works. [[slnc 700]]
+In this video, the domain is an online shop's website, running on two servers. [[slnc 500]]
+By the end, you will hear why remembering customers in one server's memory fails. [[slnc 300]] How a signed token works on any server. [[slnc 300]] How forged and expired tokens are caught. [[slnc 300]] And why signing out early is the hard part.
+"""
+
+[[scene]]
+key = "02-scenario"
+kind = "bullets"
+title = "The Scenario"
+body = ["Two servers behind a load balancer.", "", "Each remembered signed-in", "customers in its own memory.", "", "The other server: please sign in."]
+narration = """
+Here is the scenario. [[slnc 400]] The shop runs its website on two servers. [[slnc 300]] A load balancer shares requests between them. [[slnc 500]]
+When a customer signed in, the server they reached remembered them, in its own memory. [[slnc 500]]
+If the next request went to the other server, the customer was asked to sign in again.
+"""
+
+[[scene]]
+key = "03-acts"
+kind = "acts"
+title = "acts"
+
+[[scene]]
+key = "04-pattern"
+kind = "bullets"
+title = "The Pattern"
+body = ["Sign in once, get a token.", "", "It says who, and until when.", "It is signed with a key.", "", "Any server can check it."]
+narration = """
+Let's name the pattern. [[slnc 400]] Sign in once, and get a token. [[slnc 500]]
+The token says who you are, and until when. [[slnc 300]] It is signed with a secret key. [[slnc 500]]
+Any server holding the key can check it, on its own. [[slnc 300]] The usual format is called a J W T, a JSON web token.
+"""
+
+[[scene]]
+key = "05-roles"
+kind = "bullets"
+title = "Who Does What"
+body = ["TokenService: issue, verify, revoke", "TokenServer: checks every request", "SessionServer: the old way", "Verdict: the customer, or why not"]
+narration = """
+Here is who does what. [[slnc 400]] The token service issues tokens, checks them, and can revoke them. [[slnc 500]]
+The token server keeps no sessions. [[slnc 300]] It checks the token on every request. [[slnc 500]]
+The session server is the old way. [[slnc 300]] And a verdict says which customer the token names, or why it was refused.
+"""
+
+[[scene]]
+key = "06-recognise"
+kind = "bullets"
+title = "Where You Have Seen It"
+body = ["Authorization: Bearer headers", "OAuth 2.0 access tokens", "OpenID Connect", "Spring Security resource servers"]
+narration = """
+You have probably met this pattern already. [[slnc 400]] Requests carrying a bearer token in their authorization header. [[slnc 500]]
+The access tokens of OAuth, and the identity tokens of OpenID Connect. [[slnc 500]]
+And Spring Security can check them for you.
+"""
+
+[[scene]]
+key = "07-verdict"
+kind = "bullets"
+title = "When To Use It"
+body = ["Several servers or services.", "", "Keep tokens short-lived.", "No secrets in the payload.", "Guard and rotate the key.", "Plan for sign-out."]
+narration = """
+So, when should you use it? [[slnc 400]] When several servers or services must recognise the same customer. [[slnc 500]]
+Keep tokens short-lived. [[slnc 300]] Put nothing secret inside them. [[slnc 300]] Guard the key, and change it regularly. [[slnc 300]] And plan for early sign-out.
+"""
+
+[[scene]]
+key = "08-outro"
+kind = "outro"
+title = "Thanks for Watching"
+body = ["Full source, notes, diagrams and an animated walkthrough", "are in the repository. Share the", "revoked list between servers."]
+narration = """
+That's the Token Authentication pattern. [[slnc 400]] If you remember one sentence, make it this one. [[slnc 300]] Carry signed proof of who you are, not a session on one server. [[slnc 500]]
+The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. [[slnc 300]] It runs offline, with nothing installed except a Java development kit. [[slnc 500]]
+Here is one exercise to try. [[slnc 300]] Share the revoked list between both servers. [[slnc 500]]
+If this helped, a like really does help other people find it. [[slnc 300]] And subscribe, if you'd like the rest of the series. [[slnc 400]] Thanks for watching.
+"""

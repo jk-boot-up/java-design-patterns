@@ -1,0 +1,448 @@
+# pattern.toml for the Proactor project. See tools/patternkit.
+
+[project]
+slug = "proactor"
+category = "concurrency-design-patterns"
+title = "Proactor"
+package = "proactor"
+main_class = "ProactorDemo"
+tagline = "Start it all, get called back"
+bold = "Start slow operations without waiting for them, and give each one a completion handler that the system calls when it finishes, successfully or not."
+domain_note = ""
+thumb_lines = ["PROACTOR"]
+thumb_code = "CompletionHandler"
+youtube_title = "Proactor"
+youtube_tags = ["proactor pattern", "asynchronous io", "completion handler", "java nio2", "concurrency", "java"]
+
+[readme]
+intro = """
+Proactor is a concurrency pattern for slow input and output, such as network
+calls. Instead of starting an operation and waiting for it, the program starts
+it and hands over a completion handler: a small object that says what to do
+when the operation finishes, and what to do if it fails. The system does the
+waiting and calls the handler when the result is ready.
+
+Many operations can then be in flight at once from a single caller, and their
+waiting overlaps. Java's asynchronous channels (`AsynchronousSocketChannel`,
+`AsynchronousFileChannel`) and `CompletionHandler` are a direct
+implementation.
+"""
+analogy = """
+Think of a food court with a buzzer at every stall. You order at five stalls,
+one after another, and each hands you a buzzer. You do not queue at a stall
+until your dish is cooked. You sit down, and as each buzzer goes off, you go
+and collect that dish. If one stall runs out of what you ordered, its buzzer
+goes off too, and they tell you.
+"""
+scenario = """
+The online store's warehouse buys kettles from five suppliers. Before each
+order it asks all five for today's price and picks the cheapest. Each supplier
+takes 0.2 seconds to answer, and the warehouse asked them one after another,
+waiting for each answer before asking the next: over a second every time.
+"""
+costs = [
+    "**One request, several callbacks.** Connect, write and read each finish in a different handler; the steps no longer read top to bottom.",
+    "**Harder debugging.** Stack traces start in the system's threads, not in the code that started the work.",
+    "**Shared results.** Handlers run on other threads, so results must be collected safely.",
+]
+too_much = """
+When operations are few, fast or must happen in order, plain blocking calls
+are clearer. And in modern Java, virtual threads let you write blocking code
+that waits just as cheaply; `CompletableFuture` or a reactive library gives a
+friendlier face to the same idea.
+"""
+met_before = [
+    "`AsynchronousSocketChannel` and `CompletionHandler` in Java NIO.2.",
+    "`HttpClient.sendAsync` and `CompletableFuture.thenAccept`.",
+    "Windows I/O completion ports and Linux io_uring, which the pattern is named after.",
+    "Callbacks in JavaScript's Node.js file and network APIs.",
+]
+where = """
+This project is in [concurrency-design-patterns](..), next to
+[Reactor](../reactor-pattern), which is told when an operation *can* be done;
+a proactor is told when it *has been* done.
+"""
+
+[[act]]
+title = "One after another"
+summary = "Five suppliers at 0.2 s each, asked in turn: 5 prices in over 0.9 s, the asking thread blocked throughout."
+detail = """
+`BlockingQuotes` opens a connection to each supplier, sends "price KETTLE-1",
+and waits for the answer before moving on. Each supplier takes 0.2 seconds, so
+five prices take over 0.9 seconds, and the asking thread does nothing else
+the whole time.
+"""
+speech = """
+First demo: ask five suppliers for a kettle price, one after another. [[slnc 400]] Each supplier takes a fifth of a second to answer. [[slnc 500]]
+The warehouse asks the first, and waits. [[slnc 300]] Then the second, and waits. [[slnc 300]] And so on. [[slnc 600]]
+Five prices take nearly a second. [[slnc 300]] And the asking thread does nothing else, the whole time.
+"""
+rows = { caller = "active wrong", s1 = "active amber" }
+console = [
+    ["5 prices in over 0.9 s", "bad"],
+    ["the asking thread only waited", "bad"],
+]
+
+[[act]]
+title = "Start everything at once"
+summary = "All 5 requests start and start() returns in under 0.1 s; all 5 answers arrive in under 0.6 s."
+detail = """
+`ProactorQuotes.start` opens an asynchronous channel to each supplier and
+calls `connect` with a completion handler. It does not wait: all five are
+started, and `start` returns, in under a tenth of a second. The system does the
+waiting, the five 0.2 second waits overlap, and all answers arrive in under
+0.6 seconds.
+"""
+speech = """
+Second demo: a proactor. [[slnc 400]] The warehouse starts all five requests at once. [[slnc 300]] For each, it hands over a completion handler: what to do when that request finishes. [[slnc 600]]
+It does not wait. [[slnc 300]] All five are started, and the method returns, in under a tenth of a second. [[slnc 500]]
+The system does the waiting. [[slnc 300]] The five waits overlap. [[slnc 300]] All five answers arrive in under six tenths of a second.
+"""
+rows = { caller = "active ok", s1 = "active ok", s2 = "active ok", s3 = "active ok" }
+console = [
+    ["5 requests started in under 0.1 s", "ok"],
+    ["5 answers in under 0.6 s", "ok"],
+]
+
+[[act]]
+title = "Completion handlers"
+summary = "The read handlers record £21.00, £19.50, £22.40, £18.90 and £20.10; the cheapest is £18.90."
+detail = """
+Each request is a chain of three handlers: `Connected` sends the question,
+`Written` starts reading the answer, `Read` records the price. The five read
+handlers record £21.00, £19.50, £22.40, £18.90 and £20.10, and the warehouse
+picks the cheapest, £18.90.
+"""
+speech = """
+Third demo: completion handlers receive the results. [[slnc 400]] When a connection is made, one handler sends the question. [[slnc 300]] When the question is sent, another starts reading. [[slnc 300]] When the answer arrives, a third records the price. [[slnc 600]]
+Twenty-one pounds. [[slnc 200]] Nineteen fifty. [[slnc 200]] Twenty-two forty. [[slnc 200]] Eighteen ninety. [[slnc 200]] Twenty ten. [[slnc 500]]
+The cheapest is eighteen pounds ninety.
+"""
+rows = { handlers = "active ok" }
+console = [
+    ["£21.00  £19.50  £22.40  £18.90  £20.10", "ok"],
+    ["cheapest: £18.90", "ok"],
+]
+
+[[act]]
+title = "A failure is a completion"
+summary = "Supplier 6 is down: its failed() handler runs; the other 2 answer as normal."
+detail = """
+A sixth supplier is down. Its connect cannot complete, so the system calls
+that request's `failed` handler instead of `completed`. It is recorded as a
+failure, and the other two requests in the batch answer as normal. No
+try-catch surrounds the call that started them.
+"""
+speech = """
+Fourth demo: a failure arrives as a completion too. [[slnc 400]] A sixth supplier's server is down. [[slnc 500]]
+Its request cannot connect. [[slnc 300]] So the system calls that request's failed handler, instead of its completed handler. [[slnc 600]]
+The failure is recorded. [[slnc 300]] The other two suppliers answer as normal. [[slnc 300]] Like a buzzer that goes off to say: sorry, sold out.
+"""
+rows = { handlers = "active amber", s6 = "active wrong" }
+console = [
+    ["supplier 6 down: failed() handler ran", "amber"],
+    ["the other 2 answered as normal", "ok"],
+]
+
+[[act]]
+title = "The bill"
+summary = "One request is spread across Connected, Written and Read handlers; the steps no longer read top to bottom."
+detail = """
+One request is now three handlers: `Connected.completed` writes,
+`Written.completed` reads, `Read.completed` records. The steps no longer read
+top to bottom in one method, and a stack trace from a handler starts in the
+system's thread, not in the code that asked.
+"""
+speech = """
+Fifth demo: the bill. [[slnc 400]] One request is now spread across three handlers. [[slnc 300]] Connected. [[slnc 200]] Written. [[slnc 200]] Read. [[slnc 600]]
+The steps no longer read top to bottom in one method. [[slnc 300]] And when something goes wrong, the error starts in the system's thread, not in the code that asked.
+"""
+rows = { handlers = "active amber" }
+console = [
+    ["Connected -> Written -> Read", "amber"],
+    ["no longer top to bottom", "amber"],
+]
+
+[animation]
+subtitle = "The warehouse starts every supplier request at once; the system calls each request's completion handler when it finishes."
+boxes = [
+    ["caller", "Warehouse", "starts the requests"],
+    ["s1", "Supplier 1", "0.2 s"],
+    ["s2", "Supplier 2", "0.2 s"],
+    ["s3", "Suppliers 3-5", "0.2 s each"],
+    ["s6", "Supplier 6", "down"],
+    ["handlers", "Completion handlers", "Connected, Written, Read"],
+]
+
+[docs.problem]
+scenario = """
+The warehouse asks five suppliers for a price before each order; each takes
+0.2 seconds to answer.
+"""
+naive = """
+`BlockingQuotes` asks one supplier at a time and waits for each answer: over
+0.9 seconds, with the thread doing nothing else.
+"""
+deliver = [
+    "Sequential blocking asks shown taking over 0.9 s.",
+    "Asynchronous channels started at once, returning in under 0.1 s.",
+    "Completion handlers recording each price; the cheapest chosen.",
+    "A down supplier reported through failed().",
+    "Every printed result asserted by a test, over real sockets.",
+]
+
+[docs.prerequisites]
+required = [
+    "Java basics: classes, interfaces, inner classes.",
+    "What a socket connection is.",
+]
+not_required = [
+    "Reactive libraries. Plain `AsynchronousSocketChannel` is used.",
+]
+
+[docs.session]
+objectives = [
+    "Explain initiating an operation versus waiting for it.",
+    "Write completed and failed handlers.",
+    "Chain handlers for connect, write and read.",
+    "Compare Proactor with Reactor.",
+]
+walkthrough = """
+Run `./gradlew run` and compare the times in acts one and two. Open
+`ProactorQuotes`: `start` only starts. Follow one request through
+`Connected`, `Written` and `Read`. End with act four: the failure path is a
+handler too.
+"""
+exercises = [
+    "Add a timeout: a supplier that takes more than 0.5 s counts as failed.",
+    "Rewrite `ProactorQuotes` with `HttpClient.sendAsync` and `CompletableFuture`. What disappears?",
+    "Rewrite `BlockingQuotes` with one virtual thread per supplier. Compare the time and the code.",
+]
+
+[docs.explained]
+sentence = """
+A proactor starts slow operations without waiting and lets the system call a
+completion handler, or a failure handler, when each finishes.
+"""
+verdict = """
+Use a proactor, or the futures and reactive libraries built on the idea, when
+many slow operations can overlap. Keep handlers short, collect results safely,
+and consider virtual threads when readable, top-to-bottom code matters more.
+"""
+recognise = [
+    "`CompletionHandler` with `completed` and `failed` methods.",
+    "`sendAsync`, `thenAccept`, `whenComplete`.",
+    "Callbacks passed to I/O calls.",
+]
+
+[spec]
+purpose = """
+Teach Proactor with an online store's supplier price checks over real sockets:
+five blocking asks taking over 0.9 s, then asynchronous channels with
+Connected, Written and Read completion handlers answering in under 0.6 s,
+the cheapest of five prices, and a down supplier reported through failed().
+"""
+nongoals = [
+    "Not CompletableFuture or reactive streams. Named as friendlier forms.",
+    "Not timeouts. They are an exercise.",
+]
+problem = """
+Asking several slow services one after another adds their waits together and
+keeps a thread doing nothing.
+"""
+roles = [
+    ["The pattern", "`ProactorQuotes` with `Connected`, `Written`, `Read`"],
+    ["The slow services", "`Supplier`"],
+    ["The naive version", "`BlockingQuotes`"],
+    ["Entry point", "`ProactorDemo`, five acts"],
+]
+requirements = [
+    "**Real sockets:** every price is fetched over localhost.",
+    "**Start without waiting:** `start` returns in under 0.1 s.",
+    "**Overlapping waits:** five answers in well under five waits.",
+    "**Failures as completions:** a down supplier reaches `failed`.",
+    "**Every printed result is asserted** in `DemoRunsTest`.",
+]
+
+[[diagram]]
+name = "architecture-diagram"
+kind = "flow"
+title = "Proactor — the pieces"
+caption = "The caller starts; the system waits; handlers finish the work."
+nodes = [
+    { id = "c", label = "Warehouse", sub = "start()", col = 0, row = 1, colour = "client" },
+    { id = "s", label = "Async channels", sub = "the system waits", col = 1, row = 1, colour = "amber" },
+    { id = "p", label = "Suppliers 1-5", sub = "0.2 s each", col = 2, row = 0, colour = "client" },
+    { id = "h", label = "Completion handlers", sub = "Connected, Written, Read", col = 2, row = 2, colour = "accent" },
+]
+edges = [
+    { from = "c", to = "s", label = "connect + handler" },
+    { from = "s", to = "p", label = "network" },
+    { from = "s", to = "h", label = "completed / failed" },
+]
+
+[[diagram]]
+name = "class-diagram"
+kind = "class"
+title = "Proactor — classes"
+caption = "Three small handlers, chained."
+nodes = [
+    { id = "q", label = "ProactorQuotes", sub = ["+ start(ports)", "+ await(ms)", "+ results()"], col = 0, row = 0, colour = "accent" },
+    { id = "c", label = "Connected", sub = ["completed: write", "failed: record"], col = 1, row = 0, colour = "green" },
+    { id = "w", label = "Written", sub = ["completed: read"], col = 1, row = 1, colour = "green" },
+    { id = "r", label = "Read", sub = ["completed: record price"], col = 2, row = 1, colour = "green" },
+    { id = "h", label = "«interface» CompletionHandler", sub = ["completed(result, attachment)", "failed(error, attachment)"], col = 2, row = 0, colour = "amber" },
+]
+edges = [
+    { from = "q", to = "c", label = "starts with" },
+    { from = "c", to = "w", label = "then" },
+    { from = "w", to = "r", label = "then" },
+    { from = "c", to = "h", label = "implements" },
+]
+
+[[diagram]]
+name = "data-flow-diagram"
+kind = "flow"
+title = "Proactor — waits overlap"
+caption = "Five 0.2 s waits, side by side instead of end to end."
+nodes = [
+    { id = "a", label = "one after another", sub = "0.2 + 0.2 + 0.2 + 0.2 + 0.2", col = 0, row = 0, colour = "red" },
+    { id = "b", label = "over 0.9 s", sub = "", col = 2, row = 0, colour = "red" },
+    { id = "c", label = "all at once", sub = "five 0.2 s waits together", col = 0, row = 1, colour = "green" },
+    { id = "d", label = "under 0.6 s", sub = "", col = 2, row = 1, colour = "green" },
+]
+edges = [
+    { from = "a", to = "b", label = "blocking" },
+    { from = "c", to = "d", label = "proactor" },
+]
+
+[[diagram]]
+name = "sequence-diagram"
+kind = "sequence"
+title = "Proactor — one request"
+caption = "Three completions, three handlers."
+participants = ["Warehouse", "System", "Supplier"]
+steps = [
+    ["Warehouse", "System", "connect(port, Connected)"],
+    ["System", "Supplier", "connect"],
+    ["System", "Warehouse", "Connected.completed: write", "reply"],
+    ["System", "Warehouse", "Written.completed: read", "reply"],
+    ["Supplier", "System", "1890"],
+    ["System", "Warehouse", "Read.completed: record £18.90", "reply"],
+]
+
+[[diagram]]
+name = "uml-diagram"
+kind = "sequence"
+title = "1. A supplier that is down"
+caption = "The failure path is a handler too."
+participants = ["Warehouse", "System"]
+steps = [
+    ["Warehouse", "System", "connect(dead port, Connected)"],
+    ["System", "Warehouse", "Connected.failed: connection refused", "reply"],
+]
+
+[[diagram]]
+name = "uml-diagram-2"
+kind = "sequence"
+title = "2. Blocking, for comparison"
+caption = "Ask, wait, ask, wait."
+participants = ["Warehouse", "Supplier 1", "Supplier 2"]
+steps = [
+    ["Warehouse", "Supplier 1", "price? (wait 0.2 s)"],
+    ["Supplier 1", "Warehouse", "£21.00", "reply"],
+    ["Warehouse", "Supplier 2", "price? (wait 0.2 s)"],
+    ["Supplier 2", "Warehouse", "£19.50", "reply"],
+]
+
+[poster]
+headline = [["PROACTOR", "text"]]
+before = { code = "in.readLine() x 5", note = "over 0.9 s of waiting", tag = "BEFORE" }
+after = { code = "CompletionHandler", note = "all 5 in under 0.6 s", tag = "AFTER" }
+taglines = [["Start it all, get called back", "gold"]]
+
+[[scene]]
+key = "01-poster"
+kind = "poster"
+title = "Proactor"
+narration = """
+Hello, and welcome. [[slnc 400]] This video explains the Proactor pattern, in Java. [[slnc 300]]
+This video is presented by Jayasekhar Konduru. [[slnc 600]]
+First, a simple definition. [[slnc 300]] In a proactor, you start slow operations without waiting for them. [[slnc 300]] With each one, you hand over a completion handler: what to do when it finishes, and what to do if it fails. [[slnc 300]] The system does the waiting, and calls you back. [[slnc 600]]
+Think of a food court with a buzzer at every stall. [[slnc 300]] You order at five stalls, and each gives you a buzzer. [[slnc 300]] You sit down. [[slnc 300]] As each buzzer goes off, you collect that dish. [[slnc 700]]
+In this video, the domain is an online shop's warehouse. [[slnc 300]] Before ordering kettles, it asks five suppliers for today's price, and each takes a fifth of a second to answer. [[slnc 500]]
+By the end, you will hear why asking one after another is slow. [[slnc 300]] How a proactor overlaps the waits. [[slnc 300]] How failures are reported. [[slnc 300]] And what it costs.
+"""
+
+[[scene]]
+key = "02-scenario"
+kind = "bullets"
+title = "The Scenario"
+body = ["Five kettle suppliers.", "Each takes 0.2 s to answer", "\"what is today's price?\"", "", "The warehouse asked them", "one after another."]
+narration = """
+Here is the scenario. [[slnc 400]] The warehouse buys kettles from five suppliers. [[slnc 500]]
+Before each order, it asks all five: what is today's price? [[slnc 300]] Then it picks the cheapest. [[slnc 500]]
+Each supplier takes a fifth of a second to answer. [[slnc 300]] And the warehouse asked them one after another.
+"""
+
+[[scene]]
+key = "03-acts"
+kind = "acts"
+title = "acts"
+
+[[scene]]
+key = "04-pattern"
+kind = "bullets"
+title = "The Pattern"
+body = ["Start the operation;", "do not wait for it.", "", "Hand over a completion handler:", "completed(...) and failed(...).", "", "The system calls it back."]
+narration = """
+Let's name the pattern. [[slnc 400]] Start the operation, and do not wait for it. [[slnc 500]]
+Hand over a completion handler, with two methods. [[slnc 300]] Completed, for when it succeeds. [[slnc 300]] Failed, for when it does not. [[slnc 500]]
+The system does the waiting, and calls the right one when the operation is done.
+"""
+
+[[scene]]
+key = "05-roles"
+kind = "bullets"
+title = "Who Does What"
+body = ["ProactorQuotes: starts every request", "Async channels: do the waiting", "Connected, Written, Read: handlers", "Supplier: slow price servers", "BlockingQuotes: the old way"]
+narration = """
+Here is who does what. [[slnc 400]] Proactor quotes starts every request, and returns at once. [[slnc 500]]
+Java's asynchronous channels do the waiting. [[slnc 500]]
+Connected, written, and read are the completion handlers, one for each step. [[slnc 500]]
+Supplier is a slow price server. [[slnc 300]] And blocking quotes is the old way, kept for comparison.
+"""
+
+[[scene]]
+key = "06-recognise"
+kind = "bullets"
+title = "Where You Have Seen It"
+body = ["AsynchronousSocketChannel", "HttpClient.sendAsync", "CompletableFuture", "Node.js callbacks"]
+narration = """
+You have probably met this pattern already. [[slnc 400]] Java's asynchronous socket and file channels take completion handlers. [[slnc 500]]
+The HTTP client's send async, and completable futures, are friendlier faces of the same idea. [[slnc 500]]
+And Node.js file and network calls take callbacks.
+"""
+
+[[scene]]
+key = "07-verdict"
+kind = "bullets"
+title = "When To Use It"
+body = ["Many slow operations that", "can overlap.", "", "Keep handlers short.", "Collect results safely.", "", "Readable code first? Virtual threads."]
+narration = """
+So, when should you use it? [[slnc 400]] When many slow operations can overlap. [[slnc 500]]
+Keep handlers short, and collect their results safely, because they run on other threads. [[slnc 500]]
+And when readable, top-to-bottom code matters more, Java's virtual threads let blocking code wait just as cheaply.
+"""
+
+[[scene]]
+key = "08-outro"
+kind = "outro"
+title = "Thanks for Watching"
+body = ["Full source, notes, diagrams and an animated walkthrough", "are in the repository. Add a timeout", "for slow suppliers."]
+narration = """
+That's the Proactor pattern. [[slnc 400]] If you remember one sentence, make it this one. [[slnc 300]] Start everything, wait for nothing, and let each result call you back. [[slnc 500]]
+The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. [[slnc 300]] It runs offline, with nothing installed except a Java development kit. [[slnc 500]]
+Here is one exercise to try. [[slnc 300]] Add a timeout, so a supplier slower than half a second counts as failed. [[slnc 500]]
+If this helped, a like really does help other people find it. [[slnc 300]] And subscribe, if you'd like the rest of the series. [[slnc 400]] Thanks for watching.
+"""

@@ -1,0 +1,432 @@
+# pattern.toml for the Higher-Order Functions project. See tools/patternkit.
+
+[project]
+slug = "higher-order-functions"
+category = "functional-design-patterns"
+title = "Higher-Order Functions"
+package = "higherorder"
+main_class = "HigherOrderDemo"
+tagline = "Pass behaviour, not copies"
+bold = "Write functions that take other functions, or return them, so one piece of code can serve many questions and small rules can be combined into bigger ones."
+domain_note = ""
+thumb_lines = ["HIGHER-ORDER", "FUNCTIONS"]
+thumb_code = "filter(all, priceBelow(10))"
+youtube_title = "Higher-Order Functions"
+youtube_tags = ["higher order functions", "lambdas", "predicate", "function composition", "functional programming", "java"]
+
+[readme]
+intro = """
+A higher-order function is a function that takes another function as an
+argument, or returns one as its result. In Java, the functions are lambdas or
+method references, typed as interfaces such as `Predicate` and `Function`.
+
+Taking a function lets one method do many jobs: one `filter` loop, with the
+test passed in, replaces a separate loop for every question. Returning a
+function lets you make rules to order, like `priceBelow(10)`, and combine
+them with `and`, `or` and `andThen`. Java's streams are built entirely on this
+idea.
+"""
+analogy = """
+Think of a coffee machine that takes pods. The machine does the hard part,
+heat and pressure, once. The pod decides the drink. You do not buy a new
+machine for each flavour; you pass a different pod in. And a pod can be made
+to order: a strength and a flavour, combined.
+"""
+scenario = """
+The online store's catalogue page answers questions such as "under 10",
+"in stock" and "mugs". Each question had its own method with its own loop,
+identical except for the one test in the middle. Every new question, such as
+"mugs under 10 that are in stock", meant copying the loop again.
+"""
+costs = [
+    "**Names matter more.** A long chain of anonymous lambdas can hide the rule it implements; name the important ones, like `priceBelow`.",
+    "**Harder stack traces.** An error inside a lambda shows a generated name, not a method you wrote.",
+    "**Order is meaning.** Joined rules run in order, and 20% off then 5 off is not the same as 5 off then 20% off.",
+]
+too_much = """
+One loop with one test needs no function passed in. Higher-order functions
+pay off when the same shape of code is repeated with only a small piece
+changing.
+"""
+met_before = [
+    "`stream().filter(...)`, `map(...)` and `sorted(Comparator.comparing(...))`.",
+    "`Predicate.and`, `Function.andThen` and `Comparator.thenComparing`.",
+    "Callbacks and event listeners, which pass a function to be called later.",
+]
+where = """
+This project is in [functional-design-patterns](..), next to
+[Railway-Oriented Programming](../railway-oriented-pattern), whose `flatMap`
+is itself a higher-order function.
+"""
+
+[[act]]
+title = "A loop for every question"
+summary = "under10, inStock and mugs are 3 methods with 3 identical loops; a combined question would need a 4th."
+detail = """
+The catalogue has three methods: products under 10, products in stock, and
+mugs. Each has its own loop, and the three loops are identical except for the
+one test in the middle. A new question, such as mugs under 10 that are in
+stock, would mean copying the loop a fourth time.
+"""
+speech = """
+First demo: a loop for every question. [[slnc 400]] The catalogue can list products under ten. [[slnc 300]] Products in stock. [[slnc 300]] And mugs. [[slnc 600]]
+Each question has its own method, with its own loop. [[slnc 300]] The three loops are identical, except for one test in the middle. [[slnc 600]]
+A new question, like cheap mugs that are in stock, means copying the loop again.
+"""
+rows = { loops = "active wrong" }
+console = [
+    ["3 methods, 3 identical loops", "bad"],
+    ["a new question: a 4th copy", "bad"],
+]
+
+[[act]]
+title = "Pass the test in"
+summary = "One filter method takes the test as a function: filter(all, p -> p.price() < 10) gives the same answer as the copied loop."
+detail = """
+Now there is one `filter` method, with one loop, and the test is passed in as
+a function. `filter(all, p -> p.price() < 10)` returns the blue mug, the mini
+lamp and the tea towel, the same answer as before. A function that takes
+another function is a higher-order function.
+"""
+speech = """
+Second demo: one loop, and the test is passed in. [[slnc 400]] There is now one filter method. [[slnc 300]] It takes the list, and a function that says yes or no for each product. [[slnc 600]]
+Pass in, price below ten. [[slnc 300]] The blue mug, the mini lamp, and the tea towel. [[slnc 300]] The same answer as before. [[slnc 600]]
+A function that takes another function is called a higher-order function.
+"""
+rows = { filter = "active ok" }
+console = [
+    ["price < 10: Blue mug, Mini lamp, Tea towel", "ok"],
+    ["same answers, one loop", "ok"],
+]
+
+[[act]]
+title = "Functions that make functions"
+summary = "priceBelow(10).and(inCategory(\"mug\")).and(inStock()) finds the Blue mug; priceBelow(20).and(inStock().negate()) finds the Travel mug."
+detail = """
+A function can also return a function. `priceBelow(10)` returns a test made
+to order, and tests combine with `and` and `negate`. Mugs under 10 that are in
+stock is `priceBelow(10).and(inCategory("mug")).and(inStock())`: the blue
+mug. Products under 20 that are sold out: the travel mug. New questions, and
+no new loop.
+"""
+speech = """
+Third demo: functions that make functions. [[slnc 400]] Price below ten returns a test, made to order. [[slnc 300]] So does, in category mug. [[slnc 300]] And, in stock. [[slnc 600]]
+Tests can be joined with and. [[slnc 300]] Price below ten, and a mug, and in stock. [[slnc 300]] The blue mug. [[slnc 600]]
+Price below twenty, and not in stock. [[slnc 300]] The travel mug. [[slnc 500]]
+New questions, built from small parts. [[slnc 300]] And no new loop.
+"""
+rows = { rules = "active ok", filter = "active ok" }
+console = [
+    ["cheap, mug, in stock: Blue mug", "ok"],
+    ["under 20, sold out: Travel mug", "ok"],
+]
+
+[[act]]
+title = "Price rules as values"
+summary = "Desk lamp 45.00: 20% off then 5 off is 31.00; 5 off then 20% off is 32.00."
+detail = """
+Price rules are functions too: `percentOff(20)` and `amountOff(5)`. They are
+joined with `andThen`. For the 45.00 desk lamp, 20% off then 5 off gives
+31.00, and 5 off then 20% off gives 32.00. The order of the functions matters,
+and the code makes the order plain.
+"""
+speech = """
+Fourth demo: price rules are functions too. [[slnc 400]] Twenty percent off is a function. [[slnc 300]] Five off is another. [[slnc 300]] They can be joined, one after the other. [[slnc 600]]
+The desk lamp costs forty-five. [[slnc 300]] Twenty percent off, then five off. [[slnc 300]] Thirty-one. [[slnc 500]]
+Five off, then twenty percent off. [[slnc 300]] Thirty-two. [[slnc 600]]
+The order matters. [[slnc 300]] And the code makes the order plain.
+"""
+rows = { rules = "active ok" }
+console = [
+    ["20% then 5 off: 31.00", "ok"],
+    ["5 off then 20%: 32.00", "amber"],
+]
+
+[[act]]
+title = "The bill"
+summary = "Anonymous lambdas can hide rules and show generated names in stack traces; name the important functions and keep them short."
+detail = """
+Small functions need good names. A chain of anonymous lambdas can hide the
+business rule it implements, and an error inside one shows a generated name
+in the stack trace. Give important functions names, like `priceBelow` and
+`inStock`, and keep each one short.
+"""
+speech = """
+Fifth demo: the bill. [[slnc 400]] Small functions need good names. [[slnc 600]]
+A long chain of unnamed functions can hide the rule it implements. [[slnc 300]] And an error inside one shows a made-up name in the error report. [[slnc 600]]
+So give important functions real names, like price below, and in stock. [[slnc 300]] And keep each one short.
+"""
+rows = { rules = "active amber" }
+console = [
+    ["anonymous lambdas hide rules", "amber"],
+    ["name them: priceBelow, inStock", "ok"],
+]
+
+[animation]
+subtitle = "One filter loop takes tests as functions; small tests and price rules combine."
+boxes = [
+    ["loops", "Copied loops", "one per question"],
+    ["filter", "filter(list, test)", "one loop"],
+    ["rules", "Tests and price rules", "made to order, combined"],
+]
+
+[docs.problem]
+scenario = """
+The catalogue answers questions like "under 10", "in stock" and "mugs".
+"""
+naive = """
+Each question had its own copy of the same loop, differing only in the test.
+"""
+deliver = [
+    "Three copied loops.",
+    "One `filter` taking a `Predicate`.",
+    "Functions returning predicates, combined with `and` and `negate`.",
+    "Price rules joined with `andThen`, where order matters.",
+    "Advice on naming.",
+    "Every printed result asserted by a test.",
+]
+
+[docs.prerequisites]
+required = [
+    "Java basics: lambdas, `List`, records.",
+]
+not_required = [
+    "Streams. The demo uses one plain loop, then points to streams.",
+]
+
+[docs.session]
+objectives = [
+    "Define a higher-order function.",
+    "Pass behaviour into a method as a `Predicate`.",
+    "Return functions from functions, and combine them.",
+    "Compose functions and explain why order matters.",
+]
+walkthrough = """
+Run `./gradlew run` and compare act one's three loops with act two's one.
+Open `Catalogue`: `filter` takes a function, `priceBelow` returns one. End on
+act four's 31.00 and 32.00.
+"""
+exercises = [
+    "Add `priceBetween(low, high)` using `priceBelow` and `negate`.",
+    "Rewrite `filter` with `stream().filter(...)`.",
+    "Add a price rule that rounds to the nearest .99.",
+]
+
+[docs.explained]
+sentence = """
+A higher-order function takes a function or returns one, so behaviour can be
+passed in, made to order, and combined.
+"""
+verdict = """
+Use higher-order functions when the same code shape repeats with a small part
+changing. Pass that part in, build rules from small named functions, and
+mind the order when composing.
+"""
+recognise = [
+    "Method parameters typed `Predicate`, `Function` or `Comparator`.",
+    "Factory methods that return lambdas.",
+    "Chains of `and`, `andThen` and `thenComparing`.",
+]
+
+[spec]
+purpose = """
+Teach Higher-Order Functions with an online store's catalogue: three copied
+filter loops, one filter taking a predicate, predicates made to order and
+combined, price rules composed in two orders, and advice on naming.
+"""
+nongoals = [
+    "Not a tour of streams. One plain loop keeps the idea visible.",
+]
+problem = """
+Code copied for each question, differing only in a small piece of behaviour.
+"""
+roles = [
+    ["Takes a function", "`Catalogue.filter`"],
+    ["Returns functions", "`priceBelow`, `inCategory`, `inStock`, `percentOff`, `amountOff`"],
+    ["The old way", "`CopyPasteFilters`"],
+    ["The data", "`Product`"],
+    ["Entry point", "`HigherOrderDemo`, five acts"],
+]
+requirements = [
+    "**Same answers:** `filter` with a test matches the copied loop.",
+    "**Composable:** predicates combine with `and` and `negate`.",
+    "**Ordered:** composed price rules give different results in different orders.",
+    "**Every printed result is asserted** in `DemoRunsTest`.",
+]
+
+[[diagram]]
+name = "architecture-diagram"
+kind = "flow"
+title = "Higher-Order Functions — the pieces"
+caption = "The loop is written once; the test is passed in."
+nodes = [
+    { id = "a", label = "priceBelow(10)", sub = "returns a test", col = 0, row = 0, colour = "accent" },
+    { id = "b", label = "inCategory(\"mug\")", sub = "returns a test", col = 0, row = 1, colour = "accent" },
+    { id = "c", label = ".and(...)", sub = "combined test", col = 1, row = 0, colour = "accent" },
+    { id = "d", label = "filter(all, test)", sub = "one loop", col = 2, row = 0, colour = "green" },
+]
+edges = [
+    { from = "a", to = "c", label = "" },
+    { from = "b", to = "c", label = "" },
+    { from = "c", to = "d", label = "passed in" },
+]
+
+[[diagram]]
+name = "class-diagram"
+kind = "class"
+title = "Higher-Order Functions — classes"
+caption = "Functions in, functions out."
+nodes = [
+    { id = "c", label = "Catalogue", sub = ["+ filter(list, Predicate)", "+ priceBelow(x): Predicate", "+ inStock(): Predicate", "+ percentOff(p): Operator"], col = 0, row = 0, colour = "accent" },
+    { id = "p", label = "«record» Product", sub = ["name, category", "price, stock"], col = 1, row = 0, colour = "client" },
+    { id = "o", label = "CopyPasteFilters", sub = ["under10, inStock, mugs"], col = 1, row = 1, colour = "red" },
+]
+edges = [
+    { from = "c", to = "p", label = "tests" },
+]
+
+[[diagram]]
+name = "data-flow-diagram"
+kind = "flow"
+title = "Higher-Order Functions — two orders"
+caption = "Composed rules run left to right."
+nodes = [
+    { id = "a", label = "45.00", sub = "", col = 0, row = 0, colour = "client" },
+    { id = "b", label = "20% off", sub = "36.00", col = 1, row = 0, colour = "accent" },
+    { id = "c", label = "5 off", sub = "31.00", col = 2, row = 0, colour = "green" },
+    { id = "d", label = "45.00", sub = "", col = 0, row = 1, colour = "client" },
+    { id = "e", label = "5 off", sub = "40.00", col = 1, row = 1, colour = "accent" },
+    { id = "f", label = "20% off", sub = "32.00", col = 2, row = 1, colour = "amber" },
+]
+edges = [
+    { from = "a", to = "b", label = "" },
+    { from = "b", to = "c", label = "" },
+    { from = "d", to = "e", label = "" },
+    { from = "e", to = "f", label = "" },
+]
+
+[[diagram]]
+name = "sequence-diagram"
+kind = "sequence"
+title = "Higher-Order Functions — a filter call"
+caption = "The loop calls the test it was given."
+participants = ["Page", "filter", "test"]
+steps = [
+    ["Page", "filter", "filter(all, priceBelow(10))"],
+    ["filter", "test", "test(Blue mug)"],
+    ["test", "filter", "true", "reply"],
+    ["filter", "Page", "[Blue mug, Mini lamp, Tea towel]", "reply"],
+]
+
+[[diagram]]
+name = "uml-diagram"
+kind = "sequence"
+title = "1. Making a test"
+caption = "A function returns a function."
+participants = ["Page", "priceBelow"]
+steps = [
+    ["Page", "priceBelow", "priceBelow(10)"],
+    ["priceBelow", "Page", "p -> p.price() < 10", "reply"],
+]
+
+[[diagram]]
+name = "uml-diagram-2"
+kind = "sequence"
+title = "2. Joining price rules"
+caption = "andThen runs one after the other."
+participants = ["Checkout", "percentOff(20)", "amountOff(5)"]
+steps = [
+    ["Checkout", "percentOff(20)", "45.00"],
+    ["percentOff(20)", "amountOff(5)", "36.00"],
+    ["amountOff(5)", "Checkout", "31.00", "reply"],
+]
+
+[poster]
+headline = [["HIGHER-ORDER", "text"], ["FUNCTIONS", "text"]]
+before = { code = "3 methods, 3 copied loops", note = "a 4th for every question", tag = "BEFORE" }
+after = { code = "filter(all, priceBelow(10))", note = "one loop, tests passed in", tag = "AFTER" }
+taglines = [["Pass behaviour, not copies", "gold"]]
+
+[[scene]]
+key = "01-poster"
+kind = "poster"
+title = "Higher-Order Functions"
+narration = """
+Hello, and welcome. [[slnc 400]] This video explains Higher-Order Functions, in Java. [[slnc 300]]
+This video is presented by Jayasekhar Konduru. [[slnc 600]]
+First, a simple definition. [[slnc 300]] A higher-order function is a function that takes another function. [[slnc 300]] Or gives one back. [[slnc 500]] That lets one piece of code serve many questions. [[slnc 300]] And lets small rules be joined into bigger ones. [[slnc 600]]
+Think of a coffee machine that takes pods. [[slnc 300]] The machine does the hard part once. [[slnc 300]] The pod decides the drink. [[slnc 300]] You do not buy a new machine for each flavour. [[slnc 300]] You pass a different pod in. [[slnc 700]]
+In this video, the domain is an online shop's catalogue page, and its prices. [[slnc 500]]
+By the end, you will hear how copied loops pile up. [[slnc 300]] How passing a test in replaces them. [[slnc 300]] How to make and join tests to order. [[slnc 300]] And why the order of price rules matters.
+"""
+
+[[scene]]
+key = "02-scenario"
+kind = "bullets"
+title = "The Scenario"
+body = ["The catalogue answers questions:", "under 10, in stock, mugs.", "", "One method and one loop", "per question."]
+narration = """
+Here is the scenario. [[slnc 400]] The shop's catalogue page answers questions. [[slnc 300]] Under ten. [[slnc 300]] In stock. [[slnc 300]] Mugs. [[slnc 500]]
+Each question had its own method, and its own loop. [[slnc 500]]
+The loops were identical, except for one test in the middle.
+"""
+
+[[scene]]
+key = "03-acts"
+kind = "acts"
+title = "acts"
+
+[[scene]]
+key = "04-pattern"
+kind = "bullets"
+title = "The Pattern"
+body = ["Take a function:", "pass the behaviour in.", "", "Return a function:", "make rules to order.", "", "Combine them."]
+narration = """
+Let's name the pattern. [[slnc 400]] A function can take a function. [[slnc 300]] So the part that changes is passed in. [[slnc 500]]
+A function can return a function. [[slnc 300]] So rules can be made to order. [[slnc 500]]
+And functions can be joined, into bigger rules.
+"""
+
+[[scene]]
+key = "05-roles"
+kind = "bullets"
+title = "Who Does What"
+body = ["filter: one loop, test passed in", "priceBelow, inStock: make tests", "percentOff, amountOff: make price rules", "and, andThen: join them"]
+narration = """
+Here is who does what. [[slnc 400]] Filter has the one loop, and takes the test as a function. [[slnc 500]]
+Price below, and in stock, make tests to order. [[slnc 300]] Percent off, and amount off, make price rules. [[slnc 500]]
+And, and and-then, join them together.
+"""
+
+[[scene]]
+key = "06-recognise"
+kind = "bullets"
+title = "Where You Have Seen It"
+body = ["stream().filter and map", "Comparator.comparing", "Predicate.and, Function.andThen", "Callbacks and listeners"]
+narration = """
+You have probably met this pattern already. [[slnc 400]] Java streams take functions in filter and map. [[slnc 500]]
+Comparators are made by functions, and joined with then-comparing. [[slnc 500]]
+And every callback or event listener is a function, passed in to be called later.
+"""
+
+[[scene]]
+key = "07-verdict"
+kind = "bullets"
+title = "When To Use It"
+body = ["Code repeats with one", "small part changing.", "", "Pass that part in.", "Name your functions.", "Mind the order."]
+narration = """
+So, when should you use it? [[slnc 400]] When the same code repeats, with one small part changing. [[slnc 500]]
+Pass that part in. [[slnc 300]] Give important functions names. [[slnc 300]] And mind the order when you join them.
+"""
+
+[[scene]]
+key = "08-outro"
+kind = "outro"
+title = "Thanks for Watching"
+body = ["Full source, notes, diagrams and an animated walkthrough", "are in the repository. Build", "priceBetween from priceBelow."]
+narration = """
+That's Higher-Order Functions. [[slnc 400]] If you remember one sentence, make it this one. [[slnc 300]] Pass the part that changes in, as a function. [[slnc 500]]
+The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. [[slnc 300]] It runs offline, with nothing installed except a Java development kit. [[slnc 500]]
+Here is one exercise to try. [[slnc 300]] Build a price between test, from price below and negate. [[slnc 500]]
+If this helped, a like really does help other people find it. [[slnc 300]] And subscribe, if you'd like the rest of the series. [[slnc 400]] Thanks for watching.
+"""

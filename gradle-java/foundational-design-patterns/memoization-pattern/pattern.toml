@@ -1,0 +1,441 @@
+# pattern.toml for the Memoization project. See tools/patternkit.
+
+[project]
+slug = "memoization"
+category = "foundational-design-patterns"
+title = "Memoization"
+package = "memoization"
+main_class = "MemoizationDemo"
+tagline = "Work it out once, remember it"
+bold = "When a function always gives the same answer for the same argument, remember each answer the first time and hand it back after that."
+domain_note = ""
+thumb_lines = ["MEMOIZATION"]
+thumb_code = "memo.computeIfAbsent(n, ...)"
+youtube_title = "Memoization"
+youtube_tags = ["memoization", "caching", "recursion", "dynamic programming", "java"]
+
+[readme]
+intro = """
+Memoization means remembering the answer a function gave for an argument, so
+the next time it is asked the same question it answers from memory instead of
+working it out again. The word comes from "memo", a note to yourself.
+
+It turns some programs from impossibly slow to instant, especially recursive
+ones that ask the same smaller questions again and again. It is only correct
+for functions whose answer depends on nothing but their argument, and the
+memory it uses grows with every new argument.
+"""
+analogy = """
+Think of a shop assistant asked "how much is delivery to Leeds?" twenty times a
+day. The first time, they phone the courier and wait. Then they write the
+answer on a sticky note by the till. After that, they just read the note. The
+note is only safe while the courier's price does not change; if it does, the
+note is wrong until someone crosses it out.
+"""
+scenario = """
+The online store sells mugs with multi-buy offers: 1 for £4, 2 for £7, 3 for
+£10, 5 for £15. Working out the cheapest price for a big order was written as a
+plain recursive method, and it took nearly ten million calls for 25 mugs. The
+product page also asked the carrier for a shipping quote on every single view,
+200 milliseconds each time.
+"""
+costs = [
+    "**Only for pure functions.** If the answer depends on anything besides the argument, such as the time or an exchange rate, the memo goes stale.",
+    "**Memory grows.** A memo never forgets: 100,000 postcodes means 100,000 answers kept.",
+    "**Keys must be good keys.** The argument must have a correct `equals` and `hashCode`, and must not change after it is stored.",
+]
+too_much = """
+When a function is cheap, or is rarely called twice with the same argument,
+remembering answers costs memory and gains nothing. And when answers go out of
+date, use a real cache with an expiry time and a size limit rather than a plain
+memo.
+"""
+met_before = [
+    "`Map.computeIfAbsent`, the one-line way to memoize in Java.",
+    "Dynamic programming in algorithm courses, which is memoization of recursive problems.",
+    "Caching libraries such as Caffeine, which add size limits and expiry.",
+    "`useMemo` in React, and `@Cacheable` in Spring.",
+]
+where = """
+This project is in [foundational-design-patterns](..). The
+[Cache-Aside](../../micro-services-design-patterns/cache-aside-pattern)
+pattern is the same idea applied to data stored in another service, with
+expiry built in.
+"""
+
+[[act]]
+title = "The same questions again"
+summary = "The plain recursion finds the best price for 25 mugs, £75.00, after 9,749,473 calls."
+detail = """
+`MultiBuy.plain` works out the best price for n mugs as the cheapest of: one
+offer, plus the best price for what is left. That is correct, and the answer
+for 25 mugs is £75.00. But "best for 20 mugs" is worked out again every time
+any path reaches it, and the method is called 9,749,473 times.
+"""
+speech = """
+First demo: the cheapest way to buy twenty-five mugs, worked out plainly. [[slnc 400]] The offers are: one for four pounds, two for seven, three for ten, and five for fifteen. [[slnc 600]]
+The method says: the best price for twenty-five is the cheapest of: one offer, plus the best price for whatever is left. [[slnc 300]] That is correct. [[slnc 500]]
+The answer is seventy-five pounds. [[slnc 300]] But it took nearly ten million calls. [[slnc 500]]
+The best price for twenty mugs was worked out again, every single time it was needed.
+"""
+rows = { plain = "active wrong" }
+console = [
+    ["best price for 25: £75.00", "ok"],
+    ["after 9,749,473 calls", "bad"],
+]
+
+[[act]]
+title = "Memoized"
+summary = "The same method, remembering each answer: £75.00 after 26 calls."
+detail = """
+`MultiBuy.memoized` is the same code, with one change: before working out the
+answer for n, it looks in a map; after working it out, it stores it. Each size
+from 0 to 25 is worked out exactly once: 26 calls, the same £75.00.
+"""
+speech = """
+Second demo: memoized. [[slnc 400]] The same method, with one change. [[slnc 300]] Before working out an answer, it looks in a notebook. [[slnc 300]] After working one out, it writes it down. [[slnc 600]]
+Each size, from nought to twenty-five, is worked out exactly once. [[slnc 300]] Twenty-six calls. [[slnc 300]] The same seventy-five pounds.
+"""
+rows = { memo = "active ok" }
+console = [
+    ["best price for 25: £75.00", "ok"],
+    ["after 26 calls", "ok"],
+]
+
+[[act]]
+title = "A reusable memo"
+summary = "Memo wraps the slow shipping quote: 1000 page views over 12 areas make 12 carrier calls, 2,400 ms instead of 200,000."
+detail = """
+`Memo` wraps any function with `computeIfAbsent`. Wrapped around the carrier's
+shipping quote, 1000 product page views spread over 12 postcode areas make only
+12 slow calls: 2.4 seconds of waiting instead of 200.
+"""
+speech = """
+Third demo: a reusable memo, around a slow shipping quote. [[slnc 400]] Asking the carrier takes two hundred milliseconds. [[slnc 500]]
+One thousand product page views ask for a quote. [[slnc 300]] They come from twelve postcode areas. [[slnc 500]]
+With the memo, the carrier is called twelve times. [[slnc 300]] Two point four seconds of waiting, instead of two hundred seconds.
+"""
+rows = { memo = "active ok", carrier = "active ok" }
+console = [
+    ["1000 views, 12 areas", "muted"],
+    ["carrier calls: 12", "ok"],
+    ["2,400 ms instead of 200,000 ms", "ok"],
+]
+
+[[act]]
+title = "Not safe to memoize"
+summary = "£100.00 is memoized as €116.00; at noon the rate changes, and the memo still says €116.00 instead of €112.00."
+detail = """
+Converting pounds to euros depends on the day's rate, not only on the price. A
+memo stores £100.00 as €116.00 in the morning. At noon the rate changes; the
+real price is now €112.00, but the memo still answers €116.00.
+"""
+speech = """
+Fourth demo: a function that is not safe to memoize. [[slnc 400]] Converting pounds to euros uses today's exchange rate. [[slnc 500]]
+In the morning, one hundred pounds is one hundred and sixteen euros. [[slnc 300]] The memo writes that down. [[slnc 500]]
+At noon, the rate changes. [[slnc 300]] The real price is now one hundred and twelve euros. [[slnc 300]] But the memo still says one hundred and sixteen. [[slnc 600]]
+The answer depended on the time, not only on the price.
+"""
+rows = { memo = "active wrong", rate = "active amber" }
+console = [
+    ["morning: £100.00 is €116.00", "muted"],
+    ["noon: memo says €116.00", "bad"],
+    ["real price: €112.00", "ok"],
+]
+
+[[act]]
+title = "The bill"
+summary = "100,000 different postcodes leave 100,000 answers in memory; real caches add a size limit and expiry."
+detail = """
+A memo never forgets. Asked for 100,000 different postcodes, it keeps 100,000
+answers. Real caching libraries add a size limit and an expiry time, which is
+the difference between a memo and a cache.
+"""
+speech = """
+Fifth demo: the bill. [[slnc 400]] A memo never forgets. [[slnc 300]] Ask it about one hundred thousand different postcodes, and it keeps one hundred thousand answers in memory. [[slnc 600]]
+Real caches add a size limit, and an expiry time.
+"""
+rows = { memo = "active amber" }
+console = [
+    ["100,000 answers kept in memory", "amber"],
+    ["real caches: size limit + expiry", "amber"],
+]
+
+[animation]
+subtitle = "The same question is worked out once and remembered; later askers read the answer from the memo."
+boxes = [
+    ["plain", "Plain recursion", "asks the same questions again"],
+    ["memo", "Memo", "argument -> answer"],
+    ["carrier", "Carrier quote", "200 ms per call"],
+    ["rate", "Exchange rate", "changes at noon"],
+]
+
+[docs.problem]
+scenario = """
+The store works out multi-buy prices recursively and asks the carrier for
+shipping quotes on every product page view.
+"""
+naive = """
+The plain recursion recomputes the same smaller answers (9,749,473 calls for
+25 mugs), and every page view waits 200 ms for a quote it has already had.
+"""
+deliver = [
+    "The call count of the plain recursion, and of the memoized one (26).",
+    "A reusable `Memo` wrapper cutting 1000 quotes to 12.",
+    "A stale answer from memoizing a function that depends on the time.",
+    "Unbounded growth shown: 100,000 entries.",
+    "Every printed result asserted by a test.",
+]
+
+[docs.prerequisites]
+required = [
+    "Java basics: methods, recursion, `Map`.",
+    "`Function` and method references such as `ShippingQuotes::quote`, at a beginner level.",
+]
+not_required = [
+    "Dynamic programming theory.",
+    "Any caching library.",
+]
+
+[docs.session]
+objectives = [
+    "Spot a function that is asked the same question repeatedly.",
+    "Memoize it with a map and `computeIfAbsent`.",
+    "Decide whether a function is safe to memoize.",
+    "Explain the difference between a memo and a cache.",
+]
+walkthrough = """
+Run `./gradlew run` and put the two call counts side by side: nearly ten
+million against 26. Then open `MultiBuy` and compare `plain` and `memoized`
+line by line: the only difference is the map. Finish with act four and ask the
+group for other functions that look pure but are not.
+"""
+exercises = [
+    "Add a \"10 for £28\" offer. How do the two call counts change?",
+    "Give `Memo` a size limit that forgets the oldest answer.",
+    "Fix act four by putting the date in the memo's key.",
+    "Memoize a function whose argument is a mutable object, change the object, and see what goes wrong.",
+]
+
+[docs.explained]
+sentence = """
+Memoization remembers the answer a function gave for each argument and
+returns it again instead of recomputing, which is correct only when the answer
+depends on nothing but the argument.
+"""
+verdict = """
+Memoize expensive, pure functions that are asked the same questions again,
+especially recursive ones. For anything that can go out of date or has many
+distinct arguments, use a cache with expiry and a size limit.
+"""
+recognise = [
+    "`Map.computeIfAbsent` around an expensive call.",
+    "A `memo`, `cache` or `seen` map next to a recursive method.",
+    "`@Cacheable`, `useMemo`, `functools.lru_cache`.",
+]
+
+[spec]
+purpose = """
+Teach Memoization with an online store: a multi-buy best-price recursion taking
+9,749,473 calls for 25 mugs against 26 when memoized, a reusable memo cutting
+1000 shipping quotes to 12, a stale euro price from memoizing a time-dependent
+function, and 100,000 entries kept forever.
+"""
+nongoals = [
+    "Not a caching library. Caffeine is named, not used.",
+    "Not thread safety. The memo is used from one thread.",
+]
+problem = """
+Expensive functions are asked the same questions again and again and
+recompute the answer every time.
+"""
+roles = [
+    ["The pattern", "`Memo`, `MultiBuy.memoized`"],
+    ["Slow work", "`MultiBuy.plain`, `ShippingQuotes.quote`"],
+    ["Not pure", "`ShippingQuotes.Euros`"],
+    ["Entry point", "`MemoizationDemo`, five acts"],
+]
+requirements = [
+    "**Same answers:** memoized and plain agree for every size tested.",
+    "**Once per argument:** the slow function runs once per distinct argument.",
+    "**Honest limits:** staleness and growth are shown, not hidden.",
+    "**Every printed result is asserted** in `DemoRunsTest`.",
+]
+
+[[diagram]]
+name = "architecture-diagram"
+kind = "flow"
+title = "Memoization — the pieces"
+caption = "Look in the memo first; only on a miss call the slow function."
+nodes = [
+    { id = "c", label = "Caller", sub = "quote(LS1)", col = 0, row = 0, colour = "client" },
+    { id = "m", label = "Memo", sub = "argument -> answer", col = 1, row = 0, colour = "accent" },
+    { id = "s", label = "Slow function", sub = "carrier, 200 ms", col = 2, row = 0, colour = "amber" },
+]
+edges = [
+    { from = "c", to = "m", label = "apply" },
+    { from = "m", to = "s", label = "only on a miss" },
+]
+
+[[diagram]]
+name = "class-diagram"
+kind = "class"
+title = "Memoization — classes"
+caption = "A generic wrapper, and a hand-memoized recursion."
+nodes = [
+    { id = "m", label = "Memo<A, R>", sub = ["- Function slow", "- Map answers", "+ apply(A): R", "+ slowCalls()"], col = 0, row = 0, colour = "accent" },
+    { id = "mb", label = "MultiBuy", sub = ["+ plain(n)", "+ memoized(n)", "- Map memo"], col = 1, row = 0, colour = "green" },
+    { id = "q", label = "ShippingQuotes", sub = ["+ quote(area)", "Euros.convert (not pure)"], col = 2, row = 0, colour = "amber" },
+]
+edges = [
+    { from = "m", to = "q", label = "wraps" },
+]
+
+[[diagram]]
+name = "data-flow-diagram"
+kind = "flow"
+title = "Memoization — best price for 5 mugs"
+caption = "Each smaller answer is worked out once and reused."
+nodes = [
+    { id = "a", label = "best(5)", sub = "£15.00", col = 0, row = 0, colour = "client" },
+    { id = "b", label = "best(4)", sub = "£14.00", col = 1, row = 0, colour = "accent" },
+    { id = "c", label = "best(3)", sub = "£10.00", col = 2, row = 0, colour = "accent" },
+    { id = "d", label = "best(2)", sub = "£7.00, stored", col = 2, row = 1, colour = "green" },
+    { id = "e", label = "best(2) again", sub = "read from the memo", col = 1, row = 1, colour = "green" },
+]
+edges = [
+    { from = "a", to = "b", label = "1 + best(4)" },
+    { from = "b", to = "c", label = "1 + best(3)" },
+    { from = "c", to = "d", label = "1 + best(2)" },
+    { from = "b", to = "e", label = "2 + best(2)" },
+]
+
+[[diagram]]
+name = "sequence-diagram"
+kind = "sequence"
+title = "Memoization — two page views"
+caption = "The second view is answered from memory."
+participants = ["Page", "Memo", "Carrier"]
+steps = [
+    ["Page", "Memo", "quote(LS1)"],
+    ["Memo", "Carrier", "quote(LS1) (200 ms)"],
+    ["Carrier", "Memo", "350p", "reply"],
+    ["Memo", "Page", "350p", "reply"],
+    ["Page", "Memo", "quote(LS1)"],
+    ["Memo", "Page", "350p (from memory)", "reply"],
+]
+
+[[diagram]]
+name = "uml-diagram"
+kind = "sequence"
+title = "1. A stale answer"
+caption = "The rate changed; the memo did not."
+participants = ["Page", "Memo", "Euros"]
+steps = [
+    ["Page", "Memo", "convert(£100)"],
+    ["Memo", "Page", "€116 (stored this morning)", "reply"],
+    ["note", "Euros", "rate is now 112"],
+]
+
+[[diagram]]
+name = "uml-diagram-2"
+kind = "sequence"
+title = "2. The plain recursion"
+caption = "The same question, asked again and again."
+participants = ["best(25)", "best(20)"]
+steps = [
+    ["best(25)", "best(20)", "via 5"],
+    ["best(25)", "best(20)", "via 3 + 2"],
+    ["best(25)", "best(20)", "via 2 + 3 ... and more"],
+    ["note", "best(20)", "worked out every time"],
+]
+
+[poster]
+headline = [["MEMOIZATION", "text"]]
+before = { code = "best(25)", note = "9,749,473 calls", tag = "BEFORE" }
+after = { code = "memo.computeIfAbsent(n, ...)", note = "26 calls", tag = "AFTER" }
+taglines = [["Work it out once, remember it", "gold"]]
+
+[[scene]]
+key = "01-poster"
+kind = "poster"
+title = "Memoization"
+narration = """
+Hello, and welcome. [[slnc 400]] This video explains the Memoization pattern, in Java. [[slnc 300]]
+This video is presented by Jayasekhar Konduru. [[slnc 600]]
+First, a simple definition. [[slnc 300]] Memoization means remembering the answer a function gave for each question. [[slnc 300]] The next time it is asked the same question, it answers from memory, instead of working it out again. [[slnc 600]]
+Think of a shop assistant asked, twenty times a day, how much delivery to Leeds costs. [[slnc 300]] The first time, they phone the courier. [[slnc 300]] Then they write the answer on a sticky note by the till. [[slnc 300]] After that, they just read the note. [[slnc 700]]
+In this video, the domain is an online shop. [[slnc 300]] It sells mugs with multi-buy offers, and shows a shipping quote on every product page. [[slnc 500]]
+By the end, you will hear how a plain method can take ten million calls. [[slnc 300]] How memoization brings it down to twenty-six. [[slnc 300]] When it is not safe. [[slnc 300]] And what it costs.
+"""
+
+[[scene]]
+key = "02-scenario"
+kind = "bullets"
+title = "The Scenario"
+body = ["Mugs: 1 for £4, 2 for £7,", "3 for £10, 5 for £15.", "", "What is the cheapest way to", "buy 25?", "", "And a shipping quote on every page."]
+narration = """
+Here is the scenario. [[slnc 400]] The shop sells mugs with multi-buy offers. [[slnc 300]] One for four pounds. [[slnc 300]] Two for seven. [[slnc 300]] Three for ten. [[slnc 300]] Five for fifteen. [[slnc 600]]
+A customer orders twenty-five. [[slnc 300]] What is the cheapest way to combine the offers? [[slnc 500]]
+And every product page also asks the carrier for a shipping quote, which takes two hundred milliseconds.
+"""
+
+[[scene]]
+key = "03-acts"
+kind = "acts"
+title = "acts"
+
+[[scene]]
+key = "04-pattern"
+kind = "bullets"
+title = "The Pattern"
+body = ["Before working out an answer:", "look it up.", "", "After working it out:", "write it down.", "", "Only if the answer depends on", "nothing but the question."]
+narration = """
+Let's name the pattern. [[slnc 400]] Before working out an answer, look it up in a memo. [[slnc 300]] A memo is just a map, from question to answer. [[slnc 500]]
+After working it out, write it down. [[slnc 500]]
+And only do this when the answer depends on nothing but the question. [[slnc 300]] Not on the time, not on a rate, not on anything else.
+"""
+
+[[scene]]
+key = "05-roles"
+kind = "bullets"
+title = "Who Does What"
+body = ["MultiBuy.plain: the slow way", "MultiBuy.memoized: same code + a map", "Memo: wraps any function", "ShippingQuotes: the carrier", "Euros: not safe to memoize"]
+narration = """
+Here is who does what. [[slnc 400]] Multi buy plain is the slow way. [[slnc 300]] Multi buy memoized is the same code, plus a map. [[slnc 500]]
+Memo is a small wrapper that adds a memo to any function. [[slnc 500]]
+Shipping quotes stands in for the slow carrier. [[slnc 300]] And euros is the example that is not safe to memoize.
+"""
+
+[[scene]]
+key = "06-recognise"
+kind = "bullets"
+title = "Where You Have Seen It"
+body = ["Map.computeIfAbsent", "Dynamic programming", "Caffeine, @Cacheable", "useMemo in React"]
+narration = """
+You have probably met this pattern already. [[slnc 400]] In Java, map dot compute if absent is memoization in one line. [[slnc 500]]
+Dynamic programming, in algorithm courses, is memoization of recursive problems. [[slnc 500]]
+Caching libraries such as Caffeine, and Spring's cacheable annotation, build on it. [[slnc 300]] So does use memo, in React.
+"""
+
+[[scene]]
+key = "07-verdict"
+kind = "bullets"
+title = "When To Use It"
+body = ["Expensive, pure functions,", "asked the same questions again.", "", "Can the answer go out of date?", "Use a cache with expiry", "and a size limit."]
+narration = """
+So, when should you use it? [[slnc 400]] For expensive functions that are pure, and are asked the same questions again. [[slnc 300]] Especially recursive ones. [[slnc 500]]
+If the answer can go out of date, or there are huge numbers of different questions, use a real cache instead. [[slnc 300]] One with an expiry time, and a size limit.
+"""
+
+[[scene]]
+key = "08-outro"
+kind = "outro"
+title = "Thanks for Watching"
+body = ["Full source, notes, diagrams and an animated walkthrough", "are in the repository. Fix the euro memo", "by adding the date to the key."]
+narration = """
+That's the Memoization pattern. [[slnc 400]] If you remember one sentence, make it this one. [[slnc 300]] Work it out once, write it down, and only trust the note while the answer cannot change. [[slnc 500]]
+The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. [[slnc 300]] It runs offline, with nothing installed except a Java development kit. [[slnc 500]]
+Here is one exercise to try. [[slnc 300]] Fix the euro memo, by adding the date to its key. [[slnc 500]]
+If this helped, a like really does help other people find it. [[slnc 300]] And subscribe, if you'd like the rest of the series. [[slnc 400]] Thanks for watching.
+"""

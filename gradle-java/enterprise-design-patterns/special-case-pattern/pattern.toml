@@ -1,0 +1,453 @@
+# pattern.toml for the Special Case project. See tools/patternkit.
+
+[project]
+slug = "special-case"
+category = "enterprise-design-patterns"
+title = "Special Case"
+package = "specialcase"
+main_class = "SpecialCaseDemo"
+tagline = "Give the odd case its own class"
+bold = "Instead of returning null for a guest or a missing account, return an object for that special case, which answers every question in the right way for it."
+domain_note = ""
+thumb_lines = ["SPECIAL", "CASE"]
+thumb_code = "new Guest()"
+youtube_title = "Special Case"
+youtube_tags = ["special case pattern", "null object", "enterprise patterns", "martin fowler", "java"]
+
+[readme]
+intro = """
+Special Case is one of Martin Fowler's enterprise application patterns. When a
+lookup has nothing ordinary to return (no customer is logged in, or the
+account was deleted), it returns an object for that particular situation
+instead of `null`. The object implements the same interface as the ordinary
+case, and answers every question in the way that fits: a guest has no
+loyalty points, a former customer cannot be emailed.
+
+Callers stop writing `if (customer == null)`, and a forgotten check can no
+longer crash the program. Null Object is the simplest special case, one that
+does nothing; Special Case allows several, each with its own meaning.
+"""
+analogy = """
+Think of the name badges at a conference. Registered delegates get a printed
+badge with their name. Walk-in visitors get a "Visitor" badge, and people
+whose registration was cancelled but who turn up anyway get a "Guest of the
+organisers" badge. Every door and every stall reads a badge the same way; nobody
+has to stop and ask "wait, do you have a badge at all?"
+"""
+scenario = """
+The online store looks customers up at checkout. Guests have no account, and
+some old orders belong to accounts that have since been deleted. In both cases
+the lookup returned `null`, and checkout checked for null in four places. The
+loyalty points line forgot, and the first guest to check out crashed the page.
+"""
+costs = [
+    "**Mistakes can hide.** A mistyped ID quietly becomes \"Former customer\" and checkout carries on, instead of failing loudly.",
+    "**Every case, every method.** Each new method on `Customer` must be written for `Guest` and `Unknown` too.",
+    "**More classes.** One per special situation.",
+]
+too_much = """
+When a missing value really is an error, say so: throw, or return an `Optional`
+and make the caller decide. Special cases are for situations that are normal
+and have a sensible meaning, like a guest checkout, not for bugs.
+"""
+met_before = [
+    "`Collections.emptyList()`, a special case for \"no items\".",
+    "Anonymous users in web frameworks, such as Spring Security's `AnonymousAuthenticationToken`.",
+    "\"Unknown\" or \"Deleted user\" shown in place of a removed account on forums and shops.",
+]
+where = """
+This project is in [enterprise-design-patterns](..). Its simplest form, a
+single do-nothing object, is the
+[Null Object](../../foundational-design-patterns/null-object-pattern) pattern.
+"""
+
+[[act]]
+title = "Null checks everywhere"
+summary = "Priya pays £38.00; a guest checking out causes a NullPointerException because the points line forgot its check."
+detail = """
+`Directory.findOrNull` returns `null` for a guest. `Checkout.withNullChecks`
+checks for null when reading the name, the discount and the marketing flag,
+but not before adding loyalty points. Priya, a registered customer, pays
+£38.00 after her member discount. The first guest causes a
+`NullPointerException`.
+"""
+speech = """
+First demo: no customer means null, and null checks everywhere. [[slnc 400]] Null is Java's way of saying: there is no object here. [[slnc 500]]
+Priya is a registered customer. [[slnc 300]] She pays thirty-eight pounds, after her member discount. [[slnc 500]]
+Then a guest checks out. [[slnc 300]] There is no account, so the lookup returns null. [[slnc 300]] Checkout checked for null when reading the name, the discount, and the newsletter flag. [[slnc 300]] But the loyalty points line forgot. [[slnc 600]]
+The page crashes, with a null pointer exception.
+"""
+rows = { lookup = "active amber", checkout = "active wrong" }
+console = [
+    ["Priya pays £38.00", "ok"],
+    ["a guest: NullPointerException", "bad"],
+    ["the points line forgot its check", "bad"],
+]
+
+[[act]]
+title = "A guest special case"
+summary = "The lookup returns a Guest; checkout has no ifs; the guest pays £40.00 with 0 points."
+detail = """
+`Directory.find` never returns null. With no ID it returns a `Guest`, which
+implements `Customer`: name "Guest", no discount, no points, no newsletter.
+`Checkout.run` has no null checks. Priya pays £38.00 and earns points; the
+guest pays £40.00 and earns none.
+"""
+speech = """
+Second demo: a guest special case. [[slnc 400]] The lookup never returns null any more. [[slnc 300]] With no account, it returns a guest object. [[slnc 500]]
+The guest answers every question checkout asks. [[slnc 300]] Its name is Guest. [[slnc 300]] Its discount is zero. [[slnc 300]] It earns no points, and gets no newsletter. [[slnc 600]]
+Checkout has no if statements at all. [[slnc 300]] Priya pays thirty-eight pounds. [[slnc 300]] The guest pays forty pounds, with no points. [[slnc 300]] Nothing crashes.
+"""
+rows = { lookup = "active ok", guest = "active ok", checkout = "active ok" }
+console = [
+    ["Priya pays £38.00, points 196", "ok"],
+    ["Guest pays £40.00, points 0", "ok"],
+    ["checkout has no ifs", "ok"],
+]
+
+[[act]]
+title = "An unknown customer"
+summary = "An old order by deleted account C-99 shows \"Former customer\" and the report runs."
+detail = """
+An old order belongs to `C-99`, an account that was deleted. The lookup
+returns an `Unknown` special case that remembers the old ID. The order history
+report runs, shows "Former customer", and still records who it was.
+"""
+speech = """
+Third demo: a second special case. [[slnc 400]] An old order belongs to account C 99. [[slnc 300]] That account was deleted. [[slnc 500]]
+The lookup returns an unknown customer. [[slnc 300]] Its name is Former customer. [[slnc 300]] It remembers the old ID. [[slnc 500]]
+The order history report runs, with no crash, and still says who it was.
+"""
+rows = { lookup = "active ok", unknown = "active ok" }
+console = [
+    ["Former customer pays £25.00", "ok"],
+    ["Unknown[formerId=C-99]", "ok"],
+]
+
+[[act]]
+title = "Behaviour, not type checks"
+summary = "Newsletter: Priya yes, Guest no, Former customer no; no instanceof anywhere."
+detail = """
+The newsletter step asks each customer `canReceiveMarketing()`. Priya says yes;
+the guest and the former customer say no. Nowhere does code ask
+`instanceof Guest`: each case answers for itself.
+"""
+speech = """
+Fourth demo: ask for behaviour, not for the type. [[slnc 400]] The newsletter step asks each customer one question. [[slnc 300]] Can you receive marketing? [[slnc 500]]
+Priya: yes. [[slnc 300]] The guest: no. [[slnc 300]] The former customer: no. [[slnc 600]]
+Nowhere does the code ask: are you a guest? [[slnc 300]] Each case answers for itself.
+"""
+rows = { registered = "active ok", guest = "active ok", unknown = "active ok" }
+console = [
+    ["Priya: newsletter yes", "ok"],
+    ["Guest: newsletter no", "ok"],
+    ["Former customer: newsletter no", "ok"],
+]
+
+[[act]]
+title = "The bill"
+summary = "A mistyped ID, C-71, quietly becomes \"Former customer\"; every new Customer method needs writing three times."
+detail = """
+Special cases can hide mistakes. A mistyped ID, `C-71`, quietly becomes a
+former customer and checkout carries on, where a crash would at least have
+been noticed. And each new method on `Customer` must be written for every
+special case too.
+"""
+speech = """
+Fifth demo: the bill. [[slnc 400]] A special case can hide a mistake. [[slnc 300]] Someone mistypes an ID: C 71 instead of C 17. [[slnc 300]] It quietly becomes a former customer, and checkout carries on. [[slnc 600]]
+And every new method on customer must now be written three times. [[slnc 300]] Once for registered customers, once for guests, and once for unknown customers.
+"""
+rows = { lookup = "active amber", unknown = "active amber" }
+console = [
+    ["\"C-71\": Former customer, carries on", "amber"],
+    ["every new method, three times", "amber"],
+]
+
+[animation]
+subtitle = "The customer lookup never returns null: a guest or an unknown customer answers every question in its own sensible way."
+boxes = [
+    ["lookup", "Customer lookup", "never null"],
+    ["registered", "Priya", "5% off, earns points"],
+    ["guest", "Guest", "no discount, no points"],
+    ["unknown", "Former customer", "deleted account"],
+    ["checkout", "Checkout", "no null checks"],
+]
+
+[docs.problem]
+scenario = """
+Checkout serves registered customers, guests without accounts, and old orders
+from deleted accounts.
+"""
+naive = """
+The lookup returns `null` for guests and deleted accounts, and checkout checks
+for null in four places. The points line forgot, and the first guest crashed
+checkout.
+"""
+deliver = [
+    "The crash shown: a NullPointerException for a guest.",
+    "A Guest special case with no discount, no points and no newsletter.",
+    "An Unknown special case for deleted accounts that keeps the old ID.",
+    "Checkout with no null checks and no type checks.",
+    "The cost shown: a mistyped ID hidden as a former customer.",
+    "Every printed result asserted by a test.",
+]
+
+[docs.prerequisites]
+required = [
+    "Java basics: interfaces, classes, records.",
+    "What `null` is and what a `NullPointerException` means.",
+]
+not_required = [
+    "The Null Object pattern, though it helps.",
+]
+
+[docs.session]
+objectives = [
+    "Explain why null checks spread and why one missing check crashes.",
+    "Write a special case that implements the ordinary interface.",
+    "Tell a special case from an error.",
+    "Tell Special Case from Null Object.",
+]
+walkthrough = """
+Run `./gradlew run` and open `Checkout.withNullChecks`: find the one line
+without a check. Then open `SpecialCases`: two small records. Show that
+`Checkout.run` has no `if` at all, and end on act five: when should a missing
+account be an error instead?
+"""
+exercises = [
+    "Add a `Staff` special case with a 20% discount and no points.",
+    "Make `find` throw for IDs that do not match the pattern `C-` plus digits, so mistypes fail loudly.",
+    "Add a method `deliveryName()` and implement it for all three kinds of customer.",
+]
+
+[docs.explained]
+sentence = """
+A special case is an object that stands in for an unusual but normal
+situation, such as a guest or a deleted account, and answers every question
+the ordinary object would, in the way that fits.
+"""
+verdict = """
+Return special cases for situations that are normal and meaningful, so callers
+never check for null. Keep real errors as errors, and make sure every special
+case implements every method sensibly.
+"""
+recognise = [
+    "Classes named `Guest...`, `Unknown...`, `Missing...`, `Anonymous...` or `Empty...`.",
+    "Lookups documented as \"never returns null\".",
+    "`Collections.emptyList()` and similar ready-made empty values.",
+]
+
+[spec]
+purpose = """
+Teach Special Case with an online store's checkout: a null lookup causing a
+NullPointerException for a guest, then Guest and Unknown special cases so
+checkout has no null checks (Priya £38.00, guest £40.00, former customer
+£25.00), behaviour instead of type checks, and a mistyped ID hidden as a
+former customer.
+"""
+nongoals = [
+    "Not accounts or login. Customers are looked up by ID in a map.",
+    "Not Optional. It is named as the alternative for real errors.",
+]
+problem = """
+Returning null for guests and missing accounts forces null checks everywhere,
+and one forgotten check crashes checkout.
+"""
+roles = [
+    ["The contract", "`Customer`"],
+    ["The ordinary case", "`RegisteredCustomer`"],
+    ["The special cases", "`SpecialCases.Guest`, `SpecialCases.Unknown`"],
+    ["The lookup", "`Directory.find` (never null), `findOrNull` (the old way)"],
+    ["Entry point", "`SpecialCaseDemo`, five acts"],
+]
+requirements = [
+    "**Never null:** `find` returns a Customer for every input.",
+    "**No checks:** `Checkout.run` has no null or type checks.",
+    "**Meaningful cases:** guest and unknown each answer every method sensibly.",
+    "**Every printed result is asserted** in `DemoRunsTest`.",
+]
+
+[[diagram]]
+name = "architecture-diagram"
+kind = "flow"
+title = "Special Case — the pieces"
+caption = "The lookup always returns a Customer; checkout treats them all the same."
+nodes = [
+    { id = "d", label = "Directory.find", sub = "never null", col = 0, row = 1, colour = "accent" },
+    { id = "r", label = "RegisteredCustomer", sub = "C-17, Priya", col = 1, row = 0, colour = "client" },
+    { id = "g", label = "Guest", sub = "no ID", col = 1, row = 1, colour = "green" },
+    { id = "u", label = "Unknown", sub = "deleted account", col = 1, row = 2, colour = "green" },
+    { id = "c", label = "Checkout.run", sub = "no ifs", col = 2, row = 1, colour = "accent" },
+]
+edges = [
+    { from = "d", to = "r", label = "found" },
+    { from = "d", to = "g", label = "no ID" },
+    { from = "d", to = "u", label = "not found" },
+    { from = "g", to = "c", label = "Customer" },
+]
+
+[[diagram]]
+name = "class-diagram"
+kind = "class"
+title = "Special Case — classes"
+caption = "Three implementations of one interface."
+nodes = [
+    { id = "c", label = "«interface» Customer", sub = ["name(), points()", "earnPoints(pence)", "discountPercent()", "canReceiveMarketing()"], col = 1, row = 0, colour = "accent" },
+    { id = "r", label = "RegisteredCustomer", sub = ["5% off, 1 point per £"], col = 0, row = 1, colour = "client" },
+    { id = "g", label = "«record» Guest", sub = ["0% off, no points"], col = 1, row = 1, colour = "green" },
+    { id = "u", label = "«record» Unknown", sub = ["formerId", "\"Former customer\""], col = 2, row = 1, colour = "green" },
+]
+edges = [
+    { from = "r", to = "c", label = "implements" },
+    { from = "g", to = "c", label = "implements" },
+    { from = "u", to = "c", label = "implements" },
+]
+
+[[diagram]]
+name = "data-flow-diagram"
+kind = "flow"
+title = "Special Case — three IDs, three answers"
+caption = "What the lookup returns for each input."
+nodes = [
+    { id = "a", label = "\"C-17\"", sub = "", col = 0, row = 0, colour = "client" },
+    { id = "b", label = "no ID", sub = "", col = 0, row = 1, colour = "client" },
+    { id = "c", label = "\"C-99\"", sub = "", col = 0, row = 2, colour = "client" },
+    { id = "d", label = "Priya", sub = "£38.00", col = 2, row = 0, colour = "accent" },
+    { id = "e", label = "Guest", sub = "£40.00", col = 2, row = 1, colour = "green" },
+    { id = "f", label = "Former customer", sub = "£25.00 order", col = 2, row = 2, colour = "green" },
+]
+edges = [
+    { from = "a", to = "d", label = "find" },
+    { from = "b", to = "e", label = "find" },
+    { from = "c", to = "f", label = "find" },
+]
+
+[[diagram]]
+name = "sequence-diagram"
+kind = "sequence"
+title = "Special Case — a guest checks out"
+caption = "No null, no check, no crash."
+participants = ["Checkout", "Directory", "Guest"]
+steps = [
+    ["Checkout", "Directory", "find(null)"],
+    ["Directory", "Checkout", "Guest", "reply"],
+    ["Checkout", "Guest", "discountPercent()"],
+    ["Guest", "Checkout", "0", "reply"],
+    ["Checkout", "Guest", "earnPoints(4000)"],
+    ["note", "Guest", "does nothing"],
+]
+
+[[diagram]]
+name = "uml-diagram"
+kind = "sequence"
+title = "1. The null version"
+caption = "One forgotten check."
+participants = ["Checkout", "Directory"]
+steps = [
+    ["Checkout", "Directory", "findOrNull(null)"],
+    ["Directory", "Checkout", "null", "reply"],
+    ["note", "Checkout", "c.earnPoints(...): NullPointerException"],
+]
+
+[[diagram]]
+name = "uml-diagram-2"
+kind = "sequence"
+title = "2. A mistyped ID"
+caption = "The special case hides the mistake."
+participants = ["Checkout", "Directory"]
+steps = [
+    ["Checkout", "Directory", "find(\"C-71\")"],
+    ["Directory", "Checkout", "Unknown (Former customer)", "reply"],
+    ["note", "Checkout", "carries on"],
+]
+
+[poster]
+headline = [["SPECIAL", "text"], ["CASE", "text"]]
+before = { code = "if (customer == null)", note = "one check missed: crash", tag = "BEFORE" }
+after = { code = "new Guest()", note = "answers every question", tag = "AFTER" }
+taglines = [["Give the odd case its own class", "gold"]]
+
+[[scene]]
+key = "01-poster"
+kind = "poster"
+title = "Special Case"
+narration = """
+Hello, and welcome. [[slnc 400]] This video explains the Special Case pattern, in Java. [[slnc 300]]
+This video is presented by Jayasekhar Konduru. [[slnc 600]]
+First, a simple definition. [[slnc 300]] When there is no ordinary object to return, such as no customer logged in, return an object for that special case instead of nothing. [[slnc 300]] It answers every question in the way that fits. [[slnc 600]]
+Think of the badges at a conference. [[slnc 300]] Delegates get a badge with their name. [[slnc 300]] Walk-in visitors get a visitor badge. [[slnc 300]] Every door reads a badge the same way. [[slnc 300]] Nobody has to stop and ask: do you have a badge at all? [[slnc 700]]
+In this video, the domain is an online shop. [[slnc 300]] Its checkout serves registered customers, guests without an account, and old orders from deleted accounts. [[slnc 500]]
+By the end, you will hear how null checks crash a checkout. [[slnc 300]] How special cases remove them. [[slnc 300]] How to ask for behaviour instead of type. [[slnc 300]] And what special cases can hide.
+"""
+
+[[scene]]
+key = "02-scenario"
+kind = "bullets"
+title = "The Scenario"
+body = ["Registered customers: discount,", "loyalty points, newsletter.", "", "Guests: no account.", "Old orders: deleted accounts.", "", "The lookup returned null."]
+narration = """
+Here is the scenario. [[slnc 400]] Registered customers get a member discount, loyalty points, and the newsletter. [[slnc 500]]
+Guests check out without an account. [[slnc 300]] And some old orders belong to accounts that were deleted. [[slnc 500]]
+For guests and deleted accounts, the customer lookup returned null. [[slnc 300]] Nothing at all.
+"""
+
+[[scene]]
+key = "03-acts"
+kind = "acts"
+title = "acts"
+
+[[scene]]
+key = "04-pattern"
+kind = "bullets"
+title = "The Pattern"
+body = ["Never return null for a normal", "situation.", "", "Return an object for it:", "Guest, Former customer.", "", "Same interface, sensible answers."]
+narration = """
+Let's name the pattern. [[slnc 400]] Never return null for a situation that is normal. [[slnc 500]]
+Return an object for that special case instead. [[slnc 300]] A guest. [[slnc 300]] A former customer. [[slnc 500]]
+Each one implements the same interface as an ordinary customer. [[slnc 300]] And answers every question in the way that fits.
+"""
+
+[[scene]]
+key = "05-roles"
+kind = "bullets"
+title = "Who Does What"
+body = ["Customer: the questions checkout asks", "RegisteredCustomer: the ordinary case", "Guest, Unknown: the special cases", "Directory.find: never returns null"]
+narration = """
+Here is who does what. [[slnc 400]] Customer is the interface: the questions checkout asks. [[slnc 500]]
+Registered customer is the ordinary case. [[slnc 500]]
+Guest and unknown are the special cases. [[slnc 300]] Small records that give the right answers. [[slnc 500]]
+And the directory's find method never returns null.
+"""
+
+[[scene]]
+key = "06-recognise"
+kind = "bullets"
+title = "Where You Have Seen It"
+body = ["Collections.emptyList()", "Anonymous users in web frameworks", "\"Deleted user\" on forums", "Null Object: the simplest special case"]
+narration = """
+You have probably met this pattern already. [[slnc 400]] Collections dot empty list is a special case for no items. [[slnc 500]]
+Web frameworks represent visitors who are not logged in as an anonymous user, not as null. [[slnc 500]]
+Forums show deleted user in place of a removed account. [[slnc 300]] And the Null Object pattern is the simplest special case of all: one that does nothing.
+"""
+
+[[scene]]
+key = "07-verdict"
+kind = "bullets"
+title = "When To Use It"
+body = ["Normal, meaningful situations:", "guests, deleted accounts.", "", "Real errors stay errors:", "throw, or return Optional."]
+narration = """
+So, when should you use it? [[slnc 400]] For situations that are normal, and have a sensible meaning. [[slnc 300]] A guest checking out. [[slnc 300]] An order from a deleted account. [[slnc 500]]
+Keep real errors as errors. [[slnc 300]] If a missing value is a bug, throw an exception, or return an optional, and let the caller decide.
+"""
+
+[[scene]]
+key = "08-outro"
+kind = "outro"
+title = "Thanks for Watching"
+body = ["Full source, notes, diagrams and an animated walkthrough", "are in the repository. Add a Staff", "special case."]
+narration = """
+That's the Special Case pattern. [[slnc 400]] If you remember one sentence, make it this one. [[slnc 300]] Give the odd but normal case its own object, and stop returning null. [[slnc 500]]
+The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. [[slnc 300]] It runs offline, with nothing installed except a Java development kit. [[slnc 500]]
+Here is one exercise to try. [[slnc 300]] Add a staff special case, with a twenty percent discount and no points. [[slnc 500]]
+If this helped, a like really does help other people find it. [[slnc 300]] And subscribe, if you'd like the rest of the series. [[slnc 400]] Thanks for watching.
+"""

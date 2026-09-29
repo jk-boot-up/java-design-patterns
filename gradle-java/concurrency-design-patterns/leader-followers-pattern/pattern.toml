@@ -1,0 +1,446 @@
+# pattern.toml for the Leader/Followers project. See tools/patternkit.
+
+[project]
+slug = "leader-followers"
+category = "concurrency-design-patterns"
+title = "Leader/Followers"
+package = "leaderfollowers"
+main_class = "LeaderFollowersDemo"
+tagline = "Take turns, no hand-offs"
+bold = "Let a pool of threads take turns: one leader waits for the next message, hands leadership to a follower as soon as it gets one, and then handles that message itself."
+domain_note = ""
+thumb_lines = ["LEADER", "FOLLOWERS"]
+thumb_code = "lock(); take(); unlock(); handle()"
+youtube_title = "Leader/Followers"
+youtube_tags = ["leader followers", "concurrency patterns", "thread pool", "java locks", "java"]
+
+[readme]
+intro = """
+Leader/Followers is a concurrency pattern for a pool of threads that handles
+incoming messages. At any moment one thread is the leader and waits for the
+next message; the others are followers, waiting to become leader. When the
+leader receives a message, it passes leadership to a follower straight away,
+and then handles the message itself.
+
+There is no separate dispatcher thread and no second queue: the thread that
+received a message is the thread that handles it. That saves a hand-off
+between threads for every message, which matters in very high-throughput
+servers.
+"""
+analogy = """
+Think of a taxi rank. The taxi at the front waits for the next passenger.
+When someone gets in, that taxi drives off with them, and the next taxi moves
+up to the front to wait. Nobody stands at the rank handing passengers from one
+car to another; the car that picks you up is the car that takes you home.
+"""
+scenario = """
+The online store's order service receives a stream of order messages. A
+dispatcher thread received each message and passed it through a second queue
+to one of four workers. Every message changed threads once, and the dispatcher
+itself handled no orders at all.
+"""
+costs = [
+    "**Order is not kept.** A \"place order\" received first finished after a \"cancel\" received second, because they ran on two threads.",
+    "**Subtle to write.** Getting the hand-over of leadership right needs careful locking.",
+    "**Small gains in Java.** A hand-off between threads is cheap in modern JVMs; the pattern mainly pays off in very high-throughput servers.",
+]
+too_much = """
+For most Java applications, an `ExecutorService` (a dispatcher with a queue)
+is simpler and fast enough. And when messages for the same order must be
+handled in order, route them to the same thread instead.
+"""
+met_before = [
+    "High-performance C++ servers built with ACE and TAO, where the pattern was described.",
+    "Netty's and other event loops where several threads take turns on a shared selector.",
+    "Several threads calling `accept()` on the same server socket.",
+]
+where = """
+This project is in [concurrency-design-patterns](..), next to
+[Half-Sync/Half-Async](../half-sync-half-async-pattern), which does the
+opposite, handing every message across a queue, and
+[Thread Pool](../thread-pool-pattern).
+"""
+
+[[act]]
+title = "A dispatcher that hands off"
+summary = "1 dispatcher + 4 workers: 20 hand-offs between threads, 0 orders handled by the thread that received them."
+detail = """
+`DispatcherWorkers` has one dispatcher thread that takes each message from
+the source and puts it on a second queue for four workers. Twenty orders mean
+twenty hand-offs between threads; none is handled by the thread that
+received it, and the dispatcher handles no orders itself.
+"""
+speech = """
+First demo: a dispatcher receives every message, and hands it to a worker. [[slnc 400]] One dispatcher thread, and four workers. [[slnc 500]]
+The dispatcher takes each order message, and passes it through a second queue to a worker. [[slnc 600]]
+Twenty orders. [[slnc 300]] Twenty hand-offs between threads. [[slnc 300]] And the dispatcher itself handled no orders at all.
+"""
+rows = { source = "active ok", dispatcher = "active amber", workers = "active ok" }
+console = [
+    ["5 threads: 1 dispatcher + 4 workers", "muted"],
+    ["hand-offs between threads: 20", "amber"],
+    ["the dispatcher handled 0 orders", "amber"],
+]
+
+[[act]]
+title = "Leader and followers"
+summary = "4 threads and no dispatcher handle 20 orders; only 1 thread ever waits for a message at a time."
+detail = """
+`LeaderFollowers` has four pool threads and no dispatcher. Leadership is a
+lock: the thread holding it is the leader and waits on the source; the
+others wait for the lock. The count of threads waiting on the source at once
+never goes above one.
+"""
+speech = """
+Second demo: leader and followers. [[slnc 400]] Four threads, and no dispatcher. [[slnc 500]]
+At any moment, one thread is the leader. [[slnc 300]] Only the leader waits for the next message. [[slnc 300]] The others are followers, waiting their turn to lead. [[slnc 600]]
+Twenty orders are handled. [[slnc 300]] And never more than one thread waits for a message at the same moment.
+"""
+rows = { source = "active ok", leader = "active ok", followers = "active amber" }
+console = [
+    ["4 threads, no dispatcher", "ok"],
+    ["20 orders handled", "ok"],
+    ["waiting for a message at once: 1", "ok"],
+]
+
+[[act]]
+title = "Receive, promote, handle"
+summary = "Leadership passes 20 times, once per order; 20 of 20 orders are handled by the thread that received them."
+detail = """
+Each leader takes a message, releases the lock (promoting a follower to
+leader), and then handles the message itself. Leadership passes twenty times,
+once per order, and all twenty are handled by the thread that received them:
+zero hand-offs.
+"""
+speech = """
+Third demo: receive, promote a follower, then handle. [[slnc 400]] The leader takes a message. [[slnc 300]] At once, it passes leadership to a follower. [[slnc 300]] Then it handles the message itself. [[slnc 600]]
+Leadership passes twenty times, once per order. [[slnc 300]] Every order is handled by the thread that received it. [[slnc 300]] Zero hand-offs.
+"""
+rows = { leader = "active ok", followers = "active ok" }
+console = [
+    ["leadership passed on 20 times", "ok"],
+    ["same thread: 20 of 20", "ok"],
+    ["hand-offs: 0", "ok"],
+]
+
+[[act]]
+title = "Every thread works"
+summary = "All 20 orders are handled by several pool threads; none sits as a pure dispatcher."
+detail = """
+All twenty orders are handled by pool threads, spread across several of them.
+No thread spends its life only receiving and passing on.
+"""
+speech = """
+Fourth demo: every thread in the pool does real work. [[slnc 400]] The twenty orders were handled by several different pool threads. [[slnc 500]]
+None of them sat as a pure dispatcher, only receiving and passing on.
+"""
+rows = { leader = "active ok", followers = "active ok" }
+console = [
+    ["20 orders, several threads", "ok"],
+    ["no pure dispatcher", "ok"],
+]
+
+[[act]]
+title = "The bill"
+summary = "\"Place\" then \"cancel\" for ORD-1 finish as cancel first, place second."
+detail = """
+Two messages for the same order arrive in order: "place" (80 ms of work),
+then "cancel" (5 ms). The first leader takes "place" and promotes a follower,
+which takes "cancel" and finishes first. The order of arrival is not the
+order of completion; messages that must stay in order need to go to the same
+thread.
+"""
+speech = """
+Fifth demo: the bill. [[slnc 400]] Two messages for the same order arrive: place the order, then cancel it. [[slnc 600]]
+The first leader takes place order, and promotes a follower. [[slnc 300]] The follower takes cancel, which is quicker. [[slnc 500]]
+Cancel finishes first. [[slnc 300]] Then place. [[slnc 600]]
+Messages that must stay in order need to go to the same thread.
+"""
+rows = { leader = "active wrong", followers = "active wrong" }
+console = [
+    ["received: place, then cancel", "muted"],
+    ["finished: cancel, then place", "bad"],
+]
+
+[animation]
+subtitle = "A pool takes turns: the leader waits for an order, passes leadership on, then handles the order itself."
+boxes = [
+    ["source", "Order messages", "20 incoming"],
+    ["dispatcher", "Dispatcher", "the old way: hands off"],
+    ["workers", "4 workers", "the old way"],
+    ["leader", "Leader", "waits, takes, promotes"],
+    ["followers", "Followers", "waiting to lead"],
+]
+
+[docs.problem]
+scenario = """
+An order service receives a stream of order messages for a pool of threads to
+handle.
+"""
+naive = """
+`DispatcherWorkers` has a dispatcher thread that passes every message across a
+second queue to a worker: twenty hand-offs, and one thread that never handles
+an order.
+"""
+deliver = [
+    "Hand-offs counted for a dispatcher and workers.",
+    "A leader/followers pool with leadership as a lock.",
+    "Proof that only one thread waits on the source at a time.",
+    "Every order handled by the thread that received it.",
+    "The ordering cost shown with place and cancel.",
+    "Every printed result asserted by a test.",
+]
+
+[docs.prerequisites]
+required = [
+    "Java basics: threads, `BlockingQueue`.",
+    "What a lock is: only one thread may hold it at a time.",
+]
+not_required = [
+    "Networking. Messages come from an in-memory queue.",
+]
+
+[docs.session]
+objectives = [
+    "Describe the leader, followers and promotion.",
+    "Implement leadership with a lock.",
+    "Compare with a dispatcher and hand-off queue.",
+    "Explain the ordering cost.",
+]
+walkthrough = """
+Run `./gradlew run` and compare act one's 20 hand-offs with act three's 0.
+Open `LeaderFollowers.takeTurns`: lock, take, unlock, handle. That order of
+four lines is the whole pattern. End on act five with the place and cancel
+messages.
+"""
+exercises = [
+    "Route messages for the same order to the same thread, and show place finishes before cancel.",
+    "Count how many orders each pool thread handled. Is it even?",
+    "Replace the lock with a Semaphore of one permit.",
+]
+
+[docs.explained]
+sentence = """
+Leader/Followers lets a pool of threads take turns: the leader waits for a
+message, promotes a follower, and handles the message itself, with no
+dispatcher and no hand-off.
+"""
+verdict = """
+Use it in very high-throughput servers where a hand-off per message is a
+measurable cost. For most applications, an ExecutorService is simpler. Either
+way, keep messages that must stay in order on the same thread.
+"""
+recognise = [
+    "A lock or semaphore guarding the wait for the next event, released before handling it.",
+    "Several threads calling `select()` or `accept()` in turn.",
+    "No dispatcher thread and no hand-off queue in a pool.",
+]
+
+[spec]
+purpose = """
+Teach Leader/Followers with an online store's order messages: a dispatcher
+handing off all 20, then a four-thread pool where only one thread waits at a
+time, leadership passes 20 times, every order is handled by the thread that
+received it, and place and cancel finish out of order.
+"""
+nongoals = [
+    "Not networking. The source is a BlockingQueue.",
+    "Not performance measurement. Hand-offs are counted, not timed.",
+]
+problem = """
+A dispatcher that receives every message and hands it to another thread adds
+a hand-off per message and a thread that does no real work.
+"""
+roles = [
+    ["The pattern", "`LeaderFollowers`"],
+    ["The messages", "`Message`"],
+    ["What happened", "`Record`"],
+    ["The naive version", "`DispatcherWorkers`"],
+    ["Entry point", "`LeaderFollowersDemo`, five acts"],
+]
+requirements = [
+    "**One waiter:** only the leader waits on the source, asserted.",
+    "**No hand-off:** the receiving thread handles the message, 20 of 20.",
+    "**Honest cost:** out-of-order completion shown.",
+    "**Every printed result is asserted** in `DemoRunsTest`.",
+]
+
+[[diagram]]
+name = "architecture-diagram"
+kind = "flow"
+title = "Leader/Followers — the pieces"
+caption = "One leader waits on the source; followers wait to lead."
+nodes = [
+    { id = "s", label = "Order messages", sub = "the source", col = 0, row = 0, colour = "client" },
+    { id = "l", label = "Leader", sub = "holds the lock, waits", col = 1, row = 0, colour = "accent" },
+    { id = "f", label = "Followers", sub = "wait for the lock", col = 1, row = 1, colour = "amber" },
+    { id = "h", label = "Handle", sub = "on the same thread", col = 2, row = 0, colour = "green" },
+]
+edges = [
+    { from = "s", to = "l", label = "take()" },
+    { from = "l", to = "f", label = "unlock: promote" },
+    { from = "l", to = "h", label = "then handle" },
+]
+
+[[diagram]]
+name = "class-diagram"
+kind = "class"
+title = "Leader/Followers — classes"
+caption = "Leadership is a lock; the source is a queue."
+nodes = [
+    { id = "l", label = "LeaderFollowers", sub = ["- ReentrantLock leadership", "- BlockingQueue source", "- takeTurns()"], col = 0, row = 0, colour = "accent" },
+    { id = "m", label = "«record» Message", sub = ["id, workMs"], col = 1, row = 0, colour = "client" },
+    { id = "r", label = "Record", sub = ["receivedBy, handledBy", "finished order"], col = 2, row = 0, colour = "green" },
+    { id = "d", label = "DispatcherWorkers", sub = ["dispatcher + hand-off queue"], col = 1, row = 1, colour = "red" },
+]
+edges = [
+    { from = "l", to = "m", label = "takes" },
+    { from = "l", to = "r", label = "records" },
+]
+
+[[diagram]]
+name = "data-flow-diagram"
+kind = "flow"
+title = "Leader/Followers — one turn"
+caption = "Lock, take, unlock, handle."
+nodes = [
+    { id = "a", label = "lock()", sub = "become leader", col = 0, row = 0, colour = "accent" },
+    { id = "b", label = "take()", sub = "wait for a message", col = 1, row = 0, colour = "amber" },
+    { id = "c", label = "unlock()", sub = "a follower leads", col = 2, row = 0, colour = "accent" },
+    { id = "d", label = "handle()", sub = "same thread", col = 2, row = 1, colour = "green" },
+]
+edges = [
+    { from = "a", to = "b", label = "" },
+    { from = "b", to = "c", label = "" },
+    { from = "c", to = "d", label = "" },
+]
+
+[[diagram]]
+name = "sequence-diagram"
+kind = "sequence"
+title = "Leader/Followers — two orders"
+caption = "Each thread handles what it received."
+participants = ["pool-1", "pool-2", "Source"]
+steps = [
+    ["pool-1", "Source", "take() as leader"],
+    ["Source", "pool-1", "ORD-1", "reply"],
+    ["note", "pool-2", "becomes leader"],
+    ["pool-2", "Source", "take() as leader"],
+    ["note", "pool-1", "handles ORD-1"],
+    ["Source", "pool-2", "ORD-2", "reply"],
+]
+
+[[diagram]]
+name = "uml-diagram"
+kind = "sequence"
+title = "1. The dispatcher way"
+caption = "Every order changes threads."
+participants = ["Dispatcher", "Hand-off queue", "worker-1"]
+steps = [
+    ["Dispatcher", "Hand-off queue", "put(ORD-1)"],
+    ["worker-1", "Hand-off queue", "take()"],
+    ["note", "worker-1", "handles ORD-1"],
+]
+
+[[diagram]]
+name = "uml-diagram-2"
+kind = "sequence"
+title = "2. Out of order"
+caption = "Place is slower than cancel."
+participants = ["pool-1", "pool-2"]
+steps = [
+    ["note", "pool-1", "takes place (80 ms)"],
+    ["note", "pool-2", "takes cancel (5 ms)"],
+    ["note", "pool-2", "cancel finishes first"],
+]
+
+[poster]
+headline = [["LEADER", "text"], ["FOLLOWERS", "text"]]
+before = { code = "dispatcher.handOff(order)", note = "20 hand-offs", tag = "BEFORE" }
+after = { code = "lock(); take(); unlock(); handle()", note = "0 hand-offs", tag = "AFTER" }
+taglines = [["Take turns, no hand-offs", "gold"]]
+
+[[scene]]
+key = "01-poster"
+kind = "poster"
+title = "Leader/Followers"
+narration = """
+Hello, and welcome. [[slnc 400]] This video explains the Leader Followers pattern, in Java. [[slnc 300]]
+This video is presented by Jayasekhar Konduru. [[slnc 600]]
+First, a simple definition. [[slnc 300]] A pool of threads takes turns. [[slnc 300]] One thread, the leader, waits for the next message. [[slnc 300]] When it gets one, it hands leadership to another thread, and then handles that message itself. [[slnc 600]]
+Think of a taxi rank. [[slnc 300]] The taxi at the front waits for a passenger. [[slnc 300]] When someone gets in, it drives off, and the next taxi moves up. [[slnc 300]] The car that picks you up is the car that takes you home. [[slnc 700]]
+In this video, the domain is an online shop's order service. [[slnc 300]] It receives a stream of order messages, and a pool of threads handles them. [[slnc 500]]
+By the end, you will hear what a dispatcher costs. [[slnc 300]] How leader and followers take turns. [[slnc 300]] How leadership passes on. [[slnc 300]] And why order is not kept.
+"""
+
+[[scene]]
+key = "02-scenario"
+kind = "bullets"
+title = "The Scenario"
+body = ["A stream of order messages.", "", "A dispatcher thread received each", "and handed it to one of 4 workers."]
+narration = """
+Here is the scenario. [[slnc 400]] The order service receives a stream of order messages. [[slnc 500]]
+A dispatcher thread received each message. [[slnc 300]] Then it passed it, through a second queue, to one of four worker threads.
+"""
+
+[[scene]]
+key = "03-acts"
+kind = "acts"
+title = "acts"
+
+[[scene]]
+key = "04-pattern"
+kind = "bullets"
+title = "The Pattern"
+body = ["One leader waits for a message.", "Followers wait to lead.", "", "Receive -> promote a follower", "-> handle it yourself."]
+narration = """
+Let's name the pattern. [[slnc 400]] One thread is the leader. [[slnc 300]] Only it waits for the next message. [[slnc 500]]
+The other threads are followers. [[slnc 300]] They wait to become leader. [[slnc 500]]
+When the leader receives a message, it promotes a follower, and then handles the message itself.
+"""
+
+[[scene]]
+key = "05-roles"
+kind = "bullets"
+title = "Who Does What"
+body = ["LeaderFollowers: the pool", "leadership: a lock", "source: the incoming messages", "Record: who received, who handled", "DispatcherWorkers: the old way"]
+narration = """
+Here is who does what. [[slnc 400]] Leader followers is the pool of threads. [[slnc 500]]
+Leadership is a lock. [[slnc 300]] The thread holding it is the leader. [[slnc 500]]
+The source is the queue of incoming messages. [[slnc 300]] Record notes who received each message, and who handled it. [[slnc 500]]
+And dispatcher workers is the old way, kept for comparison.
+"""
+
+[[scene]]
+key = "06-recognise"
+kind = "bullets"
+title = "Where You Have Seen It"
+body = ["High-performance C++ servers", "Threads taking turns on a selector", "Several threads calling accept()"]
+narration = """
+You have probably met this pattern in fast servers. [[slnc 400]] It was described for high-performance C++ servers. [[slnc 500]]
+Some event loops let several threads take turns on the same selector. [[slnc 500]]
+And several threads calling accept on the same server socket are, in effect, taking turns as leader.
+"""
+
+[[scene]]
+key = "07-verdict"
+kind = "bullets"
+title = "When To Use It"
+body = ["Very high throughput, where a", "hand-off per message counts.", "", "Most apps: an ExecutorService.", "", "Order matters? Same thread."]
+narration = """
+So, when should you use it? [[slnc 400]] In very high-throughput servers, where a hand-off per message is a real cost. [[slnc 500]]
+For most applications, a plain executor service is simpler, and fast enough. [[slnc 500]]
+And either way, messages that must stay in order should go to the same thread.
+"""
+
+[[scene]]
+key = "08-outro"
+kind = "outro"
+title = "Thanks for Watching"
+body = ["Full source, notes, diagrams and an animated walkthrough", "are in the repository. Keep place and cancel", "in order."]
+narration = """
+That's the Leader Followers pattern. [[slnc 400]] If you remember one sentence, make it this one. [[slnc 300]] Take turns to wait, and handle what you receive yourself. [[slnc 500]]
+The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. [[slnc 300]] It runs offline, with nothing installed except a Java development kit. [[slnc 500]]
+Here is one exercise to try. [[slnc 300]] Send messages for the same order to the same thread, so place always finishes before cancel. [[slnc 500]]
+If this helped, a like really does help other people find it. [[slnc 300]] And subscribe, if you'd like the rest of the series. [[slnc 400]] Thanks for watching.
+"""

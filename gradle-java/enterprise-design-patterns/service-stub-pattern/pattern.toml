@@ -1,0 +1,450 @@
+# pattern.toml for the Service Stub project. See tools/patternkit.
+
+[project]
+slug = "service-stub"
+category = "enterprise-design-patterns"
+title = "Service Stub"
+package = "servicestub"
+main_class = "ServiceStubDemo"
+tagline = "Develop without the real service"
+bold = "Put an external service behind a gateway interface, and during development and testing plug in a small, free, in-memory stub that behaves like it, checked regularly against the real thing."
+domain_note = ""
+thumb_lines = ["SERVICE", "STUB"]
+thumb_code = "new PostcodeStub()"
+youtube_title = "Service Stub"
+youtube_tags = ["service stub", "testing", "gateway", "enterprise patterns", "contract testing", "java"]
+
+[readme]
+intro = """
+Service Stub is one of Martin Fowler's enterprise application patterns. When
+your code depends on an external service that is slow, costs money per call,
+or needs the network, you put that service behind a gateway interface. In
+development and in tests you plug in a stub: a small in-memory class that
+implements the same interface and answers like the real service would.
+
+The stub is free and instant, works offline, and can be told to behave badly
+on purpose, so the awkward cases can be tested. Because it is a copy of
+someone else's behaviour, it must be checked against the real service from
+time to time.
+"""
+analogy = """
+Think of a flight simulator. Pilots practise in it every day: it costs nothing
+to fly, and it can give them an engine failure on demand, which nobody would
+arrange on a real aircraft. But the simulator is only useful while it behaves
+like the real plane, so it is checked against the real aircraft's data.
+"""
+scenario = """
+At checkout, the online store turns a postcode into an address using an
+external postcode service. Each lookup costs 5 pence and takes 400
+milliseconds, and it needs the network. Developers called it for every test
+checkout, paid for it, waited for it, and could not work on the train.
+"""
+costs = [
+    "**A second copy to keep in step.** The stub is someone else's behaviour, rewritten; when the real service changes, the stub does not.",
+    "**It only knows what you told it.** A handful of postcodes, not millions.",
+    "**Stubs can lie.** Here the stub accepted small letters, which the real service refuses; only the contract check noticed.",
+]
+too_much = """
+When the real service is free, fast, reliable and available offline, such as
+a library inside your own program, call it directly. And do not stub your own
+database or your own code just to make tests fast; stub what is genuinely
+outside your control.
+"""
+met_before = [
+    "WireMock and MockServer, which stand in for HTTP services.",
+    "Payment providers' test modes and sandbox accounts.",
+    "LocalStack, which stands in for cloud services on a laptop.",
+    "Pact and other contract-testing tools, which check that stubs still match the real thing.",
+]
+where = """
+This project is in [enterprise-design-patterns](..). It is a close relative of
+the [Test Double](../../testing-design-patterns/test-double-pattern) family:
+a service stub is a long-lived fake for a whole external service, used for
+development as well as tests.
+"""
+
+[[act]]
+title = "The real service in development"
+summary = "50 test checkouts cost £2.50 and 20 seconds of waiting; offline, the lookup is unavailable."
+detail = """
+Developers call the real `PostcodeService` for every test checkout. Fifty in a
+day cost £2.50 in lookup fees and twenty seconds of waiting. On a train with no
+signal, the lookup is unavailable and nothing can be tried.
+"""
+speech = """
+First demo: developing against the real postcode service. [[slnc 400]] Every lookup costs five pence, and takes four hundred milliseconds. [[slnc 500]]
+A developer tries fifty test checkouts in a day. [[slnc 300]] Two pounds fifty in lookup fees. [[slnc 300]] Twenty seconds of waiting. [[slnc 600]]
+Then they get on a train with no signal. [[slnc 300]] The lookup is unavailable, and they cannot work at all.
+"""
+rows = { checkout = "active amber", real = "active wrong" }
+console = [
+    ["50 test checkouts: £2.50, 20 s waiting", "bad"],
+    ["no signal: lookup unavailable", "bad"],
+]
+
+[[act]]
+title = "A service stub"
+summary = "PostcodeStub implements the same AddressGateway: 50 checkouts, £0.00, no network, no waiting."
+detail = """
+Checkout already depends only on `AddressGateway`. `PostcodeStub` implements
+it with a small in-memory map of postcodes. The same fifty checkouts cost
+nothing, need no network, and wait for nothing.
+"""
+speech = """
+Second demo: a service stub. [[slnc 400]] Checkout only knows a small interface: the address gateway. [[slnc 300]] A postcode in, an address out. [[slnc 500]]
+The stub implements that interface, with a few postcodes kept in memory. [[slnc 500]]
+Four Mill Lane, Leeds, comes back instantly. [[slnc 300]] Fifty checkouts cost nothing, need no network, and wait for nothing.
+"""
+rows = { checkout = "active ok", stub = "active ok" }
+console = [
+    ["deliver to 4 Mill Lane, Leeds", "ok"],
+    ["50 checkouts: £0.00, no network", "ok"],
+]
+
+[[act]]
+title = "Awkward cases on demand"
+summary = "The stub answers an unknown postcode and can pretend to be down; checkout asks the customer to type the address."
+detail = """
+A stub can be told what to do. An unknown postcode makes checkout ask the
+customer to type their address. A stub switched to "down" makes checkout say
+the lookup is unavailable and fall back to typing. Neither can be ordered from
+the real service at the moment you want to test it.
+"""
+speech = """
+Third demo: the stub plays the awkward cases, on demand. [[slnc 400]] An unknown postcode. [[slnc 300]] Checkout asks the customer to type their address. [[slnc 500]]
+A service that is down. [[slnc 300]] The stub can pretend. [[slnc 300]] Checkout says the lookup is unavailable, and asks the customer to type it. [[slnc 600]]
+You cannot ask the real service to go down, just when you want to test it.
+"""
+rows = { stub = "active amber", checkout = "active ok" }
+console = [
+    ["unknown postcode: please type your address", "ok"],
+    ["service down: please type your address", "ok"],
+]
+
+[[act]]
+title = "The contract check"
+summary = "Asked the same postcodes, stub and real agree except \"ls1 4ap\": the stub finds it, the real service errors."
+detail = """
+`ContractCheck` asks the stub and the real service the same questions, and
+lists where they disagree. It runs weekly, not in every test. It finds one
+difference: for "ls1 4ap" in small letters, the stub finds the address and the
+real service refuses the format. Code tested only against the stub would have
+broken in production.
+"""
+speech = """
+Fourth demo: a contract check. [[slnc 400]] Once a week, the stub and the real service are asked the same questions. [[slnc 300]] Any difference is reported. [[slnc 600]]
+One postcode, typed in small letters. [[slnc 300]] The stub finds the address. [[slnc 300]] The real service refuses it: invalid format. [[slnc 600]]
+Checkout, tested only against the stub, would have broken in production.
+"""
+rows = { contract = "active amber", stub = "active wrong", real = "active ok" }
+console = [
+    ["\"ls1 4ap\": stub found, real error", "bad"],
+    ["the stub accepts small letters", "amber"],
+]
+
+[[act]]
+title = "The bill"
+summary = "The stub is a second, simpler copy of someone else's service: it must be kept in step and knows only what you gave it."
+detail = """
+A stub is a second, simpler copy of a service you do not own. Every change on
+their side must be copied to it, and it only knows the postcodes you put in.
+The contract check is what keeps it honest.
+"""
+speech = """
+Fifth demo: the bill. [[slnc 400]] A stub is a second, simpler copy of someone else's service. [[slnc 500]]
+It must be kept in step with the real one. [[slnc 300]] And it only knows the postcodes you gave it. [[slnc 500]]
+The contract check is what keeps it honest.
+"""
+rows = { stub = "active amber" }
+console = [
+    ["a second copy to keep in step", "amber"],
+    ["knows only what you gave it", "amber"],
+]
+
+[animation]
+subtitle = "Checkout depends on an address gateway; a free in-memory stub stands in for the paid postcode service, checked weekly against it."
+boxes = [
+    ["checkout", "Checkout", "postcode to address"],
+    ["gateway", "AddressGateway", "the interface"],
+    ["real", "PostcodeService", "5p, 400 ms, needs network"],
+    ["stub", "PostcodeStub", "free, instant, can go down"],
+    ["contract", "Contract check", "same questions, weekly"],
+]
+
+[docs.problem]
+scenario = """
+Checkout turns postcodes into addresses with a paid external service that
+needs the network.
+"""
+naive = """
+Developers call the real service for every test checkout: £2.50 and 20 seconds
+a day, no work possible offline, and no way to test an outage.
+"""
+deliver = [
+    "The cost of developing against the real service shown.",
+    "A stub behind the same gateway interface: free, instant, offline.",
+    "Unknown postcodes and outages played on demand.",
+    "A contract check that finds the stub's small-letters difference.",
+    "Every printed result asserted by a test.",
+]
+
+[docs.prerequisites]
+required = [
+    "Java basics: interfaces, `Optional`, exceptions.",
+]
+not_required = [
+    "HTTP or any real postcode service.",
+    "WireMock or Pact. They are named, not used.",
+]
+
+[docs.session]
+objectives = [
+    "Put an external service behind a gateway interface.",
+    "Write a stub that answers like the real service.",
+    "Use the stub to test failures on demand.",
+    "Keep the stub honest with a contract check.",
+]
+walkthrough = """
+Run `./gradlew run` and read act one: money and time spent on lookups. Open
+`AddressGateway` (one method) and `PostcodeStub` (a map and a switch). Finish
+on act four: show that `ContractCheck` is the only thing that noticed the
+small-letters difference.
+"""
+exercises = [
+    "Fix the stub so it refuses small letters, like the real service.",
+    "Make checkout turn postcodes into capitals before looking them up. Does the contract check still find a difference?",
+    "Give the stub a 'slow' mode that takes 3 seconds, and add a timeout to checkout.",
+]
+
+[docs.explained]
+sentence = """
+A service stub is a small in-memory stand-in for an external service, behind
+the same gateway interface, used in development and tests and checked against
+the real service regularly.
+"""
+verdict = """
+Stub services that are slow, paid, unreliable or unavailable offline. Keep
+them behind a gateway interface, let them play failures on demand, and run a
+contract check against the real service on a schedule.
+"""
+recognise = [
+    "Classes named `...Stub`, `Fake...` or `InMemory...` implementing a gateway.",
+    "WireMock or MockServer mappings in a test folder.",
+    "A \"sandbox\" or \"test mode\" setting for an external provider.",
+]
+
+[spec]
+purpose = """
+Teach Service Stub with an online store's postcode lookup: the real service
+costing £2.50 and 20 s a day and failing offline, a stub behind the same
+gateway, unknown postcodes and outages on demand, and a contract check that
+finds the stub accepting small letters the real service refuses.
+"""
+nongoals = [
+    "Not HTTP. The real service is simulated in memory.",
+    "Not a contract-testing framework. Pact is named, not used.",
+]
+problem = """
+Developing and testing against a paid, slow, networked service costs money
+and time, fails offline, and cannot produce failures on demand.
+"""
+roles = [
+    ["The gateway", "`AddressGateway`"],
+    ["The pattern", "`PostcodeStub`"],
+    ["The real service", "`PostcodeService`"],
+    ["Keeping it honest", "`ContractCheck`"],
+    ["The client", "`Checkout`"],
+    ["Entry point", "`ServiceStubDemo`, five acts"],
+]
+requirements = [
+    "**Same interface:** stub and real service both implement `AddressGateway`.",
+    "**Free and offline:** the stub costs nothing and needs no network.",
+    "**Failures on demand:** unknown postcodes and outages can be played.",
+    "**Checked:** the contract check reports the one difference.",
+    "**Every printed result is asserted** in `DemoRunsTest`.",
+]
+
+[[diagram]]
+name = "architecture-diagram"
+kind = "flow"
+title = "Service Stub — the pieces"
+caption = "Checkout sees only the gateway; the stub or the real service sits behind it."
+nodes = [
+    { id = "c", label = "Checkout", sub = "postcode to address", col = 0, row = 0, colour = "client" },
+    { id = "g", label = "AddressGateway", sub = "lookup(postcode)", col = 1, row = 0, colour = "accent" },
+    { id = "s", label = "PostcodeStub", sub = "development, tests", col = 2, row = 0, colour = "green" },
+    { id = "r", label = "PostcodeService", sub = "production, 5p a call", col = 2, row = 1, colour = "amber" },
+    { id = "k", label = "ContractCheck", sub = "weekly", col = 1, row = 1, colour = "client" },
+]
+edges = [
+    { from = "c", to = "g", label = "uses" },
+    { from = "s", to = "g", label = "implements" },
+    { from = "r", to = "g", label = "implements" },
+    { from = "k", to = "s", label = "asks" },
+    { from = "k", to = "r", label = "asks" },
+]
+
+[[diagram]]
+name = "class-diagram"
+kind = "class"
+title = "Service Stub — classes"
+caption = "One interface, two implementations, one check between them."
+nodes = [
+    { id = "g", label = "«interface» AddressGateway", sub = ["+ lookup(postcode): Optional"], col = 1, row = 0, colour = "accent" },
+    { id = "s", label = "PostcodeStub", sub = ["- known postcodes", "+ goDown()"], col = 0, row = 1, colour = "green" },
+    { id = "r", label = "PostcodeService", sub = ["5p, 400 ms", "+ setOnline(bool)"], col = 2, row = 1, colour = "amber" },
+    { id = "k", label = "ContractCheck", sub = ["+ differences(stub, real, postcodes)"], col = 1, row = 1, colour = "client" },
+]
+edges = [
+    { from = "s", to = "g", label = "implements" },
+    { from = "r", to = "g", label = "implements" },
+    { from = "k", to = "g", label = "compares" },
+]
+
+[[diagram]]
+name = "data-flow-diagram"
+kind = "flow"
+title = "Service Stub — three answers"
+caption = "The stub can produce every answer checkout must handle."
+nodes = [
+    { id = "a", label = "LS1 4AP", sub = "known", col = 0, row = 0, colour = "client" },
+    { id = "b", label = "ZZ9 9ZZ", sub = "unknown", col = 0, row = 1, colour = "client" },
+    { id = "c", label = "stub down", sub = "outage", col = 0, row = 2, colour = "client" },
+    { id = "d", label = "deliver to 4 Mill Lane", sub = "", col = 2, row = 0, colour = "green" },
+    { id = "e", label = "please type your address", sub = "not found", col = 2, row = 1, colour = "amber" },
+    { id = "f", label = "please type your address", sub = "unavailable", col = 2, row = 2, colour = "amber" },
+]
+edges = [
+    { from = "a", to = "d", label = "lookup" },
+    { from = "b", to = "e", label = "empty" },
+    { from = "c", to = "f", label = "throws" },
+]
+
+[[diagram]]
+name = "sequence-diagram"
+kind = "sequence"
+title = "Service Stub — a test checkout"
+caption = "No network, no fee."
+participants = ["Checkout", "PostcodeStub"]
+steps = [
+    ["Checkout", "PostcodeStub", "lookup(LS1 4AP)"],
+    ["PostcodeStub", "Checkout", "4 Mill Lane, Leeds", "reply"],
+    ["note", "PostcodeStub", "£0.00, 0 ms"],
+]
+
+[[diagram]]
+name = "uml-diagram"
+kind = "sequence"
+title = "1. The contract check"
+caption = "Same question, different answers."
+participants = ["ContractCheck", "PostcodeStub", "PostcodeService"]
+steps = [
+    ["ContractCheck", "PostcodeStub", "lookup(ls1 4ap)"],
+    ["PostcodeStub", "ContractCheck", "found", "reply"],
+    ["ContractCheck", "PostcodeService", "lookup(ls1 4ap)"],
+    ["PostcodeService", "ContractCheck", "invalid format", "reply"],
+]
+
+[[diagram]]
+name = "uml-diagram-2"
+kind = "sequence"
+title = "2. An outage on demand"
+caption = "The stub is told to go down."
+participants = ["Test", "PostcodeStub", "Checkout"]
+steps = [
+    ["Test", "PostcodeStub", "goDown()"],
+    ["Checkout", "PostcodeStub", "lookup(LS1 4AP)"],
+    ["PostcodeStub", "Checkout", "unreachable", "reply"],
+    ["note", "Checkout", "please type your address"],
+]
+
+[poster]
+headline = [["SERVICE", "text"], ["STUB", "text"]]
+before = { code = "postcodeService.lookup()", note = "5p, 400 ms, needs signal", tag = "BEFORE" }
+after = { code = "new PostcodeStub()", note = "free, instant, offline", tag = "AFTER" }
+taglines = [["Develop without the real service", "gold"]]
+
+[[scene]]
+key = "01-poster"
+kind = "poster"
+title = "Service Stub"
+narration = """
+Hello, and welcome. [[slnc 400]] This video explains the Service Stub pattern, in Java. [[slnc 300]]
+This video is presented by Jayasekhar Konduru. [[slnc 600]]
+First, a simple definition. [[slnc 300]] A service stub is a small, free stand-in for an outside service, such as a paid address lookup. [[slnc 300]] It sits behind the same interface, and answers like the real one. [[slnc 300]] You use it while developing and testing. [[slnc 600]]
+Think of a flight simulator. [[slnc 300]] Pilots practise in it every day, for free. [[slnc 300]] It can give them an engine failure on demand. [[slnc 300]] But it is only useful while it behaves like the real plane, so it is checked against the real aircraft. [[slnc 700]]
+In this video, the domain is an online shop. [[slnc 300]] At checkout, it turns a postcode into an address, using a paid outside service. [[slnc 500]]
+By the end, you will hear what developing against the real service costs. [[slnc 300]] How a stub fixes it. [[slnc 300]] How to test failures on demand. [[slnc 300]] And how to keep a stub honest.
+"""
+
+[[scene]]
+key = "02-scenario"
+kind = "bullets"
+title = "The Scenario"
+body = ["Checkout: postcode to address.", "", "An outside postcode service:", "5p and 400 ms per lookup,", "needs the network."]
+narration = """
+Here is the scenario. [[slnc 400]] At checkout, the customer types a postcode, and the shop fills in the address. [[slnc 500]]
+To do that, it asks an outside postcode service. [[slnc 300]] Each lookup costs five pence. [[slnc 300]] It takes four hundred milliseconds. [[slnc 300]] And it needs the network. [[slnc 500]]
+Developers were calling it for every test checkout.
+"""
+
+[[scene]]
+key = "03-acts"
+kind = "acts"
+title = "acts"
+
+[[scene]]
+key = "04-pattern"
+kind = "bullets"
+title = "The Pattern"
+body = ["Put the service behind a", "gateway interface.", "", "In development and tests:", "a stub, in memory.", "", "Weekly: compare stub and real."]
+narration = """
+Let's name the pattern. [[slnc 400]] Put the outside service behind a small gateway interface. [[slnc 500]]
+In development and in tests, plug in a stub. [[slnc 300]] A small class, in memory, that answers like the real service. [[slnc 500]]
+And regularly, ask the stub and the real service the same questions, to check they still agree.
+"""
+
+[[scene]]
+key = "05-roles"
+kind = "bullets"
+title = "Who Does What"
+body = ["AddressGateway: the interface", "PostcodeService: the real one", "PostcodeStub: the stand-in", "ContractCheck: keeps it honest", "Checkout: the client"]
+narration = """
+Here is who does what. [[slnc 400]] Address gateway is the interface: a postcode in, an address out. [[slnc 500]]
+Postcode service is the real, paid service. [[slnc 300]] Postcode stub is the stand-in, with a few postcodes, and a switch to pretend it is down. [[slnc 500]]
+The contract check compares the two. [[slnc 300]] And checkout is the client, which knows only the interface.
+"""
+
+[[scene]]
+key = "06-recognise"
+kind = "bullets"
+title = "Where You Have Seen It"
+body = ["WireMock, MockServer", "Payment sandboxes and test modes", "LocalStack for cloud services", "Pact contract tests"]
+narration = """
+You have probably met this pattern already. [[slnc 400]] WireMock and MockServer stand in for web services during tests. [[slnc 500]]
+Payment providers offer sandboxes and test modes. [[slnc 300]] LocalStack stands in for cloud services on a laptop. [[slnc 500]]
+And Pact, and other contract-testing tools, check that stubs still match the real thing.
+"""
+
+[[scene]]
+key = "07-verdict"
+kind = "bullets"
+title = "When To Use It"
+body = ["Stub services that are slow,", "paid, unreliable or online-only.", "", "Let stubs play failures.", "Run a contract check on", "a schedule."]
+narration = """
+So, when should you use it? [[slnc 400]] Stub outside services that are slow, paid, unreliable, or only available online. [[slnc 500]]
+Let the stub play failures on demand. [[slnc 300]] And run a contract check against the real service on a schedule. [[slnc 500]]
+Do not stub your own code just to make tests quicker. [[slnc 300]] Stub what is genuinely outside your control.
+"""
+
+[[scene]]
+key = "08-outro"
+kind = "outro"
+title = "Thanks for Watching"
+body = ["Full source, notes, diagrams and an animated walkthrough", "are in the repository. Fix the stub so the", "contract check passes."]
+narration = """
+That's the Service Stub pattern. [[slnc 400]] If you remember one sentence, make it this one. [[slnc 300]] Develop against a free stand-in, and check it against the real thing. [[slnc 500]]
+The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. [[slnc 300]] It runs offline, with nothing installed except a Java development kit. [[slnc 500]]
+Here is one exercise to try. [[slnc 300]] Fix the stub so it refuses small letters, and watch the contract check pass. [[slnc 500]]
+If this helped, a like really does help other people find it. [[slnc 300]] And subscribe, if you'd like the rest of the series. [[slnc 400]] Thanks for watching.
+"""

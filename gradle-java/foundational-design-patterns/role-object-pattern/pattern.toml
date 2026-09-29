@@ -1,0 +1,448 @@
+# pattern.toml for the Role Object project. See tools/patternkit.
+
+[project]
+slug = "role-object"
+category = "foundational-design-patterns"
+title = "Role Object"
+package = "roleobject"
+main_class = "RoleObjectDemo"
+tagline = "One identity, many hats"
+bold = "Keep one core object for the identity, and model each thing it does for a while (buying, selling, referring) as a separate role object that can be added and removed."
+domain_note = ""
+thumb_lines = ["ROLE", "OBJECT"]
+thumb_code = "account.as(Seller.class)"
+youtube_title = "Role Object"
+youtube_tags = ["role object", "design patterns", "composition over inheritance", "roles", "java"]
+
+[readme]
+intro = """
+Role Object is a pattern for things that play different roles over their
+lifetime. Instead of a subclass for every kind of customer, fixed when the
+object is created, there is one core object that holds the identity, and a
+separate role object for each thing it does for a while: a buyer role, a
+seller role, an affiliate role. Roles are added and removed as life changes,
+each with its own data and behaviour, while the identity stays the same.
+"""
+analogy = """
+Think of one person who is a parent, a nurse, and a weekend football coach. It
+is the same person all along. The hospital keeps a record of the nurse role,
+the football club keeps a record of the coach role. When the person gives up
+coaching, the club removes that role, and they are still a parent and still a
+nurse. Nobody has to create a new person.
+"""
+scenario = """
+The online store's customers can also sell on its marketplace and join its
+affiliate scheme. It modelled this with subclasses: `Customer`, and
+`SellingCustomer extends Customer`. When Priya, with twelve orders, opened a
+shop, the code created a new `SellingCustomer` object, and her order history
+stayed behind on the old one.
+"""
+costs = [
+    "**Ask before use.** Every use of a role starts with `as(...)` and a plan for \"no\".",
+    "**Data is spread out.** The name is on the account, the shop name on a role; when the role goes, so does its data.",
+    "**Identity questions.** Code must compare accounts, not roles, to know whether two things are the same person.",
+]
+too_much = """
+When an object's kind never changes during its life, and there are only a
+couple of kinds, a subclass or a simple field is clearer. Role objects pay off
+when roles come and go, combine freely, and bring their own data and
+behaviour.
+"""
+met_before = [
+    "User accounts with roles such as customer, seller and admin in marketplaces.",
+    "Party and PartyRole models in enterprise data, where a person or company plays customer, supplier and employee.",
+    "Actors and their roles in UML and in games.",
+]
+where = """
+This project is in [foundational-design-patterns](..), next to
+[Extension Object](../extension-object-pattern), a close cousin that attaches
+extra data to an object. Role Object focuses on roles with their own behaviour
+that come and go over the object's life.
+"""
+
+[[act]]
+title = "A subclass per kind"
+summary = "Priya opens a shop and becomes a new SellingCustomer object with 0 orders; buyer, seller and affiliate in any mix need 7 classes."
+detail = """
+`Customer` holds Priya's twelve orders. When she opens a shop, the code creates
+a `SellingCustomer`, a different object: it has zero orders, and it is not the
+same object as her customer record. With three kinds of role (buyer, seller,
+affiliate), every combination needs its own class: seven of them.
+"""
+speech = """
+First demo: a subclass for every kind of customer. [[slnc 400]] Priya is a customer with twelve orders. [[slnc 500]]
+Then she opens a shop on the marketplace. [[slnc 300]] The code creates a new object, a selling customer. [[slnc 500]]
+The new object has zero orders. [[slnc 300]] It is not even the same object as Priya the customer. [[slnc 600]]
+And there are three kinds of role: buyer, seller, and affiliate. [[slnc 300]] Every combination needs its own class. [[slnc 300]] Seven classes.
+"""
+rows = { customer = "active amber", subclass = "active wrong" }
+console = [
+    ["opens a shop: a new object", "amber"],
+    ["orders on the new object: 0", "bad"],
+    ["any mix of 3 roles: 7 classes", "bad"],
+]
+
+[[act]]
+title = "One account, many roles"
+summary = "Account C-17 plays Buyer and Seller; her 12 orders stay on the account."
+detail = """
+`Account` holds the identity: `C-17`, Priya. A `Buyer` role holds her twelve
+orders. When she opens a shop, a `Seller` role is added to the same account.
+She now plays both roles, and all twelve orders are still there.
+"""
+speech = """
+Second demo: one account, with roles added as life changes. [[slnc 400]] Priya's account holds only who she is: an ID, and a name. [[slnc 500]]
+A buyer role holds her twelve orders. [[slnc 300]] When she opens a shop, a seller role is added. [[slnc 300]] To the same account. [[slnc 600]]
+She now plays two roles, buyer and seller. [[slnc 300]] And all twelve orders are still there.
+"""
+rows = { account = "active ok", buyer = "active ok", seller = "active ok" }
+console = [
+    ["Priya (C-17) plays [Buyer, Seller]", "ok"],
+    ["orders still on the account: 12", "ok"],
+]
+
+[[act]]
+title = "Roles with behaviour"
+summary = "The seller role lists a hand-thrown mug; the affiliate role earns 5% of £40 and £60 referrals: £5.00."
+detail = """
+Each role has its own data and methods. The `Seller` role lists a hand-thrown
+mug under the shop name "Priya's Pottery". An `Affiliate` role is added at
+five percent; she refers orders of £40 and £60 and earns £5.00. `Account`
+itself knows nothing about shops or commission.
+"""
+speech = """
+Third demo: each role brings its own data, and its own behaviour. [[slnc 400]] The seller role lists a hand-thrown mug, under the shop name Priya's Pottery. [[slnc 600]]
+Priya also joins the affiliate scheme, at five percent. [[slnc 300]] She refers two orders, of forty and sixty pounds. [[slnc 300]] She earns five pounds. [[slnc 600]]
+The account itself knows nothing about shops, or commission.
+"""
+rows = { seller = "active ok", affiliate = "active ok", account = "active ok" }
+console = [
+    ["Priya's Pottery lists hand-thrown mug", "ok"],
+    ["affiliate at 5%: earned £5.00", "ok"],
+    ["roles: [Buyer, Seller, Affiliate]", "ok"],
+]
+
+[[act]]
+title = "Dropping a role"
+summary = "Selling is suspended: the Seller role is removed, listing is refused, and she can still buy (13 orders)."
+detail = """
+The marketplace suspends Priya's selling. The `Seller` role is removed; her
+roles are now buyer and affiliate. Trying to list another mug is refused:
+"Priya is not a seller". She can still buy, and places her thirteenth order.
+"""
+speech = """
+Fourth demo: a role can be dropped, while the account lives on. [[slnc 400]] The marketplace suspends Priya's selling. [[slnc 300]] The seller role is removed. [[slnc 500]]
+She tries to list another mug. [[slnc 300]] Refused: Priya is not a seller. [[slnc 500]]
+But she is still a buyer. [[slnc 300]] She places her thirteenth order.
+"""
+rows = { seller = "active wrong", buyer = "active ok", account = "active ok" }
+console = [
+    ["roles now [Buyer, Affiliate]", "amber"],
+    ["list a mug: refused, not a seller", "ok"],
+    ["she can still buy: 13 orders", "ok"],
+]
+
+[[act]]
+title = "The bill"
+summary = "Every use of a role starts with as(...) and a plan for \"no\"; her data is spread across the account and roles."
+detail = """
+Every caller has to ask for a role before using it, and decide what to do when
+the answer is no. And the data is spread out: her name lives on the account,
+her shop name lived on a role that is now gone.
+"""
+speech = """
+Fifth demo: the bill. [[slnc 400]] Every caller must ask first. [[slnc 300]] Is she a seller right now? [[slnc 300]] And what do we do if she is not? [[slnc 600]]
+And her data is spread out. [[slnc 300]] Her name is on the account. [[slnc 300]] Her shop name was on a role that is now gone.
+"""
+rows = { account = "active amber" }
+console = [
+    ["every use starts with as(...)", "amber"],
+    ["shop name went with the role", "amber"],
+]
+
+[animation]
+subtitle = "One account keeps Priya's identity; buyer, seller and affiliate roles are added and removed as her life changes."
+boxes = [
+    ["customer", "Customer", "the old class"],
+    ["subclass", "SellingCustomer", "a new object, 0 orders"],
+    ["account", "Account C-17", "who she is"],
+    ["buyer", "Buyer role", "her orders"],
+    ["seller", "Seller role", "shop, listings"],
+    ["affiliate", "Affiliate role", "commission"],
+]
+
+[docs.problem]
+scenario = """
+Customers can also become marketplace sellers and affiliates, and can stop
+being either.
+"""
+naive = """
+`SellingCustomer extends Customer`. Becoming a seller means a new object that
+loses the order history, and every combination of kinds needs its own class:
+seven for three kinds.
+"""
+deliver = [
+    "The subclass approach shown losing 12 orders and needing 7 classes.",
+    "One account playing buyer and seller roles, keeping its orders.",
+    "Roles with their own behaviour: listing, commission.",
+    "A role removed while the others and the identity remain.",
+    "Every printed result asserted by a test.",
+]
+
+[docs.prerequisites]
+required = [
+    "Java basics: classes, abstract classes, inheritance, maps.",
+    "`Optional` at a beginner level.",
+]
+not_required = [
+    "Any persistence. Accounts and roles live in memory.",
+]
+
+[docs.session]
+objectives = [
+    "Explain why subclasses fail when an object's kind changes over time.",
+    "Model an identity as a core object and each activity as a role.",
+    "Add and remove roles at run time.",
+    "Name the costs: asking first, and spread-out data.",
+]
+walkthrough = """
+Run `./gradlew run` and read act one: zero orders on the new object. Then open
+`Account` (identity plus a map of roles) and `Roles` (three small classes).
+Show that removing `Seller` leaves `Buyer` untouched.
+"""
+exercises = [
+    "Add an `Admin` role that can refund orders. Who is allowed to add it?",
+    "Keep the shop name when selling is suspended, so it can be restored later.",
+    "Print every account that currently plays the Seller role.",
+    "Stop the same role being added twice.",
+]
+
+[docs.explained]
+sentence = """
+A role object keeps one core object for an identity and models each activity
+it performs for a while as a separate object that can be added and removed.
+"""
+verdict = """
+Use it when roles come and go during an object's life, combine freely, and
+bring their own data and behaviour. Keep identity on the core, give each role
+its own data, and decide what should happen to that data when a role is
+removed.
+"""
+recognise = [
+    "A core `Party`, `Person` or `Account` with a collection of roles.",
+    "Methods like `as(Role.class)`, `getRole(...)` or `hasRole(...)`.",
+    "Roles that keep a reference back to their core.",
+]
+
+[spec]
+purpose = """
+Teach Role Object with an online store's marketplace: subclasses losing 12
+orders when a customer becomes a seller and needing 7 classes for 3 kinds,
+then one account with Buyer, Seller and Affiliate roles added and removed,
+each with its own behaviour, while the identity and orders stay.
+"""
+nongoals = [
+    "Not permissions or security. Roles here are about behaviour, not access.",
+    "Not persistence.",
+]
+problem = """
+Subclasses fix an object's kind when it is created, so a customer who starts
+selling becomes a different object, and every mix of kinds needs a class.
+"""
+roles = [
+    ["The core", "`Account`"],
+    ["The roles", "`Role`, `Roles.Buyer`, `Seller`, `Affiliate`"],
+    ["The naive version", "`Subclasses.Customer`, `SellingCustomer`"],
+    ["Entry point", "`RoleObjectDemo`, five acts"],
+]
+requirements = [
+    "**One identity:** the account's ID and name never change as roles do.",
+    "**Roles come and go:** add and remove at run time.",
+    "**Roles have behaviour:** listing and commission live on roles, not the account.",
+    "**Missing is handled:** a missing role is an empty Optional.",
+    "**Every printed result is asserted** in `DemoRunsTest`.",
+]
+
+[[diagram]]
+name = "architecture-diagram"
+kind = "flow"
+title = "Role Object — the pieces"
+caption = "One account, with roles that come and go."
+nodes = [
+    { id = "a", label = "Account C-17", sub = "Priya", col = 1, row = 1, colour = "accent" },
+    { id = "b", label = "Buyer", sub = "13 orders", col = 0, row = 0, colour = "green" },
+    { id = "s", label = "Seller", sub = "Priya's Pottery (removed)", col = 1, row = 0, colour = "amber" },
+    { id = "f", label = "Affiliate", sub = "5%, £5.00 earned", col = 2, row = 0, colour = "green" },
+]
+edges = [
+    { from = "b", to = "a", label = "plays for" },
+    { from = "s", to = "a", label = "played for", dashed = true },
+    { from = "f", to = "a", label = "plays for" },
+]
+
+[[diagram]]
+name = "class-diagram"
+kind = "class"
+title = "Role Object — classes"
+caption = "Roles extend one small base class and point back at their account."
+nodes = [
+    { id = "a", label = "Account", sub = ["id, name", "+ addRole(role)", "+ removeRole(type)", "+ as(type): Optional"], col = 1, row = 0, colour = "accent" },
+    { id = "r", label = "«abstract» Role", sub = ["# account", "+ account()"], col = 1, row = 1, colour = "client" },
+    { id = "b", label = "Buyer", sub = ["+ placeOrder(id)", "+ orders()"], col = 0, row = 2, colour = "green" },
+    { id = "s", label = "Seller", sub = ["shopName", "+ list(product)"], col = 1, row = 2, colour = "green" },
+    { id = "f", label = "Affiliate", sub = ["percent", "+ referred(pence)"], col = 2, row = 2, colour = "green" },
+]
+edges = [
+    { from = "a", to = "r", label = "holds" },
+    { from = "b", to = "r", label = "extends" },
+    { from = "s", to = "r", label = "extends" },
+    { from = "f", to = "r", label = "extends" },
+]
+
+[[diagram]]
+name = "data-flow-diagram"
+kind = "flow"
+title = "Role Object — Priya's year"
+caption = "The account stays; roles arrive and leave."
+nodes = [
+    { id = "a", label = "Buyer", sub = "12 orders", col = 0, row = 0, colour = "green" },
+    { id = "b", label = "+ Seller", sub = "Priya's Pottery", col = 1, row = 0, colour = "green" },
+    { id = "c", label = "+ Affiliate", sub = "£5.00 earned", col = 2, row = 0, colour = "green" },
+    { id = "d", label = "- Seller", sub = "suspended", col = 2, row = 1, colour = "red" },
+    { id = "e", label = "Buyer + Affiliate", sub = "13 orders", col = 1, row = 1, colour = "accent" },
+]
+edges = [
+    { from = "a", to = "b", label = "opens a shop" },
+    { from = "b", to = "c", label = "joins scheme" },
+    { from = "c", to = "d", label = "suspended" },
+    { from = "d", to = "e", label = "still buys" },
+]
+
+[[diagram]]
+name = "sequence-diagram"
+kind = "sequence"
+title = "Role Object — listing a mug"
+caption = "Ask for the role, then use it."
+participants = ["Marketplace", "Account", "Seller"]
+steps = [
+    ["Marketplace", "Account", "as(Seller)"],
+    ["Account", "Marketplace", "the Seller role", "reply"],
+    ["Marketplace", "Seller", "list(hand-thrown mug)"],
+    ["Seller", "Marketplace", "Priya's Pottery lists ...", "reply"],
+]
+
+[[diagram]]
+name = "uml-diagram"
+kind = "sequence"
+title = "1. After the role is removed"
+caption = "The same question now gets \"no\"."
+participants = ["Marketplace", "Account"]
+steps = [
+    ["Marketplace", "Account", "as(Seller)"],
+    ["Account", "Marketplace", "empty", "reply"],
+    ["note", "Marketplace", "refused: not a seller"],
+]
+
+[[diagram]]
+name = "uml-diagram-2"
+kind = "sequence"
+title = "2. The subclass way"
+caption = "A new object, and the orders stay behind."
+participants = ["Shop", "Customer", "SellingCustomer"]
+steps = [
+    ["Shop", "SellingCustomer", "new SellingCustomer(Priya)"],
+    ["note", "Customer", "12 orders"],
+    ["note", "SellingCustomer", "0 orders"],
+]
+
+[poster]
+headline = [["ROLE", "text"], ["OBJECT", "text"]]
+before = { code = "new SellingCustomer(...)", note = "a new object, 0 orders", tag = "BEFORE" }
+after = { code = "account.addRole(seller)", note = "same account, 12 orders", tag = "AFTER" }
+taglines = [["One identity, many hats", "gold"]]
+
+[[scene]]
+key = "01-poster"
+kind = "poster"
+title = "Role Object"
+narration = """
+Hello, and welcome. [[slnc 400]] This video explains the Role Object pattern, in Java. [[slnc 300]]
+This video is presented by Jayasekhar Konduru. [[slnc 600]]
+First, a simple definition. [[slnc 300]] With role objects, one core object holds who someone is. [[slnc 300]] Each thing they do for a while, such as buying or selling, is a separate role object. [[slnc 300]] Roles are added and removed as life changes, and the identity stays the same. [[slnc 600]]
+Think of one person who is a parent, a nurse, and a weekend football coach. [[slnc 300]] The same person, all along. [[slnc 300]] When they stop coaching, the club removes that role. [[slnc 300]] Nobody has to create a new person. [[slnc 700]]
+In this video, the domain is an online shop. [[slnc 300]] Its customers can also sell on its marketplace, and earn money by referring friends. [[slnc 500]]
+By the end, you will hear why subclasses break when someone's role changes. [[slnc 300]] How role objects fix it. [[slnc 300]] How to drop a role. [[slnc 300]] And what it costs.
+"""
+
+[[scene]]
+key = "02-scenario"
+kind = "bullets"
+title = "The Scenario"
+body = ["Customers can also sell,", "and earn by referring friends.", "", "Each kind was a subclass:", "Customer, SellingCustomer, ..."]
+narration = """
+Here is the scenario. [[slnc 400]] Customers of the shop can also become sellers on its marketplace. [[slnc 300]] And they can join an affiliate scheme, earning a small commission for referring others. [[slnc 600]]
+The shop modelled each kind as a subclass. [[slnc 300]] A subclass is a class that extends another. [[slnc 300]] Customer, and selling customer extends customer. [[slnc 500]]
+Then Priya, who had twelve orders, opened a shop.
+"""
+
+[[scene]]
+key = "03-acts"
+kind = "acts"
+title = "acts"
+
+[[scene]]
+key = "04-pattern"
+kind = "bullets"
+title = "The Pattern"
+body = ["A core object: who someone is.", "", "A role object for each thing", "they do for a while.", "", "Add and remove roles;", "the identity stays."]
+narration = """
+Let's name the pattern. [[slnc 400]] A core object holds who someone is. [[slnc 300]] Here, the account. [[slnc 500]]
+Each thing they do for a while is a separate role object, with its own data and behaviour. [[slnc 300]] Buyer, seller, affiliate. [[slnc 500]]
+Roles are added and removed as life changes. [[slnc 300]] The core object, and its identity, stay the same.
+"""
+
+[[scene]]
+key = "05-roles"
+kind = "bullets"
+title = "Who Does What"
+body = ["Account: ID, name, its roles", "Role: points back at its account", "Buyer, Seller, Affiliate: the roles", "Customer, SellingCustomer: the old way"]
+narration = """
+Here is who does what. [[slnc 400]] The account holds an ID, a name, and the roles it plays right now. [[slnc 500]]
+Role is a small base class. [[slnc 300]] Every role remembers which account it belongs to. [[slnc 500]]
+Buyer, seller, and affiliate are the roles, each with its own data and methods. [[slnc 500]]
+And customer and selling customer are the old way, kept for comparison.
+"""
+
+[[scene]]
+key = "06-recognise"
+kind = "bullets"
+title = "Where You Have Seen It"
+body = ["Marketplace accounts: buyer,", "seller, admin", "Party and PartyRole data models", "Actors and roles in games"]
+narration = """
+You have probably met this pattern already. [[slnc 400]] Marketplace accounts can be a buyer, a seller, and an admin, all at once. [[slnc 500]]
+Enterprise data models often have a party, a person or a company, playing roles such as customer, supplier, and employee. [[slnc 500]]
+And games give one character different roles over time.
+"""
+
+[[scene]]
+key = "07-verdict"
+kind = "bullets"
+title = "When To Use It"
+body = ["Roles come and go,", "combine freely, and bring", "their own behaviour.", "", "Identity on the core.", "Decide what happens to a", "role's data when it goes."]
+narration = """
+So, when should you use it? [[slnc 400]] When roles come and go during an object's life, combine freely, and bring their own behaviour. [[slnc 500]]
+Keep the identity on the core object. [[slnc 300]] Give each role its own data. [[slnc 300]] And decide what should happen to that data when a role is removed. [[slnc 500]]
+When an object's kind never changes, a subclass or a simple field is clearer.
+"""
+
+[[scene]]
+key = "08-outro"
+kind = "outro"
+title = "Thanks for Watching"
+body = ["Full source, notes, diagrams and an animated walkthrough", "are in the repository. Keep the shop name", "for when selling resumes."]
+narration = """
+That's the Role Object pattern. [[slnc 400]] If you remember one sentence, make it this one. [[slnc 300]] One identity, many hats, and the hats come and go. [[slnc 500]]
+The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. [[slnc 300]] It runs offline, with nothing installed except a Java development kit. [[slnc 500]]
+Here is one exercise to try. [[slnc 300]] Keep Priya's shop name when selling is suspended, so it can be restored later. [[slnc 500]]
+If this helped, a like really does help other people find it. [[slnc 300]] And subscribe, if you'd like the rest of the series. [[slnc 400]] Thanks for watching.
+"""

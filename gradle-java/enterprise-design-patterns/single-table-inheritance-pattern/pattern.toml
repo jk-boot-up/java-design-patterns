@@ -1,0 +1,441 @@
+# pattern.toml for the Single Table Inheritance project. See tools/patternkit.
+
+[project]
+slug = "single-table-inheritance"
+category = "enterprise-design-patterns"
+title = "Single Table Inheritance"
+package = "singletable"
+main_class = "SingleTableDemo"
+tagline = "Many classes, one table"
+bold = "Store every subclass in one table, with a type column that says which class each row becomes, and leave the columns another type needs empty."
+domain_note = ""
+thumb_lines = ["SINGLE TABLE", "INHERITANCE"]
+thumb_code = "type = 'BOOK'"
+youtube_title = "Single Table Inheritance"
+youtube_tags = ["single table inheritance", "orm", "jpa inheritance", "enterprise patterns", "sql", "java"]
+
+[readme]
+intro = """
+Single Table Inheritance is one of Martin Fowler's enterprise application
+patterns for storing a class hierarchy in a relational database. Every
+subclass (book, food, electronics) is stored in the same table. A type column
+says which class each row is, and there is a column for every field any
+subclass has; a row simply leaves empty the columns that do not apply to it.
+
+A question about all products is one query on one table, and each row is
+turned back into the right class when it is loaded. The price is empty cells,
+and rules the database can no longer enforce.
+"""
+analogy = """
+Think of one travel expenses form used for every kind of trip. It has a
+section for car journeys (miles driven), one for trains (ticket number) and
+one for flights (flight code). You fill in the section for your trip and leave
+the others blank. The finance team keeps one pile of forms, and a stamp in the
+corner says which kind each one is.
+"""
+scenario = """
+The online store sells books, food and electronics. Each shares a code, a
+name and a price, and each has one field of its own: an ISBN, a best-before
+date, a warranty. They were stored in one table per type, so any question
+about all products, such as "everything under £10", had to ask every table.
+"""
+costs = [
+    "**Empty cells.** Every row leaves most type-specific columns empty: 15 of 20 in the demo.",
+    "**Weaker rules.** A book's ISBN cannot be `NOT NULL`, because food and kettles leave that column empty; the database accepts a book without one.",
+    "**One wide table.** Every new type adds columns everyone else carries.",
+]
+too_much = """
+When subclasses differ a lot, with many fields of their own, the table fills
+with empty columns; Class Table Inheritance (a table per class, joined) or
+Concrete Table Inheritance (a full table per concrete class) fit better. And
+when types are rarely queried together, separate tables are simpler.
+"""
+met_before = [
+    "JPA's `@Inheritance(strategy = SINGLE_TABLE)` with `@DiscriminatorColumn`.",
+    "Ruby on Rails' `type` column on ActiveRecord models.",
+    "Product tables in shop platforms with a `product_type` column.",
+]
+where = """
+This project is in [enterprise-design-patterns](..), next to
+[Table Data Gateway](../table-data-gateway-pattern), which is the simplest way
+to put a table's SQL in one place.
+"""
+technologies = [["H2 Database", "2.5.252", "an in-memory SQL database, so the demo runs real SQL with nothing installed"]]
+
+[[act]]
+title = "A table per type"
+summary = "Everything under £10 needs 3 queries, one per table: breakfast tea and a desk lamp."
+detail = """
+`TablePerType` keeps `book`, `food` and `electronics` in separate tables. To
+list everything under £10 it asks all three: three queries for breakfast tea
+and a desk lamp. A fourth product type means a fourth table, and every
+question about all products grows again.
+"""
+speech = """
+First demo: a table for every product type. [[slnc 400]] Books in one table, food in another, electronics in a third. [[slnc 600]]
+A customer asks for everything under ten pounds. [[slnc 300]] The shop has to ask all three tables. [[slnc 300]] Three queries, to find breakfast tea and a desk lamp. [[slnc 600]]
+Add a fourth type, and every question about all products needs a fourth query.
+"""
+rows = { book = "active amber", food = "active amber", electronics = "active amber" }
+console = [
+    ["under £10: [breakfast tea, desk lamp]", "ok"],
+    ["3 queries, one per table", "bad"],
+]
+
+[[act]]
+title = "One table for all"
+summary = "One product table with a type column: everything under £10 is 1 query."
+detail = """
+`ProductTable` keeps every product in one table: shared columns for code,
+name and price, a `type` column, and one column for each type-specific field.
+Everything under £10 is now one query on one table.
+"""
+speech = """
+Second demo: single table inheritance. [[slnc 400]] Every product now lives in one table. [[slnc 500]]
+It has the shared columns: code, name, and price. [[slnc 300]] A type column, saying book, food, or electronics. [[slnc 300]] And one column for each type's own field. [[slnc 600]]
+Everything under ten pounds is now one query, on one table.
+"""
+rows = { table = "active ok" }
+console = [
+    ["under £10: [breakfast tea, desk lamp]", "ok"],
+    ["1 query", "ok"],
+]
+
+[[act]]
+title = "Each row becomes its own class"
+summary = "Loading reads the type column: BOOK-1 becomes a Book, KETTLE-1 an Electronics, TEA-1 a Food, each with its own packing note."
+detail = """
+When rows are loaded, the type column decides which class to build. `BOOK-1`
+becomes a `Book` whose packing note shows its ISBN; `KETTLE-1` becomes
+`Electronics` with a 2-year warranty card; `TEA-1` becomes `Food` with its
+best-before date.
+"""
+speech = """
+Third demo: each row comes back as its own class. [[slnc 400]] When a row is loaded, its type column says which class to build. [[slnc 500]]
+Book one becomes a book, and its packing slip shows its ISBN. [[slnc 300]] The kettle becomes electronics, with a two-year warranty card. [[slnc 300]] The tea becomes food, with its best-before date.
+"""
+rows = { table = "active ok", classes = "active ok" }
+console = [
+    ["BOOK-1 -> Book: ISBN 978-1-00", "ok"],
+    ["KETTLE-1 -> Electronics: 2-year warranty", "ok"],
+    ["TEA-1 -> Food: best before 2027-03-01", "ok"],
+]
+
+[[act]]
+title = "A new type"
+summary = "Gift cards need one class and one new column, value_pence; existing rows are untouched."
+detail = """
+Gift cards are added with a `GiftCard` class and one new column,
+`value_pence`, added to the same table. Existing rows are untouched; they
+simply leave the new column empty. `GIFT-1` loads as a `GiftCard`.
+"""
+speech = """
+Fourth demo: a new type. [[slnc 400]] The shop starts selling gift cards. [[slnc 300]] That needs one new class, and one new column, for the card's value. [[slnc 500]]
+Existing rows are untouched. [[slnc 300]] They just leave the new column empty. [[slnc 500]]
+Gift card one loads as a gift card: activate fifty pounds on dispatch.
+"""
+rows = { table = "active amber", classes = "active ok" }
+console = [
+    ["ADD COLUMN value_pence", "amber"],
+    ["GIFT-1 -> GiftCard: activate £50", "ok"],
+]
+
+[[act]]
+title = "The bill"
+summary = "15 of 20 type-specific cells are empty; a book without an ISBN is saved because the column cannot be NOT NULL."
+detail = """
+With five products and four type-specific columns, 15 of 20 cells are empty.
+And the database can no longer keep type rules: the ISBN column cannot be
+`NOT NULL`, because food and kettles leave it empty, so a book with no ISBN is
+saved without complaint.
+"""
+speech = """
+Fifth demo: the bill. [[slnc 400]] Five products, four type-specific columns. [[slnc 300]] Fifteen of the twenty cells are empty. [[slnc 600]]
+And the database can no longer keep type rules. [[slnc 300]] The ISBN column cannot be required, because food and kettles leave it empty. [[slnc 300]] So a book with no ISBN is saved, without complaint.
+"""
+rows = { table = "active wrong" }
+console = [
+    ["15 of 20 type cells are empty", "amber"],
+    ["a book without an ISBN was saved", "bad"],
+]
+
+[animation]
+subtitle = "Books, food, electronics and gift cards share one table; a type column says which class each row becomes."
+boxes = [
+    ["book", "book table", "the old way"],
+    ["food", "food table", "the old way"],
+    ["electronics", "electronics table", "the old way"],
+    ["table", "product table", "type column + every field"],
+    ["classes", "Book, Food, Electronics, GiftCard", "built from the type column"],
+]
+
+[docs.problem]
+scenario = """
+The store sells books, food and electronics, each with shared fields and one
+field of its own.
+"""
+naive = """
+`TablePerType` keeps a table per type, so every question about all products
+asks every table.
+"""
+deliver = [
+    "Three queries for one question with a table per type.",
+    "One table with a type column, and one query.",
+    "Rows loaded as the right class.",
+    "A new type added with one class and one column.",
+    "Empty cells and a missing NOT NULL rule shown.",
+    "Every printed result asserted by a test, against a real in-memory database.",
+]
+
+[docs.prerequisites]
+required = [
+    "Java basics: records, sealed interfaces, `switch` on types.",
+    "A little SQL: tables, columns, `SELECT`, `NULL`.",
+]
+not_required = [
+    "JPA or Hibernate. The mapping is written by hand so it can be read.",
+]
+
+[docs.session]
+objectives = [
+    "Explain how a class hierarchy can be stored in one table.",
+    "Use a type column to build the right class when loading.",
+    "Add a type with a new column.",
+    "Name the costs: empty cells and weaker constraints.",
+]
+walkthrough = """
+Run `./gradlew run` and compare act one's three queries with act two's one.
+Open `ProductTable.create` to see the single wide table, then `load`, where the
+type column picks the class. Finish on act five: ask how the book without an
+ISBN could be stopped.
+"""
+exercises = [
+    "Add a CHECK constraint that a BOOK row must have an ISBN. Does H2 enforce it?",
+    "Store the same products with Class Table Inheritance: a shared table and one per type, joined. Compare the queries.",
+    "Add a `Clothing` type with a size column.",
+]
+
+[docs.explained]
+sentence = """
+Single table inheritance stores every subclass in one table with a type
+column and a column for every field, leaving unused columns empty.
+"""
+verdict = """
+Use it when subclasses share most of their fields and are often queried
+together. Keep type-specific fields few, add CHECK constraints for type rules,
+and switch to another inheritance mapping when the table fills with empty
+columns.
+"""
+recognise = [
+    "A `type`, `kind` or `dtype` column in a table.",
+    "`@Inheritance(strategy = SINGLE_TABLE)` in JPA code.",
+    "Many nullable columns that are filled only for some rows.",
+]
+
+[spec]
+purpose = """
+Teach Single Table Inheritance with an online store's products in H2: a table
+per type needing 3 queries, then one table with a type column needing 1,
+rows loaded as the right class, gift cards added with one column, and the
+costs: 15 of 20 cells empty and a book saved without an ISBN.
+"""
+nongoals = [
+    "Not an ORM. The mapping is hand-written.",
+    "Not the other inheritance mappings. They are exercises.",
+]
+problem = """
+Storing each subclass in its own table makes every question about all of them
+ask every table.
+"""
+roles = [
+    ["The pattern", "`ProductTable`"],
+    ["The classes", "`Products.Book`, `Food`, `Electronics`, `GiftCard`"],
+    ["The naive version", "`TablePerType`"],
+    ["Entry point", "`SingleTableDemo`, five acts"],
+]
+requirements = [
+    "**One table:** all types in `product`, with a `type` column.",
+    "**Right class back:** loading builds the class the type column names.",
+    "**Real SQL:** every statement runs against H2.",
+    "**Every printed result is asserted** in `DemoRunsTest`.",
+]
+
+[[diagram]]
+name = "architecture-diagram"
+kind = "flow"
+title = "Single Table Inheritance — the pieces"
+caption = "Many classes in, one table, many classes out."
+nodes = [
+    { id = "b", label = "Book", sub = "isbn", col = 0, row = 0, colour = "client" },
+    { id = "f", label = "Food", sub = "best_before", col = 0, row = 1, colour = "client" },
+    { id = "e", label = "Electronics", sub = "warranty_years", col = 0, row = 2, colour = "client" },
+    { id = "t", label = "product table", sub = "type + every column", col = 1, row = 1, colour = "accent" },
+    { id = "l", label = "load()", sub = "type -> class", col = 2, row = 1, colour = "green" },
+]
+edges = [
+    { from = "b", to = "t", label = "type BOOK" },
+    { from = "f", to = "t", label = "type FOOD" },
+    { from = "e", to = "t", label = "type ELECTRONICS" },
+    { from = "t", to = "l", label = "rows" },
+]
+
+[[diagram]]
+name = "class-diagram"
+kind = "class"
+title = "Single Table Inheritance — classes"
+caption = "A sealed interface with four records, stored by one class."
+nodes = [
+    { id = "p", label = "«sealed» Product", sub = ["sku, name, pricePence", "packingNote()"], col = 1, row = 0, colour = "accent" },
+    { id = "b", label = "«record» Book", sub = ["isbn"], col = 0, row = 1, colour = "client" },
+    { id = "f", label = "«record» Food", sub = ["bestBefore"], col = 1, row = 1, colour = "client" },
+    { id = "e", label = "«record» Electronics", sub = ["warrantyYears"], col = 2, row = 1, colour = "client" },
+    { id = "t", label = "ProductTable", sub = ["+ insert(p)", "+ under(pence)", "+ all()"], col = 0, row = 0, colour = "green" },
+]
+edges = [
+    { from = "b", to = "p", label = "implements" },
+    { from = "f", to = "p", label = "implements" },
+    { from = "e", to = "p", label = "implements" },
+    { from = "t", to = "p", label = "stores" },
+]
+
+[[diagram]]
+name = "data-flow-diagram"
+kind = "flow"
+title = "Single Table Inheritance — one row, one class"
+caption = "The type column decides."
+nodes = [
+    { id = "a", label = "TEA-1, FOOD, breakfast tea, 400", sub = "best_before 2027-03-01", col = 0, row = 0, colour = "amber" },
+    { id = "b", label = "type = FOOD", sub = "switch", col = 1, row = 0, colour = "accent" },
+    { id = "c", label = "new Food(...)", sub = "best before 2027-03-01", col = 2, row = 0, colour = "green" },
+]
+edges = [
+    { from = "a", to = "b", label = "read" },
+    { from = "b", to = "c", label = "build" },
+]
+
+[[diagram]]
+name = "sequence-diagram"
+kind = "sequence"
+title = "Single Table Inheritance — everything under £10"
+caption = "One query, mixed types back."
+participants = ["Shop", "ProductTable", "H2"]
+steps = [
+    ["Shop", "ProductTable", "under(1000)"],
+    ["ProductTable", "H2", "SELECT * FROM product WHERE price_pence < 1000"],
+    ["H2", "ProductTable", "2 rows: FOOD, ELECTRONICS", "reply"],
+    ["ProductTable", "Shop", "[Food, Electronics]", "reply"],
+]
+
+[[diagram]]
+name = "uml-diagram"
+kind = "sequence"
+title = "1. A table per type"
+caption = "One question, three queries."
+participants = ["Shop", "book", "food", "electronics"]
+steps = [
+    ["Shop", "book", "under £10?"],
+    ["Shop", "food", "under £10?"],
+    ["Shop", "electronics", "under £10?"],
+]
+
+[[diagram]]
+name = "uml-diagram-2"
+kind = "sequence"
+title = "2. A book without an ISBN"
+caption = "The column cannot be required."
+participants = ["Shop", "H2"]
+steps = [
+    ["Shop", "H2", "INSERT BOOK-2, isbn NULL"],
+    ["H2", "Shop", "saved", "reply"],
+]
+
+[poster]
+headline = [["SINGLE TABLE", "text"], ["INHERITANCE", "text"]]
+before = { code = "book, food, electronics", note = "3 queries per question", tag = "BEFORE" }
+after = { code = "type = 'BOOK'", note = "one table, one query", tag = "AFTER" }
+taglines = [["Many classes, one table", "gold"]]
+
+[[scene]]
+key = "01-poster"
+kind = "poster"
+title = "Single Table Inheritance"
+narration = """
+Hello, and welcome. [[slnc 400]] This video explains the Single Table Inheritance pattern, in Java. [[slnc 300]]
+This video is presented by Jayasekhar Konduru. [[slnc 600]]
+First, a simple definition. [[slnc 300]] Single table inheritance stores several related classes in one database table. [[slnc 300]] A type column says which class each row is. [[slnc 300]] And each row leaves empty the columns that belong to other types. [[slnc 600]]
+Think of one travel expenses form for every kind of trip. [[slnc 300]] A section for car journeys, one for trains, one for flights. [[slnc 300]] You fill in yours and leave the rest blank. [[slnc 300]] And finance keeps one pile of forms. [[slnc 700]]
+In this video, the domain is an online shop. [[slnc 300]] It sells books, food, and electronics. [[slnc 300]] Each has a code, a name, and a price, and one field of its own. [[slnc 500]]
+By the end, you will hear why a table per type makes simple questions slow. [[slnc 300]] How one table fixes it. [[slnc 300]] How each row becomes the right class. [[slnc 300]] And what it costs.
+"""
+
+[[scene]]
+key = "02-scenario"
+kind = "bullets"
+title = "The Scenario"
+body = ["Books: an ISBN.", "Food: a best-before date.", "Electronics: a warranty.", "", "All: a code, a name, a price.", "", "One table per type."]
+narration = """
+Here is the scenario. [[slnc 400]] Books have an ISBN. [[slnc 300]] Food has a best-before date. [[slnc 300]] Electronics have a warranty. [[slnc 500]]
+All of them share a code, a name, and a price. [[slnc 500]]
+In the database, each type had its own table. [[slnc 300]] In Java, they are classes that share an interface.
+"""
+
+[[scene]]
+key = "03-acts"
+kind = "acts"
+title = "acts"
+
+[[scene]]
+key = "04-pattern"
+kind = "bullets"
+title = "The Pattern"
+body = ["One table for every type.", "", "A type column: which class.", "A column for every field.", "", "Unused columns stay empty."]
+narration = """
+Let's name the pattern. [[slnc 400]] Store every type in one table. [[slnc 500]]
+Add a type column, saying which class each row is. [[slnc 300]] And a column for every field any type has. [[slnc 500]]
+Each row fills in its own columns, and leaves the rest empty. [[slnc 300]] When loading, the type column decides which class to build.
+"""
+
+[[scene]]
+key = "05-roles"
+kind = "bullets"
+title = "Who Does What"
+body = ["Product: the shared interface", "Book, Food, Electronics, GiftCard", "ProductTable: saves and loads", "TablePerType: the old way", "H2: an in-memory database"]
+narration = """
+Here is who does what. [[slnc 400]] Product is the shared interface. [[slnc 300]] Book, food, electronics, and gift card implement it. [[slnc 500]]
+Product table saves them all into one table, and loads each row back as the right class. [[slnc 500]]
+Table per type is the old way, kept for comparison. [[slnc 300]] And H2 is a real database, running in memory.
+"""
+
+[[scene]]
+key = "06-recognise"
+kind = "bullets"
+title = "Where You Have Seen It"
+body = ["JPA: SINGLE_TABLE inheritance", "@DiscriminatorColumn", "Rails: the type column", "product_type in shop platforms"]
+narration = """
+You have probably met this pattern already. [[slnc 400]] J P A offers single table inheritance, with a discriminator column for the type. [[slnc 500]]
+Ruby on Rails uses a column called type for the same thing. [[slnc 500]]
+And many shop platforms keep every product in one table, with a product type column.
+"""
+
+[[scene]]
+key = "07-verdict"
+kind = "bullets"
+title = "When To Use It"
+body = ["Types share most fields and", "are queried together.", "", "Few type-specific fields.", "CHECK constraints for type rules.", "", "Many empty columns? Switch."]
+narration = """
+So, when should you use it? [[slnc 400]] When the types share most of their fields, and are often queried together. [[slnc 500]]
+Keep type-specific fields few. [[slnc 300]] Add check constraints for rules like: a book must have an ISBN. [[slnc 500]]
+And when the table fills with empty columns, switch to a table per class.
+"""
+
+[[scene]]
+key = "08-outro"
+kind = "outro"
+title = "Thanks for Watching"
+body = ["Full source, notes, diagrams and an animated walkthrough", "are in the repository. Add a CHECK that", "every book has an ISBN."]
+narration = """
+That's the Single Table Inheritance pattern. [[slnc 400]] If you remember one sentence, make it this one. [[slnc 300]] Many classes, one table, and a type column to tell them apart. [[slnc 500]]
+The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. [[slnc 300]] It runs offline once its libraries are downloaded, with nothing else installed except a Java development kit. [[slnc 500]]
+Here is one exercise to try. [[slnc 300]] Add a check constraint, so every book must have an ISBN. [[slnc 500]]
+If this helped, a like really does help other people find it. [[slnc 300]] And subscribe, if you'd like the rest of the series. [[slnc 400]] Thanks for watching.
+"""

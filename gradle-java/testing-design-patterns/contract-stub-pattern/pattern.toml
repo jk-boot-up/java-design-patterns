@@ -1,0 +1,443 @@
+# pattern.toml for the Contract Stub project. See tools/patternkit.
+
+[project]
+slug = "contract-stub"
+category = "testing-design-patterns"
+title = "Contract Stub"
+package = "contractstub"
+main_class = "ContractStubDemo"
+tagline = "A stub that cannot lie"
+bold = "Make the stub your tests use from the same written contract that the real service is checked against, so the stub and the real service can never quietly drift apart."
+domain_note = ""
+thumb_lines = ["CONTRACT", "STUB"]
+thumb_code = "new ContractStub(contract)"
+youtube_title = "Contract Stub"
+youtube_tags = ["contract stub", "contract testing", "stubs", "spring cloud contract", "wiremock", "java"]
+
+[readme]
+intro = """
+Contract Stub is a testing pattern for services that call other services.
+To test checkout without calling the real payment service, teams use a stub:
+a stand-in that returns canned replies. The danger is that a hand-written stub
+is only as correct as the day it was written. When the real service changes,
+the stub does not, and the tests stay green while production breaks.
+
+A contract stub is made from a written contract: a list of agreed requests
+and replies. The consumer's tests run against a stub built from that
+contract, and the provider's own build replays the same contract against the
+real service. If the real service stops matching, its build fails, before the
+change reaches anyone.
+"""
+analogy = """
+Think of a fire drill that uses the building's real floor plan. If the drill
+used an old copy of the plan, everyone would practise walking to an exit that
+has since been bricked up. A contract stub is a drill that is always run from
+the current plan, and the builders are not allowed to change the building
+without updating the plan.
+"""
+scenario = """
+The online store's checkout team tested against their own hand-written stub
+of the payment service. The payment team released version 2, which renamed
+the reply field "result" to "outcome". The checkout tests stayed green,
+because the stub still said "result", and in production every payment left
+the order stuck.
+"""
+costs = [
+    "**Shared work.** Both teams must share and version the contract, and run it in both builds.",
+    "**Only what is listed.** The contract covers its interactions, not the ones nobody wrote down, and says nothing about speed or the real network.",
+    "**A strict stub.** Any request not in the contract fails, so new needs must be agreed before they can be tested.",
+]
+too_much = """
+When one team owns both sides and deploys them together, an ordinary
+integration test is simpler. Contract stubs pay off when separate teams
+release separately and a mismatch would only show in production.
+"""
+met_before = [
+    "Spring Cloud Contract, which generates WireMock stubs from contracts.",
+    "Pact, whose consumer tests produce the contract the provider verifies.",
+    "OpenAPI-based mock servers checked against the real service.",
+]
+where = """
+This project is in [testing-design-patterns](..). The
+[Consumer-Driven Contract](../../platform-design-patterns/consumer-driven-contract-pattern)
+project shows who writes the contract; this one focuses on the stub made from
+it.
+"""
+
+[[act]]
+title = "A stub that drifted"
+summary = "Against the hand-written stub, checkout confirms the order; against payment version 2, which renamed result to outcome, the order is stuck."
+detail = """
+The checkout team's hand-written stub replies with a "result" of APPROVED,
+and the checkout test confirms the order. But the payment team's version 2
+renamed "result" to "outcome". In production, checkout finds no result in the
+reply and the order is stuck. The stub never knew, so the tests stayed green.
+"""
+speech = """
+First demo: a hand-written stub. [[slnc 400]] A stub is a stand-in for another service, used in tests. [[slnc 600]]
+The checkout team wrote their own stub of the payment service. [[slnc 300]] It replies with a field called result, set to approved. [[slnc 300]] The checkout test passes. [[slnc 600]]
+But the payment team released version two. [[slnc 300]] They renamed result, to outcome. [[slnc 500]]
+In production, checkout finds no result in the reply. [[slnc 300]] The order is stuck. [[slnc 300]] And the tests stayed green, because the stub never changed.
+"""
+rows = { checkout = "active wrong", stub = "active wrong", payments = "active amber" }
+console = [
+    ["test vs hand stub: order confirmed", "ok"],
+    ["production vs v2: order stuck", "bad"],
+]
+
+[[act]]
+title = "A stub made from the contract"
+summary = "The contract lists 3 interactions; the stub made from it gives checkout: confirmed, declined for no funds, rejected for a zero amount."
+detail = """
+The two teams write down a contract: three agreed interactions, each a request
+and the reply it gets. A normal charge is approved, a card with no funds is
+declined, and a zero amount is rejected. The checkout tests run against a
+stub made from that contract, and see exactly those three replies.
+"""
+speech = """
+Second demo: a stub made from a contract. [[slnc 400]] The two teams write down what they have agreed. [[slnc 300]] Three interactions. [[slnc 300]] Each one is a request, and the reply it gets. [[slnc 600]]
+A normal charge is approved. [[slnc 300]] A card with no funds is declined. [[slnc 300]] A zero amount is rejected. [[slnc 600]]
+Checkout's tests use a stub built from that contract. [[slnc 300]] And they get exactly those three replies.
+"""
+rows = { contract = "active ok", stub = "active ok", checkout = "active ok" }
+console = [
+    ["normal card: order confirmed", "ok"],
+    ["no funds: card declined", "ok"],
+    ["zero amount: payment rejected", "ok"],
+]
+
+[[act]]
+title = "The provider is checked too"
+summary = "Replayed against payments version 1, 3 of 3 interactions match; against version 2, 0 of 3, so the rename fails the payment team's build."
+detail = """
+The other half: the payment team's build replays the same three
+interactions against the real service. Version 1 matches all three. Version 2,
+with its rename, matches none, so the payment team's own build fails before
+the change is released. The stub and the real service cannot quietly drift
+apart.
+"""
+speech = """
+Third demo: the real payment service is checked against the same contract. [[slnc 400]] The payment team's build replays all three interactions. [[slnc 600]]
+Version one matches, three of three. [[slnc 500]]
+Version two, with the rename, matches zero of three. [[slnc 300]] So the payment team's own build fails. [[slnc 300]] Before the change reaches anyone. [[slnc 600]]
+The stub and the real service can never quietly drift apart.
+"""
+rows = { contract = "active ok", payments = "active ok" }
+console = [
+    ["version 1: 3 of 3 match", "ok"],
+    ["version 2: 0 of 3, build fails", "amber"],
+]
+
+[[act]]
+title = "A strict stub"
+summary = "A charge in USD: the hand-written stub approves it; the contract stub refuses it, because no interaction covers it."
+detail = """
+Checkout starts charging in US dollars. The hand-written stub happily
+approves it, although nobody asked the payment team. The contract stub
+refuses: there is no interaction in the contract for that request. Checkout
+must agree US dollars with the payment team before its tests can rely on it.
+"""
+speech = """
+Fourth demo: the contract stub is strict. [[slnc 400]] Checkout starts charging in US dollars. [[slnc 600]]
+The hand-written stub approves it. [[slnc 300]] Nobody asked the payment team. [[slnc 500]]
+The contract stub refuses. [[slnc 300]] There is no interaction in the contract for that request. [[slnc 600]]
+So checkout must agree it with the payment team first.
+"""
+rows = { stub = "active ok", checkout = "active amber" }
+console = [
+    ["hand stub, USD: order confirmed", "bad"],
+    ["contract stub, USD: no interaction", "ok"],
+]
+
+[[act]]
+title = "The bill"
+summary = "Both teams must share, version and run the contract; it covers only the listed interactions, not speed or the real network."
+detail = """
+The contract is shared work: both teams must keep it, version it, and run it
+in both builds. And it only covers what is written in it. It says nothing
+about how fast the service is, or what happens on the real network.
+"""
+speech = """
+Fifth demo: the bill. [[slnc 400]] The contract is shared work. [[slnc 300]] Both teams must keep it, version it, and run it in both builds. [[slnc 600]]
+And it only covers what is written in it. [[slnc 300]] It says nothing about speed. [[slnc 300]] Or about the real network.
+"""
+rows = { contract = "active amber" }
+console = [
+    ["shared, versioned, run by both", "amber"],
+    ["only the listed interactions", "amber"],
+]
+
+[animation]
+subtitle = "One contract feeds checkout's stub and checks the real payment service."
+boxes = [
+    ["checkout", "Checkout tests", "the consumer"],
+    ["stub", "Payment stub", "made from the contract"],
+    ["contract", "Contract", "3 interactions"],
+    ["payments", "Payment service", "the provider"],
+]
+
+[docs.problem]
+scenario = """
+Checkout tests use a stub of the payment service, and the payment team
+releases independently.
+"""
+naive = """
+A hand-written stub keeps the old behaviour after the real service changes,
+so tests pass while production fails.
+"""
+deliver = [
+    "A hand-written stub drifting from the real service.",
+    "A contract of three interactions.",
+    "A stub generated from the contract.",
+    "The real service verified against the same contract.",
+    "A strict stub refusing unlisted requests.",
+    "Every printed result asserted by a test.",
+]
+
+[docs.prerequisites]
+required = [
+    "Java basics: records, `Map`, interfaces.",
+    "What a test stub is.",
+]
+not_required = [
+    "HTTP or a contract library. Requests and replies are maps of fields.",
+]
+
+[docs.session]
+objectives = [
+    "Explain how hand-written stubs drift.",
+    "Write a contract as request-and-reply interactions.",
+    "Build a stub from it, and verify a provider with it.",
+    "Explain why a strict stub is a feature.",
+]
+walkthrough = """
+Run `./gradlew run` and compare act one's two lines. Open `Contract.payments`,
+then `ContractStub` and `ProviderVerifier`: both read the same list. End on
+act three's version 2 failing.
+"""
+exercises = [
+    "Add a USD interaction to the contract and make both sides pass.",
+    "Let the contract match amounts by pattern rather than exact value.",
+    "Replace the maps with real HTTP and WireMock stubs.",
+]
+
+[docs.explained]
+sentence = """
+A Contract Stub is a test stub made from a shared contract that the real
+service is also checked against, so the two cannot drift apart.
+"""
+verdict = """
+Use contract stubs when separate teams release services independently. Keep
+the contract in a shared, versioned place, run it in both builds, and treat
+the stub's refusal of unlisted requests as a prompt to talk to the other team.
+"""
+recognise = [
+    "Spring Cloud Contract `.groovy` or `.yml` contracts and generated stubs.",
+    "Pact files published to a broker.",
+    "A provider build step named verify or contract test.",
+]
+
+[spec]
+purpose = """
+Teach Contract Stub with an online store's checkout and payment services: a
+hand-written stub drifting after a field rename, a stub made from a
+three-interaction contract, the provider verified against the same contract,
+a strict stub refusing unlisted requests, and the shared cost.
+"""
+nongoals = [
+    "Not a real contract library or HTTP. Requests and replies are maps.",
+]
+problem = """
+Hand-written stubs keep old behaviour after the real service changes, so
+tests pass while production fails.
+"""
+roles = [
+    ["The contract", "`Contract`, `Interaction`"],
+    ["The stub made from it", "`ContractStub`"],
+    ["The provider check", "`ProviderVerifier`"],
+    ["The consumer", "`Checkout`"],
+    ["Entry point", "`ContractStubDemo`, five acts"],
+]
+requirements = [
+    "**One source:** stub and verifier read the same `Contract`.",
+    "**Strict:** the stub refuses requests the contract does not list.",
+    "**Caught:** a renamed field fails verification.",
+    "**Every printed result is asserted** in `DemoRunsTest`.",
+]
+
+[[diagram]]
+name = "architecture-diagram"
+kind = "flow"
+title = "Contract Stub — the pieces"
+caption = "One contract, used on both sides."
+nodes = [
+    { id = "c", label = "Checkout tests", sub = "consumer", col = 0, row = 0, colour = "client" },
+    { id = "s", label = "Contract stub", sub = "made from the contract", col = 1, row = 0, colour = "accent" },
+    { id = "k", label = "Contract", sub = "3 interactions", col = 2, row = 0, colour = "amber" },
+    { id = "v", label = "Verifier", sub = "payment team's build", col = 2, row = 1, colour = "accent" },
+    { id = "p", label = "Payment service", sub = "provider", col = 3, row = 1, colour = "green" },
+]
+edges = [
+    { from = "c", to = "s", label = "charge" },
+    { from = "s", to = "k", label = "reads" },
+    { from = "v", to = "k", label = "reads" },
+    { from = "v", to = "p", label = "replays" },
+]
+
+[[diagram]]
+name = "class-diagram"
+kind = "class"
+title = "Contract Stub — classes"
+caption = "Stub and verifier share the contract."
+nodes = [
+    { id = "k", label = "«record» Contract", sub = ["interactions", "+ payments()"], col = 0, row = 0, colour = "amber" },
+    { id = "s", label = "ContractStub", sub = ["implements PaymentProvider", "+ charge(request)"], col = 1, row = 0, colour = "accent" },
+    { id = "v", label = "ProviderVerifier", sub = ["+ mismatches(contract,", "  provider)"], col = 0, row = 1, colour = "accent" },
+    { id = "p", label = "RealPaymentService", sub = ["implements PaymentProvider"], col = 1, row = 1, colour = "green" },
+]
+edges = [
+    { from = "s", to = "k", label = "answers from" },
+    { from = "v", to = "k", label = "replays" },
+    { from = "v", to = "p", label = "checks" },
+]
+
+[[diagram]]
+name = "data-flow-diagram"
+kind = "flow"
+title = "Contract Stub — the rename"
+caption = "Caught in the provider's build, not in production."
+nodes = [
+    { id = "a", label = "Hand-written stub", sub = "tests green", col = 0, row = 0, colour = "red" },
+    { id = "b", label = "production: order stuck", sub = "", col = 2, row = 0, colour = "red" },
+    { id = "c", label = "Contract", sub = "verified in payments build", col = 0, row = 1, colour = "green" },
+    { id = "d", label = "build fails: 0 of 3", sub = "", col = 2, row = 1, colour = "green" },
+]
+edges = [
+    { from = "a", to = "b", label = "" },
+    { from = "c", to = "d", label = "" },
+]
+
+[[diagram]]
+name = "sequence-diagram"
+kind = "sequence"
+title = "Contract Stub — a checkout test"
+caption = "The stub answers from the contract."
+participants = ["Checkout", "ContractStub", "Contract"]
+steps = [
+    ["Checkout", "ContractStub", "charge 20.00, card ...0002"],
+    ["ContractStub", "Contract", "find this request"],
+    ["ContractStub", "Checkout", "DECLINED, insufficient funds", "reply"],
+]
+
+[[diagram]]
+name = "uml-diagram"
+kind = "sequence"
+title = "1. The provider check"
+caption = "The same interactions, against the real thing."
+participants = ["Verifier", "Payment service"]
+steps = [
+    ["Verifier", "Payment service", "3 contract requests"],
+    ["Payment service", "Verifier", "outcome: APPROVED ...", "reply"],
+    ["note", "Verifier", "expected result: 0 of 3 match"],
+]
+
+[[diagram]]
+name = "uml-diagram-2"
+kind = "sequence"
+title = "2. An unlisted request"
+caption = "Refused, not approved."
+participants = ["Checkout", "ContractStub"]
+steps = [
+    ["Checkout", "ContractStub", "charge in USD"],
+    ["ContractStub", "Checkout", "no interaction in the contract", "reply"],
+]
+
+[poster]
+headline = [["CONTRACT", "text"], ["STUB", "text"]]
+before = { code = "new HandWrittenStub()", note = "tests green, production broken", tag = "BEFORE" }
+after = { code = "new ContractStub(contract)", note = "drift fails the build", tag = "AFTER" }
+taglines = [["A stub that cannot lie", "gold"]]
+
+[[scene]]
+key = "01-poster"
+kind = "poster"
+title = "Contract Stub"
+narration = """
+Hello, and welcome. [[slnc 400]] This video explains the Contract Stub pattern, in Java. [[slnc 300]]
+This video is presented by Jayasekhar Konduru. [[slnc 600]]
+First, a simple definition. [[slnc 300]] A stub is a stand-in for another service, used in tests. [[slnc 300]] A contract stub is made from a written agreement between the two teams. [[slnc 300]] And the real service is checked against that same agreement. [[slnc 300]] So the stub and the real service can never quietly drift apart. [[slnc 600]]
+Think of a fire drill. [[slnc 300]] If it used an old floor plan, everyone would practise walking to an exit that has since been bricked up. [[slnc 300]] A contract stub is a drill always run from the current plan. [[slnc 700]]
+In this video, the domain is an online shop's checkout, which calls a payment service run by another team. [[slnc 500]]
+By the end, you will hear how a hand-written stub let a bug reach production. [[slnc 300]] How a contract feeds both the stub and a check of the real service. [[slnc 300]] Why a strict stub helps. [[slnc 300]] And what the contract costs.
+"""
+
+[[scene]]
+key = "02-scenario"
+kind = "bullets"
+title = "The Scenario"
+body = ["Checkout calls the payment service.", "", "Tests used a hand-written stub.", "", "Payments renamed a field.", "Tests stayed green."]
+narration = """
+Here is the scenario. [[slnc 400]] The shop's checkout calls a payment service, run by another team. [[slnc 500]]
+Checkout's tests used a stub the checkout team had written by hand. [[slnc 500]]
+The payment team renamed a field in its reply. [[slnc 300]] The tests stayed green. [[slnc 300]] And production broke.
+"""
+
+[[scene]]
+key = "03-acts"
+kind = "acts"
+title = "acts"
+
+[[scene]]
+key = "04-pattern"
+kind = "bullets"
+title = "The Pattern"
+body = ["Write the contract down.", "", "Consumer: test against a stub", "made from it.", "", "Provider: check against it."]
+narration = """
+Let's name the pattern. [[slnc 400]] Write the contract down, as requests and the replies they get. [[slnc 500]]
+The consumer tests against a stub made from that contract. [[slnc 500]]
+The provider's build checks the real service against the same contract.
+"""
+
+[[scene]]
+key = "05-roles"
+kind = "bullets"
+title = "Who Does What"
+body = ["Contract: the agreed interactions", "ContractStub: answers from it", "ProviderVerifier: checks the real service", "Checkout: the consumer"]
+narration = """
+Here is who does what. [[slnc 400]] The contract holds the agreed interactions. [[slnc 500]]
+The contract stub answers checkout's tests from it, and refuses anything else. [[slnc 500]]
+The provider verifier replays it against the real payment service. [[slnc 300]] And checkout is the consumer being tested.
+"""
+
+[[scene]]
+key = "06-recognise"
+kind = "bullets"
+title = "Where You Have Seen It"
+body = ["Spring Cloud Contract", "Pact", "OpenAPI mock servers"]
+narration = """
+You have probably met this pattern already. [[slnc 400]] Spring Cloud Contract turns contracts into stubs, and tests for the provider. [[slnc 500]]
+Pact does the same, starting from the consumer's tests. [[slnc 500]]
+And mock servers built from an interface description work the same way.
+"""
+
+[[scene]]
+key = "07-verdict"
+kind = "bullets"
+title = "When To Use It"
+body = ["Separate teams, separate releases.", "", "Share and version the contract.", "Run it in both builds.", "A refusal means: talk."]
+narration = """
+So, when should you use it? [[slnc 400]] When separate teams release their services separately. [[slnc 500]]
+Share and version the contract. [[slnc 300]] Run it in both builds. [[slnc 300]] And when the stub refuses a request, treat it as a prompt to talk to the other team.
+"""
+
+[[scene]]
+key = "08-outro"
+kind = "outro"
+title = "Thanks for Watching"
+body = ["Full source, notes, diagrams and an animated walkthrough", "are in the repository. Add a US dollar", "interaction to the contract."]
+narration = """
+That's the Contract Stub pattern. [[slnc 400]] If you remember one sentence, make it this one. [[slnc 300]] Build the stub and check the real service from the same contract. [[slnc 500]]
+The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. [[slnc 300]] It runs offline, with nothing installed except a Java development kit. [[slnc 500]]
+Here is one exercise to try. [[slnc 300]] Add a US dollar interaction to the contract, and make both sides pass. [[slnc 500]]
+If this helped, a like really does help other people find it. [[slnc 300]] And subscribe, if you'd like the rest of the series. [[slnc 400]] Thanks for watching.
+"""

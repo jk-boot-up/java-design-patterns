@@ -1,0 +1,432 @@
+# pattern.toml for the Entity project. See tools/patternkit.
+
+[project]
+slug = "entity"
+category = "domain-driven-design-patterns"
+title = "Entity"
+package = "entity"
+main_class = "EntityDemo"
+tagline = "Same thing, even when it changes"
+bold = "Some things are defined by who they are, not by their current details: give them an identity that never changes, and compare them by that identity alone."
+domain_note = ""
+thumb_lines = ["ENTITY"]
+thumb_code = "equals: same id"
+youtube_title = "Entity"
+youtube_tags = ["entity", "domain driven design", "ddd", "identity", "equals hashcode", "java"]
+
+[readme]
+intro = """
+Entity is one of the building blocks of domain-driven design. An entity is
+something the business cares about as an individual, followed through time: a
+customer, an order, a parcel. Its details change (a new email, more points,
+a new address), but it stays the same thing. So it is given an identity, such
+as a customer ID, that is assigned once and never changes, and two entity
+objects are equal when their identities are equal, whatever their details say.
+
+Its opposite is a value object, such as an amount of money or an address,
+which has no identity and is equal to any other with the same values.
+"""
+analogy = """
+Think of a car. Over the years it is resprayed, gets new tyres, new number
+plates, and a new owner. It is still the same car, because its chassis number,
+stamped into the frame at the factory, never changes. Two cars of the same
+model and colour, side by side, are still two different cars.
+"""
+scenario = """
+The online store kept customers as records compared by all their fields. When
+Priya changed her email, the shop treated her as a new customer: her orders
+could not be found by the new record, and the mailing list held two of her.
+And a father and son sharing a name and a family email were treated as one
+person.
+"""
+costs = [
+    "**Equal is not up to date.** A cached copy and the live customer are equal, because they share an ID, even when their details differ.",
+    "**IDs must be managed.** Every entity needs an ID that is unique, assigned once and never reused.",
+    "**Not for everything.** Treating values (amounts, addresses) as entities adds IDs nobody needs.",
+]
+too_much = """
+When the business does not care which one it is, only what it is (£10 is
+£10, whichever coin), use a value object instead. Entities are for things
+followed individually through time.
+"""
+met_before = [
+    "JPA `@Entity` classes with an `@Id` field.",
+    "Database primary keys.",
+    "`equals` and `hashCode` written over an ID field only.",
+]
+where = """
+This project is in [domain-driven-design-patterns](..), next to its opposite,
+[Value Object](../value-object-pattern), and to
+[Aggregate](../aggregate-pattern), which groups entities under one root.
+"""
+
+[[act]]
+title = "Defined by values"
+summary = "Priya's old and new records are not equal; her orders are not found; the mailing list holds 2 of her."
+detail = """
+`CustomerRecord` is a record, compared by all its fields. When Priya changes
+her email, the new record is not equal to the old one. Her orders, stored
+under the old record, cannot be found with the new one, and a set of
+customers now contains two Priyas.
+"""
+speech = """
+First demo: a customer defined by its values. [[slnc 400]] The customer is a record, compared by every field: name, email, and points. [[slnc 600]]
+Priya changes her email. [[slnc 300]] Now the old record and the new one are not equal. [[slnc 500]]
+Her orders were stored under the old record. [[slnc 300]] Looked up with the new one: nothing found. [[slnc 500]]
+And the mailing list now has two customers. [[slnc 300]] Both of them are Priya.
+"""
+rows = { record = "active wrong", orders = "active wrong" }
+console = [
+    ["old and new records equal: false", "bad"],
+    ["her orders by the new record: null", "bad"],
+    ["mailing list: 2, both Priya", "bad"],
+]
+
+[[act]]
+title = "Defined by identity"
+summary = "Customer C-17 changes email and stays C-17: her orders are found and the mailing list holds 1."
+detail = """
+`Customer` has a `CustomerId`, set when the account is opened. Its `equals`
+and `hashCode` use only the ID. Priya changes her email and is still `C-17`:
+her orders are found, and the mailing list holds one customer.
+"""
+speech = """
+Second demo: an entity, a customer defined by its identity. [[slnc 400]] The customer now has an ID, C 17, given when the account was opened. [[slnc 500]]
+Two customer objects are equal when their IDs are equal. [[slnc 300]] Nothing else is compared. [[slnc 600]]
+Priya changes her email. [[slnc 300]] She is still C 17. [[slnc 300]] Her orders are found. [[slnc 300]] And the mailing list holds one customer.
+"""
+rows = { entity = "active ok", orders = "active ok" }
+console = [
+    ["C-17 Priya <priya@new.example>", "ok"],
+    ["her orders: ORD-1, ORD-2", "ok"],
+    ["mailing list: 1", "ok"],
+]
+
+[[act]]
+title = "Look-alikes are different"
+summary = "Father and son with the same name and email are equal as records, different as entities C-42 and C-43."
+detail = """
+A father and son are both called Tom Reed and share a family email. As
+records they are equal, so the shop would merge their orders. As entities
+they are `C-42` and `C-43`: different customers, however alike they look.
+"""
+speech = """
+Third demo: two people who look the same are still two people. [[slnc 400]] A father and his son are both called Tom Reed. [[slnc 300]] They share a family email. [[slnc 600]]
+As records, they are equal. [[slnc 300]] The shop would mix up their orders. [[slnc 500]]
+As entities, they are C 42 and C 43. [[slnc 300]] Two different customers.
+"""
+rows = { record = "active wrong", entity = "active ok" }
+console = [
+    ["as records, equal: true", "bad"],
+    ["as entities C-42 and C-43: false", "ok"],
+]
+
+[[act]]
+title = "A life story"
+summary = "Priya's history shows three emails; she has 80 points; her ID never changed."
+detail = """
+An entity is followed through time. Priya's history shows the account opened
+with her old email, then two changes. She has earned 80 points. Through all
+of it, her ID stayed `C-17`.
+"""
+speech = """
+Fourth demo: an entity has a life story. [[slnc 400]] Priya's account was opened with her old email. [[slnc 300]] Then she changed it. [[slnc 300]] Then she changed it again, to her work email. [[slnc 300]] She earned eighty points along the way. [[slnc 600]]
+Three emails. [[slnc 300]] One customer. [[slnc 300]] The ID never changed.
+"""
+rows = { entity = "active ok", history = "active ok" }
+console = [
+    ["opened with priya@old.example", "muted"],
+    ["-> priya@new.example -> priya@work.example", "muted"],
+    ["one customer, 80 points, same ID", "ok"],
+]
+
+[[act]]
+title = "The bill"
+summary = "A cached copy and the live customer are equal, yet their emails differ; IDs must be unique and never reused."
+detail = """
+Equal is not the same as up to date. A copy of Priya made for a cache and the
+live customer are equal, because they share `C-17`, even though the copy still
+has her work email and the live one her final email. And every entity needs an
+ID that is unique and never reused.
+"""
+speech = """
+Fifth demo: the bill. [[slnc 400]] Equal is not the same as up to date. [[slnc 500]]
+A cached copy of Priya, and the live Priya, are equal. [[slnc 300]] They share the same ID. [[slnc 300]] But the copy has an old email, and the live one a new email. [[slnc 600]]
+And every entity needs an ID that is unique, and never reused.
+"""
+rows = { entity = "active amber" }
+console = [
+    ["cached copy equals live: true", "amber"],
+    ["but emails differ", "amber"],
+]
+
+[animation]
+subtitle = "A customer keeps one ID for life; its details change, and it is compared by that ID alone."
+boxes = [
+    ["record", "CustomerRecord", "equal when all values match"],
+    ["entity", "Customer C-17", "equal when IDs match"],
+    ["orders", "Orders lookup", "keyed by customer"],
+    ["history", "Life story", "every change recorded"],
+]
+
+[docs.problem]
+scenario = """
+Customers change their details over time, and some share names and emails.
+"""
+naive = """
+`CustomerRecord` compares all fields. An email change makes a "new" customer
+whose orders cannot be found, and two look-alike people become one.
+"""
+deliver = [
+    "A value-compared customer losing its orders after an email change.",
+    "An entity with an ID, compared by ID only.",
+    "Look-alike customers kept apart.",
+    "A history of changes under one ID.",
+    "The cost shown: a stale copy that is still equal.",
+    "Every printed result asserted by a test.",
+]
+
+[docs.prerequisites]
+required = [
+    "Java basics: classes, records, `equals` and `hashCode`.",
+    "`HashMap` and `HashSet` at the level of putting in and finding.",
+]
+not_required = [
+    "JPA or a database.",
+    "The rest of domain-driven design.",
+]
+
+[docs.session]
+objectives = [
+    "Tell an entity from a value object.",
+    "Give an entity an identity that never changes.",
+    "Write equals and hashCode over the identity only.",
+    "Explain what equality does not tell you about an entity.",
+]
+walkthrough = """
+Run `./gradlew run` and read acts one and two side by side: the same email
+change, two outcomes. Open `Customer.equals` and `hashCode`: one field each.
+Then ask learners to name three things in a shop that are entities and three
+that are values.
+"""
+exercises = [
+    "Make `Order` an entity with an `OrderId`.",
+    "Add a method that says whether two customer objects hold the same details, separate from equals.",
+    "Generate IDs with a counter. What goes wrong after the program restarts?",
+]
+
+[docs.explained]
+sentence = """
+An entity is an object defined by an identity that never changes, compared by
+that identity alone, so it stays the same thing while its details change.
+"""
+verdict = """
+Model things the business follows individually through time as entities:
+customers, orders, parcels. Give each a never-changing ID, compare by it, and
+keep everything else in value objects.
+"""
+recognise = [
+    "A final `id` field and `equals` that compares only it.",
+    "`@Entity` and `@Id` in JPA code.",
+    "Methods that change details (`changeEmail`) but never the ID.",
+]
+
+[spec]
+purpose = """
+Teach Entity with an online store's customers: value-compared records losing
+orders and duplicating Priya after an email change and merging two Tom Reeds,
+then a Customer entity compared by C-17, look-alikes kept apart, a history of
+changes, and the cost that equal copies can be out of date.
+"""
+nongoals = [
+    "Not persistence. Customers live in memory.",
+    "Not ID generation strategies. IDs are given by hand.",
+]
+problem = """
+Comparing customers by all their values makes a changed customer a stranger
+and makes two look-alike customers the same person.
+"""
+roles = [
+    ["The pattern", "`Customer`"],
+    ["The identity", "`CustomerId`"],
+    ["The naive version", "`CustomerRecord`"],
+    ["Entry point", "`EntityDemo`, five acts"],
+]
+requirements = [
+    "**Identity-based equality:** `equals` and `hashCode` use the ID only.",
+    "**Never-changing ID:** the ID is final and required.",
+    "**Changing details:** email and points change; history is recorded.",
+    "**Every printed result is asserted** in `DemoRunsTest`.",
+]
+
+[[diagram]]
+name = "architecture-diagram"
+kind = "flow"
+title = "Entity — the pieces"
+caption = "Details change around a fixed identity."
+nodes = [
+    { id = "i", label = "CustomerId C-17", sub = "never changes", col = 1, row = 0, colour = "accent" },
+    { id = "e", label = "email", sub = "old -> new -> work", col = 0, row = 1, colour = "amber" },
+    { id = "p", label = "points", sub = "0 -> 80", col = 1, row = 1, colour = "amber" },
+    { id = "o", label = "orders", sub = "found by C-17", col = 2, row = 1, colour = "green" },
+]
+edges = [
+    { from = "e", to = "i", label = "belongs to" },
+    { from = "p", to = "i", label = "belongs to" },
+    { from = "o", to = "i", label = "keyed by" },
+]
+
+[[diagram]]
+name = "class-diagram"
+kind = "class"
+title = "Entity — classes"
+caption = "The identity is a small value; the entity compares by it."
+nodes = [
+    { id = "c", label = "Customer", sub = ["- final CustomerId id", "- email, points, history", "+ changeEmail(e)", "equals/hashCode: id only"], col = 0, row = 0, colour = "accent" },
+    { id = "i", label = "«record» CustomerId", sub = ["value"], col = 1, row = 0, colour = "green" },
+    { id = "r", label = "«record» CustomerRecord", sub = ["name, email, points", "equals: all fields"], col = 2, row = 0, colour = "red" },
+]
+edges = [
+    { from = "c", to = "i", label = "has" },
+]
+
+[[diagram]]
+name = "data-flow-diagram"
+kind = "flow"
+title = "Entity — an email change"
+caption = "By value, a new customer; by identity, the same one."
+nodes = [
+    { id = "a", label = "Priya, old email", sub = "record", col = 0, row = 0, colour = "client" },
+    { id = "b", label = "Priya, new email", sub = "a different record", col = 2, row = 0, colour = "red" },
+    { id = "c", label = "C-17, old email", sub = "entity", col = 0, row = 1, colour = "client" },
+    { id = "d", label = "C-17, new email", sub = "the same entity", col = 2, row = 1, colour = "green" },
+]
+edges = [
+    { from = "a", to = "b", label = "not equal" },
+    { from = "c", to = "d", label = "equal" },
+]
+
+[[diagram]]
+name = "sequence-diagram"
+kind = "sequence"
+title = "Entity — finding her orders"
+caption = "The map uses the ID, so the change does not matter."
+participants = ["Shop", "Customer C-17", "Orders map"]
+steps = [
+    ["Shop", "Customer C-17", "changeEmail(new)"],
+    ["Shop", "Orders map", "get(C-17)"],
+    ["Orders map", "Customer C-17", "hashCode(): from id"],
+    ["Orders map", "Shop", "ORD-1, ORD-2", "reply"],
+]
+
+[[diagram]]
+name = "uml-diagram"
+kind = "sequence"
+title = "1. Look-alikes"
+caption = "Same details, different identities."
+participants = ["Shop", "C-42", "C-43"]
+steps = [
+    ["Shop", "C-42", "equals(C-43)?"],
+    ["C-42", "Shop", "false: different IDs", "reply"],
+]
+
+[[diagram]]
+name = "uml-diagram-2"
+kind = "sequence"
+title = "2. A stale copy"
+caption = "Equal, yet different details."
+participants = ["Cache", "Live C-17"]
+steps = [
+    ["Cache", "Live C-17", "equals?"],
+    ["Live C-17", "Cache", "true (same ID)", "reply"],
+    ["note", "Cache", "email is out of date"],
+]
+
+[poster]
+headline = [["ENTITY", "text"]]
+before = { code = "equals: every field", note = "new email, new person", tag = "BEFORE" }
+after = { code = "equals: same id", note = "C-17 for life", tag = "AFTER" }
+taglines = [["Same thing, even when it changes", "gold"]]
+
+[[scene]]
+key = "01-poster"
+kind = "poster"
+title = "Entity"
+narration = """
+Hello, and welcome. [[slnc 400]] This video explains the Entity pattern, from domain-driven design, in Java. [[slnc 300]]
+This video is presented by Jayasekhar Konduru. [[slnc 600]]
+First, a simple definition. [[slnc 300]] An entity is something defined by who it is, not by its current details. [[slnc 300]] It gets an identity that never changes. [[slnc 300]] Its details can change, and it is still the same thing. [[slnc 600]]
+Think of a car. [[slnc 300]] Over the years it gets a new colour, new plates, and a new owner. [[slnc 300]] It is still the same car, because its chassis number, stamped in at the factory, never changes. [[slnc 700]]
+In this video, the domain is an online shop. [[slnc 300]] Its customers change their emails, earn points, and sometimes share a name with someone else. [[slnc 500]]
+By the end, you will hear how comparing customers by their values goes wrong. [[slnc 300]] How an identity fixes it. [[slnc 300]] How look-alikes stay apart. [[slnc 300]] And what equality does not tell you.
+"""
+
+[[scene]]
+key = "02-scenario"
+kind = "bullets"
+title = "The Scenario"
+body = ["Customers change their email.", "They earn points.", "Some share a name and an email.", "", "Customers were records,", "compared by every field."]
+narration = """
+Here is the scenario. [[slnc 400]] Customers change their email. [[slnc 300]] They earn loyalty points. [[slnc 300]] Some share a name, and even an email, with someone in their family. [[slnc 600]]
+The shop kept customers as records. [[slnc 300]] Two records are equal when every field is equal.
+"""
+
+[[scene]]
+key = "03-acts"
+kind = "acts"
+title = "acts"
+
+[[scene]]
+key = "04-pattern"
+kind = "bullets"
+title = "The Pattern"
+body = ["Give it an identity, once.", "", "Never change the identity.", "", "Compare by identity only;", "let everything else change."]
+narration = """
+Let's name the pattern. [[slnc 400]] Give each customer an identity when it is created. [[slnc 300]] A customer ID. [[slnc 500]]
+Never change it. [[slnc 500]]
+Compare customers by that identity only. [[slnc 300]] Everything else, the email, the points, is free to change.
+"""
+
+[[scene]]
+key = "05-roles"
+kind = "bullets"
+title = "Who Does What"
+body = ["CustomerId: the identity", "Customer: the entity", "equals, hashCode: the ID only", "CustomerRecord: the old way"]
+narration = """
+Here is who does what. [[slnc 400]] Customer ID is the identity: a small value that never changes. [[slnc 500]]
+Customer is the entity. [[slnc 300]] It holds the ID, and details that change, and a history of those changes. [[slnc 500]]
+Its equals and hash code look at the ID only. [[slnc 300]] And customer record is the old way, kept for comparison.
+"""
+
+[[scene]]
+key = "06-recognise"
+kind = "bullets"
+title = "Where You Have Seen It"
+body = ["JPA @Entity with @Id", "Database primary keys", "Order numbers, account numbers", "equals over the id field"]
+narration = """
+You have probably met this pattern already. [[slnc 400]] J P A entities have an ID field. [[slnc 300]] Database tables have a primary key. [[slnc 500]]
+Order numbers, account numbers, and parcel tracking numbers are all identities of entities. [[slnc 500]]
+And any equals method that compares only an ID is treating its class as an entity.
+"""
+
+[[scene]]
+key = "07-verdict"
+kind = "bullets"
+title = "When To Use It"
+body = ["Things followed one by one", "through time: customers,", "orders, parcels.", "", "Everything else: values."]
+narration = """
+So, when should you use it? [[slnc 400]] For things the business follows one by one, through time. [[slnc 300]] Customers, orders, parcels. [[slnc 500]]
+For things where only the value matters, such as an amount of money or an address, use a value object instead. [[slnc 300]] Ten pounds is ten pounds, whichever coins.
+"""
+
+[[scene]]
+key = "08-outro"
+kind = "outro"
+title = "Thanks for Watching"
+body = ["Full source, notes, diagrams and an animated walkthrough", "are in the repository. Make Order an entity", "with its own ID."]
+narration = """
+That's the Entity pattern. [[slnc 400]] If you remember one sentence, make it this one. [[slnc 300]] Some things are who they are, not what they currently look like. [[slnc 500]]
+The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. [[slnc 300]] It runs offline, with nothing installed except a Java development kit. [[slnc 500]]
+Here is one exercise to try. [[slnc 300]] Make the order an entity, with its own order ID. [[slnc 500]]
+If this helped, a like really does help other people find it. [[slnc 300]] And subscribe, if you'd like the rest of the series. [[slnc 400]] Thanks for watching.
+"""

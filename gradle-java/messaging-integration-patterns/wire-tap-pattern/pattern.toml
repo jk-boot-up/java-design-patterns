@@ -1,0 +1,434 @@
+# pattern.toml for the Wire Tap project. See tools/patternkit.
+
+[project]
+slug = "wire-tap"
+category = "messaging-integration-patterns"
+title = "Wire Tap"
+package = "wiretap"
+main_class = "WireTapDemo"
+tagline = "See the traffic without touching it"
+bold = "Attach a tap to a channel that sends a copy of every message to a second listener, such as an audit log, while the real message carries on untouched."
+domain_note = ""
+thumb_lines = ["WIRE TAP"]
+thumb_code = "channel.attach(audit)"
+youtube_title = "Wire Tap"
+youtube_tags = ["wire tap", "enterprise integration patterns", "auditing", "monitoring", "messaging", "java"]
+
+[readme]
+intro = """
+Wire Tap is one of the Enterprise Integration Patterns. To see what is
+flowing through a channel (for auditing, debugging or a dashboard) you attach
+a tap to the channel itself. Every message is still delivered to its real
+destination, and a copy goes to the tap's listener. Neither the sender nor the
+receiver is changed, and taps can be attached and detached while the system
+runs.
+
+The copies must be treated with care: a tap sees everything, including
+sensitive data, and a slow tap must not slow down the real traffic.
+"""
+analogy = """
+Think of "calls may be recorded for training purposes". The customer and the
+agent talk exactly as they would anyway; a recorder quietly keeps a copy.
+Recording can be switched on and off without changing how anyone speaks. And
+when the customer reads out their card number, the recording is paused,
+because the copy must not keep what it has no business keeping.
+"""
+scenario = """
+The online store's checkout sends payment messages (charges and refunds) to
+the payment service. To investigate a disputed refund, someone typed logging
+into the payment service's charge code. The refund path never got any, and the
+log that did exist was full of complete card numbers.
+"""
+costs = [
+    "**A tap sees everything.** Card numbers must be masked before anything is copied.",
+    "**A slow tap slows the real traffic.** A 100 ms tap made four payments take over 0.4 seconds, until it ran on its own thread.",
+    "**More copies to store.** Audit logs grow, and must be kept safe and eventually deleted.",
+]
+too_much = """
+When you only need a count or a timing, a metric in the channel itself is
+lighter than copying whole messages. And for occasional debugging on a
+developer's laptop, a breakpoint is simpler than a tap.
+"""
+met_before = [
+    "Apache Camel's `wireTap` and Spring Integration's `wire-tap` interceptor.",
+    "Kafka consumers in a separate group that read a topic for auditing.",
+    "Network port mirroring for monitoring tools.",
+    "Call recording in customer service centres.",
+]
+where = """
+This project is in [messaging-integration-patterns](..), next to
+[Message Channel](../message-channel-pattern), the channel a tap is attached
+to, and [Message Filter](../message-filter-pattern).
+"""
+
+[[act]]
+title = "Logging typed in by hand"
+summary = "Logging was added to the payment service's charge path only: 4 messages sent, 3 logged, with full card numbers."
+detail = """
+Someone added logging inside `PaymentService`'s charge path. Four messages
+are sent; three are logged, because the refund path has no logging. And the
+log lines contain complete card numbers.
+"""
+speech = """
+First demo: logging typed into the payment service, by hand. [[slnc 400]] Four payment messages are sent. [[slnc 300]] Three charges, and one refund. [[slnc 600]]
+Only three appear in the log. [[slnc 300]] Nobody added logging to the refund code. [[slnc 500]]
+And the lines that are there show the full card number.
+"""
+rows = { payment = "active wrong", checkout = "active ok" }
+console = [
+    ["4 messages sent, 3 in the log", "bad"],
+    ["... card 4929123412341234", "bad"],
+]
+
+[[act]]
+title = "A wire tap"
+summary = "An audit tap on the channel copies all 4 messages with masked cards; payment handles all 4; neither service changed."
+detail = """
+An `AuditLog` is attached to the channel as a wire tap. Every message, charge
+or refund, is copied to it with the card masked to its last four digits, and
+the payment service handles all four as before. Neither checkout nor the
+payment service was changed.
+"""
+speech = """
+Second demo: a wire tap, on the channel itself. [[slnc 400]] An audit log is attached to the channel. [[slnc 300]] Every message is copied to it, charges and refunds alike. [[slnc 600]]
+The copies show only the last four digits of each card. [[slnc 500]]
+The payment service handles all four messages, exactly as before. [[slnc 300]] Neither service was changed.
+"""
+rows = { channel = "active ok", audit = "active ok", payment = "active ok" }
+console = [
+    ["audit: CHARGE ORD-1 £63.44 **** 1234", "ok"],
+    ["audit: REFUND ORD-1 £30.00 **** 1234", "ok"],
+    ["4 of 4 copied; nothing changed", "ok"],
+]
+
+[[act]]
+title = "Attach and detach"
+summary = "The tap is detached after the investigation; ORD-4 flows as normal and the audit keeps its 4 lines."
+detail = """
+When the investigation is over, the tap is detached. ORD-4 flows through as
+normal, and the audit log still holds its four lines. Taps come and go
+without touching the services.
+"""
+speech = """
+Third demo: attach while investigating, detach afterwards. [[slnc 400]] The investigation is over. [[slnc 300]] The tap is detached. [[slnc 500]]
+Order four flows through, exactly as normal. [[slnc 300]] The audit log still holds its four lines.
+"""
+rows = { channel = "active ok", audit = "active amber" }
+console = [
+    ["tap detached", "muted"],
+    ["ORD-4 flows as normal", "ok"],
+]
+
+[[act]]
+title = "A second tap"
+summary = "A sales meter tapped onto the channel shows net takings of £58.42."
+detail = """
+A second kind of tap, `SalesMeter`, adds up charges and subtracts refunds for
+a dashboard. It sees the same traffic and reports net takings of £58.42.
+"""
+speech = """
+Fourth demo: a second tap, for a sales dashboard. [[slnc 400]] It adds up the charges, and takes off the refunds. [[slnc 500]]
+Net takings: fifty-eight pounds forty-two. [[slnc 300]] Again, no service changed.
+"""
+rows = { meter = "active ok", channel = "active ok" }
+console = [
+    ["net takings: £58.42", "ok"],
+]
+
+[[act]]
+title = "The bill"
+summary = "A 100 ms tap makes 4 payments take over 0.4 s; on its own thread, under 0.05 s. Mask everything a tap copies."
+detail = """
+Taps run in the channel's path. A tap that takes 100 milliseconds per copy,
+such as one writing to a remote log, makes four payments take over 0.4
+seconds. Run on its own thread, the same tap costs the payments under 0.05
+seconds. And a tap sees everything, so sensitive data must be masked before
+it is copied.
+"""
+speech = """
+Fifth demo: the bill. [[slnc 400]] A tap that takes a tenth of a second per copy slows the real payments. [[slnc 300]] Four payments take over four tenths of a second. [[slnc 600]]
+Run the same tap on its own thread, and the payments take under five hundredths of a second. [[slnc 600]]
+And a tap sees everything. [[slnc 300]] Mask card numbers, before anything is copied.
+"""
+rows = { audit = "active wrong", channel = "active amber" }
+console = [
+    ["slow tap: 4 payments over 0.4 s", "bad"],
+    ["on its own thread: under 0.05 s", "ok"],
+    ["mask before copying", "amber"],
+]
+
+[animation]
+subtitle = "Payment messages flow from checkout to payment; taps on the channel copy each one for an audit log and a sales meter."
+boxes = [
+    ["checkout", "Checkout", "sends payments"],
+    ["channel", "Channel", "with taps attached"],
+    ["payment", "Payment service", "charges, refunds"],
+    ["audit", "Audit log", "copies, cards masked"],
+    ["meter", "Sales meter", "net takings"],
+]
+
+[docs.problem]
+scenario = """
+Checkout sends charge and refund messages to the payment service, and someone
+needs to see them to investigate a disputed refund.
+"""
+naive = """
+Logging typed into the payment service's charge path misses refunds and
+records full card numbers.
+"""
+deliver = [
+    "Hand-added logging shown missing a message and exposing cards.",
+    "An audit tap copying every message with masked cards.",
+    "A tap detached with no change to the flow.",
+    "A second tap feeding a sales meter.",
+    "A slow tap measured, and fixed with its own thread.",
+    "Every printed result asserted by a test.",
+]
+
+[docs.prerequisites]
+required = [
+    "Java basics: records, lambdas, `Consumer`.",
+]
+not_required = [
+    "A message broker. The channel is a small class.",
+]
+
+[docs.session]
+objectives = [
+    "Explain why observing traffic should not mean editing services.",
+    "Attach and detach a tap.",
+    "Mask sensitive fields in copies.",
+    "Keep a slow tap off the main path.",
+]
+walkthrough = """
+Run `./gradlew run` and read act one: a missing message and a full card
+number. Open `Channel.send`: taps first, then the destination. End on act
+five and compare the two timings.
+"""
+exercises = [
+    "Make the audit tap write to a file, on its own thread.",
+    "Add a tap that only copies refunds over £20.",
+    "Mask the order ID too, and decide whether that makes the audit useless.",
+]
+
+[docs.explained]
+sentence = """
+A wire tap copies every message on a channel to a second listener, while the
+original is delivered unchanged, so traffic can be observed without touching
+senders or receivers.
+"""
+verdict = """
+Use wire taps for auditing, debugging and dashboards. Mask sensitive data
+before copying, run slow taps on their own thread, and detach taps you no
+longer need.
+"""
+recognise = [
+    "`wireTap(...)` in Camel routes or interceptors in Spring Integration.",
+    "A separate consumer group reading a topic for auditing.",
+    "Audit logs that are fed from the messaging layer, not from services.",
+]
+
+[spec]
+purpose = """
+Teach Wire Tap with an online store's payment messages: hand-added logging
+missing a refund and exposing cards, then an audit tap copying 4 of 4 with
+masked cards, a tap detached, a sales meter tap (£58.42), and a slow tap
+slowing payments until it runs on its own thread.
+"""
+nongoals = [
+    "Not a real payment system or card storage.",
+    "Not log shipping. The audit log is a list.",
+]
+problem = """
+Adding logging to services by hand to see their messages changes them, misses
+paths, and copies sensitive data.
+"""
+roles = [
+    ["The channel", "`Channel` (`attach`, `detach`)"],
+    ["The taps", "`WireTaps.AuditLog`, `SalesMeter`, `Async`"],
+    ["The receiver", "`PaymentService`"],
+    ["The messages", "`PaymentMessage`"],
+    ["Entry point", "`WireTapDemo`, five acts"],
+]
+requirements = [
+    "**Untouched flow:** the destination handles every message as before.",
+    "**Every message copied:** 4 of 4.",
+    "**Masked:** cards show only the last four digits.",
+    "**Off the main path:** an async tap does not slow payments.",
+    "**Every printed result is asserted** in `DemoRunsTest`.",
+]
+
+[[diagram]]
+name = "architecture-diagram"
+kind = "flow"
+title = "Wire Tap — the pieces"
+caption = "The real message goes on; copies go to the taps."
+nodes = [
+    { id = "c", label = "Checkout", sub = "charge, refund", col = 0, row = 0, colour = "client" },
+    { id = "ch", label = "Channel", sub = "taps attached", col = 1, row = 0, colour = "amber" },
+    { id = "p", label = "Payment service", sub = "the real destination", col = 2, row = 0, colour = "green" },
+    { id = "a", label = "Audit log", sub = "masked copies", col = 1, row = 1, colour = "accent" },
+    { id = "m", label = "Sales meter", sub = "net takings", col = 2, row = 1, colour = "accent" },
+]
+edges = [
+    { from = "c", to = "ch", label = "send" },
+    { from = "ch", to = "p", label = "deliver" },
+    { from = "ch", to = "a", label = "copy" },
+    { from = "ch", to = "m", label = "copy" },
+]
+
+[[diagram]]
+name = "class-diagram"
+kind = "class"
+title = "Wire Tap — classes"
+caption = "Taps are consumers attached to the channel."
+nodes = [
+    { id = "c", label = "Channel", sub = ["- destination", "- taps", "+ attach, detach", "+ send(m)"], col = 0, row = 0, colour = "amber" },
+    { id = "a", label = "AuditLog", sub = ["masks the card"], col = 1, row = 0, colour = "accent" },
+    { id = "m", label = "SalesMeter", sub = ["net()"], col = 1, row = 1, colour = "accent" },
+    { id = "s", label = "Async", sub = ["runs a tap on", "its own thread"], col = 2, row = 0, colour = "green" },
+]
+edges = [
+    { from = "c", to = "a", label = "copies to" },
+    { from = "c", to = "m", label = "copies to" },
+    { from = "s", to = "a", label = "wraps" },
+]
+
+[[diagram]]
+name = "data-flow-diagram"
+kind = "flow"
+title = "Wire Tap — one refund"
+caption = "Delivered as sent; copied with the card masked."
+nodes = [
+    { id = "a", label = "REFUND ORD-1 £30.00", sub = "card 4929...1234", col = 0, row = 0, colour = "client" },
+    { id = "b", label = "payment service", sub = "refunded ORD-1", col = 2, row = 0, colour = "green" },
+    { id = "c", label = "audit log", sub = "card **** 1234", col = 2, row = 1, colour = "accent" },
+]
+edges = [
+    { from = "a", to = "b", label = "deliver" },
+    { from = "a", to = "c", label = "copy, masked" },
+]
+
+[[diagram]]
+name = "sequence-diagram"
+kind = "sequence"
+title = "Wire Tap — sending a charge"
+caption = "Copy first, then deliver."
+participants = ["Checkout", "Channel", "Audit", "Payment"]
+steps = [
+    ["Checkout", "Channel", "send(CHARGE ORD-1)"],
+    ["Channel", "Audit", "copy (masked)"],
+    ["Channel", "Payment", "deliver"],
+]
+
+[[diagram]]
+name = "uml-diagram"
+kind = "sequence"
+title = "1. Logging by hand"
+caption = "Only the paths someone remembered."
+participants = ["Checkout", "Payment"]
+steps = [
+    ["Checkout", "Payment", "CHARGE (logged)"],
+    ["Checkout", "Payment", "REFUND (not logged)"],
+]
+
+[[diagram]]
+name = "uml-diagram-2"
+kind = "sequence"
+title = "2. An async tap"
+caption = "The payment does not wait for the copy."
+participants = ["Channel", "Async tap", "Payment"]
+steps = [
+    ["Channel", "Async tap", "copy (queued)"],
+    ["Channel", "Payment", "deliver at once"],
+    ["note", "Async tap", "writes 100 ms later"],
+]
+
+[poster]
+headline = [["WIRE TAP", "text"]]
+before = { code = "log.info(...) in services", note = "missed refunds, full cards", tag = "BEFORE" }
+after = { code = "channel.attach(audit)", note = "every message, masked", tag = "AFTER" }
+taglines = [["See the traffic without touching it", "gold"]]
+
+[[scene]]
+key = "01-poster"
+kind = "poster"
+title = "Wire Tap"
+narration = """
+Hello, and welcome. [[slnc 400]] This video explains the Wire Tap pattern, in Java. [[slnc 300]]
+This video is presented by Jayasekhar Konduru. [[slnc 600]]
+First, a simple definition. [[slnc 300]] A wire tap is attached to a channel of messages. [[slnc 300]] It sends a copy of every message to a second listener, such as an audit log. [[slnc 300]] The real message carries on to its destination, untouched. [[slnc 600]]
+Think of the message: calls may be recorded for training purposes. [[slnc 300]] The customer and the agent talk as normal. [[slnc 300]] A recorder quietly keeps a copy. [[slnc 300]] And when a card number is read out, the recording pauses. [[slnc 700]]
+In this video, the domain is an online shop. [[slnc 300]] Checkout sends payment messages, charges and refunds, to the payment service. [[slnc 500]]
+By the end, you will hear why typing logging into services goes wrong. [[slnc 300]] How a wire tap fixes it. [[slnc 300]] How taps come and go. [[slnc 300]] And what a tap must never do.
+"""
+
+[[scene]]
+key = "02-scenario"
+kind = "bullets"
+title = "The Scenario"
+body = ["Checkout -> payment service:", "charges and refunds.", "", "A refund is disputed.", "Someone needs to see the messages."]
+narration = """
+Here is the scenario. [[slnc 400]] Checkout sends payment messages to the payment service. [[slnc 300]] Charges, and refunds. [[slnc 600]]
+A customer disputes a refund. [[slnc 300]] Someone needs to see exactly which messages went through.
+"""
+
+[[scene]]
+key = "03-acts"
+kind = "acts"
+title = "acts"
+
+[[scene]]
+key = "04-pattern"
+kind = "bullets"
+title = "The Pattern"
+body = ["Attach a tap to the channel.", "", "Every message: delivered as normal,", "and copied to the tap.", "", "Sender and receiver unchanged."]
+narration = """
+Let's name the pattern. [[slnc 400]] Attach a tap to the channel itself. [[slnc 500]]
+Every message is delivered as normal. [[slnc 300]] And a copy goes to the tap. [[slnc 500]]
+The sender and the receiver are not changed at all. [[slnc 300]] Taps can be attached, and detached, while the shop runs.
+"""
+
+[[scene]]
+key = "05-roles"
+kind = "bullets"
+title = "Who Does What"
+body = ["Channel: delivers, and feeds taps", "AuditLog: masked copies", "SalesMeter: net takings", "Async: keeps slow taps off the path", "PaymentService: the real destination"]
+narration = """
+Here is who does what. [[slnc 400]] The channel delivers each message, and hands a copy to every attached tap. [[slnc 500]]
+The audit log keeps copies, with card numbers masked. [[slnc 300]] The sales meter keeps a running total. [[slnc 500]]
+Async runs a slow tap on its own thread. [[slnc 300]] And the payment service is the real destination.
+"""
+
+[[scene]]
+key = "06-recognise"
+kind = "bullets"
+title = "Where You Have Seen It"
+body = ["Camel wireTap", "Spring Integration wire-tap", "Kafka audit consumers", "Port mirroring, call recording"]
+narration = """
+You have probably met this pattern already. [[slnc 400]] Apache Camel and Spring Integration both have a wire tap. [[slnc 500]]
+In Kafka, a separate consumer group can read a topic for auditing. [[slnc 500]]
+Network switches mirror traffic to monitoring tools. [[slnc 300]] And call centres record calls.
+"""
+
+[[scene]]
+key = "07-verdict"
+kind = "bullets"
+title = "When To Use It"
+body = ["Auditing, debugging, dashboards.", "", "Mask sensitive data first.", "Slow taps on their own thread.", "Detach what you no longer need."]
+narration = """
+So, when should you use it? [[slnc 400]] For auditing, debugging, and dashboards. [[slnc 500]]
+Mask sensitive data before anything is copied. [[slnc 300]] Run slow taps on their own thread. [[slnc 300]] And detach the taps you no longer need.
+"""
+
+[[scene]]
+key = "08-outro"
+kind = "outro"
+title = "Thanks for Watching"
+body = ["Full source, notes, diagrams and an animated walkthrough", "are in the repository. Write the audit", "to a file, on its own thread."]
+narration = """
+That's the Wire Tap pattern. [[slnc 400]] If you remember one sentence, make it this one. [[slnc 300]] Watch the traffic from the channel, never from inside the services. [[slnc 500]]
+The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. [[slnc 300]] It runs offline, with nothing installed except a Java development kit. [[slnc 500]]
+Here is one exercise to try. [[slnc 300]] Make the audit tap write to a file, on its own thread. [[slnc 500]]
+If this helped, a like really does help other people find it. [[slnc 300]] And subscribe, if you'd like the rest of the series. [[slnc 400]] Thanks for watching.
+"""

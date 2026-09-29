@@ -1,0 +1,450 @@
+# pattern.toml for the Page Controller project. See tools/patternkit.
+
+[project]
+slug = "page-controller"
+category = "enterprise-design-patterns"
+title = "Page Controller"
+package = "pagecontroller"
+main_class = "PageControllerDemo"
+tagline = "One controller per page"
+bold = "Give every page of a web site its own small controller that reads that page's input, decides what to do and sends the reply, instead of one handler for everything."
+domain_note = ""
+thumb_lines = ["PAGE", "CONTROLLER"]
+thumb_code = "/basket -> BasketController"
+youtube_title = "Page Controller"
+youtube_tags = ["page controller", "web patterns", "http", "enterprise patterns", "front controller", "java"]
+
+[readme]
+intro = """
+Page Controller is one of Martin Fowler's web presentation patterns. Each page
+or action of a web site, such as the product page or the basket, gets its own
+controller: a small class that reads that page's input, decides what to do,
+and sends the reply. The web server maps each address to its controller.
+
+Each page's logic lives in one place, errors stay on their page, and adding a
+page means adding a class. The price is that checks every page needs, such as
+"is the customer logged in?", are repeated in each controller.
+"""
+analogy = """
+Think of a department store with a separate desk for each service: a returns
+desk, a gift-wrapping desk, a café till. Each desk knows only its own job, and
+a queue at one does not slow the others. But a store-wide rule, "check the
+receipt", has to be taught at every desk, and one desk will eventually forget.
+"""
+scenario = """
+The online store's web site has a product page, a basket and a checkout. They
+were all served by one handler that chose what to do by looking at the
+address, in one long method. Someone added quantity parsing at the top of it
+for the basket, and the product page, which has no quantity, started failing.
+"""
+costs = [
+    "**Shared checks are repeated.** The login check is written in each controller that needs it; checkout's author forgot.",
+    "**Common code needs a home.** Logging, headers and error pages end up copied or in a base class.",
+    "**Many small classes.** One per page or action.",
+]
+too_much = """
+When most pages share a lot of handling (authentication, logging, layout,
+error pages), a Front Controller that runs the shared steps once and then
+hands over to page commands is a better fit. Page Controller suits sites where
+pages are simple and mostly independent.
+"""
+met_before = [
+    "Classic JSP and PHP pages, where each file handles one page.",
+    "Servlets mapped one per URL in `web.xml`.",
+    "Spring MVC `@Controller` classes with one handler method per page.",
+    "`HttpServer.createContext(path, handler)` in the JDK.",
+]
+where = """
+This project is in [enterprise-design-patterns](..), next to
+[Front Controller](../front-controller-pattern), which puts the shared steps
+in one place and fixes this pattern's forgotten-check problem, and near
+[MVC](../../architectural-design-patterns/mvc-pattern), where controllers
+first appeared.
+"""
+
+[[act]]
+title = "One handler for every page"
+summary = "The basket works, but the product page returns 500: quantity parsing added for the basket runs for every page."
+detail = """
+`OneHandler` serves every address from one method. Quantity parsing was added
+at the top for the basket. The basket answers `200 basket: 2 x MUG-1`, but the
+product page has no quantity, and now returns `500 server error:
+NumberFormatException`.
+"""
+speech = """
+First demo: one handler for every page. [[slnc 400]] The product page, the basket, and every other address go through one long method. [[slnc 500]]
+Someone added a line at the top, to read the quantity, for the basket. [[slnc 500]]
+The basket works: two mugs. [[slnc 500]]
+But the product page has no quantity. [[slnc 300]] It now fails with a server error. [[slnc 300]] A change for one page broke another.
+"""
+rows = { one = "active wrong", basket = "active ok", product = "active wrong" }
+console = [
+    ["/basket?add=MUG-1&qty=2  -> 200", "ok"],
+    ["/product?sku=KETTLE-1   -> 500", "bad"],
+    ["  NumberFormatException", "bad"],
+]
+
+[[act]]
+title = "A controller per page"
+summary = "ProductController, BasketController and CheckoutController each serve one address; the product page and basket both work."
+detail = """
+Each address now has its own controller, registered with the JDK's web server:
+`/product` to `ProductController`, `/basket` to `BasketController`,
+`/checkout` to `CheckoutController`. The product page shows the kettle, and
+the basket takes two mugs.
+"""
+speech = """
+Second demo: a page controller for each page. [[slnc 400]] The product page has its own small class. [[slnc 300]] So does the basket. [[slnc 300]] So does checkout. [[slnc 500]]
+The web server sends each address to its controller. [[slnc 500]]
+The product page shows the steel kettle, thirty pounds. [[slnc 300]] The basket takes two mugs. [[slnc 300]] Both work.
+"""
+rows = { product = "active ok", basket = "active ok", server = "active ok" }
+console = [
+    ["/product?sku=KETTLE-1   -> 200", "ok"],
+    ["  steel kettle, £30.00", "ok"],
+    ["/basket?add=MUG-1&qty=2 -> 200", "ok"],
+]
+
+[[act]]
+title = "Errors stay on their page"
+summary = "An unknown product is 404 from the product page; qty=two is 400 from the basket; the product page still works."
+detail = """
+Each controller reads and checks its own input. An unknown product gives
+`404 no product SOFA-9`, from the product controller only. A quantity of "two"
+gives `400 quantity must be a number`, from the basket only. The product page
+for the mug still answers 200.
+"""
+speech = """
+Third demo: each page handles its own input, and its own errors. [[slnc 400]] A customer asks for a product that does not exist. [[slnc 300]] The product page answers four oh four: no such product. [[slnc 500]]
+Someone types the word two as a quantity. [[slnc 300]] The basket answers four hundred: quantity must be a number. [[slnc 500]]
+And the product page for the mug still works.
+"""
+rows = { product = "active amber", basket = "active amber" }
+console = [
+    ["/product?sku=SOFA-9 -> 404", "ok"],
+    ["/basket ... qty=two -> 400", "ok"],
+    ["/product?sku=MUG-1  -> 200", "ok"],
+]
+
+[[act]]
+title = "A new page"
+summary = "ReviewsController is one new class and one registration line: /reviews answers 4.5 stars from 12 customers."
+detail = """
+A reviews page is added: one new class, `ReviewsController`, and one line
+registering `/reviews`. No other controller is opened, and the page answers
+"4.5 stars from 12 customers".
+"""
+speech = """
+Fourth demo: a new page is a new class, and one line. [[slnc 400]] The shop adds a reviews page. [[slnc 300]] One new controller, and one line telling the server about it. [[slnc 500]]
+The reviews page answers: four point five stars, from twelve customers. [[slnc 300]] No other controller was touched.
+"""
+rows = { reviews = "active ok", server = "active ok" }
+console = [
+    ["/reviews?sku=KETTLE-1 -> 200", "ok"],
+    ["  4.5 stars from 12 customers", "ok"],
+]
+
+[[act]]
+title = "The bill"
+summary = "Not logged in: the basket says 401, but checkout says 200, because its author forgot the login check."
+detail = """
+Checks that every page needs are written in every controller. The basket
+repeats the login check and answers `401 please log in`. The checkout
+controller's author forgot it, so checkout answers 200 to a visitor who is not
+logged in. Front Controller exists to fix exactly this.
+"""
+speech = """
+Fifth demo: the bill. [[slnc 400]] Checks that every page needs are written in every controller. [[slnc 500]]
+A visitor who is not logged in opens the basket. [[slnc 300]] Four oh one: please log in. [[slnc 500]]
+The same visitor opens checkout. [[slnc 300]] Two hundred: pay with the card on file. [[slnc 300]] Checkout's author forgot the login check. [[slnc 600]]
+The Front Controller pattern exists to fix exactly this.
+"""
+rows = { basket = "active ok", checkout = "active wrong" }
+console = [
+    ["/basket, not logged in   -> 401", "ok"],
+    ["/checkout, not logged in -> 200", "bad"],
+    ["checkout forgot the login check", "bad"],
+]
+
+[animation]
+subtitle = "Each page of the shop has its own small controller; the web server sends each address to its controller."
+boxes = [
+    ["one", "One handler", "every page, one method"],
+    ["server", "JDK web server", "address -> controller"],
+    ["product", "ProductController", "/product"],
+    ["basket", "BasketController", "/basket, checks login"],
+    ["checkout", "CheckoutController", "/checkout, forgot login"],
+    ["reviews", "ReviewsController", "/reviews, added later"],
+]
+
+[docs.problem]
+scenario = """
+The shop's web site has a product page, a basket and a checkout, served over
+HTTP.
+"""
+naive = """
+`OneHandler` serves every page from one method. Code added at the top for one
+page (quantity parsing for the basket) runs for all of them, and the product
+page fails with a 500.
+"""
+deliver = [
+    "The shared-method failure shown: a 500 on the product page.",
+    "One controller per page, registered with the JDK's HTTP server.",
+    "Input errors answered by the page they belong to (404, 400).",
+    "A new page added as one class and one line.",
+    "The cost shown: a forgotten login check on checkout.",
+    "Every response asserted by a test, over real HTTP on localhost.",
+]
+
+[docs.prerequisites]
+required = [
+    "Java basics: classes, interfaces, exceptions.",
+    "HTTP basics: a path, a query string, status codes 200, 400, 401, 404, 500.",
+]
+not_required = [
+    "Servlets or Spring MVC. The JDK's own `HttpServer` is used.",
+]
+
+[docs.session]
+objectives = [
+    "Explain how one shared handler lets changes leak between pages.",
+    "Write a controller per page with its own input handling.",
+    "Add a page without touching the others.",
+    "Name the cost that leads to Front Controller.",
+]
+walkthrough = """
+Run `./gradlew run` and read act one: a change for the basket broke the
+product page. Open `OneHandler` and find the line. Then open `Controllers`:
+four small classes. End on act five and search the four classes for
+`loggedIn`: which one is missing it?
+"""
+exercises = [
+    "Add the login check to CheckoutController, and a test that fails without it.",
+    "Move the login check into a base class. What happens to controllers that do not need it?",
+    "Add a `/search?q=` page that lists matching products.",
+]
+
+[docs.explained]
+sentence = """
+A page controller is a small class for one page or action of a web site that
+reads that page's input, decides what to do and sends the reply.
+"""
+verdict = """
+Use page controllers for simple sites whose pages are mostly independent. As
+soon as many pages share checks, logging or layout, move those into a Front
+Controller or filters so they cannot be forgotten.
+"""
+recognise = [
+    "One class or file per URL: `ProductController`, `product.jsp`, `product.php`.",
+    "`createContext(\"/basket\", ...)` or one servlet per path.",
+    "The same login check at the top of many controllers.",
+]
+
+[spec]
+purpose = """
+Teach Page Controller with an online store's web pages on the JDK's HTTP
+server: one shared handler failing the product page with a 500, then a
+controller per page, errors answered by their own page (404, 400), a reviews
+page added as one class, and a forgotten login check on checkout.
+"""
+nongoals = [
+    "Not HTML. Replies are plain text.",
+    "Not real sessions. A cookie header stands in for a login.",
+]
+problem = """
+One handler for every page lets a change made for one page break another, and
+keeps every page's logic in one long method.
+"""
+roles = [
+    ["The pattern", "`Controllers.ProductController`, `BasketController`, `CheckoutController`, `ReviewsController`"],
+    ["The web server", "JDK `HttpServer`, `Web`"],
+    ["The naive version", "`OneHandler`"],
+    ["Entry point", "`PageControllerDemo`, five acts"],
+]
+requirements = [
+    "**Real HTTP:** every request goes over localhost to the JDK's server.",
+    "**One page, one class:** each address maps to its own controller.",
+    "**Local errors:** 404 and 400 come from the page they belong to.",
+    "**Honest cost:** the forgotten login check is shown and asserted.",
+    "**Every response is asserted** in `DemoRunsTest`.",
+]
+
+[[diagram]]
+name = "architecture-diagram"
+kind = "flow"
+title = "Page Controller — the pieces"
+caption = "The server sends each address to its own controller."
+nodes = [
+    { id = "b", label = "Browser", sub = "GET /basket?add=MUG-1", col = 0, row = 1, colour = "client" },
+    { id = "s", label = "HttpServer", sub = "address -> controller", col = 1, row = 1, colour = "accent" },
+    { id = "p", label = "ProductController", sub = "/product", col = 2, row = 0, colour = "green" },
+    { id = "k", label = "BasketController", sub = "/basket", col = 2, row = 1, colour = "green" },
+    { id = "c", label = "CheckoutController", sub = "/checkout", col = 2, row = 2, colour = "amber" },
+]
+edges = [
+    { from = "b", to = "s", label = "request" },
+    { from = "s", to = "p", label = "/product" },
+    { from = "s", to = "k", label = "/basket" },
+    { from = "s", to = "c", label = "/checkout" },
+]
+
+[[diagram]]
+name = "class-diagram"
+kind = "class"
+title = "Page Controller — classes"
+caption = "Every controller implements the JDK's HttpHandler."
+nodes = [
+    { id = "h", label = "«interface» HttpHandler", sub = ["+ handle(HttpExchange)"], col = 1, row = 0, colour = "accent" },
+    { id = "p", label = "ProductController", sub = ["404 for unknown sku"], col = 0, row = 1, colour = "green" },
+    { id = "k", label = "BasketController", sub = ["401 if not logged in", "400 for bad qty"], col = 1, row = 1, colour = "green" },
+    { id = "c", label = "CheckoutController", sub = ["(no login check)"], col = 2, row = 1, colour = "amber" },
+    { id = "o", label = "OneHandler", sub = ["if path == ...", "parses qty for all"], col = 0, row = 0, colour = "red" },
+]
+edges = [
+    { from = "p", to = "h", label = "implements" },
+    { from = "k", to = "h", label = "implements" },
+    { from = "c", to = "h", label = "implements" },
+]
+
+[[diagram]]
+name = "data-flow-diagram"
+kind = "flow"
+title = "Page Controller — a basket request"
+caption = "The basket controller does its own checks, in its own order."
+nodes = [
+    { id = "a", label = "GET /basket?add=MUG-1&qty=2", sub = "with a session cookie", col = 0, row = 0, colour = "client" },
+    { id = "b", label = "logged in?", sub = "yes", col = 1, row = 0, colour = "accent" },
+    { id = "c", label = "qty a number?", sub = "2", col = 2, row = 0, colour = "accent" },
+    { id = "d", label = "200 basket: 2 x MUG-1", sub = "", col = 2, row = 1, colour = "green" },
+]
+edges = [
+    { from = "a", to = "b", label = "BasketController" },
+    { from = "b", to = "c", label = "" },
+    { from = "c", to = "d", label = "reply" },
+]
+
+[[diagram]]
+name = "sequence-diagram"
+kind = "sequence"
+title = "Page Controller — a product page"
+caption = "One request, one controller, one reply."
+participants = ["Browser", "HttpServer", "ProductController"]
+steps = [
+    ["Browser", "HttpServer", "GET /product?sku=KETTLE-1"],
+    ["HttpServer", "ProductController", "handle(exchange)"],
+    ["ProductController", "Browser", "200 steel kettle, £30.00", "reply"],
+]
+
+[[diagram]]
+name = "uml-diagram"
+kind = "sequence"
+title = "1. The shared handler"
+caption = "A line added for the basket runs for the product page."
+participants = ["Browser", "OneHandler"]
+steps = [
+    ["Browser", "OneHandler", "GET /product?sku=KETTLE-1"],
+    ["note", "OneHandler", "parseInt(qty): no qty"],
+    ["OneHandler", "Browser", "500 NumberFormatException", "reply"],
+]
+
+[[diagram]]
+name = "uml-diagram-2"
+kind = "sequence"
+title = "2. The forgotten check"
+caption = "Basket checks the login; checkout does not."
+participants = ["Visitor", "BasketController", "CheckoutController"]
+steps = [
+    ["Visitor", "BasketController", "GET /basket (no session)"],
+    ["BasketController", "Visitor", "401 please log in", "reply"],
+    ["Visitor", "CheckoutController", "GET /checkout (no session)"],
+    ["CheckoutController", "Visitor", "200 pay £63.44", "reply"],
+]
+
+[poster]
+headline = [["PAGE", "text"], ["CONTROLLER", "text"]]
+before = { code = "if (path.equals(...))", note = "one change broke a page", tag = "BEFORE" }
+after = { code = "/basket -> BasketController", note = "each page on its own", tag = "AFTER" }
+taglines = [["One controller per page", "gold"]]
+
+[[scene]]
+key = "01-poster"
+kind = "poster"
+title = "Page Controller"
+narration = """
+Hello, and welcome. [[slnc 400]] This video explains the Page Controller pattern, in Java. [[slnc 300]]
+This video is presented by Jayasekhar Konduru. [[slnc 600]]
+First, a simple definition. [[slnc 300]] A page controller is a small class for one page of a web site. [[slnc 300]] It reads that page's input, decides what to do, and sends the reply. [[slnc 300]] Every page gets its own. [[slnc 600]]
+Think of a department store with a separate desk for each service. [[slnc 300]] A returns desk, a gift-wrapping desk, a café till. [[slnc 300]] Each knows only its own job. [[slnc 300]] But a store-wide rule has to be taught at every desk. [[slnc 700]]
+In this video, the domain is an online shop's web site. [[slnc 300]] It has a product page, a basket, and a checkout, served by a real web server running on the same computer. [[slnc 500]]
+By the end, you will hear how one handler for every page lets changes leak. [[slnc 300]] How page controllers fix it. [[slnc 300]] How to add a page. [[slnc 300]] And the check that gets forgotten.
+"""
+
+[[scene]]
+key = "02-scenario"
+kind = "bullets"
+title = "The Scenario"
+body = ["/product: show a product.", "/basket: add to the basket.", "/checkout: pay.", "", "All served by one handler,", "in one long method."]
+narration = """
+Here is the scenario. [[slnc 400]] The shop's web site has three addresses. [[slnc 300]] Product shows a product. [[slnc 300]] Basket adds something to the basket. [[slnc 300]] Checkout takes payment. [[slnc 600]]
+All three were served by one handler. [[slnc 300]] One long method, that looked at the address and chose what to do.
+"""
+
+[[scene]]
+key = "03-acts"
+kind = "acts"
+title = "acts"
+
+[[scene]]
+key = "04-pattern"
+kind = "bullets"
+title = "The Pattern"
+body = ["One small controller per page.", "", "It reads its own input,", "makes its own decisions,", "sends its own reply.", "", "The server maps address -> controller."]
+narration = """
+Let's name the pattern. [[slnc 400]] Give each page its own small controller. [[slnc 500]]
+The controller reads that page's input. [[slnc 300]] It makes that page's decisions. [[slnc 300]] And it sends that page's reply. [[slnc 500]]
+The web server keeps a simple map: this address goes to that controller.
+"""
+
+[[scene]]
+key = "05-roles"
+kind = "bullets"
+title = "Who Does What"
+body = ["HttpServer: address -> controller", "ProductController: /product", "BasketController: /basket", "CheckoutController: /checkout", "OneHandler: the old way"]
+narration = """
+Here is who does what. [[slnc 400]] The JDK's built-in web server maps each address to a controller. [[slnc 500]]
+Product controller serves the product page. [[slnc 300]] Basket controller serves the basket, and checks the login. [[slnc 300]] Checkout controller serves checkout. [[slnc 500]]
+And one handler is the old way, kept for comparison.
+"""
+
+[[scene]]
+key = "06-recognise"
+kind = "bullets"
+title = "Where You Have Seen It"
+body = ["A JSP or PHP file per page", "One servlet per URL", "Spring MVC @Controller classes", "HttpServer.createContext"]
+narration = """
+You have probably met this pattern already. [[slnc 400]] Classic web sites with one JSP or PHP file per page are page controllers. [[slnc 500]]
+So are servlets mapped one per address. [[slnc 500]]
+And Spring M V C controller classes, with a method for each page, are the modern form.
+"""
+
+[[scene]]
+key = "07-verdict"
+kind = "bullets"
+title = "When To Use It"
+body = ["Simple sites with mostly", "independent pages.", "", "Many shared checks?", "Use a Front Controller", "or filters."]
+narration = """
+So, when should you use it? [[slnc 400]] For simple sites, where the pages are mostly independent. [[slnc 500]]
+As soon as many pages share checks, logging, or layout, move those into a front controller, or into filters. [[slnc 300]] Then they run for every page, and cannot be forgotten.
+"""
+
+[[scene]]
+key = "08-outro"
+kind = "outro"
+title = "Thanks for Watching"
+body = ["Full source, notes, diagrams and an animated walkthrough", "are in the repository. Add the missing", "login check to checkout."]
+narration = """
+That's the Page Controller pattern. [[slnc 400]] If you remember one sentence, make it this one. [[slnc 300]] One small controller per page, and each page looks after itself. [[slnc 500]]
+The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. [[slnc 300]] It runs offline, with nothing installed except a Java development kit. [[slnc 500]]
+Here is one exercise to try. [[slnc 300]] Add the missing login check to checkout, and a test that proves it. [[slnc 500]]
+If this helped, a like really does help other people find it. [[slnc 300]] And subscribe, if you'd like the rest of the series. [[slnc 400]] Thanks for watching.
+"""

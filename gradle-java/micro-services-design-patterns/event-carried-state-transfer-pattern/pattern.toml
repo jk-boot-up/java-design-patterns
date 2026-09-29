@@ -1,0 +1,438 @@
+# pattern.toml for the Event-Carried State Transfer project. See tools/patternkit.
+
+[project]
+slug = "event-carried-state-transfer"
+category = "micro-services-design-patterns"
+title = "Event-Carried State Transfer"
+package = "eventcarried"
+main_class = "EventCarriedDemo"
+tagline = "Put the data in the event"
+bold = "Put the changed data itself in the event, so each service that cares can keep its own copy and never has to call the owner back."
+domain_note = ""
+thumb_lines = ["EVENT-CARRIED", "STATE TRANSFER"]
+thumb_code = "AddressChanged(address)"
+youtube_title = "Event-Carried State Transfer"
+youtube_tags = ["event-carried state transfer", "events", "eventual consistency", "data replication", "microservices", "java"]
+
+[readme]
+intro = """
+Event-Carried State Transfer is a way of sharing data between services with
+events. A thin event only says that something changed, so every listener has
+to call the owner back to find out what. With event-carried state transfer,
+the event carries the new data itself: not "customer 42 changed", but
+"customer 42's address is now 9 Mill Lane, York".
+
+Each listening service keeps its own copy of just the data it needs, kept up
+to date by the events. It can then work without calling the owner at all, even
+when the owner is down. The price is that the copy is briefly out of date, and
+the same data now lives in many places.
+"""
+analogy = """
+Think of moving house. You could send your friends a card saying "I have
+moved, ring me for the address", and they would all ring you. Or you send a
+card with the new address on it, and each friend writes it in their own
+address book. They can post you a letter even when you are not answering the
+phone.
+"""
+scenario = """
+The online store's shipping service prints delivery labels. The customer
+service owns the customers' addresses. When a customer changed anything, it
+sent a thin event, and shipping called it back for the address, once for
+every label. A hundred labels meant a hundred calls, and when the customer
+service was down, no labels could be printed.
+"""
+costs = [
+    "**Briefly out of date.** A label printed before the event arrives uses the old address.",
+    "**Order matters.** Events can arrive late or out of order; without version numbers the older address overwrote the newer one.",
+    "**Copies everywhere.** Bigger events, more storage, and personal data such as addresses held by many services.",
+]
+too_much = """
+When a service needs the data rarely, or must always see the very latest
+value, calling the owner is simpler and exact. Carry state in events when many
+services read the data often and must keep working when the owner is down.
+"""
+met_before = [
+    "Kafka topics carrying full records, often compacted to the latest per key.",
+    "Change data capture, such as Debezium, publishing row changes.",
+    "Read models in [CQRS](../cqrs-pattern), built from events.",
+]
+where = """
+This project is in [micro-services-design-patterns](..), and near
+[Domain Event](../../domain-driven-design-patterns/domain-event-pattern) and
+[Event Sourcing](../../platform-design-patterns/event-sourcing-pattern), which
+also build on events but for different jobs.
+"""
+
+[[act]]
+title = "A thin event, and a call back"
+summary = "Shipping keeps no addresses: 100 labels mean 100 calls to the customer service, and with it down, 0 of 100 labels are printed."
+detail = """
+The customer service publishes a thin event that only says a customer
+changed. The shipping service keeps nothing, so for every label it calls the
+customer service for the address. A hundred labels mean a hundred calls. When
+the customer service is down, not a single label can be printed.
+"""
+speech = """
+First demo: a thin event, and a call back. [[slnc 400]] The customer service's event only says, a customer changed. [[slnc 500]]
+So the shipping service asks for the address, every time it prints a label. [[slnc 300]] A hundred labels mean a hundred calls. [[slnc 600]]
+Now the customer service goes down. [[slnc 300]] Not a single label can be printed.
+"""
+rows = { customers = "active wrong", shipping = "active wrong" }
+console = [
+    ["100 labels, 100 calls", "amber"],
+    ["customer service down: 0 of 100", "bad"],
+]
+
+[[act]]
+title = "The event carries the address"
+summary = "Each AddressChanged event carries the address; shipping keeps its own copy of 10, prints 100 labels with 0 calls, and still prints all 100 with the customer service down."
+detail = """
+Now each event carries the new address. Shipping keeps its own copy of the
+ten addresses it has heard about. A hundred labels need no calls at all, and
+when the customer service goes down, all hundred labels are still printed.
+"""
+speech = """
+Second demo: the event carries the address. [[slnc 400]] Now the event says, customer one's address is now this. [[slnc 500]]
+The shipping service writes it into its own copy. [[slnc 300]] It keeps ten addresses. [[slnc 600]]
+A hundred labels need no calls at all. [[slnc 300]] And with the customer service down, all hundred labels are still printed.
+"""
+rows = { events = "active ok", shipping = "active ok", customers = "active amber" }
+console = [
+    ["100 labels, 0 calls", "ok"],
+    ["customer service down: 100 of 100", "ok"],
+]
+
+[[act]]
+title = "The copy lags behind"
+summary = "C1 moves to York; a label printed before the event arrives goes to Leeds, and after the event, to York."
+detail = """
+Customer C1 moves from Leeds to York. The event is still on its way when
+shipping prints a label, so the label goes to the old address in Leeds. Once
+the event arrives, labels go to York. The copy is always a little behind the
+owner: this is eventual consistency.
+"""
+speech = """
+Third demo: the copy lags behind. [[slnc 400]] A customer moves, from Leeds to York. [[slnc 300]] The event is still on its way. [[slnc 600]]
+A label printed now, still goes to Leeds. [[slnc 500]]
+Once the event arrives, labels go to York. [[slnc 500]]
+The copy is always a little behind the owner. [[slnc 300]] This is called eventual consistency.
+"""
+rows = { events = "active amber", shipping = "active amber" }
+console = [
+    ["label now: Leeds", "bad"],
+    ["after the event: York", "ok"],
+]
+
+[[act]]
+title = "Events out of order"
+summary = "Two moves arrive in reverse order: without versions the old Hull address wins; with versions, version 2 is ignored after 3, and Bristol wins."
+detail = """
+Customer C2 moves to Hull, then to Bristol, but the two events arrive in the
+wrong order. A copy that simply takes the last event it received ends up
+with Hull, the older address. Each event carries a version number, and a copy
+that ignores anything older than what it holds keeps Bristol.
+"""
+speech = """
+Fourth demo: events can arrive in the wrong order. [[slnc 400]] A customer moves to Hull, then to Bristol. [[slnc 300]] But the Bristol event arrives first. [[slnc 600]]
+A copy that just takes the last event it received, ends up with Hull. [[slnc 300]] The older address. [[slnc 600]]
+So each event carries a version number. [[slnc 300]] The copy ignores anything older than what it has. [[slnc 300]] And it keeps Bristol.
+"""
+rows = { events = "active amber", shipping = "active ok" }
+console = [
+    ["without versions: Hull", "bad"],
+    ["with versions: Bristol", "ok"],
+]
+
+[[act]]
+title = "The bill"
+summary = "Shipping, invoicing and marketing each keep a copy of every address: bigger events, briefly stale copies, and personal data in more places."
+detail = """
+Every service that cares keeps its own copy. Shipping, invoicing and
+marketing each hold every customer's address. Events are bigger, copies are
+briefly stale, and personal data now lives in many places, each of which must
+protect it and delete it when asked.
+"""
+speech = """
+Fifth demo: the bill. [[slnc 400]] Every service that cares keeps its own copy. [[slnc 500]]
+Shipping, invoicing and marketing, each hold every customer's address. [[slnc 500]]
+The events are bigger. [[slnc 300]] The copies are briefly out of date. [[slnc 300]] And personal data now lives in many places. [[slnc 300]] Each must protect it, and delete it when asked.
+"""
+rows = { shipping = "active amber" }
+console = [
+    ["an address copy in every service", "amber"],
+    ["personal data in more places", "bad"],
+]
+
+[animation]
+subtitle = "The customer service publishes address changes; shipping keeps its own copy and prints labels from it."
+boxes = [
+    ["customers", "Customer service", "owns addresses"],
+    ["events", "Events", "carry the address"],
+    ["shipping", "Shipping", "own copy, prints labels"],
+]
+
+[docs.problem]
+scenario = """
+Shipping prints labels; the customer service owns the addresses and sends a
+thin "customer changed" event.
+"""
+naive = """
+Shipping calls the customer service for every label, so it stops working
+whenever the customer service is down.
+"""
+deliver = [
+    "Thin events with a call-back, and their dependency on the owner.",
+    "Events that carry the address, and a local copy in shipping.",
+    "The stale window of eventual consistency.",
+    "Out-of-order events fixed with version numbers.",
+    "The cost of copies named.",
+    "Every printed result asserted by a test.",
+]
+
+[docs.prerequisites]
+required = [
+    "Java basics: records, `Map`.",
+    "What an event is: a message saying something happened.",
+]
+not_required = [
+    "A message broker. Events are delivered by method calls, in the order the demo chooses.",
+]
+
+[docs.session]
+objectives = [
+    "Contrast thin notification events with state-carrying events.",
+    "Keep a local copy filled from events.",
+    "Explain eventual consistency with a concrete stale read.",
+    "Guard a copy against out-of-order events with versions.",
+]
+walkthrough = """
+Run `./gradlew run` and compare act one's 0 of 100 with act two's 100 of 100.
+Open `ReplicaShipping.on`: one map, one version check. End on act four's two
+lines.
+"""
+exercises = [
+    "Add a `CustomerDeleted` event and remove the copy when it arrives.",
+    "Let shipping keep only the city and postcode it needs, not the whole address.",
+    "Replay all events to rebuild shipping's copy from scratch.",
+]
+
+[docs.explained]
+sentence = """
+Event-Carried State Transfer puts the changed data in the event, so listeners
+keep their own copies and never call the owner back.
+"""
+verdict = """
+Carry state in events when many services read the data often and must keep
+working when its owner is down. Include a version, accept brief staleness,
+copy only the fields each service needs, and remember every copy is data to
+protect.
+"""
+recognise = [
+    "Events named `...Changed` carrying full records.",
+    "A service's own table of another service's data, filled by a listener.",
+    "Compacted Kafka topics used as the source of a local copy.",
+]
+
+[spec]
+purpose = """
+Teach Event-Carried State Transfer with an online store's shipping labels:
+thin events forcing a call per label and failing with the owner down, events
+carrying the address into a local copy, a stale label during the delay,
+versions guarding against out-of-order events, and the cost of copies.
+"""
+nongoals = [
+    "Not a real message broker. Events are delivered directly, in a chosen order.",
+]
+problem = """
+Services that must call the data's owner back for every event depend on it
+being up and pay a call for every use.
+"""
+roles = [
+    ["The owner", "`CustomerService`"],
+    ["The events", "`Events.CustomerChanged`, `Events.AddressChanged`"],
+    ["The pattern: a local copy", "`ReplicaShipping`"],
+    ["The old way", "`CallbackShipping`"],
+    ["Entry point", "`EventCarriedDemo`, five acts"],
+]
+requirements = [
+    "**No calls:** labels come from the local copy.",
+    "**Independent:** labels print with the owner down.",
+    "**Ordered by version:** an older event never replaces a newer one.",
+    "**Every printed result is asserted** in `DemoRunsTest`.",
+]
+
+[[diagram]]
+name = "architecture-diagram"
+kind = "flow"
+title = "Event-Carried State Transfer — the pieces"
+caption = "The address travels in the event."
+nodes = [
+    { id = "c", label = "Customer service", sub = "owns addresses", col = 0, row = 0, colour = "client" },
+    { id = "e", label = "AddressChanged", sub = "customer, address, version", col = 1, row = 0, colour = "accent" },
+    { id = "s", label = "Shipping", sub = "own copy", col = 2, row = 0, colour = "green" },
+    { id = "l", label = "Labels", sub = "no calls back", col = 3, row = 0, colour = "green" },
+]
+edges = [
+    { from = "c", to = "e", label = "publish" },
+    { from = "e", to = "s", label = "" },
+    { from = "s", to = "l", label = "" },
+]
+
+[[diagram]]
+name = "class-diagram"
+kind = "class"
+title = "Event-Carried State Transfer — classes"
+caption = "Thin event against fat event."
+nodes = [
+    { id = "c", label = "CustomerService", sub = ["+ move(id, address)", "+ lookup(id)"], col = 0, row = 0, colour = "client" },
+    { id = "e", label = "«record» AddressChanged", sub = ["customerId, address", "version"], col = 1, row = 0, colour = "accent" },
+    { id = "r", label = "ReplicaShipping", sub = ["+ on(AddressChanged)", "+ label(order, customer)"], col = 1, row = 1, colour = "green" },
+    { id = "b", label = "CallbackShipping", sub = ["+ label(): calls lookup"], col = 0, row = 1, colour = "red" },
+]
+edges = [
+    { from = "c", to = "e", label = "publishes" },
+    { from = "r", to = "e", label = "keeps" },
+    { from = "b", to = "c", label = "calls" },
+]
+
+[[diagram]]
+name = "data-flow-diagram"
+kind = "flow"
+title = "Event-Carried State Transfer — two ways to learn an address"
+caption = "Ask every time, or keep a copy."
+nodes = [
+    { id = "a", label = "Thin event", sub = "call back per label", col = 0, row = 0, colour = "red" },
+    { id = "b", label = "owner down: 0 labels", sub = "", col = 2, row = 0, colour = "red" },
+    { id = "c", label = "Event with address", sub = "local copy", col = 0, row = 1, colour = "green" },
+    { id = "d", label = "owner down: 100 labels", sub = "", col = 2, row = 1, colour = "green" },
+]
+edges = [
+    { from = "a", to = "b", label = "" },
+    { from = "c", to = "d", label = "" },
+]
+
+[[diagram]]
+name = "sequence-diagram"
+kind = "sequence"
+title = "Event-Carried State Transfer — a move"
+caption = "Shipping never calls back."
+participants = ["Customer service", "Shipping"]
+steps = [
+    ["Customer service", "Shipping", "AddressChanged(C1, York, v2)"],
+    ["note", "Shipping", "update own copy"],
+    ["note", "Shipping", "label ORD-1 -> York"],
+]
+
+[[diagram]]
+name = "uml-diagram"
+kind = "sequence"
+title = "1. Thin event"
+caption = "Every label is a call."
+participants = ["Customer service", "Shipping"]
+steps = [
+    ["Customer service", "Shipping", "CustomerChanged(C1)"],
+    ["Shipping", "Customer service", "lookup(C1)"],
+    ["Customer service", "Shipping", "address", "reply"],
+]
+
+[[diagram]]
+name = "uml-diagram-2"
+kind = "sequence"
+title = "2. Out of order"
+caption = "The version keeps the newer address."
+participants = ["Events", "Shipping"]
+steps = [
+    ["Events", "Shipping", "Bristol, v3"],
+    ["Events", "Shipping", "Hull, v2"],
+    ["note", "Shipping", "v2 older than v3: ignored"],
+]
+
+[poster]
+headline = [["EVENT-CARRIED", "text"], ["STATE TRANSFER", "text"]]
+before = { code = "CustomerChanged(id)", note = "call back for every label", tag = "BEFORE" }
+after = { code = "AddressChanged(id, address)", note = "labels print from a local copy", tag = "AFTER" }
+taglines = [["Put the data in the event", "gold"]]
+
+[[scene]]
+key = "01-poster"
+kind = "poster"
+title = "Event-Carried State Transfer"
+narration = """
+Hello, and welcome. [[slnc 400]] This video explains the Event-Carried State Transfer pattern, in Java. [[slnc 300]]
+This video is presented by Jayasekhar Konduru. [[slnc 600]]
+First, a simple definition. [[slnc 300]] When data changes, put the new data in the event itself. [[slnc 300]] Then each service that cares keeps its own copy. [[slnc 300]] And never has to call the owner back. [[slnc 600]]
+Think of moving house. [[slnc 300]] You could send friends a card saying, I have moved, ring me for the address. [[slnc 300]] Or you send a card with the new address on it. [[slnc 300]] Each friend writes it in their own address book, and can post you a letter even when you are not answering the phone. [[slnc 700]]
+In this video, the domain is an online shop. [[slnc 300]] A customer service owns the addresses, and a shipping service prints delivery labels. [[slnc 500]]
+By the end, you will hear why thin events tie services together. [[slnc 300]] How carrying the address sets shipping free. [[slnc 300]] Why the copy is briefly out of date. [[slnc 300]] And how version numbers handle events arriving out of order.
+"""
+
+[[scene]]
+key = "02-scenario"
+kind = "bullets"
+title = "The Scenario"
+body = ["Shipping prints delivery labels.", "", "The customer service owns addresses.", "", "Its event said only:", "a customer changed."]
+narration = """
+Here is the scenario. [[slnc 400]] The shipping service prints delivery labels. [[slnc 500]]
+The customer service owns the customers' addresses. [[slnc 500]]
+Its event only said, a customer changed. [[slnc 300]] So shipping had to ask for the address, every time.
+"""
+
+[[scene]]
+key = "03-acts"
+kind = "acts"
+title = "acts"
+
+[[scene]]
+key = "04-pattern"
+kind = "bullets"
+title = "The Pattern"
+body = ["The event carries the new data.", "", "Listeners keep their own copy.", "", "No calls back to the owner."]
+narration = """
+Let's name the pattern. [[slnc 400]] The event carries the new data, not just the news that something changed. [[slnc 500]]
+Each listening service keeps its own copy, of just the data it needs. [[slnc 500]]
+And it never calls the owner back.
+"""
+
+[[scene]]
+key = "05-roles"
+kind = "bullets"
+title = "Who Does What"
+body = ["CustomerService: owns addresses", "AddressChanged: carries the address", "ReplicaShipping: keeps its own copy", "CallbackShipping: the old way"]
+narration = """
+Here is who does what. [[slnc 400]] The customer service owns the addresses, and publishes each change. [[slnc 500]]
+The address changed event carries the customer, the new address, and a version number. [[slnc 500]]
+The shipping service keeps its own copy, and prints labels from it. [[slnc 300]] The call-back version of shipping is the old way.
+"""
+
+[[scene]]
+key = "06-recognise"
+kind = "bullets"
+title = "Where You Have Seen It"
+body = ["Kafka topics with full records", "Change data capture", "CQRS read models"]
+narration = """
+You have probably met this pattern already. [[slnc 400]] Kafka topics that carry whole records, not just identifiers. [[slnc 500]]
+Change data capture tools, which publish every changed database row. [[slnc 500]]
+And the read side of CQRS, built from events.
+"""
+
+[[scene]]
+key = "07-verdict"
+kind = "bullets"
+title = "When To Use It"
+body = ["Many services read the data often.", "", "Include a version.", "Accept brief staleness.", "Copy only what you need."]
+narration = """
+So, when should you use it? [[slnc 400]] When many services read the same data often. [[slnc 300]] And must keep working when its owner is down. [[slnc 500]]
+Include a version in every event. [[slnc 300]] Accept that copies are briefly out of date. [[slnc 300]] And copy only the fields each service needs.
+"""
+
+[[scene]]
+key = "08-outro"
+kind = "outro"
+title = "Thanks for Watching"
+body = ["Full source, notes, diagrams and an animated walkthrough", "are in the repository. Handle a", "customer deleted event."]
+narration = """
+That's the Event-Carried State Transfer pattern. [[slnc 400]] If you remember one sentence, make it this one. [[slnc 300]] Send the new data, not just the news. [[slnc 500]]
+The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. [[slnc 300]] It runs offline, with nothing installed except a Java development kit. [[slnc 500]]
+Here is one exercise to try. [[slnc 300]] Add a customer deleted event, and remove the copy when it arrives. [[slnc 500]]
+If this helped, a like really does help other people find it. [[slnc 300]] And subscribe, if you'd like the rest of the series. [[slnc 400]] Thanks for watching.
+"""

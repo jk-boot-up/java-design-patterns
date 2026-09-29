@@ -1,0 +1,438 @@
+# pattern.toml for the Recipient List project. See tools/patternkit.
+
+[project]
+slug = "recipient-list"
+category = "messaging-integration-patterns"
+title = "Recipient List"
+package = "recipientlist"
+main_class = "RecipientListDemo"
+tagline = "Send it to exactly who needs it"
+bold = "For each message, work out the list of destinations that need it, from the message itself and from rules that can change, and send a copy to each of them and no one else."
+domain_note = ""
+thumb_lines = ["RECIPIENT", "LIST"]
+thumb_code = "recipientsFor(order)"
+youtube_title = "Recipient List"
+youtube_tags = ["recipient list", "enterprise integration patterns", "message routing", "messaging", "java"]
+
+[readme]
+intro = """
+Recipient List is one of the Enterprise Integration Patterns. A router looks
+at each message and works out the list of destinations that need it: not one
+destination, as a content-based router chooses, and not everyone, as a
+broadcast does, but exactly the ones that are relevant this time. It then
+sends a copy to each.
+
+The list is computed from the message (what it contains, what it is worth)
+and from tables and rules that can change while the system runs, so senders
+never need to know who the recipients are.
+"""
+analogy = """
+Think of an office post room. A letter arrives about a new supplier contract.
+The post room checks its routing sheet: contracts go to legal, anything with
+a price goes to accounts, and anything over a certain amount goes to the
+finance director as well. It makes a copy for each, and nobody else is
+bothered with it.
+"""
+scenario = """
+The online store ships from four warehouses: north for kitchen items, big-items
+for furniture, cold-store for chilled food, and south as a spare. Every order
+was sent to every warehouse, and each one sorted through orders it had
+nothing to do with: twenty deliveries for five orders, when eight were
+needed.
+"""
+costs = [
+    "**The list knows everyone.** The recipient list must know every destination and what each one handles.",
+    "**Half-sent messages.** If one recipient is unreachable, the others already have their copy; the list must retry or undo.",
+    "**More moving parts.** Tables and rules must be kept correct as destinations change.",
+]
+too_much = """
+When every message has exactly one destination, a content-based router is
+simpler. When every destination really does need every message, a
+publish-subscribe channel is simpler. A recipient list is for the case in
+between: a different set of destinations for each message.
+"""
+met_before = [
+    "Apache Camel's `recipientList`.",
+    "Order splitting across fulfilment centres in large shops.",
+    "The To and Cc lines of an email, chosen per message.",
+]
+where = """
+This project is in [messaging-integration-patterns](..), next to
+[Content-Based Router](../content-based-router-pattern), which picks one
+destination, and [Message Filter](../message-filter-pattern), which lets
+receivers drop what they do not want.
+"""
+
+[[act]]
+title = "Everything everywhere"
+summary = "5 orders sent to 4 warehouses: 20 deliveries, 8 of them needed."
+detail = """
+Every order is sent to all four warehouses. Five orders make twenty
+deliveries, of which only eight are needed; every warehouse sorts through
+orders it has nothing to do with.
+"""
+speech = """
+First demo: every order sent to every warehouse. [[slnc 400]] Five orders, four warehouses. [[slnc 300]] Twenty deliveries. [[slnc 600]]
+Only eight were needed. [[slnc 500]]
+Every warehouse sorts through orders it has nothing to do with.
+"""
+rows = { orders = "active amber", north = "active wrong", big = "active wrong", cold = "active wrong", south = "active wrong" }
+console = [
+    ["5 orders x 4 warehouses = 20 deliveries", "bad"],
+    ["8 of them needed", "amber"],
+]
+
+[[act]]
+title = "A recipient list"
+summary = "Each order goes where its items are: ORD-1 kitchen and furniture to north and big-items; 8 deliveries in all."
+detail = """
+`RecipientList` has a table from category to warehouse. For each order it
+collects the warehouses for its lines: ORD-1, kitchen and furniture, goes to
+north and big-items; ORD-3, chilled, to cold-store. Eight deliveries, exactly
+the ones needed.
+"""
+speech = """
+Second demo: a recipient list. [[slnc 400]] For each order, the list looks at what is in it, and works out who needs it. [[slnc 600]]
+Order one has kitchen items and furniture. [[slnc 300]] It goes to north, and big-items. [[slnc 300]] Order three is chilled food. [[slnc 300]] It goes to the cold store. [[slnc 600]]
+Eight deliveries. [[slnc 300]] Exactly the ones needed.
+"""
+rows = { list = "active ok", north = "active ok", big = "active ok", cold = "active ok" }
+console = [
+    ["ORD-1 [kitchen, furniture] -> north, big-items", "ok"],
+    ["ORD-3 [chilled] -> cold-store", "ok"],
+    ["deliveries: 8", "ok"],
+]
+
+[[act]]
+title = "Rules add recipients"
+summary = "Over £500 adds fraud-review: ORD-4 goes to big-items, cold-store and fraud-review; a gift adds gift-wrap."
+detail = """
+Rules can add recipients too. Orders over £500 also go to fraud review, so
+ORD-4, worth £650, goes to big-items, cold-store and fraud-review. Gift
+orders also go to gift wrap, so ORD-2 goes to north and gift-wrap.
+"""
+speech = """
+Third demo: rules can add recipients. [[slnc 400]] Orders over five hundred pounds also go to fraud review. [[slnc 300]] Gift orders also go to gift wrap. [[slnc 600]]
+Order four is worth six hundred and fifty pounds. [[slnc 300]] It goes to big-items, the cold store, and fraud review. [[slnc 500]]
+Order two is a gift. [[slnc 300]] It goes to north, and gift wrap.
+"""
+rows = { list = "active ok", fraud = "active amber", gift = "active amber" }
+console = [
+    ["ORD-4 (£650) -> big-items, cold-store,", "ok"],
+    ["                fraud-review", "amber"],
+    ["ORD-2 (gift) -> north, gift-wrap", "ok"],
+]
+
+[[act]]
+title = "A changed table"
+summary = "North closes for stocktake; kitchen items now go to south; ORD-5 goes to south and cold-store."
+detail = """
+North closes for a stocktake, so the table is changed: kitchen items now
+come from south. ORD-5 goes to south and cold-store. Checkout, which sends the
+orders, was not changed.
+"""
+speech = """
+Fourth demo: the table changes while the shop runs. [[slnc 400]] North closes for a stocktake. [[slnc 300]] Kitchen items now come from south. [[slnc 600]]
+Order five goes to south, and the cold store. [[slnc 500]]
+Checkout was not changed at all.
+"""
+rows = { list = "active ok", north = "active wrong", south = "active ok" }
+console = [
+    ["kitchen -> south (north closed)", "amber"],
+    ["ORD-5 -> south, cold-store", "ok"],
+]
+
+[[act]]
+title = "The bill"
+summary = "Big-items is unreachable: ORD-1 reaches south but fails for big-items; half the order is out."
+detail = """
+Big-items is unreachable. ORD-1 is delivered to south but fails for
+big-items: half the order is out. The recipient list must retry or undo, and
+it must know every destination and its job.
+"""
+speech = """
+Fifth demo: the bill. [[slnc 400]] The big-items warehouse is unreachable. [[slnc 500]]
+Order one reaches south, but not big-items. [[slnc 300]] Half the order is out. [[slnc 600]]
+The recipient list must retry, or undo. [[slnc 300]] And it must know every destination, and what each one does.
+"""
+rows = { list = "active amber", big = "active wrong", south = "active ok" }
+console = [
+    ["ORD-1 reached [south]", "amber"],
+    ["failed [big-items]: half an order", "bad"],
+]
+
+[animation]
+subtitle = "For each order, a recipient list works out which warehouses and services need it, and sends a copy to each."
+boxes = [
+    ["orders", "Orders", "from checkout"],
+    ["list", "Recipient list", "table + rules"],
+    ["north", "north", "kitchen"],
+    ["south", "south", "spare"],
+    ["big", "big-items", "furniture"],
+    ["cold", "cold-store", "chilled"],
+    ["fraud", "fraud-review", "over £500"],
+    ["gift", "gift-wrap", "gifts"],
+]
+
+[docs.problem]
+scenario = """
+Orders contain items from different categories, each shipped by a different
+warehouse, and some need fraud review or gift wrap.
+"""
+naive = """
+Every order is sent to every warehouse: twenty deliveries for five orders,
+when eight were needed.
+"""
+deliver = [
+    "Broadcast deliveries counted against those needed.",
+    "Recipients computed from each order's categories.",
+    "Rules adding fraud review and gift wrap.",
+    "A changed table rerouting kitchen items.",
+    "A half-sent order when one recipient is down.",
+    "Every printed result asserted by a test.",
+]
+
+[docs.prerequisites]
+required = [
+    "Java basics: records, maps, lambdas, `Optional`.",
+]
+not_required = [
+    "A message broker. Inboxes are in memory.",
+]
+
+[docs.session]
+objectives = [
+    "Tell a recipient list from a router and from a broadcast.",
+    "Compute recipients from a message and rules.",
+    "Change routing without changing senders.",
+    "Handle partly failed sends.",
+]
+walkthrough = """
+Run `./gradlew run` and compare act one's 20 deliveries with act two's 8. Open
+`RecipientList.recipientsFor`: categories through the table, then rules. End
+on act five: what should happen to the half of ORD-1 that was sent?
+"""
+exercises = [
+    "Retry failed recipients once, then send the order to a problem list.",
+    "Add a rule: orders to Scotland also go to the north warehouse.",
+    "Print which recipients each rule added, for an audit log.",
+]
+
+[docs.explained]
+sentence = """
+A recipient list works out, for each message, exactly which destinations need
+it, and sends a copy to each of them.
+"""
+verdict = """
+Use a recipient list when each message needs a different set of destinations.
+Keep the table and rules in one place, report failed recipients, and decide
+how to finish or undo half-sent messages.
+"""
+recognise = [
+    "`recipientList(...)` in Camel routes.",
+    "Code that builds a list of destinations per message and loops over it.",
+    "Order splitting across several fulfilment centres.",
+]
+
+[spec]
+purpose = """
+Teach Recipient List with an online store's orders and warehouses:
+broadcasting 20 deliveries for 8 needed, then recipients computed from order
+categories (8 deliveries), rules adding fraud review and gift wrap, a table
+change rerouting kitchen items, and a half-sent order when big-items is down.
+"""
+nongoals = [
+    "Not a message broker. Inboxes are maps.",
+    "Not retries. They are an exercise.",
+]
+problem = """
+Sending every order to every warehouse wastes deliveries and makes every
+warehouse sort through orders that are not its business.
+"""
+roles = [
+    ["The pattern", "`RecipientList`"],
+    ["The messages", "`Order`"],
+    ["The destinations", "`Inboxes`"],
+    ["Entry point", "`RecipientListDemo`, five acts"],
+]
+requirements = [
+    "**Exact recipients:** each order reaches only the destinations it needs.",
+    "**Once each:** a destination appears once per order.",
+    "**Changeable:** tables and rules change at run time.",
+    "**Failures reported:** unreachable recipients are returned.",
+    "**Every printed result is asserted** in `DemoRunsTest`.",
+]
+
+[[diagram]]
+name = "architecture-diagram"
+kind = "flow"
+title = "Recipient List — the pieces"
+caption = "One order, the destinations it needs."
+nodes = [
+    { id = "o", label = "ORD-4", sub = "furniture, chilled, £650", col = 0, row = 1, colour = "client" },
+    { id = "l", label = "RecipientList", sub = "table + rules", col = 1, row = 1, colour = "accent" },
+    { id = "b", label = "big-items", sub = "furniture", col = 2, row = 0, colour = "green" },
+    { id = "c", label = "cold-store", sub = "chilled", col = 2, row = 1, colour = "green" },
+    { id = "f", label = "fraud-review", sub = "over £500", col = 2, row = 2, colour = "amber" },
+]
+edges = [
+    { from = "o", to = "l", label = "" },
+    { from = "l", to = "b", label = "copy" },
+    { from = "l", to = "c", label = "copy" },
+    { from = "l", to = "f", label = "copy" },
+]
+
+[[diagram]]
+name = "class-diagram"
+kind = "class"
+title = "Recipient List — classes"
+caption = "A table, some rules, and a send loop."
+nodes = [
+    { id = "l", label = "RecipientList", sub = ["- category -> warehouse", "- rules", "+ recipientsFor(order)", "+ send(order, inboxes)"], col = 0, row = 0, colour = "accent" },
+    { id = "o", label = "«record» Order", sub = ["id, categories", "pence, gift"], col = 1, row = 0, colour = "client" },
+    { id = "i", label = "Inboxes", sub = ["+ deliver(dest, order)", "+ takeDown(dest)"], col = 2, row = 0, colour = "green" },
+]
+edges = [
+    { from = "l", to = "o", label = "reads" },
+    { from = "l", to = "i", label = "delivers to" },
+]
+
+[[diagram]]
+name = "data-flow-diagram"
+kind = "flow"
+title = "Recipient List — building the list"
+caption = "Categories through the table, then the rules."
+nodes = [
+    { id = "a", label = "[furniture, chilled]", sub = "ORD-4", col = 0, row = 0, colour = "client" },
+    { id = "b", label = "[big-items, cold-store]", sub = "from the table", col = 1, row = 0, colour = "accent" },
+    { id = "c", label = "+ fraud-review", sub = "£650 > £500", col = 2, row = 0, colour = "amber" },
+]
+edges = [
+    { from = "a", to = "b", label = "table" },
+    { from = "b", to = "c", label = "rules" },
+]
+
+[[diagram]]
+name = "sequence-diagram"
+kind = "sequence"
+title = "Recipient List — sending ORD-1"
+caption = "A copy to each recipient."
+participants = ["RecipientList", "north", "big-items"]
+steps = [
+    ["RecipientList", "north", "ORD-1"],
+    ["RecipientList", "big-items", "ORD-1"],
+]
+
+[[diagram]]
+name = "uml-diagram"
+kind = "sequence"
+title = "1. Broadcast"
+caption = "Everyone gets everything."
+participants = ["Checkout", "north", "cold-store"]
+steps = [
+    ["Checkout", "north", "ORD-3 (chilled)"],
+    ["Checkout", "cold-store", "ORD-3 (chilled)"],
+    ["note", "north", "not mine: ignored"],
+]
+
+[[diagram]]
+name = "uml-diagram-2"
+kind = "sequence"
+title = "2. A half-sent order"
+caption = "One recipient is unreachable."
+participants = ["RecipientList", "south", "big-items"]
+steps = [
+    ["RecipientList", "south", "ORD-1"],
+    ["RecipientList", "big-items", "ORD-1"],
+    ["big-items", "RecipientList", "unreachable", "reply"],
+]
+
+[poster]
+headline = [["RECIPIENT", "text"], ["LIST", "text"]]
+before = { code = "send to all 4 warehouses", note = "20 deliveries, 8 needed", tag = "BEFORE" }
+after = { code = "recipientsFor(order)", note = "8 deliveries, all needed", tag = "AFTER" }
+taglines = [["Send it to exactly who needs it", "gold"]]
+
+[[scene]]
+key = "01-poster"
+kind = "poster"
+title = "Recipient List"
+narration = """
+Hello, and welcome. [[slnc 400]] This video explains the Recipient List pattern, in Java. [[slnc 300]]
+This video is presented by Jayasekhar Konduru. [[slnc 600]]
+First, a simple definition. [[slnc 300]] A recipient list works out, for each message, exactly which destinations need it. [[slnc 300]] Then it sends a copy to each of them, and to no one else. [[slnc 600]]
+Think of an office post room. [[slnc 300]] A letter about a supplier contract arrives. [[slnc 300]] The routing sheet says: contracts to legal, prices to accounts, and big amounts to the finance director too. [[slnc 300]] One copy each, and nobody else is bothered. [[slnc 700]]
+In this video, the domain is an online shop. [[slnc 300]] It ships from four warehouses, each handling different kinds of product. [[slnc 500]]
+By the end, you will hear what sending everything everywhere costs. [[slnc 300]] How a recipient list fixes it. [[slnc 300]] How rules and tables change the list. [[slnc 300]] And what happens when one recipient is down.
+"""
+
+[[scene]]
+key = "02-scenario"
+kind = "bullets"
+title = "The Scenario"
+body = ["north: kitchen items", "big-items: furniture", "cold-store: chilled food", "south: a spare", "", "Every order went to all four."]
+narration = """
+Here is the scenario. [[slnc 400]] The shop has four warehouses. [[slnc 300]] North handles kitchen items. [[slnc 300]] Big-items handles furniture. [[slnc 300]] The cold store handles chilled food. [[slnc 300]] And south is a spare. [[slnc 600]]
+One order can contain items for several of them. [[slnc 300]] So every order was sent to all four.
+"""
+
+[[scene]]
+key = "03-acts"
+kind = "acts"
+title = "acts"
+
+[[scene]]
+key = "04-pattern"
+kind = "bullets"
+title = "The Pattern"
+body = ["For each message, build the list", "of destinations that need it:", "", "from its contents, a table,", "and rules.", "", "Send one copy to each."]
+narration = """
+Let's name the pattern. [[slnc 400]] For each message, build the list of destinations that need it. [[slnc 500]]
+The list comes from what the message contains, from a table, and from rules. [[slnc 500]]
+Then send one copy to each destination on the list. [[slnc 300]] And the sender never needs to know who they are.
+"""
+
+[[scene]]
+key = "05-roles"
+kind = "bullets"
+title = "Who Does What"
+body = ["RecipientList: table, rules, send", "Order: categories, value, gift", "Inboxes: the destinations"]
+narration = """
+Here is who does what. [[slnc 400]] The recipient list holds a table from category to warehouse, and a list of rules. [[slnc 300]] It works out the list, and sends. [[slnc 500]]
+An order carries its categories, its value, and whether it is a gift. [[slnc 500]]
+And the inboxes stand in for the warehouses and services that receive the copies.
+"""
+
+[[scene]]
+key = "06-recognise"
+kind = "bullets"
+title = "Where You Have Seen It"
+body = ["Camel recipientList", "Orders split across", "fulfilment centres", "The To and Cc lines of an email"]
+narration = """
+You have probably met this pattern already. [[slnc 400]] Apache Camel has a recipient list step. [[slnc 500]]
+Large shops split each order across the fulfilment centres that stock its items. [[slnc 500]]
+And every email you send has a recipient list, chosen for that message.
+"""
+
+[[scene]]
+key = "07-verdict"
+kind = "bullets"
+title = "When To Use It"
+body = ["A different set of destinations", "for each message.", "", "One destination? A router.", "Everyone? Publish-subscribe.", "", "Plan for half-sent messages."]
+narration = """
+So, when should you use it? [[slnc 400]] When each message needs a different set of destinations. [[slnc 500]]
+If every message has exactly one destination, use a content-based router. [[slnc 300]] If everyone needs everything, use publish-subscribe. [[slnc 500]]
+And plan for what happens when a message reaches some recipients, but not all.
+"""
+
+[[scene]]
+key = "08-outro"
+kind = "outro"
+title = "Thanks for Watching"
+body = ["Full source, notes, diagrams and an animated walkthrough", "are in the repository. Retry failed", "recipients once."]
+narration = """
+That's the Recipient List pattern. [[slnc 400]] If you remember one sentence, make it this one. [[slnc 300]] Work out who needs each message, and send it to exactly them. [[slnc 500]]
+The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. [[slnc 300]] It runs offline, with nothing installed except a Java development kit. [[slnc 500]]
+Here is one exercise to try. [[slnc 300]] Retry a failed recipient once, then send the order to a problem list. [[slnc 500]]
+If this helped, a like really does help other people find it. [[slnc 300]] And subscribe, if you'd like the rest of the series. [[slnc 400]] Thanks for watching.
+"""

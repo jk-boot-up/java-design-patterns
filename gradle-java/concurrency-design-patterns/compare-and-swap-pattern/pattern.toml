@@ -1,0 +1,446 @@
+# pattern.toml for the Lock-Free Compare-and-Swap project. See tools/patternkit.
+
+[project]
+slug = "compare-and-swap"
+category = "concurrency-design-patterns"
+title = "Lock-Free Compare-and-Swap"
+package = "cas"
+main_class = "CompareAndSwapDemo"
+tagline = "Change it only if it hasn't changed"
+bold = "Read a value, work out the new one, and swap it in only if nobody changed it in the meantime; if they did, read again and retry, with no lock at all."
+domain_note = ""
+thumb_lines = ["COMPARE", "AND SWAP"]
+thumb_code = "compareAndSet(seen, seen - 1)"
+youtube_title = "Lock-Free Compare-and-Swap"
+youtube_tags = ["compare and swap", "cas", "atomicinteger", "lock free", "concurrency", "java"]
+
+[readme]
+intro = """
+Compare-and-swap is the building block of lock-free programming. The
+processor offers one indivisible instruction: "if this value is still what I
+saw, replace it with this new value, and tell me whether it worked". A thread
+reads the value, works out the new one, and tries the swap. If another thread
+changed the value first, the swap fails and the thread simply reads again and
+retries.
+
+No thread ever waits for a lock. Java exposes it through `AtomicInteger`,
+`AtomicLong`, `AtomicReference` and friends, with methods such as
+`compareAndSet` and `updateAndGet`.
+"""
+analogy = """
+Think of booking a seat for a concert online. You look at the seat map and
+pick seat 12. When you press "book", the system books it only if seat 12 is
+still free at that moment. If someone else booked it while you were
+deciding, it says so, and you look at the map again and pick another.
+Nobody is ever locked out of the map while someone else decides.
+"""
+scenario = """
+The online store runs a flash sale: 100 kettles, and eight buyer threads each
+trying to buy fifty. The stock check read the count, ran a quick fraud check,
+and then wrote back the count minus one. Two buyers could read the same count
+at the same moment, and the shop sold more kettles than it had.
+"""
+costs = [
+    "**One value at a time.** Taking a kettle and recording the buyer are two atomic changes, not one; a thread that stops between them leaves stock 99 and no buyer recorded.",
+    "**Spinning under contention.** When many threads fight over one value, they retry again and again, using the processor instead of waiting quietly.",
+    "**Subtle bugs.** Lock-free code beyond a single counter is hard to get right; the classic trap is the ABA problem.",
+]
+too_much = """
+When a change touches several values that must stay consistent, use a lock or
+a transaction. And when contention is very high on a counter, `LongAdder`
+spreads the updates out and is faster than a single atomic value.
+"""
+met_before = [
+    "`AtomicInteger.incrementAndGet`, `compareAndSet`, `updateAndGet`.",
+    "`ConcurrentHashMap` and `ConcurrentLinkedQueue`, built on compare-and-swap.",
+    "Optimistic locking in databases: `UPDATE ... WHERE version = 7`.",
+    "Git's refusal to push when the remote branch moved since you last pulled.",
+]
+where = """
+This project is in [concurrency-design-patterns](..), next to
+[Monitor Object](../monitor-object-pattern), the lock-based way to protect
+shared state, and [Double-Checked Locking](../double-checked-locking-pattern).
+"""
+
+[[act]]
+title = "Check, then act"
+summary = "8 buyers, 100 kettles, no protection: more than 100 kettles sold."
+detail = """
+`UnsafeStock.buyOne` reads the count, runs a quick fraud check, then writes
+back the count minus one. Two buyers read the same count during each other's
+fraud check, and both write back the same new value: one kettle counted,
+two sold. With eight buyers the shop sells more than 100 kettles from a stock
+of 100.
+"""
+speech = """
+First demo: check, then act, with no protection. [[slnc 400]] A hundred kettles. [[slnc 300]] Eight buyer threads, each trying fifty times. [[slnc 600]]
+Each buyer reads the stock count, runs a quick fraud check, then writes back the count, minus one. [[slnc 500]]
+Two buyers read the same count at the same moment. [[slnc 300]] Both take the same kettle. [[slnc 500]]
+The shop sells more than a hundred kettles, from a stock of a hundred.
+"""
+rows = { buyers = "active amber", unsafe = "active wrong" }
+console = [
+    ["sold: more than 100, from a stock of 100", "bad"],
+    ["two buyers took the same kettle", "bad"],
+]
+
+[[act]]
+title = "A lock"
+summary = "With a lock, exactly 100 are sold and 0 are left, but every other buyer waits in line."
+detail = """
+`LockedStock.buyOne` is `synchronized`: only one buyer at a time may look and
+take. Exactly 100 kettles are sold and none are left. It is correct, but every
+other buyer waits in line during each fraud check.
+"""
+speech = """
+Second demo: a lock, one buyer at a time. [[slnc 400]] Only the buyer holding the lock may look at the stock and take a kettle. [[slnc 500]]
+Exactly a hundred kettles sold. [[slnc 300]] None left. [[slnc 500]]
+Correct. [[slnc 300]] But every other buyer waits in line while one checks.
+"""
+rows = { buyers = "active amber", locked = "active ok" }
+console = [
+    ["kettles sold: 100; left: 0", "ok"],
+    ["everyone else waits in line", "amber"],
+]
+
+[[act]]
+title = "Compare-and-swap"
+summary = "A compareAndSet loop sells exactly 100 with no locks; a buyer who lost a race just looked again."
+detail = """
+`CasStock.buyOne` reads the count, runs the fraud check, then calls
+`compareAndSet(seen, seen - 1)`: take one only if the count is still what it
+saw. If another buyer got there first, the swap fails and the buyer reads
+again. Exactly 100 are sold, none left, and no thread ever waited for a lock.
+"""
+speech = """
+Third demo: compare-and-swap. [[slnc 400]] Each buyer reads the count, and runs the fraud check. [[slnc 300]] Then it says: take one, but only if the count is still what I saw. [[slnc 600]]
+The processor does that in one indivisible step. [[slnc 500]]
+If another buyer got there first, the swap fails. [[slnc 300]] The buyer simply reads the count again, and retries. [[slnc 500]]
+Exactly a hundred sold. [[slnc 300]] None left. [[slnc 300]] And no thread ever waited for a lock.
+"""
+rows = { buyers = "active ok", cas = "active ok" }
+console = [
+    ["kettles sold: 100; left: 0", "ok"],
+    ["no locks; losers look again", "ok"],
+]
+
+[[act]]
+title = "The loop in one call"
+summary = "getAndUpdate(s -> s > 0 ? s - 1 : s) sells 100 and leaves 0."
+detail = """
+Java's atomic classes hide the retry loop: `getAndUpdate` takes a function
+from old value to new, and retries the compare-and-swap for you. The flash
+sale again sells exactly 100.
+"""
+speech = """
+Fourth demo: the loop in one call. [[slnc 400]] Java's atomic integer has a method, get and update. [[slnc 300]] You give it a rule: if there is stock, take one. [[slnc 500]]
+It runs the compare-and-swap, and retries it for you. [[slnc 500]]
+A hundred sold. [[slnc 300]] None left.
+"""
+rows = { cas = "active ok" }
+console = [
+    ["getAndUpdate(s -> s > 0 ? s - 1 : s)", "muted"],
+    ["sold 100, left 0", "ok"],
+]
+
+[[act]]
+title = "The bill"
+summary = "Take a kettle, then stop before recording the buyer: stock 99, buyers 0. Two atomic values are not one atomic change."
+detail = """
+Compare-and-swap protects one value. Taking a kettle and recording the buyer
+are two separate atomic values; a thread that stops between them leaves stock
+at 99 and no buyer recorded. And under heavy contention, threads spin
+retrying instead of waiting quietly.
+"""
+speech = """
+Fifth demo: the bill. [[slnc 400]] Compare-and-swap protects one value at a time. [[slnc 500]]
+A buyer takes a kettle. [[slnc 300]] Then its thread stops, before it records who bought it. [[slnc 500]]
+Stock says ninety-nine. [[slnc 300]] Buyers recorded: zero. [[slnc 300]] Two atomic values are not one atomic change. [[slnc 600]]
+And when many threads fight over one value, they keep retrying, instead of waiting quietly.
+"""
+rows = { cas = "active amber" }
+console = [
+    ["stock 99, buyers recorded 0", "bad"],
+    ["heavy contention: threads spin", "amber"],
+]
+
+[animation]
+subtitle = "Eight buyers race for 100 kettles; each takes one only if the stock count is still what it saw, and retries if not."
+boxes = [
+    ["buyers", "8 buyer threads", "50 tries each"],
+    ["unsafe", "Check then act", "oversold"],
+    ["locked", "Lock", "correct, one at a time"],
+    ["cas", "compareAndSet", "correct, no locks"],
+]
+
+[docs.problem]
+scenario = """
+A flash sale: 100 kettles, eight buyer threads each trying to buy fifty.
+"""
+naive = """
+`UnsafeStock` reads the count and later writes back the count minus one, so
+two buyers can both take the same kettle and the shop oversells.
+"""
+deliver = [
+    "Overselling shown with check-then-act.",
+    "A locked version selling exactly 100.",
+    "A compare-and-set retry loop selling exactly 100 with no locks.",
+    "The same loop as one `getAndUpdate` call.",
+    "The one-value limit shown.",
+    "Every printed result asserted by a test.",
+]
+
+[docs.prerequisites]
+required = [
+    "Java basics: threads, lambdas.",
+    "What a race condition is, at least roughly.",
+]
+not_required = [
+    "Processor instructions. `compareAndSet` is explained as one indivisible step.",
+]
+
+[docs.session]
+objectives = [
+    "Explain why check-then-act fails under concurrency.",
+    "Write a compare-and-set retry loop.",
+    "Use `updateAndGet` or `getAndUpdate`.",
+    "Say when a lock or transaction is still needed.",
+]
+walkthrough = """
+Run `./gradlew run` and read act one. Open `UnsafeStock.buyOne` and point to
+the gap between reading and writing. Then open `CasStock.buyOne` and read the
+`while` loop aloud: read, check, swap if unchanged, else retry.
+"""
+exercises = [
+    "Count the retries in act three with 2, 8 and 32 buyers. What happens?",
+    "Record buyers in a `ConcurrentLinkedQueue`. Can stock and buyers still disagree?",
+    "Replace the sold counter in FlashSale with a `LongAdder`.",
+]
+
+[docs.explained]
+sentence = """
+Compare-and-swap changes a value only if it still holds what the thread saw,
+and otherwise retries, giving correct updates to a single value with no locks.
+"""
+verdict = """
+Use atomic classes for single shared values: counters, stock levels, flags,
+references. Prefer `updateAndGet` to hand-written loops, use `LongAdder` for
+hot counters, and use a lock or transaction when several values must change
+together.
+"""
+recognise = [
+    "`AtomicInteger`, `AtomicLong`, `AtomicReference` fields.",
+    "`while (true) { ... if (x.compareAndSet(a, b)) return; }` loops.",
+    "`version` columns checked in database updates.",
+]
+
+[spec]
+purpose = """
+Teach Lock-Free Compare-and-Swap with an online store's flash sale: check-
+then-act overselling 100 kettles, a lock selling exactly 100 while others
+wait, a compareAndSet retry loop and getAndUpdate selling exactly 100 with no
+locks, and the limit that two atomic values are not one atomic change.
+"""
+nongoals = [
+    "Not lock-free data structures beyond a counter.",
+    "Not the ABA problem in depth. It is named.",
+]
+problem = """
+Reading a shared value and writing a new one later lets two threads act on
+the same reading, so updates are lost and stock is oversold.
+"""
+roles = [
+    ["The pattern", "`CasStock` (`compareAndSet` loop, `getAndUpdate`)"],
+    ["The contract", "`Stock`"],
+    ["The alternatives", "`UnsafeStock`, `LockedStock`"],
+    ["The sale", "`FlashSale`"],
+    ["Entry point", "`CompareAndSwapDemo`, five acts"],
+]
+requirements = [
+    "**Never oversell:** the CAS versions sell exactly the stock, repeated in tests.",
+    "**No locks:** CasStock uses no `synchronized` and no `Lock`.",
+    "**Honest limits:** the one-value limit is shown.",
+    "**Every printed result is asserted** in `DemoRunsTest`.",
+]
+
+[[diagram]]
+name = "architecture-diagram"
+kind = "flow"
+title = "Compare-and-Swap — the pieces"
+caption = "Many buyers, one atomic stock count."
+nodes = [
+    { id = "b", label = "8 buyer threads", sub = "buyOne()", col = 0, row = 0, colour = "client" },
+    { id = "c", label = "AtomicInteger", sub = "stock count", col = 1, row = 0, colour = "accent" },
+    { id = "r", label = "retry", sub = "if someone changed it", col = 1, row = 1, colour = "amber" },
+]
+edges = [
+    { from = "b", to = "c", label = "compareAndSet" },
+    { from = "c", to = "r", label = "false" },
+    { from = "r", to = "c", label = "read again" },
+]
+
+[[diagram]]
+name = "class-diagram"
+kind = "class"
+title = "Compare-and-Swap — classes"
+caption = "Three ways to sell from one stock."
+nodes = [
+    { id = "s", label = "«interface» Stock", sub = ["+ buyOne(): boolean", "+ left()"], col = 1, row = 0, colour = "client" },
+    { id = "u", label = "UnsafeStock", sub = ["int left", "check, then act"], col = 0, row = 1, colour = "red" },
+    { id = "l", label = "LockedStock", sub = ["synchronized"], col = 1, row = 1, colour = "amber" },
+    { id = "c", label = "CasStock", sub = ["AtomicInteger left", "compareAndSet loop", "getAndUpdate"], col = 2, row = 1, colour = "accent" },
+]
+edges = [
+    { from = "u", to = "s", label = "implements" },
+    { from = "l", to = "s", label = "implements" },
+    { from = "c", to = "s", label = "implements" },
+]
+
+[[diagram]]
+name = "data-flow-diagram"
+kind = "flow"
+title = "Compare-and-Swap — two buyers, one kettle"
+caption = "The second swap fails, so the second buyer reads again."
+nodes = [
+    { id = "a", label = "A reads 57", sub = "", col = 0, row = 0, colour = "client" },
+    { id = "b", label = "B reads 57", sub = "", col = 0, row = 1, colour = "client" },
+    { id = "c", label = "A: 57 -> 56", sub = "succeeds", col = 1, row = 0, colour = "green" },
+    { id = "d", label = "B: 57 -> 56", sub = "fails: it is 56 now", col = 1, row = 1, colour = "red" },
+    { id = "e", label = "B reads 56, 56 -> 55", sub = "succeeds", col = 2, row = 1, colour = "green" },
+]
+edges = [
+    { from = "a", to = "c", label = "" },
+    { from = "b", to = "d", label = "" },
+    { from = "d", to = "e", label = "retry" },
+]
+
+[[diagram]]
+name = "sequence-diagram"
+kind = "sequence"
+title = "Compare-and-Swap — one buyer"
+caption = "Read, check, swap if unchanged."
+participants = ["Buyer", "AtomicInteger"]
+steps = [
+    ["Buyer", "AtomicInteger", "get()"],
+    ["AtomicInteger", "Buyer", "57", "reply"],
+    ["note", "Buyer", "fraud check"],
+    ["Buyer", "AtomicInteger", "compareAndSet(57, 56)"],
+    ["AtomicInteger", "Buyer", "true", "reply"],
+]
+
+[[diagram]]
+name = "uml-diagram"
+kind = "sequence"
+title = "1. Check, then act"
+caption = "Both write the same value; two kettles leave, one is counted."
+participants = ["Buyer A", "Stock", "Buyer B"]
+steps = [
+    ["Buyer A", "Stock", "read 57"],
+    ["Buyer B", "Stock", "read 57"],
+    ["Buyer A", "Stock", "write 56"],
+    ["Buyer B", "Stock", "write 56"],
+]
+
+[[diagram]]
+name = "uml-diagram-2"
+kind = "sequence"
+title = "2. Two values"
+caption = "Each change is atomic; the pair is not."
+participants = ["Buyer", "stock", "buyers"]
+steps = [
+    ["Buyer", "stock", "decrement: 99"],
+    ["note", "Buyer", "thread stops"],
+    ["note", "buyers", "still 0"],
+]
+
+[poster]
+headline = [["COMPARE", "text"], ["AND SWAP", "text"]]
+before = { code = "left = seen - 1", note = "more than 100 sold", tag = "BEFORE" }
+after = { code = "compareAndSet(seen, seen - 1)", note = "exactly 100, no locks", tag = "AFTER" }
+taglines = [["Change it only if it hasn't changed", "gold"]]
+
+[[scene]]
+key = "01-poster"
+kind = "poster"
+title = "Lock-Free Compare-and-Swap"
+narration = """
+Hello, and welcome. [[slnc 400]] This video explains the Lock-Free Compare-and-Swap pattern, in Java. [[slnc 300]]
+This video is presented by Jayasekhar Konduru. [[slnc 600]]
+First, a simple definition. [[slnc 300]] Compare-and-swap changes a shared value only if it still holds what you saw. [[slnc 300]] If someone else changed it first, you read it again, and try again. [[slnc 300]] Nobody ever waits for a lock. [[slnc 600]]
+Think of booking a concert seat online. [[slnc 300]] You pick seat twelve on the map. [[slnc 300]] When you press book, it is booked only if seat twelve is still free. [[slnc 300]] If someone beat you to it, you look at the map again, and pick another. [[slnc 700]]
+In this video, the domain is an online shop's flash sale. [[slnc 300]] A hundred kettles, and eight buyer threads racing to buy them. [[slnc 500]]
+By the end, you will hear how a shop sells more kettles than it has. [[slnc 300]] How a lock fixes it, slowly. [[slnc 300]] How compare-and-swap fixes it without a lock. [[slnc 300]] And its limits.
+"""
+
+[[scene]]
+key = "02-scenario"
+kind = "bullets"
+title = "The Scenario"
+body = ["A flash sale: 100 kettles.", "", "8 buyer threads, each trying", "to buy 50.", "", "Read the count, check for fraud,", "write the count minus one."]
+narration = """
+Here is the scenario. [[slnc 400]] A flash sale: a hundred kettles. [[slnc 500]]
+Eight buyer threads, each trying to buy fifty. [[slnc 500]]
+To buy one, a thread reads the stock count, runs a quick fraud check, and then writes back the count, minus one.
+"""
+
+[[scene]]
+key = "03-acts"
+kind = "acts"
+title = "acts"
+
+[[scene]]
+key = "04-pattern"
+kind = "bullets"
+title = "The Pattern"
+body = ["Read the value.", "Work out the new one.", "Swap it in only if it is unchanged.", "", "Swap failed? Read again, retry.", "", "No locks."]
+narration = """
+Let's name the pattern. [[slnc 400]] Read the value. [[slnc 300]] Work out the new value. [[slnc 500]]
+Then swap it in, but only if the value is still what you read. [[slnc 300]] The processor does that check and change as one indivisible step. [[slnc 500]]
+If the swap fails, someone else changed it. [[slnc 300]] Read again, and retry.
+"""
+
+[[scene]]
+key = "05-roles"
+kind = "bullets"
+title = "Who Does What"
+body = ["AtomicInteger: the shared count", "compareAndSet: swap if unchanged", "CasStock: the retry loop", "UnsafeStock, LockedStock:", "the alternatives"]
+narration = """
+Here is who does what. [[slnc 400]] An atomic integer holds the shared stock count. [[slnc 500]]
+Compare and set is the indivisible step: swap if unchanged. [[slnc 500]]
+CAS stock runs the retry loop. [[slnc 500]]
+And unsafe stock and locked stock are the alternatives, kept for comparison.
+"""
+
+[[scene]]
+key = "06-recognise"
+kind = "bullets"
+title = "Where You Have Seen It"
+body = ["AtomicInteger, AtomicReference", "ConcurrentHashMap", "UPDATE ... WHERE version = 7", "git push, rejected"]
+narration = """
+You have probably met this pattern already. [[slnc 400]] Java's atomic integer, atomic long, and atomic reference. [[slnc 300]] And the concurrent hash map, which is built on them. [[slnc 500]]
+Databases do the same with a version column: update the row, only if its version is still seven. [[slnc 500]]
+And git refuses your push if the branch moved since you last pulled.
+"""
+
+[[scene]]
+key = "07-verdict"
+kind = "bullets"
+title = "When To Use It"
+body = ["One shared value: counters,", "stock, flags, references.", "", "Prefer updateAndGet.", "Hot counters: LongAdder.", "", "Several values together? A lock."]
+narration = """
+So, when should you use it? [[slnc 400]] For one shared value at a time: counters, stock levels, flags, references. [[slnc 500]]
+Prefer update and get, rather than writing your own loop. [[slnc 300]] For very busy counters, use long adder. [[slnc 500]]
+And when several values must change together, use a lock, or a database transaction.
+"""
+
+[[scene]]
+key = "08-outro"
+kind = "outro"
+title = "Thanks for Watching"
+body = ["Full source, notes, diagrams and an animated walkthrough", "are in the repository. Count the retries", "with more buyers."]
+narration = """
+That's the Lock-Free Compare-and-Swap pattern. [[slnc 400]] If you remember one sentence, make it this one. [[slnc 300]] Change it only if it has not changed, and if it has, look again. [[slnc 500]]
+The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. [[slnc 300]] It runs offline, with nothing installed except a Java development kit. [[slnc 500]]
+Here is one exercise to try. [[slnc 300]] Count the retries with two, eight, and thirty-two buyers, and see how they grow. [[slnc 500]]
+If this helped, a like really does help other people find it. [[slnc 300]] And subscribe, if you'd like the rest of the series. [[slnc 400]] Thanks for watching.
+"""

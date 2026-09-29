@@ -1,0 +1,431 @@
+# pattern.toml for the Hedged Requests project. See tools/patternkit.
+
+[project]
+slug = "hedged-requests"
+category = "micro-services-design-patterns"
+title = "Hedged Requests"
+package = "hedgedrequests"
+main_class = "HedgedRequestsDemo"
+tagline = "Don't wait on the slow one"
+bold = "If a call has not answered within a short delay, send the same call to a second replica, use whichever answers first, and cancel the other."
+domain_note = ""
+thumb_lines = ["HEDGED", "REQUESTS"]
+thumb_code = "after 50 ms: ask again"
+youtube_title = "Hedged Requests"
+youtube_tags = ["hedged requests", "tail latency", "p99", "replicas", "microservices", "java"]
+
+[readme]
+intro = """
+Hedged Requests is a pattern for cutting tail latency: the rare, very slow
+calls that make a page feel sluggish even when the average is fast. The client
+calls one replica. If no answer arrives within a short delay, usually around
+the 95th percentile of normal response times, it sends the same request to a
+second replica, takes whichever answer comes first, and cancels the other.
+
+Because the backup is only sent for the few slow calls, the extra load is
+small, while the worst waits shrink dramatically. It was made famous by
+Google's paper "The Tail at Scale".
+"""
+analogy = """
+Think of calling a shop to ask if something is in stock. Nobody answers after
+a few rings, so you call their other branch too. Whichever answers first gets
+your question, and you hang up on the other. You only make the second call
+when the first is slow, so most of the time you make just one.
+"""
+scenario = """
+The online store's product page asks the price service for each price. There
+are several copies of the price service, called replicas. Most answers take
+twenty milliseconds, but now and then a replica pauses, for example for
+garbage collection, and that call takes a whole second. About one call in
+thirty-three is slow, so the 99th percentile is a full second.
+"""
+costs = [
+    "**Only for calls that are safe to repeat.** Hedging a price lookup is fine; hedging \"place order\" could charge the customer twice.",
+    "**Extra load.** Each hedge is a second call. With a 50 ms delay it was 3%; sending two at once doubled the load.",
+    "**Harmful under overload.** If every replica is slow because they are all busy, hedging makes it worse, so cap hedges at a few percent.",
+]
+too_much = """
+When calls are uniformly fast, or there is only one replica to ask, there is
+nothing to hedge. It pays off for read-heavy services with several replicas
+and an occasional slow outlier.
+"""
+met_before = [
+    "Google's \"The Tail at Scale\" and Bigtable's hedged reads.",
+    "gRPC's hedging policy, configured per method.",
+    "Cassandra's speculative retry and HDFS hedged reads.",
+    "`CompletableFuture.anyOf` for racing calls in Java.",
+]
+where = """
+This project is in [micro-services-design-patterns](..), and near
+[Backpressure](../backpressure-pattern), which warns of the opposite risk:
+sending more work than the other side can handle.
+"""
+
+[[act]]
+title = "One call, and a slow tail"
+summary = "1,000 price lookups: the median is 20 ms but the 99th percentile is 1,000 ms, because 1 call in 33 hits a paused replica."
+detail = """
+Each price is asked for once. The median answer takes twenty milliseconds,
+but about one call in thirty-three lands on a paused replica and takes a
+whole second. So the 99th percentile is a thousand milliseconds, and a product
+page waiting for that price waits a whole second.
+"""
+speech = """
+First demo: one call per price. [[slnc 400]] We look up a thousand prices. [[slnc 500]]
+Half the answers take twenty milliseconds or less. [[slnc 300]] But about one call in thirty-three lands on a paused replica. [[slnc 300]] That call takes a whole second. [[slnc 600]]
+So the slowest one percent of calls take a full second. [[slnc 300]] And the product page waits for them.
+"""
+rows = { page = "active amber", a = "active wrong" }
+console = [
+    ["median 20 ms", "ok"],
+    ["99th percentile 1000 ms", "bad"],
+]
+
+[[act]]
+title = "Hedge after 50 ms"
+summary = "If no answer in 50 ms, ask a second replica: the 99th percentile drops to 70 ms, for only 3% extra calls."
+detail = """
+Now the client waits fifty milliseconds, more than a normal call ever takes.
+If there is no answer, it asks a second replica too, and takes the first
+answer. The slow calls now finish in seventy milliseconds, fifty waiting plus
+twenty for the backup. The 99th percentile falls from a thousand to seventy,
+and only thirty-one calls in a thousand needed a second call.
+"""
+speech = """
+Second demo: hedge after fifty milliseconds. [[slnc 400]] Fifty milliseconds is longer than a normal call ever takes. [[slnc 600]]
+If there is no answer by then, the client asks a second replica. [[slnc 300]] Whichever answers first, wins. [[slnc 600]]
+The slowest calls now take seventy milliseconds. [[slnc 300]] Fifty waiting, and twenty for the backup. [[slnc 500]]
+And only three percent of calls needed a second call.
+"""
+rows = { page = "active ok", a = "active amber", b = "active ok" }
+console = [
+    ["99th percentile 70 ms, worst 70 ms", "ok"],
+    ["extra calls: 31 of 1000 (3%)", "ok"],
+]
+
+[[act]]
+title = "Hedge at once"
+summary = "Always asking two replicas brings the 99th percentile to 20 ms, but doubles the load: 1,000 extra calls."
+detail = """
+Why wait at all? Sending two calls every time brings the 99th percentile down
+to twenty milliseconds, but it doubles the load on the price service: a
+thousand extra calls. Twice the work to save fifty milliseconds on a few
+calls. Waiting first is the better deal.
+"""
+speech = """
+Third demo: why wait at all? [[slnc 400]] Send every request to two replicas at once. [[slnc 600]]
+Now the slowest calls take only twenty milliseconds. [[slnc 300]] But every request is sent twice. [[slnc 300]] The price service does double the work. [[slnc 600]]
+Twice the load, to save fifty milliseconds on a few calls. [[slnc 300]] Waiting first is the better deal.
+"""
+rows = { a = "active amber", b = "active amber" }
+console = [
+    ["99th percentile 20 ms", "ok"],
+    ["extra calls: 1000 of 1000 (100%)", "bad"],
+]
+
+[[act]]
+title = "A real race"
+summary = "With real threads: replica A takes 1 s, replica B 20 ms; the hedged call answers from B in under 0.5 s, and A's call is cancelled."
+detail = """
+The same idea with real threads. Replica A is paused and would take a second;
+replica B answers in twenty milliseconds. The hedger calls A, waits fifty
+milliseconds, calls B, and returns B's answer in well under half a second.
+Then it cancels A's call, so A does not keep working on an answer nobody needs.
+"""
+speech = """
+Fourth demo: a real race, with real threads. [[slnc 400]] Replica A is paused. [[slnc 300]] It would take a whole second. [[slnc 300]] Replica B answers in twenty milliseconds. [[slnc 600]]
+The hedger asks A, and waits fifty milliseconds. [[slnc 300]] No answer, so it asks B too. [[slnc 500]]
+B's answer comes back in well under half a second. [[slnc 500]]
+Then the hedger cancels the call to A. [[slnc 300]] So A stops working on an answer nobody needs.
+"""
+rows = { a = "active wrong", b = "active ok", page = "active ok" }
+console = [
+    ["answer from replica B", "ok"],
+    ["time: under 0.5 s", "ok"],
+    ["replica A's call cancelled", "amber"],
+]
+
+[[act]]
+title = "The bill"
+summary = "Only hedge calls that are safe to repeat, never \"place order\"; and cap hedges, because under overload they add load."
+detail = """
+Hedging sends the same request twice, so it is only for calls that are safe to
+repeat, like reading a price. Hedging \"place order\" could charge the customer
+twice. And if every replica is slow because they are all overloaded, extra
+calls make it worse, so hedges are capped at a few percent of requests.
+"""
+speech = """
+Fifth demo: the bill. [[slnc 400]] Hedging sends the same request twice. [[slnc 300]] So only hedge calls that are safe to repeat. [[slnc 500]]
+Reading a price, is fine. [[slnc 300]] Placing an order, is not. [[slnc 300]] The customer could be charged twice. [[slnc 600]]
+And if every replica is slow because they are all overloaded, extra calls make things worse. [[slnc 300]] So keep hedges to a few percent of requests.
+"""
+rows = { page = "active amber" }
+console = [
+    ["never hedge \"place order\"", "bad"],
+    ["cap hedges at a few percent", "amber"],
+]
+
+[animation]
+subtitle = "The product page asks replica A for a price; if A is slow, it asks replica B too."
+boxes = [
+    ["page", "Product page", "needs a price"],
+    ["a", "Price replica A", "sometimes paused"],
+    ["b", "Price replica B", "the backup"],
+]
+
+[docs.problem]
+scenario = """
+The product page asks the price service for each price. Most answers take 20
+ms, but one call in thirty-three hits a paused replica and takes a second.
+"""
+naive = """
+Waiting for whichever replica was asked means the slowest one percent of
+pages wait a whole second.
+"""
+deliver = [
+    "The slow tail measured: median against 99th percentile.",
+    "Hedging after a delay, with its small extra load.",
+    "Hedging at once, with its doubled load.",
+    "A real race between threads, with the loser cancelled.",
+    "The limits named: only repeatable calls, and a cap on hedges.",
+    "Every printed result asserted by a test.",
+]
+
+[docs.prerequisites]
+required = [
+    "Java basics: records, `Callable`, `ExecutorService`.",
+    "What a percentile is: the 99th percentile is slower than 99% of calls.",
+]
+not_required = [
+    "A network. Replicas are simulated, and in act four they are threads.",
+]
+
+[docs.session]
+objectives = [
+    "Explain tail latency and why the median hides it.",
+    "Choose a hedge delay near the normal worst case.",
+    "Race two calls and cancel the loser.",
+    "Decide which calls may be hedged.",
+]
+walkthrough = """
+Run `./gradlew run` and compare act one's 1000 ms with act two's 70 ms. Open
+`Hedger.call`: submit, poll with a timeout, submit again, take the first,
+cancel the other. End on act three's 100% extra calls.
+"""
+exercises = [
+    "Rewrite `Hedger` with `CompletableFuture.anyOf` and `orTimeout`.",
+    "Add a budget: stop hedging once hedges exceed 5% of recent calls.",
+    "Try hedge delays of 10, 50 and 200 ms and compare the tail and the load.",
+]
+
+[docs.explained]
+sentence = """
+Hedged Requests sends a second copy of a slow call to another replica after a
+short delay, and uses whichever answer arrives first.
+"""
+verdict = """
+Hedge read-only or otherwise repeatable calls to replicated services with an
+occasional slow outlier. Wait about the 95th percentile before hedging, cancel
+the loser, and cap hedges so they cannot add much load.
+"""
+recognise = [
+    "Two calls to different replicas, the first answer used.",
+    "gRPC `hedgingPolicy`, Cassandra `speculative_retry`.",
+    "`CompletableFuture.anyOf` with a delayed second call.",
+]
+
+[spec]
+purpose = """
+Teach Hedged Requests with an online store's product page reading prices from
+replicas: a slow tail at the 99th percentile, hedging after 50 ms cutting it
+to 70 ms for 3% extra calls, hedging at once doubling the load, a real
+threaded race with the loser cancelled, and the limits of hedging.
+"""
+nongoals = [
+    "Not a real network. Latencies are simulated; act four uses real threads with sleeps.",
+]
+problem = """
+A small fraction of slow calls sets the waiting time of a page that needs
+many calls, even when the average is fast.
+"""
+roles = [
+    ["The pattern", "`Hedger.call`"],
+    ["The replicas", "`Replica`"],
+    ["The latency measurement", "`LatencyModel.simulate`"],
+    ["Entry point", "`HedgedRequestsDemo`, five acts"],
+]
+requirements = [
+    "**Hedge late:** a backup is only sent when the primary misses the delay.",
+    "**First wins:** the first answer is returned.",
+    "**Cancel the loser:** the other call is interrupted.",
+    "**Every printed result is asserted** in `DemoRunsTest`.",
+]
+
+[[diagram]]
+name = "architecture-diagram"
+kind = "flow"
+title = "Hedged Requests — the pieces"
+caption = "A backup call after 50 ms; first answer wins."
+nodes = [
+    { id = "p", label = "Product page", sub = "needs a price", col = 0, row = 0, colour = "client" },
+    { id = "h", label = "Hedger", sub = "wait 50 ms, then ask again", col = 1, row = 0, colour = "accent" },
+    { id = "a", label = "Replica A", sub = "paused: 1 s", col = 2, row = 0, colour = "red" },
+    { id = "b", label = "Replica B", sub = "20 ms", col = 2, row = 1, colour = "green" },
+]
+edges = [
+    { from = "p", to = "h", label = "" },
+    { from = "h", to = "a", label = "first" },
+    { from = "h", to = "b", label = "after 50 ms" },
+]
+
+[[diagram]]
+name = "class-diagram"
+kind = "class"
+title = "Hedged Requests — classes"
+caption = "A race between two callables."
+nodes = [
+    { id = "h", label = "Hedger", sub = ["+ call(primary, backup,", "  hedgeAfterMillis)", "+ hedgesSent()"], col = 0, row = 0, colour = "accent" },
+    { id = "r", label = "Replica", sub = ["+ price(sku): Callable", "+ wasCancelled()"], col = 1, row = 0, colour = "green" },
+    { id = "l", label = "LatencyModel", sub = ["+ simulate(requests,", "  hedgeAfter): Stats"], col = 0, row = 1, colour = "client" },
+]
+edges = [
+    { from = "h", to = "r", label = "races" },
+]
+
+[[diagram]]
+name = "data-flow-diagram"
+kind = "flow"
+title = "Hedged Requests — three strategies"
+caption = "The 99th percentile against the extra load."
+nodes = [
+    { id = "a", label = "One call", sub = "p99 1000 ms, 0% extra", col = 0, row = 0, colour = "red" },
+    { id = "b", label = "Hedge after 50 ms", sub = "p99 70 ms, 3% extra", col = 1, row = 0, colour = "green" },
+    { id = "c", label = "Two at once", sub = "p99 20 ms, 100% extra", col = 2, row = 0, colour = "amber" },
+]
+edges = []
+
+[[diagram]]
+name = "sequence-diagram"
+kind = "sequence"
+title = "Hedged Requests — a slow primary"
+caption = "B answers; A is cancelled."
+participants = ["Hedger", "Replica A", "Replica B"]
+steps = [
+    ["Hedger", "Replica A", "price(MUG-1)"],
+    ["note", "Hedger", "50 ms, no answer"],
+    ["Hedger", "Replica B", "price(MUG-1)"],
+    ["Replica B", "Hedger", "19.99", "reply"],
+    ["Hedger", "Replica A", "cancel"],
+]
+
+[[diagram]]
+name = "uml-diagram"
+kind = "sequence"
+title = "1. A fast primary"
+caption = "No hedge is sent."
+participants = ["Hedger", "Replica A"]
+steps = [
+    ["Hedger", "Replica A", "price(MUG-1)"],
+    ["Replica A", "Hedger", "19.99 in 20 ms", "reply"],
+]
+
+[[diagram]]
+name = "uml-diagram-2"
+kind = "sequence"
+title = "2. Place order"
+caption = "Never hedged: it is not safe to repeat."
+participants = ["Checkout", "Orders"]
+steps = [
+    ["Checkout", "Orders", "place order, once"],
+    ["note", "Orders", "a second call could charge twice"],
+]
+
+[poster]
+headline = [["HEDGED", "text"], ["REQUESTS", "text"]]
+before = { code = "wait for replica A", note = "1 in 33 pages waits 1 s", tag = "BEFORE" }
+after = { code = "after 50 ms: ask B too", note = "worst case 70 ms", tag = "AFTER" }
+taglines = [["Don't wait on the slow one", "gold"]]
+
+[[scene]]
+key = "01-poster"
+kind = "poster"
+title = "Hedged Requests"
+narration = """
+Hello, and welcome. [[slnc 400]] This video explains the Hedged Requests pattern, in Java. [[slnc 300]]
+This video is presented by Jayasekhar Konduru. [[slnc 600]]
+First, a simple definition. [[slnc 300]] If a call has not answered after a short wait, send the same call to a second copy of the service. [[slnc 300]] Use whichever answer comes first. [[slnc 300]] And cancel the other. [[slnc 600]]
+Think of phoning a shop to ask if something is in stock. [[slnc 300]] Nobody picks up after a few rings. [[slnc 300]] So you call their other branch too. [[slnc 300]] Whichever answers first gets your question, and you hang up on the other. [[slnc 700]]
+In this video, the domain is an online shop's product page. [[slnc 300]] It asks a price service for each price. [[slnc 300]] And there are several copies of that service, called replicas. [[slnc 500]]
+By the end, you will hear why the average hides slow calls. [[slnc 300]] How a second call after fifty milliseconds fixes them. [[slnc 300]] Why not to send two calls every time. [[slnc 300]] And which calls must never be hedged.
+"""
+
+[[scene]]
+key = "02-scenario"
+kind = "bullets"
+title = "The Scenario"
+body = ["The product page asks for prices.", "", "Most answers: 20 ms.", "", "1 call in 33 hits a paused", "replica: 1 second."]
+narration = """
+Here is the scenario. [[slnc 400]] The product page asks the price service for each price. [[slnc 500]]
+Most answers take twenty milliseconds. [[slnc 500]]
+But now and then a replica pauses, for example to clean up memory. [[slnc 300]] About one call in thirty-three then takes a whole second.
+"""
+
+[[scene]]
+key = "03-acts"
+kind = "acts"
+title = "acts"
+
+[[scene]]
+key = "04-pattern"
+kind = "bullets"
+title = "The Pattern"
+body = ["Call one replica.", "", "No answer after a short delay?", "Call another.", "", "First answer wins; cancel the other."]
+narration = """
+Let's name the pattern. [[slnc 400]] Call one replica. [[slnc 500]]
+If there is no answer after a short delay, call a second replica with the same request. [[slnc 500]]
+The first answer wins. [[slnc 300]] And the other call is cancelled.
+"""
+
+[[scene]]
+key = "05-roles"
+kind = "bullets"
+title = "Who Does What"
+body = ["Replica: one copy of the price service", "Hedger: waits, asks again, takes the first", "LatencyModel: measures the slow tail"]
+narration = """
+Here is who does what. [[slnc 400]] A replica is one copy of the price service. [[slnc 500]]
+The hedger makes the call. [[slnc 300]] It waits fifty milliseconds, asks a second replica if needed, takes the first answer, and cancels the other. [[slnc 500]]
+And the latency model measures a thousand calls, so we can compare the slowest ones.
+"""
+
+[[scene]]
+key = "06-recognise"
+kind = "bullets"
+title = "Where You Have Seen It"
+body = ["Google's \"The Tail at Scale\"", "gRPC hedging policy", "Cassandra speculative retry", "CompletableFuture.anyOf"]
+narration = """
+You have probably met this pattern already. [[slnc 400]] Google made it famous, in a paper called The Tail at Scale. [[slnc 500]]
+gRPC can hedge calls, with a setting per method. [[slnc 300]] And Cassandra calls it speculative retry. [[slnc 500]]
+In Java, racing futures with any-of is the same idea.
+"""
+
+[[scene]]
+key = "07-verdict"
+kind = "bullets"
+title = "When To Use It"
+body = ["Several replicas, rare slow calls.", "", "Only calls safe to repeat.", "Wait before hedging.", "Cancel the loser.", "Cap the hedges."]
+narration = """
+So, when should you use it? [[slnc 400]] When a service has several replicas, and slow calls are rare. [[slnc 500]]
+Only hedge calls that are safe to repeat. [[slnc 300]] Wait a little before hedging. [[slnc 300]] Cancel the loser. [[slnc 300]] And cap how many hedges you send.
+"""
+
+[[scene]]
+key = "08-outro"
+kind = "outro"
+title = "Thanks for Watching"
+body = ["Full source, notes, diagrams and an animated walkthrough", "are in the repository. Add a hedge budget", "of 5%."]
+narration = """
+That's the Hedged Requests pattern. [[slnc 400]] If you remember one sentence, make it this one. [[slnc 300]] When one copy is slow, ask another, and keep the first answer. [[slnc 500]]
+The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. [[slnc 300]] It runs offline, with nothing installed except a Java development kit. [[slnc 500]]
+Here is one exercise to try. [[slnc 300]] Add a budget, so hedges stop once they reach five percent of calls. [[slnc 500]]
+If this helped, a like really does help other people find it. [[slnc 300]] And subscribe, if you'd like the rest of the series. [[slnc 400]] Thanks for watching.
+"""

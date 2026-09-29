@@ -1,0 +1,435 @@
+# pattern.toml for the Lenses for Immutable Updates project. See tools/patternkit.
+
+[project]
+slug = "lenses"
+category = "functional-design-patterns"
+title = "Lenses for Immutable Updates"
+package = "lenses"
+main_class = "LensesDemo"
+tagline = "Change deep inside, safely"
+bold = "Pair a getter and a setter for one part of an immutable object into a lens, then join lenses to read or replace a part deep inside, getting a new whole and leaving the old one untouched."
+domain_note = ""
+thumb_lines = ["LENSES"]
+thumb_code = "ORDER_POSTCODE.set(order, p)"
+youtube_title = "Lenses for Immutable Updates"
+youtube_tags = ["lenses", "immutable", "records", "functional programming", "optics", "java"]
+
+[readme]
+intro = """
+Immutable objects, such as Java records, cannot be changed once made. That
+makes them safe to share, but changing one field deep inside is clumsy: to
+change the postcode of an order's customer's address, you must build a new
+address, a new customer around it, and a new order around that, copying every
+other field by hand.
+
+A lens is a pair of functions that focus on one part of a whole: `get` reads
+the part, and `set` returns a new whole with that part replaced. Lenses join:
+a lens from order to customer, then customer to address, then address to
+postcode, becomes one lens from order to postcode. Changing the postcode is
+then one line, and the old order is left exactly as it was.
+"""
+analogy = """
+Think of a set of Russian nesting dolls, glued shut, where you want to change
+the smallest doll. You cannot reach in; you must make new outer dolls around
+a new inner one. A lens is a tool that knows how to do that for one doll,
+and lenses can be joined, so one tool reaches all the way in.
+"""
+scenario = """
+The online store keeps orders as immutable records, three levels deep: an
+order holds a customer, who holds a delivery address. When a customer
+corrected a postcode, the code rebuilt all three by hand, and in one place a
+developer passed the street and city in the wrong order. Both are strings, so
+nothing complained, and a parcel was addressed to "Leeds, 1 High Street".
+"""
+costs = [
+    "**Code to write.** Each field needs its lens, written by hand in Java: four lenses here for three levels.",
+    "**New objects on each change.** Setting the postcode makes three new objects, although unchanged parts, such as the order lines, are shared, not copied.",
+    "**Overkill when shallow.** For one or two flat records, a small `withPostcode` method is simpler.",
+]
+too_much = """
+Flat records with few fields need no lenses. They pay off when immutable data
+is nested several levels deep and many different fields are updated.
+"""
+met_before = [
+    "Monocle in Scala and Arrow Optics in Kotlin.",
+    "Immutable-update helpers such as Immer in JavaScript.",
+    "Generated `with...` methods in Lombok (`@With`) and Immutables.",
+]
+where = """
+This project is in [functional-design-patterns](..), next to
+[Higher-Order Functions](../higher-order-functions-pattern): a lens is a pair
+of functions, and joining lenses is function composition.
+"""
+
+[[act]]
+title = "Rebuilding by hand"
+summary = "Changing one postcode takes 3 constructors; street and city, both strings, were swapped by mistake and nothing complained."
+detail = """
+To change the postcode, the code builds a new address, a new customer around
+it, and a new order around that: three constructors, copying every other
+field. Street and city are both strings, and here they were passed the wrong
+way round. The compiler cannot tell, and the result says street Leeds, city 1
+High Street.
+"""
+speech = """
+First demo: changing one field of an immutable order, by hand. [[slnc 400]] Immutable means the order can never be changed. [[slnc 300]] Only replaced. [[slnc 600]]
+To change the postcode, the code builds a new address. [[slnc 300]] Then a new customer around it. [[slnc 300]] Then a new order around that. [[slnc 600]]
+Street and city are both text. [[slnc 300]] And here they were passed the wrong way round. [[slnc 500]]
+Nothing complained. [[slnc 300]] The parcel is addressed to street Leeds, city one High Street.
+"""
+rows = { order = "active wrong", address = "active wrong" }
+console = [
+    ["3 constructors for one field", "amber"],
+    ["street=Leeds, city=1 High Street", "bad"],
+]
+
+[[act]]
+title = "One lens"
+summary = "ADDRESS_POSTCODE.get reads LS1 4AP; set returns a new address with LS2 7HY; the original is unchanged."
+detail = """
+A lens is a getter and a setter for one field, written once and tested.
+`ADDRESS_POSTCODE.get` reads LS1 4AP. `ADDRESS_POSTCODE.set` returns a new
+address with LS2 7HY, and the original address is unchanged.
+"""
+speech = """
+Second demo: a lens. [[slnc 400]] A lens is a pair of functions, for one part of an object. [[slnc 300]] Get reads the part. [[slnc 300]] Set returns a new object, with that part replaced. [[slnc 600]]
+The postcode lens reads, L S one, four A P. [[slnc 500]]
+Set it to L S two, seven H Y. [[slnc 300]] A new address comes back. [[slnc 500]]
+And the original address is unchanged.
+"""
+rows = { lens = "active ok", address = "active ok" }
+console = [
+    ["get: LS1 4AP", "muted"],
+    ["set: new address, LS2 7HY", "ok"],
+    ["original unchanged", "ok"],
+]
+
+[[act]]
+title = "Lenses join"
+summary = "ORDER_POSTCODE, joined from three lenses, sets the order's postcode in one line; the old order still says LS1 4AP."
+detail = """
+Lenses join with `andThen`. Order to customer, then customer to address, then
+address to postcode, gives one lens: `ORDER_POSTCODE`. Setting the postcode of
+the whole order is now one line, and it rebuilds all three levels correctly,
+every time. The old order still says LS1 4AP.
+"""
+speech = """
+Third demo: lenses join together. [[slnc 400]] One lens goes from the order to the customer. [[slnc 300]] The next, from the customer to the address. [[slnc 300]] The next, from the address to the postcode. [[slnc 600]]
+Joined, they make one lens, from the order straight to the postcode. [[slnc 500]]
+Setting the postcode of a whole order is now one line. [[slnc 300]] All three levels are rebuilt correctly, every time. [[slnc 500]]
+And the old order still has the old postcode.
+"""
+rows = { lens = "active ok", order = "active ok" }
+console = [
+    ["ORDER_POSTCODE.set: LS2 7HY", "ok"],
+    ["old order: LS1 4AP", "ok"],
+]
+
+[[act]]
+title = "Change with a function"
+summary = "modify with toUpperCase turns ls2 7hy into LS2 7HY; city and postcode lenses together move the order to York, YO1 7HH."
+detail = """
+`modify` applies a function to the part: a postcode typed as "ls2 7hy" becomes
+"LS2 7HY" with `String::toUpperCase`. And lenses are ordinary values, so a
+city lens and a postcode lens used together move the delivery to York, YO1 7HH,
+with the street untouched.
+"""
+speech = """
+Fourth demo: change a part with a function. [[slnc 400]] The customer typed the postcode in lower case. [[slnc 600]]
+Modify applies a function to just that part. [[slnc 300]] Upper case. [[slnc 300]] Now it is L S two, seven H Y. [[slnc 600]]
+And lenses can be used together. [[slnc 300]] A city lens, and a postcode lens. [[slnc 300]] The delivery moves to York. [[slnc 300]] The street is untouched.
+"""
+rows = { lens = "active ok", address = "active ok" }
+console = [
+    ["modify(upper): LS2 7HY", "ok"],
+    ["city + postcode: York, YO1 7HH", "ok"],
+]
+
+[[act]]
+title = "The bill"
+summary = "4 field lenses written by hand for 3 levels; each set makes 3 new objects, but unchanged parts, like the order lines, are shared."
+detail = """
+Lenses are code to write: four field lenses by hand for three levels, because
+Java has no built-in way to make them. Each set makes three new objects, but
+unchanged parts are shared rather than copied: the updated order holds the very
+same list of lines. For one or two flat records, a small `with` method is
+simpler.
+"""
+speech = """
+Fifth demo: the bill. [[slnc 400]] Lenses are code to write. [[slnc 300]] Four of them, by hand, for three levels. [[slnc 300]] Java has no built-in way to make them. [[slnc 600]]
+Each change makes three new objects. [[slnc 300]] But the parts that did not change are shared, not copied. [[slnc 300]] The new order holds the very same list of lines. [[slnc 600]]
+And for one or two flat records, a small with method is simpler.
+"""
+rows = { lens = "active amber" }
+console = [
+    ["4 lenses written by hand", "amber"],
+    ["lines shared, not copied: true", "ok"],
+]
+
+[animation]
+subtitle = "An order holds a customer, who holds an address; joined lenses reach the postcode."
+boxes = [
+    ["order", "Order", "id, customer, lines"],
+    ["address", "Address", "street, city, postcode"],
+    ["lens", "ORDER_POSTCODE", "get and set"],
+]
+
+[docs.problem]
+scenario = """
+Orders are immutable records three levels deep: order, customer, address.
+"""
+naive = """
+Changing a postcode meant rebuilding all three by hand, and street and city
+were swapped without any error.
+"""
+deliver = [
+    "A hand rebuild with swapped arguments.",
+    "A `Lens` record with `get`, `set`, `modify` and `andThen`.",
+    "Joined lenses from order to postcode.",
+    "Modify with a function, and two lenses together.",
+    "The cost, and structural sharing shown.",
+    "The three lens laws checked by tests.",
+]
+
+[docs.prerequisites]
+required = [
+    "Java basics: records, lambdas, `Function`, `BiFunction`.",
+]
+not_required = [
+    "Any optics library. `Lens` is one small record.",
+]
+
+[docs.session]
+objectives = [
+    "Explain the cost of nested immutable updates.",
+    "Write a lens as a getter and a setter.",
+    "Join lenses to reach deep fields.",
+    "State the three lens laws.",
+]
+walkthrough = """
+Run `./gradlew run` and compare act one's swapped address with act three's
+one-line update. Open `Lens.andThen`: get through, set back out. End with
+`LensLawsTest`.
+"""
+exercises = [
+    "Add a `CUSTOMER_NAME` lens and an `ORDER_CUSTOMER_NAME` lens.",
+    "Write a lens for the first order line.",
+    "Compare with a `withPostcode` method on each record.",
+]
+
+[docs.explained]
+sentence = """
+A lens pairs a getter and a setter for one part of an immutable whole, and
+lenses join to update deep inside, returning a new whole.
+"""
+verdict = """
+Use lenses for deeply nested immutable data with many different updates.
+Write one small lens per field, join them for deep paths, test the three laws,
+and prefer simple `with` methods when the data is flat.
+"""
+recognise = [
+    "Objects with `get` and `set` (or `replace`) functions that return new values.",
+    "Chains like `address.andThen(postcode)`.",
+    "Optics libraries: Monocle, Arrow, Functional Java.",
+]
+
+[spec]
+purpose = """
+Teach Lenses with an online store's immutable orders: a hand rebuild swapping
+street and city, a lens for one field, joined lenses updating the postcode in
+one line, `modify` with a function, and the cost and sharing of each update.
+"""
+nongoals = [
+    "Not an optics library. No prisms, traversals or code generation.",
+]
+problem = """
+Updating a field deep inside nested immutable records needs every level
+rebuilt by hand, which is long and error-prone.
+"""
+roles = [
+    ["The pattern", "`Lens`"],
+    ["The lenses", "`Lenses`"],
+    ["The data", "`Order`, `Customer`, `Address`"],
+    ["The laws", "`LensLawsTest`"],
+    ["Entry point", "`LensesDemo`, five acts"],
+]
+requirements = [
+    "**Get what you set:** `get(set(s, a)) == a`.",
+    "**Set what is there, change nothing:** `set(s, get(s)) == s`.",
+    "**Last set wins:** setting twice equals setting the second value once.",
+    "**Every printed result is asserted** in `DemoRunsTest`.",
+]
+
+[[diagram]]
+name = "architecture-diagram"
+kind = "flow"
+title = "Lenses — joining to reach the postcode"
+caption = "Three lenses become one."
+nodes = [
+    { id = "a", label = "ORDER_CUSTOMER", sub = "order -> customer", col = 0, row = 0, colour = "accent" },
+    { id = "b", label = "CUSTOMER_ADDRESS", sub = "customer -> address", col = 1, row = 0, colour = "accent" },
+    { id = "c", label = "ADDRESS_POSTCODE", sub = "address -> postcode", col = 2, row = 0, colour = "accent" },
+    { id = "d", label = "ORDER_POSTCODE", sub = "order -> postcode", col = 3, row = 0, colour = "green" },
+]
+edges = [
+    { from = "a", to = "b", label = "andThen" },
+    { from = "b", to = "c", label = "andThen" },
+    { from = "c", to = "d", label = "" },
+]
+
+[[diagram]]
+name = "class-diagram"
+kind = "class"
+title = "Lenses — classes"
+caption = "A lens is two functions."
+nodes = [
+    { id = "l", label = "«record» Lens<S, A>", sub = ["get: S -> A", "set: (S, A) -> S", "+ modify(s, change)", "+ andThen(inner)"], col = 0, row = 0, colour = "accent" },
+    { id = "o", label = "«record» Order", sub = ["id, customer, lines"], col = 1, row = 0, colour = "client" },
+    { id = "c", label = "«record» Customer", sub = ["name, address"], col = 1, row = 1, colour = "client" },
+    { id = "a", label = "«record» Address", sub = ["street, city, postcode"], col = 0, row = 1, colour = "client" },
+]
+edges = [
+    { from = "o", to = "c", label = "holds" },
+    { from = "c", to = "a", label = "holds" },
+]
+
+[[diagram]]
+name = "data-flow-diagram"
+kind = "flow"
+title = "Lenses — what a set rebuilds"
+caption = "New along the path; shared elsewhere."
+nodes = [
+    { id = "a", label = "new Order", sub = "same lines list", col = 0, row = 0, colour = "green" },
+    { id = "b", label = "new Customer", sub = "same name", col = 1, row = 0, colour = "green" },
+    { id = "c", label = "new Address", sub = "postcode LS2 7HY", col = 2, row = 0, colour = "green" },
+    { id = "d", label = "old Order", sub = "unchanged: LS1 4AP", col = 0, row = 1, colour = "client" },
+]
+edges = [
+    { from = "a", to = "b", label = "" },
+    { from = "b", to = "c", label = "" },
+]
+
+[[diagram]]
+name = "sequence-diagram"
+kind = "sequence"
+title = "Lenses — setting the postcode"
+caption = "Get inward, set outward."
+participants = ["ORDER_POSTCODE", "Order", "Address"]
+steps = [
+    ["ORDER_POSTCODE", "Order", "get customer, then address"],
+    ["ORDER_POSTCODE", "Address", "new Address with LS2 7HY"],
+    ["note", "ORDER_POSTCODE", "new Customer, new Order around it"],
+    ["ORDER_POSTCODE", "Order", "return the new order", "reply"],
+]
+
+[[diagram]]
+name = "uml-diagram"
+kind = "sequence"
+title = "1. By hand"
+caption = "Three constructors, one swap."
+participants = ["Code", "Address"]
+steps = [
+    ["Code", "Address", "new Address(city, street, postcode)"],
+    ["note", "Address", "street=Leeds: nothing complained"],
+]
+
+[[diagram]]
+name = "uml-diagram-2"
+kind = "sequence"
+title = "2. Modify"
+caption = "A function applied to the part."
+participants = ["Code", "ORDER_POSTCODE"]
+steps = [
+    ["Code", "ORDER_POSTCODE", "modify(order, toUpperCase)"],
+    ["ORDER_POSTCODE", "Code", "new order: LS2 7HY", "reply"],
+]
+
+[poster]
+headline = [["LENSES", "text"]]
+before = { code = "new Order(..., new Customer(...))", note = "street and city swapped", tag = "BEFORE" }
+after = { code = "ORDER_POSTCODE.set(order, p)", note = "one line, old order intact", tag = "AFTER" }
+taglines = [["Change deep inside, safely", "gold"]]
+
+[[scene]]
+key = "01-poster"
+kind = "poster"
+title = "Lenses for Immutable Updates"
+narration = """
+Hello, and welcome. [[slnc 400]] This video explains Lenses, for updating immutable data, in Java. [[slnc 300]]
+This video is presented by Jayasekhar Konduru. [[slnc 600]]
+First, a simple definition. [[slnc 300]] Immutable objects can never be changed, only replaced. [[slnc 300]] A lens is a pair of functions for one part of such an object. [[slnc 300]] One reads the part. [[slnc 300]] The other returns a new object, with the part replaced. [[slnc 300]] And lenses can be joined, to reach deep inside. [[slnc 600]]
+Think of a set of nesting dolls, glued shut. [[slnc 300]] To change the smallest doll, you must make new outer dolls around a new inner one. [[slnc 300]] A lens is a tool that does that for you. [[slnc 700]]
+In this video, the domain is an online shop's orders. [[slnc 300]] An order holds a customer, who holds a delivery address. [[slnc 500]]
+By the end, you will hear how rebuilding by hand went wrong. [[slnc 300]] How one lens works. [[slnc 300]] How lenses join. [[slnc 300]] And what they cost.
+"""
+
+[[scene]]
+key = "02-scenario"
+kind = "bullets"
+title = "The Scenario"
+body = ["Orders are immutable records:", "order, customer, address.", "", "Changing a postcode rebuilt", "all three by hand."]
+narration = """
+Here is the scenario. [[slnc 400]] The shop keeps orders as immutable records, three levels deep. [[slnc 300]] An order, holding a customer, holding an address. [[slnc 500]]
+When a customer corrected a postcode, the code rebuilt all three, by hand. [[slnc 500]]
+And in one place, the street and city were swapped.
+"""
+
+[[scene]]
+key = "03-acts"
+kind = "acts"
+title = "acts"
+
+[[scene]]
+key = "04-pattern"
+kind = "bullets"
+title = "The Pattern"
+body = ["A lens: get and set", "for one part.", "", "Set returns a new whole.", "", "Lenses join to reach deep."]
+narration = """
+Let's name the pattern. [[slnc 400]] A lens has a get and a set, for one part of an object. [[slnc 500]]
+Set returns a new whole, and leaves the old one alone. [[slnc 500]]
+And lenses join, to reach deep inside.
+"""
+
+[[scene]]
+key = "05-roles"
+kind = "bullets"
+title = "Who Does What"
+body = ["Lens: get, set, modify, andThen", "ADDRESS_POSTCODE: one field", "ORDER_POSTCODE: three joined", "Order, Customer, Address: the data"]
+narration = """
+Here is who does what. [[slnc 400]] A lens has get, set, modify, and and-then. [[slnc 500]]
+The address postcode lens focuses on one field. [[slnc 300]] The order postcode lens is three lenses joined. [[slnc 500]]
+And the order, customer, and address records are the data.
+"""
+
+[[scene]]
+key = "06-recognise"
+kind = "bullets"
+title = "Where You Have Seen It"
+body = ["Monocle in Scala", "Arrow Optics in Kotlin", "Immer in JavaScript", "Lombok @With"]
+narration = """
+You have probably met this pattern already. [[slnc 400]] Scala has a lens library called Monocle. [[slnc 300]] Kotlin has Arrow Optics. [[slnc 500]]
+JavaScript developers use Immer for the same job. [[slnc 500]]
+And Lombok can generate with methods, the simple, one-level version.
+"""
+
+[[scene]]
+key = "07-verdict"
+kind = "bullets"
+title = "When To Use It"
+body = ["Deeply nested immutable data.", "", "One lens per field.", "Join for deep paths.", "Test the three laws.", "Flat? Use a with method."]
+narration = """
+So, when should you use it? [[slnc 400]] For immutable data, nested several levels deep. [[slnc 500]]
+Write one small lens per field. [[slnc 300]] Join them for deep paths. [[slnc 300]] Test the three lens laws. [[slnc 300]] And for flat data, a simple with method is enough.
+"""
+
+[[scene]]
+key = "08-outro"
+kind = "outro"
+title = "Thanks for Watching"
+body = ["Full source, notes, diagrams and an animated walkthrough", "are in the repository. Add a lens", "for the customer's name."]
+narration = """
+That's Lenses for immutable updates. [[slnc 400]] If you remember one sentence, make it this one. [[slnc 300]] A lens gets and sets one part, and lenses join to reach deep inside. [[slnc 500]]
+The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. [[slnc 300]] It runs offline, with nothing installed except a Java development kit. [[slnc 500]]
+Here is one exercise to try. [[slnc 300]] Add a lens for the customer's name, and join it to the order. [[slnc 500]]
+If this helped, a like really does help other people find it. [[slnc 300]] And subscribe, if you'd like the rest of the series. [[slnc 400]] Thanks for watching.
+"""

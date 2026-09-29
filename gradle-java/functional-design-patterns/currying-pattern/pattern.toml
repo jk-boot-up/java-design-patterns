@@ -1,0 +1,436 @@
+# pattern.toml for the Currying project. See tools/patternkit.
+
+[project]
+slug = "currying"
+category = "functional-design-patterns"
+title = "Currying"
+package = "currying"
+main_class = "CurryingDemo"
+tagline = "Fix some arguments now, the rest later"
+bold = "Turn a function of several arguments into a chain of one-argument functions, so the arguments known early can be fixed once, leaving a smaller function for the ones that change."
+domain_note = ""
+thumb_lines = ["CURRYING"]
+thumb_code = "CURRIED.apply(EU).apply(STANDARD)"
+youtube_title = "Currying and Partial Application"
+youtube_tags = ["currying", "partial application", "functional programming", "lambdas", "function", "java"]
+
+[readme]
+intro = """
+Currying turns a function that takes several arguments into a chain of
+functions that each take one. Instead of `price(zone, service, weight)`, you
+have a function that takes a zone and returns a function that takes a
+service, which returns a function that takes a weight.
+
+The point is partial application: supplying some arguments now and the rest
+later. A warehouse that always ships to the EU by standard post fixes those
+two once, and is left with a simple function of weight alone. The name comes
+from the logician Haskell Curry.
+"""
+analogy = """
+Think of a coffee shop loyalty card that already knows your usual: oat milk,
+large. At the counter you only say "latte" or "flat white". The usual choices
+were fixed once, when the card was set up; only the part that changes is given
+each time.
+"""
+scenario = """
+The online store's shipping price depends on the zone, the service and the
+weight. The EU warehouse only ever ships to the EU by standard post, yet
+every call it made spelled out "EU, STANDARD" before the one argument that
+actually changed: the weight.
+"""
+costs = [
+    "**Noisy in Java.** The type `Function<Zone, Function<Service, Function<Double, Double>>>` and chains of `.apply` are hard to read.",
+    "**Order is fixed.** Currying fixes arguments first to last, so they must be ordered from least to most changing; the wrong order gave nonsense.",
+    "**Often a lambda is clearer.** `kg -> price(EU, STANDARD, kg)` does the same partial application in plain sight.",
+]
+too_much = """
+When a function is always called with all its arguments, currying adds only
+noise. It pays off when some arguments are known long before others, and the
+smaller function is passed around or reused.
+"""
+met_before = [
+    "Every function in Haskell and F# is curried.",
+    "`Function<A, Function<B, R>>` in Java libraries such as Vavr, with `curried()`.",
+    "Configured objects and factories: fixing settings once, then calling with the changing part.",
+]
+where = """
+This project is in [functional-design-patterns](..), next to
+[Higher-Order Functions](../higher-order-functions-pattern): a curried function
+is a function that returns a function.
+"""
+
+[[act]]
+title = "Repeated arguments"
+summary = "The EU warehouse calls price(EU, STANDARD, kg) for 0.5, 2 and 10 kg: 7.00, 10.00, 26.00, repeating EU and STANDARD every time."
+detail = """
+The EU warehouse prices three parcels: half a kilo, two kilos and ten kilos.
+Each call is `price(EU, STANDARD, weight)`: 7.00, 10.00 and 26.00. The zone and
+service never change, but every call must repeat them, and every call could
+get them wrong.
+"""
+speech = """
+First demo: the same arguments, again and again. [[slnc 400]] The shipping price needs a zone, a service, and a weight. [[slnc 600]]
+The EU warehouse prices three parcels. [[slnc 300]] Half a kilo, seven. [[slnc 300]] Two kilos, ten. [[slnc 300]] Ten kilos, twenty-six. [[slnc 600]]
+Every call repeats, EU, and standard. [[slnc 300]] Only the weight changes.
+"""
+rows = { price = "active amber" }
+console = [
+    ["price(EU, STANDARD, 0.5) = 7.00", "muted"],
+    ["price(EU, STANDARD, 2.0) = 10.00", "muted"],
+    ["EU, STANDARD repeated every time", "amber"],
+]
+
+[[act]]
+title = "A curried function"
+summary = "euStandard = CURRIED.apply(EU).apply(STANDARD); euStandard.apply(2.0) is 10.00, the same as price(EU, STANDARD, 2.0)."
+detail = """
+The curried version takes one argument at a time. Applying it to EU returns a
+function that wants a service; applying that to STANDARD returns a function
+that wants only a weight. Call it `euStandard`. `euStandard.apply(2.0)` is
+10.00, exactly what the three-argument call gave.
+"""
+speech = """
+Second demo: a curried function. [[slnc 400]] It takes one argument at a time. [[slnc 600]]
+Give it the zone, EU. [[slnc 300]] It gives back a function that wants a service. [[slnc 500]]
+Give that one, standard. [[slnc 300]] It gives back a function that wants only a weight. [[slnc 300]] Call it, EU standard. [[slnc 600]]
+EU standard, for two kilos. [[slnc 300]] Ten. [[slnc 300]] Exactly the same as before.
+"""
+rows = { curried = "active ok", ready = "active ok" }
+console = [
+    ["euStandard = CURRIED(EU)(STANDARD)", "muted"],
+    ["euStandard(2.0) = 10.00", "ok"],
+]
+
+[[act]]
+title = "Ready-made functions"
+summary = "One function per zone is built at start-up: 2 kg standard is UK 5.00, EU 10.00, WORLD 20.00; EU express mapped over parcels gives 14, 20, 52."
+detail = """
+At start-up, the shop builds one ready-made function per zone for standard
+post. A two-kilo parcel costs 5.00 to the UK, 10.00 to the EU and 20.00 to the
+rest of the world. And because a ready-made function takes one argument, it
+drops straight into `map`: checkout's parcels, EU express, cost 14.00, 20.00
+and 52.00.
+"""
+speech = """
+Third demo: ready-made functions. [[slnc 400]] At start-up, the shop builds one function per zone, for standard post. [[slnc 600]]
+A two kilo parcel. [[slnc 300]] UK, five. [[slnc 300]] EU, ten. [[slnc 300]] Rest of the world, twenty. [[slnc 600]]
+A ready-made function takes just one argument. [[slnc 300]] So it fits straight into map. [[slnc 500]]
+Checkout's three parcels, EU express. [[slnc 300]] Fourteen, twenty, and fifty-two.
+"""
+rows = { ready = "active ok" }
+console = [
+    ["2 kg: UK 5.00, EU 10.00, WORLD 20.00", "ok"],
+    ["EU express: [14.00, 20.00, 52.00]", "ok"],
+]
+
+[[act]]
+title = "Argument order matters"
+summary = "discount(percent, price) curried and given 20 is a 20%-off function: 45 becomes 36.00; with (price, percent), 20 fixes the price and gives 11.00."
+detail = """
+A helper, `curry`, turns any two-argument function into a curried one, fixing
+the first argument first. With `discount(percent, price)`, applying 20 makes a
+"20% off" function, and 45.00 becomes 36.00. Written the other way round,
+`(price, percent)`, applying 20 fixes the price instead, and "applying 45"
+gives 11.00, nonsense. Order arguments from least to most often changing.
+"""
+speech = """
+Fourth demo: argument order matters. [[slnc 400]] Currying fixes the first argument first. [[slnc 600]]
+A discount takes a percentage, then a price. [[slnc 300]] Fix twenty. [[slnc 300]] You have a twenty percent off function. [[slnc 300]] Forty-five becomes thirty-six. [[slnc 600]]
+Now write it the other way round. [[slnc 300]] Price first, then percentage. [[slnc 300]] Fixing twenty now fixes the price. [[slnc 500]]
+Apply forty-five, and you get eleven. [[slnc 300]] Nonsense. [[slnc 600]]
+Put the arguments that change least, first.
+"""
+rows = { curried = "active amber" }
+console = [
+    ["(percent, price): 20% off 45 = 36.00", "ok"],
+    ["(price, percent): gives 11.00", "bad"],
+]
+
+[[act]]
+title = "The bill"
+summary = "The type is Function<Zone, Function<Service, Function<Double, Double>>>; a plain lambda kg -> price(EU, STANDARD, kg) gives the same 10.00."
+detail = """
+Java makes currying noisy: the curried type is
+`Function<Zone, Function<Service, Function<Double, Double>>>`, and calls are
+chains of `.apply`. A plain lambda, `kg -> price(EU, STANDARD, kg)`, gives the
+same 10.00 and is often clearer. Use currying where functions are built in
+stages and passed around; use a lambda where one fixed call is enough.
+"""
+speech = """
+Fifth demo: the bill. [[slnc 400]] Java makes currying noisy. [[slnc 300]] The type is a function, returning a function, returning a function. [[slnc 600]]
+A plain lambda can do the same job. [[slnc 300]] Weight goes in, and it calls price with EU, and standard. [[slnc 300]] Same answer, ten. [[slnc 500]]
+And it is often clearer.
+"""
+rows = { curried = "active amber", price = "active ok" }
+console = [
+    ["Function<Zone, Function<Service, ...>>", "amber"],
+    ["kg -> price(EU, STANDARD, kg): 10.00", "ok"],
+]
+
+[animation]
+subtitle = "The shipping price, one argument at a time: zone, then service, then weight."
+boxes = [
+    ["price", "price(zone, service, kg)", "all at once"],
+    ["curried", "CURRIED(zone)(service)", "fix the first two"],
+    ["ready", "euStandard(kg)", "only the weight"],
+]
+
+[docs.problem]
+scenario = """
+The shipping price depends on zone, service and weight, and the EU warehouse
+always uses the same zone and service.
+"""
+naive = """
+Every call repeats the unchanging arguments before the one that changes.
+"""
+deliver = [
+    "Repeated arguments in a three-argument function.",
+    "A curried version fixing zone and service.",
+    "Ready-made functions per zone, used with `map`.",
+    "A generic `curry` helper and the argument-order trap.",
+    "A plain lambda as the simpler alternative.",
+    "Every printed result asserted by a test.",
+]
+
+[docs.prerequisites]
+required = [
+    "Java basics: enums, lambdas, `Function`.",
+]
+not_required = [
+    "Haskell, or any functional library.",
+]
+
+[docs.session]
+objectives = [
+    "Define currying and partial application.",
+    "Write a curried function in Java.",
+    "Choose argument order for currying.",
+    "Decide when a plain lambda is clearer.",
+]
+walkthrough = """
+Run `./gradlew run` and compare act one's three calls with act two's
+`euStandard`. Open `Shipping.CURRIED`: one line of arrows. End on act four's
+36.00 and 11.00.
+"""
+exercises = [
+    "Write a `curry3` helper for three-argument functions.",
+    "Build a `Map<Service, Function<Double, Double>>` for the UK.",
+    "Rewrite act three with plain lambdas and compare.",
+]
+
+[docs.explained]
+sentence = """
+Currying turns a function of several arguments into a chain of one-argument
+functions, so early arguments can be fixed once.
+"""
+verdict = """
+Curry when some arguments are known long before others and the smaller
+function is reused or passed on. Order arguments from least to most changing,
+and prefer a plain lambda when it reads better.
+"""
+recognise = [
+    "Types like `Function<A, Function<B, R>>`.",
+    "Calls like `f.apply(a).apply(b)`.",
+    "Helpers named `curry`, `curried` or `partial`.",
+]
+
+[spec]
+purpose = """
+Teach Currying with an online store's shipping price: repeated zone and
+service arguments, a curried function fixing them once, ready-made functions
+per zone used with `map`, the argument-order trap with a discount, and a plain
+lambda as the alternative.
+"""
+nongoals = [
+    "Not a functional library. `curry` is a three-line helper.",
+]
+problem = """
+A function of several arguments called again and again with the same first
+arguments.
+"""
+roles = [
+    ["The curried function", "`Shipping.CURRIED`"],
+    ["The ordinary function", "`Shipping.price`"],
+    ["A generic helper", "`Shipping.curry`"],
+    ["The data", "`Zone`, `Service`"],
+    ["Entry point", "`CurryingDemo`, five acts"],
+]
+requirements = [
+    "**Same answers:** the curried function matches `price` for every zone, service and weight.",
+    "**First first:** `curry` fixes the first argument first.",
+    "**Every printed result is asserted** in `DemoRunsTest`.",
+]
+
+[[diagram]]
+name = "architecture-diagram"
+kind = "flow"
+title = "Currying — one argument at a time"
+caption = "Each step returns a smaller function."
+nodes = [
+    { id = "a", label = "CURRIED", sub = "wants a zone", col = 0, row = 0, colour = "client" },
+    { id = "b", label = ".apply(EU)", sub = "wants a service", col = 1, row = 0, colour = "accent" },
+    { id = "c", label = ".apply(STANDARD)", sub = "wants a weight", col = 2, row = 0, colour = "accent" },
+    { id = "d", label = ".apply(2.0)", sub = "10.00", col = 3, row = 0, colour = "green" },
+]
+edges = [
+    { from = "a", to = "b", label = "" },
+    { from = "b", to = "c", label = "" },
+    { from = "c", to = "d", label = "" },
+]
+
+[[diagram]]
+name = "class-diagram"
+kind = "class"
+title = "Currying — classes"
+caption = "The same price, two shapes."
+nodes = [
+    { id = "s", label = "Shipping", sub = ["+ price(zone, service, kg)", "+ CURRIED: zone -> service -> kg", "+ curry(BiFunction)"], col = 0, row = 0, colour = "accent" },
+    { id = "z", label = "«enum» Zone", sub = ["UK, EU, WORLD", "base, perKg"], col = 1, row = 0, colour = "client" },
+    { id = "v", label = "«enum» Service", sub = ["STANDARD, EXPRESS"], col = 1, row = 1, colour = "client" },
+]
+edges = [
+    { from = "s", to = "z", label = "" },
+    { from = "s", to = "v", label = "" },
+]
+
+[[diagram]]
+name = "data-flow-diagram"
+kind = "flow"
+title = "Currying — ready-made at start-up"
+caption = "One function per zone; checkout gives only the weight."
+nodes = [
+    { id = "a", label = "Start-up", sub = "CURRIED(zone)(STANDARD)", col = 0, row = 1, colour = "accent" },
+    { id = "b", label = "UK standard", sub = "2 kg: 5.00", col = 1, row = 0, colour = "green" },
+    { id = "c", label = "EU standard", sub = "2 kg: 10.00", col = 1, row = 1, colour = "green" },
+    { id = "d", label = "WORLD standard", sub = "2 kg: 20.00", col = 1, row = 2, colour = "green" },
+]
+edges = [
+    { from = "a", to = "b", label = "" },
+    { from = "a", to = "c", label = "" },
+    { from = "a", to = "d", label = "" },
+]
+
+[[diagram]]
+name = "sequence-diagram"
+kind = "sequence"
+title = "Currying — fixing EU and STANDARD"
+caption = "Two applies now, one later."
+participants = ["Warehouse", "CURRIED", "euStandard"]
+steps = [
+    ["Warehouse", "CURRIED", "apply(EU).apply(STANDARD)"],
+    ["CURRIED", "Warehouse", "euStandard", "reply"],
+    ["Warehouse", "euStandard", "apply(2.0)"],
+    ["euStandard", "Warehouse", "10.00", "reply"],
+]
+
+[[diagram]]
+name = "uml-diagram"
+kind = "sequence"
+title = "1. The right order"
+caption = "Percent first: a discount function."
+participants = ["Shop", "twentyOff"]
+steps = [
+    ["Shop", "twentyOff", "apply(45.0)"],
+    ["twentyOff", "Shop", "36.00", "reply"],
+]
+
+[[diagram]]
+name = "uml-diagram-2"
+kind = "sequence"
+title = "2. The wrong order"
+caption = "Price first: 20 fixes the price."
+participants = ["Shop", "curry(backwards)(20)"]
+steps = [
+    ["Shop", "curry(backwards)(20)", "apply(45.0)"],
+    ["curry(backwards)(20)", "Shop", "11.00, nonsense", "reply"],
+]
+
+[poster]
+headline = [["CURRYING", "text"]]
+before = { code = "price(EU, STANDARD, kg)", note = "EU, STANDARD every time", tag = "BEFORE" }
+after = { code = "euStandard.apply(kg)", note = "fixed once, weight only", tag = "AFTER" }
+taglines = [["Fix some arguments now, the rest later", "gold"]]
+
+[[scene]]
+key = "01-poster"
+kind = "poster"
+title = "Currying"
+narration = """
+Hello, and welcome. [[slnc 400]] This video explains Currying, in Java. [[slnc 300]]
+This video is presented by Jayasekhar Konduru. [[slnc 600]]
+First, a simple definition. [[slnc 300]] Currying turns a function that takes several arguments into a chain of functions that each take one. [[slnc 300]] So the arguments you know early can be fixed once. [[slnc 300]] Leaving a smaller function, for the part that changes. [[slnc 600]]
+Think of a coffee shop loyalty card that already knows your usual. [[slnc 300]] Oat milk, large. [[slnc 300]] At the counter you only say which drink. [[slnc 300]] The usual choices were fixed once. [[slnc 700]]
+In this video, the domain is an online shop's shipping price, which depends on the zone, the service, and the weight. [[slnc 500]]
+By the end, you will hear how repeated arguments pile up. [[slnc 300]] How a curried function fixes them once. [[slnc 300]] Why argument order matters. [[slnc 300]] And when a plain lambda is clearer.
+"""
+
+[[scene]]
+key = "02-scenario"
+kind = "bullets"
+title = "The Scenario"
+body = ["price(zone, service, weight).", "", "The EU warehouse always uses", "EU and STANDARD.", "", "Only the weight changes."]
+narration = """
+Here is the scenario. [[slnc 400]] The shipping price depends on the zone, the service, and the weight. [[slnc 500]]
+The EU warehouse only ever ships to the EU, by standard post. [[slnc 500]]
+Yet every call spelled out both, before the weight.
+"""
+
+[[scene]]
+key = "03-acts"
+kind = "acts"
+title = "acts"
+
+[[scene]]
+key = "04-pattern"
+kind = "bullets"
+title = "The Pattern"
+body = ["One argument at a time.", "", "Each step returns a function", "that wants the next one.", "", "Fix early arguments once."]
+narration = """
+Let's name the pattern. [[slnc 400]] The function takes one argument at a time. [[slnc 500]]
+Each step returns a function that wants the next argument. [[slnc 500]]
+So the early arguments are fixed once. [[slnc 300]] This fixing is called partial application.
+"""
+
+[[scene]]
+key = "05-roles"
+kind = "bullets"
+title = "Who Does What"
+body = ["price: all arguments at once", "CURRIED: zone, then service, then weight", "curry: makes any two-argument", "function curried"]
+narration = """
+Here is who does what. [[slnc 400]] Price takes all three arguments at once. [[slnc 500]]
+Curried takes a zone, then a service, then a weight, one at a time. [[slnc 500]]
+And the curry helper turns any two-argument function into a curried one.
+"""
+
+[[scene]]
+key = "06-recognise"
+kind = "bullets"
+title = "Where You Have Seen It"
+body = ["Haskell and F#", "Vavr's curried()", "Factories and configured objects"]
+narration = """
+You have probably met this pattern already. [[slnc 400]] In Haskell and F sharp, every function is curried. [[slnc 500]]
+The Vavr library adds a curried method to Java functions. [[slnc 500]]
+And any factory that fixes settings once, then takes the changing part, is doing partial application.
+"""
+
+[[scene]]
+key = "07-verdict"
+kind = "bullets"
+title = "When To Use It"
+body = ["Some arguments known early.", "", "Least-changing first.", "Reuse the smaller function.", "A lambda if clearer."]
+narration = """
+So, when should you use it? [[slnc 400]] When some arguments are known long before the others. [[slnc 500]]
+Put the least-changing arguments first. [[slnc 300]] Reuse and pass around the smaller function. [[slnc 300]] And use a plain lambda when it reads better.
+"""
+
+[[scene]]
+key = "08-outro"
+kind = "outro"
+title = "Thanks for Watching"
+body = ["Full source, notes, diagrams and an animated walkthrough", "are in the repository. Write", "a curry3 helper."]
+narration = """
+That's Currying. [[slnc 400]] If you remember one sentence, make it this one. [[slnc 300]] Fix the arguments you know now, and pass on a function for the rest. [[slnc 500]]
+The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. [[slnc 300]] It runs offline, with nothing installed except a Java development kit. [[slnc 500]]
+Here is one exercise to try. [[slnc 300]] Write a curry helper for three-argument functions. [[slnc 500]]
+If this helped, a like really does help other people find it. [[slnc 300]] And subscribe, if you'd like the rest of the series. [[slnc 400]] Thanks for watching.
+"""

@@ -76,3 +76,76 @@ For each project, in order:
   written.
 - **A new category** (`testing-design-patterns`) needs a category README; the
   index script picks up any category automatically.
+
+## Phase 2: the rest of the catalogue, one by one
+
+<!-- phase2:start -->
+
+Updated automatically by `patternkit.sh build` (and `patternkit.sh plan`).
+
+**60 of 60 done.**
+
+| # | Pattern | Category | Status |
+| ---: | --- | --- | --- |
+| 1 | Blackboard | behavioural | ✅ done |
+| 2 | Servant | behavioural | ✅ done |
+| 3 | Acyclic Visitor | behavioural | ✅ done |
+| 4 | Extension Object | foundational-design-patterns | ✅ done |
+| 5 | Role Object | foundational-design-patterns | ✅ done |
+| 6 | Private Class Data | foundational-design-patterns | ✅ done |
+| 7 | Marker Interface | foundational-design-patterns | ✅ done |
+| 8 | Memoization | foundational-design-patterns | ✅ done |
+| 9 | Special Case | enterprise-design-patterns | ✅ done |
+| 10 | Plugin | enterprise-design-patterns | ✅ done |
+| 11 | Service Stub | enterprise-design-patterns | ✅ done |
+| 12 | Query Object | enterprise-design-patterns | ✅ done |
+| 13 | Table Data Gateway | enterprise-design-patterns | ✅ done |
+| 14 | Single Table Inheritance | enterprise-design-patterns | ✅ done |
+| 15 | Page Controller | enterprise-design-patterns | ✅ done |
+| 16 | Remote Facade | enterprise-design-patterns | ✅ done |
+| 17 | Entity | domain-driven-design-patterns | ✅ done |
+| 18 | Domain Service | domain-driven-design-patterns | ✅ done |
+| 19 | Context Map and Shared Kernel | domain-driven-design-patterns | ✅ done |
+| 20 | Reactor | concurrency-design-patterns | ✅ done |
+| 21 | Proactor | concurrency-design-patterns | ✅ done |
+| 22 | Half-Sync/Half-Async | concurrency-design-patterns | ✅ done |
+| 23 | Leader/Followers | concurrency-design-patterns | ✅ done |
+| 24 | Copy-on-Write | concurrency-design-patterns | ✅ done |
+| 25 | Lock-Free Compare-and-Swap | concurrency-design-patterns | ✅ done |
+| 26 | Scheduler | concurrency-design-patterns | ✅ done |
+| 27 | Micro-Frontends | architectural-design-patterns | ✅ done |
+| 28 | Broker | architectural-design-patterns | ✅ done |
+| 29 | Space-Based Architecture | architectural-design-patterns | ✅ done |
+| 30 | Cell-Based Architecture | architectural-design-patterns | ✅ done |
+| 31 | Message Translator / Normalizer | messaging-integration-patterns | ✅ done |
+| 32 | Message Filter | messaging-integration-patterns | ✅ done |
+| 33 | Recipient List | messaging-integration-patterns | ✅ done |
+| 34 | Wire Tap | messaging-integration-patterns | ✅ done |
+| 35 | Resequencer | messaging-integration-patterns | ✅ done |
+| 36 | Request-Reply with Correlation Identifier | messaging-integration-patterns | ✅ done |
+| 37 | Process Manager | messaging-integration-patterns | ✅ done |
+| 38 | Routing Slip | messaging-integration-patterns | ✅ done |
+| 39 | Polling Consumer | messaging-integration-patterns | ✅ done |
+| 40 | Guaranteed Delivery | messaging-integration-patterns | ✅ done |
+| 41 | Write-Through Cache | micro-services-design-patterns | ✅ done |
+| 42 | Sharding | micro-services-design-patterns | ✅ done |
+| 43 | Valet Key | micro-services-design-patterns | ✅ done |
+| 44 | Priority Queue | micro-services-design-patterns | ✅ done |
+| 45 | Backpressure | micro-services-design-patterns | ✅ done |
+| 46 | Hedged Requests | micro-services-design-patterns | ✅ done |
+| 47 | Gateway Offloading | micro-services-design-patterns | ✅ done |
+| 48 | Event-Carried State Transfer | micro-services-design-patterns | ✅ done |
+| 49 | Object Mother / Test Data Builder | testing-design-patterns | ✅ done |
+| 50 | Page Object | testing-design-patterns | ✅ done |
+| 51 | Contract Stub | testing-design-patterns | ✅ done |
+| 52 | Authorization Policy (RBAC / ABAC) | security-design-patterns | ✅ done |
+| 53 | Token-Based Authentication (JWT) | security-design-patterns | ✅ done |
+| 54 | Secure Gateway | security-design-patterns | ✅ done |
+| 55 | Secrets Manager | security-design-patterns | ✅ done |
+| 56 | Input Validation Pipeline | security-design-patterns | ✅ done |
+| 57 | Railway-Oriented Programming (Optional / Either) | functional-design-patterns | ✅ done |
+| 58 | Higher-Order Functions | functional-design-patterns | ✅ done |
+| 59 | Currying | functional-design-patterns | ✅ done |
+| 60 | Lenses for Immutable Updates | functional-design-patterns | ✅ done |
+
+<!-- phase2:end -->

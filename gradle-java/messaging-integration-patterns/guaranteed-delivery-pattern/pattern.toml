@@ -1,0 +1,433 @@
+# pattern.toml for the Guaranteed Delivery project. See tools/patternkit.
+
+[project]
+slug = "guaranteed-delivery"
+category = "messaging-integration-patterns"
+title = "Guaranteed Delivery"
+package = "guaranteed"
+main_class = "GuaranteedDeliveryDemo"
+tagline = "Write it down before you say yes"
+bold = "Store every message safely on disk before accepting it, acknowledge it only after it is delivered, and after a crash deliver everything that was never acknowledged."
+domain_note = ""
+thumb_lines = ["GUARANTEED", "DELIVERY"]
+thumb_code = "force to disk, then accept"
+youtube_title = "Guaranteed Delivery"
+youtube_tags = ["guaranteed delivery", "persistent messaging", "at least once", "enterprise integration patterns", "java"]
+
+[readme]
+intro = """
+Guaranteed Delivery is one of the Enterprise Integration Patterns. A message
+that is only held in memory disappears when the program stops, whether from a
+crash or an ordinary restart. With guaranteed delivery, the messaging system
+writes each message to disk, and makes sure it has reached the disk, before it
+tells the sender "accepted". When the message has been delivered, an
+acknowledgement is written too. After a crash, anything on disk without an
+acknowledgement is delivered again.
+
+Nothing accepted is ever lost. The price is a disk write in the path of every
+message, and the possibility of delivering the same message twice.
+"""
+analogy = """
+Think of recorded delivery at the post office. Before you get your receipt,
+the parcel is entered in a ledger. When it is delivered, the recipient signs,
+and that is recorded too. If a van breaks down, the ledger says exactly which
+parcels to send out again. And very occasionally, when a signature record goes
+missing, someone receives the same parcel twice.
+"""
+scenario = """
+The online store sends an order confirmation email for every order, through a
+queue in front of a slow email provider. The queue was held in memory. When
+the server restarted for an update with ten emails waiting, all ten were lost,
+and ten customers never heard that their order had been received.
+"""
+costs = [
+    "**At least once, not exactly once.** A crash between sending and acknowledging sends the email again: one duplicate in the demo.",
+    "**A disk write per message.** Every accept waits for a forced write, and every delivery writes an acknowledgement.",
+    "**The journal grows.** Acknowledged lines must be trimmed, or the file grows for ever.",
+]
+too_much = """
+For messages that can be lost harmlessly, such as live price ticks that are
+replaced every second, writing each one to disk is waste. Use guaranteed
+delivery for messages that matter: orders, payments, confirmations.
+"""
+met_before = [
+    "Persistent messages in JMS, RabbitMQ durable queues, and Kafka's replicated logs.",
+    "Transactional outboxes that store messages in the database first.",
+    "Recorded and signed-for post.",
+]
+where = """
+This project is in [messaging-integration-patterns](..), next to
+[Dead Letter Channel](../dead-letter-channel-pattern), which handles messages
+that keep failing, and near
+[Idempotent Consumer](../../micro-services-design-patterns/idempotent-consumer-pattern),
+the usual answer to duplicates.
+"""
+
+[[act]]
+title = "Only in memory"
+summary = "10 emails queued in memory; the server restarts and the queue has 0; 10 customers never hear."
+detail = """
+`MemoryQueue` holds ten confirmation emails because the email provider is
+slow. The server restarts for an update, and a new, empty queue takes its
+place: zero emails waiting. Ten customers never receive their confirmation.
+"""
+speech = """
+First demo: confirmation emails queued in memory. [[slnc 400]] The email provider is slow today. [[slnc 300]] Ten emails are waiting in the queue. [[slnc 600]]
+The server restarts, for an ordinary update. [[slnc 300]] The queue lived in memory. [[slnc 300]] Now it is empty. [[slnc 500]]
+Ten customers will never hear that their order was received.
+"""
+rows = { memory = "active wrong", sender = "active amber" }
+console = [
+    ["10 emails queued in memory", "muted"],
+    ["server restarts: 0 queued", "bad"],
+]
+
+[[act]]
+title = "Written to disk first"
+summary = "Each email is forced to a journal file before it is accepted: 10 lines; after a restart, 10 waiting."
+detail = """
+`Journal.send` appends each message to a file and forces it to the disk
+before returning. Ten emails give a journal of ten lines. After a restart, a
+new `Journal` on the same file finds all ten waiting.
+"""
+speech = """
+Second demo: every message is written to disk before it is accepted. [[slnc 400]] Each email is written to a journal file. [[slnc 300]] Only when it is safely on the disk is the email accepted. [[slnc 600]]
+Ten emails, ten lines in the file. [[slnc 500]]
+The server restarts. [[slnc 300]] It reads the file. [[slnc 300]] Ten emails are still waiting.
+"""
+rows = { journal = "active ok" }
+console = [
+    ["10 accepted: journal has 10 lines", "ok"],
+    ["after restart: 10 waiting", "ok"],
+]
+
+[[act]]
+title = "Acknowledgements"
+summary = "6 emails sent and acknowledged, then a crash; after restart MAIL-7 to MAIL-10 are waiting; all 10 sent exactly once."
+detail = """
+Each email that is delivered gets an acknowledgement line in the journal. Six
+are sent and acknowledged, then the server crashes. After the restart, only
+MAIL-7 to MAIL-10 are waiting; they are sent, and all ten customers receive
+exactly one email.
+"""
+speech = """
+Third demo: delivered messages are acknowledged. [[slnc 400]] When an email is sent, the journal writes a second line: acknowledged. [[slnc 600]]
+Six emails are sent and acknowledged. [[slnc 300]] Then the server crashes. [[slnc 500]]
+After the restart, only emails seven to ten are still waiting. [[slnc 300]] They are sent. [[slnc 300]] All ten customers get exactly one email.
+"""
+rows = { journal = "active ok", sender = "active ok" }
+console = [
+    ["6 sent and acknowledged; crash", "amber"],
+    ["waiting: MAIL-7, 8, 9, 10", "ok"],
+    ["sent: 10 of 10, each once", "ok"],
+]
+
+[[act]]
+title = "At least once"
+summary = "MAIL-11 is sent, then the crash comes before its acknowledgement; after restart it is sent again: 1 duplicate."
+detail = """
+MAIL-11 is sent, and the server crashes before the acknowledgement is
+written. After the restart the journal cannot know it was sent, so it sends it
+again. The customer receives two emails. Guaranteed delivery means at least
+once, not exactly once.
+"""
+speech = """
+Fourth demo: a crash between sending and acknowledging. [[slnc 400]] Email eleven is sent. [[slnc 300]] And the server crashes, before it writes the acknowledgement. [[slnc 600]]
+After the restart, the journal cannot know it was sent. [[slnc 300]] So it sends it again. [[slnc 300]] The customer gets two emails. [[slnc 600]]
+Guaranteed delivery means at least once. [[slnc 300]] Not exactly once.
+"""
+rows = { journal = "active amber", sender = "active wrong" }
+console = [
+    ["MAIL-11 sent; crash before ACK", "amber"],
+    ["sent again: duplicates 1", "bad"],
+]
+
+[[act]]
+title = "The bill"
+summary = "10 emails cost 10 forced disk writes to accept and 10 more to acknowledge; the journal grows; receivers must cope with duplicates."
+detail = """
+Every message waits for a forced disk write before it is accepted, and every
+delivery writes another: ten emails cost ten writes to accept and ten to
+acknowledge. The journal grows until acknowledged lines are trimmed, and
+receivers must cope with duplicates.
+"""
+speech = """
+Fifth demo: the bill. [[slnc 400]] The disk is now in the path of every message. [[slnc 300]] Ten emails cost ten forced disk writes to accept, and ten more to acknowledge. [[slnc 600]]
+The journal keeps growing, until someone trims the acknowledged lines. [[slnc 300]] And the receivers must cope with the odd duplicate.
+"""
+rows = { journal = "active amber" }
+console = [
+    ["10 disk writes to accept, 10 to ACK", "amber"],
+    ["journal grows; duplicates happen", "amber"],
+]
+
+[animation]
+subtitle = "Each confirmation email is written to a journal on disk before it is accepted, and acknowledged once sent."
+boxes = [
+    ["memory", "In-memory queue", "the old way"],
+    ["journal", "Journal file", "MSG and ACK lines"],
+    ["sender", "Email sender", "the slow provider"],
+]
+
+[docs.problem]
+scenario = """
+Order confirmation emails wait in a queue in front of a slow email provider.
+"""
+naive = """
+`MemoryQueue` holds them in memory, so a restart loses every waiting email.
+"""
+deliver = [
+    "Ten emails lost on a restart with an in-memory queue.",
+    "A journal forcing each message to disk before accepting it.",
+    "Acknowledgements so only undelivered messages are replayed.",
+    "A duplicate caused by a crash before the acknowledgement.",
+    "The disk cost counted.",
+    "Every printed result asserted by a test, with real files.",
+]
+
+[docs.prerequisites]
+required = [
+    "Java basics: classes, maps, files (`Path`, `Files`).",
+]
+not_required = [
+    "A message broker. The journal is one file.",
+]
+
+[docs.session]
+objectives = [
+    "Explain why in-memory messages are lost on restart.",
+    "Store before accepting; acknowledge after delivering.",
+    "Replay unacknowledged messages after a crash.",
+    "Explain at-least-once delivery and duplicates.",
+]
+walkthrough = """
+Run `./gradlew run` and read act one. Open `Journal`: `send` and `acknowledge`
+each append one forced line; `unacknowledged` reads the file and subtracts.
+Open the journal file in `/tmp` to see the lines. End on act four.
+"""
+exercises = [
+    "Trim the journal: rewrite it without acknowledged messages when it passes 100 lines.",
+    "Make the email sender skip IDs it has already sent (an idempotent consumer).",
+    "Measure how much slower `send` is with `force(true)` than without.",
+]
+
+[docs.explained]
+sentence = """
+Guaranteed delivery stores each message durably before accepting it and
+acknowledges it after delivery, so after a crash every unacknowledged message
+is delivered again.
+"""
+verdict = """
+Use guaranteed delivery for messages that must not be lost. Expect duplicates
+and make receivers idempotent, trim what has been acknowledged, and leave it
+off for messages that are cheap to lose.
+"""
+recognise = [
+    "Durable queues and persistent delivery modes.",
+    "Append-only logs with acknowledgement or offset records.",
+    "`fsync` or `force(true)` before replying \"accepted\".",
+]
+
+[spec]
+purpose = """
+Teach Guaranteed Delivery with an online store's confirmation emails: ten
+lost from an in-memory queue on restart, then a journal forcing each message
+to disk before accepting, acknowledgements so a crash replays only MAIL-7 to
+MAIL-10, a duplicate when a crash comes before an acknowledgement, and the
+disk cost.
+"""
+nongoals = [
+    "Not a message broker or replication.",
+    "Not journal trimming. It is an exercise.",
+]
+problem = """
+Messages held only in memory are lost whenever the program stops, even for an
+ordinary restart.
+"""
+roles = [
+    ["The pattern", "`Journal`"],
+    ["The receiver", "`EmailSender`"],
+    ["The naive version", "`MemoryQueue`"],
+    ["Entry point", "`GuaranteedDeliveryDemo`, five acts"],
+]
+requirements = [
+    "**Durable before accepted:** each message is forced to disk before `send` returns.",
+    "**Replay:** a new journal on the same file finds every unacknowledged message.",
+    "**At least once:** the duplicate case is shown and counted.",
+    "**Every printed result is asserted** in `DemoRunsTest`.",
+]
+
+[[diagram]]
+name = "architecture-diagram"
+kind = "flow"
+title = "Guaranteed Delivery — the pieces"
+caption = "The journal sits between accepting and delivering."
+nodes = [
+    { id = "c", label = "Checkout", sub = "an email to send", col = 0, row = 0, colour = "client" },
+    { id = "j", label = "Journal file", sub = "MSG lines, ACK lines", col = 1, row = 0, colour = "accent" },
+    { id = "s", label = "Email sender", sub = "slow provider", col = 2, row = 0, colour = "green" },
+    { id = "r", label = "After a crash", sub = "replay unacknowledged", col = 1, row = 1, colour = "amber" },
+]
+edges = [
+    { from = "c", to = "j", label = "send: forced write" },
+    { from = "j", to = "s", label = "deliver" },
+    { from = "s", to = "j", label = "ACK", dashed = true },
+    { from = "r", to = "j", label = "read" },
+]
+
+[[diagram]]
+name = "class-diagram"
+kind = "class"
+title = "Guaranteed Delivery — classes"
+caption = "One file, three operations."
+nodes = [
+    { id = "j", label = "Journal", sub = ["- Path file", "+ send(id, body)", "+ acknowledge(id)", "+ unacknowledged()"], col = 0, row = 0, colour = "accent" },
+    { id = "e", label = "EmailSender", sub = ["+ send(id, body)", "+ duplicates()"], col = 1, row = 0, colour = "green" },
+    { id = "m", label = "MemoryQueue", sub = ["in memory only"], col = 2, row = 0, colour = "red" },
+]
+edges = [
+    { from = "j", to = "e", label = "feeds" },
+]
+
+[[diagram]]
+name = "data-flow-diagram"
+kind = "flow"
+title = "Guaranteed Delivery — what the file says"
+caption = "Messages without an ACK are replayed."
+nodes = [
+    { id = "a", label = "MSG MAIL-1 ... MAIL-10", sub = "10 lines", col = 0, row = 0, colour = "client" },
+    { id = "b", label = "ACK MAIL-1 ... MAIL-6", sub = "6 lines", col = 1, row = 0, colour = "green" },
+    { id = "c", label = "replay MAIL-7 ... MAIL-10", sub = "after the crash", col = 2, row = 0, colour = "amber" },
+]
+edges = [
+    { from = "a", to = "b", label = "delivered" },
+    { from = "b", to = "c", label = "subtract" },
+]
+
+[[diagram]]
+name = "sequence-diagram"
+kind = "sequence"
+title = "Guaranteed Delivery — one email"
+caption = "Stored, then accepted; sent, then acknowledged."
+participants = ["Checkout", "Journal", "Disk", "Email sender"]
+steps = [
+    ["Checkout", "Journal", "send(MAIL-1)"],
+    ["Journal", "Disk", "append + force"],
+    ["Journal", "Checkout", "accepted", "reply"],
+    ["Journal", "Email sender", "deliver MAIL-1"],
+    ["Journal", "Disk", "append ACK + force"],
+]
+
+[[diagram]]
+name = "uml-diagram"
+kind = "sequence"
+title = "1. The in-memory queue"
+caption = "A restart empties it."
+participants = ["Checkout", "MemoryQueue"]
+steps = [
+    ["Checkout", "MemoryQueue", "10 emails"],
+    ["note", "MemoryQueue", "restart: empty"],
+]
+
+[[diagram]]
+name = "uml-diagram-2"
+kind = "sequence"
+title = "2. The duplicate"
+caption = "Sent, but the acknowledgement never written."
+participants = ["Journal", "Email sender"]
+steps = [
+    ["Journal", "Email sender", "MAIL-11"],
+    ["note", "Journal", "crash before ACK"],
+    ["Journal", "Email sender", "MAIL-11 again"],
+]
+
+[poster]
+headline = [["GUARANTEED", "text"], ["DELIVERY", "text"]]
+before = { code = "queue in memory", note = "restart: 10 emails lost", tag = "BEFORE" }
+after = { code = "force to disk, then accept", note = "every email delivered", tag = "AFTER" }
+taglines = [["Write it down before you say yes", "gold"]]
+
+[[scene]]
+key = "01-poster"
+kind = "poster"
+title = "Guaranteed Delivery"
+narration = """
+Hello, and welcome. [[slnc 400]] This video explains the Guaranteed Delivery pattern, in Java. [[slnc 300]]
+This video is presented by Jayasekhar Konduru. [[slnc 600]]
+First, a simple definition. [[slnc 300]] With guaranteed delivery, every message is stored safely on disk before it is accepted. [[slnc 300]] It is marked as done only after it has been delivered. [[slnc 300]] And after a crash, everything not marked as done is delivered again. [[slnc 600]]
+Think of recorded delivery at the post office. [[slnc 300]] Each parcel is written in a ledger before you get your receipt. [[slnc 300]] The recipient signs when it arrives. [[slnc 300]] If a van breaks down, the ledger says exactly what to send out again. [[slnc 700]]
+In this video, the domain is an online shop. [[slnc 300]] It sends an order confirmation email for every order, through a queue in front of a slow email provider. [[slnc 500]]
+By the end, you will hear how messages in memory are lost. [[slnc 300]] How a journal on disk keeps them. [[slnc 300]] How acknowledgements work. [[slnc 300]] And why guaranteed means at least once.
+"""
+
+[[scene]]
+key = "02-scenario"
+kind = "bullets"
+title = "The Scenario"
+body = ["A confirmation email per order.", "", "A queue in front of a slow", "email provider.", "", "The queue lived in memory."]
+narration = """
+Here is the scenario. [[slnc 400]] Every order gets a confirmation email. [[slnc 500]]
+The emails wait in a queue, because the email provider is slow. [[slnc 500]]
+And that queue lived only in the server's memory.
+"""
+
+[[scene]]
+key = "03-acts"
+kind = "acts"
+title = "acts"
+
+[[scene]]
+key = "04-pattern"
+kind = "bullets"
+title = "The Pattern"
+body = ["Store it on disk, then say", "\"accepted\".", "", "Deliver it, then write", "\"acknowledged\".", "", "After a crash: replay the rest."]
+narration = """
+Let's name the pattern. [[slnc 400]] Write each message to disk, and make sure it has reached the disk. [[slnc 300]] Only then tell the sender: accepted. [[slnc 500]]
+When it is delivered, write a second line: acknowledged. [[slnc 500]]
+After a crash, read the file, and deliver every message that was never acknowledged.
+"""
+
+[[scene]]
+key = "05-roles"
+kind = "bullets"
+title = "Who Does What"
+body = ["Journal: send, acknowledge,", "unacknowledged", "EmailSender: the receiver", "MemoryQueue: the old way"]
+narration = """
+Here is who does what. [[slnc 400]] The journal writes messages and acknowledgements to one file, and finds what is still waiting. [[slnc 500]]
+The email sender stands in for the slow email provider. [[slnc 500]]
+And the memory queue is the old way, kept for comparison.
+"""
+
+[[scene]]
+key = "06-recognise"
+kind = "bullets"
+title = "Where You Have Seen It"
+body = ["Durable queues in RabbitMQ", "Persistent messages in JMS", "Kafka's replicated log", "Transactional outbox"]
+narration = """
+You have probably met this pattern already. [[slnc 400]] RabbitMQ has durable queues and persistent messages. [[slnc 300]] So does J M S. [[slnc 500]]
+Kafka writes every message to a log, copied across machines. [[slnc 500]]
+And the transactional outbox stores messages in the database first, for the same reason.
+"""
+
+[[scene]]
+key = "07-verdict"
+kind = "bullets"
+title = "When To Use It"
+body = ["Messages that must not be lost:", "orders, payments, confirmations.", "", "Expect duplicates.", "Trim what is acknowledged.", "", "Cheap to lose? Skip it."]
+narration = """
+So, when should you use it? [[slnc 400]] For messages that must not be lost. [[slnc 300]] Orders, payments, and confirmations. [[slnc 500]]
+Expect duplicates, and make receivers cope with them. [[slnc 300]] Trim what has been acknowledged. [[slnc 500]]
+And for messages that are cheap to lose, such as live price updates, skip it.
+"""
+
+[[scene]]
+key = "08-outro"
+kind = "outro"
+title = "Thanks for Watching"
+body = ["Full source, notes, diagrams and an animated walkthrough", "are in the repository. Make the email sender", "ignore duplicates."]
+narration = """
+That's the Guaranteed Delivery pattern. [[slnc 400]] If you remember one sentence, make it this one. [[slnc 300]] Write it down before you say yes, and cross it off only when it has arrived. [[slnc 500]]
+The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. [[slnc 300]] It runs offline, with nothing installed except a Java development kit. [[slnc 500]]
+Here is one exercise to try. [[slnc 300]] Make the email sender skip any email it has already sent. [[slnc 500]]
+If this helped, a like really does help other people find it. [[slnc 300]] And subscribe, if you'd like the rest of the series. [[slnc 400]] Thanks for watching.
+"""

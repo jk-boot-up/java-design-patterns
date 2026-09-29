@@ -1,0 +1,444 @@
+# pattern.toml for the Request-Reply with Correlation Identifier project. See tools/patternkit.
+
+[project]
+slug = "request-reply"
+category = "messaging-integration-patterns"
+title = "Request-Reply with Correlation Identifier"
+package = "requestreply"
+main_class = "RequestReplyDemo"
+tagline = "Match every answer to its question"
+bold = "Give every request over a queue a unique ID and a return address, and make every reply name the ID it answers, so replies can arrive in any order and still be matched."
+domain_note = ""
+thumb_lines = ["REQUEST-REPLY", "CORRELATION ID"]
+thumb_code = "reply.correlationId()"
+youtube_title = "Request-Reply with Correlation Identifier"
+youtube_tags = ["request reply", "correlation identifier", "return address", "enterprise integration patterns", "messaging", "java"]
+
+[readme]
+intro = """
+Request-Reply over messaging is how one service asks another a question when
+they only talk through queues. Three Enterprise Integration Patterns work
+together. The request carries a return address, the queue the answer should
+go to. It carries a unique ID. And the reply carries a correlation identifier,
+the ID of the request it answers.
+
+Replies can then come back in any order, from a service working on many
+requests at once, and each is matched to the right question. Several
+requesters can share one service, each receiving only its own replies.
+"""
+analogy = """
+Think of a theatre cloakroom. You hand in your coat and get a numbered
+ticket. The attendant brings coats back in whatever order they find them, but
+you only take the one whose number matches your ticket. And if your coat
+never comes back, you are left holding a ticket, not knowing whether it was
+hung up or lost.
+"""
+scenario = """
+The online store's checkout asks the inventory service to reserve stock by
+sending requests over a queue. The inventory service works on several requests
+at once: kettles are checked in a slow warehouse system, mugs in a fast one.
+Checkout assumed the replies came back in the order it asked, and a refusal
+for kettles was taken as the answer about mugs.
+"""
+costs = [
+    "**Replies that never come.** A lost reply leaves the request in the waiting table until something times it out.",
+    "**Unknown outcomes.** After a timeout, the requester cannot tell whether the stock was reserved or not.",
+    "**More plumbing.** IDs, reply queues, a waiting table and a listener, where a method call had none.",
+]
+too_much = """
+When a direct call over HTTP is possible and the service answers quickly, a
+plain request and response is simpler. Messaging request-reply is for
+services that only talk through queues, or where requests must survive the
+service being briefly unavailable.
+"""
+met_before = [
+    "JMS's `JMSCorrelationID` and `JMSReplyTo` headers.",
+    "RabbitMQ's `correlation_id` and `reply_to` properties.",
+    "Tracking numbers and order references on any reply you receive by email.",
+]
+where = """
+This project is in [messaging-integration-patterns](..), next to
+[Message Channel](../message-channel-pattern), the queues the requests and
+replies travel on, and near
+[Asynchronous Request-Reply](../../micro-services-design-patterns/async-request-reply-pattern),
+the same idea over HTTP.
+"""
+
+[[act]]
+title = "Replies matched by order"
+summary = "Checkout asks about kettles then mugs; the mug reply arrives first and is taken as the kettle's: kettle RESERVED, mug REFUSED."
+detail = """
+`InOrderRequester` sends "reserve KETTLE-1 x 5" and then "reserve MUG-1 x 2",
+and takes replies in the order they arrive. The mug check is fast and replies
+first: "RESERVED 2 x MUG-1" is taken as the kettle's answer. The kettle's
+real answer, "REFUSED", because only four exist, is taken as the mug's.
+"""
+speech = """
+First demo: two requests, with replies assumed to come back in the same order. [[slnc 400]] Checkout asks to reserve five kettles. [[slnc 300]] Then two mugs. [[slnc 600]]
+The mug check is fast, so its reply comes back first. [[slnc 300]] Checkout takes it as the kettle's answer: reserved. [[slnc 500]]
+Then the kettle's real answer arrives: refused, because only four exist. [[slnc 300]] Checkout takes that as the mug's answer. [[slnc 300]] Both are wrong.
+"""
+rows = { checkout = "active wrong", inventory = "active amber" }
+console = [
+    ["KETTLE-1 x 5 -> RESERVED 2 x MUG-1", "bad"],
+    ["MUG-1 x 2 -> REFUSED 5 x KETTLE-1", "bad"],
+]
+
+[[act]]
+title = "Correlation IDs"
+summary = "Requests WEB-1 and WEB-2 carry IDs; replies name them: kettle REFUSED, mug RESERVED, whatever order they arrive in."
+detail = """
+`Requester.send` gives each request a unique ID, WEB-1 and WEB-2, and keeps
+it in a waiting table. The inventory service copies the ID into its reply as
+the correlation identifier. The mug reply still arrives first, but it names
+WEB-2, so each answer goes to the right question.
+"""
+speech = """
+Second demo: correlation IDs. [[slnc 400]] Each request now carries a unique ID. [[slnc 300]] The kettle request is web one. [[slnc 300]] The mug request is web two. [[slnc 600]]
+The inventory service copies that ID into its reply. [[slnc 500]]
+The mug reply still arrives first. [[slnc 300]] But it says: I answer web two. [[slnc 300]] So the kettle is refused, and the mugs are reserved. [[slnc 300]] Both correct.
+"""
+rows = { checkout = "active ok", inventory = "active ok", pending = "active ok" }
+console = [
+    ["WEB-1 KETTLE-1 x 5 -> REFUSED", "ok"],
+    ["WEB-2 MUG-1 x 2 -> RESERVED", "ok"],
+]
+
+[[act]]
+title = "Return addresses"
+summary = "The phone app and web checkout share the inventory service; each reply goes to the queue named in its request."
+detail = """
+A second requester, the phone app, uses the same inventory service. Each
+request names its own reply queue as its return address, so the app's teapot
+reservation (APP-1) comes back to the app and the web's (WEB-3) to the web.
+"""
+speech = """
+Third demo: return addresses. [[slnc 400]] The phone app uses the same inventory service as the web checkout. [[slnc 500]]
+Each request says where its reply should go. [[slnc 300]] The app's own queue, or the web's own queue. [[slnc 600]]
+The app's teapot reservation comes back to the app. [[slnc 300]] The web's comes back to the web.
+"""
+rows = { app = "active ok", checkout = "active ok", inventory = "active ok" }
+console = [
+    ["phone app APP-1 -> RESERVED 1 x TEAPOT-1", "ok"],
+    ["web WEB-3 -> RESERVED 2 x TEAPOT-1", "ok"],
+]
+
+[[act]]
+title = "Many in flight"
+summary = "20 requests sent before any reply: all 20 answered and matched; 0 left waiting."
+detail = """
+Checkout sends twenty requests before a single reply has come back. The
+inventory service works on them in parallel and replies in whatever order it
+finishes. All twenty are matched to their requests, and none is left waiting.
+"""
+speech = """
+Fourth demo: many requests in flight at once. [[slnc 400]] Checkout sends twenty requests, before a single reply has come back. [[slnc 500]]
+The replies arrive in whatever order the inventory service finishes them. [[slnc 600]]
+All twenty are answered, and matched. [[slnc 300]] None is left waiting.
+"""
+rows = { checkout = "active ok", inventory = "active ok", pending = "active ok" }
+console = [
+    ["20 sent: 20 answered and matched", "ok"],
+    ["requests still waiting: 0", "ok"],
+]
+
+[[act]]
+title = "The bill"
+summary = "A reply is lost: WEB-24 gets no reply after 500 ms and stays in the waiting table; was it reserved?"
+detail = """
+The inventory service's reply to WEB-24 is lost. Checkout waits 500
+milliseconds and gives up, but the request is still in the waiting table
+until something cleans it up. And checkout cannot tell whether the mug was
+reserved or not.
+"""
+speech = """
+Fifth demo: the bill. [[slnc 400]] A reply is lost on the way back. [[slnc 500]]
+Checkout waits half a second, and gives up. [[slnc 300]] But the request is still in its waiting table. [[slnc 300]] Someone must time it out, and clean up. [[slnc 600]]
+And was the mug reserved, or not? [[slnc 300]] Checkout cannot tell.
+"""
+rows = { checkout = "active wrong", pending = "active amber" }
+console = [
+    ["WEB-24: no reply after 500 ms", "bad"],
+    ["still waiting: 1", "amber"],
+    ["reserved or not? unknown", "amber"],
+]
+
+[animation]
+subtitle = "Checkout and the app send requests with IDs and return addresses; the inventory service's replies name the request they answer."
+boxes = [
+    ["checkout", "Web checkout", "WEB-1, WEB-2, ..."],
+    ["app", "Phone app", "APP-1"],
+    ["inventory", "Inventory service", "replies in any order"],
+    ["pending", "Waiting table", "ID -> question"],
+]
+
+[docs.problem]
+scenario = """
+Checkout reserves stock by sending requests to the inventory service over a
+queue; the service works on several at once.
+"""
+naive = """
+`InOrderRequester` takes replies in arrival order and matches them to
+requests by position, swapping the kettle and mug answers.
+"""
+deliver = [
+    "Wrong matches shown when replies are taken in order.",
+    "Unique IDs and correlation identifiers matching replies correctly.",
+    "Return addresses separating two requesters' replies.",
+    "Twenty requests in flight, all matched.",
+    "A lost reply timing out and staying in the waiting table.",
+    "Every printed result asserted by a test.",
+]
+
+[docs.prerequisites]
+required = [
+    "Java basics: records, maps, threads, `BlockingQueue`.",
+    "`CompletableFuture` at the level of waiting for a result.",
+]
+not_required = [
+    "JMS or RabbitMQ. Queues are in memory.",
+]
+
+[docs.session]
+objectives = [
+    "Explain why replies arrive out of order.",
+    "Correlate replies with a unique request ID.",
+    "Use a return address to share a service between requesters.",
+    "Handle replies that never arrive.",
+]
+walkthrough = """
+Run `./gradlew run` and read act one's swapped answers. Open `Requester`: the
+waiting table, `send`, and the listener that looks up each reply's
+correlation ID. End on act five and ask how checkout could find out whether the
+lost reservation happened.
+"""
+exercises = [
+    "Remove timed-out requests from the waiting table automatically.",
+    "Add a 'status of request' query so checkout can ask about WEB-24.",
+    "Make the inventory service reply twice by mistake. What should the requester do with the second reply?",
+]
+
+[docs.explained]
+sentence = """
+Request-Reply with a correlation identifier gives each request a unique ID
+and a return address, and each reply the ID it answers, so replies are matched
+whatever order they arrive in.
+"""
+verdict = """
+Use it whenever services talk through queues and one needs an answer from
+another. Always set an ID, a return address and a timeout, clean up the
+waiting table, and design for not knowing the outcome of a lost reply.
+"""
+recognise = [
+    "`correlationId` and `replyTo` headers on messages.",
+    "A map from request ID to a future or callback.",
+    "Temporary reply queues per requester.",
+]
+
+[spec]
+purpose = """
+Teach Request-Reply with Correlation Identifier with an online store's stock
+reservations over queues: replies matched by order swapping kettle and mug
+answers, then IDs and correlation identifiers, return addresses for web and
+app, twenty in flight all matched, and a lost reply left waiting.
+"""
+nongoals = [
+    "Not a message broker. Queues are in memory.",
+    "Not idempotency. Duplicate replies are an exercise.",
+]
+problem = """
+When replies come back over a queue in a different order from the requests,
+matching them by position gives each question the wrong answer.
+"""
+roles = [
+    ["The pattern", "`Requester` (IDs, return address, waiting table)"],
+    ["The service", "`InventoryService`"],
+    ["The messages", "`Message`"],
+    ["The naive version", "`InOrderRequester`"],
+    ["Entry point", "`RequestReplyDemo`, five acts"],
+]
+requirements = [
+    "**Correlated:** every reply names its request's ID.",
+    "**Return address:** replies go to the requester's own queue.",
+    "**Any order:** twenty concurrent requests are all matched.",
+    "**Timeouts:** a lost reply is reported, not waited on for ever.",
+    "**Every printed result is asserted** in `DemoRunsTest`.",
+]
+
+[[diagram]]
+name = "architecture-diagram"
+kind = "flow"
+title = "Request-Reply — the pieces"
+caption = "Requests carry an ID and a return address; replies carry the ID back."
+nodes = [
+    { id = "w", label = "Web checkout", sub = "reply queue W", col = 0, row = 0, colour = "client" },
+    { id = "a", label = "Phone app", sub = "reply queue A", col = 0, row = 2, colour = "client" },
+    { id = "q", label = "Request queue", sub = "", col = 1, row = 1, colour = "amber" },
+    { id = "i", label = "Inventory service", sub = "8 workers", col = 2, row = 1, colour = "accent" },
+]
+edges = [
+    { from = "w", to = "q", label = "WEB-1, reply to W" },
+    { from = "a", to = "q", label = "APP-1, reply to A" },
+    { from = "q", to = "i", label = "" },
+    { from = "i", to = "w", label = "re: WEB-1", dashed = true },
+    { from = "i", to = "a", label = "re: APP-1", dashed = true },
+]
+
+[[diagram]]
+name = "class-diagram"
+kind = "class"
+title = "Request-Reply — classes"
+caption = "The requester keeps a table of questions waiting for answers."
+nodes = [
+    { id = "r", label = "Requester", sub = ["- myReplies queue", "- pending: ID -> future", "+ send(body): Sent", "listener: complete by ID"], col = 0, row = 0, colour = "accent" },
+    { id = "m", label = "«record» Message", sub = ["id, correlationId", "replyTo, body"], col = 1, row = 0, colour = "client" },
+    { id = "i", label = "InventoryService", sub = ["requests queue", "replies to replyTo"], col = 2, row = 0, colour = "green" },
+]
+edges = [
+    { from = "r", to = "m", label = "sends" },
+    { from = "i", to = "m", label = "replies with" },
+]
+
+[[diagram]]
+name = "data-flow-diagram"
+kind = "flow"
+title = "Request-Reply — two questions, answers crossed"
+caption = "The correlation ID puts each answer with its question."
+nodes = [
+    { id = "a", label = "WEB-1: 5 kettles", sub = "slow", col = 0, row = 0, colour = "client" },
+    { id = "b", label = "WEB-2: 2 mugs", sub = "fast", col = 0, row = 1, colour = "client" },
+    { id = "c", label = "re WEB-2: RESERVED", sub = "arrives first", col = 1, row = 1, colour = "green" },
+    { id = "d", label = "re WEB-1: REFUSED", sub = "arrives second", col = 1, row = 0, colour = "red" },
+    { id = "e", label = "waiting table", sub = "match by ID", col = 2, row = 0, colour = "accent" },
+]
+edges = [
+    { from = "c", to = "e", label = "" },
+    { from = "d", to = "e", label = "" },
+]
+
+[[diagram]]
+name = "sequence-diagram"
+kind = "sequence"
+title = "Request-Reply — one reservation"
+caption = "Send with an ID; the reply names it."
+participants = ["Checkout", "Request queue", "Inventory"]
+steps = [
+    ["Checkout", "Request queue", "WEB-2: reserve MUG-1 x 2, reply to W"],
+    ["Request queue", "Inventory", "WEB-2"],
+    ["Inventory", "Checkout", "re WEB-2: RESERVED 2 x MUG-1", "reply"],
+]
+
+[[diagram]]
+name = "uml-diagram"
+kind = "sequence"
+title = "1. Matching by order"
+caption = "The first reply is taken as the first question's answer."
+participants = ["Checkout", "Inventory"]
+steps = [
+    ["Checkout", "Inventory", "kettles, then mugs"],
+    ["Inventory", "Checkout", "RESERVED mugs (first)", "reply"],
+    ["note", "Checkout", "taken as the kettles' answer"],
+]
+
+[[diagram]]
+name = "uml-diagram-2"
+kind = "sequence"
+title = "2. A lost reply"
+caption = "The question waits; the answer never comes."
+participants = ["Checkout", "Inventory"]
+steps = [
+    ["Checkout", "Inventory", "WEB-24"],
+    ["note", "Inventory", "reply lost"],
+    ["note", "Checkout", "no reply after 500 ms"],
+]
+
+[poster]
+headline = [["REQUEST-REPLY", "text"], ["CORRELATION ID", "text"]]
+before = { code = "replies.take() // the next one", note = "kettle and mug swapped", tag = "BEFORE" }
+after = { code = "reply.correlationId()", note = "every answer matched", tag = "AFTER" }
+taglines = [["Match every answer to its question", "gold"]]
+
+[[scene]]
+key = "01-poster"
+kind = "poster"
+title = "Request-Reply with Correlation Identifier"
+narration = """
+Hello, and welcome. [[slnc 400]] This video explains Request-Reply with a Correlation Identifier, in Java. [[slnc 300]]
+This video is presented by Jayasekhar Konduru. [[slnc 600]]
+First, a simple definition. [[slnc 300]] When services talk through queues, each request gets a unique ID, and says where the reply should go. [[slnc 300]] Each reply names the ID of the request it answers. [[slnc 300]] So replies can come back in any order, and still be matched. [[slnc 600]]
+Think of a theatre cloakroom. [[slnc 300]] You hand in your coat, and get a numbered ticket. [[slnc 300]] Coats come back in any order. [[slnc 300]] You take the one whose number matches your ticket. [[slnc 700]]
+In this video, the domain is an online shop. [[slnc 300]] Checkout reserves stock by sending requests over a queue to an inventory service, which works on several at once. [[slnc 500]]
+By the end, you will hear how matching replies by order goes wrong. [[slnc 300]] How IDs and return addresses fix it. [[slnc 300]] How many requests can be in flight. [[slnc 300]] And what a lost reply costs.
+"""
+
+[[scene]]
+key = "02-scenario"
+kind = "bullets"
+title = "The Scenario"
+body = ["Checkout -> request queue ->", "inventory service.", "", "Kettles: a slow system.", "Mugs: a fast one.", "", "Replies come back in any order."]
+narration = """
+Here is the scenario. [[slnc 400]] Checkout asks the inventory service to reserve stock. [[slnc 300]] It sends each request over a queue. [[slnc 500]]
+The inventory service works on several at once. [[slnc 300]] Kettles are checked in a slow warehouse system. [[slnc 300]] Mugs, in a fast one. [[slnc 500]]
+So the replies come back in whatever order they finish.
+"""
+
+[[scene]]
+key = "03-acts"
+kind = "acts"
+title = "acts"
+
+[[scene]]
+key = "04-pattern"
+kind = "bullets"
+title = "The Pattern"
+body = ["Each request: a unique ID", "and a return address.", "", "Each reply: the ID it answers,", "the correlation identifier.", "", "Match replies in a waiting table."]
+narration = """
+Let's name the pattern. [[slnc 400]] Give each request a unique ID, and a return address: the queue its reply should go to. [[slnc 500]]
+Each reply carries the ID of the request it answers. [[slnc 300]] That is the correlation identifier. [[slnc 500]]
+The requester keeps a table of questions waiting for answers, and matches each reply by its ID.
+"""
+
+[[scene]]
+key = "05-roles"
+kind = "bullets"
+title = "Who Does What"
+body = ["Requester: IDs, reply queue, waiting table", "InventoryService: replies to replyTo", "Message: id, correlationId, replyTo", "InOrderRequester: the old way"]
+narration = """
+Here is who does what. [[slnc 400]] The requester gives out IDs, owns a reply queue, and keeps the waiting table. [[slnc 500]]
+The inventory service reads the requests, and sends each reply to the queue the request named. [[slnc 500]]
+A message carries its ID, the ID it answers, its return address, and a body. [[slnc 300]] And the in-order requester is the old way, kept for comparison.
+"""
+
+[[scene]]
+key = "06-recognise"
+kind = "bullets"
+title = "Where You Have Seen It"
+body = ["JMSCorrelationID, JMSReplyTo", "RabbitMQ correlation_id, reply_to", "Tracking numbers on replies"]
+narration = """
+You have probably met this pattern already. [[slnc 400]] J M S messages have a correlation ID and a reply-to header. [[slnc 500]]
+RabbitMQ has the same two properties. [[slnc 500]]
+And every email that quotes your order number is a reply with a correlation identifier.
+"""
+
+[[scene]]
+key = "07-verdict"
+kind = "bullets"
+title = "When To Use It"
+body = ["Services that talk through queues", "and need answers.", "", "Always: an ID, a return address,", "a timeout, and clean-up.", "", "Plan for unknown outcomes."]
+narration = """
+So, when should you use it? [[slnc 400]] Whenever services talk through queues, and one needs an answer from another. [[slnc 500]]
+Always set an ID, a return address, and a timeout. [[slnc 300]] Clean up the waiting table. [[slnc 500]]
+And design for the case where a reply is lost, and you do not know what happened.
+"""
+
+[[scene]]
+key = "08-outro"
+kind = "outro"
+title = "Thanks for Watching"
+body = ["Full source, notes, diagrams and an animated walkthrough", "are in the repository. Clean up timed-out", "requests automatically."]
+narration = """
+That's Request-Reply with a Correlation Identifier. [[slnc 400]] If you remember one sentence, make it this one. [[slnc 300]] Number every question, and make every answer quote the number. [[slnc 500]]
+The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. [[slnc 300]] It runs offline, with nothing installed except a Java development kit. [[slnc 500]]
+Here is one exercise to try. [[slnc 300]] Remove timed-out requests from the waiting table automatically. [[slnc 500]]
+If this helped, a like really does help other people find it. [[slnc 300]] And subscribe, if you'd like the rest of the series. [[slnc 400]] Thanks for watching.
+"""

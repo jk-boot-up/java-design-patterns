@@ -1,0 +1,431 @@
+# pattern.toml for the Valet Key project. See tools/patternkit.
+
+[project]
+slug = "valet-key"
+category = "micro-services-design-patterns"
+title = "Valet Key"
+package = "valetkey"
+main_class = "ValetKeyDemo"
+tagline = "A key that opens one door, briefly"
+bold = "Instead of carrying every upload yourself, give the client a signed key that lets it do one specific thing directly with the storage service, for a few minutes."
+domain_note = ""
+thumb_lines = ["VALET KEY"]
+thumb_code = "PUT ...?expires=...&sig=..."
+youtube_title = "Valet Key"
+youtube_tags = ["valet key", "signed url", "presigned url", "cloud patterns", "microservices", "java"]
+
+[readme]
+intro = """
+Valet Key is a cloud design pattern. When clients need to upload or download
+large files, sending them through your application server wastes its
+bandwidth and threads. Instead, the application gives the client a valet key:
+a token, usually a signed URL, that allows exactly one kind of access to one
+file in the storage service, up to a size limit, for a short time. The client
+then talks to the storage service directly.
+
+The storage service checks the signature, the path, the method, the size and
+the expiry. The key cannot be used for anything else, and it stops working on
+its own.
+"""
+analogy = """
+Think of the valet key some cars come with. You hand it to the car park
+attendant. It opens the door and starts the engine, but it will not open the
+boot or the glovebox. The attendant parks the car without you carrying it
+there yourself, and the key is only good for that job.
+"""
+scenario = """
+The online store lets customers add photos to their product reviews. Every
+photo was uploaded to the shop's app server, which then sent it on to the file
+storage service. Ten 2 MB photos meant 40 MB passing through the app server:
+20 in from customers, 20 out to storage.
+"""
+costs = [
+    "**Whoever holds the key can use it.** A key pasted into a public chat worked for a stranger until it expired.",
+    "**No easy take-backs.** A signed key cannot normally be revoked before it expires; keep them short-lived.",
+    "**The storage must check keys.** Signatures, paths, sizes and expiry all have to be validated there.",
+    "**Keys leak into logs.** URLs with signatures must be kept out of logs and analytics.",
+]
+too_much = """
+For small files, or when the application must inspect every byte (virus
+scanning, resizing) before storing it, uploading through the app is simpler.
+Valet keys pay off for large or numerous files that the app does not need to
+touch.
+"""
+met_before = [
+    "Amazon S3 presigned URLs.",
+    "Azure Storage shared access signatures (SAS).",
+    "Google Cloud Storage signed URLs.",
+    "Expiring download links in emails.",
+]
+where = """
+This project is in [micro-services-design-patterns](..), next to
+[Gateway Offloading](../gateway-offloading-pattern), another way to take work
+off application servers.
+"""
+
+[[act]]
+title = "Carried by the app"
+summary = "10 customers upload a 2 MB photo each through the app server: it carries 40.0 MB."
+detail = """
+`Shop.uploadThroughApp` receives each photo and sends it on to storage with
+the shop's master credential. Ten 2 MB photos make the app server carry
+40 MB: every byte in from a customer and out again to storage.
+"""
+speech = """
+First demo: review photos carried through the shop's app server. [[slnc 400]] Ten customers each upload a two megabyte photo. [[slnc 500]]
+Each photo goes to the app server. [[slnc 300]] The app server sends it on to storage. [[slnc 600]]
+The app server carried forty megabytes. [[slnc 300]] Every byte came in, and went out again.
+"""
+rows = { customer = "active amber", shop = "active wrong", storage = "active ok" }
+console = [
+    ["10 photos x 2 MB", "muted"],
+    ["the app server carried 40.0 MB", "bad"],
+]
+
+[[act]]
+title = "A valet key"
+summary = "The shop signs a key for PUT /reviews/R-11/photo.jpg, 5 minutes, up to 5 MB; the browser uploads directly: 201 stored."
+detail = """
+`Shop.valetKey` signs a URL allowing one PUT to `/reviews/R-11/photo.jpg`, for
+five minutes, up to 5 MB. The customer's browser uploads the photo straight to
+storage, which checks the signature and stores it. The app server carried
+only the key: under 200 bytes.
+"""
+speech = """
+Second demo: a valet key. [[slnc 400]] The shop signs a short permission. [[slnc 300]] You may upload one photo, to this address, within five minutes, up to five megabytes. [[slnc 600]]
+The customer's browser sends the photo straight to storage. [[slnc 300]] Storage checks the signature, and stores it. [[slnc 500]]
+The app server carried under two hundred bytes. [[slnc 300]] Just the key.
+"""
+rows = { shop = "active ok", customer = "active ok", storage = "active ok" }
+console = [
+    ["key: PUT /reviews/R-11, 5 min, 5 MB", "muted"],
+    ["direct upload: 201 stored", "ok"],
+    ["app server carried under 200 bytes", "ok"],
+]
+
+[[act]]
+title = "Only what it allows"
+summary = "The key cannot read the photo (403), cannot write R-3 (403), cannot upload 6 MB (413); no key at all is 401."
+detail = """
+The key allows exactly one thing. Using it to read the photo is refused, 403.
+Changing the path to overwrite review R-3 breaks the signature, 403. A 6 MB
+file is over its limit, 413. And storage without any key refuses, 401.
+"""
+speech = """
+Third demo: the key allows that, and nothing else. [[slnc 400]] Use it to read the photo? [[slnc 300]] Refused. [[slnc 500]]
+Change the address, to overwrite someone else's review? [[slnc 300]] Refused: the signature no longer matches. [[slnc 500]]
+Upload a six megabyte file? [[slnc 300]] Refused: too large. [[slnc 500]]
+And with no key at all, storage says no.
+"""
+rows = { storage = "active ok", customer = "active amber" }
+console = [
+    ["read with it: 403", "ok"],
+    ["other review: 403", "ok"],
+    ["6 MB: 413; no key: 401", "ok"],
+]
+
+[[act]]
+title = "Expiry"
+summary = "A key valid for 0.2 s used after 0.4 s: 403 key expired."
+detail = """
+A key is issued for two tenths of a second and used after four tenths. Storage
+refuses it: key expired. Keys stop working on their own.
+"""
+speech = """
+Fourth demo: the key runs out. [[slnc 400]] A key is signed for two tenths of a second. [[slnc 300]] It is used after four tenths. [[slnc 500]]
+Refused: key expired. [[slnc 300]] Nobody had to switch it off.
+"""
+rows = { storage = "active ok" }
+console = [
+    ["valid 0.2 s, used at 0.4 s: 403 expired", "ok"],
+]
+
+[[act]]
+title = "The bill"
+summary = "A key copied into a public chat works for a stranger (201) until it expires; keep keys short, narrow and out of logs."
+detail = """
+A key is copied into a public chat, and a stranger uses it: storage accepts,
+because the key is valid. It cannot be taken back before it expires. Keep keys
+short-lived and narrow, and keep signed URLs out of logs.
+"""
+speech = """
+Fifth demo: the bill. [[slnc 400]] Whoever holds the key can use it. [[slnc 500]]
+A key is pasted into a public chat. [[slnc 300]] A stranger uses it. [[slnc 300]] Storage accepts: the key is valid. [[slnc 600]]
+It cannot be taken back before it expires. [[slnc 300]] So keep keys short-lived, narrow, and out of your logs.
+"""
+rows = { customer = "active wrong", storage = "active amber" }
+console = [
+    ["a stranger uses the key: 201", "bad"],
+    ["short-lived, narrow, out of logs", "amber"],
+]
+
+[animation]
+subtitle = "The shop signs a narrow, short-lived key; the customer uses it to upload straight to storage, which checks it."
+boxes = [
+    ["customer", "Customer's browser", "has a photo"],
+    ["shop", "Shop app server", "signs keys"],
+    ["storage", "File storage", "checks keys, stores files"],
+]
+
+[docs.problem]
+scenario = """
+Customers upload photos to their product reviews; files live in a separate
+storage service.
+"""
+naive = """
+Every photo is uploaded to the app server and sent on to storage: 40 MB
+through the app for ten photos.
+"""
+deliver = [
+    "Bytes carried by the app server counted.",
+    "A signed key allowing one upload directly to storage.",
+    "Wrong method, path and size refused.",
+    "An expired key refused.",
+    "The leaked-key risk shown.",
+    "Every printed result asserted by a test, over real HTTP.",
+]
+
+[docs.prerequisites]
+required = [
+    "Java basics: classes, exceptions, byte arrays.",
+    "HTTP basics: PUT, GET and status codes.",
+]
+not_required = [
+    "Cryptography. HMAC is used as a black box: same secret, same signature.",
+    "Any cloud account. Storage is a local server.",
+]
+
+[docs.session]
+objectives = [
+    "Explain why big uploads should not pass through app servers.",
+    "Sign a narrow, short-lived permission.",
+    "Check a key's signature, method, path, size and expiry.",
+    "Name the risks of bearer keys.",
+]
+walkthrough = """
+Run `./gradlew run` and compare act one's 40 MB with act two's key. Open
+`Signer.sign` (what is signed) and `Storage.handle` (what is checked). End on
+act five: how short should a key live?
+"""
+exercises = [
+    "Add a download key for GET, valid for one minute.",
+    "Allow a key to be used only once by remembering signatures already used.",
+    "Put the customer's user ID into the signed text, and check it at storage.",
+]
+
+[docs.explained]
+sentence = """
+A valet key is a signed, narrow, short-lived permission that lets a client do
+one specific thing directly with a storage service, so the application does
+not carry the data itself.
+"""
+verdict = """
+Use valet keys for large or numerous uploads and downloads that the app does
+not need to touch. Sign the method, path, size and expiry, keep lifetimes
+short, and keep signed URLs out of logs.
+"""
+recognise = [
+    "URLs with `X-Amz-Signature`, `sig=` or `se=` parameters.",
+    "An endpoint that returns an upload URL instead of accepting the file.",
+    "Expiring download links.",
+]
+
+[spec]
+purpose = """
+Teach Valet Key with an online store's review photos over real HTTP: 40 MB
+carried by the app for ten photos, then HMAC-signed keys allowing one PUT
+directly to storage, refusals for the wrong method, path and size, an expired
+key, and a leaked key working for a stranger.
+"""
+nongoals = [
+    "Not a cloud storage product. Storage is a local server.",
+    "Not key revocation. It is discussed, not built.",
+]
+problem = """
+Carrying every upload through the app server spends its bandwidth and
+threads on bytes it never needs to look at.
+"""
+roles = [
+    ["The pattern", "`Shop.valetKey` and `Signer`"],
+    ["The checker", "`Storage`"],
+    ["The client", "`Customer`"],
+    ["The naive version", "`Shop.uploadThroughApp`"],
+    ["Entry point", "`ValetKeyDemo`, five acts"],
+]
+requirements = [
+    "**Direct:** uploads with a key never pass through the app.",
+    "**Narrow:** method, path and size are part of the signature or limits.",
+    "**Short-lived:** expired keys are refused.",
+    "**Every printed result is asserted** in `DemoRunsTest`.",
+]
+
+[[diagram]]
+name = "architecture-diagram"
+kind = "flow"
+title = "Valet Key — the pieces"
+caption = "The app hands out keys; the bytes go straight to storage."
+nodes = [
+    { id = "c", label = "Customer's browser", sub = "has the photo", col = 0, row = 0, colour = "client" },
+    { id = "s", label = "Shop app server", sub = "signs keys", col = 1, row = 1, colour = "accent" },
+    { id = "t", label = "File storage", sub = "checks keys", col = 2, row = 0, colour = "green" },
+]
+edges = [
+    { from = "c", to = "s", label = "1. ask for a key" },
+    { from = "c", to = "t", label = "2. PUT with the key" },
+    { from = "s", to = "t", label = "shared secret", dashed = true },
+]
+
+[[diagram]]
+name = "class-diagram"
+kind = "class"
+title = "Valet Key — classes"
+caption = "Both sides share one signer."
+nodes = [
+    { id = "g", label = "Signer", sub = ["+ sign(method, path,", "  expires, maxBytes)"], col = 1, row = 0, colour = "amber" },
+    { id = "s", label = "Shop", sub = ["+ valetKey(path, ms, max)", "+ uploadThroughApp (old)"], col = 0, row = 0, colour = "accent" },
+    { id = "t", label = "Storage", sub = ["checks sig, expiry, size", "PUT, GET"], col = 2, row = 0, colour = "green" },
+]
+edges = [
+    { from = "s", to = "g", label = "signs with" },
+    { from = "t", to = "g", label = "checks with" },
+]
+
+[[diagram]]
+name = "data-flow-diagram"
+kind = "flow"
+title = "Valet Key — what the key carries"
+caption = "Change any part and the signature no longer matches."
+nodes = [
+    { id = "a", label = "PUT", sub = "method", col = 0, row = 0, colour = "client" },
+    { id = "b", label = "/reviews/R-11/photo.jpg", sub = "path", col = 1, row = 0, colour = "client" },
+    { id = "c", label = "expires, max 5 MB", sub = "limits", col = 2, row = 0, colour = "client" },
+    { id = "d", label = "sig = HMAC(secret, all of it)", sub = "", col = 1, row = 1, colour = "accent" },
+]
+edges = [
+    { from = "a", to = "d", label = "" },
+    { from = "b", to = "d", label = "" },
+    { from = "c", to = "d", label = "" },
+]
+
+[[diagram]]
+name = "sequence-diagram"
+kind = "sequence"
+title = "Valet Key — one upload"
+caption = "The app only issues the key."
+participants = ["Browser", "Shop", "Storage"]
+steps = [
+    ["Browser", "Shop", "may I add a photo to R-11?"],
+    ["Shop", "Browser", "signed key, 5 min, 5 MB", "reply"],
+    ["Browser", "Storage", "PUT photo with key"],
+    ["Storage", "Browser", "201 stored", "reply"],
+]
+
+[[diagram]]
+name = "uml-diagram"
+kind = "sequence"
+title = "1. Carried by the app"
+caption = "Every byte twice."
+participants = ["Browser", "Shop", "Storage"]
+steps = [
+    ["Browser", "Shop", "2 MB photo"],
+    ["Shop", "Storage", "2 MB photo"],
+]
+
+[[diagram]]
+name = "uml-diagram-2"
+kind = "sequence"
+title = "2. A tampered key"
+caption = "The signature no longer matches."
+participants = ["Stranger", "Storage"]
+steps = [
+    ["Stranger", "Storage", "PUT /reviews/R-3 with R-11's key"],
+    ["Storage", "Stranger", "403", "reply"],
+]
+
+[poster]
+headline = [["VALET KEY", "text"]]
+before = { code = "upload -> app -> storage", note = "40 MB through the app", tag = "BEFORE" }
+after = { code = "PUT ...?expires=...&sig=...", note = "straight to storage", tag = "AFTER" }
+taglines = [["A key that opens one door, briefly", "gold"]]
+
+[[scene]]
+key = "01-poster"
+kind = "poster"
+title = "Valet Key"
+narration = """
+Hello, and welcome. [[slnc 400]] This video explains the Valet Key pattern, in Java. [[slnc 300]]
+This video is presented by Jayasekhar Konduru. [[slnc 600]]
+First, a simple definition. [[slnc 300]] Instead of carrying every upload yourself, you give the client a signed key. [[slnc 300]] The key lets it do one specific thing, directly with the storage service, for a few minutes. [[slnc 600]]
+Think of the valet key some cars come with. [[slnc 300]] It opens the door, and starts the engine. [[slnc 300]] But it will not open the boot, or the glovebox. [[slnc 300]] The attendant parks the car, and the key is only good for that job. [[slnc 700]]
+In this video, the domain is an online shop. [[slnc 300]] Customers add photos to their product reviews. [[slnc 500]]
+By the end, you will hear what carrying uploads costs. [[slnc 300]] How a valet key works. [[slnc 300]] What it will not allow. [[slnc 300]] And its one big risk.
+"""
+
+[[scene]]
+key = "02-scenario"
+kind = "bullets"
+title = "The Scenario"
+body = ["Customers add photos to reviews.", "", "Photos went to the app server,", "which sent them on to storage."]
+narration = """
+Here is the scenario. [[slnc 400]] Customers can add photos to their product reviews. [[slnc 500]]
+Each photo was uploaded to the shop's app server. [[slnc 300]] The app server then sent it on to the file storage service.
+"""
+
+[[scene]]
+key = "03-acts"
+kind = "acts"
+title = "acts"
+
+[[scene]]
+key = "04-pattern"
+kind = "bullets"
+title = "The Pattern"
+body = ["The app signs a key:", "one method, one file, a size,", "an expiry.", "", "The client uses it directly.", "Storage checks every part."]
+narration = """
+Let's name the pattern. [[slnc 400]] The app signs a key. [[slnc 300]] It names one action, one file, a size limit, and an expiry time. [[slnc 500]]
+The client uses the key to talk to storage directly. [[slnc 500]]
+Storage checks every part of it, and refuses anything else.
+"""
+
+[[scene]]
+key = "05-roles"
+kind = "bullets"
+title = "Who Does What"
+body = ["Shop: signs valet keys", "Signer: a shared secret", "Storage: checks and stores", "Customer: uploads directly"]
+narration = """
+Here is who does what. [[slnc 400]] The shop's app server signs valet keys. [[slnc 500]]
+The signer uses a secret that only the shop and the storage service know. [[slnc 500]]
+Storage checks each key, and stores the file. [[slnc 300]] And the customer's browser uploads directly.
+"""
+
+[[scene]]
+key = "06-recognise"
+kind = "bullets"
+title = "Where You Have Seen It"
+body = ["Amazon S3 presigned URLs", "Azure shared access signatures", "Google Cloud signed URLs", "Expiring download links"]
+narration = """
+You have probably met this pattern already. [[slnc 400]] Amazon S3 has presigned URLs. [[slnc 300]] Azure has shared access signatures. [[slnc 300]] Google Cloud has signed URLs. [[slnc 500]]
+And every download link that stops working after a day is a valet key.
+"""
+
+[[scene]]
+key = "07-verdict"
+kind = "bullets"
+title = "When To Use It"
+body = ["Large or many files the app", "does not need to touch.", "", "Sign method, path, size, expiry.", "Short lifetimes.", "Keep keys out of logs."]
+narration = """
+So, when should you use it? [[slnc 400]] For large, or many, files that the app does not need to look at. [[slnc 500]]
+Sign the method, the path, the size, and the expiry. [[slnc 300]] Keep lifetimes short. [[slnc 300]] And keep signed addresses out of your logs.
+"""
+
+[[scene]]
+key = "08-outro"
+kind = "outro"
+title = "Thanks for Watching"
+body = ["Full source, notes, diagrams and an animated walkthrough", "are in the repository. Make a key that", "works only once."]
+narration = """
+That's the Valet Key pattern. [[slnc 400]] If you remember one sentence, make it this one. [[slnc 300]] Hand out a key that opens one door, briefly, and let the bytes go direct. [[slnc 500]]
+The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. [[slnc 300]] It runs offline, with nothing installed except a Java development kit. [[slnc 500]]
+Here is one exercise to try. [[slnc 300]] Make a key that works only once. [[slnc 500]]
+If this helped, a like really does help other people find it. [[slnc 300]] And subscribe, if you'd like the rest of the series. [[slnc 400]] Thanks for watching.
+"""

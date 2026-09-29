@@ -1,0 +1,439 @@
+# pattern.toml for the Authorization Policy project. See tools/patternkit.
+
+[project]
+slug = "authorization-policy"
+category = "security-design-patterns"
+title = "Authorization Policy"
+package = "authorization"
+main_class = "AuthorizationDemo"
+tagline = "One place decides who may do what"
+bold = "Make every access decision in one policy, written as rules over roles and attributes, deny anything no rule allows, and have every endpoint ask it."
+domain_note = ""
+thumb_lines = ["AUTHORIZATION", "POLICY"]
+thumb_code = "policy.decide(request)"
+youtube_title = "Authorization Policy (RBAC and ABAC)"
+youtube_tags = ["authorization", "rbac", "abac", "access control", "security", "java"]
+
+[readme]
+intro = """
+Authorization is deciding what a signed-in user is allowed to do. Signing in
+proves who you are; authorization decides whether you may view this order or
+issue that refund. When each endpoint writes its own `if` statement, the rules
+are scattered, inconsistent, and one forgotten check exposes other people's
+data.
+
+An Authorization Policy puts every decision in one place. Role-based access
+control (RBAC) grants actions to roles: support staff may issue refunds.
+Attribute-based access control (ABAC) adds rules over details of the user, the
+thing being accessed, and the request: a customer may view an order *they
+own*; support may refund *up to 100*. Anything no rule allows is denied.
+"""
+analogy = """
+Think of a hotel key-card system. Nobody at a door decides for themselves who
+may enter. One system holds the rules: guests open their own room, cleaners
+open rooms on their floor during the day, the manager opens everything. Change
+a rule once, and every door follows it.
+"""
+scenario = """
+The online store's endpoints each checked access themselves. The cancel
+endpoint checked that the customer owned the order. The view endpoint
+assumed signing in was enough, so any customer could read anyone's order by
+changing the order number in the address. And the refund endpoint let support
+staff refund any amount, though the rule was a limit of 100.
+"""
+costs = [
+    "**On every request.** The policy is asked every time, so it must be fast and always available.",
+    "**Rules grow.** Attribute rules can become hard to read; keep them named, grouped by action, and tested.",
+    "**Endpoints must ask.** A central policy only protects the endpoints that call it; a new endpoint that forgets is still open, unless the framework asks for it.",
+]
+too_much = """
+A small internal tool with one kind of user needs no more than a sign-in.
+A policy pays off as soon as different users may see or change different
+things.
+"""
+met_before = [
+    "Spring Security's `@PreAuthorize` and its `AuthorizationManager`.",
+    "Open Policy Agent (OPA) and AWS Cedar, policy engines with their own rule languages.",
+    "Cloud IAM policies: who may do which action on which resource.",
+]
+where = """
+This project is in [security-design-patterns](..), the first project of that
+category.
+"""
+
+[[act]]
+title = "Checks in every endpoint"
+summary = "Cancel checks the owner, but ana can view ben's order because the view endpoint forgot, and support can refund 250 despite a limit of 100."
+detail = """
+Each endpoint checks access in its own code. Ana cannot cancel Ben's order:
+that endpoint checks the owner. But Ana can view Ben's order, because the view
+endpoint forgot the owner check. And Sam from support can refund 250, because
+the refund endpoint only checks the role, not the limit of 100.
+"""
+speech = """
+First demo: every endpoint checks access its own way. [[slnc 400]] An endpoint is one address the shop's server answers, such as view an order. [[slnc 600]]
+Ana is a customer. [[slnc 300]] Ana tries to cancel Ben's order. [[slnc 300]] Denied, good. [[slnc 500]]
+Ana tries to view Ben's order. [[slnc 300]] Allowed. [[slnc 300]] The view endpoint forgot to check the owner. [[slnc 600]]
+And Sam, from support, refunds two hundred and fifty. [[slnc 300]] Allowed. [[slnc 300]] Although support should stop at a hundred.
+"""
+rows = { endpoints = "active wrong" }
+console = [
+    ["ana cancels ben's order: denied", "ok"],
+    ["ana views ben's order: ALLOWED", "bad"],
+    ["sam refunds 250.00: ALLOWED", "bad"],
+]
+
+[[act]]
+title = "Roles only"
+summary = "With role-based rules, ana may view ben's order: the CUSTOMER role has order:view, and a role cannot say \"their own\"."
+detail = """
+A first step is role-based access control in one place: customers may view
+and cancel orders; support may view orders and issue refunds. But Ana still
+may view Ben's order, because her role has "view order". A role can say
+"customers may view orders", but it cannot say "their own".
+"""
+speech = """
+Second demo: roles only, in one place. [[slnc 400]] This is called role-based access control. [[slnc 600]]
+Customers may view and cancel orders. [[slnc 300]] Support may view orders, and issue refunds. [[slnc 600]]
+Ana still may view Ben's order. [[slnc 300]] The customer role allows viewing orders. [[slnc 500]]
+A role can say, customers may view orders. [[slnc 300]] But it cannot say, their own orders.
+"""
+rows = { policy = "active amber" }
+console = [
+    ["ana views ben's order: ALLOW", "bad"],
+    ["(role CUSTOMER has order:view)", "muted"],
+]
+
+[[act]]
+title = "Rules on attributes"
+summary = "Attribute rules: ana is denied ben's order, ben is allowed as owner, sam may refund 80 but not 250, and alex the admin may refund 250."
+detail = """
+Now each rule can look at details: who the user is, who owns the order, and
+the refund amount. This is attribute-based access control. Ana is denied
+Ben's order; Ben is allowed, as the owner. Sam may refund 80 but not 250, and
+Alex, an admin, may refund 250. Each decision carries the rule that allowed
+it.
+"""
+speech = """
+Third demo: rules that look at details. [[slnc 400]] Who the user is. [[slnc 300]] Who owns the order. [[slnc 300]] How much the refund is. [[slnc 300]] This is called attribute-based access control. [[slnc 600]]
+Ana views Ben's order. [[slnc 300]] Denied. [[slnc 300]] Ben views the order Ben owns. [[slnc 300]] Allowed, as the owner. [[slnc 600]]
+Sam from support refunds eighty. [[slnc 300]] Allowed. [[slnc 300]] Two hundred and fifty. [[slnc 300]] Denied. [[slnc 500]]
+Alex, an admin, refunds two hundred and fifty. [[slnc 300]] Allowed.
+"""
+rows = { policy = "active ok", endpoints = "active ok" }
+console = [
+    ["ana views ben's order: DENY", "ok"],
+    ["ben views ben's order: ALLOW (owner)", "ok"],
+    ["sam refunds 80: ALLOW; 250: DENY", "ok"],
+    ["alex refunds 250: ALLOW (admin)", "ok"],
+]
+
+[[act]]
+title = "Deny by default"
+summary = "Nobody wrote a rule for order:export, so even alex the admin is denied: a new endpoint is closed until the policy opens it."
+detail = """
+A developer adds an endpoint to export orders. Nobody has written a rule for
+it, so even Alex the admin is denied. Anything no rule allows is refused, so
+a new endpoint starts closed and is only opened on purpose.
+"""
+speech = """
+Fourth demo: deny by default. [[slnc 400]] A developer adds a new endpoint, to export orders. [[slnc 300]] Nobody has written a rule for it yet. [[slnc 600]]
+Even Alex, the admin, is denied. [[slnc 500]]
+Anything no rule allows is refused. [[slnc 300]] So a new endpoint starts closed, and is only opened on purpose.
+"""
+rows = { policy = "active ok" }
+console = [
+    ["alex exports: DENY (no rule allows it)", "ok"],
+]
+
+[[act]]
+title = "The bill"
+summary = "6 decisions logged with reasons; the policy is asked on every request, so it must be fast, tested, and kept readable."
+detail = """
+Every request now asks the policy, and every decision is logged with its
+reason: six so far. That is useful for audits, but the policy is now on every
+request's path, so it must be fast and always available. And as rules grow,
+they must stay readable and thoroughly tested.
+"""
+speech = """
+Fifth demo: the bill. [[slnc 400]] Every request now asks the policy. [[slnc 300]] And every decision is logged, with its reason. [[slnc 600]]
+That helps with audits. [[slnc 300]] But the policy is now on every request's path. [[slnc 300]] It must be fast, and always available. [[slnc 600]]
+And as rules grow, they must stay readable, and be thoroughly tested.
+"""
+rows = { policy = "active amber" }
+console = [
+    ["6 decisions logged, with reasons", "muted"],
+    ["fast, tested, readable", "amber"],
+]
+
+[animation]
+subtitle = "Every endpoint asks one policy, which decides from rules over the user, the order and the amount."
+boxes = [
+    ["endpoints", "Endpoints", "view, cancel, refund"],
+    ["policy", "Policy", "rules, deny by default"],
+]
+
+[docs.problem]
+scenario = """
+The store's view, cancel and refund endpoints each checked access in their
+own code.
+"""
+naive = """
+Scattered checks drift: one forgot ownership and exposed other customers'
+orders, another forgot the refund limit.
+"""
+deliver = [
+    "Scattered checks with two real holes.",
+    "A role-based policy, and what roles cannot express.",
+    "An attribute-based policy with ownership and limits.",
+    "Deny by default for actions with no rule.",
+    "An audit log of every decision with its reason.",
+    "Every printed result asserted by a test.",
+]
+
+[docs.prerequisites]
+required = [
+    "Java basics: records, lambdas, `Predicate`.",
+    "The difference between signing in and being allowed.",
+]
+not_required = [
+    "Spring Security or a policy engine. The policy is a plain class.",
+]
+
+[docs.session]
+objectives = [
+    "Tell authentication from authorization.",
+    "Explain role-based and attribute-based access control.",
+    "Write a central policy that denies by default.",
+    "Log each decision with its reason.",
+]
+walkthrough = """
+Run `./gradlew run` and compare act one's ALLOWED with act three's DENY. Open
+`Policy.shop`: seven rules, one per line. End on act four's deny by default.
+"""
+exercises = [
+    "Add a rule: support may not refund orders they placed themselves.",
+    "Allow `order:export` for admins only, during office hours.",
+    "Rewrite two rules in Spring Security's `@PreAuthorize` syntax.",
+]
+
+[docs.explained]
+sentence = """
+An Authorization Policy makes every access decision in one place, from rules
+over roles and attributes, and denies whatever no rule allows.
+"""
+verdict = """
+Use a central policy as soon as different users may do different things.
+Start with roles, add attribute rules for ownership and limits, deny by
+default, log each decision, and test the policy like any other critical code.
+"""
+recognise = [
+    "`@PreAuthorize(\"hasRole('ADMIN')\")` and similar annotations.",
+    "Calls such as `policy.check(user, action, resource)`.",
+    "Rego or Cedar policy files kept beside the code.",
+]
+
+[spec]
+purpose = """
+Teach Authorization Policy with an online store's order endpoints: scattered
+checks exposing other customers' orders and an unlimited refund, roles alone
+unable to say "own", attribute rules fixing both, deny by default, and the
+cost of asking a policy on every request.
+"""
+nongoals = [
+    "Not sign-in. Users are assumed to be authenticated already.",
+    "Not a policy language. Rules are Java lambdas.",
+]
+problem = """
+Access checks written separately in each endpoint drift apart and leave
+holes.
+"""
+roles = [
+    ["The pattern", "`Policy`, `Rule`"],
+    ["Roles only", "`RolePolicy`"],
+    ["The old way", "`ScatteredChecks`"],
+    ["A question and its answer", "`Request`, `Decision`"],
+    ["Entry point", "`AuthorizationDemo`, five acts"],
+]
+requirements = [
+    "**Ownership:** customers may only view and cancel their own orders.",
+    "**Limits:** support may refund up to 100; admins any amount.",
+    "**Deny by default:** actions with no rule are refused.",
+    "**Every printed result is asserted** in `DemoRunsTest`.",
+]
+
+[[diagram]]
+name = "architecture-diagram"
+kind = "flow"
+title = "Authorization Policy — the pieces"
+caption = "Every endpoint asks one policy."
+nodes = [
+    { id = "u", label = "Signed-in user", sub = "ana, sam, alex", col = 0, row = 0, colour = "client" },
+    { id = "e", label = "Endpoints", sub = "view, cancel, refund", col = 1, row = 0, colour = "green" },
+    { id = "p", label = "Policy", sub = "rules, deny by default", col = 2, row = 0, colour = "accent" },
+    { id = "l", label = "Audit log", sub = "decision and reason", col = 2, row = 1, colour = "amber" },
+]
+edges = [
+    { from = "u", to = "e", label = "" },
+    { from = "e", to = "p", label = "decide(request)" },
+    { from = "p", to = "l", label = "" },
+]
+
+[[diagram]]
+name = "class-diagram"
+kind = "class"
+title = "Authorization Policy — classes"
+caption = "Rules over the whole request."
+nodes = [
+    { id = "p", label = "Policy", sub = ["+ allow(action, why, condition)", "+ decide(request): Decision", "+ auditLog()"], col = 0, row = 0, colour = "accent" },
+    { id = "r", label = "«record» Rule", sub = ["action, description", "condition"], col = 1, row = 0, colour = "client" },
+    { id = "q", label = "«record» Request", sub = ["user, action", "order, amount"], col = 0, row = 1, colour = "client" },
+    { id = "d", label = "«record» Decision", sub = ["allowed, reason"], col = 1, row = 1, colour = "green" },
+]
+edges = [
+    { from = "p", to = "r", label = "holds" },
+    { from = "p", to = "q", label = "judges" },
+    { from = "p", to = "d", label = "returns" },
+]
+
+[[diagram]]
+name = "data-flow-diagram"
+kind = "flow"
+title = "Authorization Policy — a refund decision"
+caption = "The first rule that holds allows it; none means deny."
+nodes = [
+    { id = "a", label = "sam: refund 250", sub = "", col = 0, row = 0, colour = "client" },
+    { id = "b", label = "support, up to 100?", sub = "no", col = 1, row = 0, colour = "accent" },
+    { id = "c", label = "admin?", sub = "no", col = 2, row = 0, colour = "accent" },
+    { id = "d", label = "DENY", sub = "no rule allows it", col = 3, row = 0, colour = "red" },
+]
+edges = [
+    { from = "a", to = "b", label = "" },
+    { from = "b", to = "c", label = "" },
+    { from = "c", to = "d", label = "" },
+]
+
+[[diagram]]
+name = "sequence-diagram"
+kind = "sequence"
+title = "Authorization Policy — viewing an order"
+caption = "Ownership is checked in one place."
+participants = ["ana", "View endpoint", "Policy"]
+steps = [
+    ["ana", "View endpoint", "GET ORD-7"],
+    ["View endpoint", "Policy", "decide(ana, order:view, ORD-7)"],
+    ["Policy", "View endpoint", "DENY: not the owner", "reply"],
+    ["View endpoint", "ana", "403 forbidden", "reply"],
+]
+
+[[diagram]]
+name = "uml-diagram"
+kind = "sequence"
+title = "1. Roles only"
+caption = "The role allows it; ownership is never asked."
+participants = ["ana", "RolePolicy"]
+steps = [
+    ["ana", "RolePolicy", "order:view ORD-7"],
+    ["RolePolicy", "ana", "ALLOW: CUSTOMER has order:view", "reply"],
+]
+
+[[diagram]]
+name = "uml-diagram-2"
+kind = "sequence"
+title = "2. A new endpoint"
+caption = "Closed until a rule opens it."
+participants = ["alex", "Policy"]
+steps = [
+    ["alex", "Policy", "order:export ORD-7"],
+    ["Policy", "alex", "DENY: no rule allows it", "reply"],
+]
+
+[poster]
+headline = [["AUTHORIZATION", "text"], ["POLICY", "text"]]
+before = { code = "if (role == ...) in every endpoint", note = "ana reads ben's order", tag = "BEFORE" }
+after = { code = "policy.decide(request)", note = "owner only, deny by default", tag = "AFTER" }
+taglines = [["One place decides who may do what", "gold"]]
+
+[[scene]]
+key = "01-poster"
+kind = "poster"
+title = "Authorization Policy"
+narration = """
+Hello, and welcome. [[slnc 400]] This video explains the Authorization Policy pattern, in Java. [[slnc 300]]
+This video is presented by Jayasekhar Konduru. [[slnc 600]]
+First, a simple definition. [[slnc 300]] Signing in proves who you are. [[slnc 300]] Authorization decides what you are allowed to do. [[slnc 500]] An authorization policy makes every one of those decisions in one place. [[slnc 300]] From rules about roles, and about details such as who owns what. [[slnc 300]] And anything no rule allows, is refused. [[slnc 600]]
+Think of a hotel key-card system. [[slnc 300]] No door decides for itself who may enter. [[slnc 300]] One system holds the rules. [[slnc 300]] Guests open their own room. [[slnc 300]] The manager opens every room. [[slnc 700]]
+In this video, the domain is an online shop, with customers, support staff and an admin, and endpoints to view, cancel and refund orders. [[slnc 500]]
+By the end, you will hear how scattered checks exposed other customers' orders. [[slnc 300]] Why roles alone are not enough. [[slnc 300]] How rules on details fix it. [[slnc 300]] And why a policy should deny by default.
+"""
+
+[[scene]]
+key = "02-scenario"
+kind = "bullets"
+title = "The Scenario"
+body = ["View, cancel and refund endpoints.", "", "Each checked access itself.", "", "View forgot ownership.", "Refund forgot the limit."]
+narration = """
+Here is the scenario. [[slnc 400]] The shop has endpoints to view, cancel, and refund orders. [[slnc 500]]
+Each endpoint checked access in its own code. [[slnc 500]]
+The view endpoint forgot to check who owned the order. [[slnc 300]] And the refund endpoint forgot that support staff may only refund up to a hundred.
+"""
+
+[[scene]]
+key = "03-acts"
+kind = "acts"
+title = "acts"
+
+[[scene]]
+key = "04-pattern"
+kind = "bullets"
+title = "The Pattern"
+body = ["One policy decides.", "", "Rules over roles and details.", "", "Deny by default.", "Every endpoint asks."]
+narration = """
+Let's name the pattern. [[slnc 400]] One policy makes every access decision. [[slnc 500]]
+Its rules look at roles, and at details such as ownership and amounts. [[slnc 500]]
+Anything no rule allows is refused. [[slnc 300]] And every endpoint asks the policy.
+"""
+
+[[scene]]
+key = "05-roles"
+kind = "bullets"
+title = "Who Does What"
+body = ["Policy: the rules, and the decision", "Rule: an action and its condition", "Request: user, action, order, amount", "Decision: allow or deny, and why"]
+narration = """
+Here is who does what. [[slnc 400]] The policy holds the rules, and makes the decision. [[slnc 500]]
+Each rule names an action, and the condition under which it is allowed. [[slnc 500]]
+A request says who wants to do what, to which order. [[slnc 300]] And a decision says allow or deny, and why.
+"""
+
+[[scene]]
+key = "06-recognise"
+kind = "bullets"
+title = "Where You Have Seen It"
+body = ["Spring Security @PreAuthorize", "Open Policy Agent", "AWS Cedar", "Cloud IAM policies"]
+narration = """
+You have probably met this pattern already. [[slnc 400]] Spring Security lets methods declare the rule they need. [[slnc 500]]
+Open Policy Agent and Cedar are policy engines, with their own rule languages. [[slnc 500]]
+And cloud permission policies say who may do which action, on which resource.
+"""
+
+[[scene]]
+key = "07-verdict"
+kind = "bullets"
+title = "When To Use It"
+body = ["Different users, different rights.", "", "Start with roles.", "Add rules on details.", "Deny by default.", "Log and test it."]
+narration = """
+So, when should you use it? [[slnc 400]] As soon as different users may do different things. [[slnc 500]]
+Start with roles. [[slnc 300]] Add rules on details, like ownership and limits. [[slnc 300]] Deny by default. [[slnc 300]] And log and test every rule.
+"""
+
+[[scene]]
+key = "08-outro"
+kind = "outro"
+title = "Thanks for Watching"
+body = ["Full source, notes, diagrams and an animated walkthrough", "are in the repository. Stop support", "refunding their own orders."]
+narration = """
+That's the Authorization Policy pattern. [[slnc 400]] If you remember one sentence, make it this one. [[slnc 300]] One place decides who may do what, and the answer starts as no. [[slnc 500]]
+The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. [[slnc 300]] It runs offline, with nothing installed except a Java development kit. [[slnc 500]]
+Here is one exercise to try. [[slnc 300]] Add a rule that stops support staff refunding their own orders. [[slnc 500]]
+If this helped, a like really does help other people find it. [[slnc 300]] And subscribe, if you'd like the rest of the series. [[slnc 400]] Thanks for watching.
+"""

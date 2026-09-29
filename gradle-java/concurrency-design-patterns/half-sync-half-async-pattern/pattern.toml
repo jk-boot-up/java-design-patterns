@@ -1,0 +1,436 @@
+# pattern.toml for the Half-Sync/Half-Async project. See tools/patternkit.
+
+[project]
+slug = "half-sync-half-async"
+category = "concurrency-design-patterns"
+title = "Half-Sync/Half-Async"
+package = "halfsync"
+main_class = "HalfSyncHalfAsyncDemo"
+tagline = "Accept fast, work slowly, queue between"
+bold = "Split the work in two: a fast asynchronous half that only accepts events and queues them, and a synchronous half of plain threads that take from the queue and do the slow, blocking work."
+domain_note = ""
+thumb_lines = ["HALF-SYNC", "HALF-ASYNC"]
+thumb_code = "queue.offer(order)"
+youtube_title = "Half-Sync/Half-Async"
+youtube_tags = ["half sync half async", "concurrency patterns", "blocking queue", "worker threads", "java"]
+
+[readme]
+intro = """
+Half-Sync/Half-Async is a concurrency pattern that splits a system into two
+layers joined by a queue. The asynchronous half receives events (new orders,
+network messages) on a thread that must never block; all it does is put each
+event in the queue. The synchronous half is a small group of ordinary worker
+threads that take events from the queue and run plain, step-by-step, blocking
+code.
+
+The event thread stays responsive under any load, the business code stays
+simple to read, and the queue in the middle absorbs bursts.
+"""
+analogy = """
+Think of a busy restaurant. The host at the door does one quick job: greet,
+write the order on a ticket, and pin it to the rail. The cooks in the kitchen
+take tickets from the rail one at a time and cook each dish step by step. If
+the host tried to cook as well, the queue at the door would stretch down the
+street. And when the rail is full, the host has to say: sorry, we are full.
+"""
+scenario = """
+The online store receives order notifications on an event thread. Each order
+then needs 100 milliseconds of blocking work: save it, charge the card, send
+the email. The event thread did that work itself, so during a burst of twenty
+orders it could not even accept the next one, and the last order waited over
+a second and a half just to be acknowledged.
+"""
+costs = [
+    "**A full queue must say no.** With stalled workers and a queue of 10, 10 of 20 orders were turned away; every queue needs a limit and a plan.",
+    "**Two kinds of code.** The async half and the sync half follow different rules, and developers must know which side they are on.",
+    "**Queued work can be lost.** Orders in an in-memory queue vanish if the process stops; real systems persist them.",
+]
+too_much = """
+When events are few, or the work is already quick and non-blocking, one layer
+is simpler. And with Java 21's virtual threads, giving each event its own
+virtual thread achieves much of the same with plain code, though a bounded
+queue is still the simplest way to limit load.
+"""
+met_before = [
+    "Web servers whose event loop hands requests to a worker thread pool.",
+    "`ExecutorService` with a `BlockingQueue`: a direct implementation.",
+    "Message queues between a front-end API and background workers.",
+    "Operating systems: interrupt handlers (async) queue work for kernel threads (sync).",
+]
+where = """
+This project is in [concurrency-design-patterns](..), next to
+[Producer-Consumer](../producer-consumer-pattern), the queue at its heart, and
+[Reactor](../reactor-pattern), a common asynchronous half.
+"""
+
+[[act]]
+title = "Blocking work on the event thread"
+summary = "20 orders arrive at once; the event thread does each 100 ms job itself; the last order waits over 1.5 s to be accepted."
+detail = """
+`EventThreadOnly` receives orders on a single event thread and processes each
+one there: save, charge, email, 100 milliseconds. Twenty orders arrive in a
+burst. Each must wait for every order before it to be fully processed, so the
+last is not even accepted until over 1.5 seconds later.
+"""
+speech = """
+First demo: the event thread does every order's blocking work itself. [[slnc 400]] Twenty orders arrive at once. [[slnc 300]] Each needs a tenth of a second: save it, charge the card, send the email. [[slnc 600]]
+The event thread takes the first order, and does all its work. [[slnc 300]] Only then can it even accept the second. [[slnc 500]]
+The last order waits over a second and a half, just to be accepted.
+"""
+rows = { event = "active wrong", orders = "active amber" }
+console = [
+    ["20 orders, 100 ms of work each", "muted"],
+    ["last accepted after over 1.5 s", "bad"],
+]
+
+[[act]]
+title = "The async half"
+summary = "The event thread only queues: every order is accepted within 0.1 s."
+detail = """
+`HalfSyncHalfAsync.burst` keeps the event thread's job tiny: offer the order
+to a queue. Every one of the twenty orders is accepted within a tenth of a
+second, and the event thread is free again at once.
+"""
+speech = """
+Second demo: the async half only accepts, and queues. [[slnc 400]] The event thread now does one quick job. [[slnc 300]] It puts each order in a queue. [[slnc 600]]
+All twenty orders are accepted within a tenth of a second. [[slnc 300]] The event thread is free again, at once.
+"""
+rows = { event = "active ok", queue = "active ok" }
+console = [
+    ["every order accepted within 0.1 s", "ok"],
+    ["the event thread is free at once", "ok"],
+]
+
+[[act]]
+title = "The sync half"
+summary = "4 worker threads take orders and run save, charge, email in order: all 20 done in under 1 s."
+detail = """
+Four ordinary worker threads loop: take an order from the queue, then save,
+charge and email it, one step after another, in plain blocking code. All
+twenty orders are done in under a second.
+"""
+speech = """
+Third demo: the sync half. [[slnc 400]] Four ordinary worker threads each take an order from the queue. [[slnc 300]] Then they save it, charge the card, and send the email, one step after another. [[slnc 600]]
+Plain, simple, blocking code. [[slnc 300]] Easy to read, easy to debug. [[slnc 500]]
+All twenty orders are done in under a second.
+"""
+rows = { queue = "active ok", workers = "active ok" }
+console = [
+    ["4 workers: save, charge, email", "ok"],
+    ["all 20 orders done in under 1 s", "ok"],
+]
+
+[[act]]
+title = "The queue absorbs the burst"
+summary = "At the busiest moment the queue held 10 or more orders; the event thread never waited for a card payment."
+detail = """
+During the burst the queue held ten or more orders waiting for a free worker.
+That is its job: the event thread never waited for a card payment, only the
+workers did.
+"""
+speech = """
+Fourth demo: the queue in the middle absorbs the burst. [[slnc 400]] At the busiest moment, ten or more orders were waiting in the queue for a worker. [[slnc 600]]
+That is what the queue is for. [[slnc 300]] The event thread never waited for a card payment. [[slnc 300]] Only the workers did.
+"""
+rows = { queue = "active amber", event = "active ok", workers = "active ok" }
+console = [
+    ["queue peak: 10 or more orders", "amber"],
+    ["event thread never waited", "ok"],
+]
+
+[[act]]
+title = "The bill"
+summary = "With the workers stalled and a queue of 10, 10 of 20 orders are turned away."
+detail = """
+If the card provider is down, the workers stall and the queue fills. With a
+queue of ten, ten of twenty orders are turned away. Every queue needs a
+limit, and a plan for what happens beyond it: reject, retry later, or save to
+disk.
+"""
+speech = """
+Fifth demo: the bill. [[slnc 400]] The card provider goes down, and the workers stall. [[slnc 300]] The queue fills up. [[slnc 600]]
+The queue holds ten orders. [[slnc 300]] Ten of the twenty are turned away. [[slnc 500]]
+Every queue needs a limit, and a plan for what happens when it is full.
+"""
+rows = { queue = "active wrong", workers = "active wrong" }
+console = [
+    ["workers stalled, queue of 10", "amber"],
+    ["10 of 20 orders turned away", "bad"],
+]
+
+[animation]
+subtitle = "The event thread only queues orders; four plain worker threads take them and do the slow, blocking work."
+boxes = [
+    ["orders", "Order burst", "20 at once"],
+    ["event", "Event thread", "async half: accept, queue"],
+    ["queue", "Queue", "the ticket rail"],
+    ["workers", "4 workers", "sync half: save, charge, email"],
+]
+
+[docs.problem]
+scenario = """
+Orders arrive in bursts on an event thread; each needs 100 ms of blocking
+work.
+"""
+naive = """
+`EventThreadOnly` does the blocking work on the event thread, so it cannot
+accept the next order until the previous one is finished.
+"""
+deliver = [
+    "The acceptance delay shown with blocking work on the event thread.",
+    "An async half that only queues, accepting every order within 0.1 s.",
+    "A sync half of plain worker threads finishing the burst in under 1 s.",
+    "A bounded queue turning orders away when workers stall.",
+    "Every printed result asserted by a test.",
+]
+
+[docs.prerequisites]
+required = [
+    "Java basics: threads, `ExecutorService` at a beginner level.",
+    "What a queue is.",
+]
+not_required = [
+    "Networking. Arrivals are submitted to an executor.",
+]
+
+[docs.session]
+objectives = [
+    "Explain why an event thread must never block.",
+    "Separate accepting from processing with a queue.",
+    "Write plain blocking workers for the sync half.",
+    "Choose a queue limit and a full-queue policy.",
+]
+walkthrough = """
+Run `./gradlew run` and compare act one's acceptance delay with act two's.
+Open `HalfSyncHalfAsync`: `burst` is the async half, `workLoop` the sync half,
+and the `ArrayBlockingQueue` joins them. End on act five and ask what a real
+shop should do with the orders it turned away.
+"""
+exercises = [
+    "Instead of turning orders away, save them to a file and retry later.",
+    "Change the number of workers from 4 to 1 and 8. What happens to the total time?",
+    "Replace the worker threads with virtual threads. What changes, and what stays?",
+]
+
+[docs.explained]
+sentence = """
+Half-Sync/Half-Async splits a system into a non-blocking half that accepts and
+queues events and a blocking half of plain workers that process them, joined
+by a bounded queue.
+"""
+verdict = """
+Use it whenever events arrive on a thread that must stay responsive and the
+work behind them blocks. Keep the async half tiny, bound the queue, decide
+what happens when it is full, and keep the worker code plain.
+"""
+recognise = [
+    "An event loop or listener that only submits work to an executor.",
+    "`BlockingQueue` between a receiver and worker threads.",
+    "\"Background workers\" consuming from a job queue.",
+]
+
+[spec]
+purpose = """
+Teach Half-Sync/Half-Async with an online store's order burst: blocking work
+on the event thread delaying acceptance over 1.5 s, then an async half that
+only queues (every order accepted within 0.1 s), four plain workers finishing
+all 20 in under 1 s, a queue absorbing the burst, and a bounded queue turning
+10 of 20 away when workers stall.
+"""
+nongoals = [
+    "Not networking or persistence. Work is simulated with sleeps.",
+    "Not retry policies. They are an exercise.",
+]
+problem = """
+Doing blocking work on the thread that receives events stops it receiving
+more, so later events wait just to be acknowledged.
+"""
+roles = [
+    ["The pattern", "`HalfSyncHalfAsync` (burst = async half, workLoop = sync half)"],
+    ["The work", "`OrderWork`"],
+    ["The naive version", "`EventThreadOnly`"],
+    ["Entry point", "`HalfSyncHalfAsyncDemo`, five acts"],
+]
+requirements = [
+    "**Fast accept:** the async half never blocks.",
+    "**Plain workers:** the sync half runs step-by-step blocking code.",
+    "**Bounded queue:** a full queue turns orders away, counted.",
+    "**Every printed result is asserted** in `DemoRunsTest`.",
+]
+
+[[diagram]]
+name = "architecture-diagram"
+kind = "flow"
+title = "Half-Sync/Half-Async — the pieces"
+caption = "Two halves, one queue."
+nodes = [
+    { id = "o", label = "Orders", sub = "a burst of 20", col = 0, row = 0, colour = "client" },
+    { id = "e", label = "Event thread", sub = "async half: offer", col = 1, row = 0, colour = "accent" },
+    { id = "q", label = "Queue", sub = "bounded", col = 1, row = 1, colour = "amber" },
+    { id = "w", label = "4 workers", sub = "sync half: take, process", col = 2, row = 1, colour = "green" },
+]
+edges = [
+    { from = "o", to = "e", label = "arrive" },
+    { from = "e", to = "q", label = "offer" },
+    { from = "q", to = "w", label = "take" },
+]
+
+[[diagram]]
+name = "class-diagram"
+kind = "class"
+title = "Half-Sync/Half-Async — classes"
+caption = "The pattern class holds both halves and the queue between them."
+nodes = [
+    { id = "h", label = "HalfSyncHalfAsync", sub = ["- eventThread", "- BlockingQueue queue", "- worker threads", "+ burst(n), workLoop()"], col = 0, row = 0, colour = "accent" },
+    { id = "w", label = "OrderWork", sub = ["+ process(orderId)", "save, charge, email"], col = 1, row = 0, colour = "green" },
+    { id = "e", label = "EventThreadOnly", sub = ["accepts and processes", "on one thread"], col = 2, row = 0, colour = "red" },
+]
+edges = [
+    { from = "h", to = "w", label = "workers call" },
+    { from = "e", to = "w", label = "calls" },
+]
+
+[[diagram]]
+name = "data-flow-diagram"
+kind = "flow"
+title = "Half-Sync/Half-Async — one order"
+caption = "Accepted in microseconds, processed when a worker is free."
+nodes = [
+    { id = "a", label = "ORD-7 arrives", sub = "", col = 0, row = 0, colour = "client" },
+    { id = "b", label = "queued", sub = "event thread, instant", col = 1, row = 0, colour = "accent" },
+    { id = "c", label = "taken by worker-2", sub = "when free", col = 2, row = 0, colour = "amber" },
+    { id = "d", label = "saved, charged, emailed", sub = "100 ms", col = 2, row = 1, colour = "green" },
+]
+edges = [
+    { from = "a", to = "b", label = "offer" },
+    { from = "b", to = "c", label = "take" },
+    { from = "c", to = "d", label = "process" },
+]
+
+[[diagram]]
+name = "sequence-diagram"
+kind = "sequence"
+title = "Half-Sync/Half-Async — a burst"
+caption = "The event thread returns at once; the workers catch up."
+participants = ["Event thread", "Queue", "Worker"]
+steps = [
+    ["Event thread", "Queue", "offer(ORD-1 ... ORD-20)"],
+    ["note", "Event thread", "free again"],
+    ["Worker", "Queue", "take()"],
+    ["Queue", "Worker", "ORD-1", "reply"],
+    ["note", "Worker", "save, charge, email"],
+]
+
+[[diagram]]
+name = "uml-diagram"
+kind = "sequence"
+title = "1. Blocking on the event thread"
+caption = "The next order waits for the whole of this one."
+participants = ["Orders", "Event thread"]
+steps = [
+    ["Orders", "Event thread", "ORD-1"],
+    ["note", "Event thread", "100 ms of work"],
+    ["Orders", "Event thread", "ORD-2 (waiting)"],
+]
+
+[[diagram]]
+name = "uml-diagram-2"
+kind = "sequence"
+title = "2. A full queue"
+caption = "The async half must say no."
+participants = ["Event thread", "Queue"]
+steps = [
+    ["Event thread", "Queue", "offer(ORD-11)"],
+    ["Queue", "Event thread", "false: full", "reply"],
+    ["note", "Event thread", "turned away"],
+]
+
+[poster]
+headline = [["HALF-SYNC", "text"], ["HALF-ASYNC", "text"]]
+before = { code = "process(order) on the event thread", note = "last order waited 1.5 s", tag = "BEFORE" }
+after = { code = "queue.offer(order)", note = "accepted in 0.1 s", tag = "AFTER" }
+taglines = [["Accept fast, work slowly, queue between", "gold"]]
+
+[[scene]]
+key = "01-poster"
+kind = "poster"
+title = "Half-Sync/Half-Async"
+narration = """
+Hello, and welcome. [[slnc 400]] This video explains the Half-Sync, Half-Async pattern, in Java. [[slnc 300]]
+This video is presented by Jayasekhar Konduru. [[slnc 600]]
+First, a simple definition. [[slnc 300]] The work is split in two halves, joined by a queue. [[slnc 300]] A fast half accepts events and only queues them. [[slnc 300]] A slow half of ordinary worker threads takes them from the queue, and does the blocking work, step by step. [[slnc 600]]
+Think of a busy restaurant. [[slnc 300]] The host at the door writes each order on a ticket, and pins it to the rail. [[slnc 300]] The cooks take tickets from the rail, one at a time. [[slnc 300]] If the host tried to cook as well, the queue at the door would stretch down the street. [[slnc 700]]
+In this video, the domain is an online shop. [[slnc 300]] Orders arrive in bursts, and each one needs a tenth of a second of slow work: save it, charge the card, and send an email. [[slnc 500]]
+By the end, you will hear why the receiving thread must never block. [[slnc 300]] How the two halves work. [[slnc 300]] How the queue absorbs a burst. [[slnc 300]] And what a full queue costs.
+"""
+
+[[scene]]
+key = "02-scenario"
+kind = "bullets"
+title = "The Scenario"
+body = ["Orders arrive on an event thread,", "sometimes 20 at once.", "", "Each needs 100 ms:", "save, charge, email."]
+narration = """
+Here is the scenario. [[slnc 400]] Orders arrive on one event thread. [[slnc 300]] Sometimes twenty at once. [[slnc 600]]
+Each order needs a tenth of a second of slow, blocking work. [[slnc 300]] Save it to the database. [[slnc 300]] Charge the card. [[slnc 300]] Send the confirmation email.
+"""
+
+[[scene]]
+key = "03-acts"
+kind = "acts"
+title = "acts"
+
+[[scene]]
+key = "04-pattern"
+kind = "bullets"
+title = "The Pattern"
+body = ["Async half: accept and queue.", "Never block.", "", "Queue: bounded, in the middle.", "", "Sync half: plain worker threads,", "plain blocking code."]
+narration = """
+Let's name the pattern. [[slnc 400]] The async half accepts each event and puts it in a queue. [[slnc 300]] It never blocks. [[slnc 500]]
+The queue sits in the middle, with a limit. [[slnc 500]]
+The sync half is a few ordinary worker threads. [[slnc 300]] Each takes an event from the queue, and runs plain, step-by-step, blocking code.
+"""
+
+[[scene]]
+key = "05-roles"
+kind = "bullets"
+title = "Who Does What"
+body = ["burst(): the async half", "ArrayBlockingQueue: the rail", "workLoop(): the sync half", "OrderWork: save, charge, email", "EventThreadOnly: the old way"]
+narration = """
+Here is who does what. [[slnc 400]] The burst method is the async half: it only offers orders to the queue. [[slnc 500]]
+An array blocking queue is the ticket rail, with a limit. [[slnc 500]]
+The work loop is the sync half: take an order, and process it. [[slnc 300]] Order work holds the three slow steps. [[slnc 500]]
+And event thread only is the old way, kept for comparison.
+"""
+
+[[scene]]
+key = "06-recognise"
+kind = "bullets"
+title = "Where You Have Seen It"
+body = ["Event loop + worker pool", "ExecutorService + BlockingQueue", "API + background job queue", "Interrupts + kernel threads"]
+narration = """
+You have probably met this pattern already. [[slnc 400]] Web servers often have an event loop that hands requests to a pool of worker threads. [[slnc 500]]
+Java's executor services are a queue and worker threads. [[slnc 500]]
+A web A P I that drops jobs onto a queue for background workers is the same shape. [[slnc 300]] So is the way an operating system handles hardware interrupts.
+"""
+
+[[scene]]
+key = "07-verdict"
+kind = "bullets"
+title = "When To Use It"
+body = ["Events on a thread that must", "stay responsive; blocking work", "behind them.", "", "Tiny async half. Bounded queue.", "Plain workers. A full-queue plan."]
+narration = """
+So, when should you use it? [[slnc 400]] Whenever events arrive on a thread that must stay responsive, and the work behind them blocks. [[slnc 500]]
+Keep the async half tiny. [[slnc 300]] Put a limit on the queue. [[slnc 300]] Decide what happens when it is full. [[slnc 300]] And keep the worker code plain.
+"""
+
+[[scene]]
+key = "08-outro"
+kind = "outro"
+title = "Thanks for Watching"
+body = ["Full source, notes, diagrams and an animated walkthrough", "are in the repository. Save turned-away orders", "and retry them later."]
+narration = """
+That's the Half-Sync, Half-Async pattern. [[slnc 400]] If you remember one sentence, make it this one. [[slnc 300]] Accept fast, work slowly, and put a queue in between. [[slnc 500]]
+The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. [[slnc 300]] It runs offline, with nothing installed except a Java development kit. [[slnc 500]]
+Here is one exercise to try. [[slnc 300]] Instead of turning orders away, save them, and retry them later. [[slnc 500]]
+If this helped, a like really does help other people find it. [[slnc 300]] And subscribe, if you'd like the rest of the series. [[slnc 400]] Thanks for watching.
+"""

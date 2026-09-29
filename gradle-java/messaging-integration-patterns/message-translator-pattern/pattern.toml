@@ -1,0 +1,438 @@
+# pattern.toml for the Message Translator / Normalizer project. See tools/patternkit.
+
+[project]
+slug = "message-translator"
+category = "messaging-integration-patterns"
+title = "Message Translator / Normalizer"
+package = "translator"
+main_class = "MessageTranslatorDemo"
+tagline = "Many formats in, one format out"
+bold = "Translate each incoming format into one canonical message at the edge, with one small translator per format and a normalizer that picks the right one, so the rest of the system speaks only one language."
+domain_note = ""
+thumb_lines = ["MESSAGE", "TRANSLATOR"]
+thumb_code = "normalize(raw) -> OrderMessage"
+youtube_title = "Message Translator and Normalizer"
+youtube_tags = ["message translator", "normalizer", "canonical data model", "enterprise integration patterns", "java"]
+
+[readme]
+intro = """
+Message Translator is one of the Enterprise Integration Patterns. When systems
+that send you messages each use their own format, a translator converts one
+format into the format your system uses. The Normalizer builds on it: it looks
+at each incoming message, recognises which format it is in, and passes it to
+the matching translator, so everything that comes out is in one canonical
+shape.
+
+The code behind the normalizer, here a warehouse, then only ever deals with
+one kind of message. Adding a new sender means adding one translator.
+"""
+analogy = """
+Think of an international meeting with interpreters. Each delegate speaks
+their own language, and an interpreter for each language turns it into the
+one working language of the meeting. When a new country joins, you hire one
+more interpreter; nobody else has to learn anything. But jokes and turns of
+phrase that have no equivalent in the working language are often lost.
+"""
+scenario = """
+The online store takes orders from its own web form and from two
+marketplaces. The web form sends key-value text, marketplace A sends CSV,
+marketplace B sends JSON with its own field names. The warehouse parsed all
+three formats itself, and when a third marketplace arrived with XML, the
+warehouse could not read its orders.
+"""
+costs = [
+    "**Lost details.** Marketplace B's gift note (\"Happy birthday, Mum\") has no place in the canonical order and disappears.",
+    "**The canonical model must grow.** Every field someone needs has to be added to it, and to every translator.",
+    "**Translators to maintain.** One per format, each changing whenever its sender changes.",
+]
+too_much = """
+With a single sender whose format you control, just agree on the format. And
+when senders' formats are nearly identical, one flexible parser may be
+simpler than a translator each.
+"""
+met_before = [
+    "Apache Camel's data formats and `unmarshal`, and Spring Integration transformers.",
+    "Canonical data models in enterprise integration.",
+    "Adapters in payment and shipping integrations that map each provider's API to one internal model.",
+]
+where = """
+This project is in [messaging-integration-patterns](..), next to
+[Content Enricher](../content-enricher-pattern), which adds to a message, and
+[Content-Based Router](../content-based-router-pattern), the routing idea the
+normalizer uses to pick a translator.
+"""
+
+[[act]]
+title = "The warehouse reads every format"
+summary = "The warehouse parses web form, CSV and JSON itself; a new XML marketplace fails: warehouse cannot read this order."
+detail = """
+`Warehouse.pickOld` recognises and parses each of the three formats inside
+the warehouse. It picks a kettle, two mugs and a teapot. When marketplace C
+starts sending XML, the warehouse fails: "warehouse cannot read this order".
+Every new format means changing the warehouse.
+"""
+speech = """
+First demo: the warehouse reads every marketplace's format itself. [[slnc 400]] The web form sends key-value text. [[slnc 300]] Marketplace A sends comma-separated values. [[slnc 300]] Marketplace B sends JSON, with its own names for things. [[slnc 600]]
+The warehouse understands all three, and picks a kettle, two mugs, and a teapot. [[slnc 500]]
+Then a new marketplace sends XML. [[slnc 300]] The warehouse cannot read the order. [[slnc 300]] Every new format means changing the warehouse.
+"""
+rows = { warehouse = "active wrong", formats = "active amber" }
+console = [
+    ["pick KETTLE-1, MUG-1, TEAPOT-1", "ok"],
+    ["XML: warehouse cannot read this order", "bad"],
+]
+
+[[act]]
+title = "Translators"
+summary = "One translator per format; each produces the same OrderMessage: W-1 kettle £30.00, A-77 2 mugs £16.00, B-9 teapot £25.00."
+detail = """
+Each format gets its own small translator that produces an `OrderMessage`:
+order ID, product code, quantity and price in pence. The web form, the CSV and
+the JSON all come out in exactly the same shape.
+"""
+speech = """
+Second demo: a translator for each format. [[slnc 400]] Each translator does one job: turn its format into the shop's one standard order. [[slnc 300]] An order ID, a product, a quantity, and a price. [[slnc 600]]
+The web form becomes: W 1, one kettle, thirty pounds. [[slnc 300]] The CSV: A 77, two mugs, sixteen pounds. [[slnc 300]] The JSON: B 9, one teapot, twenty-five pounds. [[slnc 500]]
+Three formats in. [[slnc 300]] One shape out.
+"""
+rows = { translators = "active ok", canonical = "active ok" }
+console = [
+    ["web  -> W-1 1 x KETTLE-1 £30.00", "ok"],
+    ["CSV  -> A-77 2 x MUG-1 £16.00", "ok"],
+    ["JSON -> B-9 1 x TEAPOT-1 £25.00", "ok"],
+]
+
+[[act]]
+title = "The normalizer"
+summary = "The normalizer recognises each format and picks its translator; the warehouse only sees OrderMessage."
+detail = """
+`Normalizer` holds a list of rules: a message starting with "order=" is the
+web form, one matching "A-" and commas is marketplace A, one starting with a
+brace is marketplace B. It picks the translator, and the warehouse only ever
+receives `OrderMessage`.
+"""
+speech = """
+Third demo: a normalizer recognises the format, and picks the translator. [[slnc 400]] It holds simple rules. [[slnc 300]] Starts with order equals? The web form. [[slnc 300]] Starts with A and has commas? Marketplace A. [[slnc 300]] Starts with a curly brace? Marketplace B. [[slnc 600]]
+Each order is translated by the right translator. [[slnc 300]] The warehouse only ever sees the one standard order.
+"""
+rows = { normalizer = "active ok", translators = "active ok", warehouse = "active ok" }
+console = [
+    ["marketplace A (CSV): pick 2 x MUG-1", "ok"],
+    ["marketplace B (JSON): pick 1 x TEAPOT-1", "ok"],
+    ["web form: pick 1 x KETTLE-1", "ok"],
+]
+
+[[act]]
+title = "A new marketplace"
+summary = "Marketplace C's XML gets one translator and one rule; the warehouse picks C-5's kettle unchanged."
+detail = """
+Marketplace C is added with one translator for its XML and one rule
+recognising it. Its order, C-5, one kettle, reaches the warehouse as an
+ordinary `OrderMessage`. The warehouse was not changed.
+"""
+speech = """
+Fourth demo: a new marketplace. [[slnc 400]] Marketplace C sends XML. [[slnc 300]] It gets one new translator, and one new rule. [[slnc 600]]
+Its order, C 5, one kettle, reaches the warehouse like every other order. [[slnc 500]]
+The warehouse was not changed at all.
+"""
+rows = { normalizer = "active ok", translators = "active ok", warehouse = "active ok" }
+console = [
+    ["marketplace C (XML): pick 1 x KETTLE-1", "ok"],
+    ["the warehouse was not changed", "ok"],
+]
+
+[[act]]
+title = "The bill"
+summary = "Marketplace B's gift note \"Happy birthday, Mum\" is lost: the canonical order has no field for it."
+detail = """
+Marketplace B's order carries a gift note, "Happy birthday, Mum". The
+canonical order has no field for it, so after translation it is gone. Every
+field someone needs must be added to the canonical order and to every
+translator.
+"""
+speech = """
+Fifth demo: the bill. [[slnc 400]] Marketplace B's order carries a gift note: Happy birthday, Mum. [[slnc 600]]
+The standard order has no field for gift notes. [[slnc 300]] After translation, the note is gone. [[slnc 500]]
+Every field someone needs must be added to the standard order, and to every translator.
+"""
+rows = { translators = "active wrong", canonical = "active amber" }
+console = [
+    ["gift note: \"Happy birthday, Mum\"", "muted"],
+    ["after translation: no gift note", "bad"],
+]
+
+[animation]
+subtitle = "Orders in many formats pass through a normalizer that picks a translator; the warehouse receives one standard order."
+boxes = [
+    ["formats", "Web, CSV, JSON, XML", "each sender's own format"],
+    ["normalizer", "Normalizer", "recognise, pick"],
+    ["translators", "Translators", "one per format"],
+    ["canonical", "OrderMessage", "the one shape"],
+    ["warehouse", "Warehouse", "picks orders"],
+]
+
+[docs.problem]
+scenario = """
+Orders arrive from the web form (key-value), marketplace A (CSV), marketplace
+B (JSON) and, later, marketplace C (XML).
+"""
+naive = """
+`Warehouse.pickOld` parses every format itself, so each new format means
+changing the warehouse, and XML is refused.
+"""
+deliver = [
+    "The warehouse shown parsing every format and failing on XML.",
+    "One translator per format producing a canonical OrderMessage.",
+    "A normalizer that recognises and routes each format.",
+    "A new marketplace added with one translator and one rule.",
+    "The lost gift note shown.",
+    "Every printed result asserted by a test.",
+]
+
+[docs.prerequisites]
+required = [
+    "Java basics: records, lambdas, `String.split`.",
+    "A rough idea of CSV, JSON and XML.",
+]
+not_required = [
+    "JSON or XML libraries. Parsing is kept small on purpose.",
+]
+
+[docs.session]
+objectives = [
+    "Explain a canonical data model.",
+    "Write a translator for one format.",
+    "Build a normalizer that picks translators.",
+    "Name what translation can lose.",
+]
+walkthrough = """
+Run `./gradlew run` and read act one. Open `Translators`: four small
+functions. Then `Normalizer.standard`: three rules. End on act five and ask
+what should happen to the gift note.
+"""
+exercises = [
+    "Add a `note` field to OrderMessage and carry the gift note through.",
+    "Make the normalizer send unrecognised messages to a dead-letter list instead of throwing.",
+    "Replace the JSON regex with a real JSON library. What breaks less?",
+]
+
+[docs.explained]
+sentence = """
+A message translator converts one format into another; a normalizer
+recognises each incoming format and picks the translator, so everything
+arrives in one canonical shape.
+"""
+verdict = """
+Use a normalizer at the edge whenever several senders use different formats.
+Keep one small translator per format, define the canonical message carefully,
+and check what each translation drops.
+"""
+recognise = [
+    "Mappers or transformers named after an external system: `AmazonOrderMapper`.",
+    "A canonical `Order` or `Event` type used everywhere inside.",
+    "A router that picks a parser by content type or message shape.",
+]
+
+[spec]
+purpose = """
+Teach Message Translator and Normalizer with an online store's marketplace
+orders: a warehouse parsing web form, CSV and JSON and refusing XML, then one
+translator per format into a canonical OrderMessage, a normalizer routing by
+format, XML added with one translator, and a lost gift note.
+"""
+nongoals = [
+    "Not JSON or XML libraries. Formats are parsed simply.",
+    "Not messaging infrastructure. Messages are strings.",
+]
+problem = """
+Code that must understand every sender's format changes with every new
+sender.
+"""
+roles = [
+    ["The canonical message", "`OrderMessage`"],
+    ["The translators", "`Translators`"],
+    ["The normalizer", "`Normalizer`"],
+    ["The receiver", "`Warehouse`"],
+    ["Entry point", "`MessageTranslatorDemo`, five acts"],
+]
+requirements = [
+    "**One shape:** every format becomes an OrderMessage.",
+    "**Routing by format:** the normalizer picks the translator.",
+    "**Open to new formats:** XML needs no warehouse change.",
+    "**Every printed result is asserted** in `DemoRunsTest`.",
+]
+
+[[diagram]]
+name = "architecture-diagram"
+kind = "flow"
+title = "Message Translator — the pieces"
+caption = "Formats in, one message out."
+nodes = [
+    { id = "w", label = "Web form", sub = "key=value", col = 0, row = 0, colour = "client" },
+    { id = "a", label = "Marketplace A", sub = "CSV", col = 0, row = 1, colour = "client" },
+    { id = "b", label = "Marketplace B", sub = "JSON", col = 0, row = 2, colour = "client" },
+    { id = "n", label = "Normalizer", sub = "recognise + translate", col = 1, row = 1, colour = "accent" },
+    { id = "h", label = "Warehouse", sub = "OrderMessage only", col = 2, row = 1, colour = "green" },
+]
+edges = [
+    { from = "w", to = "n", label = "" },
+    { from = "a", to = "n", label = "" },
+    { from = "b", to = "n", label = "" },
+    { from = "n", to = "h", label = "OrderMessage" },
+]
+
+[[diagram]]
+name = "class-diagram"
+kind = "class"
+title = "Message Translator — classes"
+caption = "Rules pick translators; translators make OrderMessages."
+nodes = [
+    { id = "n", label = "Normalizer", sub = ["- rules -> translators", "+ route(name, test, t)", "+ normalize(raw)"], col = 0, row = 0, colour = "accent" },
+    { id = "t", label = "«interface» Translator", sub = ["+ translate(raw): OrderMessage", "WEB, MARKET_A, B, C"], col = 1, row = 0, colour = "amber" },
+    { id = "o", label = "«record» OrderMessage", sub = ["orderId, sku", "quantity, pence"], col = 2, row = 0, colour = "green" },
+]
+edges = [
+    { from = "n", to = "t", label = "picks" },
+    { from = "t", to = "o", label = "creates" },
+]
+
+[[diagram]]
+name = "data-flow-diagram"
+kind = "flow"
+title = "Message Translator — one JSON order"
+caption = "Field names mapped, pounds turned into pence, the gift note dropped."
+nodes = [
+    { id = "a", label = "{id:B-9, item:TEAPOT-1, ...}", sub = "marketplace B", col = 0, row = 0, colour = "client" },
+    { id = "b", label = "starts with {", sub = "normalizer: JSON", col = 1, row = 0, colour = "accent" },
+    { id = "c", label = "B-9, TEAPOT-1, 1, 2500", sub = "OrderMessage", col = 2, row = 0, colour = "green" },
+    { id = "d", label = "gift_note", sub = "no field: dropped", col = 2, row = 1, colour = "red" },
+]
+edges = [
+    { from = "a", to = "b", label = "" },
+    { from = "b", to = "c", label = "MARKET_B" },
+    { from = "b", to = "d", label = "", dashed = true },
+]
+
+[[diagram]]
+name = "sequence-diagram"
+kind = "sequence"
+title = "Message Translator — normalizing an order"
+caption = "Recognise, translate, deliver."
+participants = ["Marketplace A", "Normalizer", "Warehouse"]
+steps = [
+    ["Marketplace A", "Normalizer", "A-77,MUG-1,2,1600"],
+    ["note", "Normalizer", "looks like CSV: MARKET_A"],
+    ["Normalizer", "Warehouse", "OrderMessage(A-77, MUG-1, 2, 1600)"],
+]
+
+[[diagram]]
+name = "uml-diagram"
+kind = "sequence"
+title = "1. The old warehouse"
+caption = "A format it does not know."
+participants = ["Marketplace C", "Warehouse"]
+steps = [
+    ["Marketplace C", "Warehouse", "<order id=C-5>..."],
+    ["Warehouse", "Marketplace C", "cannot read this order", "reply"],
+]
+
+[[diagram]]
+name = "uml-diagram-2"
+kind = "sequence"
+title = "2. Adding marketplace C"
+caption = "One rule, one translator."
+participants = ["Setup", "Normalizer"]
+steps = [
+    ["Setup", "Normalizer", "route(XML, starts with <order, MARKET_C)"],
+    ["note", "Normalizer", "warehouse unchanged"],
+]
+
+[poster]
+headline = [["MESSAGE", "text"], ["TRANSLATOR", "text"]]
+before = { code = "if (csv) ... else if (json) ...", note = "in the warehouse", tag = "BEFORE" }
+after = { code = "normalize(raw) -> OrderMessage", note = "one shape inside", tag = "AFTER" }
+taglines = [["Many formats in, one format out", "gold"]]
+
+[[scene]]
+key = "01-poster"
+kind = "poster"
+title = "Message Translator / Normalizer"
+narration = """
+Hello, and welcome. [[slnc 400]] This video explains the Message Translator and Normalizer patterns, in Java. [[slnc 300]]
+This video is presented by Jayasekhar Konduru. [[slnc 600]]
+First, a simple definition. [[slnc 300]] A message translator turns a message in one format into the format your system uses. [[slnc 300]] A normalizer recognises which format each message is in, and picks the right translator. [[slnc 300]] So everything inside your system arrives in one standard shape. [[slnc 600]]
+Think of interpreters at an international meeting. [[slnc 300]] Each delegate speaks their own language. [[slnc 300]] An interpreter for each language turns it into the one working language. [[slnc 300]] When a new country joins, you hire one more interpreter. [[slnc 700]]
+In this video, the domain is an online shop. [[slnc 300]] It takes orders from its own web form, and from marketplaces that each send orders in their own format. [[slnc 500]]
+By the end, you will hear what happens when the warehouse reads every format. [[slnc 300]] How translators and a normalizer fix it. [[slnc 300]] How to add a marketplace. [[slnc 300]] And what gets lost in translation.
+"""
+
+[[scene]]
+key = "02-scenario"
+kind = "bullets"
+title = "The Scenario"
+body = ["Web form: order=W-1;sku=...", "Marketplace A: CSV", "Marketplace B: JSON, own field names", "", "The warehouse read them all."]
+narration = """
+Here is the scenario. [[slnc 400]] Orders come from the shop's web form, as key-value text. [[slnc 300]] From marketplace A, as comma-separated values. [[slnc 300]] And from marketplace B, as JSON, with its own names for every field. [[slnc 600]]
+The warehouse read all three itself.
+"""
+
+[[scene]]
+key = "03-acts"
+kind = "acts"
+title = "acts"
+
+[[scene]]
+key = "04-pattern"
+kind = "bullets"
+title = "The Pattern"
+body = ["One translator per format.", "", "A normalizer recognises the format", "and picks the translator.", "", "Inside: one canonical message."]
+narration = """
+Let's name the patterns. [[slnc 400]] Write one small translator for each format. [[slnc 300]] Each turns its format into one canonical message: the shop's standard order. [[slnc 500]]
+Put a normalizer at the edge. [[slnc 300]] It recognises which format each message is in, and hands it to the right translator. [[slnc 500]]
+Inside the shop, there is only one kind of order.
+"""
+
+[[scene]]
+key = "05-roles"
+kind = "bullets"
+title = "Who Does What"
+body = ["OrderMessage: the canonical order", "Translators: web, A, B, C", "Normalizer: recognise, pick", "Warehouse: sees one shape"]
+narration = """
+Here is who does what. [[slnc 400]] Order message is the canonical order: ID, product, quantity, and price in pence. [[slnc 500]]
+The translators turn each format into it. [[slnc 500]]
+The normalizer recognises the format, and picks the translator. [[slnc 300]] And the warehouse only ever sees order messages.
+"""
+
+[[scene]]
+key = "06-recognise"
+kind = "bullets"
+title = "Where You Have Seen It"
+body = ["Camel data formats, unmarshal", "Spring Integration transformers", "Canonical data models", "One mapper per provider"]
+narration = """
+You have probably met these patterns already. [[slnc 400]] Apache Camel and Spring Integration have transformers and data formats for exactly this. [[slnc 500]]
+Large companies define a canonical data model, one standard shape for each kind of message. [[slnc 500]]
+And any shop that integrates with several payment or shipping providers has one mapper for each.
+"""
+
+[[scene]]
+key = "07-verdict"
+kind = "bullets"
+title = "When To Use It"
+body = ["Several senders, several formats.", "", "One translator per format.", "Design the canonical message.", "Check what each one drops."]
+narration = """
+So, when should you use them? [[slnc 400]] Whenever several senders use different formats. [[slnc 500]]
+Keep one small translator for each format. [[slnc 300]] Design the canonical message carefully. [[slnc 300]] And check what each translation drops. [[slnc 500]]
+With one sender whose format you control, simply agree on the format.
+"""
+
+[[scene]]
+key = "08-outro"
+kind = "outro"
+title = "Thanks for Watching"
+body = ["Full source, notes, diagrams and an animated walkthrough", "are in the repository. Carry the gift note", "through."]
+narration = """
+That's the Message Translator and Normalizer patterns. [[slnc 400]] If you remember one sentence, make it this one. [[slnc 300]] Translate at the edge, so the inside speaks one language. [[slnc 500]]
+The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. [[slnc 300]] It runs offline, with nothing installed except a Java development kit. [[slnc 500]]
+Here is one exercise to try. [[slnc 300]] Add a note field to the standard order, and carry the gift note through. [[slnc 500]]
+If this helped, a like really does help other people find it. [[slnc 300]] And subscribe, if you'd like the rest of the series. [[slnc 400]] Thanks for watching.
+"""

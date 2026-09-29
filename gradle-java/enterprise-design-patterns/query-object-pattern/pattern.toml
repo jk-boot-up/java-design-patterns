@@ -1,0 +1,454 @@
+# pattern.toml for the Query Object project. See tools/patternkit.
+
+[project]
+slug = "query-object"
+category = "enterprise-design-patterns"
+title = "Query Object"
+package = "queryobject"
+main_class = "QueryObjectDemo"
+tagline = "A search you can hold, test and reuse"
+bold = "Represent a search as an object made of criteria, which can write itself as safe SQL with placeholders and can also run over a list in memory."
+domain_note = ""
+thumb_lines = ["QUERY", "OBJECT"]
+thumb_code = "q.and(inStock())"
+youtube_title = "Query Object"
+youtube_tags = ["query object", "sql injection", "criteria api", "enterprise patterns", "martin fowler", "java"]
+
+[readme]
+intro = """
+Query Object is one of Martin Fowler's enterprise application patterns. A
+search is held as an object built from small criteria: "category is kitchen",
+"price at most £30", "in stock". The query object can turn itself into SQL,
+using placeholders for every value so no customer text ever becomes part of
+the SQL, and the same object can run over a plain list in memory, which makes
+it easy to test.
+
+Queries become values you can pass around, save, and extend with one more
+criterion, instead of strings glued together in page code.
+"""
+analogy = """
+Think of a library request form. Instead of shouting a sentence at the
+librarian, you fill in boxes: subject, author, published after. Whatever you
+write in the author box is treated as a name, never as an instruction to the
+librarian. The same form can be used to search the catalogue computer or to
+walk along the shelves, and a form you filled in last week can be copied with
+one more box ticked.
+"""
+scenario = """
+The online store's search page lets customers filter by category, maximum
+price and part of the product name. The page built its SQL by gluing strings
+together. Leaving the category empty produced broken SQL, "WHERE AND", and a
+customer searching for "O'Brien's mug" put an apostrophe straight into the
+SQL, which is how SQL injection attacks begin.
+"""
+costs = [
+    "**Your own small language.** Only the criteria you wrote exist; OR, joins and sorting must be added as needed.",
+    "**Said twice.** Each criterion is written as SQL and as Java, and the two must agree.",
+    "**Not a full query engine.** For complex reporting, plain SQL or a query library is clearer.",
+]
+too_much = """
+For a fixed query that never changes shape, a single SQL string with
+placeholders in a repository method is simpler. Query objects pay off when
+searches are built from optional filters, saved, combined, or run in more than
+one place.
+"""
+met_before = [
+    "JPA's Criteria API and Hibernate's `Criteria`.",
+    "Spring Data `Specification` and QueryDSL.",
+    "jOOQ, which builds type-safe SQL from Java objects.",
+    "Saved searches and filters in online shops.",
+]
+where = """
+This project is in [enterprise-design-patterns](..), next to
+[Repository](../repository-pattern), which often accepts query
+objects as its search method's argument.
+"""
+
+[[act]]
+title = "SQL glued from strings"
+summary = "Without a category the SQL reads \"WHERE AND\"; searching for O'Brien puts the apostrophe inside the SQL."
+detail = """
+`StringSql.build` appends each filter to a string. With a category and a price
+it works. Without a category it produces `WHERE  AND price_pence <= 3000`,
+which the database rejects. And the name filter pastes the customer's text
+into the SQL, so the apostrophe in "O'Brien" ends the string early: the first
+step of a SQL injection attack.
+"""
+speech = """
+First demo: the search page glues SQL together from strings. [[slnc 400]] SQL is the language used to ask a database for data. [[slnc 500]]
+Kitchen products under thirty pounds: that works. [[slnc 500]]
+Any category, under thirty pounds. [[slnc 300]] Now the SQL says where, and, with nothing in between. [[slnc 300]] The database rejects it. [[slnc 600]]
+Then a customer searches for O'Brien's mug. [[slnc 300]] The apostrophe goes straight into the SQL, and ends the text early. [[slnc 300]] That is exactly how SQL injection attacks begin.
+"""
+rows = { page = "active wrong", sql = "active wrong" }
+console = [
+    ["kitchen under £30: works", "ok"],
+    ["no category: WHERE  AND price...", "bad"],
+    ["O'Brien: name LIKE '%O'Brien%'", "bad"],
+]
+
+[[act]]
+title = "A query object"
+summary = "category, maxPrice and inStock criteria produce \"WHERE category = ? AND price_pence <= ? AND stock > 0\" with values [kitchen, 3000]."
+detail = """
+`ProductQuery` is built by adding criteria: `category("kitchen")`,
+`maxPrice(3000)`, `inStock()`. It writes SQL with a question mark for every
+value, and keeps the values separately: `[kitchen, 3000]`. Leaving out the
+category simply leaves out that criterion, and the SQL is still correct.
+"""
+speech = """
+Second demo: a query object, built from criteria. [[slnc 400]] Category is kitchen. [[slnc 300]] Price at most thirty pounds. [[slnc 300]] In stock. [[slnc 500]]
+The query writes its own SQL. [[slnc 300]] Every value is a question mark, a placeholder. [[slnc 300]] The values travel separately: kitchen, and three thousand pence. [[slnc 600]]
+Leave out the category, and that criterion is simply not there. [[slnc 300]] The SQL is still correct.
+"""
+rows = { query = "active ok", criteria = "active ok", sql = "active ok" }
+console = [
+    ["WHERE category = ? AND price_pence <= ?", "ok"],
+    ["      AND stock > 0", "ok"],
+    ["values: [kitchen, 3000]", "ok"],
+]
+
+[[act]]
+title = "The same query in memory"
+summary = "Run over a list, the query finds the kettle, the tea towel and O'Brien's mug; the out-of-stock teapot and the lamp are left out."
+detail = """
+Each criterion can also test a product in Java, so `runOn` runs the same query
+over a plain list. It finds the steel kettle, the tea towel and O'Brien's mug.
+The glass teapot is out of stock and the desk lamp is not kitchen, so both are
+left out. Tests can check a query's meaning without a database.
+"""
+speech = """
+Third demo: the same query runs in memory, for tests. [[slnc 400]] Each criterion can also check a product directly, in Java. [[slnc 500]]
+Run over a small list, the query finds three products. [[slnc 300]] The steel kettle, the tea towel, and O'Brien's mug. [[slnc 500]]
+The glass teapot is out of stock. [[slnc 300]] The desk lamp is not kitchen. [[slnc 300]] Both are left out. [[slnc 500]]
+The query's meaning can be tested without any database.
+"""
+rows = { query = "active ok", memory = "active ok" }
+console = [
+    ["found steel kettle, £30.00", "ok"],
+    ["found tea towel, £6.00", "ok"],
+    ["found O'Brien's mug, £9.00", "ok"],
+]
+
+[[act]]
+title = "Safe and reusable"
+summary = "Adding nameContains(\"O'Brien\") sends %O'Brien% as a value; 1 product found; the saved query still has its 2 values."
+detail = """
+The saved "cheap kitchen" query is extended with `nameContains("O'Brien")`.
+The apostrophe travels as a value, `%O'Brien%`, never as SQL, and one product
+is found. Adding a criterion returns a new query, so the saved one still has
+its original two values and can be reused for other searches.
+"""
+speech = """
+Fourth demo: safe with any text, and reusable. [[slnc 400]] The saved cheap kitchen search gets one more criterion: name contains O'Brien. [[slnc 500]]
+The apostrophe travels as a value, never as part of the SQL. [[slnc 300]] One product is found. [[slnc 600]]
+And adding a criterion makes a new query. [[slnc 300]] The saved one is unchanged, ready to be reused.
+"""
+rows = { query = "active ok", criteria = "active ok" }
+console = [
+    ["values: [kitchen, 3000, %O'Brien%]", "ok"],
+    ["found 1 product", "ok"],
+    ["saved query unchanged: 2 values", "ok"],
+]
+
+[[act]]
+title = "The bill"
+summary = "Only the criteria you wrote exist (no OR, joins or sorting yet); each is written in SQL and in Java, which must agree."
+detail = """
+A query object is a small query language of your own. It has only the
+criteria you wrote: no OR, no joins, no sorting until someone adds them. And
+each criterion says the same thing twice, once as SQL and once as Java, and
+the two must agree.
+"""
+speech = """
+Fifth demo: the bill. [[slnc 400]] A query object is a small query language of your own. [[slnc 300]] It has only the criteria you wrote. [[slnc 300]] No or, no joins, no sorting, until someone adds them. [[slnc 600]]
+And each criterion says the same thing twice. [[slnc 300]] Once in SQL, and once in Java. [[slnc 300]] The two must always agree.
+"""
+rows = { criteria = "active amber" }
+console = [
+    ["no OR, no joins, no sorting yet", "amber"],
+    ["SQL and Java must agree", "amber"],
+]
+
+[animation]
+subtitle = "A search is held as criteria that write safe SQL with placeholders, and can also run over a list in memory."
+boxes = [
+    ["page", "Search page", "the filters a customer set"],
+    ["sql", "Glued SQL", "strings pasted together"],
+    ["criteria", "Criteria", "category, price, stock, name"],
+    ["query", "ProductQuery", "and(...), toSql(), runOn(...)"],
+    ["memory", "In-memory list", "for tests"],
+]
+
+[docs.problem]
+scenario = """
+Customers filter products by category, maximum price and part of the name,
+any of which may be left empty.
+"""
+naive = """
+`StringSql` glues SQL together from strings: an empty category gives `WHERE
+AND`, and the customer's text is pasted into the SQL.
+"""
+deliver = [
+    "Broken SQL and an unescaped apostrophe shown.",
+    "Criteria that produce placeholders and a separate list of values.",
+    "The same query run over a list in memory.",
+    "A saved query extended without being changed.",
+    "Every printed result asserted by a test.",
+]
+
+[docs.prerequisites]
+required = [
+    "Java basics: interfaces, lists, streams, lambdas.",
+    "A little SQL: `SELECT`, `WHERE`, `AND`.",
+]
+not_required = [
+    "A database. SQL is produced and printed, not executed.",
+    "JPA or any query library.",
+]
+
+[docs.session]
+objectives = [
+    "Explain why gluing SQL from strings breaks and is unsafe.",
+    "Build a query from criteria with placeholders.",
+    "Test a query's meaning in memory.",
+    "Extend a saved query without changing it.",
+]
+walkthrough = """
+Run `./gradlew run` and read act one's three lines of SQL aloud. Then open
+`Criterion`: each one is a SQL fragment, a list of values, and a Java test.
+Show `ProductQuery.toSql` joining them with AND, and `runOn` using the same
+criteria over a list.
+"""
+exercises = [
+    "Add `minPrice` and use it with `maxPrice` for a price range.",
+    "Add sorting: `orderBy(\"price_pence\")`. How do you stop a customer choosing an unknown column?",
+    "Add an `or(Criterion, Criterion)` criterion.",
+    "Write a test that runs every criterion in memory and checks its SQL mentions the right column.",
+]
+
+[docs.explained]
+sentence = """
+A query object holds a search as a set of criteria that can write themselves
+as safe SQL with placeholders and can also run over data in memory.
+"""
+verdict = """
+Use query objects when searches are built from optional filters, saved,
+combined or run in several places. Always use placeholders for values, test
+criteria in memory, and reach for JPA Criteria, Specifications or jOOQ rather
+than growing your own into a full language.
+"""
+recognise = [
+    "`Criteria`, `Specification` or `Predicate` objects combined with `and`.",
+    "SQL with `?` placeholders built from a list of conditions.",
+    "Saved searches or filter objects passed to a repository.",
+]
+
+[spec]
+purpose = """
+Teach Query Object with an online store's product search: glued SQL producing
+"WHERE AND" and an unescaped apostrophe, then criteria that write placeholder
+SQL with separate values, the same query run in memory (3 products found), a
+saved query extended safely, and the cost of a home-made query language.
+"""
+nongoals = [
+    "Not a database. SQL is printed, not executed.",
+    "Not a full query language. OR, joins and sorting are exercises.",
+]
+problem = """
+Gluing SQL together from optional filters produces broken SQL when a filter is
+empty and unsafe SQL when a customer types a quote.
+"""
+roles = [
+    ["The pattern", "`ProductQuery`"],
+    ["The parts", "`Criterion` (`category`, `maxPrice`, `inStock`, `nameContains`)"],
+    ["The data", "`Product`"],
+    ["The naive version", "`StringSql`"],
+    ["Entry point", "`QueryObjectDemo`, five acts"],
+]
+requirements = [
+    "**Placeholders only:** no value ever appears in the SQL text.",
+    "**Optional filters:** any combination produces valid SQL.",
+    "**Same meaning in memory:** `runOn` uses the same criteria.",
+    "**Immutable:** adding a criterion returns a new query.",
+    "**Every printed result is asserted** in `DemoRunsTest`.",
+]
+
+[[diagram]]
+name = "architecture-diagram"
+kind = "flow"
+title = "Query Object — the pieces"
+caption = "One query, two ways to run it."
+nodes = [
+    { id = "p", label = "Search page", sub = "filters", col = 0, row = 0, colour = "client" },
+    { id = "q", label = "ProductQuery", sub = "a list of criteria", col = 1, row = 0, colour = "accent" },
+    { id = "s", label = "SQL + values", sub = "for the database", col = 2, row = 0, colour = "green" },
+    { id = "m", label = "runOn(list)", sub = "for tests", col = 2, row = 1, colour = "amber" },
+]
+edges = [
+    { from = "p", to = "q", label = "and(...)" },
+    { from = "q", to = "s", label = "toSql(), params()" },
+    { from = "q", to = "m", label = "test each product" },
+]
+
+[[diagram]]
+name = "class-diagram"
+kind = "class"
+title = "Query Object — classes"
+caption = "Criteria know their SQL and their Java test."
+nodes = [
+    { id = "q", label = "ProductQuery", sub = ["- List<Criterion>", "+ and(c): ProductQuery", "+ toSql(), params()", "+ runOn(list)"], col = 0, row = 0, colour = "accent" },
+    { id = "c", label = "«interface» Criterion", sub = ["+ sql(), params()", "+ test(Product)", "category, maxPrice, ..."], col = 1, row = 0, colour = "green" },
+    { id = "p", label = "«record» Product", sub = ["name, category", "pricePence, stock"], col = 2, row = 0, colour = "client" },
+    { id = "s", label = "StringSql", sub = ["+ build(...): String"], col = 0, row = 1, colour = "red" },
+]
+edges = [
+    { from = "q", to = "c", label = "holds" },
+    { from = "c", to = "p", label = "tests" },
+]
+
+[[diagram]]
+name = "data-flow-diagram"
+kind = "flow"
+title = "Query Object — from criteria to SQL"
+caption = "SQL fragments join with AND; values go in a separate list."
+nodes = [
+    { id = "a", label = "category(kitchen)", sub = "category = ?", col = 0, row = 0, colour = "client" },
+    { id = "b", label = "maxPrice(3000)", sub = "price_pence <= ?", col = 0, row = 1, colour = "client" },
+    { id = "c", label = "inStock()", sub = "stock > 0", col = 0, row = 2, colour = "client" },
+    { id = "d", label = "WHERE ... AND ... AND ...", sub = "toSql()", col = 2, row = 0, colour = "accent" },
+    { id = "e", label = "[kitchen, 3000]", sub = "params()", col = 2, row = 1, colour = "green" },
+]
+edges = [
+    { from = "a", to = "d", label = "sql" },
+    { from = "b", to = "d", label = "sql" },
+    { from = "c", to = "d", label = "sql" },
+    { from = "b", to = "e", label = "value" },
+]
+
+[[diagram]]
+name = "sequence-diagram"
+kind = "sequence"
+title = "Query Object — a search"
+caption = "Build the query, then hand SQL and values to the database."
+participants = ["Search page", "ProductQuery", "Database"]
+steps = [
+    ["Search page", "ProductQuery", "and(category), and(maxPrice)"],
+    ["Search page", "ProductQuery", "toSql(), params()"],
+    ["ProductQuery", "Search page", "SQL with ?, [kitchen, 3000]", "reply"],
+    ["Search page", "Database", "run SQL with values"],
+]
+
+[[diagram]]
+name = "uml-diagram"
+kind = "sequence"
+title = "1. Glued SQL"
+caption = "The customer's text becomes part of the SQL."
+participants = ["Search page", "StringSql"]
+steps = [
+    ["Search page", "StringSql", "build(kitchen, null, O'Brien)"],
+    ["StringSql", "Search page", "... LIKE '%O'Brien%'", "reply"],
+    ["note", "StringSql", "the quote ends the text"],
+]
+
+[[diagram]]
+name = "uml-diagram-2"
+kind = "sequence"
+title = "2. Testing in memory"
+caption = "No database needed to check the meaning."
+participants = ["Test", "ProductQuery", "List"]
+steps = [
+    ["Test", "ProductQuery", "runOn(list)"],
+    ["ProductQuery", "List", "test each product"],
+    ["ProductQuery", "Test", "kettle, towel, mug", "reply"],
+]
+
+[poster]
+headline = [["QUERY", "text"], ["OBJECT", "text"]]
+before = { code = "\"WHERE \" + ... + \" AND \"", note = "broken, unsafe", tag = "BEFORE" }
+after = { code = "q.and(inStock())", note = "placeholders, testable", tag = "AFTER" }
+taglines = [["A search you can hold, test and reuse", "gold"]]
+
+[[scene]]
+key = "01-poster"
+kind = "poster"
+title = "Query Object"
+narration = """
+Hello, and welcome. [[slnc 400]] This video explains the Query Object pattern, in Java. [[slnc 300]]
+This video is presented by Jayasekhar Konduru. [[slnc 600]]
+First, a simple definition. [[slnc 300]] A query object holds a search as an object, made of small criteria. [[slnc 300]] It can write itself as safe SQL for the database. [[slnc 300]] And it can run over a plain list in memory, for testing. [[slnc 600]]
+Think of a library request form. [[slnc 300]] You fill in boxes: subject, author, year. [[slnc 300]] Whatever you write in the author box is treated as a name, never as an instruction. [[slnc 300]] And last week's form can be copied, with one more box ticked. [[slnc 700]]
+In this video, the domain is an online shop. [[slnc 300]] Its search page lets customers filter products by category, price, and name. [[slnc 500]]
+By the end, you will hear how gluing SQL together from strings goes wrong. [[slnc 300]] How a query object fixes it. [[slnc 300]] How to test a query without a database. [[slnc 300]] And what it costs.
+"""
+
+[[scene]]
+key = "02-scenario"
+kind = "bullets"
+title = "The Scenario"
+body = ["Filter by category, maximum price,", "and part of the name.", "", "Any filter may be empty.", "", "The page glued SQL together", "from strings."]
+narration = """
+Here is the scenario. [[slnc 400]] Customers can filter products by category, by maximum price, and by part of the name. [[slnc 300]] Any of those may be left empty. [[slnc 600]]
+The search page built its database query by gluing text together. [[slnc 300]] A bit of SQL for each filter that was filled in.
+"""
+
+[[scene]]
+key = "03-acts"
+kind = "acts"
+title = "acts"
+
+[[scene]]
+key = "04-pattern"
+kind = "bullets"
+title = "The Pattern"
+body = ["A search is an object made", "of criteria.", "", "It writes SQL with placeholders,", "values kept apart.", "", "It can also run in memory."]
+narration = """
+Let's name the pattern. [[slnc 400]] Hold the search as an object, made of criteria. [[slnc 300]] Category is kitchen. [[slnc 300]] Price at most thirty pounds. [[slnc 500]]
+The object writes its own SQL, with a placeholder for every value. [[slnc 300]] The values travel separately, so customer text never becomes SQL. [[slnc 500]]
+And the same object can run over a list in memory, so tests do not need a database.
+"""
+
+[[scene]]
+key = "05-roles"
+kind = "bullets"
+title = "Who Does What"
+body = ["Criterion: SQL, values, Java test", "ProductQuery: holds criteria", "toSql, params: for the database", "runOn: for tests", "StringSql: the old way"]
+narration = """
+Here is who does what. [[slnc 400]] A criterion knows three things. [[slnc 300]] Its bit of SQL, its values, and how to test a product in Java. [[slnc 500]]
+Product query holds a list of criteria. [[slnc 300]] It joins their SQL, collects their values, or runs them over a list. [[slnc 500]]
+And string SQL is the old way, kept for comparison.
+"""
+
+[[scene]]
+key = "06-recognise"
+kind = "bullets"
+title = "Where You Have Seen It"
+body = ["JPA Criteria API", "Spring Data Specification", "QueryDSL, jOOQ", "Saved searches in shops"]
+narration = """
+You have probably met this pattern already. [[slnc 400]] J P A has a Criteria A P I. [[slnc 300]] Spring Data has specifications. [[slnc 500]]
+QueryDSL and jOOQ build SQL from Java objects. [[slnc 500]]
+And every shop that lets you save a search is keeping a query object for you.
+"""
+
+[[scene]]
+key = "07-verdict"
+kind = "bullets"
+title = "When To Use It"
+body = ["Searches built from optional", "filters, saved or combined.", "", "Always placeholders.", "Test criteria in memory.", "Prefer a library for big ones."]
+narration = """
+So, when should you use it? [[slnc 400]] When searches are built from optional filters, saved, combined, or run in more than one place. [[slnc 500]]
+Always use placeholders for values. [[slnc 300]] Test criteria in memory. [[slnc 500]]
+And when your queries grow large, use a library such as JPA Criteria, or jOOQ, instead of growing your own language.
+"""
+
+[[scene]]
+key = "08-outro"
+kind = "outro"
+title = "Thanks for Watching"
+body = ["Full source, notes, diagrams and an animated walkthrough", "are in the repository. Add a minimum", "price criterion."]
+narration = """
+That's the Query Object pattern. [[slnc 400]] If you remember one sentence, make it this one. [[slnc 300]] Hold a search as criteria, never as glued-together text. [[slnc 500]]
+The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. [[slnc 300]] It runs offline, with nothing installed except a Java development kit. [[slnc 500]]
+Here is one exercise to try. [[slnc 300]] Add a minimum price criterion, and search for a price range. [[slnc 500]]
+If this helped, a like really does help other people find it. [[slnc 300]] And subscribe, if you'd like the rest of the series. [[slnc 400]] Thanks for watching.
+"""

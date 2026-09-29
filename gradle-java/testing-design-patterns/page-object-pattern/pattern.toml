@@ -1,0 +1,439 @@
+# pattern.toml for the Page Object project. See tools/patternkit.
+
+[project]
+slug = "page-object"
+category = "testing-design-patterns"
+title = "Page Object"
+package = "pageobject"
+main_class = "PageObjectDemo"
+tagline = "Tests speak shop, not HTML"
+bold = "Wrap each page of a web interface in a class that knows its selectors and its timing, so browser tests speak in the shop's words and a page change is fixed in one place."
+domain_note = ""
+thumb_lines = ["PAGE", "OBJECT"]
+thumb_code = "checkout.applyCoupon()"
+youtube_title = "Page Object"
+youtube_tags = ["page object", "selenium", "ui testing", "end to end tests", "test automation", "java"]
+
+[readme]
+intro = """
+Page Object is a pattern for browser tests. A browser test drives the web
+page the way a person would: type into this box, click that button, read that
+text. Each box and button is found with a selector, such as `#apply-btn`.
+When every test names the selectors itself, the tests are hard to read, and
+when a designer renames one button, every test that clicks it breaks.
+
+A Page Object is a class for one page. It is the only place that knows the
+page's selectors and how long it takes to update. Tests call its methods,
+such as `applyCoupon("SAVE10")` and `total()`, and read like a description of
+what a shopper does.
+"""
+analogy = """
+Think of a hotel guest who asks the concierge for a taxi. The guest does not
+need to know the taxi firm's phone number, or that the line is always busy at
+six. The concierge knows those details. If the taxi firm changes its number,
+only the concierge needs to know. The page object is the concierge.
+"""
+scenario = """
+The online store has automated browser tests for its checkout page. Each test
+typed the coupon, clicked `#apply-btn`, and read `#total` itself. Some read
+the total before the page had finished updating and saw the old price. Then
+the designers renamed the button to `#apply-coupon`, and every coupon test
+failed at once.
+"""
+costs = [
+    "**Another layer to maintain.** Each page needs its own object, kept in step with the real page.",
+    "**Bloat.** Page objects that grow to cover everything become hard to use; split them by page or component.",
+    "**Checks belong in tests.** A page object reports what the page shows; if it starts deciding what is correct, tests lose their meaning.",
+]
+too_much = """
+For one or two throwaway checks of a page, the extra class is not worth it.
+Page objects pay off once several tests use the same page, and the page keeps
+changing.
+"""
+met_before = [
+    "Selenium's documentation recommends page objects.",
+    "Playwright and Cypress projects organised into page or component classes.",
+    "The Screenplay pattern, a later refinement built around actors and tasks.",
+]
+where = """
+This project is in [testing-design-patterns](..), next to
+[Object Mother / Test Data Builder](../object-mother-pattern), which hides how
+test data is made, where this one hides how a page is driven.
+"""
+
+[[act]]
+title = "Tests click selectors"
+summary = "A test types the coupon, clicks #apply-btn and reads #total at once: 50.00, because the page had not finished updating."
+detail = """
+A test drives the checkout page by its selectors. It types SAVE10 into
+`#coupon`, clicks `#apply-btn`, and reads `#total` straight away. It sees
+50.00. The coupon was accepted, but the page updates a moment later, and the
+test read the total too soon.
+"""
+speech = """
+First demo: tests that click selectors themselves. [[slnc 400]] A selector is the name a test uses to find a box or a button on the page. [[slnc 600]]
+The test types a coupon code. [[slnc 300]] It clicks the apply button. [[slnc 300]] Then it reads the total, straight away. [[slnc 500]]
+It sees fifty. [[slnc 300]] The old price. [[slnc 500]]
+The coupon was accepted. [[slnc 300]] But the page updates a moment later, and the test looked too soon.
+"""
+rows = { test = "active wrong", page = "active amber" }
+console = [
+    ["click #apply-btn, read #total", "muted"],
+    ["total: 50.00 (too soon)", "bad"],
+]
+
+[[act]]
+title = "A button is renamed"
+summary = "The designers rename #apply-btn to #apply-coupon: 0 of 5 coupon tests pass, and each must be found and edited."
+detail = """
+The designers rename the apply button from `#apply-btn` to `#apply-coupon`.
+Five coupon tests each named the old selector themselves. None of the five
+can find the button, all five fail, and every one must be found and edited.
+"""
+speech = """
+Second demo: the designers rename the apply button. [[slnc 400]] It was called apply button. [[slnc 300]] Now it is called apply coupon. [[slnc 600]]
+Five coupon tests each used the old name. [[slnc 300]] None of them can find the button. [[slnc 500]]
+Zero of five pass. [[slnc 300]] And every one must be found and edited.
+"""
+rows = { test = "active wrong", page = "active amber" }
+console = [
+    ["#apply-btn is now #apply-coupon", "muted"],
+    ["0 of 5 tests pass", "bad"],
+]
+
+[[act]]
+title = "A Page Object"
+summary = "CheckoutPage holds the selectors and waits for updates: one selector changed, 5 of 5 tests pass, and applyCoupon(\"SAVE10\").total() is 45.00."
+detail = """
+Now a `CheckoutPage` class is the only place that knows the page. Its
+`applyCoupon` method types the code, clicks the button, and waits until the
+page says the coupon is applied. After the rename, one selector was changed in
+that class and all five tests pass. Each test just says
+`applyCoupon("SAVE10")` and reads a total of 45.00.
+"""
+speech = """
+Third demo: a page object. [[slnc 400]] One class, checkout page, is the only place that knows the page. [[slnc 300]] Its selectors, and its timing. [[slnc 600]]
+Its apply coupon method types the code, clicks the button, and waits until the page has updated. [[slnc 600]]
+After the rename, one line in that class changed. [[slnc 300]] And all five tests pass. [[slnc 500]]
+Each test simply says, apply coupon save ten. [[slnc 300]] And reads a total of forty-five.
+"""
+rows = { test = "active ok", pageobject = "active ok", page = "active ok" }
+console = [
+    ["one selector changed: 5 of 5 pass", "ok"],
+    ["applyCoupon(SAVE10).total(): 45.00", "ok"],
+]
+
+[[act]]
+title = "Return the next page"
+summary = "checkout.placeOrder() returns a ConfirmationPage showing ORD-1042 and \"Thank you for your order\"."
+detail = """
+Actions that move to another page return that page's object.
+`checkout.placeOrder()` returns a `ConfirmationPage`, which shows order
+ORD-1042 and the thank-you message. The test cannot ask the checkout page for
+an order number by mistake: the methods follow the real journey.
+"""
+speech = """
+Fourth demo: an action that moves to a new page returns that page. [[slnc 400]] Place order returns the confirmation page. [[slnc 600]]
+The confirmation page shows the order number, O R D ten forty-two. [[slnc 300]] And the message, thank you for your order. [[slnc 600]]
+The test cannot ask the checkout page for an order number by mistake. [[slnc 300]] The code follows the real journey.
+"""
+rows = { pageobject = "active ok", confirmation = "active ok" }
+console = [
+    ["placeOrder() -> ConfirmationPage", "ok"],
+    ["ORD-1042", "ok"],
+]
+
+[[act]]
+title = "The bill"
+summary = "Every page needs its object, kept in step with the real page; page objects report, and the checks stay in the tests."
+detail = """
+Every page now has a class that must be kept in step with the real page. And
+there is a rule to keep: page objects report what the page shows, and the
+tests decide whether it is right. A page object that asserts its own results
+hides what each test is checking.
+"""
+speech = """
+Fifth demo: the bill. [[slnc 400]] Every page now needs its own class. [[slnc 300]] And each must be kept in step with the real page. [[slnc 600]]
+And there is a rule to keep. [[slnc 300]] Page objects report what the page shows. [[slnc 300]] The tests decide whether it is right. [[slnc 500]]
+A page object that checks its own results hides what each test is testing.
+"""
+rows = { pageobject = "active amber" }
+console = [
+    ["one class per page, kept in step", "amber"],
+    ["page objects report, tests decide", "amber"],
+]
+
+[animation]
+subtitle = "Tests call the checkout page object, which drives the browser."
+boxes = [
+    ["test", "Checkout test", "speaks shop"],
+    ["pageobject", "CheckoutPage", "selectors, waiting"],
+    ["page", "Browser page", "#apply-coupon, #total"],
+    ["confirmation", "ConfirmationPage", "order number"],
+]
+
+[docs.problem]
+scenario = """
+Browser tests for the store's checkout type a coupon, click apply and read the
+total.
+"""
+naive = """
+Tests that name selectors themselves read totals too soon, and all break
+together when a button is renamed.
+"""
+deliver = [
+    "A raw test reading a stale total.",
+    "A renamed button breaking every raw test.",
+    "A page object with selectors and waiting in one place.",
+    "Navigation returning the next page object.",
+    "The maintenance rule: report, don't assert.",
+    "A real test class written with the page object.",
+]
+
+[docs.prerequisites]
+required = [
+    "Java basics: classes, method chaining.",
+    "A rough idea of HTML elements and CSS selectors such as `#total`.",
+]
+not_required = [
+    "Selenium or a browser. `FakeBrowser` stands in for WebDriver.",
+]
+
+[docs.session]
+objectives = [
+    "Explain why selectors in tests make them fragile.",
+    "Write a page object with intent-named methods.",
+    "Hide waiting for page updates inside the page object.",
+    "Return the next page object from navigation methods.",
+]
+walkthrough = """
+Run `./gradlew run` and compare act two's 0 of 5 with act three's 5 of 5. Open
+`CheckoutPage`: the `APPLY` constant and the wait in `applyCoupon`. Then read
+`CheckoutPageTest`: no selectors at all.
+"""
+exercises = [
+    "Add a `removeCoupon()` method and a test for it.",
+    "Move the coupon box into its own `CouponPanel` component object.",
+    "Replace `FakeBrowser` with Selenium's `WebDriver` against a real page.",
+]
+
+[docs.explained]
+sentence = """
+A Page Object wraps a page in a class that knows its selectors and timing, so
+tests speak in the shop's words.
+"""
+verdict = """
+Use page objects once several browser tests share a page. Name methods after
+what a shopper does, hide waiting inside them, return the next page from
+navigation, and keep the checks in the tests.
+"""
+recognise = [
+    "Classes named `...Page` with methods like `login()` or `applyCoupon()`.",
+    "Selectors as constants in one class, not in tests.",
+    "Methods returning another page object after a click.",
+]
+
+[spec]
+purpose = """
+Teach Page Object with an online store's checkout tests: a raw test reading a
+stale total, a renamed button breaking every raw test, a page object fixing
+both in one place, navigation returning the next page, and the upkeep cost.
+"""
+nongoals = [
+    "Not a real browser. `FakeBrowser` imitates the parts of WebDriver the demo needs.",
+]
+problem = """
+Browser tests that name selectors and handle timing themselves are hard to
+read and break together whenever the page changes.
+"""
+roles = [
+    ["The Page Object", "`CheckoutPage`"],
+    ["The next page", "`ConfirmationPage`"],
+    ["The browser", "`FakeBrowser`"],
+    ["Tests in shop terms", "`CheckoutPageTest`"],
+    ["Entry point", "`PageObjectDemo`, five acts"],
+]
+requirements = [
+    "**One place:** only `CheckoutPage` names checkout selectors.",
+    "**Waits:** `applyCoupon` returns only after the page has updated.",
+    "**Navigation:** `placeOrder` returns a `ConfirmationPage`.",
+    "**Every printed result is asserted** in `DemoRunsTest`.",
+]
+
+[[diagram]]
+name = "architecture-diagram"
+kind = "flow"
+title = "Page Object — the pieces"
+caption = "Tests never touch selectors."
+nodes = [
+    { id = "t", label = "Checkout test", sub = "applyCoupon, total", col = 0, row = 0, colour = "client" },
+    { id = "p", label = "CheckoutPage", sub = "selectors, waiting", col = 1, row = 0, colour = "accent" },
+    { id = "b", label = "Browser", sub = "#coupon, #apply-coupon", col = 2, row = 0, colour = "green" },
+    { id = "c", label = "ConfirmationPage", sub = "orderNumber()", col = 1, row = 1, colour = "accent" },
+]
+edges = [
+    { from = "t", to = "p", label = "" },
+    { from = "p", to = "b", label = "type, click, read" },
+    { from = "p", to = "c", label = "placeOrder()" },
+]
+
+[[diagram]]
+name = "class-diagram"
+kind = "class"
+title = "Page Object — classes"
+caption = "One class per page."
+nodes = [
+    { id = "p", label = "CheckoutPage", sub = ["+ applyCoupon(code)", "+ total()", "+ placeOrder()"], col = 0, row = 0, colour = "accent" },
+    { id = "c", label = "ConfirmationPage", sub = ["+ orderNumber()", "+ message()"], col = 1, row = 0, colour = "accent" },
+    { id = "b", label = "FakeBrowser", sub = ["+ type(sel, text)", "+ click(sel)", "+ text(sel)"], col = 0, row = 1, colour = "green" },
+]
+edges = [
+    { from = "p", to = "c", label = "returns" },
+    { from = "p", to = "b", label = "drives" },
+    { from = "c", to = "b", label = "reads" },
+]
+
+[[diagram]]
+name = "data-flow-diagram"
+kind = "flow"
+title = "Page Object — a renamed button"
+caption = "Five edits, or one."
+nodes = [
+    { id = "a", label = "Selectors in tests", sub = "5 tests to edit", col = 0, row = 0, colour = "red" },
+    { id = "b", label = "0 of 5 pass", sub = "", col = 2, row = 0, colour = "red" },
+    { id = "c", label = "Selectors in CheckoutPage", sub = "1 line to edit", col = 0, row = 1, colour = "green" },
+    { id = "d", label = "5 of 5 pass", sub = "", col = 2, row = 1, colour = "green" },
+]
+edges = [
+    { from = "a", to = "b", label = "" },
+    { from = "c", to = "d", label = "" },
+]
+
+[[diagram]]
+name = "sequence-diagram"
+kind = "sequence"
+title = "Page Object — applying a coupon"
+caption = "The page object waits so the test does not."
+participants = ["Test", "CheckoutPage", "Browser"]
+steps = [
+    ["Test", "CheckoutPage", "applyCoupon(SAVE10)"],
+    ["CheckoutPage", "Browser", "type #coupon, click #apply-coupon"],
+    ["note", "CheckoutPage", "wait for status: applied"],
+    ["Test", "CheckoutPage", "total()"],
+    ["CheckoutPage", "Test", "45.00", "reply"],
+]
+
+[[diagram]]
+name = "uml-diagram"
+kind = "sequence"
+title = "1. A raw test"
+caption = "Reads too soon."
+participants = ["Test", "Browser"]
+steps = [
+    ["Test", "Browser", "click #apply-btn"],
+    ["Test", "Browser", "text #total"],
+    ["Browser", "Test", "50.00 (not updated yet)", "reply"],
+]
+
+[[diagram]]
+name = "uml-diagram-2"
+kind = "sequence"
+title = "2. Placing the order"
+caption = "The next page comes back."
+participants = ["Test", "CheckoutPage", "ConfirmationPage"]
+steps = [
+    ["Test", "CheckoutPage", "placeOrder()"],
+    ["CheckoutPage", "Test", "ConfirmationPage", "reply"],
+    ["Test", "ConfirmationPage", "orderNumber()"],
+    ["ConfirmationPage", "Test", "ORD-1042", "reply"],
+]
+
+[poster]
+headline = [["PAGE", "text"], ["OBJECT", "text"]]
+before = { code = "click(\"#apply-btn\")", note = "rename: 0 of 5 tests pass", tag = "BEFORE" }
+after = { code = "checkout.applyCoupon(\"SAVE10\")", note = "one change, 5 of 5 pass", tag = "AFTER" }
+taglines = [["Tests speak shop, not HTML", "gold"]]
+
+[[scene]]
+key = "01-poster"
+kind = "poster"
+title = "Page Object"
+narration = """
+Hello, and welcome. [[slnc 400]] This video explains the Page Object pattern, in Java. [[slnc 300]]
+This video is presented by Jayasekhar Konduru. [[slnc 600]]
+First, a simple definition. [[slnc 300]] Browser tests drive a web page the way a person would. [[slnc 300]] A page object is a class for one page. [[slnc 300]] It knows how to find the page's boxes and buttons, and how long the page takes to update. [[slnc 300]] So the tests only say what a shopper does. [[slnc 600]]
+Think of a hotel guest asking the concierge for a taxi. [[slnc 300]] The guest does not need the taxi firm's number. [[slnc 300]] The concierge knows it. [[slnc 300]] And if the number changes, only the concierge needs to know. [[slnc 700]]
+In this video, the domain is an online shop's checkout page, and the automated tests that check it. [[slnc 500]]
+By the end, you will hear why tests that find buttons themselves are fragile. [[slnc 300]] How one class fixes a renamed button for every test. [[slnc 300]] How it hides waiting. [[slnc 300]] And what it costs to keep.
+"""
+
+[[scene]]
+key = "02-scenario"
+kind = "bullets"
+title = "The Scenario"
+body = ["Browser tests for checkout.", "", "Each test types the coupon,", "clicks #apply-btn,", "and reads #total itself."]
+narration = """
+Here is the scenario. [[slnc 400]] The shop has automated browser tests for its checkout page. [[slnc 500]]
+Each test typed the coupon code, clicked the apply button, and read the total, all by itself. [[slnc 500]]
+Each test knew the names the page uses for those elements.
+"""
+
+[[scene]]
+key = "03-acts"
+kind = "acts"
+title = "acts"
+
+[[scene]]
+key = "04-pattern"
+kind = "bullets"
+title = "The Pattern"
+body = ["One class per page.", "", "It knows the selectors", "and the timing.", "", "Tests speak in shop terms."]
+narration = """
+Let's name the pattern. [[slnc 400]] One class for each page. [[slnc 500]]
+It is the only place that knows the page's selectors, and how long the page takes to update. [[slnc 500]]
+Tests call its methods, in the shop's own words.
+"""
+
+[[scene]]
+key = "05-roles"
+kind = "bullets"
+title = "Who Does What"
+body = ["CheckoutPage: apply coupon, total, place order", "ConfirmationPage: the order number", "FakeBrowser: stands in for WebDriver", "Tests: decide what is right"]
+narration = """
+Here is who does what. [[slnc 400]] Checkout page can apply a coupon, read the total, and place the order. [[slnc 500]]
+Confirmation page shows the order number. [[slnc 500]]
+The fake browser stands in for a real browser driver. [[slnc 300]] And the tests decide whether what they see is right.
+"""
+
+[[scene]]
+key = "06-recognise"
+kind = "bullets"
+title = "Where You Have Seen It"
+body = ["Selenium page objects", "Playwright and Cypress page classes", "The Screenplay pattern"]
+narration = """
+You have probably met this pattern already. [[slnc 400]] Selenium's own guides recommend page objects. [[slnc 500]]
+Playwright and Cypress projects are often organised into page classes. [[slnc 500]]
+And the Screenplay pattern is a later refinement of the same idea.
+"""
+
+[[scene]]
+key = "07-verdict"
+kind = "bullets"
+title = "When To Use It"
+body = ["Several tests share a page.", "", "Name methods after actions.", "Hide the waiting.", "Return the next page.", "Keep checks in tests."]
+narration = """
+So, when should you use it? [[slnc 400]] Once several browser tests share a page. [[slnc 500]]
+Name methods after what a shopper does. [[slnc 300]] Hide the waiting inside them. [[slnc 300]] Return the next page when an action moves on. [[slnc 300]] And keep the checks in the tests.
+"""
+
+[[scene]]
+key = "08-outro"
+kind = "outro"
+title = "Thanks for Watching"
+body = ["Full source, notes, diagrams and an animated walkthrough", "are in the repository. Split out a", "coupon panel component."]
+narration = """
+That's the Page Object pattern. [[slnc 400]] If you remember one sentence, make it this one. [[slnc 300]] Tests say what the shopper does, and one class knows how. [[slnc 500]]
+The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. [[slnc 300]] It runs offline, with nothing installed except a Java development kit. [[slnc 500]]
+Here is one exercise to try. [[slnc 300]] Move the coupon box into its own small component class. [[slnc 500]]
+If this helped, a like really does help other people find it. [[slnc 300]] And subscribe, if you'd like the rest of the series. [[slnc 400]] Thanks for watching.
+"""

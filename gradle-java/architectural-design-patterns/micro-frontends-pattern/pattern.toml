@@ -1,0 +1,439 @@
+# pattern.toml for the Micro-Frontends project. See tools/patternkit.
+
+[project]
+slug = "micro-frontends"
+category = "architectural-design-patterns"
+title = "Micro-Frontends"
+package = "microfrontends"
+main_class = "MicroFrontendsDemo"
+tagline = "Each team owns its part of the page"
+bold = "Split a web page into parts owned by different teams, let each team build and release its part on its own, and assemble the page from those parts, with a fallback when one fails."
+domain_note = ""
+thumb_lines = ["MICRO-", "FRONTENDS"]
+thumb_code = "[basket] <- basket team"
+youtube_title = "Micro-Frontends"
+youtube_tags = ["micro frontends", "micro-frontends", "web architecture", "team autonomy", "java"]
+
+[readme]
+intro = """
+Micro-frontends apply the idea of microservices to the part of a web site
+people see. A page is split into parts, such as the product details, the
+basket and the recommendations, and each part belongs to one team. Each team
+builds, tests and releases its part as its own small application. The page
+itself is a layout with slots, and each slot is filled by fetching that team's
+fragment, either on the server, as here, or in the browser.
+
+A bug or an outage in one team's fragment affects only its slot, and each team
+releases when it is ready. The price is more requests per page and the work of
+keeping the parts looking like one shop.
+"""
+analogy = """
+Think of a newspaper. The sport desk, the business desk and the weather desk
+each write their own pages, to their own deadlines. The printers put the
+paper together from whatever each desk sends. If the weather desk is late,
+the paper still goes out, with a note in the weather box. But if the desks
+choose their own fonts, the paper starts to look like three different papers.
+"""
+scenario = """
+The online store's product page shows the product, a small basket summary and
+recommendations. One front-end application rendered all of it, built by three
+teams. When the recommendations team shipped a bug, the whole product page
+failed, and fixing it meant releasing everyone's code together.
+"""
+costs = [
+    "**More requests.** One page view became one page and three fragment requests; the slowest fragment sets the page's pace.",
+    "**Teams drift apart.** One team started writing \"30.00 GBP\" while another wrote \"£38.00\"; a shared design system is needed.",
+    "**More to run.** Every team runs its own application, with its own monitoring.",
+]
+too_much = """
+A site built by one team, or a few teams that release together happily, is
+simpler as one front-end. Micro-frontends pay off when several independent
+teams keep blocking each other's releases.
+"""
+met_before = [
+    "Server-side includes and edge-side includes (ESI) on CDNs.",
+    "Module Federation in webpack, and single-spa, in the browser.",
+    "Large shops and media sites where each team owns a part of the page.",
+]
+where = """
+This project is in [architectural-design-patterns](..), next to
+[Modular Monolith](../modular-monolith-pattern), which splits the back end by
+team without splitting deployment.
+"""
+
+[[act]]
+title = "One front-end for everything"
+summary = "One application renders the product, basket and recommendations; a recommendations bug makes the whole page fail."
+detail = """
+`OneFrontEnd.productPage` renders all three parts in one method. It works
+until the recommendations section throws: then the whole product page fails,
+with the basket and product details that had nothing wrong with them. Fixing
+it means releasing the whole front-end, every team's code at once.
+"""
+speech = """
+First demo: one front-end renders the whole product page. [[slnc 400]] The product details, the basket summary, and the recommendations. [[slnc 300]] Three teams, one application. [[slnc 600]]
+The recommendations team ships a bug. [[slnc 300]] The whole page fails. [[slnc 300]] Including the parts that had nothing wrong with them. [[slnc 500]]
+And to fix it, everyone's code must be released together.
+"""
+rows = { one = "active wrong", recs = "active wrong" }
+console = [
+    ["[product] ... | [basket] ... | [recs] ...", "ok"],
+    ["recommendations bug: whole page fails", "bad"],
+]
+
+[[act]]
+title = "Each team serves its part"
+summary = "Three team apps on their own servers serve fragments; the page is a layout with three slots."
+detail = """
+Each team now runs a small web application, `TeamApp`, that serves only its
+fragment. `PageAssembler` holds the layout: three slots, product, basket and
+recommendations, each filled by an HTTP request to the team that owns it. The
+page looks the same as before.
+"""
+speech = """
+Second demo: micro-frontends. [[slnc 400]] Each team now runs its own small web application. [[slnc 300]] It serves only that team's part of the page. [[slnc 600]]
+The page itself is a layout with three slots. [[slnc 300]] Product, basket, and recommendations. [[slnc 300]] Each slot is filled by asking the team that owns it. [[slnc 500]]
+The page looks exactly as before.
+"""
+rows = { assembler = "active ok", product = "active ok", basket = "active ok", recs = "active ok" }
+console = [
+    ["[product] steel kettle, £30.00", "ok"],
+    ["[basket] 2 items, £38.00", "ok"],
+    ["[recommendations] mug, teapot", "ok"],
+]
+
+[[act]]
+title = "Failure stays in its slot"
+summary = "Recommendations fails, then is slow: its slot shows \"recommendations unavailable\" and the rest of the page is served."
+detail = """
+The recommendations app fails, and then answers too slowly. Each time, the
+assembler gives up on that fragment after 300 milliseconds and fills its slot
+with "recommendations unavailable". The product and basket are served as
+normal.
+"""
+speech = """
+Third demo: one team's failure stays in its slot. [[slnc 400]] The recommendations app fails. [[slnc 300]] The page still shows the product and the basket. [[slnc 300]] The recommendations slot says: unavailable. [[slnc 600]]
+Then the recommendations app is slow. [[slnc 300]] After three hundred milliseconds, the page stops waiting for it. [[slnc 300]] Same result: the rest of the page is served.
+"""
+rows = { assembler = "active ok", recs = "active wrong", product = "active ok", basket = "active ok" }
+console = [
+    ["recs fails: (recommendations unavailable)", "amber"],
+    ["recs slow: (recommendations unavailable)", "amber"],
+    ["product and basket served as normal", "ok"],
+]
+
+[[act]]
+title = "Independent releases"
+summary = "The basket team releases version 2 (free delivery over £40) without touching the other apps."
+detail = """
+The basket team releases a new version of its fragment, adding "free delivery
+over £40". The next page view shows it. The product and recommendations apps
+were not touched, and did not need to know.
+"""
+speech = """
+Fourth demo: each team releases on its own. [[slnc 400]] The basket team releases version two. [[slnc 300]] It now says: free delivery over forty pounds. [[slnc 500]]
+The very next page view shows it. [[slnc 300]] The product and recommendations apps were not touched.
+"""
+rows = { basket = "active ok", assembler = "active ok" }
+console = [
+    ["[basket] 2 items, £38.00,", "ok"],
+    ["         free delivery over £40", "ok"],
+]
+
+[[act]]
+title = "The bill"
+summary = "One page view is 1 page + 3 fragment requests; the product team writes 30.00 GBP while the basket writes £38.00."
+detail = """
+Every page view is now one page and three fragment requests, and the slowest
+fragment sets the pace. And teams drift: the product team starts writing
+"30.00 GBP" while the basket team writes "£38.00", and the page looks like two
+different shops. A shared design system is the usual answer.
+"""
+speech = """
+Fifth demo: the bill. [[slnc 400]] One page view is now one page, and three fragment requests. [[slnc 300]] The slowest fragment sets the pace. [[slnc 600]]
+And teams drift apart. [[slnc 300]] The product team starts writing thirty point zero zero G B P. [[slnc 300]] The basket team writes pounds and pence. [[slnc 300]] The page looks like two different shops.
+"""
+rows = { assembler = "active amber", product = "active amber" }
+console = [
+    ["1 page + 3 fragment requests", "amber"],
+    ["\"30.00 GBP\" next to \"£38.00\"", "bad"],
+]
+
+[animation]
+subtitle = "The product page is a layout of slots; each slot is filled by the team that owns it, with a fallback if it fails."
+boxes = [
+    ["one", "One front-end", "the old way"],
+    ["assembler", "Page assembler", "layout + slots"],
+    ["product", "Product team app", "product details"],
+    ["basket", "Basket team app", "basket summary"],
+    ["recs", "Recommendations team app", "suggestions"],
+]
+
+[docs.problem]
+scenario = """
+The product page shows product details, a basket summary and
+recommendations, built by three teams.
+"""
+naive = """
+`OneFrontEnd` renders everything in one application: one team's bug fails the
+whole page, and every release includes everyone's code.
+"""
+deliver = [
+    "One front-end shown failing as a whole.",
+    "Three team apps serving fragments over HTTP, assembled into one page.",
+    "Failing and slow fragments replaced by fallbacks.",
+    "One team releasing on its own.",
+    "The costs shown: extra requests and inconsistent formats.",
+    "Every printed result asserted by a test.",
+]
+
+[docs.prerequisites]
+required = [
+    "Java basics: classes, lambdas.",
+    "HTTP basics: a request and a response.",
+]
+not_required = [
+    "JavaScript or browser frameworks. Composition happens on the server.",
+]
+
+[docs.session]
+objectives = [
+    "Explain what problem micro-frontends solve for teams.",
+    "Assemble a page from fragments with fallbacks.",
+    "Show an independent release.",
+    "Name the costs: requests, consistency, operations.",
+]
+walkthrough = """
+Run `./gradlew run` and read act one. Open `PageAssembler.render`: fetch every
+slot at once, fall back on failure. Then `TeamApp`: a tiny server each team
+owns. End on act five and ask what a shared design system would contain.
+"""
+exercises = [
+    "Add a fourth slot, reviews, owned by a new team.",
+    "Cache each fragment for 10 seconds. What happens when a team releases?",
+    "Give the assembler a shared `formatPrice` rule that every team must use. Where should it live?",
+]
+
+[docs.explained]
+sentence = """
+Micro-frontends split a page into parts owned and released by different
+teams, and assemble the page from those parts with a fallback for each.
+"""
+verdict = """
+Use micro-frontends when several independent teams keep blocking each other's
+front-end releases. Give every fragment a timeout and a fallback, share a
+design system, and keep one front-end when one team owns the page.
+"""
+recognise = [
+    "Pages assembled from includes or fragments served by different apps.",
+    "Module Federation or single-spa in the front-end build.",
+    "Fallback placeholders for parts of a page.",
+]
+
+[spec]
+purpose = """
+Teach Micro-Frontends with an online store's product page: one front-end
+failing as a whole, then three team apps serving fragments over HTTP into a
+three-slot layout, fallbacks for a failing and a slow fragment, an
+independent basket release, and the costs of extra requests and drifting
+formats.
+"""
+nongoals = [
+    "Not browser-side composition. Fragments are assembled on the server.",
+    "Not HTML. Fragments are short text.",
+]
+problem = """
+One front-end built by many teams fails as a whole and must be released as a
+whole, so teams block each other.
+"""
+roles = [
+    ["The pattern", "`PageAssembler`"],
+    ["The team apps", "`TeamApp`"],
+    ["The naive version", "`OneFrontEnd`"],
+    ["Entry point", "`MicroFrontendsDemo`, five acts"],
+]
+requirements = [
+    "**Real HTTP:** each fragment comes from its own server.",
+    "**Isolation:** a failing or slow fragment gets a fallback; the page is served.",
+    "**Independent release:** one team's change needs no other team.",
+    "**Every printed result is asserted** in `DemoRunsTest`.",
+]
+
+[[diagram]]
+name = "architecture-diagram"
+kind = "flow"
+title = "Micro-Frontends — the pieces"
+caption = "One layout, three team apps."
+nodes = [
+    { id = "b", label = "Browser", sub = "product page", col = 0, row = 1, colour = "client" },
+    { id = "a", label = "PageAssembler", sub = "layout + slots", col = 1, row = 1, colour = "accent" },
+    { id = "p", label = "Product team app", sub = "/fragment", col = 2, row = 0, colour = "green" },
+    { id = "k", label = "Basket team app", sub = "/fragment", col = 2, row = 1, colour = "green" },
+    { id = "r", label = "Recommendations app", sub = "/fragment", col = 2, row = 2, colour = "amber" },
+]
+edges = [
+    { from = "b", to = "a", label = "GET page" },
+    { from = "a", to = "p", label = "fetch" },
+    { from = "a", to = "k", label = "fetch" },
+    { from = "a", to = "r", label = "fetch, 300 ms limit" },
+]
+
+[[diagram]]
+name = "class-diagram"
+kind = "class"
+title = "Micro-Frontends — classes"
+caption = "An assembler and small team apps."
+nodes = [
+    { id = "a", label = "PageAssembler", sub = ["- slots: name -> url", "+ slot(name, url)", "+ render()"], col = 0, row = 0, colour = "accent" },
+    { id = "t", label = "TeamApp", sub = ["- HttpServer", "+ release(fragment)", "+ slowDown(ms)"], col = 1, row = 0, colour = "green" },
+    { id = "o", label = "OneFrontEnd", sub = ["+ productPage(sku)"], col = 2, row = 0, colour = "red" },
+]
+edges = [
+    { from = "a", to = "t", label = "fetches from" },
+]
+
+[[diagram]]
+name = "data-flow-diagram"
+kind = "flow"
+title = "Micro-Frontends — a page with one failure"
+caption = "Two fragments arrive; one slot gets its fallback."
+nodes = [
+    { id = "a", label = "product: steel kettle", sub = "200", col = 0, row = 0, colour = "green" },
+    { id = "b", label = "basket: 2 items", sub = "200", col = 0, row = 1, colour = "green" },
+    { id = "c", label = "recommendations", sub = "500 or too slow", col = 0, row = 2, colour = "red" },
+    { id = "d", label = "the page", sub = "product | basket | (unavailable)", col = 2, row = 1, colour = "accent" },
+]
+edges = [
+    { from = "a", to = "d", label = "" },
+    { from = "b", to = "d", label = "" },
+    { from = "c", to = "d", label = "fallback" },
+]
+
+[[diagram]]
+name = "sequence-diagram"
+kind = "sequence"
+title = "Micro-Frontends — rendering a page"
+caption = "All fragments fetched at once."
+participants = ["Assembler", "Product app", "Basket app", "Recs app"]
+steps = [
+    ["Assembler", "Product app", "GET /fragment"],
+    ["Assembler", "Basket app", "GET /fragment"],
+    ["Assembler", "Recs app", "GET /fragment"],
+    ["Product app", "Assembler", "steel kettle", "reply"],
+    ["Basket app", "Assembler", "2 items", "reply"],
+    ["Recs app", "Assembler", "mug, teapot", "reply"],
+]
+
+[[diagram]]
+name = "uml-diagram"
+kind = "sequence"
+title = "1. One front-end"
+caption = "One section's bug fails the whole page."
+participants = ["Browser", "OneFrontEnd"]
+steps = [
+    ["Browser", "OneFrontEnd", "productPage"],
+    ["note", "OneFrontEnd", "recommendations throws"],
+    ["OneFrontEnd", "Browser", "error: no page", "reply"],
+]
+
+[[diagram]]
+name = "uml-diagram-2"
+kind = "sequence"
+title = "2. An independent release"
+caption = "Only the basket app changes."
+participants = ["Basket team", "Basket app", "Assembler"]
+steps = [
+    ["Basket team", "Basket app", "release v2"],
+    ["Assembler", "Basket app", "GET /fragment"],
+    ["Basket app", "Assembler", "... free delivery over £40", "reply"],
+]
+
+[poster]
+headline = [["MICRO-", "text"], ["FRONTENDS", "text"]]
+before = { code = "one front-end, three teams", note = "one bug, no page", tag = "BEFORE" }
+after = { code = "[basket] <- basket team", note = "each part on its own", tag = "AFTER" }
+taglines = [["Each team owns its part of the page", "gold"]]
+
+[[scene]]
+key = "01-poster"
+kind = "poster"
+title = "Micro-Frontends"
+narration = """
+Hello, and welcome. [[slnc 400]] This video explains the Micro-Frontends pattern, in Java. [[slnc 300]]
+This video is presented by Jayasekhar Konduru. [[slnc 600]]
+First, a simple definition. [[slnc 300]] With micro-frontends, a web page is split into parts, and each part belongs to one team. [[slnc 300]] Each team builds and releases its part on its own. [[slnc 300]] The page is assembled from those parts, with a fallback when one fails. [[slnc 600]]
+Think of a newspaper. [[slnc 300]] The sport, business, and weather desks each write their own pages. [[slnc 300]] The printers put the paper together from whatever arrives. [[slnc 300]] If the weather desk is late, the paper still goes out, with a note in the weather box. [[slnc 700]]
+In this video, the domain is an online shop. [[slnc 300]] Its product page shows the product, a small basket summary, and recommendations, built by three teams. [[slnc 500]]
+By the end, you will hear why one front-end for many teams fails as a whole. [[slnc 300]] How a page is assembled from team parts. [[slnc 300]] How failures stay in their slot. [[slnc 300]] And what it costs.
+"""
+
+[[scene]]
+key = "02-scenario"
+kind = "bullets"
+title = "The Scenario"
+body = ["The product page:", "product details, basket summary,", "recommendations.", "", "Three teams.", "One front-end application."]
+narration = """
+Here is the scenario. [[slnc 400]] The product page shows the product details, a small basket summary, and recommendations. [[slnc 500]]
+Three teams work on it. [[slnc 300]] But it was one front-end application. [[slnc 300]] Built together, released together, and failing together.
+"""
+
+[[scene]]
+key = "03-acts"
+kind = "acts"
+title = "acts"
+
+[[scene]]
+key = "04-pattern"
+kind = "bullets"
+title = "The Pattern"
+body = ["The page is a layout of slots.", "", "Each slot belongs to one team,", "served by that team's app.", "", "Each slot has a timeout", "and a fallback."]
+narration = """
+Let's name the pattern. [[slnc 400]] The page becomes a layout with slots. [[slnc 500]]
+Each slot belongs to one team. [[slnc 300]] It is filled by that team's own small application. [[slnc 500]]
+And each slot has a time limit and a fallback, so one team's problem never takes down the page.
+"""
+
+[[scene]]
+key = "05-roles"
+kind = "bullets"
+title = "Who Does What"
+body = ["PageAssembler: layout and slots", "TeamApp: one team's fragment", "OneFrontEnd: the old way"]
+narration = """
+Here is who does what. [[slnc 400]] The page assembler holds the layout, fetches every slot at once, and fills in fallbacks. [[slnc 500]]
+A team app is one team's small server. [[slnc 300]] It serves only that team's fragment, and is released by that team. [[slnc 500]]
+And one front-end is the old way, kept for comparison.
+"""
+
+[[scene]]
+key = "06-recognise"
+kind = "bullets"
+title = "Where You Have Seen It"
+body = ["Server-side and edge-side includes", "Module Federation, single-spa", "Big shops and news sites"]
+narration = """
+You have probably met this pattern already. [[slnc 400]] Server-side includes, and edge-side includes on content delivery networks, assemble pages from parts. [[slnc 500]]
+In the browser, tools such as Module Federation and single-spa do it. [[slnc 500]]
+And many large shops and news sites give each team its own part of the page.
+"""
+
+[[scene]]
+key = "07-verdict"
+kind = "bullets"
+title = "When To Use It"
+body = ["Several independent teams", "blocking each other's releases.", "", "Timeouts and fallbacks.", "A shared design system.", "", "One team? One front-end."]
+narration = """
+So, when should you use it? [[slnc 400]] When several independent teams keep blocking each other's front-end releases. [[slnc 500]]
+Give every fragment a time limit and a fallback. [[slnc 300]] Share a design system, so the page still looks like one shop. [[slnc 500]]
+And when one team owns the page, keep one front-end.
+"""
+
+[[scene]]
+key = "08-outro"
+kind = "outro"
+title = "Thanks for Watching"
+body = ["Full source, notes, diagrams and an animated walkthrough", "are in the repository. Add a reviews slot", "for a new team."]
+narration = """
+That's the Micro-Frontends pattern. [[slnc 400]] If you remember one sentence, make it this one. [[slnc 300]] Each team owns its part of the page, and one part failing never takes down the rest. [[slnc 500]]
+The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. [[slnc 300]] It runs offline, with nothing installed except a Java development kit. [[slnc 500]]
+Here is one exercise to try. [[slnc 300]] Add a reviews slot, owned by a new team. [[slnc 500]]
+If this helped, a like really does help other people find it. [[slnc 300]] And subscribe, if you'd like the rest of the series. [[slnc 400]] Thanks for watching.
+"""

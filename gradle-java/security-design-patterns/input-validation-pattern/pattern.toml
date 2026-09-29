@@ -1,0 +1,439 @@
+# pattern.toml for the Input Validation project. See tools/patternkit.
+
+[project]
+slug = "input-validation"
+category = "security-design-patterns"
+title = "Input Validation"
+package = "inputvalidation"
+main_class = "InputValidationDemo"
+tagline = "Trust no input"
+bold = "Check everything that comes from outside at the boundary, turn it into types that cannot hold bad values, report every problem at once, and still encode text on its way out."
+domain_note = ""
+thumb_lines = ["INPUT", "VALIDATION"]
+thumb_code = "new Quantity(-5) -> refused"
+youtube_title = "Input Validation"
+youtube_tags = ["input validation", "parse don't validate", "xss", "output encoding", "security", "java"]
+
+[readme]
+intro = """
+Input Validation is the first rule of secure code: nothing that arrives from
+outside can be trusted. A browser form, a request to an A P I, a file upload:
+every field is just text, and it may be empty, too long, the wrong kind, or
+written by an attacker. Input validation checks each field at the boundary,
+against rules for what is allowed, before the rest of the program uses it.
+
+This project also shows the stronger form, sometimes called "parse, don't
+validate": turn text into small types such as `Quantity` and `Email` that
+check themselves when they are made. Once a `Quantity` exists, it is valid,
+and no other code needs to check it again. And it shows the partner rule:
+text that is valid can still be dangerous somewhere else, so encode it on the
+way out.
+"""
+analogy = """
+Think of the post room of a large office. Every parcel is checked once, at
+the door: the right size, a real address, nothing leaking. Parcels that pass
+get a sticker, and nobody upstairs checks them again. But the sticker only
+means "fit for the office". Anything sent back out still has to be packed for
+its own journey.
+"""
+scenario = """
+The online store's checkout used the form's text as it arrived. A quantity of
+minus five mugs gave a total of minus 49.95, so the shop would have paid the
+customer. "not-an-email" was saved as an email address. And product reviews
+were shown exactly as typed, so a review containing a script tag would run in
+other shoppers' browsers.
+"""
+costs = [
+    "**Rules can be unfair.** A rule of plain A to Z letters turned away a real customer called Siobhán O'Brien; allow letters from any alphabet, apostrophes and hyphens.",
+    "**The server must check.** Checks in the browser are only a convenience; a request sent straight to the server skips them.",
+    "**Validation is not enough on its own.** Valid text must still be encoded for web pages, and passed as parameters to databases.",
+]
+too_much = """
+There is no "too much" for the principle: all outside input must be checked.
+What can be overdone is strictness: reject what is truly invalid, not what is
+merely unusual.
+"""
+met_before = [
+    "Jakarta Bean Validation annotations such as `@Min`, `@Email` and `@Pattern`, and Spring's `@Valid`.",
+    "Value objects in Domain-Driven Design that check themselves when created.",
+    "The OWASP Input Validation and Cross-Site Scripting cheat sheets.",
+]
+where = """
+This project is in [security-design-patterns](..), next to
+[Secure Gateway](../secure-gateway-pattern), which rejects badly shaped
+requests before they reach a service; this one checks every field inside it.
+"""
+
+[[act]]
+title = "Trusting the form"
+summary = "A quantity of \"-5\" mugs at 9.99 gives a total of -49.95, and \"not-an-email\" is saved as the email address."
+detail = """
+Checkout reads the quantity as a number and multiplies. A quantity of minus
+five mugs at 9.99 gives a total of minus 49.95: the shop would pay the
+customer. And "not-an-email" is saved as the customer's email address,
+because nobody checked it.
+"""
+speech = """
+First demo: the form's text is used as it arrives. [[slnc 400]] Someone orders minus five mugs, at nine ninety-nine each. [[slnc 600]]
+The total is minus forty-nine ninety-five. [[slnc 300]] The shop would pay the customer. [[slnc 600]]
+And the words, not an email, are saved as the email address. [[slnc 300]] Nobody checked.
+"""
+rows = { form = "active wrong", checkout = "active wrong" }
+console = [
+    ["quantity -5: total -49.95", "bad"],
+    ["email: not-an-email, saved", "bad"],
+]
+
+[[act]]
+title = "Check at the boundary"
+summary = "Each field is checked where it arrives: 3 problems reported together; a good form is accepted with a total of 19.98."
+detail = """
+Now every field is checked where it enters the program, against rules for
+what is allowed: a product code shaped like MUG-12, a whole-number quantity
+from 1 to 99, and a plausible email address. A bad form gets all three
+problems reported at once, so the customer can fix them together. A good form
+is accepted, with a total of 19.98.
+"""
+speech = """
+Second demo: check every field where it arrives. [[slnc 400]] The product code must look like M U G dash twelve. [[slnc 300]] The quantity must be a whole number, from one to ninety-nine. [[slnc 300]] And the email must look like an email. [[slnc 600]]
+A bad form gets three problems, reported together. [[slnc 300]] So the customer can fix them all at once. [[slnc 500]]
+A good form, for two mugs, is accepted. [[slnc 300]] Total, nineteen ninety-eight.
+"""
+rows = { parser = "active ok", form = "active amber" }
+console = [
+    ["3 problems, reported together", "ok"],
+    ["good form: total 19.98", "ok"],
+]
+
+[[act]]
+title = "Types that cannot be wrong"
+summary = "new Quantity(-5) is refused with \"quantity must be from 1 to 99\"; checkout takes a ValidOrder and never checks again."
+detail = """
+Each field becomes a small type that checks itself when it is made. Trying to
+make a `Quantity` of minus five fails. Checkout takes a `ValidOrder`, built
+only from such types, so it never needs to check again: if it has one, every
+value in it is valid.
+"""
+speech = """
+Third demo: turn text into types that cannot hold bad values. [[slnc 400]] A quantity is its own small type. [[slnc 300]] It checks itself when it is made. [[slnc 600]]
+Trying to make a quantity of minus five fails, straight away. [[slnc 600]]
+Checkout only accepts a valid order, built from these types. [[slnc 300]] So it never needs to check again. [[slnc 300]] If it has one, it is valid.
+"""
+rows = { parser = "active ok", checkout = "active ok" }
+console = [
+    ["new Quantity(-5): refused", "ok"],
+    ["checkout takes a ValidOrder", "ok"],
+]
+
+[[act]]
+title = "Encode on the way out"
+summary = "A review containing a script tag, shown as typed, would run; HTML-encoded, it is shown as harmless text."
+detail = """
+A product review says "Lovely mug", followed by a script tag. Shown on the
+page as typed, the browser would run the script in every shopper's browser.
+Shown with its angle brackets encoded, the page displays the text instead of
+running it. Validating input and encoding output are two different jobs, and
+both are needed.
+"""
+speech = """
+Fourth demo: valid is not the same as safe everywhere. [[slnc 400]] A review says, lovely mug. [[slnc 300]] Followed by a hidden piece of script. [[slnc 600]]
+Shown on the page exactly as typed, the browser would run that script, for every shopper who reads it. [[slnc 600]]
+So the text is encoded on the way out. [[slnc 300]] Its angle brackets become harmless symbols. [[slnc 300]] The page shows the text, instead of running it.
+"""
+rows = { page = "active ok" }
+console = [
+    ["as typed: <script> runs", "bad"],
+    ["encoded: &lt;script&gt; shown", "ok"],
+]
+
+[[act]]
+title = "The bill"
+summary = "The rule [A-Za-z ] rejects \"Siobhán O'Brien\"; a rule for letters in any alphabet accepts it; and browser checks can be skipped."
+detail = """
+Rules must be fair. A rule allowing only plain A to Z letters rejects a real
+customer called Siobhán O'Brien. A rule for letters in any alphabet, with
+apostrophes and hyphens, accepts that name. And checks in the browser are only
+a convenience: a request sent without the browser skips them, so the server
+must always check.
+"""
+speech = """
+Fifth demo: the bill. [[slnc 400]] Rules must be fair. [[slnc 600]]
+A rule that allows only plain A to Z letters rejects a real customer, called Siobhán O'Brien. [[slnc 300]] A customer turned away. [[slnc 600]]
+A rule for letters in any alphabet, with apostrophes and hyphens, accepts the name. [[slnc 600]]
+And checks in the browser are only a convenience. [[slnc 300]] A request sent without the browser skips them. [[slnc 300]] So the server must always check.
+"""
+rows = { parser = "active amber" }
+console = [
+    ["[A-Za-z ]: Siobhán O'Brien rejected", "bad"],
+    ["any alphabet: accepted", "ok"],
+]
+
+[animation]
+subtitle = "Form text is parsed into checked types at the boundary; text shown on pages is encoded on the way out."
+boxes = [
+    ["form", "Order form", "untrusted text"],
+    ["parser", "OrderParser", "checks at the boundary"],
+    ["checkout", "Checkout", "takes a ValidOrder"],
+    ["page", "Product page", "encodes reviews"],
+]
+
+[docs.problem]
+scenario = """
+The store's checkout and reviews used form text exactly as it arrived.
+"""
+naive = """
+A negative quantity made a negative total, junk was saved as an email, and a
+review could run a script in other shoppers' browsers.
+"""
+deliver = [
+    "Unchecked input producing a negative total.",
+    "Boundary checks reporting every problem at once.",
+    "Self-checking types and a `ValidOrder`.",
+    "HTML output encoding.",
+    "A fair name rule, and why the server must check.",
+    "Every printed result asserted by a test.",
+]
+
+[docs.prerequisites]
+required = [
+    "Java basics: records with compact constructors, exceptions, `Pattern`.",
+]
+not_required = [
+    "Bean Validation or a web framework. Checks are plain Java.",
+]
+
+[docs.session]
+objectives = [
+    "Treat all outside input as untrusted.",
+    "Check fields against allow-list rules and report every problem.",
+    "Use self-checking types so valid data stays valid.",
+    "Tell input validation apart from output encoding.",
+]
+walkthrough = """
+Run `./gradlew run` and compare act one's -49.95 with act two's three
+problems. Open `Quantity`: the compact constructor is the whole rule. End on
+act five's two name rules.
+"""
+exercises = [
+    "Add a postcode type with a rule for UK postcodes.",
+    "Rewrite `OrderForm` with Bean Validation annotations and compare.",
+    "Store reviews in H2 with a `PreparedStatement`, never string concatenation.",
+]
+
+[docs.explained]
+sentence = """
+Input Validation checks everything from outside at the boundary, against
+rules for what is allowed, before the program uses it.
+"""
+verdict = """
+Check every outside input on the server, with allow-list rules that are
+strict about harm and fair to real people. Parse into self-checking types,
+report all problems together, and encode text for wherever it is shown.
+"""
+recognise = [
+    "`@Valid`, `@NotBlank`, `@Min` and `@Pattern` annotations.",
+    "Value types that throw from their constructors.",
+    "HTML templates that escape output by default.",
+]
+
+[spec]
+purpose = """
+Teach Input Validation with an online store's checkout form and product
+reviews: a negative total from unchecked input, boundary checks reporting all
+problems, self-checking types, output encoding for a script in a review, and
+fair rules checked on the server.
+"""
+nongoals = [
+    "Not a web framework or a database. Forms are records and pages are strings.",
+]
+problem = """
+Text from outside used as it arrives can be wrong, absurd, or hostile.
+"""
+roles = [
+    ["The pattern", "`OrderParser`"],
+    ["Self-checking types", "`Sku`, `Quantity`, `Email`, `CustomerName`"],
+    ["Checked data only", "`ValidOrder`"],
+    ["Output encoding", "`Html.escape`"],
+    ["Entry point", "`InputValidationDemo`, five acts"],
+]
+requirements = [
+    "**All problems:** `OrderParser` reports every invalid field.",
+    "**No bad values:** each type throws when given an invalid value.",
+    "**Fair:** names in any alphabet, with apostrophes and hyphens, are accepted.",
+    "**Every printed result is asserted** in `DemoRunsTest`.",
+]
+
+[[diagram]]
+name = "architecture-diagram"
+kind = "flow"
+title = "Input Validation — the pieces"
+caption = "Checked at the door, encoded on the way out."
+nodes = [
+    { id = "f", label = "Order form", sub = "untrusted text", col = 0, row = 0, colour = "red" },
+    { id = "p", label = "OrderParser", sub = "check every field", col = 1, row = 0, colour = "accent" },
+    { id = "c", label = "Checkout", sub = "ValidOrder only", col = 2, row = 0, colour = "green" },
+    { id = "h", label = "Web page", sub = "Html.escape", col = 2, row = 1, colour = "green" },
+]
+edges = [
+    { from = "f", to = "p", label = "" },
+    { from = "p", to = "c", label = "ValidOrder" },
+    { from = "p", to = "f", label = "all problems" },
+    { from = "c", to = "h", label = "encoded" },
+]
+
+[[diagram]]
+name = "class-diagram"
+kind = "class"
+title = "Input Validation — classes"
+caption = "Types that check themselves."
+nodes = [
+    { id = "p", label = "OrderParser", sub = ["+ parse(form): Result"], col = 0, row = 0, colour = "accent" },
+    { id = "v", label = "«record» ValidOrder", sub = ["sku, quantity", "email, name"], col = 1, row = 0, colour = "green" },
+    { id = "q", label = "«record» Quantity", sub = ["1 to 99", "+ parse(text)"], col = 0, row = 1, colour = "client" },
+    { id = "e", label = "«record» Email / Sku", sub = ["checked on creation"], col = 1, row = 1, colour = "client" },
+]
+edges = [
+    { from = "p", to = "v", label = "builds" },
+    { from = "v", to = "q", label = "" },
+    { from = "v", to = "e", label = "" },
+]
+
+[[diagram]]
+name = "data-flow-diagram"
+kind = "flow"
+title = "Input Validation — one form"
+caption = "Text in, checked values or problems out."
+nodes = [
+    { id = "a", label = "\"mug 1\", \"-5\"", sub = "\"not-an-email\"", col = 0, row = 0, colour = "red" },
+    { id = "b", label = "Check each field", sub = "collect problems", col = 1, row = 0, colour = "accent" },
+    { id = "c", label = "3 problems", sub = "back to the customer", col = 2, row = 0, colour = "amber" },
+]
+edges = [
+    { from = "a", to = "b", label = "" },
+    { from = "b", to = "c", label = "" },
+]
+
+[[diagram]]
+name = "sequence-diagram"
+kind = "sequence"
+title = "Input Validation — a good order"
+caption = "Parsed once, trusted afterwards."
+participants = ["Browser", "OrderParser", "Checkout"]
+steps = [
+    ["Browser", "OrderParser", "MUG-1, 2, ana@example.com"],
+    ["OrderParser", "Checkout", "ValidOrder"],
+    ["Checkout", "Browser", "total 19.98", "reply"],
+]
+
+[[diagram]]
+name = "uml-diagram"
+kind = "sequence"
+title = "1. A bad quantity"
+caption = "The type refuses it."
+participants = ["OrderParser", "Quantity"]
+steps = [
+    ["OrderParser", "Quantity", "parse(\"-5\")"],
+    ["Quantity", "OrderParser", "must be from 1 to 99", "reply"],
+]
+
+[[diagram]]
+name = "uml-diagram-2"
+kind = "sequence"
+title = "2. A review with a script"
+caption = "Encoded on the way out."
+participants = ["Review store", "Page", "Shopper"]
+steps = [
+    ["Review store", "Page", "Lovely mug <script>..."],
+    ["note", "Page", "Html.escape"],
+    ["Page", "Shopper", "text shown, nothing runs", "reply"],
+]
+
+[poster]
+headline = [["INPUT", "text"], ["VALIDATION", "text"]]
+before = { code = "parseInt(form.quantity())", note = "-5 mugs: total -49.95", tag = "BEFORE" }
+after = { code = "Quantity.parse(text)", note = "refused: 1 to 99 only", tag = "AFTER" }
+taglines = [["Trust no input", "gold"]]
+
+[[scene]]
+key = "01-poster"
+kind = "poster"
+title = "Input Validation"
+narration = """
+Hello, and welcome. [[slnc 400]] This video explains the Input Validation pattern, in Java. [[slnc 300]]
+This video is presented by Jayasekhar Konduru. [[slnc 600]]
+First, a simple definition. [[slnc 300]] Nothing that arrives from outside can be trusted. [[slnc 300]] So every field is checked, where it enters the program, against rules for what is allowed. [[slnc 300]] Before anything else uses it. [[slnc 600]]
+Think of the post room of a large office. [[slnc 300]] Every parcel is checked once, at the door. [[slnc 300]] Parcels that pass get a sticker, and nobody upstairs checks them again. [[slnc 300]] But anything sent back out still has to be packed for its own journey. [[slnc 700]]
+In this video, the domain is an online shop's checkout form, and its product reviews. [[slnc 500]]
+By the end, you will hear how unchecked input made a negative total. [[slnc 300]] How to check every field and report every problem. [[slnc 300]] How small types keep data valid. [[slnc 300]] And why valid text must still be made safe on the way out.
+"""
+
+[[scene]]
+key = "02-scenario"
+kind = "bullets"
+title = "The Scenario"
+body = ["Checkout used form text as it arrived.", "", "-5 mugs: a negative total.", "\"not-an-email\" saved.", "", "Reviews shown exactly as typed."]
+narration = """
+Here is the scenario. [[slnc 400]] The shop's checkout used the form's text exactly as it arrived. [[slnc 500]]
+Minus five mugs gave a negative total. [[slnc 300]] Junk was saved as an email address. [[slnc 500]]
+And product reviews were shown on the page exactly as typed.
+"""
+
+[[scene]]
+key = "03-acts"
+kind = "acts"
+title = "acts"
+
+[[scene]]
+key = "04-pattern"
+kind = "bullets"
+title = "The Pattern"
+body = ["Check at the boundary.", "", "Allow-list rules.", "Report every problem.", "Parse into safe types.", "Encode on the way out."]
+narration = """
+Let's name the pattern. [[slnc 400]] Check all outside input at the boundary. [[slnc 500]]
+Use rules for what is allowed, and report every problem at once. [[slnc 300]] Turn the text into types that cannot hold bad values. [[slnc 500]]
+And encode text on its way out, for wherever it is shown.
+"""
+
+[[scene]]
+key = "05-roles"
+kind = "bullets"
+title = "Who Does What"
+body = ["OrderParser: checks the whole form", "Quantity, Email, Sku: check themselves", "ValidOrder: only checked values", "Html.escape: safe on the page"]
+narration = """
+Here is who does what. [[slnc 400]] The order parser checks the whole form, and collects every problem. [[slnc 500]]
+Quantity, email and product code are small types that check themselves when they are made. [[slnc 500]]
+A valid order holds only checked values. [[slnc 300]] And the escape method makes text safe to show on a web page.
+"""
+
+[[scene]]
+key = "06-recognise"
+kind = "bullets"
+title = "Where You Have Seen It"
+body = ["Bean Validation annotations", "Spring's @Valid", "Value objects", "Templates that escape by default"]
+narration = """
+You have probably met this pattern already. [[slnc 400]] Java's validation annotations, such as not blank, and minimum. [[slnc 500]]
+Spring checks them for you, on request bodies. [[slnc 300]] Value objects that check themselves. [[slnc 500]]
+And web templates that encode text by default.
+"""
+
+[[scene]]
+key = "07-verdict"
+kind = "bullets"
+title = "When To Use It"
+body = ["Always, on the server.", "", "Strict about harm.", "Fair to real people.", "Parse into types.", "Encode for the output."]
+narration = """
+So, when should you use it? [[slnc 400]] Always, and always on the server. [[slnc 500]]
+Be strict about what is harmful. [[slnc 300]] Be fair to real people's names and addresses. [[slnc 300]] Parse into safe types. [[slnc 300]] And encode text for wherever it goes next.
+"""
+
+[[scene]]
+key = "08-outro"
+kind = "outro"
+title = "Thanks for Watching"
+body = ["Full source, notes, diagrams and an animated walkthrough", "are in the repository. Add a", "postcode type."]
+narration = """
+That's the Input Validation pattern. [[slnc 400]] If you remember one sentence, make it this one. [[slnc 300]] Check everything that comes in, and encode everything that goes out. [[slnc 500]]
+The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. [[slnc 300]] It runs offline, with nothing installed except a Java development kit. [[slnc 500]]
+Here is one exercise to try. [[slnc 300]] Add a postcode type, with its own rule. [[slnc 500]]
+If this helped, a like really does help other people find it. [[slnc 300]] And subscribe, if you'd like the rest of the series. [[slnc 400]] Thanks for watching.
+"""

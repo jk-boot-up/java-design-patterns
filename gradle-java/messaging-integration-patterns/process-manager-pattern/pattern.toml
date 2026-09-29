@@ -1,0 +1,450 @@
+# pattern.toml for the Process Manager project. See tools/patternkit.
+
+[project]
+slug = "process-manager"
+category = "messaging-integration-patterns"
+title = "Process Manager"
+package = "processmanager"
+main_class = "ProcessManagerDemo"
+tagline = "One place that knows the whole journey"
+bold = "Put one component in charge of a multi-step process: it keeps each instance's state, sends it to the next step, and decides what happens after every reply, including the unhappy paths."
+domain_note = ""
+thumb_lines = ["PROCESS", "MANAGER"]
+thumb_code = "on reply: decide next step"
+youtube_title = "Process Manager"
+youtube_tags = ["process manager", "orchestration", "enterprise integration patterns", "workflow", "messaging", "java"]
+
+[readme]
+intro = """
+Process Manager is one of the Enterprise Integration Patterns. When a piece
+of work passes through several services, and the route depends on what
+happens along the way, one component takes charge. It keeps the state of each
+process instance, sends the instance to the next step, receives the reply, and
+decides the step after that: continue, take a different branch, or undo what
+was done.
+
+The services never call each other; they only answer the process manager.
+So the whole route, including failures, lives in one place that can also say
+where every instance is right now.
+"""
+analogy = """
+Think of a wedding planner. The caterer, the florist and the venue never talk
+to each other; they each talk to the planner. The planner knows exactly where
+everything stands. When the florist cannot deliver, the planner calls the
+backup florist. When the venue cancels, the planner cancels the caterer too.
+"""
+scenario = """
+The online store fulfils an order in three steps: reserve stock, take
+payment, ship. Each service simply passed the order on to the next. When a
+card was declined, the chain stopped at payments; the warehouse never heard,
+and the kettle stayed reserved for ever. And nobody could say where a given
+order was.
+"""
+costs = [
+    "**One brain.** Every route and branch lives in one class, which grows with every new step.",
+    "**State must survive.** Held in memory, every order in progress is forgotten on a restart; real process managers store their state.",
+    "**A central dependency.** If the process manager is down, no process moves.",
+]
+too_much = """
+When the steps are always the same and never fail in ways that need undoing,
+a simple chain or a routing slip is enough. And when services are owned by
+different teams that prefer to react to each other's events, choreography
+avoids a central brain, at the price of nobody seeing the whole journey.
+"""
+met_before = [
+    "Workflow engines such as Camunda, Temporal and AWS Step Functions.",
+    "Orchestrated sagas in microservices.",
+    "Order management systems that track every order's status.",
+]
+where = """
+This project is in [messaging-integration-patterns](..), next to
+[Routing Slip](../routing-slip-pattern), which attaches a fixed route to the
+message instead, and near [Saga](../../micro-services-design-patterns/saga-pattern),
+a process manager's close relative for undoing work across services.
+"""
+
+[[act]]
+title = "Steps chained together"
+summary = "A declined card stops the chain at payments; the warehouse never hears, so stock shows 1 of 3 though only one kettle shipped."
+detail = """
+`Chained.fulfil` reserves, charges and ships in a line, each step handing on
+to the next. ORD-1 ships. ORD-3's card is declined, so the chain stops at
+payments, but the kettle it reserved is never released: stock shows 1 of 3
+although only one kettle was shipped. And nothing records where ORD-3 is.
+"""
+speech = """
+First demo: each step hands on to the next. [[slnc 400]] The warehouse reserves a kettle, and hands on to payments. [[slnc 300]] Payments charges, and hands on to shipping. [[slnc 600]]
+Order one ships. [[slnc 500]]
+Order three's card is declined. [[slnc 300]] The chain stops at payments. [[slnc 300]] But the warehouse never hears, so its kettle stays reserved. [[slnc 500]]
+Only one kettle shipped, yet two are gone from stock. [[slnc 300]] And where is order three now? [[slnc 300]] Nobody knows.
+"""
+rows = { warehouse = "active wrong", payments = "active wrong" }
+console = [
+    ["ORD-3 card declined: stopped at payments", "bad"],
+    ["stock 1 of 3; only 1 shipped", "bad"],
+    ["where is ORD-3? nobody knows", "bad"],
+]
+
+[[act]]
+title = "A process manager"
+summary = "The manager runs ORD-1: main RESERVED, PAID, SHIPPED, then DONE."
+detail = """
+`ProcessManager` starts each order and handles every reply. For ORD-1 it
+asks the main warehouse to reserve, gets RESERVED, asks payments, gets PAID,
+asks shipping, gets SHIPPED, and marks the order DONE. The services never
+talk to each other.
+"""
+speech = """
+Second demo: a process manager runs each order's journey. [[slnc 400]] The services no longer call each other. [[slnc 300]] They only answer the manager. [[slnc 600]]
+For order one, the manager asks the main warehouse to reserve. [[slnc 300]] Reserved. [[slnc 300]] It asks payments to charge. [[slnc 300]] Paid. [[slnc 300]] It asks shipping to ship. [[slnc 300]] Shipped. [[slnc 500]]
+Order one is done.
+"""
+rows = { manager = "active ok", warehouse = "active ok", payments = "active ok", shipping = "active ok" }
+console = [
+    ["ORD-1: main RESERVED, PAID, SHIPPED", "ok"],
+    ["-> DONE", "ok"],
+]
+
+[[act]]
+title = "A branch"
+summary = "ORD-2's sofa is out of stock at main; the manager asks the partner warehouse, which reserves it; the order completes."
+detail = """
+ORD-2 is a sofa. The main warehouse replies OUT_OF_STOCK, so the manager
+decides the next step is the partner warehouse. It replies RESERVED, and the
+order is paid and shipped.
+"""
+speech = """
+Third demo: the manager decides the next step. [[slnc 400]] Order two is a sofa. [[slnc 300]] The main warehouse replies: out of stock. [[slnc 600]]
+The manager decides: try the partner warehouse. [[slnc 300]] Reserved. [[slnc 500]]
+The order is paid, shipped, and done.
+"""
+rows = { manager = "active ok", warehouse = "active amber", partner = "active ok" }
+console = [
+    ["ORD-2: main OUT_OF_STOCK", "amber"],
+    ["partner RESERVED, PAID, SHIPPED -> DONE", "ok"],
+]
+
+[[act]]
+title = "The unhappy path"
+summary = "ORD-3's card is declined; the manager releases the kettle (stock back to 2 of 3) and emails the customer."
+detail = """
+ORD-3's card is declined. The manager knows the order reserved a kettle at
+the main warehouse, so it releases it, emails the customer, and marks the
+order cancelled. Stock is back to 2 of 3.
+"""
+speech = """
+Fourth demo: the unhappy path is part of the process. [[slnc 400]] Order three's card is declined. [[slnc 500]]
+The manager knows this order reserved a kettle. [[slnc 300]] So it tells the warehouse to release it. [[slnc 300]] And it emails the customer. [[slnc 600]]
+The order is cancelled, cleanly. [[slnc 300]] The kettle is back in stock.
+"""
+rows = { manager = "active ok", payments = "active wrong", warehouse = "active ok", emails = "active ok" }
+console = [
+    ["ORD-3: RESERVED, DECLINED, RELEASED", "amber"],
+    ["cancelled; stock 2 of 3", "ok"],
+    ["email: your card was declined", "ok"],
+]
+
+[[act]]
+title = "The bill"
+summary = "The manager can say where every order is; but every route lives in one class, and its state is lost on a restart."
+detail = """
+The manager can answer "where is every order?" in one line. But every route
+and branch lives in one class that grows with each new step, and its state is
+in memory: a restart would forget every order in progress. Real process
+managers keep their state in a database.
+"""
+speech = """
+Fifth demo: the bill. [[slnc 400]] The manager can say where every order is, in one line. [[slnc 500]]
+But every route, and every branch, lives in one class. [[slnc 300]] It grows with each new step. [[slnc 500]]
+And its state is in memory. [[slnc 300]] A restart would forget every order in progress. [[slnc 300]] Real process managers store their state.
+"""
+rows = { manager = "active amber" }
+console = [
+    ["ORD-1=DONE, ORD-2=DONE, ORD-3=CANCELLED", "ok"],
+    ["one class holds every route", "amber"],
+    ["state in memory: lost on restart", "amber"],
+]
+
+[animation]
+subtitle = "A process manager takes each order through reserve, pay and ship, deciding the next step from every reply."
+boxes = [
+    ["manager", "Process manager", "state per order"],
+    ["warehouse", "Main warehouse", "reserve, release"],
+    ["partner", "Partner warehouse", "backup stock"],
+    ["payments", "Payments", "charge"],
+    ["shipping", "Shipping", "ship"],
+    ["emails", "Emails", "tell the customer"],
+]
+
+[docs.problem]
+scenario = """
+Orders are fulfilled in three steps: reserve stock, take payment, ship.
+Some steps fail and must be undone or retried elsewhere.
+"""
+naive = """
+`Chained` passes each order along a line. A declined card stops the line, the
+reserved stock is never released, and nobody knows where the order is.
+"""
+deliver = [
+    "The chain shown leaking stock on a declined card.",
+    "A process manager taking an order through every step.",
+    "A branch to a partner warehouse.",
+    "A failure path that releases stock and emails the customer.",
+    "The status of every order in one place, and the cost of a central brain.",
+    "Every printed result asserted by a test.",
+]
+
+[docs.prerequisites]
+required = [
+    "Java basics: classes, maps, `switch`.",
+]
+not_required = [
+    "A workflow engine. The manager is one class.",
+]
+
+[docs.session]
+objectives = [
+    "Explain why a chain of services loses track of failures.",
+    "Keep per-instance state and decide the next step from replies.",
+    "Put unhappy paths inside the process.",
+    "Weigh a central process manager against choreography.",
+]
+walkthrough = """
+Run `./gradlew run` and read act one's stock count. Open
+`ProcessManager.step`: every reply comes back here, and a `switch` decides
+what happens next. End on act five and ask what must be stored so a restart
+does not lose orders.
+"""
+exercises = [
+    "Store the manager's state in a map that is saved to a file, and restart it mid-order.",
+    "Add a step: send a delivery-slot email after shipping.",
+    "If the partner warehouse is used, charge an extra £5 delivery. Where does that rule go?",
+]
+
+[docs.explained]
+sentence = """
+A process manager keeps each instance of a multi-step process, sends it to
+the next step, and decides what to do after every reply, including undoing
+work when a step fails.
+"""
+verdict = """
+Use a process manager when routes branch and failures must be undone. Store
+its state, keep each step's service unaware of the others, and use a workflow
+engine when processes are long or many.
+"""
+recognise = [
+    "A class or service with a state per order and a handler per reply type.",
+    "Workflow definitions in Camunda, Temporal or Step Functions.",
+    "Compensating actions (release, refund) triggered centrally.",
+]
+
+[spec]
+purpose = """
+Teach Process Manager with an online store's order fulfilment: a chain that
+leaks stock when a card is declined, then a process manager taking orders
+through reserve, pay and ship, branching to a partner warehouse, releasing
+stock and emailing on a decline, and reporting every order's state.
+"""
+nongoals = [
+    "Not persistence of process state. It is an exercise.",
+    "Not asynchronous messaging. Replies are returned directly for clarity.",
+]
+problem = """
+When each step of a process hands on to the next, failures part-way through
+leave earlier steps undone, and nobody can see where an order is.
+"""
+roles = [
+    ["The pattern", "`ProcessManager`"],
+    ["The services", "`Services.Warehouse`, `Payments`, `Shipping`, `Emails`"],
+    ["The work", "`Order`"],
+    ["The naive version", "`Chained`"],
+    ["Entry point", "`ProcessManagerDemo`, five acts"],
+]
+requirements = [
+    "**One owner:** only the manager decides the next step.",
+    "**Branches:** out of stock at main tries the partner.",
+    "**Undo:** a declined card releases the reserved stock.",
+    "**Visible:** every order's state can be listed.",
+    "**Every printed result is asserted** in `DemoRunsTest`.",
+]
+
+[[diagram]]
+name = "architecture-diagram"
+kind = "flow"
+title = "Process Manager — the pieces"
+caption = "Every service answers the manager; none talks to another."
+nodes = [
+    { id = "m", label = "ProcessManager", sub = "state per order", col = 1, row = 1, colour = "accent" },
+    { id = "w", label = "Main warehouse", sub = "", col = 0, row = 0, colour = "green" },
+    { id = "p", label = "Partner warehouse", sub = "", col = 2, row = 0, colour = "green" },
+    { id = "y", label = "Payments", sub = "", col = 0, row = 2, colour = "green" },
+    { id = "s", label = "Shipping", sub = "", col = 2, row = 2, colour = "green" },
+]
+edges = [
+    { from = "m", to = "w", label = "reserve / release" },
+    { from = "m", to = "p", label = "reserve" },
+    { from = "m", to = "y", label = "charge" },
+    { from = "m", to = "s", label = "ship" },
+]
+
+[[diagram]]
+name = "class-diagram"
+kind = "class"
+title = "Process Manager — classes"
+caption = "The manager holds the route; services hold one job each."
+nodes = [
+    { id = "m", label = "ProcessManager", sub = ["- state: order -> step", "- history", "+ start(order)", "- step(order, reply)"], col = 0, row = 0, colour = "accent" },
+    { id = "w", label = "Warehouse", sub = ["+ reserve(sku)", "+ release(sku)"], col = 1, row = 0, colour = "green" },
+    { id = "p", label = "Payments", sub = ["+ charge(card)"], col = 1, row = 1, colour = "green" },
+    { id = "c", label = "Chained", sub = ["reserve, charge, ship", "in a line"], col = 2, row = 0, colour = "red" },
+]
+edges = [
+    { from = "m", to = "w", label = "calls" },
+    { from = "m", to = "p", label = "calls" },
+]
+
+[[diagram]]
+name = "data-flow-diagram"
+kind = "flow"
+title = "Process Manager — ORD-3's journey"
+caption = "A decline leads to release and an email."
+nodes = [
+    { id = "a", label = "RESERVED", sub = "main", col = 0, row = 0, colour = "green" },
+    { id = "b", label = "DECLINED", sub = "payments", col = 1, row = 0, colour = "red" },
+    { id = "c", label = "RELEASED", sub = "main", col = 2, row = 0, colour = "amber" },
+    { id = "d", label = "email sent", sub = "CANCELLED", col = 2, row = 1, colour = "amber" },
+]
+edges = [
+    { from = "a", to = "b", label = "charge" },
+    { from = "b", to = "c", label = "undo" },
+    { from = "c", to = "d", label = "tell" },
+]
+
+[[diagram]]
+name = "sequence-diagram"
+kind = "sequence"
+title = "Process Manager — a sofa from the partner"
+caption = "The reply decides the next step."
+participants = ["Manager", "Main", "Partner", "Payments"]
+steps = [
+    ["Manager", "Main", "reserve SOFA-1"],
+    ["Main", "Manager", "OUT_OF_STOCK", "reply"],
+    ["Manager", "Partner", "reserve SOFA-1"],
+    ["Partner", "Manager", "RESERVED", "reply"],
+    ["Manager", "Payments", "charge"],
+]
+
+[[diagram]]
+name = "uml-diagram"
+kind = "sequence"
+title = "1. The chain"
+caption = "A failure part-way leaves the earlier step done."
+participants = ["Warehouse", "Payments"]
+steps = [
+    ["Warehouse", "Payments", "reserved: now charge"],
+    ["note", "Payments", "declined: stop"],
+    ["note", "Warehouse", "never told"],
+]
+
+[[diagram]]
+name = "uml-diagram-2"
+kind = "sequence"
+title = "2. Undoing on a decline"
+caption = "The manager remembers what to undo."
+participants = ["Manager", "Payments", "Main"]
+steps = [
+    ["Manager", "Payments", "charge CARD-BAD"],
+    ["Payments", "Manager", "DECLINED", "reply"],
+    ["Manager", "Main", "release KETTLE-1"],
+]
+
+[poster]
+headline = [["PROCESS", "text"], ["MANAGER", "text"]]
+before = { code = "reserve -> charge -> ship", note = "declined: stock leaked", tag = "BEFORE" }
+after = { code = "on reply: decide next step", note = "every path handled", tag = "AFTER" }
+taglines = [["One place that knows the whole journey", "gold"]]
+
+[[scene]]
+key = "01-poster"
+kind = "poster"
+title = "Process Manager"
+narration = """
+Hello, and welcome. [[slnc 400]] This video explains the Process Manager pattern, in Java. [[slnc 300]]
+This video is presented by Jayasekhar Konduru. [[slnc 600]]
+First, a simple definition. [[slnc 300]] A process manager takes charge of a process with several steps. [[slnc 300]] It keeps track of where each case is, sends it to the next step, and decides what happens after every reply. [[slnc 300]] Including when something goes wrong. [[slnc 600]]
+Think of a wedding planner. [[slnc 300]] The caterer, the florist, and the venue only talk to the planner. [[slnc 300]] When the florist cannot deliver, the planner calls a backup. [[slnc 300]] When the venue cancels, the planner cancels the caterer too. [[slnc 700]]
+In this video, the domain is an online shop. [[slnc 300]] Each order must be reserved, paid for, and shipped. [[slnc 500]]
+By the end, you will hear how a simple chain of steps loses track. [[slnc 300]] How a process manager runs each order. [[slnc 300]] How it handles branches and failures. [[slnc 300]] And what a central brain costs.
+"""
+
+[[scene]]
+key = "02-scenario"
+kind = "bullets"
+title = "The Scenario"
+body = ["Reserve stock -> take payment -> ship.", "", "Each service passed the order on.", "", "Cards get declined.", "Warehouses run out."]
+narration = """
+Here is the scenario. [[slnc 400]] Each order is fulfilled in three steps. [[slnc 300]] Reserve the stock. [[slnc 300]] Take payment. [[slnc 300]] Ship. [[slnc 600]]
+Each service simply passed the order on to the next. [[slnc 500]]
+But cards get declined, and warehouses run out.
+"""
+
+[[scene]]
+key = "03-acts"
+kind = "acts"
+title = "acts"
+
+[[scene]]
+key = "04-pattern"
+kind = "bullets"
+title = "The Pattern"
+body = ["One component owns the process.", "", "It keeps each order's state,", "sends it to the next step,", "and decides after every reply.", "", "Services never call each other."]
+narration = """
+Let's name the pattern. [[slnc 400]] One component owns the process. [[slnc 500]]
+It keeps each order's state. [[slnc 300]] It sends the order to the next step. [[slnc 300]] And after every reply, it decides what happens next. [[slnc 500]]
+The services never call each other. [[slnc 300]] They only answer the process manager.
+"""
+
+[[scene]]
+key = "05-roles"
+kind = "bullets"
+title = "Who Does What"
+body = ["ProcessManager: state and decisions", "Warehouse, partner, payments,", "shipping, emails: one job each", "Chained: the old way"]
+narration = """
+Here is who does what. [[slnc 400]] The process manager holds each order's state, and decides every next step. [[slnc 500]]
+The main warehouse, the partner warehouse, payments, shipping, and emails each do one job, and answer. [[slnc 500]]
+And chained is the old way, kept for comparison.
+"""
+
+[[scene]]
+key = "06-recognise"
+kind = "bullets"
+title = "Where You Have Seen It"
+body = ["Camunda, Temporal", "AWS Step Functions", "Orchestrated sagas", "Order management systems"]
+narration = """
+You have probably met this pattern already. [[slnc 400]] Workflow engines such as Camunda, Temporal, and Step Functions are process managers you configure. [[slnc 500]]
+Orchestrated sagas in microservices are the same idea. [[slnc 500]]
+And every order management system that tracks each order's status is one.
+"""
+
+[[scene]]
+key = "07-verdict"
+kind = "bullets"
+title = "When To Use It"
+body = ["Routes that branch.", "Failures that must be undone.", "", "Store the state.", "Long or many processes?", "Use a workflow engine."]
+narration = """
+So, when should you use it? [[slnc 400]] When routes branch, and failures must be undone. [[slnc 500]]
+Store the manager's state, so a restart forgets nothing. [[slnc 500]]
+And when processes are long, or many, use a workflow engine rather than writing your own.
+"""
+
+[[scene]]
+key = "08-outro"
+kind = "outro"
+title = "Thanks for Watching"
+body = ["Full source, notes, diagrams and an animated walkthrough", "are in the repository. Save the manager's", "state and restart it."]
+narration = """
+That's the Process Manager pattern. [[slnc 400]] If you remember one sentence, make it this one. [[slnc 300]] Let one place own the whole journey, including the unhappy paths. [[slnc 500]]
+The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. [[slnc 300]] It runs offline, with nothing installed except a Java development kit. [[slnc 500]]
+Here is one exercise to try. [[slnc 300]] Save the manager's state to a file, and restart it in the middle of an order. [[slnc 500]]
+If this helped, a like really does help other people find it. [[slnc 300]] And subscribe, if you'd like the rest of the series. [[slnc 400]] Thanks for watching.
+"""

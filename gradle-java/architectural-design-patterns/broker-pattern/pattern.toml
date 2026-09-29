@@ -1,0 +1,434 @@
+# pattern.toml for the Broker project. See tools/patternkit.
+
+[project]
+slug = "broker"
+category = "architectural-design-patterns"
+title = "Broker"
+package = "broker"
+main_class = "BrokerDemo"
+tagline = "Call by name, not by address"
+bold = "Put a broker between clients and services: services register by name, clients call by name, and the broker finds the service and forwards the call."
+domain_note = ""
+thumb_lines = ["BROKER"]
+thumb_code = "/call/stock?sku=..."
+youtube_title = "Broker"
+youtube_tags = ["broker pattern", "architecture patterns", "service registry", "location transparency", "java"]
+
+[readme]
+intro = """
+Broker is an architectural pattern for distributed systems. Clients do not
+know where the services they use are running. Instead, each service registers
+with a broker under a name, and clients send their calls to the broker, by
+name. The broker finds a live instance of that service, forwards the call and
+returns the answer.
+
+Services can then move, be added or be replaced without any client changing.
+The same idea underlies Java RMI's registry, CORBA, and today's service
+registries and service meshes.
+"""
+analogy = """
+Think of an old hotel switchboard. Guests do not know which extension the
+kitchen or the laundry is on; they ask the operator to put them through to
+room service. When room service moves to a new office, only the operator's
+list changes. But if the switchboard goes down, nobody can call anyone.
+"""
+scenario = """
+The online store's checkout calls a stock service and a price service. Their
+addresses were written into checkout's configuration. When the stock service
+was moved to a new machine, checkout kept calling the old address and every
+order failed until checkout was changed and released.
+"""
+costs = [
+    "**An extra hop.** Every call is two network requests: client to broker, broker to service.",
+    "**One thing everyone needs.** When the broker stopped, every service became unreachable; real brokers run several copies.",
+    "**Another system to run.** The broker must be monitored, secured and kept fast.",
+]
+too_much = """
+With a handful of services that never move, configured addresses are simpler.
+And many platforms already do this job: Kubernetes services and DNS, or a
+service registry with a client-side load balancer, which avoids the extra hop.
+"""
+met_before = [
+    "Java RMI's registry and CORBA's object request broker.",
+    "Service registries such as Consul, Eureka and etcd.",
+    "Kubernetes services, which give a stable name to moving pods.",
+    "API gateways and service meshes that route calls by name.",
+]
+where = """
+This project is in [architectural-design-patterns](..). Similar ideas appear
+as [Service Discovery](../../micro-services-design-patterns/service-discovery-pattern)
+and [API Gateway](../../micro-services-design-patterns/api-gateway-pattern) in
+the microservices category.
+"""
+
+[[act]]
+title = "A hard-coded address"
+summary = "Checkout calls the stock service at a fixed address: 4 kettles; the service moves, and checkout fails with connection refused."
+detail = """
+Checkout knows the stock service's address and asks it directly: 4 kettles
+in stock. The stock service is moved to a new machine, with a new address.
+Checkout still uses the old one, and every call fails: connection refused.
+"""
+speech = """
+First demo: checkout knows the stock service's address. [[slnc 400]] It asks: how many kettles? [[slnc 300]] Four. [[slnc 600]]
+Then the stock service moves to a new machine, with a new address. [[slnc 500]]
+Checkout still calls the old address. [[slnc 300]] Connection refused. [[slnc 300]] Every order fails, until checkout itself is changed.
+"""
+rows = { checkout = "active wrong", stock = "active amber" }
+console = [
+    ["stock KETTLE-1 -> 4", "ok"],
+    ["the stock service moves", "amber"],
+    ["old address: FAILED, connection refused", "bad"],
+]
+
+[[act]]
+title = "Calls through a broker"
+summary = "The stock service registers as \"stock\"; checkout calls /call/stock and gets 4; it knows only the broker."
+detail = """
+The stock service registers with the broker under the name "stock". Checkout
+sends `/call/stock?sku=KETTLE-1` to the broker, which looks up the name,
+forwards the call and returns 4. Checkout knows only the broker's address.
+"""
+speech = """
+Second demo: a broker. [[slnc 400]] The stock service registers with the broker, under the name stock. [[slnc 500]]
+Checkout now calls the broker, by name: stock, how many kettles? [[slnc 300]] The broker finds the stock service, forwards the question, and passes back the answer. [[slnc 300]] Four. [[slnc 600]]
+Checkout knows only one address: the broker's.
+"""
+rows = { checkout = "active ok", broker = "active ok", stock = "active ok" }
+console = [
+    ["stock registers as \"stock\"", "ok"],
+    ["/call/stock?sku=KETTLE-1 -> 4", "ok"],
+]
+
+[[act]]
+title = "A service moves"
+summary = "The stock service moves and re-registers; checkout, unchanged, asks for MUG-1 and gets 20."
+detail = """
+The stock service moves again and registers its new address with the broker.
+Checkout does not change at all, and its next call, for mugs, returns 20.
+"""
+speech = """
+Third demo: a service moves, and clients do not notice. [[slnc 400]] The stock service moves again. [[slnc 300]] This time it tells the broker its new address. [[slnc 600]]
+Checkout does not change at all. [[slnc 300]] It asks for mugs. [[slnc 300]] Twenty.
+"""
+rows = { checkout = "active ok", broker = "active ok", stock = "active ok" }
+console = [
+    ["stock moves, re-registers", "amber"],
+    ["checkout, unchanged: MUG-1 -> 20", "ok"],
+]
+
+[[act]]
+title = "Several instances"
+summary = "Two price instances registered: four calls alternate price-a, price-b, price-a, price-b."
+detail = """
+Two instances of the price service register under the same name. Four calls
+from checkout are answered by price-a, price-b, price-a, price-b: the broker
+takes turns, and checkout never chose an instance.
+"""
+speech = """
+Fourth demo: several instances of one service. [[slnc 400]] Two price services register, both under the name price. [[slnc 500]]
+Checkout calls four times. [[slnc 300]] Price A answers. [[slnc 200]] Then price B. [[slnc 200]] Then A. [[slnc 200]] Then B. [[slnc 600]]
+The broker takes turns. [[slnc 300]] Checkout never chose.
+"""
+rows = { broker = "active ok", pricea = "active ok", priceb = "active ok" }
+console = [
+    ["call 1: from price-a", "ok"],
+    ["call 2: from price-b", "ok"],
+    ["call 3: price-a; call 4: price-b", "ok"],
+]
+
+[[act]]
+title = "The bill"
+summary = "One call is 2 network requests; when the broker stops, every service is unreachable."
+detail = """
+Every call from checkout is now two network requests, checkout to broker and
+broker to service. And when the broker stops, every service is unreachable,
+even though they are all still running; real brokers run as several copies.
+"""
+speech = """
+Fifth demo: the bill. [[slnc 400]] One call from checkout is now two network requests. [[slnc 300]] Checkout to broker, and broker to service. [[slnc 600]]
+And the broker is the one thing everyone needs. [[slnc 300]] When it stops, every service is unreachable, even though they are all still running.
+"""
+rows = { broker = "active wrong", checkout = "active wrong" }
+console = [
+    ["one call = 2 network requests", "amber"],
+    ["broker stops: FAILED", "bad"],
+]
+
+[animation]
+subtitle = "Services register with the broker by name; checkout calls by name and the broker forwards to a live instance."
+boxes = [
+    ["checkout", "Checkout", "calls by name"],
+    ["broker", "Broker", "name -> addresses"],
+    ["stock", "Stock service", "registers as \"stock\""],
+    ["pricea", "Price service A", "\"price\""],
+    ["priceb", "Price service B", "\"price\""],
+]
+
+[docs.problem]
+scenario = """
+Checkout calls a stock service and a price service, which sometimes move or
+run as several instances.
+"""
+naive = """
+Checkout holds the services' addresses. When the stock service moves, checkout
+calls the old address and every order fails.
+"""
+deliver = [
+    "A hard-coded address failing after a move.",
+    "A broker forwarding calls by name over HTTP.",
+    "A moved service re-registering with no client change.",
+    "Two instances served in turn.",
+    "The costs shown: an extra hop and a single point of failure.",
+    "Every printed result asserted by a test.",
+]
+
+[docs.prerequisites]
+required = [
+    "Java basics: classes, maps, lambdas.",
+    "HTTP basics: a URL, a request, a response.",
+]
+not_required = [
+    "Any registry product. The broker is a few dozen lines.",
+]
+
+[docs.session]
+objectives = [
+    "Explain location transparency.",
+    "Register services by name and forward calls.",
+    "Handle moved services and several instances.",
+    "Name the costs and how real systems reduce them.",
+]
+walkthrough = """
+Run `./gradlew run` and read act one. Open `Broker`: `/register` stores a
+name and address, `/call/{name}` looks up and forwards. Then compare act four's
+alternating answers with what a client-side load balancer would do.
+"""
+exercises = [
+    "Remove an instance when a forwarded call to it fails.",
+    "Let clients ask the broker for an address once and then call the service directly. What do you gain and lose?",
+    "Run two brokers and make checkout try the second if the first does not answer.",
+]
+
+[docs.explained]
+sentence = """
+A broker sits between clients and services, lets services register by name
+and forwards clients' calls by name, so neither side needs the other's
+address.
+"""
+verdict = """
+Use a broker, or a registry doing the same job, when services move, scale or
+change often. Run it redundantly, keep it fast, and consider client-side
+lookup to avoid the extra hop.
+"""
+recognise = [
+    "Calls addressed by service name rather than host and port.",
+    "A registry that services announce themselves to at start-up.",
+    "Round-robin between instances with the same name.",
+]
+
+[spec]
+purpose = """
+Teach Broker with an online store's checkout calling stock and price services
+over HTTP: a hard-coded address failing after a move, then a broker with
+registration and call-by-name, a moved service with no client change, two
+instances in turn, and the costs of an extra hop and a single point of
+failure.
+"""
+nongoals = [
+    "Not a message broker. Calls are request and reply.",
+    "Not health checks or security.",
+]
+problem = """
+Clients that hold services' addresses break when a service moves and cannot
+spread calls across instances.
+"""
+roles = [
+    ["The pattern", "`Broker`"],
+    ["The services", "`Services.stock`, `Services.price`"],
+    ["Plumbing", "`Http`"],
+    ["Entry point", "`BrokerDemo`, five acts"],
+]
+requirements = [
+    "**Real HTTP:** broker and services are separate local servers.",
+    "**By name:** clients never use a service's address.",
+    "**Relocation:** a re-registered service keeps working for unchanged clients.",
+    "**Every printed result is asserted** in `DemoRunsTest`.",
+]
+
+[[diagram]]
+name = "architecture-diagram"
+kind = "flow"
+title = "Broker — the pieces"
+caption = "Clients call the broker by name; the broker knows the addresses."
+nodes = [
+    { id = "c", label = "Checkout", sub = "knows the broker only", col = 0, row = 1, colour = "client" },
+    { id = "b", label = "Broker", sub = "name -> addresses", col = 1, row = 1, colour = "accent" },
+    { id = "s", label = "Stock service", sub = "\"stock\"", col = 2, row = 0, colour = "green" },
+    { id = "a", label = "Price A", sub = "\"price\"", col = 2, row = 1, colour = "green" },
+    { id = "p", label = "Price B", sub = "\"price\"", col = 2, row = 2, colour = "green" },
+]
+edges = [
+    { from = "c", to = "b", label = "/call/stock" },
+    { from = "b", to = "s", label = "forward" },
+    { from = "b", to = "a", label = "turn 1" },
+    { from = "b", to = "p", label = "turn 2" },
+]
+
+[[diagram]]
+name = "class-diagram"
+kind = "class"
+title = "Broker — classes"
+caption = "A registry of names and a forwarding endpoint."
+nodes = [
+    { id = "b", label = "Broker", sub = ["- Map name -> urls", "+ register(name, url)", "+ addInstance(name, url)", "/call/{name}: forward"], col = 0, row = 0, colour = "accent" },
+    { id = "s", label = "Services", sub = ["+ stock()", "+ price(instance)"], col = 1, row = 0, colour = "green" },
+    { id = "h", label = "Http", sub = ["serve, reply, get"], col = 2, row = 0, colour = "client" },
+]
+edges = [
+    { from = "b", to = "s", label = "forwards to" },
+    { from = "b", to = "h", label = "uses" },
+]
+
+[[diagram]]
+name = "data-flow-diagram"
+kind = "flow"
+title = "Broker — a service moves"
+caption = "Only the broker's list changes."
+nodes = [
+    { id = "a", label = "stock at address 1", sub = "registered", col = 0, row = 0, colour = "client" },
+    { id = "b", label = "stock at address 2", sub = "re-registers", col = 1, row = 0, colour = "amber" },
+    { id = "c", label = "broker: stock -> address 2", sub = "", col = 2, row = 0, colour = "accent" },
+    { id = "d", label = "checkout", sub = "unchanged", col = 2, row = 1, colour = "green" },
+]
+edges = [
+    { from = "a", to = "b", label = "moves" },
+    { from = "b", to = "c", label = "register" },
+    { from = "d", to = "c", label = "/call/stock" },
+]
+
+[[diagram]]
+name = "sequence-diagram"
+kind = "sequence"
+title = "Broker — one call"
+caption = "Two hops, one answer."
+participants = ["Checkout", "Broker", "Stock"]
+steps = [
+    ["Checkout", "Broker", "/call/stock?sku=KETTLE-1"],
+    ["Broker", "Stock", "?sku=KETTLE-1"],
+    ["Stock", "Broker", "4", "reply"],
+    ["Broker", "Checkout", "4", "reply"],
+]
+
+[[diagram]]
+name = "uml-diagram"
+kind = "sequence"
+title = "1. Registering"
+caption = "A service announces itself by name."
+participants = ["Stock", "Broker"]
+steps = [
+    ["Stock", "Broker", "/register?name=stock&url=..."],
+    ["Broker", "Stock", "registered", "reply"],
+]
+
+[[diagram]]
+name = "uml-diagram-2"
+kind = "sequence"
+title = "2. The broker stops"
+caption = "Services are running, but nobody can reach them."
+participants = ["Checkout", "Broker"]
+steps = [
+    ["Checkout", "Broker", "/call/stock"],
+    ["Broker", "Checkout", "connection refused", "reply"],
+]
+
+[poster]
+headline = [["BROKER", "text"]]
+before = { code = "http://10.0.0.7:8081", note = "moved: every order failed", tag = "BEFORE" }
+after = { code = "/call/stock?sku=...", note = "by name, wherever it lives", tag = "AFTER" }
+taglines = [["Call by name, not by address", "gold"]]
+
+[[scene]]
+key = "01-poster"
+kind = "poster"
+title = "Broker"
+narration = """
+Hello, and welcome. [[slnc 400]] This video explains the Broker pattern, in Java. [[slnc 300]]
+This video is presented by Jayasekhar Konduru. [[slnc 600]]
+First, a simple definition. [[slnc 300]] A broker sits between clients and services. [[slnc 300]] Services register with it by name. [[slnc 300]] Clients call it by name. [[slnc 300]] The broker finds the service, forwards the call, and returns the answer. [[slnc 600]]
+Think of an old hotel switchboard. [[slnc 300]] Guests ask the operator to put them through to room service. [[slnc 300]] They never need the extension number. [[slnc 300]] When room service moves office, only the operator's list changes. [[slnc 700]]
+In this video, the domain is an online shop. [[slnc 300]] Its checkout calls a stock service and a price service, which run as small web servers. [[slnc 500]]
+By the end, you will hear why hard-coded addresses break. [[slnc 300]] How a broker fixes it. [[slnc 300]] How it handles moves and several copies. [[slnc 300]] And what it costs.
+"""
+
+[[scene]]
+key = "02-scenario"
+kind = "bullets"
+title = "The Scenario"
+body = ["Checkout calls a stock service", "and a price service.", "", "Their addresses were written", "into checkout.", "", "Then the stock service moved."]
+narration = """
+Here is the scenario. [[slnc 400]] Checkout calls a stock service, and a price service. [[slnc 500]]
+Their addresses were written into checkout's configuration. [[slnc 500]]
+Then the stock service moved to a new machine.
+"""
+
+[[scene]]
+key = "03-acts"
+kind = "acts"
+title = "acts"
+
+[[scene]]
+key = "04-pattern"
+kind = "bullets"
+title = "The Pattern"
+body = ["Services register by name.", "", "Clients call the broker by name.", "", "The broker finds a live instance,", "forwards, and returns the answer."]
+narration = """
+Let's name the pattern. [[slnc 400]] Each service registers with the broker, under a name. [[slnc 500]]
+Clients send every call to the broker, by name. [[slnc 500]]
+The broker finds a live instance of that service, forwards the call, and returns the answer. [[slnc 300]] Clients never know where services live.
+"""
+
+[[scene]]
+key = "05-roles"
+kind = "bullets"
+title = "Who Does What"
+body = ["Broker: names -> addresses, forwards", "Stock, price: the services", "Checkout: the client", "Http: the plumbing"]
+narration = """
+Here is who does what. [[slnc 400]] The broker keeps a list of names and addresses, and forwards calls. [[slnc 500]]
+The stock and price services register themselves, and answer questions. [[slnc 500]]
+Checkout is the client. [[slnc 300]] It knows one address: the broker's. [[slnc 300]] And the H T T P class is just the plumbing.
+"""
+
+[[scene]]
+key = "06-recognise"
+kind = "bullets"
+title = "Where You Have Seen It"
+body = ["Java RMI registry, CORBA", "Consul, Eureka, etcd", "Kubernetes services", "API gateways, service meshes"]
+narration = """
+You have probably met this pattern already. [[slnc 400]] Java's R M I registry, and CORBA, were brokers. [[slnc 500]]
+Service registries such as Consul and Eureka do the same job today. [[slnc 500]]
+Kubernetes gives each service a stable name, whatever machines it runs on. [[slnc 300]] And gateways and service meshes route calls by name.
+"""
+
+[[scene]]
+key = "07-verdict"
+kind = "bullets"
+title = "When To Use It"
+body = ["Services that move, scale", "or change often.", "", "Run the broker redundantly.", "", "Avoid the hop? Look up once,", "then call directly."]
+narration = """
+So, when should you use it? [[slnc 400]] When services move, scale, or change often. [[slnc 500]]
+Run the broker as several copies, so it is never the one thing that stops everything. [[slnc 500]]
+And to avoid the extra hop, clients can ask the broker for an address once, then call the service directly.
+"""
+
+[[scene]]
+key = "08-outro"
+kind = "outro"
+title = "Thanks for Watching"
+body = ["Full source, notes, diagrams and an animated walkthrough", "are in the repository. Drop instances", "that stop answering."]
+narration = """
+That's the Broker pattern. [[slnc 400]] If you remember one sentence, make it this one. [[slnc 300]] Call services by name, and let the broker know where they live. [[slnc 500]]
+The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. [[slnc 300]] It runs offline, with nothing installed except a Java development kit. [[slnc 500]]
+Here is one exercise to try. [[slnc 300]] Make the broker drop an instance when calls to it fail. [[slnc 500]]
+If this helped, a like really does help other people find it. [[slnc 300]] And subscribe, if you'd like the rest of the series. [[slnc 400]] Thanks for watching.
+"""

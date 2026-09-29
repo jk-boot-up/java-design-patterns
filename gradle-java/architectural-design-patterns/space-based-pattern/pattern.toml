@@ -1,0 +1,448 @@
+# pattern.toml for the Space-Based Architecture project. See tools/patternkit.
+
+[project]
+slug = "space-based"
+category = "architectural-design-patterns"
+title = "Space-Based Architecture"
+package = "spacebased"
+main_class = "SpaceBasedDemo"
+tagline = "Take the database out of the way"
+bold = "Give every copy of the application its own in-memory copy of the data, keep the copies in step through a data grid, and update the database in the background, so no request waits for it."
+domain_note = ""
+thumb_lines = ["SPACE-BASED", "ARCHITECTURE"]
+thumb_code = "unit.takeOne()"
+youtube_title = "Space-Based Architecture"
+youtube_tags = ["space based architecture", "in memory data grid", "scalability", "flash sale", "architecture patterns", "java"]
+
+[readme]
+intro = """
+Space-based architecture is a style for systems with huge, sudden load, such
+as ticket sales or flash sales, where a central database would be the
+bottleneck. The application runs as several processing units, and each unit
+keeps the data it needs in its own memory. Units answer requests from memory;
+every change is copied to the other units through a data grid, and a data
+writer brings the database up to date in the background, in batches.
+
+Add units and the system handles more load, because nothing in the request
+path is shared. The price is that the copies can disagree for a moment, and
+recent changes can be lost if a unit crashes.
+"""
+analogy = """
+Think of pop-up stalls at a festival, all selling the same T-shirts. Each
+stall keeps its own tally of stock and serves its own queue. The stalls radio
+each sale to the others every few minutes, and head office updates its books
+overnight. Nobody queues for head office. But two stalls can both sell the
+last large T-shirt before the radio message gets through.
+"""
+scenario = """
+The online store runs a kettle flash sale. Three app servers handle the
+orders, and every order checks and updates the stock in one central
+database, 5 milliseconds a query, one at a time. Adding more app servers did
+not help: every order still queued for the same database.
+"""
+costs = [
+    "**Copies can disagree for a moment.** Two units sold the last kettle before the grid caught up; stock ended at -1.",
+    "**Recent changes can be lost.** A unit that crashes before the grid copies its sales loses them.",
+    "**Complex to run.** Data grids, replication and background writers are hard to build and operate; products exist for a reason.",
+]
+too_much = """
+For ordinary load, one database and a few app servers are far simpler and
+always consistent. Space-based architecture is for extreme, spiky load where
+a short delay in consistency is acceptable, and never for money that must not
+be wrong even for a moment.
+"""
+met_before = [
+    "In-memory data grids such as Hazelcast, Apache Ignite and Oracle Coherence.",
+    "Ticketing and flash-sale systems.",
+    "The \"tuple space\" idea from JavaSpaces, where the name comes from.",
+]
+where = """
+This project is in [architectural-design-patterns](..), next to
+[Cell-Based Architecture](../cell-based-pattern), another way to scale by
+splitting a system into independent copies.
+"""
+
+[[act]]
+title = "One database for everyone"
+summary = "300 orders through three app servers take over 1.4 s; six app servers still take over 1.4 s."
+detail = """
+Three app servers each call `CentralDatabase.takeOne`, which takes 5
+milliseconds and serves one query at a time. Three hundred orders take over
+1.4 seconds. With six app servers it still takes over 1.4 seconds: the
+database is the limit, not the servers.
+"""
+speech = """
+First demo: three app servers, one database. [[slnc 400]] Every kettle order checks and updates the stock in the database. [[slnc 300]] Five milliseconds each, one at a time. [[slnc 600]]
+Three hundred orders take over one point four seconds. [[slnc 500]]
+Double the app servers, to six. [[slnc 300]] Still over one point four seconds. [[slnc 300]] The database is the limit, not the servers.
+"""
+rows = { servers = "active amber", db = "active wrong" }
+console = [
+    ["300 orders: over 1.4 s", "bad"],
+    ["six servers: still over 1.4 s", "bad"],
+]
+
+[[act]]
+title = "Processing units"
+summary = "Three units with the stock in memory serve 300 orders in under 0.3 s without touching the database."
+detail = """
+Each `ProcessingUnit` holds its own copy of the stock in memory. Orders are
+spread across three units and answered from memory: 300 orders in under 0.3
+seconds, with no order touching the database.
+"""
+speech = """
+Second demo: processing units, each with the data in memory. [[slnc 400]] Each unit is a copy of the app, holding its own copy of the stock. [[slnc 600]]
+Orders are spread across three units, and answered straight from memory. [[slnc 500]]
+Three hundred orders in under three tenths of a second. [[slnc 300]] Not one of them touched the database.
+"""
+rows = { units = "active ok" }
+console = [
+    ["300 orders in under 0.3 s", "ok"],
+    ["no order touched the database", "ok"],
+]
+
+[[act]]
+title = "The data grid"
+summary = "Before replication each unit shows 900 (only its own sales); after, every unit shows 700."
+detail = """
+Each unit has only seen its own 100 sales, so each shows 900 kettles. The
+`DataGrid` copies every sale to the other units: after replication, all three
+show 700.
+"""
+speech = """
+Third demo: the data grid keeps the copies in step. [[slnc 400]] Right after the sale, each unit has only seen its own hundred sales. [[slnc 300]] Each one thinks there are nine hundred kettles left. [[slnc 600]]
+The grid copies every sale to the other units. [[slnc 500]]
+Now all three agree: seven hundred.
+"""
+rows = { grid = "active ok", units = "active ok" }
+console = [
+    ["before: unit-1 900, unit-2 900, unit-3 900", "amber"],
+    ["after:  unit-1 700, unit-2 700, unit-3 700", "ok"],
+]
+
+[[act]]
+title = "The database catches up"
+summary = "The data writer brings the database to 700 in 3 batches of 100, not 300 writes; no customer waited."
+detail = """
+The `DataWriter` receives the changes from the grid and writes them to the
+database in batches of 100: three writes instead of three hundred. The
+database now shows 700, and no customer waited for any of it.
+"""
+speech = """
+Fourth demo: the database catches up, in the background. [[slnc 400]] A data writer collects the changes from the grid. [[slnc 300]] It writes them in batches of a hundred. [[slnc 600]]
+Three writes, instead of three hundred. [[slnc 300]] The database now says seven hundred. [[slnc 500]]
+And no customer waited for any of those writes.
+"""
+rows = { writer = "active ok", db = "active ok" }
+console = [
+    ["database stock: 700", "ok"],
+    ["3 batch writes, not 300", "ok"],
+]
+
+[[act]]
+title = "The bill"
+summary = "With one kettle left, two units both sell it before replication; stock ends at -1."
+detail = """
+One kettle is left. Two customers buy it at the same moment on two different
+units, before the grid has copied either sale. Both units say yes, and after
+replication the stock is -1. And a unit that crashes before the grid copies
+its sales loses them.
+"""
+speech = """
+Fifth demo: the bill. [[slnc 400]] One kettle left. [[slnc 300]] Two customers buy it at the same moment, on two different units. [[slnc 600]]
+Neither unit has heard about the other's sale yet. [[slnc 300]] Both say yes. [[slnc 500]]
+After replication, the stock is minus one. [[slnc 500]]
+And a unit that crashes before the grid copies its sales loses them.
+"""
+rows = { units = "active wrong", grid = "active amber" }
+console = [
+    ["unit-1 sold: true, unit-2 sold: true", "bad"],
+    ["stock after replication: -1", "bad"],
+]
+
+[animation]
+subtitle = "Processing units answer orders from their own in-memory copies; a grid keeps copies in step and a writer updates the database in batches."
+boxes = [
+    ["servers", "App servers", "the old way"],
+    ["db", "Central database", "5 ms, one at a time"],
+    ["units", "Processing units", "stock in memory"],
+    ["grid", "Data grid", "copies every change"],
+    ["writer", "Data writer", "batches to the database"],
+]
+
+[docs.problem]
+scenario = """
+A kettle flash sale sends hundreds of orders at once, and every order checks
+and updates stock.
+"""
+naive = """
+Every app server asks one central database, one query at a time, so adding
+servers does not add capacity.
+"""
+deliver = [
+    "Central-database timing that more servers do not improve.",
+    "Processing units serving orders from memory.",
+    "A data grid replicating changes between units.",
+    "A background writer updating the database in batches.",
+    "The cost shown: the last kettle sold twice.",
+    "Every printed result asserted by a test.",
+]
+
+[docs.prerequisites]
+required = [
+    "Java basics: classes, threads, atomic integers.",
+    "What a database bottleneck is, roughly.",
+]
+not_required = [
+    "Hazelcast or any data grid product. The grid is a small class.",
+]
+
+[docs.session]
+objectives = [
+    "Explain why a central database limits scaling.",
+    "Describe processing units, the data grid and the data writer.",
+    "Explain eventual consistency with the last-kettle example.",
+    "Decide when the trade-off is acceptable.",
+]
+walkthrough = """
+Run `./gradlew run` and compare act one's two timings. Open `ProcessingUnit`:
+memory only. Then `DataGrid.flush` and `DataWriter`. End on act five: which
+things in a shop could accept that risk, and which never could?
+"""
+exercises = [
+    "Flush the grid after every 10 orders. How often does the last kettle sell twice now?",
+    "Reserve a small safety stock on each unit so it stops selling before the true zero.",
+    "Add a unit while the sale is running. How does it get its copy of the stock?",
+]
+
+[docs.explained]
+sentence = """
+Space-based architecture gives each processing unit an in-memory copy of the
+data, keeps copies in step through a data grid, and updates the database in
+the background, so requests never wait for it.
+"""
+verdict = """
+Use it for extreme, spiky load where brief disagreement between copies is
+acceptable, usually with a data grid product. For most systems, a single
+database with good indexes and caching is simpler and always consistent.
+"""
+recognise = [
+    "In-memory data grids in the request path.",
+    "Write-behind to a database from a grid.",
+    "Many identical processing units with no shared database in front of them.",
+]
+
+[spec]
+purpose = """
+Teach Space-Based Architecture with an online store's kettle flash sale: a
+central database limiting 300 orders to over 1.4 s regardless of servers,
+then processing units serving from memory in under 0.3 s, a data grid
+replicating to 700 everywhere, batched database writes, and the last kettle
+sold twice.
+"""
+nongoals = [
+    "Not a data grid product. The grid is in-process.",
+    "Not networking. Units are objects in one program.",
+]
+problem = """
+When every request must query one central database, adding servers adds no
+capacity, and a flash sale queues at the database.
+"""
+roles = [
+    ["The units", "`ProcessingUnit`"],
+    ["Replication", "`DataGrid`"],
+    ["Background persistence", "`DataWriter`"],
+    ["The naive version", "`CentralDatabase` in the request path"],
+    ["Entry point", "`SpaceBasedDemo`, five acts"],
+]
+requirements = [
+    "**Memory first:** units answer without the database.",
+    "**Replicated:** after a flush, every unit agrees.",
+    "**Batched writes:** the database is updated in batches.",
+    "**Honest cost:** the double sale is shown.",
+    "**Every printed result is asserted** in `DemoRunsTest`.",
+]
+
+[[diagram]]
+name = "architecture-diagram"
+kind = "flow"
+title = "Space-Based Architecture — the pieces"
+caption = "Units serve from memory; the grid copies changes; the writer updates the database."
+nodes = [
+    { id = "o", label = "Orders", sub = "flash sale", col = 0, row = 1, colour = "client" },
+    { id = "u1", label = "unit-1", sub = "stock in memory", col = 1, row = 0, colour = "accent" },
+    { id = "u2", label = "unit-2", sub = "stock in memory", col = 1, row = 1, colour = "accent" },
+    { id = "u3", label = "unit-3", sub = "stock in memory", col = 1, row = 2, colour = "accent" },
+    { id = "g", label = "Data grid", sub = "copies changes", col = 2, row = 1, colour = "amber" },
+    { id = "w", label = "Data writer", sub = "batches", col = 2, row = 2, colour = "green" },
+]
+edges = [
+    { from = "o", to = "u1", label = "" },
+    { from = "o", to = "u2", label = "" },
+    { from = "o", to = "u3", label = "" },
+    { from = "u2", to = "g", label = "sold" },
+    { from = "g", to = "w", label = "changes" },
+]
+
+[[diagram]]
+name = "class-diagram"
+kind = "class"
+title = "Space-Based Architecture — classes"
+caption = "Units report to the grid; the grid feeds the writer."
+nodes = [
+    { id = "u", label = "ProcessingUnit", sub = ["- AtomicInteger stock", "+ takeOne()"], col = 0, row = 0, colour = "accent" },
+    { id = "g", label = "DataGrid", sub = ["- units, pending", "+ flush()"], col = 1, row = 0, colour = "amber" },
+    { id = "w", label = "DataWriter", sub = ["- batch size", "record, flush"], col = 2, row = 0, colour = "green" },
+    { id = "d", label = "CentralDatabase", sub = ["+ takeOne() (old way)", "+ applyBatch(n)"], col = 2, row = 1, colour = "client" },
+]
+edges = [
+    { from = "u", to = "g", label = "sold" },
+    { from = "g", to = "w", label = "record" },
+    { from = "w", to = "d", label = "applyBatch" },
+]
+
+[[diagram]]
+name = "data-flow-diagram"
+kind = "flow"
+title = "Space-Based Architecture — one sale"
+caption = "Answered at once; copied and saved later."
+nodes = [
+    { id = "a", label = "order on unit-2", sub = "", col = 0, row = 0, colour = "client" },
+    { id = "b", label = "unit-2: 999", sub = "answered from memory", col = 1, row = 0, colour = "accent" },
+    { id = "c", label = "unit-1, unit-3: 999", sub = "after the grid flush", col = 2, row = 0, colour = "amber" },
+    { id = "d", label = "database: 999", sub = "in the next batch", col = 2, row = 1, colour = "green" },
+]
+edges = [
+    { from = "a", to = "b", label = "takeOne" },
+    { from = "b", to = "c", label = "grid" },
+    { from = "c", to = "d", label = "writer" },
+]
+
+[[diagram]]
+name = "sequence-diagram"
+kind = "sequence"
+title = "Space-Based Architecture — sale and catch-up"
+caption = "The customer is answered before anything is copied."
+participants = ["Customer", "unit-2", "Grid", "Database"]
+steps = [
+    ["Customer", "unit-2", "buy a kettle"],
+    ["unit-2", "Customer", "yes", "reply"],
+    ["unit-2", "Grid", "sold 1"],
+    ["Grid", "Database", "batch of 100, later"],
+]
+
+[[diagram]]
+name = "uml-diagram"
+kind = "sequence"
+title = "1. The central database"
+caption = "Every order waits its turn."
+participants = ["Server 1", "Server 2", "Database"]
+steps = [
+    ["Server 1", "Database", "takeOne (5 ms)"],
+    ["Server 2", "Database", "takeOne (waits)"],
+]
+
+[[diagram]]
+name = "uml-diagram-2"
+kind = "sequence"
+title = "2. The last kettle"
+caption = "Two units, one kettle, before replication."
+participants = ["unit-1", "unit-2", "Grid"]
+steps = [
+    ["note", "unit-1", "sells the last kettle"],
+    ["note", "unit-2", "sells the last kettle"],
+    ["unit-1", "Grid", "sold 1"],
+    ["unit-2", "Grid", "sold 1"],
+    ["note", "Grid", "stock -1"],
+]
+
+[poster]
+headline = [["SPACE-BASED", "text"], ["ARCHITECTURE", "text"]]
+before = { code = "db.takeOne() x 300", note = "over 1.4 s, any number of servers", tag = "BEFORE" }
+after = { code = "unit.takeOne()", note = "under 0.3 s, from memory", tag = "AFTER" }
+taglines = [["Take the database out of the way", "gold"]]
+
+[[scene]]
+key = "01-poster"
+kind = "poster"
+title = "Space-Based Architecture"
+narration = """
+Hello, and welcome. [[slnc 400]] This video explains Space-Based Architecture, in Java. [[slnc 300]]
+This video is presented by Jayasekhar Konduru. [[slnc 600]]
+First, a simple definition. [[slnc 300]] In a space-based system, every copy of the application keeps its own copy of the data, in memory. [[slnc 300]] The copies are kept in step through a data grid. [[slnc 300]] And the database is updated in the background, so no request ever waits for it. [[slnc 600]]
+Think of pop-up stalls at a festival, selling the same T-shirts. [[slnc 300]] Each stall keeps its own tally, and serves its own queue. [[slnc 300]] They radio their sales to each other, and head office updates its books overnight. [[slnc 700]]
+In this video, the domain is an online shop's kettle flash sale. [[slnc 300]] Hundreds of orders arrive at once, and every one must check the stock. [[slnc 500]]
+By the end, you will hear why more servers did not help. [[slnc 300]] How processing units with the data in memory do. [[slnc 300]] How the copies catch up. [[slnc 300]] And the kettle that was sold twice.
+"""
+
+[[scene]]
+key = "02-scenario"
+kind = "bullets"
+title = "The Scenario"
+body = ["A kettle flash sale.", "", "Three app servers.", "Every order checks one database:", "5 ms a query, one at a time."]
+narration = """
+Here is the scenario. [[slnc 400]] The shop runs a kettle flash sale. [[slnc 500]]
+Three app servers take the orders. [[slnc 300]] Every order checks and updates the stock in one central database. [[slnc 300]] Five milliseconds a query, and one query at a time.
+"""
+
+[[scene]]
+key = "03-acts"
+kind = "acts"
+title = "acts"
+
+[[scene]]
+key = "04-pattern"
+kind = "bullets"
+title = "The Pattern"
+body = ["Processing units: the app plus", "its own data, in memory.", "", "Data grid: copies every change.", "", "Data writer: updates the database", "in the background."]
+narration = """
+Let's name the pattern. [[slnc 400]] Run the app as processing units. [[slnc 300]] Each unit holds the data it needs, in its own memory, and answers from it. [[slnc 500]]
+A data grid copies every change to the other units. [[slnc 500]]
+And a data writer brings the database up to date in the background, in batches. [[slnc 300]] The database is no longer in the way of any request.
+"""
+
+[[scene]]
+key = "05-roles"
+kind = "bullets"
+title = "Who Does What"
+body = ["ProcessingUnit: sells from memory", "DataGrid: keeps copies in step", "DataWriter: batches to the database", "CentralDatabase: the old way"]
+narration = """
+Here is who does what. [[slnc 400]] A processing unit sells from its own copy of the stock. [[slnc 500]]
+The data grid copies each sale to the other units. [[slnc 500]]
+The data writer writes the changes to the database in batches. [[slnc 500]]
+And the central database, in every request, is the old way, kept for comparison.
+"""
+
+[[scene]]
+key = "06-recognise"
+kind = "bullets"
+title = "Where You Have Seen It"
+body = ["Hazelcast, Apache Ignite, Coherence", "Ticketing and flash-sale systems", "JavaSpaces, where the name began"]
+narration = """
+You have probably met this pattern already. [[slnc 400]] In-memory data grids such as Hazelcast, Apache Ignite, and Coherence are built for it. [[slnc 500]]
+Ticket sales and flash sales use it to survive huge spikes. [[slnc 500]]
+And the name comes from JavaSpaces, an early shared memory space for Java programs.
+"""
+
+[[scene]]
+key = "07-verdict"
+kind = "bullets"
+title = "When To Use It"
+body = ["Extreme, spiky load.", "Brief disagreement is acceptable.", "", "Use a data grid product.", "", "Ordinary load? One database."]
+narration = """
+So, when should you use it? [[slnc 400]] For extreme, spiky load, where copies disagreeing for a moment is acceptable. [[slnc 500]]
+Use a data grid product, rather than writing your own. [[slnc 500]]
+And for ordinary load, one database, with good indexes and caching, is simpler, and always consistent.
+"""
+
+[[scene]]
+key = "08-outro"
+kind = "outro"
+title = "Thanks for Watching"
+body = ["Full source, notes, diagrams and an animated walkthrough", "are in the repository. Hold back a safety stock", "on each unit."]
+narration = """
+That's Space-Based Architecture. [[slnc 400]] If you remember one sentence, make it this one. [[slnc 300]] Keep the data next to the work, and let the database catch up later. [[slnc 500]]
+The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. [[slnc 300]] It runs offline, with nothing installed except a Java development kit. [[slnc 500]]
+Here is one exercise to try. [[slnc 300]] Hold back a small safety stock on each unit, so the last kettle is never sold twice. [[slnc 500]]
+If this helped, a like really does help other people find it. [[slnc 300]] And subscribe, if you'd like the rest of the series. [[slnc 400]] Thanks for watching.
+"""

@@ -1,0 +1,471 @@
+# pattern.toml for the Acyclic Visitor project. See tools/patternkit.
+
+[project]
+slug = "acyclic-visitor"
+category = "behavioural"
+title = "Acyclic Visitor"
+package = "acyclicvisitor"
+main_class = "AcyclicVisitorDemo"
+tagline = "Visit only what you know"
+bold = "Give every product type its own tiny visitor interface, so each visitor handles only the types it cares about and a new type changes nothing that already exists."
+domain_note = ""
+thumb_lines = ["ACYCLIC", "VISITOR"]
+thumb_code = "implements BookVisitor"
+youtube_title = "Acyclic Visitor"
+youtube_tags = ["acyclic visitor", "visitor pattern", "behavioural patterns", "open closed principle", "java"]
+
+[readme]
+intro = """
+Acyclic Visitor is a variation of the Visitor pattern. A visitor is an
+operation, such as working out VAT, kept outside the classes it works on. In
+the classic Visitor, one visitor interface has a method for every type, so
+every visitor must handle every type, and adding a type means changing the
+interface and every visitor. The types depend on the visitor, and the visitor
+depends on every type: a dependency cycle.
+
+The acyclic version breaks the cycle. The root visitor interface is empty.
+Each type gets its own one-method visitor interface, and each visitor
+implements only the ones it cares about. A new type adds a new small interface,
+and nothing that already exists has to change.
+"""
+analogy = """
+Think of a hotel where staff wear a small badge for each language they speak.
+A guest who speaks Italian looks for the Italian badge. Nobody is expected to
+speak every language, and when the hotel starts welcoming Japanese guests, it
+hands out a new badge to the staff who learn Japanese. Nobody else has to
+change a thing.
+"""
+scenario = """
+The online store's catalogue has books, food and electronics. Operations such
+as VAT and customs forms were written as classic visitors, each with a method
+for every product type. The customs visitor had two empty methods just to
+satisfy the interface. Then the shop started selling gift cards.
+"""
+costs = [
+    "**Mistakes found at run time.** A visitor that forgets an interface still compiles; the product is silently skipped.",
+    "**One more interface per type.** Four product types means four small visitor interfaces.",
+    "**A type check in every accept.** Each product asks \"do you handle me?\" with `instanceof` before visiting.",
+]
+too_much = """
+When the set of types is fixed and every operation handles every type, the
+classic Visitor gives compiler checks for free. And in modern Java, a sealed
+interface with a `switch` over its records does the same job with even less
+code. Acyclic Visitor is for type lists that keep growing, where most
+operations only care about some of the types.
+"""
+met_before = [
+    "Robert C. Martin's description of Acyclic Visitor in \"Pattern Languages of Program Design 3\".",
+    "Plug-in systems where each plug-in says which file types or events it can handle.",
+    "Event listeners that implement only the listener interfaces for the events they care about.",
+]
+where = """
+This project is in [behavioural](..), next to the classic
+[Visitor](../visitor-pattern), which it adapts.
+"""
+
+[[act]]
+title = "The classic visitor"
+summary = "ClassicVisitor has 3 methods, one per type; VAT is £6.00; customs has 2 empty methods; a gift card cannot be accepted."
+detail = """
+`ClassicVisitor` has one method per product type: book, food, electronics.
+The VAT visitor works out £6.00 on a book, some tea and a £30 kettle. The
+customs visitor only cares about electronics but must still write two empty
+methods. When the gift card type arrives, `ClassicVisitor` has no method for
+it: the interface and every visitor would have to change.
+"""
+speech = """
+First demo: the classic visitor. [[slnc 400]] One visitor interface, with one method for every product type. [[slnc 300]] Book, food, and electronics. [[slnc 500]]
+The VAT visitor works on a book, some tea, and a kettle. [[slnc 300]] Six pounds of VAT, all on the kettle. [[slnc 500]]
+The customs visitor only cares about electronics. [[slnc 300]] But it must still write two empty methods, one for books and one for food. [[slnc 600]]
+Then the shop starts selling gift cards. [[slnc 300]] The visitor interface has no method for them. [[slnc 300]] Adding one means changing the interface, and every visitor.
+"""
+rows = { classic = "active wrong", vat = "active ok", customs = "active amber", gift = "active wrong" }
+console = [
+    ["VAT on book, tea, kettle: £6.00", "ok"],
+    ["3 methods; customs has 2 empty ones", "amber"],
+    ["gift card: no visitGiftCard", "bad"],
+]
+
+[[act]]
+title = "The acyclic visitor"
+summary = "One tiny visitor interface per type; the VAT visitor implements three of them and still works out £6.00."
+detail = """
+`ProductVisitor` is now empty: it names no product type. Each type has its
+own one-method interface: `BookVisitor`, `FoodVisitor`, `ElectronicsVisitor`.
+Each product's `accept` checks whether the visitor wears its interface, and
+only then visits. The VAT visitor implements the three it handles, and the
+basket's VAT is still £6.00. The cycle is gone.
+"""
+speech = """
+Second demo: the acyclic visitor. [[slnc 400]] The root visitor interface is now empty. [[slnc 300]] It names no product type at all. [[slnc 500]]
+Each product type gets its own tiny interface, with one method. [[slnc 300]] A book visitor. [[slnc 300]] A food visitor. [[slnc 300]] An electronics visitor. [[slnc 600]]
+A product checks whether the visitor wears its interface, like a guest looking for the right language badge. [[slnc 300]] If it does, the product lets it visit. [[slnc 500]]
+The VAT visitor wears three badges: book, food, and electronics. [[slnc 300]] The VAT is still six pounds.
+"""
+rows = { root = "active ok", vat = "active ok", book = "active ok", food = "active ok", electronics = "active ok" }
+console = [
+    ["ProductVisitor: no methods at all", "ok"],
+    ["VAT wears Book, Food, Electronics", "ok"],
+    ["VAT: £6.00", "ok"],
+]
+
+[[act]]
+title = "A new product type"
+summary = "Gift cards arrive with their own GiftCardVisitor; the VAT visitor skips GIFT-1 and the new activation visitor handles it."
+detail = """
+The gift card type comes with its own `GiftCardVisitor` interface and a new
+`GiftCardActivation` visitor. The VAT visitor does not wear the gift card
+interface, so it skips `GIFT-1` and the VAT stays £6.00. The activation
+visitor handles `GIFT-1`. The VAT and customs classes were not touched.
+"""
+speech = """
+Third demo: a new product type, and nothing old changes. [[slnc 400]] Gift cards arrive, with their own small interface: gift card visitor. [[slnc 500]]
+A new visitor activates gift cards. [[slnc 300]] It wears only the gift card badge. [[slnc 300]] It handles gift card one. [[slnc 500]]
+The VAT visitor does not wear that badge. [[slnc 300]] So it simply skips the gift card, and the VAT stays six pounds. [[slnc 600]]
+The VAT and customs classes were not touched at all.
+"""
+rows = { gift = "active ok", activation = "active ok", vat = "active amber" }
+console = [
+    ["VAT visitor skips GIFT-1", "amber"],
+    ["activation handled: [GIFT-1]", "ok"],
+    ["VAT and customs classes untouched", "ok"],
+]
+
+[[act]]
+title = "A visitor for one type"
+summary = "The customs visitor wears only ElectronicsVisitor and handles 1 of 4 products: a form for the 1200 g kettle."
+detail = """
+Customs forms are only needed for electronics, so `Customs` implements only
+`ElectronicsVisitor`. Across the four products it handles one, the kettle,
+and produces one form: 1200 grams. It has no empty methods at all.
+"""
+speech = """
+Fourth demo: a visitor for exactly the types it cares about. [[slnc 400]] Customs forms are only needed for electronics. [[slnc 500]]
+So the customs visitor wears one badge: electronics. [[slnc 300]] Across four products, it handles one: the kettle. [[slnc 300]] One form, twelve hundred grams. [[slnc 500]]
+No empty methods anywhere.
+"""
+rows = { customs = "active ok", electronics = "active ok" }
+console = [
+    ["customs wears only ElectronicsVisitor", "ok"],
+    ["handled 1 of 4: form for KETTLE-1", "ok"],
+]
+
+[[act]]
+title = "The bill"
+summary = "A VAT visitor that forgot FoodVisitor still compiles; tea is silently skipped at run time. One extra interface per type."
+detail = """
+The compiler no longer checks that a visitor handles everything. A VAT
+visitor that forgot `FoodVisitor` compiles happily; at run time the tea is
+simply skipped (`accept` returns false) and nobody is told. And there is one
+extra interface for every product type.
+"""
+speech = """
+Fifth demo: the bill. [[slnc 400]] Suppose a VAT visitor forgets the food badge. [[slnc 300]] It still compiles. [[slnc 500]]
+When the program runs, the tea is simply skipped. [[slnc 300]] Nobody is told. [[slnc 600]]
+The classic visitor would have caught that before the program ever ran. [[slnc 500]]
+And there is now one extra interface, for every product type.
+"""
+rows = { vat = "active wrong", food = "active wrong" }
+console = [
+    ["forgot FoodVisitor: still compiles", "amber"],
+    ["tea accepted: false, nobody told", "bad"],
+    ["one interface per product type", "amber"],
+]
+
+[animation]
+subtitle = "Each product type has its own small visitor interface; visitors wear only the ones they handle, so a new type changes nothing old."
+boxes = [
+    ["classic", "Classic visitor", "a method for every type"],
+    ["root", "ProductVisitor", "empty: names no type"],
+    ["book", "BookVisitor", "one method"],
+    ["food", "FoodVisitor", "one method"],
+    ["electronics", "ElectronicsVisitor", "one method"],
+    ["vat", "VAT visitor", "books, food, electronics"],
+    ["customs", "Customs visitor", "electronics only"],
+    ["gift", "Gift card type", "added later"],
+    ["activation", "Activation visitor", "gift cards only"],
+]
+
+[docs.problem]
+scenario = """
+The catalogue has books, food and electronics, and operations such as VAT and
+customs forms that visit each product.
+"""
+naive = """
+The classic `ClassicVisitor` has a method per product type. Every visitor
+must write every method, even empty ones, and a new type (gift cards) forces a
+change to the interface and to every visitor.
+"""
+deliver = [
+    "The classic visitor shown: three methods, two empty ones in customs, and no way to accept a gift card.",
+    "An empty root interface and one small interface per product type.",
+    "A new product type added with no change to existing visitors.",
+    "A visitor that handles exactly one type.",
+    "The cost shown: a forgotten interface that compiles and silently skips.",
+    "Every printed result asserted by a test.",
+]
+
+[docs.prerequisites]
+required = [
+    "Java basics: interfaces, records, `instanceof` with a pattern variable.",
+    "The classic Visitor pattern, or at least the idea of an operation kept outside the classes it works on.",
+]
+not_required = [
+    "Sealed interfaces and pattern-matching `switch`. They are mentioned as the modern alternative.",
+]
+
+[docs.session]
+objectives = [
+    "Explain the dependency cycle in the classic Visitor.",
+    "Build an acyclic visitor from an empty root and one interface per type.",
+    "Add a type without changing existing visitors.",
+    "Weigh compile-time checks against open-ended type lists.",
+]
+walkthrough = """
+Run `./gradlew run`. In act one, open `ClassicVisitor` and `ClassicCustoms`
+and count the empty methods. Then open `ProductVisitor`: an empty interface
+with four tiny nested ones. Finish on act five and ask when the classic
+version's compiler checks are worth more than the freedom to add types.
+"""
+exercises = [
+    "Add a `Clothing` type and a size-label visitor that handles only clothing.",
+    "Make the VAT visitor handle gift cards (they are outside the scope of VAT). What changes?",
+    "Rewrite VAT with a sealed interface and a `switch`. What does the compiler now check?",
+    "Make `accept` log every skipped product, so act five's silent skip is at least visible.",
+]
+
+[docs.explained]
+sentence = """
+An acyclic visitor gives each type its own one-method visitor interface and an
+empty root, so each visitor handles only the types it chooses and new types
+change nothing existing.
+"""
+verdict = """
+Use it when new types keep arriving and most operations only care about a few
+of them. Log or test the skipped cases, because the compiler no longer checks
+them. When the type list is fixed, prefer the classic Visitor or a sealed
+interface with `switch`.
+"""
+recognise = [
+    "An empty marker interface that many small visitor interfaces extend.",
+    "`accept` methods that start with `if (visitor instanceof ...)`.",
+    "Visitors that implement a handful of one-method interfaces.",
+]
+
+[spec]
+purpose = """
+Teach Acyclic Visitor with an online store's catalogue: a classic visitor with
+a method per type (VAT £6.00, customs with two empty methods, no room for gift
+cards), then an empty root and per-type interfaces, a gift card type added with
+no change to existing visitors, a customs visitor for electronics only, and the
+cost of silent skips.
+"""
+nongoals = [
+    "Not sealed interfaces. Named as the modern alternative in the exercises.",
+    "Not real VAT rules. Rates are illustrative.",
+]
+problem = """
+A classic visitor makes every visitor handle every type, and a new type forces
+changes to the interface and all its implementations.
+"""
+roles = [
+    ["The pattern", "`ProductVisitor` and its per-type interfaces"],
+    ["Visitors", "`Visitors.Vat`, `Customs`, `GiftCardActivation`"],
+    ["Visited", "`Products.Book`, `Food`, `Electronics`, `GiftCard`"],
+    ["The naive version", "`ClassicVisitor`, `Visitors.ClassicVat`, `ClassicCustoms`"],
+    ["Entry point", "`AcyclicVisitorDemo`, five acts"],
+]
+requirements = [
+    "**No cycle:** the root visitor interface declares no methods, asserted by a test.",
+    "**Opt in:** a visitor handles a type only by implementing that type's interface.",
+    "**Open to new types:** gift cards need no change to VAT or customs.",
+    "**Honest cost:** a forgotten interface is shown compiling and skipping silently.",
+    "**Every printed result is asserted** in `DemoRunsTest`.",
+]
+
+[[diagram]]
+name = "architecture-diagram"
+kind = "flow"
+title = "Acyclic Visitor — the pieces"
+caption = "Visitors wear only the small interfaces they need; products check before letting them in."
+nodes = [
+    { id = "r", label = "ProductVisitor", sub = "empty root", col = 1, row = 0, colour = "accent" },
+    { id = "e", label = "ElectronicsVisitor", sub = "visit(Electronics)", col = 0, row = 1, colour = "amber" },
+    { id = "g", label = "GiftCardVisitor", sub = "visit(GiftCard)", col = 2, row = 1, colour = "amber" },
+    { id = "v", label = "VAT", sub = "book, food, electronics", col = 0, row = 2, colour = "green" },
+    { id = "c", label = "Customs", sub = "electronics only", col = 1, row = 2, colour = "green" },
+    { id = "a", label = "Activation", sub = "gift cards only", col = 2, row = 2, colour = "green" },
+]
+edges = [
+    { from = "e", to = "r", label = "extends" },
+    { from = "g", to = "r", label = "extends" },
+    { from = "v", to = "e", label = "implements" },
+    { from = "c", to = "e", label = "implements" },
+    { from = "a", to = "g", label = "implements" },
+]
+
+[[diagram]]
+name = "class-diagram"
+kind = "class"
+title = "Acyclic Visitor — classes"
+caption = "The root names no product, so products depend only on their own small interface."
+nodes = [
+    { id = "r", label = "«interface» ProductVisitor", sub = ["(no methods)"], col = 1, row = 0, colour = "accent" },
+    { id = "b", label = "«interface» BookVisitor", sub = ["+ visit(Book)"], col = 0, row = 1, colour = "amber" },
+    { id = "e", label = "«interface» ElectronicsVisitor", sub = ["+ visit(Electronics)"], col = 1, row = 1, colour = "amber" },
+    { id = "g", label = "«interface» GiftCardVisitor", sub = ["+ visit(GiftCard)"], col = 2, row = 1, colour = "amber" },
+    { id = "p", label = "«interface» Product", sub = ["+ accept(ProductVisitor): boolean"], col = 0, row = 0, colour = "client" },
+    { id = "cl", label = "«interface» ClassicVisitor", sub = ["visitBook, visitFood", "visitElectronics"], col = 2, row = 0, colour = "red" },
+]
+edges = [
+    { from = "b", to = "r", label = "extends" },
+    { from = "e", to = "r", label = "extends" },
+    { from = "g", to = "r", label = "extends" },
+    { from = "p", to = "r", label = "accepts" },
+]
+
+[[diagram]]
+name = "data-flow-diagram"
+kind = "flow"
+title = "Acyclic Visitor — four products, one customs visitor"
+caption = "Only the product whose interface the visitor wears lets it in."
+nodes = [
+    { id = "b", label = "BOOK-1", sub = "skipped", col = 0, row = 0, colour = "client" },
+    { id = "t", label = "TEA-1", sub = "skipped", col = 0, row = 1, colour = "client" },
+    { id = "k", label = "KETTLE-1", sub = "visited", col = 1, row = 0, colour = "green" },
+    { id = "g", label = "GIFT-1", sub = "skipped", col = 1, row = 1, colour = "client" },
+    { id = "f", label = "form for KETTLE-1", sub = "1200 g", col = 2, row = 0, colour = "accent" },
+]
+edges = [
+    { from = "k", to = "f", label = "Customs.visit" },
+]
+
+[[diagram]]
+name = "sequence-diagram"
+kind = "sequence"
+title = "Acyclic Visitor — one accept"
+caption = "The product checks the badge, then visits."
+participants = ["Demo", "Kettle", "Customs"]
+steps = [
+    ["Demo", "Kettle", "accept(customs)"],
+    ["Kettle", "Kettle", "customs instanceof ElectronicsVisitor?"],
+    ["Kettle", "Customs", "visit(this)"],
+    ["Kettle", "Demo", "true", "reply"],
+]
+
+[[diagram]]
+name = "uml-diagram"
+kind = "sequence"
+title = "1. A type the visitor does not handle"
+caption = "No badge, no visit."
+participants = ["Demo", "GiftCard", "VAT"]
+steps = [
+    ["Demo", "GiftCard", "accept(vat)"],
+    ["GiftCard", "GiftCard", "vat instanceof GiftCardVisitor?"],
+    ["GiftCard", "Demo", "false (skipped)", "reply"],
+]
+
+[[diagram]]
+name = "uml-diagram-2"
+kind = "sequence"
+title = "2. The classic visitor and a new type"
+caption = "No method exists for gift cards."
+participants = ["Demo", "GiftCard", "ClassicVisitor"]
+steps = [
+    ["Demo", "GiftCard", "acceptClassic(vat)"],
+    ["note", "ClassicVisitor", "no visitGiftCard"],
+    ["GiftCard", "Demo", "change the interface and every visitor", "reply"],
+]
+
+[poster]
+headline = [["ACYCLIC", "text"], ["VISITOR", "text"]]
+before = { code = "visitBook, visitFood, ...", note = "every visitor, every type", tag = "BEFORE" }
+after = { code = "implements BookVisitor", note = "only what you handle", tag = "AFTER" }
+taglines = [["Visit only what you know", "gold"]]
+
+[[scene]]
+key = "01-poster"
+kind = "poster"
+title = "Acyclic Visitor"
+narration = """
+Hello, and welcome. [[slnc 400]] This video explains the Acyclic Visitor pattern, in Java. [[slnc 300]]
+This video is presented by Jayasekhar Konduru. [[slnc 600]]
+First, a simple definition. [[slnc 300]] A visitor is an operation, such as working out tax, kept outside the classes it works on. [[slnc 300]] In the acyclic version, each type gets its own tiny visitor interface. [[slnc 300]] Each visitor handles only the types it chooses. [[slnc 300]] So a new type changes nothing that already exists. [[slnc 600]]
+Think of a hotel where staff wear a badge for each language they speak. [[slnc 300]] A guest looks for the right badge. [[slnc 300]] Nobody has to speak every language. [[slnc 300]] And a new language only needs a new badge. [[slnc 700]]
+In this video, the domain is an online shop. [[slnc 300]] Its catalogue has books, food, and electronics, and later, gift cards. [[slnc 300]] Visitors work out VAT, and customs forms. [[slnc 500]]
+By the end, you will hear what goes wrong with the classic visitor. [[slnc 300]] How the acyclic version fixes it. [[slnc 300]] How a new product type changes nothing old. [[slnc 300]] And what it costs.
+"""
+
+[[scene]]
+key = "02-scenario"
+kind = "bullets"
+title = "The Scenario"
+body = ["Products: books, food, electronics.", "", "Visitors: VAT, customs forms.", "", "Each visitor had a method", "for every product type.", "", "Then: gift cards."]
+narration = """
+Here is the scenario. [[slnc 400]] The shop sells books, food, and electronics. [[slnc 500]]
+Two operations visit every product. [[slnc 300]] One works out VAT, a sales tax. [[slnc 300]] The other writes customs forms, for items sent abroad. [[slnc 500]]
+Each operation was a classic visitor. [[slnc 300]] It had one method for every product type, whether it cared about that type or not. [[slnc 500]]
+Then the shop started selling gift cards.
+"""
+
+[[scene]]
+key = "03-acts"
+kind = "acts"
+title = "acts"
+
+[[scene]]
+key = "04-pattern"
+kind = "bullets"
+title = "The Pattern"
+body = ["An empty root visitor interface.", "", "One tiny interface per type:", "BookVisitor, FoodVisitor, ...", "", "Visitors wear only the ones", "they handle."]
+narration = """
+Let's name the pattern. [[slnc 400]] Start with an empty root visitor interface. [[slnc 300]] It names no product type at all. [[slnc 500]]
+Give each product type its own tiny interface, with one method. [[slnc 300]] Book visitor, food visitor, and so on. [[slnc 500]]
+Each visitor implements only the interfaces for the types it handles. [[slnc 300]] And each product checks for its own interface before letting a visitor in.
+"""
+
+[[scene]]
+key = "05-roles"
+kind = "bullets"
+title = "Who Does What"
+body = ["ProductVisitor: the empty root", "BookVisitor, FoodVisitor, ...: badges", "Book, Food, Electronics, GiftCard:", "check the badge in accept()", "VAT, Customs, Activation: visitors"]
+narration = """
+Here is who does what. [[slnc 400]] Product visitor is the empty root. [[slnc 500]]
+Book visitor, food visitor, electronics visitor, and gift card visitor are the badges. [[slnc 300]] One method each. [[slnc 500]]
+Each product checks for its badge in its accept method. [[slnc 500]]
+And the visitors are VAT, customs, and gift card activation. [[slnc 300]] Each wears only the badges it needs.
+"""
+
+[[scene]]
+key = "06-recognise"
+kind = "bullets"
+title = "Where You Have Seen It"
+body = ["Event listeners that implement", "only the events they care about", "Plug-ins that declare which", "file types they handle", "Robert C. Martin's original paper"]
+narration = """
+You have probably met this pattern already. [[slnc 400]] Event listeners often implement only the listener interfaces for the events they care about. [[slnc 500]]
+Plug-in systems let each plug-in say which file types it can handle. [[slnc 500]]
+And the pattern itself was described by Robert C. Martin, as a way to break the dependency cycle in the classic visitor.
+"""
+
+[[scene]]
+key = "07-verdict"
+kind = "bullets"
+title = "When To Use It"
+body = ["Types keep arriving; most", "operations care about a few.", "", "Log or test the skipped cases.", "", "Fixed list of types?", "Classic visitor, or a sealed switch."]
+narration = """
+So, when should you use it? [[slnc 400]] When new types keep arriving, and most operations only care about a few of them. [[slnc 500]]
+Log or test the skipped cases, because the compiler no longer checks them. [[slnc 500]]
+And when the list of types is fixed, prefer the classic visitor, or a sealed interface with a switch. [[slnc 300]] Then the compiler checks everything for you.
+"""
+
+[[scene]]
+key = "08-outro"
+kind = "outro"
+title = "Thanks for Watching"
+body = ["Full source, notes, diagrams and an animated walkthrough", "are in the repository. Add clothing", "and a visitor for it alone."]
+narration = """
+That's the Acyclic Visitor pattern. [[slnc 400]] If you remember one sentence, make it this one. [[slnc 300]] Give each type its own small visitor interface, and let each visitor handle only what it knows. [[slnc 500]]
+The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. [[slnc 300]] It runs offline, with nothing installed except a Java development kit. [[slnc 500]]
+Here is one exercise to try. [[slnc 300]] Add clothing as a new product type, and a size label visitor that handles only clothing. [[slnc 500]]
+If this helped, a like really does help other people find it. [[slnc 300]] And subscribe, if you'd like the rest of the series. [[slnc 400]] Thanks for watching.
+"""

@@ -8,6 +8,8 @@
                                    video + audio + animation narration, spec, YouTube doc
                                    and the root index
     patternkit.sh index            regenerate index.md / index.html / the catalogue
+    patternkit.sh next             the next pattern in the catalogue with no project yet
+    patternkit.sh plan             rewrite the phase 2 status table in docs/new-patterns-plan.md
 
 Output is one line per step; full tool output goes to <project>/build/patternkit.log.
 """
@@ -127,7 +129,9 @@ def scaffold(category, slug, package, main_class):
 def run(log, *cmd, cwd=None):
     r = subprocess.run([str(c) for c in cmd], cwd=cwd, capture_output=True, text=True)
     log.write("$ %s\n%s%s\n" % (" ".join(str(c) for c in cmd), r.stdout, r.stderr))
-    if r.returncode:
+    # onnxruntime (behind the Piper voice) can abort with this message while the
+    # process exits, after every file has been written; that is not a failure.
+    if r.returncode and "recursive_mutex lock failed" not in r.stderr + r.stdout:
         raise SystemExit("patternkit: failed: %s\n%s" % (" ".join(str(c) for c in cmd),
                                                         (r.stdout + r.stderr)[-1500:]))
     return r.stdout
@@ -154,6 +158,56 @@ def build(slug, media=True):
             print("  spec      docs/spec.md + spec.html (video not built yet)")
         run(log, "python3", DOCS / "make_index.py", cwd=REPO)
         print("  index     index.md, index.html, docs/design-patterns-catalog.md")
+        print("  plan      phase 2: " + plan())
+
+
+PLAN = REPO / "docs" / "new-patterns-plan.md"
+START, END = "<!-- phase2:start -->", "<!-- phase2:end -->"
+
+
+def catalogue():
+    sys.path.insert(0, str(DOCS))
+    import pattern_catalog
+    return pattern_catalog
+
+
+def pending():
+    """(category, slug, name) for every catalogue pattern with no project directory, in catalogue order."""
+    out = []
+    for cat, _, _, items in catalogue().CATEGORIES:
+        out += [(cat, s, n) for s, n in items if not (GRADLE / cat / (s + "-pattern")).exists()]
+    return out
+
+
+def plan():
+    """Phase 2 = every catalogue pattern not in phase 1; status read from disk, never ticked by hand."""
+    cat = catalogue()
+    rows, done = [], 0
+    for c, _, _, items in cat.CATEGORIES:
+        for s, n in items:
+            if s in cat.PLANNED:
+                continue
+            p = GRADLE / c / (s + "-pattern")
+            built = (p / "video" / (s + "-pattern-explained.mp4")).exists()
+            if not p.exists():
+                mark = "⏳ to do"
+            elif not (p / "pattern.toml").exists():
+                continue            # an older project, not part of phase 2
+            elif built:
+                mark, done = "✅ done", done + 1
+            else:
+                mark = "🔨 in progress"
+            rows.append("| %d | %s | %s | %s |" % (len(rows) + 1, n, c, mark))
+    table = "\n".join([START, "", "Updated automatically by `patternkit.sh build` (and `patternkit.sh plan`).", "",
+                       "**%d of %d done.**" % (done, len(rows)), "",
+                       "| # | Pattern | Category | Status |", "| ---: | --- | --- | --- |"] + rows + ["", END])
+    text = PLAN.read_text()
+    if START in text:
+        text = text[:text.index(START)] + table + text[text.index(END) + len(END):]
+    else:
+        text = text.rstrip() + "\n\n## Phase 2: the rest of the catalogue, one by one\n\n" + table + "\n"
+    PLAN.write_text(text)
+    return "%d of %d done" % (done, len(rows))
 
 
 def main(argv):
@@ -167,6 +221,11 @@ def main(argv):
         print(generate.all_docs(project_dir(rest[0])))
     elif cmd == "build":
         build(rest[0], media="--no-media" not in rest)
+    elif cmd == "next":
+        nxt = pending()
+        print(" ".join(nxt[0]) if nxt else "nothing left")
+    elif cmd == "plan":
+        print(plan())
     elif cmd == "index":
         subprocess.run(["python3", str(DOCS / "make_index.py")], check=True)
     else:

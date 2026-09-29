@@ -1,0 +1,442 @@
+# pattern.toml for the Table Data Gateway project. See tools/patternkit.
+
+[project]
+slug = "table-data-gateway"
+category = "enterprise-design-patterns"
+title = "Table Data Gateway"
+package = "tabledatagateway"
+main_class = "TableDataGatewayDemo"
+tagline = "One class speaks SQL for a table"
+bold = "Give each database table one class that holds all of its SQL, so the rest of the program asks plain questions and never writes SQL itself."
+domain_note = ""
+thumb_lines = ["TABLE DATA", "GATEWAY"]
+thumb_code = "products.findBySku(sku)"
+youtube_title = "Table Data Gateway"
+youtube_tags = ["table data gateway", "jdbc", "sql", "enterprise patterns", "martin fowler", "java"]
+
+[readme]
+intro = """
+Table Data Gateway is one of Martin Fowler's enterprise application patterns.
+For each database table there is one class, the gateway, that holds every
+piece of SQL for that table: finding rows, inserting, updating, deleting. The
+rest of the program calls plain methods such as `findBySku` or `takeStock`,
+and gets plain records back. It never sees SQL, connections or result sets.
+
+When the table changes, only its gateway changes. It is the simplest of the
+patterns for separating database code from the rest of an application.
+"""
+analogy = """
+Think of a bank. Customers do not walk into the vault and count the notes
+themselves. They go to the counter and ask: pay in this, give me that, what is
+my balance. When the bank reorganises its vault, only the counter staff need
+to learn the new layout; the customers ask exactly the same questions.
+"""
+scenario = """
+The online store keeps products in a database table with a code, a name, a
+price and a stock count. The product page, the stock report and checkout
+each wrote their own SQL against it. When the database team renamed the
+`stock` column to `quantity`, all three broke at once.
+"""
+costs = [
+    "**Rows, not objects with rules.** A gateway returns data; business rules such as \"low on stock\" end up in each caller.",
+    "**It grows.** Every new question anyone asks the table becomes another method on the gateway.",
+    "**One class per table.** Queries that join several tables do not have an obvious home.",
+]
+too_much = """
+When a table is used in exactly one place, a query in that place is fine. And
+when the rows carry real behaviour, Active Record or Data Mapper, which return
+objects rather than rows, fit better.
+"""
+met_before = [
+    "DAO classes (Data Access Objects), such as `ProductDao`.",
+    "Spring's `JdbcTemplate` wrapped in one class per table.",
+    "MyBatis mapper interfaces, one per table.",
+]
+where = """
+This project is in [enterprise-design-patterns](..), next to
+[Repository](../repository-pattern), which works with whole domain objects
+instead of rows, and [Query Object](../query-object-pattern), which builds the
+questions a gateway or repository can answer.
+"""
+technologies = [["H2 Database", "2.5.252", "an in-memory SQL database, so the demo runs real SQL with nothing installed"]]
+
+[[act]]
+title = "SQL in every caller"
+summary = "The page, report and checkout each write their own SQL; after stock is renamed to quantity, all three fail with Column \"STOCK\" not found."
+detail = """
+`ProductPage`, `StockReport` and `CheckoutSql` each hold their own SQL for the
+product table. They work: the kettle has 4 in stock, one product is out of
+stock, checkout takes one kettle. Then the database team renames the `stock`
+column to `quantity`, and all three fail with `Column "STOCK" not found`.
+"""
+speech = """
+First demo: every caller writes its own SQL. [[slnc 400]] The product page, the stock report, and checkout each talk to the product table directly. [[slnc 500]]
+They work. [[slnc 300]] The kettle has four in stock. [[slnc 300]] One product is out of stock. [[slnc 300]] Checkout takes a kettle. [[slnc 600]]
+Then the database team renames the stock column to quantity. [[slnc 500]]
+The product page fails. [[slnc 300]] The stock report fails. [[slnc 300]] Checkout fails. [[slnc 300]] All three say: column stock not found.
+"""
+rows = { page = "active wrong", report = "active wrong", checkout = "active wrong", table = "active amber" }
+console = [
+    ["kettle: 4 in stock; 1 out of stock", "ok"],
+    ["stock renamed to quantity...", "amber"],
+    ["page, report, checkout: FAILED", "bad"],
+    ["  Column \"STOCK\" not found", "bad"],
+]
+
+[[act]]
+title = "A table data gateway"
+summary = "ProductGateway holds the table's SQL; the same three callers ask it plain questions and get Row records back."
+detail = """
+`ProductGateway` holds every piece of SQL for the product table:
+`findBySku`, `cheaperThan`, `countOutOfStock`, `takeStock`. The page, report
+and checkout now call those methods and receive `Row` records. Everything
+works as before, and one new question, products cheaper than £10, returns the
+tea towel and the mug.
+"""
+speech = """
+Second demo: a table data gateway. [[slnc 400]] One class now holds every piece of SQL for the product table. [[slnc 500]]
+The page asks it: find the product with this code. [[slnc 300]] The report asks: how many are out of stock? [[slnc 300]] Checkout says: take one of these. [[slnc 600]]
+They get plain records back. [[slnc 300]] Everything works as before. [[slnc 300]] And a new question, products cheaper than ten pounds, returns the tea towel and the mug.
+"""
+rows = { gateway = "active ok", page = "active ok", report = "active ok", checkout = "active ok" }
+console = [
+    ["kettle: 4 in stock; 1 out of stock", "ok"],
+    ["checkout took 1: 3 in stock", "ok"],
+    ["cheaper than £10: [tea towel, mug]", "ok"],
+]
+
+[[act]]
+title = "A rename, fixed once"
+summary = "After the same rename, the gateway is told the new column name in one place, and all three callers work."
+detail = """
+The column is renamed again. This time the column's name lives in one place,
+the gateway, which is told its new name once. The product page, the stock
+report and checkout work without any change: 3 in stock, 1 out of stock, then
+2 after checkout.
+"""
+speech = """
+Third demo: the same rename, fixed in one place. [[slnc 400]] Stock is renamed to quantity again. [[slnc 500]]
+This time, the column's name lives in exactly one place: the gateway. [[slnc 300]] It is told the new name, once. [[slnc 600]]
+The page, the report, and checkout do not change at all. [[slnc 300]] And they all work.
+"""
+rows = { gateway = "active ok", table = "active amber", page = "active ok", report = "active ok", checkout = "active ok" }
+console = [
+    ["gateway told the new name, once", "ok"],
+    ["page, report, checkout: all work", "ok"],
+    ["checkout took 1: 2 in stock", "ok"],
+]
+
+[[act]]
+title = "Where the SQL lives"
+summary = "Old way: 3 classes mention the product table; new way: 0 callers do, and 1 gateway class does."
+detail = """
+Scanning the source: three classes in the old `scattered` package mention the
+product table. In the new code, no caller does; only the gateway does. Callers
+receive plain `Row` records, with no connections, result sets or SQL.
+"""
+speech = """
+Fourth demo: where the SQL lives now. [[slnc 400]] In the old code, three classes talked to the product table. [[slnc 500]]
+In the new code, none of the callers do. [[slnc 300]] Only the gateway. [[slnc 500]]
+The callers get plain records. [[slnc 300]] No database connections, and no SQL.
+"""
+rows = { gateway = "active ok" }
+console = [
+    ["old way: 3 classes with product SQL", "amber"],
+    ["new way: 0 callers, 1 gateway", "ok"],
+]
+
+[[act]]
+title = "The bill"
+summary = "A Row is data only, so rules like \"low on stock\" live in callers; the gateway grows a method per question."
+detail = """
+A `Row` is data only. A rule such as "low on stock means fewer than five" has
+nowhere to live but the callers, where it will be written more than once. And
+the gateway grows a method for every question anyone asks the table.
+"""
+speech = """
+Fifth demo: the bill. [[slnc 400]] The gateway returns rows, which are just data. [[slnc 300]] A rule like low on stock has nowhere to live, except in each caller. [[slnc 600]]
+And the gateway grows a new method for every question anyone asks the table.
+"""
+rows = { gateway = "active amber" }
+console = [
+    ["a Row is data only", "amber"],
+    ["a method for every question", "amber"],
+]
+
+[animation]
+subtitle = "One gateway class holds all of the product table's SQL; the page, report and checkout ask it plain questions."
+boxes = [
+    ["page", "Product page", "shows stock"],
+    ["report", "Stock report", "counts out of stock"],
+    ["checkout", "Checkout", "takes stock"],
+    ["gateway", "ProductGateway", "all the table's SQL"],
+    ["table", "product table", "H2, in memory"],
+]
+
+[docs.problem]
+scenario = """
+Three parts of the store read and update the product table.
+"""
+naive = """
+The product page, stock report and checkout each hold their own SQL. Renaming
+one column breaks all three.
+"""
+deliver = [
+    "Scattered SQL shown failing after a column rename.",
+    "A gateway class holding every statement for the table.",
+    "The rename fixed in one place.",
+    "A scan showing which classes mention the table.",
+    "Every printed result asserted by a test, against a real in-memory database.",
+]
+
+[docs.prerequisites]
+required = [
+    "Java basics: classes, records, exceptions.",
+    "A little SQL: `SELECT`, `UPDATE`, `WHERE`.",
+]
+not_required = [
+    "A database server. H2 runs inside the program, in memory.",
+    "JDBC in depth. `PreparedStatement` and `ResultSet` appear only inside the gateway.",
+]
+
+[docs.session]
+objectives = [
+    "Explain why SQL spread across callers is fragile.",
+    "Write a gateway with one method per question.",
+    "Return plain records instead of result sets.",
+    "Say when to move on to Repository or Data Mapper.",
+]
+walkthrough = """
+Run `./gradlew run` and read act one: three failures from one rename. Open
+the `scattered` package and find the word "stock" in each file. Then open
+`ProductGateway` and show that it is now the only place the column is named.
+"""
+exercises = [
+    "Add `insert(Row)` and `delete(sku)` to the gateway, with tests.",
+    "Add an `order_line` table and its own gateway.",
+    "Move the \"low on stock\" rule into a method. Where should it go?",
+]
+
+[docs.explained]
+sentence = """
+A table data gateway is one class per table that holds all of that table's
+SQL, so the rest of the program asks plain questions and gets plain records
+back.
+"""
+verdict = """
+Use a gateway as soon as more than one part of a program touches a table. Keep
+SQL, connections and result sets inside it, return records, and move to
+Repository or Data Mapper when rows start needing behaviour.
+"""
+recognise = [
+    "Classes named `...Dao`, `...Gateway` or `...Table`, one per table.",
+    "Methods like `findBy...`, `insert`, `update`, `delete` returning records or DTOs.",
+    "Callers with no `java.sql` imports.",
+]
+
+[spec]
+purpose = """
+Teach Table Data Gateway with an online store's product table in H2: three
+callers with their own SQL all failing after a column rename, then one gateway
+holding every statement, the rename fixed in one place, a source scan showing
+where SQL lives, and the cost of returning plain rows.
+"""
+nongoals = [
+    "Not an ORM. Hibernate and JPA are not used.",
+    "Not transactions or connection pools.",
+]
+problem = """
+SQL written in every caller couples each of them to the table's exact shape,
+so one schema change breaks them all.
+"""
+roles = [
+    ["The pattern", "`ProductGateway`"],
+    ["The callers", "`Pages`"],
+    ["The table", "`Database`"],
+    ["The naive version", "`scattered.ProductPage`, `StockReport`, `CheckoutSql`"],
+    ["Entry point", "`TableDataGatewayDemo`, five acts"],
+]
+requirements = [
+    "**One place:** only `ProductGateway` holds SQL for the product table.",
+    "**Plain results:** callers receive `Row` records.",
+    "**Real SQL:** every statement runs against H2.",
+    "**Every printed result is asserted** in `DemoRunsTest`.",
+]
+
+[[diagram]]
+name = "architecture-diagram"
+kind = "flow"
+title = "Table Data Gateway — the pieces"
+caption = "Callers ask the gateway; only the gateway talks to the table."
+nodes = [
+    { id = "p", label = "Product page", sub = "findBySku", col = 0, row = 0, colour = "client" },
+    { id = "r", label = "Stock report", sub = "countOutOfStock", col = 0, row = 1, colour = "client" },
+    { id = "c", label = "Checkout", sub = "takeStock", col = 0, row = 2, colour = "client" },
+    { id = "g", label = "ProductGateway", sub = "all the SQL", col = 1, row = 1, colour = "accent" },
+    { id = "t", label = "product table", sub = "H2", col = 2, row = 1, colour = "amber" },
+]
+edges = [
+    { from = "p", to = "g", label = "ask" },
+    { from = "r", to = "g", label = "ask" },
+    { from = "c", to = "g", label = "ask" },
+    { from = "g", to = "t", label = "SQL" },
+]
+
+[[diagram]]
+name = "class-diagram"
+kind = "class"
+title = "Table Data Gateway — classes"
+caption = "One gateway, one record type."
+nodes = [
+    { id = "g", label = "ProductGateway", sub = ["- Connection", "+ findBySku(sku)", "+ cheaperThan(pence)", "+ countOutOfStock()", "+ takeStock(sku, qty)"], col = 1, row = 0, colour = "accent" },
+    { id = "r", label = "«record» Row", sub = ["sku, name", "pricePence, stock"], col = 2, row = 0, colour = "green" },
+    { id = "p", label = "Pages", sub = ["productPage, stockReport", "checkout"], col = 0, row = 0, colour = "client" },
+]
+edges = [
+    { from = "p", to = "g", label = "calls" },
+    { from = "g", to = "r", label = "returns" },
+]
+
+[[diagram]]
+name = "data-flow-diagram"
+kind = "flow"
+title = "Table Data Gateway — one question"
+caption = "A plain question in, SQL in the middle, a plain record out."
+nodes = [
+    { id = "a", label = "findBySku(KETTLE-1)", sub = "from the page", col = 0, row = 0, colour = "client" },
+    { id = "b", label = "SELECT ... WHERE sku = ?", sub = "inside the gateway", col = 1, row = 0, colour = "accent" },
+    { id = "c", label = "Row(KETTLE-1, steel kettle, 3000, 4)", sub = "back to the page", col = 2, row = 0, colour = "green" },
+]
+edges = [
+    { from = "a", to = "b", label = "SQL" },
+    { from = "b", to = "c", label = "record" },
+]
+
+[[diagram]]
+name = "sequence-diagram"
+kind = "sequence"
+title = "Table Data Gateway — checkout takes stock"
+caption = "Checkout never sees SQL."
+participants = ["Checkout", "ProductGateway", "H2"]
+steps = [
+    ["Checkout", "ProductGateway", "takeStock(KETTLE-1, 1)"],
+    ["ProductGateway", "H2", "UPDATE product SET stock = stock - ?"],
+    ["H2", "ProductGateway", "1 row", "reply"],
+]
+
+[[diagram]]
+name = "uml-diagram"
+kind = "sequence"
+title = "1. Scattered SQL after a rename"
+caption = "Every caller fails."
+participants = ["ProductPage", "StockReport", "H2"]
+steps = [
+    ["ProductPage", "H2", "SELECT ... stock ..."],
+    ["H2", "ProductPage", "Column STOCK not found", "reply"],
+    ["StockReport", "H2", "SELECT ... stock = 0"],
+    ["H2", "StockReport", "Column STOCK not found", "reply"],
+]
+
+[[diagram]]
+name = "uml-diagram-2"
+kind = "sequence"
+title = "2. The rename, fixed once"
+caption = "Only the gateway learns the new name."
+participants = ["Pages", "ProductGateway", "H2"]
+steps = [
+    ["Pages", "ProductGateway", "findBySku(KETTLE-1)"],
+    ["ProductGateway", "H2", "SELECT ... quantity ..."],
+    ["H2", "ProductGateway", "row", "reply"],
+    ["ProductGateway", "Pages", "3 in stock", "reply"],
+]
+
+[poster]
+headline = [["TABLE DATA", "text"], ["GATEWAY", "text"]]
+before = { code = "\"SELECT ... stock ...\"", note = "in 3 classes: all broke", tag = "BEFORE" }
+after = { code = "products.findBySku(sku)", note = "SQL in one class", tag = "AFTER" }
+taglines = [["One class speaks SQL for a table", "gold"]]
+
+[[scene]]
+key = "01-poster"
+kind = "poster"
+title = "Table Data Gateway"
+narration = """
+Hello, and welcome. [[slnc 400]] This video explains the Table Data Gateway pattern, in Java. [[slnc 300]]
+This video is presented by Jayasekhar Konduru. [[slnc 600]]
+First, a simple definition. [[slnc 300]] A table data gateway is one class for each database table. [[slnc 300]] It holds every piece of SQL for that table. [[slnc 300]] The rest of the program asks it plain questions, and never writes SQL itself. [[slnc 600]]
+Think of a bank. [[slnc 300]] Customers do not walk into the vault. [[slnc 300]] They ask at the counter. [[slnc 300]] When the vault is reorganised, only the counter staff learn the new layout. [[slnc 700]]
+In this video, the domain is an online shop. [[slnc 300]] It keeps its products in a database table: a code, a name, a price, and how many are in stock. [[slnc 500]]
+By the end, you will hear how SQL spread across a program breaks. [[slnc 300]] How a gateway fixes it. [[slnc 300]] How a change is made in one place. [[slnc 300]] And what the pattern costs.
+"""
+
+[[scene]]
+key = "02-scenario"
+kind = "bullets"
+title = "The Scenario"
+body = ["A product table: code, name,", "price, stock.", "", "The product page, the stock report", "and checkout each wrote", "their own SQL against it."]
+narration = """
+Here is the scenario. [[slnc 400]] The shop's products live in a database table. [[slnc 300]] Each row has a code, a name, a price, and a stock count. [[slnc 600]]
+Three parts of the shop use it. [[slnc 300]] The product page shows stock. [[slnc 300]] The stock report counts what has run out. [[slnc 300]] Checkout takes items out of stock. [[slnc 500]]
+Each one wrote its own SQL.
+"""
+
+[[scene]]
+key = "03-acts"
+kind = "acts"
+title = "acts"
+
+[[scene]]
+key = "04-pattern"
+kind = "bullets"
+title = "The Pattern"
+body = ["One class per table: the gateway.", "", "It holds all of that table's SQL.", "", "Callers ask plain questions", "and get plain records back."]
+narration = """
+Let's name the pattern. [[slnc 400]] Give each table one class: the gateway. [[slnc 500]]
+The gateway holds every piece of SQL for that table. [[slnc 300]] Finding, counting, inserting, updating. [[slnc 500]]
+Everyone else asks it plain questions, and gets plain records back. [[slnc 300]] Nobody else writes SQL for that table.
+"""
+
+[[scene]]
+key = "05-roles"
+kind = "bullets"
+title = "Who Does What"
+body = ["ProductGateway: the table's SQL", "Row: one product, as data", "Pages: the callers", "H2: an in-memory database", "scattered package: the old way"]
+narration = """
+Here is who does what. [[slnc 400]] Product gateway holds all of the product table's SQL. [[slnc 500]]
+Row is a record: one product, as plain data. [[slnc 500]]
+Pages holds the three callers: the product page, the stock report, and checkout. [[slnc 500]]
+H2 is a real database that runs inside the program, in memory. [[slnc 300]] And the scattered package is the old way, kept for comparison.
+"""
+
+[[scene]]
+key = "06-recognise"
+kind = "bullets"
+title = "Where You Have Seen It"
+body = ["DAO classes: ProductDao", "JdbcTemplate, one class per table", "MyBatis mappers"]
+narration = """
+You have probably met this pattern already. [[slnc 400]] Classes called D A O, data access objects, such as product D A O, are table data gateways. [[slnc 500]]
+So is Spring's J D B C template, wrapped in one class per table. [[slnc 300]] And MyBatis mapper interfaces.
+"""
+
+[[scene]]
+key = "07-verdict"
+kind = "bullets"
+title = "When To Use It"
+body = ["More than one part of the program", "touches a table.", "", "Keep SQL inside; return records.", "", "Rows need behaviour?", "Move to Repository."]
+narration = """
+So, when should you use it? [[slnc 400]] As soon as more than one part of a program touches a table. [[slnc 500]]
+Keep SQL, connections, and result sets inside the gateway. [[slnc 300]] Return plain records. [[slnc 500]]
+And when rows start needing behaviour, such as rules about stock, move on to a repository or a data mapper.
+"""
+
+[[scene]]
+key = "08-outro"
+kind = "outro"
+title = "Thanks for Watching"
+body = ["Full source, notes, diagrams and an animated walkthrough", "are in the repository. Add insert and delete", "to the gateway."]
+narration = """
+That's the Table Data Gateway pattern. [[slnc 400]] If you remember one sentence, make it this one. [[slnc 300]] One class speaks SQL for each table, and everyone else just asks it. [[slnc 500]]
+The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. [[slnc 300]] It runs offline once its libraries are downloaded, with nothing else installed except a Java development kit. [[slnc 500]]
+Here is one exercise to try. [[slnc 300]] Add insert and delete to the gateway, with tests. [[slnc 500]]
+If this helped, a like really does help other people find it. [[slnc 300]] And subscribe, if you'd like the rest of the series. [[slnc 400]] Thanks for watching.
+"""

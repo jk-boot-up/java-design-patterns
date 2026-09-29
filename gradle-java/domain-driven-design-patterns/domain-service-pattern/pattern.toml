@@ -1,0 +1,446 @@
+# pattern.toml for the Domain Service project. See tools/patternkit.
+
+[project]
+slug = "domain-service"
+category = "domain-driven-design-patterns"
+title = "Domain Service"
+package = "domainservice"
+main_class = "DomainServiceDemo"
+tagline = "A home for rules nobody owns"
+bold = "When a business rule involves several domain objects and belongs to none of them, give it its own stateless class in the domain, named in the business's own words."
+domain_note = ""
+thumb_lines = ["DOMAIN", "SERVICE"]
+thumb_code = "pricing.price(c, basket, coupon)"
+youtube_title = "Domain Service"
+youtube_tags = ["domain service", "domain driven design", "ddd", "business rules", "java"]
+
+[readme]
+intro = """
+Domain Service is one of the building blocks of domain-driven design. Most
+business rules belong on an entity or a value object: a basket knows its own
+subtotal. But some rules involve several objects at once and are not
+naturally the job of any one of them, such as "a gold customer's discount and
+a coupon do not add up; the bigger one wins", which needs the customer, the
+basket and the coupon.
+
+Such a rule gets its own class: a domain service. It holds no data of its own,
+is named in the business's language, and lives in the domain, so every part
+of the program that needs the rule uses the same one.
+"""
+analogy = """
+Think of a referee at a football match. Whether a tackle was a foul involves
+two players and the rules of the game. Neither player gets to decide, and the
+decision is not part of either of them. The referee holds no score of their
+own; they apply the rules, the same way, every time, whoever is playing.
+"""
+scenario = """
+The online store gives gold customers 10% off, and offers a coupon, SAVE5,
+worth £5 off baskets over £40. The rule is that the two do not add up: the
+bigger discount wins. The web checkout and the phone app each had their own
+copy of that rule, and the app's copy was older and added both.
+"""
+costs = [
+    "**Services can empty the objects.** Moving every rule into services leaves entities as bags of data with no behaviour.",
+    "**One more place to look.** A developer must know the service exists to find the rule.",
+    "**The name matters.** A vague `PricingManager` or `OrderHelper` soon collects unrelated code.",
+]
+too_much = """
+When a rule belongs to one object, keep it there: the basket's subtotal
+belongs to the basket. Domain services are for rules that genuinely span
+several objects. And they are not application services: a domain service
+holds business rules, not steps like "load, call, save, send email".
+"""
+met_before = [
+    "Pricing, tax and shipping calculators that take several objects.",
+    "Transfer services that move money or stock between two entities.",
+    "Classes named after a business activity: `PricingService`, `RefundPolicy`.",
+]
+where = """
+This project is in [domain-driven-design-patterns](..), next to
+[Entity](../entity-pattern) and [Value Object](../value-object-pattern),
+which hold the rules that do belong to one object.
+"""
+
+[[act]]
+title = "The rule, copied twice"
+summary = "Gold customer, £60 basket, SAVE5: the web says £54.00, the phone app's older copy says £49.00."
+detail = """
+`Copies.webCheckout` has the current rule: the gold discount (£6) and the
+coupon (£5) do not add up, so the bigger one wins, and Priya pays £54.00.
+`Copies.phoneApp` has an older copy that applies both, and charges £49.00. Same
+customer, same basket, same coupon, two prices.
+"""
+speech = """
+First demo: the pricing rule, copied into the web checkout and the phone app. [[slnc 400]] Priya is a gold customer. [[slnc 300]] Her basket is sixty pounds, and she has the coupon save five. [[slnc 600]]
+The rule is: gold discount and coupon do not add up. [[slnc 300]] The bigger one wins. [[slnc 500]]
+The web checkout says fifty-four pounds. [[slnc 300]] The phone app says forty-nine. [[slnc 500]]
+The app's copy is older. [[slnc 300]] It adds both discounts.
+"""
+rows = { web = "active ok", app = "active wrong" }
+console = [
+    ["web checkout says: £54.00", "ok"],
+    ["phone app says:    £49.00", "bad"],
+    ["the app's copy adds both discounts", "bad"],
+]
+
+[[act]]
+title = "A domain service"
+summary = "PricingService holds the rule once; web and app both call it and both say £54.00."
+detail = """
+`PricingService.price(customer, basket, coupon)` holds the rule, once, in the
+domain. The web checkout and the phone app both call it, and both say £54.00.
+"""
+speech = """
+Second demo: a domain service. [[slnc 400]] The rule now lives in one class, the pricing service. [[slnc 300]] It takes the customer, the basket, and the coupon. [[slnc 600]]
+The web checkout calls it. [[slnc 300]] The phone app calls it. [[slnc 500]]
+Both say fifty-four pounds.
+"""
+rows = { service = "active ok", web = "active ok", app = "active ok" }
+console = [
+    ["web checkout: £54.00", "ok"],
+    ["phone app:    £54.00", "ok"],
+]
+
+[[act]]
+title = "In the shop's words"
+summary = "The service explains itself: subtotal £60.00; gold 10% -£6.00 beats SAVE5 -£5.00."
+detail = """
+The service returns the price with its reason: "subtotal £60.00; gold 10%
+-£6.00 beats SAVE5 -£5.00". It needs the customer, the basket and the coupon,
+and belongs to none of them alone, which is exactly why it is a service.
+"""
+speech = """
+Third demo: the rule speaks the shop's language. [[slnc 400]] The service gives its reason. [[slnc 300]] Subtotal sixty pounds. [[slnc 300]] Gold ten percent, six pounds off, beats save five, five pounds off. [[slnc 600]]
+A customer service agent could read that out, word for word. [[slnc 500]]
+And the rule needs the customer, the basket, and the coupon. [[slnc 300]] It belongs to none of them alone.
+"""
+rows = { service = "active ok" }
+console = [
+    ["subtotal £60.00;", "ok"],
+    ["gold 10% -£6.00 beats SAVE5 -£5.00", "ok"],
+]
+
+[[act]]
+title = "One service, every case"
+summary = "One stateless service prices five cases: £60.00, £55.00, £54.00, £54.00, and £30.00 for a basket under the coupon minimum."
+detail = """
+The same service object prices five combinations: a standard customer with
+and without the coupon (£60.00, £55.00), a gold customer with and without it
+(£54.00 both), and a £30 basket where the coupon does not apply (£30.00). It
+keeps nothing between calls.
+"""
+speech = """
+Fourth demo: one stateless service, every case. [[slnc 400]] A standard customer, no coupon: sixty pounds. [[slnc 300]] With the coupon: fifty-five. [[slnc 500]]
+A gold customer, with or without the coupon: fifty-four. [[slnc 500]]
+A thirty pound basket, below the coupon's minimum: thirty pounds. [[slnc 600]]
+One service object priced all five. [[slnc 300]] It keeps nothing between calls.
+"""
+rows = { service = "active ok" }
+console = [
+    ["STANDARD £60: £60.00; + SAVE5: £55.00", "ok"],
+    ["GOLD £60: £54.00; + SAVE5: £54.00", "ok"],
+    ["STANDARD £30 + SAVE5: £30.00", "ok"],
+]
+
+[[act]]
+title = "The bill"
+summary = "The basket keeps its own subtotal; moving that into a service too would leave a bag of data."
+detail = """
+The basket still works out its own subtotal, £60.00: that fact is its own.
+Moving it into a service as well would leave the basket a bag of data with no
+behaviour, the "anemic domain model" that too many services produce.
+"""
+speech = """
+Fifth demo: the bill. [[slnc 400]] The basket still works out its own subtotal: sixty pounds. [[slnc 300]] That fact belongs to the basket. [[slnc 600]]
+Move that into a service too, and the basket becomes a bag of data with no behaviour. [[slnc 300]] Too many services empty your objects.
+"""
+rows = { basket = "active ok", service = "active amber" }
+console = [
+    ["basket.subtotal(): £60.00", "ok"],
+    ["too many services: empty objects", "amber"],
+]
+
+[animation]
+subtitle = "A pricing rule that needs the customer, the basket and the coupon lives in one stateless domain service, used by web and app alike."
+boxes = [
+    ["web", "Web checkout", "used its own copy"],
+    ["app", "Phone app", "used an older copy"],
+    ["service", "PricingService", "the rule, once"],
+    ["basket", "Basket", "knows its subtotal"],
+]
+
+[docs.problem]
+scenario = """
+Gold customers get 10% off, a coupon gives £5 off baskets over £40, and the
+two do not add up.
+"""
+naive = """
+The web checkout and the phone app each hold a copy of the rule. The app's
+older copy adds both discounts, charging £49.00 where the web charges £54.00.
+"""
+deliver = [
+    "The two copies shown disagreeing.",
+    "A stateless PricingService used by both.",
+    "A price explained in the shop's words.",
+    "Five cases priced by one service object.",
+    "The subtotal kept on the basket, where it belongs.",
+    "Every printed result asserted by a test.",
+]
+
+[docs.prerequisites]
+required = [
+    "Java basics: records, enums, classes.",
+    "Entities and value objects, at least by name.",
+]
+not_required = [
+    "Spring or any framework. The service is created with `new`.",
+]
+
+[docs.session]
+objectives = [
+    "Decide whether a rule belongs to an object or to a service.",
+    "Write a stateless domain service named in business words.",
+    "Explain the difference between a domain service and an application service.",
+    "Recognise an anemic domain model.",
+]
+walkthrough = """
+Run `./gradlew run` and read act one: two prices for the same order. Open
+`Copies` and find the one line that differs. Then open `PricingService` and
+`Model.Basket` side by side: which rule belongs where, and why?
+"""
+exercises = [
+    "Add a free-delivery rule for gold customers over £50. Service or entity?",
+    "Add a second coupon type, 10% off. Where does the percentage live?",
+    "Write an application service `Checkout` that loads a basket, calls PricingService and saves an order. What must it not contain?",
+]
+
+[docs.explained]
+sentence = """
+A domain service is a stateless class, named in business language, that holds
+a rule involving several domain objects and belonging to none of them.
+"""
+verdict = """
+Put a rule on an entity or value object when it belongs to one. Give it a
+domain service only when it spans several, keep the service stateless and
+well named, and keep workflow steps in application services.
+"""
+recognise = [
+    "Stateless classes in the domain package named after an activity or policy.",
+    "Methods that take two or more entities or values and return a decision.",
+    "No fields other than other services.",
+]
+
+[spec]
+purpose = """
+Teach Domain Service with an online store's pricing: a gold discount and a
+coupon rule copied into web and app and disagreeing (£54.00 against £49.00),
+then one stateless PricingService used by both, explaining itself in the
+shop's words, pricing five cases, with the subtotal left on the basket.
+"""
+nongoals = [
+    "Not application services, persistence or HTTP.",
+    "Not real promotions. The rules are illustrative.",
+]
+problem = """
+A rule that spans several objects has no obvious home, so it gets copied into
+each caller, and the copies drift.
+"""
+roles = [
+    ["The pattern", "`PricingService`"],
+    ["The domain objects", "`Model.Customer`, `Basket`, `Coupon`"],
+    ["The naive version", "`Copies.webCheckout`, `Copies.phoneApp`"],
+    ["Entry point", "`DomainServiceDemo`, five acts"],
+]
+requirements = [
+    "**One rule:** only PricingService decides discounts.",
+    "**Stateless:** no fields; one instance serves every call.",
+    "**Explained:** the price comes with its reason.",
+    "**Own facts stay home:** subtotal is on the basket.",
+    "**Every printed result is asserted** in `DemoRunsTest` and a table test.",
+]
+
+[[diagram]]
+name = "architecture-diagram"
+kind = "flow"
+title = "Domain Service — the pieces"
+caption = "Both front ends call one rule, which reads three domain objects."
+nodes = [
+    { id = "w", label = "Web checkout", sub = "", col = 0, row = 0, colour = "client" },
+    { id = "a", label = "Phone app", sub = "", col = 0, row = 1, colour = "client" },
+    { id = "s", label = "PricingService", sub = "the rule, stateless", col = 1, row = 0, colour = "accent" },
+    { id = "c", label = "Customer", sub = "tier", col = 2, row = 0, colour = "green" },
+    { id = "b", label = "Basket", sub = "subtotal()", col = 2, row = 1, colour = "green" },
+    { id = "k", label = "Coupon", sub = "£5 off over £40", col = 2, row = 2, colour = "green" },
+]
+edges = [
+    { from = "w", to = "s", label = "price(...)" },
+    { from = "a", to = "s", label = "price(...)" },
+    { from = "s", to = "c", label = "reads" },
+    { from = "s", to = "b", label = "reads" },
+    { from = "s", to = "k", label = "reads" },
+]
+
+[[diagram]]
+name = "class-diagram"
+kind = "class"
+title = "Domain Service — classes"
+caption = "The service has no fields; the domain objects keep their own facts."
+nodes = [
+    { id = "s", label = "PricingService", sub = ["(no fields)", "+ price(customer, basket, coupon)"], col = 1, row = 0, colour = "accent" },
+    { id = "p", label = "«record» Price", sub = ["totalPence, why"], col = 2, row = 0, colour = "green" },
+    { id = "c", label = "«record» Customer", sub = ["id, tier"], col = 0, row = 1, colour = "client" },
+    { id = "b", label = "«record» Basket", sub = ["lines", "+ subtotalPence()"], col = 1, row = 1, colour = "client" },
+    { id = "k", label = "«record» Coupon", sub = ["code, offPence, minimumPence"], col = 2, row = 1, colour = "client" },
+]
+edges = [
+    { from = "s", to = "p", label = "returns" },
+    { from = "s", to = "c", label = "reads" },
+    { from = "s", to = "b", label = "reads" },
+    { from = "s", to = "k", label = "reads" },
+]
+
+[[diagram]]
+name = "data-flow-diagram"
+kind = "flow"
+title = "Domain Service — Priya's price"
+caption = "Two discounts computed, the bigger one applied."
+nodes = [
+    { id = "a", label = "subtotal £60.00", sub = "from the basket", col = 0, row = 0, colour = "client" },
+    { id = "b", label = "gold: -£6.00", sub = "10%", col = 1, row = 0, colour = "amber" },
+    { id = "c", label = "SAVE5: -£5.00", sub = "over £40", col = 1, row = 1, colour = "amber" },
+    { id = "d", label = "£54.00", sub = "the bigger discount wins", col = 2, row = 0, colour = "green" },
+]
+edges = [
+    { from = "a", to = "b", label = "" },
+    { from = "a", to = "c", label = "" },
+    { from = "b", to = "d", label = "max" },
+    { from = "c", to = "d", label = "" },
+]
+
+[[diagram]]
+name = "sequence-diagram"
+kind = "sequence"
+title = "Domain Service — pricing a basket"
+caption = "The service asks each object for its own facts."
+participants = ["Phone app", "PricingService", "Basket"]
+steps = [
+    ["Phone app", "PricingService", "price(Priya, basket, SAVE5)"],
+    ["PricingService", "Basket", "subtotalPence()"],
+    ["Basket", "PricingService", "6000", "reply"],
+    ["PricingService", "Phone app", "£54.00, gold beats SAVE5", "reply"],
+]
+
+[[diagram]]
+name = "uml-diagram"
+kind = "sequence"
+title = "1. Two copies"
+caption = "The same question, two answers."
+participants = ["Priya", "Web", "App"]
+steps = [
+    ["Priya", "Web", "price my basket"],
+    ["Web", "Priya", "£54.00", "reply"],
+    ["Priya", "App", "price my basket"],
+    ["App", "Priya", "£49.00", "reply"],
+]
+
+[[diagram]]
+name = "uml-diagram-2"
+kind = "sequence"
+title = "2. What stays on the basket"
+caption = "A fact that belongs to one object stays there."
+participants = ["PricingService", "Basket"]
+steps = [
+    ["PricingService", "Basket", "subtotalPence()"],
+    ["note", "Basket", "its own rule"],
+]
+
+[poster]
+headline = [["DOMAIN", "text"], ["SERVICE", "text"]]
+before = { code = "web: £54, app: £49", note = "one rule, two copies", tag = "BEFORE" }
+after = { code = "pricing.price(c, basket, coupon)", note = "one rule, one place", tag = "AFTER" }
+taglines = [["A home for rules nobody owns", "gold"]]
+
+[[scene]]
+key = "01-poster"
+kind = "poster"
+title = "Domain Service"
+narration = """
+Hello, and welcome. [[slnc 400]] This video explains the Domain Service pattern, from domain-driven design, in Java. [[slnc 300]]
+This video is presented by Jayasekhar Konduru. [[slnc 600]]
+First, a simple definition. [[slnc 300]] Some business rules involve several objects, and belong to none of them. [[slnc 300]] A domain service is a class for such a rule. [[slnc 300]] It holds no data of its own, and it is named in the business's own words. [[slnc 600]]
+Think of a referee at a football match. [[slnc 300]] Whether a tackle was a foul involves two players and the rules. [[slnc 300]] Neither player decides. [[slnc 300]] The referee applies the rules, the same way every time. [[slnc 700]]
+In this video, the domain is an online shop. [[slnc 300]] Gold customers get ten percent off. [[slnc 300]] A coupon gives five pounds off baskets over forty pounds. [[slnc 300]] And the two do not add up. [[slnc 500]]
+By the end, you will hear how copies of a rule drift apart. [[slnc 300]] How a domain service fixes it. [[slnc 300]] How it explains itself. [[slnc 300]] And how services can empty your objects.
+"""
+
+[[scene]]
+key = "02-scenario"
+kind = "bullets"
+title = "The Scenario"
+body = ["Gold customers: 10% off.", "Coupon SAVE5: £5 off over £40.", "", "They do not add up:", "the bigger discount wins.", "", "Web and app each had a copy."]
+narration = """
+Here is the scenario. [[slnc 400]] Gold customers get ten percent off. [[slnc 300]] The coupon save five gives five pounds off baskets over forty pounds. [[slnc 500]]
+The rule is: they do not add up. [[slnc 300]] The bigger discount wins. [[slnc 500]]
+The web checkout had a copy of this rule. [[slnc 300]] So did the phone app.
+"""
+
+[[scene]]
+key = "03-acts"
+kind = "acts"
+title = "acts"
+
+[[scene]]
+key = "04-pattern"
+kind = "bullets"
+title = "The Pattern"
+body = ["A rule that spans several objects", "and belongs to none of them:", "", "its own class, in the domain,", "stateless, named in business words."]
+narration = """
+Let's name the pattern. [[slnc 400]] Find a rule that needs several domain objects, and belongs to none of them. [[slnc 500]]
+Give it its own class, in the domain. [[slnc 300]] Keep it stateless: no data kept between calls. [[slnc 300]] And name it in the business's own words. [[slnc 500]]
+Everything that needs the rule calls that one class.
+"""
+
+[[scene]]
+key = "05-roles"
+kind = "bullets"
+title = "Who Does What"
+body = ["PricingService: the rule", "Customer, Basket, Coupon: the facts", "Price: the total and the reason", "Copies: the old way"]
+narration = """
+Here is who does what. [[slnc 400]] The pricing service holds the discount rule. [[slnc 500]]
+Customer, basket, and coupon are the domain objects. [[slnc 300]] Each keeps its own facts, such as the basket's subtotal. [[slnc 500]]
+Price is what the service returns: a total, and the reason for it. [[slnc 300]] And copies holds the old way, kept for comparison.
+"""
+
+[[scene]]
+key = "06-recognise"
+kind = "bullets"
+title = "Where You Have Seen It"
+body = ["Pricing, tax and shipping", "calculators", "Transfers between two accounts", "Policies: RefundPolicy"]
+narration = """
+You have probably met this pattern already. [[slnc 400]] Pricing, tax, and shipping calculators that take several objects are domain services. [[slnc 500]]
+So is a transfer that moves money or stock between two accounts. [[slnc 500]]
+And so are policies, such as a refund policy, named after the business decision they make.
+"""
+
+[[scene]]
+key = "07-verdict"
+kind = "bullets"
+title = "When To Use It"
+body = ["The rule belongs to one object?", "Put it there.", "", "It spans several? A domain service,", "stateless and well named.", "", "Workflow steps: application services."]
+narration = """
+So, when should you use it? [[slnc 400]] If a rule belongs to one object, put it on that object. [[slnc 500]]
+If it genuinely spans several, give it a domain service. [[slnc 300]] Stateless, and well named. [[slnc 500]]
+And keep workflow steps, such as load, call, save, and send an email, out of it. [[slnc 300]] Those belong in an application service.
+"""
+
+[[scene]]
+key = "08-outro"
+kind = "outro"
+title = "Thanks for Watching"
+body = ["Full source, notes, diagrams and an animated walkthrough", "are in the repository. Add free delivery", "for gold customers."]
+narration = """
+That's the Domain Service pattern. [[slnc 400]] If you remember one sentence, make it this one. [[slnc 300]] A rule nobody owns gets its own home, and everyone uses that one. [[slnc 500]]
+The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. [[slnc 300]] It runs offline, with nothing installed except a Java development kit. [[slnc 500]]
+Here is one exercise to try. [[slnc 300]] Add free delivery for gold customers over fifty pounds. [[slnc 300]] Then decide: does it belong in the service, or on an object? [[slnc 500]]
+If this helped, a like really does help other people find it. [[slnc 300]] And subscribe, if you'd like the rest of the series. [[slnc 400]] Thanks for watching.
+"""

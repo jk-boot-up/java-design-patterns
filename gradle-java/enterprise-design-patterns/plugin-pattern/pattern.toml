@@ -1,0 +1,455 @@
+# pattern.toml for the Plugin project. See tools/patternkit.
+
+[project]
+slug = "plugin"
+category = "enterprise-design-patterns"
+title = "Plugin"
+package = "plugin"
+main_class = "PluginDemo"
+tagline = "Choose implementations by configuration"
+bold = "Let the code name only interfaces, and let one configuration file per environment say which class plays each part."
+domain_note = ""
+thumb_lines = ["PLUGIN"]
+thumb_code = "factory.get(Emailer.class)"
+youtube_title = "Plugin"
+youtube_tags = ["plugin pattern", "enterprise patterns", "configuration", "environments", "martin fowler", "java"]
+
+[readme]
+intro = """
+Plugin is one of Martin Fowler's enterprise application patterns. The code
+asks for an interface, such as `PaymentGateway`, and never names the class
+that implements it. A configuration file for each environment (development,
+staging, production) says which class to use, and one factory reads the file
+and creates the object.
+
+Choosing a different implementation for an environment becomes a change to a
+text file, made in one place, instead of an `if` statement repeated wherever
+the service is needed.
+"""
+analogy = """
+Think of a theatre. The script says "Hamlet enters". It never says which actor.
+A cast sheet on the noticeboard says who plays each part tonight: the lead
+actor in the evening, the understudy at the matinee. To change who plays
+Hamlet, you change the sheet, not the script.
+"""
+scenario = """
+The online store runs in three environments: development on laptops, staging
+for testing, and production for real customers. Real card payments and real
+emails must only happen in production. Each place in the code that needed a
+payment gateway or an emailer chose one itself with an `if` on the environment
+name. When staging was added, the payment choice was updated and the email
+choice was missed, and staging emailed real customers.
+"""
+costs = [
+    "**Errors at startup, not compile time.** A misspelt class name compiles fine and fails when the shop starts.",
+    "**Invisible wiring.** \"Find usages\" of an implementation shows nothing, because it is only named in text files.",
+    "**Reflection.** Classes are created from their names, which needs a public no-argument constructor.",
+    "**Config files to keep in step.** One per environment, each listing every plugin.",
+]
+too_much = """
+When there is only one implementation, or the choice never changes between
+environments, just create the object. And a dependency injection framework
+such as Spring already provides this pattern with profiles; use it rather than
+writing your own factory in an application that has one.
+"""
+met_before = [
+    "Java's `ServiceLoader` and `META-INF/services` files.",
+    "Spring profiles and `@ConditionalOnProperty`, which choose beans per environment.",
+    "JDBC drivers, logging back ends such as SLF4J bindings, and servlet containers loading web apps.",
+]
+where = """
+This project is in [enterprise-design-patterns](..), next to
+[Service Stub](../service-stub-pattern), which is what a plugin often swaps
+in for development and testing.
+"""
+
+[[act]]
+title = "Choices scattered in code"
+summary = "In staging, the gateway choice gives the fake gateway, but the email choice falls through to the REAL emailer."
+detail = """
+`ScatteredChoices` has one method per service, each with its own `if` on the
+environment name. When "staging" was added, the payment choice treated it
+correctly and returned the fake gateway. The email choice only knew "dev", so
+staging fell through to the real SMTP emailer and emailed Priya for real.
+"""
+speech = """
+First demo: each place picks its own implementation, from the environment name. [[slnc 400]] The shop runs in development, staging, and production. [[slnc 300]] Only production should charge real cards, or send real emails. [[slnc 600]]
+When staging was added, the payment code was updated. [[slnc 300]] Staging uses the fake gateway. [[slnc 500]]
+The email code was missed. [[slnc 300]] It only knew about development. [[slnc 300]] So staging fell through to the real emailer, and sent a real customer an email.
+"""
+rows = { code = "active wrong", fake = "active ok", smtp = "active wrong" }
+console = [
+    ["staging: fake gateway approved £63.44", "ok"],
+    ["staging: REAL email to priya@example.com", "bad"],
+]
+
+[[act]]
+title = "Plugins from configuration"
+summary = "plugins-dev.properties and plugins-prod.properties name the classes; dev gets fakes, prod gets the real services."
+detail = """
+Each environment has a file, `plugins-<env>.properties`, mapping an interface
+name to a class name. `PluginFactory` reads it and creates the class.
+`Checkout` only names `PaymentGateway` and `Emailer`. In dev it receives the
+fake gateway and the sandbox emailer; in prod, the real card gateway and SMTP.
+"""
+speech = """
+Second demo: plugins, chosen by configuration. [[slnc 400]] Each environment has one small file. [[slnc 300]] It says which class plays each part. [[slnc 300]] Payment gateway: the fake one. [[slnc 300]] Emailer: the sandbox one. [[slnc 600]]
+One factory reads the file and creates the objects. [[slnc 300]] Checkout only ever names the interfaces. [[slnc 500]]
+In development, the gateway is fake and the emails stay in a sandbox. [[slnc 300]] In production, the card is really charged, and the email is really sent.
+"""
+rows = { config = "active ok", factory = "active ok", fake = "active ok", sandbox = "active ok" }
+console = [
+    ["dev: fake gateway, sandbox inbox", "ok"],
+    ["prod: REAL card, REAL email", "ok"],
+    ["Checkout names only interfaces", "ok"],
+]
+
+[[act]]
+title = "A new environment"
+summary = "Staging is a two-line file: fake gateway and sandbox emailer; no Java changed."
+detail = """
+Staging is added again, this time as `plugins-staging.properties`: two lines,
+fake gateway and sandbox emailer. No Java code changes, and there is no second
+place to forget. Priya's email stays in the sandbox inbox.
+"""
+speech = """
+Third demo: a new environment is a new file, not new code. [[slnc 400]] Staging gets its own file. [[slnc 300]] Two lines. [[slnc 300]] Fake gateway, sandbox emailer. [[slnc 600]]
+No Java changes at all. [[slnc 300]] And there is no second place to forget. [[slnc 500]]
+Priya's email stays in the sandbox inbox.
+"""
+rows = { config = "active ok", sandbox = "active ok" }
+console = [
+    ["staging: fake gateway approved £63.44", "ok"],
+    ["staging: sandbox inbox kept email", "ok"],
+    ["2 lines of config; no Java changed", "ok"],
+]
+
+[[act]]
+title = "Caught at startup"
+summary = "A demo file misspells SandboxEmailer; the startup check reports it before any customer arrives."
+detail = """
+The demo environment's file misspells `SandboxEmailer` as `SandboxEmaler`.
+`PluginFactory.check` creates every configured plugin once when the shop
+starts, and reports "cannot create ... SandboxEmaler for Emailer", before the
+first customer ever reaches checkout.
+"""
+speech = """
+Fourth demo: a bad entry is caught when the shop starts. [[slnc 400]] Someone misspells a class name in the demo environment's file. [[slnc 500]]
+When the shop starts, the factory tries to create every plugin, once. [[slnc 300]] It reports: cannot create sandbox emaler, for the emailer. [[slnc 600]]
+The mistake is found before the first customer, not by the first customer.
+"""
+rows = { factory = "active amber", config = "active wrong" }
+console = [
+    ["startup check: cannot create", "bad"],
+    ["  ...$SandboxEmaler for Emailer", "bad"],
+    ["found before the first customer", "ok"],
+]
+
+[[act]]
+title = "The bill"
+summary = "A misspelt class is a startup error, not a compile error; find usages of SandboxEmailer shows nothing."
+detail = """
+The compiler cannot see the wiring. A misspelt class name compiles and only
+fails at startup. And searching the code for usages of `SandboxEmailer` finds
+nothing, because it is only named in text files.
+"""
+speech = """
+Fifth demo: the bill. [[slnc 400]] The compiler cannot see the wiring. [[slnc 300]] A misspelt class name is a startup error, not a compile error. [[slnc 600]]
+And if a developer searches the code for who uses the sandbox emailer, they find nothing. [[slnc 300]] It is only named in text files.
+"""
+rows = { config = "active amber" }
+console = [
+    ["misspelling: a startup error", "amber"],
+    ["find usages: nothing", "amber"],
+]
+
+[animation]
+subtitle = "Checkout names only interfaces; a configuration file per environment says which class plays each part."
+boxes = [
+    ["code", "Scattered ifs", "each picks its own"],
+    ["config", "plugins-<env>.properties", "interface = class"],
+    ["factory", "PluginFactory", "reads, creates, checks"],
+    ["fake", "FakeGateway", "dev, staging"],
+    ["sandbox", "SandboxEmailer", "dev, staging"],
+    ["smtp", "SmtpEmailer", "prod only"],
+]
+
+[docs.problem]
+scenario = """
+The store runs in development, staging and production. Real payments and
+emails must only happen in production.
+"""
+naive = """
+`ScatteredChoices` picks each implementation with an `if` on the environment
+name. Adding staging updated one choice and missed another, and staging sent a
+real email.
+"""
+deliver = [
+    "The missed choice shown: staging sending a real email.",
+    "A configuration file per environment and a factory that reads it.",
+    "Staging added as a file with no code change.",
+    "A startup check that reports a misspelt class name.",
+    "Every printed result asserted by a test.",
+]
+
+[docs.prerequisites]
+required = [
+    "Java basics: interfaces, classes.",
+    "What a `.properties` file is: lines of `key=value`.",
+]
+not_required = [
+    "Reflection in depth. One call, `Class.forName(...)`, is explained where it is used.",
+    "Spring or any framework.",
+]
+
+[docs.session]
+objectives = [
+    "Explain the risk of choosing implementations with scattered ifs.",
+    "Wire implementations from a configuration file.",
+    "Add an environment without changing code.",
+    "Check plugins at startup, and name what is lost.",
+]
+walkthrough = """
+Run `./gradlew run` and read act one: a real email from staging. Open the three
+`plugins-*.properties` files side by side. Then open `PluginFactory.get`: read
+a line, create a class. End with `check`, and ask why it matters that it runs
+at startup.
+"""
+exercises = [
+    "Add a `TaxService` interface with a flat-rate and a real implementation, and configure both.",
+    "Replace `PluginFactory` with Java's `ServiceLoader`. What changes in the files?",
+    "Make the factory refuse to start production if any plugin name contains \"Fake\" or \"Sandbox\".",
+]
+
+[docs.explained]
+sentence = """
+Plugin lets the code ask only for interfaces while a configuration file per
+environment names the class for each one, and a single factory creates them.
+"""
+verdict = """
+Use it when implementations differ between environments or deployments. Keep
+all the wiring in one factory, check every plugin at startup, and in a Spring
+application use profiles instead of writing your own.
+"""
+recognise = [
+    "`Class.forName(...)` next to a properties file.",
+    "`META-INF/services` files and `ServiceLoader`.",
+    "Spring profiles and `@Profile`.",
+]
+
+[spec]
+purpose = """
+Teach Plugin with an online store's environments: scattered ifs sending a
+real email from staging, then per-environment properties files read by one
+factory (dev fakes, prod real services), staging added as a file, a misspelt
+class caught at startup, and the cost of invisible wiring.
+"""
+nongoals = [
+    "Not a dependency injection framework.",
+    "Not real payments or email. Implementations print what they would do.",
+]
+problem = """
+Implementation choices scattered through the code as ifs on the environment
+name drift apart, and a missed one sends real emails from a test environment.
+"""
+roles = [
+    ["The pattern", "`PluginFactory`"],
+    ["The configuration", "`plugins-dev`, `-staging`, `-prod`, `-demo.properties`"],
+    ["The interfaces", "`Services.PaymentGateway`, `Services.Emailer`"],
+    ["The implementations", "`Implementations`"],
+    ["The naive version", "`ScatteredChoices`"],
+    ["Entry point", "`PluginDemo`, five acts"],
+]
+requirements = [
+    "**Interfaces only:** `Checkout` never names an implementation.",
+    "**One place:** only `PluginFactory` creates plugins.",
+    "**Safe environments:** dev and staging never get the real services, asserted.",
+    "**Checked at startup:** every real environment passes; the demo's typo is reported.",
+    "**Every printed result is asserted** in `DemoRunsTest`.",
+]
+
+[[diagram]]
+name = "architecture-diagram"
+kind = "flow"
+title = "Plugin — the pieces"
+caption = "The factory reads the environment's file and hands checkout the right objects."
+nodes = [
+    { id = "c", label = "Checkout", sub = "PaymentGateway, Emailer", col = 0, row = 0, colour = "client" },
+    { id = "f", label = "PluginFactory", sub = "get(type), check()", col = 1, row = 0, colour = "accent" },
+    { id = "p", label = "plugins-staging.properties", sub = "2 lines", col = 1, row = 1, colour = "amber" },
+    { id = "g", label = "FakeGateway", sub = "no real money", col = 2, row = 0, colour = "green" },
+    { id = "e", label = "SandboxEmailer", sub = "no real email", col = 2, row = 1, colour = "green" },
+]
+edges = [
+    { from = "c", to = "f", label = "get(...)" },
+    { from = "f", to = "p", label = "reads" },
+    { from = "f", to = "g", label = "creates" },
+    { from = "f", to = "e", label = "creates" },
+]
+
+[[diagram]]
+name = "class-diagram"
+kind = "class"
+title = "Plugin — classes"
+caption = "Interfaces for the code, implementations named only in configuration."
+nodes = [
+    { id = "f", label = "PluginFactory", sub = ["- Properties config", "+ get(Class<T>): T", "+ check(types...)"], col = 1, row = 0, colour = "accent" },
+    { id = "pg", label = "«interface» PaymentGateway", sub = ["+ charge(order, pence)"], col = 0, row = 1, colour = "client" },
+    { id = "em", label = "«interface» Emailer", sub = ["+ send(to, subject)"], col = 2, row = 1, colour = "client" },
+    { id = "i1", label = "CardGateway, FakeGateway", sub = ["implement PaymentGateway"], col = 0, row = 2, colour = "green" },
+    { id = "i2", label = "SmtpEmailer, SandboxEmailer", sub = ["implement Emailer"], col = 2, row = 2, colour = "green" },
+]
+edges = [
+    { from = "f", to = "pg", label = "returns" },
+    { from = "f", to = "em", label = "returns" },
+    { from = "i1", to = "pg", label = "implements" },
+    { from = "i2", to = "em", label = "implements" },
+]
+
+[[diagram]]
+name = "data-flow-diagram"
+kind = "flow"
+title = "Plugin — one environment's wiring"
+caption = "From a line of text to an object checkout can use."
+nodes = [
+    { id = "a", label = "Emailer=...SandboxEmailer", sub = "plugins-staging.properties", col = 0, row = 0, colour = "amber" },
+    { id = "b", label = "Class.forName(...)", sub = "the factory", col = 1, row = 0, colour = "accent" },
+    { id = "c", label = "SandboxEmailer", sub = "an object", col = 2, row = 0, colour = "green" },
+    { id = "d", label = "Checkout", sub = "sees only Emailer", col = 2, row = 1, colour = "client" },
+]
+edges = [
+    { from = "a", to = "b", label = "read" },
+    { from = "b", to = "c", label = "create" },
+    { from = "c", to = "d", label = "given as Emailer" },
+]
+
+[[diagram]]
+name = "sequence-diagram"
+kind = "sequence"
+title = "Plugin — starting staging"
+caption = "Read, check, then serve."
+participants = ["Shop", "PluginFactory", "Config file"]
+steps = [
+    ["Shop", "PluginFactory", "new PluginFactory(staging)"],
+    ["PluginFactory", "Config file", "load plugins-staging"],
+    ["Shop", "PluginFactory", "check(all types)"],
+    ["PluginFactory", "Shop", "no problems", "reply"],
+    ["Shop", "PluginFactory", "get(Emailer)"],
+    ["PluginFactory", "Shop", "SandboxEmailer", "reply"],
+]
+
+[[diagram]]
+name = "uml-diagram"
+kind = "sequence"
+title = "1. The scattered choice"
+caption = "The email choice never heard of staging."
+participants = ["Checkout", "ScatteredChoices"]
+steps = [
+    ["Checkout", "ScatteredChoices", "emailer(staging)"],
+    ["note", "ScatteredChoices", "not dev, so..."],
+    ["ScatteredChoices", "Checkout", "SmtpEmailer (REAL)", "reply"],
+]
+
+[[diagram]]
+name = "uml-diagram-2"
+kind = "sequence"
+title = "2. A misspelt class at startup"
+caption = "Found before any customer."
+participants = ["Shop", "PluginFactory"]
+steps = [
+    ["Shop", "PluginFactory", "check(Emailer)"],
+    ["note", "PluginFactory", "SandboxEmaler not found"],
+    ["PluginFactory", "Shop", "cannot create ... for Emailer", "reply"],
+]
+
+[poster]
+headline = [["PLUGIN", "text"]]
+before = { code = "if (env.equals(\"dev\"))", note = "staging emailed customers", tag = "BEFORE" }
+after = { code = "factory.get(Emailer.class)", note = "one file per environment", tag = "AFTER" }
+taglines = [["Choose implementations by configuration", "gold"]]
+
+[[scene]]
+key = "01-poster"
+kind = "poster"
+title = "Plugin"
+narration = """
+Hello, and welcome. [[slnc 400]] This video explains the Plugin pattern, in Java. [[slnc 300]]
+This video is presented by Jayasekhar Konduru. [[slnc 600]]
+First, a simple definition. [[slnc 300]] With plugins, the code only asks for what it needs by interface, such as a payment gateway. [[slnc 300]] A configuration file for each environment says which class plays that part. [[slnc 300]] And one factory creates it. [[slnc 600]]
+Think of a theatre. [[slnc 300]] The script says Hamlet enters, but never which actor. [[slnc 300]] A cast sheet on the noticeboard says who plays each part tonight. [[slnc 300]] To change the actor, you change the sheet, not the script. [[slnc 700]]
+In this video, the domain is an online shop. [[slnc 300]] It runs in development, staging, and production. [[slnc 300]] Only production may charge real cards, or send real emails. [[slnc 500]]
+By the end, you will hear how scattered choices went wrong. [[slnc 300]] How plugins fix it. [[slnc 300]] How to add an environment without code. [[slnc 300]] And what you give up.
+"""
+
+[[scene]]
+key = "02-scenario"
+kind = "bullets"
+title = "The Scenario"
+body = ["Development, staging, production.", "", "Real card payments and real", "emails: production only.", "", "Each place chose its own", "implementation with an if."]
+narration = """
+Here is the scenario. [[slnc 400]] The shop runs in three environments. [[slnc 300]] Development on laptops. [[slnc 300]] Staging, for testing. [[slnc 300]] And production, for real customers. [[slnc 600]]
+Real card payments and real emails must only happen in production. [[slnc 500]]
+Every place in the code that needed a payment gateway or an emailer chose one itself, with an if statement on the environment's name.
+"""
+
+[[scene]]
+key = "03-acts"
+kind = "acts"
+title = "acts"
+
+[[scene]]
+key = "04-pattern"
+kind = "bullets"
+title = "The Pattern"
+body = ["The code asks for interfaces.", "", "One file per environment:", "interface = class.", "", "One factory reads it, creates", "the objects, checks at startup."]
+narration = """
+Let's name the pattern. [[slnc 400]] The code only asks for interfaces. [[slnc 300]] Payment gateway. [[slnc 300]] Emailer. [[slnc 500]]
+Each environment has one configuration file. [[slnc 300]] Each line says: this interface, that class. [[slnc 500]]
+One factory reads the file, creates the objects, and checks them all when the shop starts.
+"""
+
+[[scene]]
+key = "05-roles"
+kind = "bullets"
+title = "Who Does What"
+body = ["PaymentGateway, Emailer: interfaces", "Card, Fake, Smtp, Sandbox: classes", "plugins-<env>.properties: the cast sheet", "PluginFactory: reads and creates", "ScatteredChoices: the old way"]
+narration = """
+Here is who does what. [[slnc 400]] Payment gateway and emailer are the interfaces. [[slnc 500]]
+Card gateway, fake gateway, SMTP emailer, and sandbox emailer are the classes that can play those parts. [[slnc 500]]
+The properties files are the cast sheets, one per environment. [[slnc 500]]
+The plugin factory reads the right sheet and creates the objects. [[slnc 300]] And scattered choices is the old way, kept for comparison.
+"""
+
+[[scene]]
+key = "06-recognise"
+kind = "bullets"
+title = "Where You Have Seen It"
+body = ["Java's ServiceLoader", "Spring profiles", "JDBC drivers", "SLF4J logging bindings"]
+narration = """
+You have probably met this pattern already. [[slnc 400]] Java's service loader finds implementations listed in files. [[slnc 500]]
+Spring profiles choose different beans for different environments. [[slnc 500]]
+And J D B C drivers, and logging libraries such as SLF4J, pick their implementation the same way.
+"""
+
+[[scene]]
+key = "07-verdict"
+kind = "bullets"
+title = "When To Use It"
+body = ["Implementations that differ", "between environments.", "", "All wiring in one factory.", "Check every plugin at startup.", "", "Using Spring? Use profiles."]
+narration = """
+So, when should you use it? [[slnc 400]] When implementations differ between environments or deployments. [[slnc 500]]
+Keep all the wiring in one factory. [[slnc 300]] Check every plugin when the program starts. [[slnc 500]]
+And if you already use Spring, use its profiles, rather than writing your own factory.
+"""
+
+[[scene]]
+key = "08-outro"
+kind = "outro"
+title = "Thanks for Watching"
+body = ["Full source, notes, diagrams and an animated walkthrough", "are in the repository. Refuse to start production", "with any fake plugin."]
+narration = """
+That's the Plugin pattern. [[slnc 400]] If you remember one sentence, make it this one. [[slnc 300]] The code names the part, and a file per environment names the actor. [[slnc 500]]
+The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. [[slnc 300]] It runs offline, with nothing installed except a Java development kit. [[slnc 500]]
+Here is one exercise to try. [[slnc 300]] Make the factory refuse to start production if any plugin is a fake. [[slnc 500]]
+If this helped, a like really does help other people find it. [[slnc 300]] And subscribe, if you'd like the rest of the series. [[slnc 400]] Thanks for watching.
+"""

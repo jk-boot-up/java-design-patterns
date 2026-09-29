@@ -1,0 +1,438 @@
+# pattern.toml for the Routing Slip project. See tools/patternkit.
+
+[project]
+slug = "routing-slip"
+category = "messaging-integration-patterns"
+title = "Routing Slip"
+package = "routingslip"
+main_class = "RoutingSlipDemo"
+tagline = "The message carries its own route"
+bold = "Decide the steps a message needs once, when it enters, attach them to the message as a slip, and let each step pass it on to the next address on the slip."
+domain_note = ""
+thumb_lines = ["ROUTING", "SLIP"]
+thumb_code = "[validate, charge, pack]"
+youtube_title = "Routing Slip"
+youtube_tags = ["routing slip", "enterprise integration patterns", "message routing", "pipeline", "java"]
+
+[readme]
+intro = """
+Routing Slip is one of the Enterprise Integration Patterns. When different
+messages need different sequences of processing steps, the route is worked
+out once, as the message enters, and attached to the message as a list: its
+routing slip. Each step does its work, crosses itself off, and passes the
+message to whatever the slip says comes next.
+
+Steps stay independent: none knows what comes after it. New steps are added
+by changing the rules that write slips, not the steps. The route is fixed
+when the message sets off, which is both the simplicity and the limit of the
+pattern.
+"""
+analogy = """
+Think of the circulation slip clipped to a magazine in an office: "Pass to
+Anna, then Ben, then Carl, then return to the library." Each person reads it,
+crosses their name off, and passes it to the next name. Nobody needs to know
+the whole list; they only look at the next name. But if Ben is away, the slip
+cannot decide on its own to skip to Carl.
+"""
+scenario = """
+The online store processes orders through steps: validate, age check for
+restricted items, customs for orders abroad, charge, gift wrap for gifts, and
+pack. Every order went through one fixed pipeline of all six steps, and each
+step began by asking whether it applied to this order at all.
+"""
+costs = [
+    "**Fixed at the start.** A slip can stop when a step fails, but it cannot choose a different route from what happened on the way.",
+    "**The route travels with the message.** Anyone who can change the message can change its route.",
+    "**Rules in one place.** The code that writes slips must know every step and when it applies.",
+]
+too_much = """
+When every message needs the same steps, a fixed pipeline is simpler. When the
+route must change depending on results along the way, use a process manager,
+which decides after each step instead of before the first.
+"""
+met_before = [
+    "Apache Camel's `routingSlip`.",
+    "Approval workflows where a document carries its list of approvers.",
+    "Circulation slips on office post and magazines.",
+]
+where = """
+This project is in [messaging-integration-patterns](..), next to
+[Process Manager](../process-manager-pattern), which decides each next step
+from the last reply, and [Recipient List](../recipient-list-pattern), which
+sends copies to several places at once rather than one after another.
+"""
+
+[[act]]
+title = "One fixed pipeline"
+summary = "4 orders through all 6 steps: 24 visits, 15 of which did any work; every step asks whether it applies."
+detail = """
+`FixedPipeline` sends every order through validate, age check, customs,
+charge, gift wrap and pack. Four orders make 24 step visits, but only 15 do
+any work: a UK order has no customs, a plain order no gift wrap. Every step
+starts with its own "does this apply to me?" check.
+"""
+speech = """
+First demo: one fixed pipeline, for every order. [[slnc 400]] Six steps. [[slnc 300]] Validate, age check, customs, charge, gift wrap, and pack. [[slnc 600]]
+Four orders go through all six. [[slnc 300]] Twenty-four visits. [[slnc 300]] Only fifteen did any work. [[slnc 500]]
+A UK order needs no customs. [[slnc 300]] A plain order needs no gift wrap. [[slnc 300]] So every step starts by asking: does this even apply to me?
+"""
+rows = { pipeline = "active wrong" }
+console = [
+    ["4 orders x 6 steps = 24 visits", "amber"],
+    ["15 did any work", "bad"],
+]
+
+[[act]]
+title = "Routing slips"
+summary = "Each order gets its own slip: ORD-1 [validate, charge, pack], ORD-2 adds gift-wrap, ORD-3 age-check, ORD-4 customs."
+detail = """
+`RoutingSlip.slipFor` writes each order's route once, from what the order is.
+A plain UK order gets validate, charge, pack. The gift adds gift-wrap. The
+age-restricted order adds age-check. The order to France adds customs.
+"""
+speech = """
+Second demo: a routing slip. [[slnc 400]] As each order enters, its route is worked out once, and attached to it. [[slnc 600]]
+Order one is a plain UK order: validate, charge, pack. [[slnc 300]] Order two is a gift: gift wrap is added. [[slnc 300]] Order three is age restricted: an age check is added. [[slnc 300]] Order four is going to France: customs is added.
+"""
+rows = { slip = "active ok" }
+console = [
+    ["ORD-1: validate, charge, pack", "ok"],
+    ["ORD-2: + gift-wrap", "ok"],
+    ["ORD-3: + age-check; ORD-4: + customs", "ok"],
+]
+
+[[act]]
+title = "Steps pass it on"
+summary = "Each step does its job and hands on to the next on the slip: 15 visits in all, every one doing work."
+detail = """
+Each order now visits only the steps on its slip. Each step does its job and
+passes the order to the next address on the slip. Fifteen visits in all, and
+every one does work. ORD-2 went validate, charge, gift-wrap, pack; no step
+knows which comes after it.
+"""
+speech = """
+Third demo: each step does its job, and passes the order to the next name on the slip. [[slnc 400]] Order two goes: validate, charge, gift wrap, pack. [[slnc 600]]
+Fifteen visits in all. [[slnc 300]] Every one does work. [[slnc 500]]
+And no step knows which step comes after it.
+"""
+rows = { slip = "active ok", steps = "active ok" }
+console = [
+    ["15 visits, every one doing work", "ok"],
+    ["ORD-2: validate, charge, gift-wrap, pack", "ok"],
+]
+
+[[act]]
+title = "A new step"
+summary = "A rule adds fraud-check for orders over £500: ORD-4's slip gains it, ORD-1's is unchanged; no step changed."
+detail = """
+A fraud check is needed for orders over £500. One rule is added where slips
+are written. ORD-4, worth £620, now has fraud-check before charge; ORD-1's
+slip is unchanged, and none of the steps was touched.
+"""
+speech = """
+Fourth demo: a new step. [[slnc 400]] Orders over five hundred pounds now need a fraud check. [[slnc 500]]
+One rule is added, where the slips are written. [[slnc 300]] Order four is worth six hundred and twenty pounds, so its slip gains a fraud check, before charge. [[slnc 500]]
+Order one's slip is unchanged. [[slnc 300]] No step was changed at all.
+"""
+rows = { slip = "active ok", steps = "active ok" }
+console = [
+    ["ORD-4: validate, customs, fraud-check,", "ok"],
+    ["       charge, pack", "ok"],
+    ["ORD-1: unchanged", "ok"],
+]
+
+[[act]]
+title = "The bill"
+summary = "ORD-5 fails its age check: the route stops, with charge and pack still on the slip; it cannot choose another route."
+detail = """
+ORD-5, a kitchen knife, fails its age check. The slip can stop there, with
+charge and pack still on it, but it cannot choose a different route, such as
+"ask for ID, then continue". Deciding routes from what happened on the way is
+a job for a process manager.
+"""
+speech = """
+Fifth demo: the bill. [[slnc 400]] The route is fixed when the order sets off. [[slnc 500]]
+Order five, a kitchen knife, fails its age check. [[slnc 300]] The route stops there, with charge and pack still on the slip. [[slnc 600]]
+It cannot choose a new route, such as: ask for ID, then carry on. [[slnc 300]] That needs a process manager.
+"""
+rows = { slip = "active wrong", steps = "active amber" }
+console = [
+    ["ORD-5 stopped at age-check", "amber"],
+    ["still on the slip: [charge, pack]", "amber"],
+    ["cannot re-route: use a process manager", "amber"],
+]
+
+[animation]
+subtitle = "Each order carries a slip listing its steps; every step does its job and passes the order to the next name on the slip."
+boxes = [
+    ["pipeline", "Fixed pipeline", "every step, every order"],
+    ["slip", "Routing slip", "written once at the start"],
+    ["steps", "Steps", "validate, age-check, customs, charge, gift-wrap, pack"],
+]
+
+[docs.problem]
+scenario = """
+Orders need different sets of processing steps depending on whether they are
+gifts, age-restricted or going abroad.
+"""
+naive = """
+`FixedPipeline` sends every order through all six steps, and each step checks
+whether it applies: 24 visits for 15 pieces of work.
+"""
+deliver = [
+    "Wasted visits counted in a fixed pipeline.",
+    "A routing slip written per order.",
+    "Steps passing orders along their slips.",
+    "A new step added through the slip rules.",
+    "A failed step stopping a slip that cannot re-route.",
+    "Every printed result asserted by a test.",
+]
+
+[docs.prerequisites]
+required = [
+    "Java basics: classes, lists, `Deque`, lambdas.",
+]
+not_required = [
+    "A message broker. Steps are called in turn.",
+]
+
+[docs.session]
+objectives = [
+    "Explain how a routing slip differs from a fixed pipeline.",
+    "Write slips from a message's properties.",
+    "Keep steps unaware of what follows them.",
+    "Say when a process manager is needed instead.",
+]
+walkthrough = """
+Run `./gradlew run` and compare act one's 24 visits with act three's 15.
+Open `RoutingSlip.slipFor`: the only place routes are decided. Then `route`:
+pop the next step, run it, repeat. End on act five.
+"""
+exercises = [
+    "Add a 'loyalty-points' step for registered customers.",
+    "Put the slip into the message as text and have a separate service read it.",
+    "Rewrite act five with a process manager that asks for ID and then continues.",
+]
+
+[docs.explained]
+sentence = """
+A routing slip is a list of processing steps worked out when a message enters
+and carried with it, so each step can pass the message on to the next one on
+the list.
+"""
+verdict = """
+Use routing slips when messages need different, predictable sequences of
+steps. Keep the slip-writing rules in one place, keep steps independent, and
+switch to a process manager when routes must change along the way.
+"""
+recognise = [
+    "A list of step names or addresses carried in a message header.",
+    "`routingSlip(...)` in Camel routes.",
+    "Steps that forward to \"the next one on the list\".",
+]
+
+[spec]
+purpose = """
+Teach Routing Slip with an online store's order processing: a fixed pipeline
+of six steps making 24 visits for 15 pieces of work, then slips written per
+order, steps passing orders along, a fraud check added by one rule, and a
+failed age check that stops but cannot re-route.
+"""
+nongoals = [
+    "Not a message broker. Steps are called in sequence.",
+    "Not dynamic re-routing. That is Process Manager.",
+]
+problem = """
+A fixed pipeline sends every message through every step, and each step must
+check whether it applies.
+"""
+roles = [
+    ["The pattern", "`RoutingSlip`"],
+    ["The message", "`OrderMessage` (carries the slip)"],
+    ["The steps", "`Steps`"],
+    ["The naive version", "`FixedPipeline`"],
+    ["Entry point", "`RoutingSlipDemo`, five acts"],
+]
+requirements = [
+    "**Written once:** each order's slip is decided when it enters.",
+    "**Independent steps:** no step names the next one.",
+    "**Open to new steps:** a rule adds fraud-check.",
+    "**Every printed result is asserted** in `DemoRunsTest`.",
+]
+
+[[diagram]]
+name = "architecture-diagram"
+kind = "flow"
+title = "Routing Slip — the pieces"
+caption = "The slip is written once; each step reads the next address."
+nodes = [
+    { id = "o", label = "ORD-2 (gift)", sub = "enters", col = 0, row = 0, colour = "client" },
+    { id = "w", label = "slipFor", sub = "validate, charge, gift-wrap, pack", col = 1, row = 0, colour = "accent" },
+    { id = "v", label = "validate", sub = "", col = 0, row = 1, colour = "green" },
+    { id = "c", label = "charge", sub = "", col = 1, row = 1, colour = "green" },
+    { id = "g", label = "gift-wrap", sub = "", col = 2, row = 1, colour = "green" },
+    { id = "p", label = "pack", sub = "", col = 2, row = 0, colour = "green" },
+]
+edges = [
+    { from = "o", to = "w", label = "" },
+    { from = "w", to = "v", label = "slip attached" },
+    { from = "v", to = "c", label = "next" },
+    { from = "c", to = "g", label = "next" },
+    { from = "g", to = "p", label = "next" },
+]
+
+[[diagram]]
+name = "class-diagram"
+kind = "class"
+title = "Routing Slip — classes"
+caption = "The message carries its slip; the router pops and runs."
+nodes = [
+    { id = "r", label = "RoutingSlip", sub = ["+ slipFor(order)", "+ addRule(rule)", "+ route(order)"], col = 0, row = 0, colour = "accent" },
+    { id = "m", label = "OrderMessage", sub = ["- Deque slip", "+ nextStep()", "visitedSteps()"], col = 1, row = 0, colour = "client" },
+    { id = "s", label = "Steps", sub = ["name -> test", "validate ... pack"], col = 2, row = 0, colour = "green" },
+    { id = "f", label = "FixedPipeline", sub = ["all 6 steps, always"], col = 1, row = 1, colour = "red" },
+]
+edges = [
+    { from = "r", to = "m", label = "attaches slip" },
+    { from = "r", to = "s", label = "runs" },
+]
+
+[[diagram]]
+name = "data-flow-diagram"
+kind = "flow"
+title = "Routing Slip — four orders, four routes"
+caption = "Each order visits only its own steps."
+nodes = [
+    { id = "a", label = "ORD-1", sub = "validate, charge, pack", col = 0, row = 0, colour = "client" },
+    { id = "b", label = "ORD-2", sub = "+ gift-wrap", col = 1, row = 0, colour = "client" },
+    { id = "c", label = "ORD-3", sub = "+ age-check", col = 0, row = 1, colour = "client" },
+    { id = "d", label = "ORD-4", sub = "+ customs (+ fraud-check)", col = 1, row = 1, colour = "client" },
+]
+edges = []
+
+[[diagram]]
+name = "sequence-diagram"
+kind = "sequence"
+title = "Routing Slip — ORD-3"
+caption = "Pop, run, pop, run."
+participants = ["Router", "validate", "age-check", "charge", "pack"]
+steps = [
+    ["Router", "validate", "ORD-3"],
+    ["Router", "age-check", "ORD-3"],
+    ["Router", "charge", "ORD-3"],
+    ["Router", "pack", "ORD-3"],
+]
+
+[[diagram]]
+name = "uml-diagram"
+kind = "sequence"
+title = "1. The fixed pipeline"
+caption = "Every step, every order."
+participants = ["Pipeline", "customs"]
+steps = [
+    ["Pipeline", "customs", "ORD-1 (UK)"],
+    ["note", "customs", "does not apply: nothing to do"],
+]
+
+[[diagram]]
+name = "uml-diagram-2"
+kind = "sequence"
+title = "2. A failed step"
+caption = "The slip stops; it cannot re-route."
+participants = ["Router", "age-check"]
+steps = [
+    ["Router", "age-check", "ORD-5"],
+    ["age-check", "Router", "fail", "reply"],
+    ["note", "Router", "stopped; [charge, pack] left"],
+]
+
+[poster]
+headline = [["ROUTING", "text"], ["SLIP", "text"]]
+before = { code = "6 steps for every order", note = "24 visits, 15 useful", tag = "BEFORE" }
+after = { code = "[validate, charge, pack]", note = "only its own steps", tag = "AFTER" }
+taglines = [["The message carries its own route", "gold"]]
+
+[[scene]]
+key = "01-poster"
+kind = "poster"
+title = "Routing Slip"
+narration = """
+Hello, and welcome. [[slnc 400]] This video explains the Routing Slip pattern, in Java. [[slnc 300]]
+This video is presented by Jayasekhar Konduru. [[slnc 600]]
+First, a simple definition. [[slnc 300]] With a routing slip, the steps a message needs are worked out once, when it arrives. [[slnc 300]] The list is attached to the message. [[slnc 300]] Each step does its work, and passes the message to the next step on the list. [[slnc 600]]
+Think of the circulation slip clipped to a magazine in an office. [[slnc 300]] Pass to Anna, then Ben, then Carl. [[slnc 300]] Each person reads it, crosses their name off, and passes it on. [[slnc 300]] Nobody needs to know the whole list. [[slnc 700]]
+In this video, the domain is an online shop. [[slnc 300]] Its orders need different steps: gift wrap for gifts, age checks for knives, customs for orders abroad. [[slnc 500]]
+By the end, you will hear what a fixed pipeline wastes. [[slnc 300]] How routing slips fix it. [[slnc 300]] How to add a step. [[slnc 300]] And what a slip cannot do.
+"""
+
+[[scene]]
+key = "02-scenario"
+kind = "bullets"
+title = "The Scenario"
+body = ["validate, age check, customs,", "charge, gift wrap, pack.", "", "Most orders need only some.", "", "Every order went through all six."]
+narration = """
+Here is the scenario. [[slnc 400]] The shop has six processing steps. [[slnc 300]] Validate, age check, customs, charge, gift wrap, and pack. [[slnc 600]]
+Most orders need only some of them. [[slnc 500]]
+But every order went through all six, one after another.
+"""
+
+[[scene]]
+key = "03-acts"
+kind = "acts"
+title = "acts"
+
+[[scene]]
+key = "04-pattern"
+kind = "bullets"
+title = "The Pattern"
+body = ["When a message enters:", "write its list of steps.", "", "Attach the list to the message.", "", "Each step: do the work, pass to", "the next step on the list."]
+narration = """
+Let's name the pattern. [[slnc 400]] When a message enters, write down the list of steps it needs. [[slnc 500]]
+Attach the list to the message. [[slnc 300]] That is its routing slip. [[slnc 500]]
+Each step does its work, and passes the message to the next step on the slip. [[slnc 300]] No step needs to know what comes after it.
+"""
+
+[[scene]]
+key = "05-roles"
+kind = "bullets"
+title = "Who Does What"
+body = ["RoutingSlip: writes slips, runs steps", "OrderMessage: carries its slip", "Steps: one job each", "FixedPipeline: the old way"]
+narration = """
+Here is who does what. [[slnc 400]] The routing slip class writes each order's slip, and runs its steps in turn. [[slnc 500]]
+The order message carries its slip, and a record of where it has been. [[slnc 500]]
+The steps each do one job. [[slnc 300]] And the fixed pipeline is the old way, kept for comparison.
+"""
+
+[[scene]]
+key = "06-recognise"
+kind = "bullets"
+title = "Where You Have Seen It"
+body = ["Camel routingSlip", "Approval workflows with a list", "of approvers", "Office circulation slips"]
+narration = """
+You have probably met this pattern already. [[slnc 400]] Apache Camel has a routing slip step. [[slnc 500]]
+Approval workflows often attach a list of approvers to a document. [[slnc 500]]
+And offices have used circulation slips for as long as there have been offices.
+"""
+
+[[scene]]
+key = "07-verdict"
+kind = "bullets"
+title = "When To Use It"
+body = ["Different messages, different", "but predictable steps.", "", "Slip rules in one place.", "", "Route must change on the way?", "Use a process manager."]
+narration = """
+So, when should you use it? [[slnc 400]] When different messages need different, but predictable, sequences of steps. [[slnc 500]]
+Keep the rules that write slips in one place. [[slnc 300]] Keep the steps independent. [[slnc 500]]
+And when the route must change, depending on what happens along the way, use a process manager instead.
+"""
+
+[[scene]]
+key = "08-outro"
+kind = "outro"
+title = "Thanks for Watching"
+body = ["Full source, notes, diagrams and an animated walkthrough", "are in the repository. Add a loyalty-points", "step."]
+narration = """
+That's the Routing Slip pattern. [[slnc 400]] If you remember one sentence, make it this one. [[slnc 300]] Let each message carry its own route, and each step just pass it on. [[slnc 500]]
+The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. [[slnc 300]] It runs offline, with nothing installed except a Java development kit. [[slnc 500]]
+Here is one exercise to try. [[slnc 300]] Add a loyalty points step, for registered customers only. [[slnc 500]]
+If this helped, a like really does help other people find it. [[slnc 300]] And subscribe, if you'd like the rest of the series. [[slnc 400]] Thanks for watching.
+"""

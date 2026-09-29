@@ -1,0 +1,432 @@
+# pattern.toml for the Sharding project. See tools/patternkit.
+
+[project]
+slug = "sharding"
+category = "micro-services-design-patterns"
+title = "Sharding"
+package = "sharding"
+main_class = "ShardingDemo"
+tagline = "Split the data, split the load"
+bold = "Split one large table across several databases by a key, such as the customer number, so each database holds and serves only its share."
+domain_note = ""
+thumb_lines = ["SHARDING"]
+thumb_code = "customer % 3"
+youtube_title = "Sharding"
+youtube_tags = ["sharding", "database scaling", "partitioning", "shard key", "microservices", "java"]
+
+[readme]
+intro = """
+Sharding splits one large set of data across several databases, called
+shards. Each row is placed on a shard chosen from a shard key, such as the
+customer number, so every shard holds only its share and handles only its
+share of the traffic. A router works out the shard from the key.
+
+A question about one customer goes to one shard. A question about everyone
+must ask every shard and merge the answers. And changing the number of shards
+means moving data, so the way keys are mapped to shards matters a great deal.
+"""
+analogy = """
+Think of a doctor's surgery that has outgrown one filing cabinet. The records
+are split into three cabinets: surnames A to H, I to P, Q to Z. Finding one
+patient's file means opening one cabinet. Counting every patient over eighty
+means going through all three. And buying a fourth cabinet means refiling a
+great many folders.
+"""
+scenario = """
+The online store keeps every order in one database, which can take a thousand
+new orders a minute. On Black Friday, two and a half thousand arrive every
+minute, and fifteen hundred are left waiting, minute after minute.
+"""
+costs = [
+    "**Changing the shard count moves data.** Going from three shards to four with simple modulo moved 1,874 of 2,500 customers.",
+    "**Questions about everyone ask every shard.** Their answers must be merged, and the slowest shard sets the pace.",
+    "**Hot keys.** One very busy customer still overloads their one shard.",
+    "**No easy joins or transactions across shards.**",
+]
+too_much = """
+Before sharding, try a bigger server, read replicas, caching and better
+indexes: sharding is hard to undo. Shard when one database genuinely cannot
+hold the data or take the writes.
+"""
+met_before = [
+    "MongoDB and Elasticsearch shards, and Cassandra partitions.",
+    "Vitess and Citus, which shard MySQL and PostgreSQL.",
+    "DynamoDB partition keys.",
+    "Consistent hashing, which limits how much moves when shards are added.",
+]
+where = """
+This project is in [micro-services-design-patterns](..), next to
+[Database per Service](../database-per-service-pattern), which
+splits data by service rather than by key, and
+[Cell-Based Architecture](../../architectural-design-patterns/cell-based-pattern),
+which splits whole systems.
+"""
+
+[[act]]
+title = "One database"
+summary = "2,500 orders a minute on Black Friday; one database takes 1,000: 1,500 left waiting every minute."
+detail = """
+Every order goes to one database that can take 1,000 new orders a minute. On
+Black Friday, 2,500 arrive each minute, and 1,500 are left waiting every
+minute, so the queue keeps growing.
+"""
+speech = """
+First demo: one database for every order. [[slnc 400]] It can take one thousand new orders a minute. [[slnc 500]]
+On Black Friday, two and a half thousand arrive, every minute. [[slnc 500]]
+Fifteen hundred are left waiting, every minute. [[slnc 300]] And the queue keeps growing.
+"""
+rows = { orders = "active amber", one = "active wrong" }
+console = [
+    ["2500 orders a minute; limit 1000", "amber"],
+    ["waiting every minute: 1500", "bad"],
+]
+
+[[act]]
+title = "Three shards"
+summary = "Split by customer number modulo 3: 833, 834 and 833 orders, each within its limit."
+detail = """
+`ShardedOrders` places each order on shard number customer modulo 3. The
+minute's 2,500 orders split into 833, 834 and 833, each within its
+database's limit. Customer 17 always lives on shard 2, customer 42 on shard
+0.
+"""
+speech = """
+Second demo: three shards, split by customer number. [[slnc 400]] Each order goes to one of three databases. [[slnc 300]] Which one is worked out from the customer's number alone. [[slnc 600]]
+The two and a half thousand orders split into three shares of about eight hundred and thirty. [[slnc 300]] Each is within its database's limit. [[slnc 500]]
+Customer seventeen always lives on shard two.
+"""
+rows = { router = "active ok", s0 = "active ok", s1 = "active ok", s2 = "active ok" }
+console = [
+    ["shard-0: 833; shard-1: 834; shard-2: 833", "ok"],
+    ["all within their limit", "ok"],
+    ["customer 17 -> shard-2", "muted"],
+]
+
+[[act]]
+title = "One customer, one shard"
+summary = "Customer 17's orders are found by asking shard 2 only: 1 shard asked."
+detail = """
+Finding customer 17's orders needs only the shard key: the router asks shard
+2 and no other. One shard asked.
+"""
+speech = """
+Third demo: a question about one customer asks one shard. [[slnc 400]] Where are customer seventeen's orders? [[slnc 300]] The router knows: shard two. [[slnc 500]]
+Only one shard is asked.
+"""
+rows = { router = "active ok", s2 = "active ok" }
+console = [
+    ["customer 17's orders: [ORD-17]", "ok"],
+    ["shards asked: 1", "ok"],
+]
+
+[[act]]
+title = "Everyone, every shard"
+summary = "Orders over £500 this minute: 25 found by asking all 3 shards and merging."
+detail = """
+"Orders over £500 this minute" is about every customer, so every shard must be
+asked and the three answers merged: 25 orders found, three shards asked.
+"""
+speech = """
+Fourth demo: a question about everyone asks every shard. [[slnc 400]] Which orders this minute were over five hundred pounds? [[slnc 500]]
+There is no single place to look. [[slnc 300]] All three shards are asked, and their answers are merged. [[slnc 300]] Twenty-five orders.
+"""
+rows = { router = "active amber", s0 = "active amber", s1 = "active amber", s2 = "active amber" }
+console = [
+    ["over £500: 25 found", "ok"],
+    ["shards asked: 3, answers merged", "amber"],
+]
+
+[[act]]
+title = "The bill"
+summary = "Adding a fourth shard with modulo 4 moves 1,874 of 2,500 customers; a very busy customer still overloads one shard."
+detail = """
+Going from three shards to four with simple modulo changes the shard of 1,874
+of the 2,500 customers, and all their orders must be copied across.
+Consistent hashing or a lookup table reduces that. And one very busy customer
+still lands entirely on one shard.
+"""
+speech = """
+Fifth demo: the bill. [[slnc 400]] The shop grows, and adds a fourth shard. [[slnc 500]]
+With the same simple rule, now the customer number modulo four, one thousand eight hundred and seventy-four of the two and a half thousand customers belong on a different shard. [[slnc 300]] All their orders must be copied across. [[slnc 600]]
+And one very busy customer still lands entirely on one shard.
+"""
+rows = { router = "active wrong", s0 = "active amber" }
+console = [
+    ["4 shards: 1874 of 2500 customers move", "bad"],
+    ["a busy customer: one hot shard", "amber"],
+]
+
+[animation]
+subtitle = "Orders are routed to one of three databases by customer number; one-customer questions ask one shard, everyone-questions ask all."
+boxes = [
+    ["orders", "Orders", "2,500 a minute"],
+    ["one", "One database", "the old way, 1,000 a minute"],
+    ["router", "Router", "customer % 3"],
+    ["s0", "shard-0", "833"],
+    ["s1", "shard-1", "834"],
+    ["s2", "shard-2", "833"],
+]
+
+[docs.problem]
+scenario = """
+Every order is kept in one database, which takes 1,000 new orders a minute.
+"""
+naive = """
+On Black Friday 2,500 orders arrive a minute and 1,500 are left waiting every
+minute.
+"""
+deliver = [
+    "The overload shown on one database.",
+    "Orders split across three shards by customer number.",
+    "A one-customer query asking one shard.",
+    "An all-customer query asking every shard and merging.",
+    "The data that moves when a shard is added.",
+    "Every printed result asserted by a test.",
+]
+
+[docs.prerequisites]
+required = [
+    "Java basics: lists, records, the `%` operator.",
+    "What a database table is.",
+]
+not_required = [
+    "A real database. Shards are in memory.",
+]
+
+[docs.session]
+objectives = [
+    "Explain what a shard key is and how to choose one.",
+    "Route by key to one shard.",
+    "Answer questions that span shards.",
+    "Explain why adding shards moves data.",
+]
+walkthrough = """
+Run `./gradlew run` and compare act one's 1,500 waiting with act two's three
+shares. Open `ShardedOrders.shardOf`: one line decides everything. End on act
+five: why would a lookup table or consistent hashing move fewer customers?
+"""
+exercises = [
+    "Replace `% n` with a lookup table from customer to shard, and add a fourth shard moving only new customers.",
+    "Shard by order number instead. What happens to \"customer 17's orders\"?",
+    "Add a customer who places 2,000 orders a minute. Which shard suffers?",
+]
+
+[docs.explained]
+sentence = """
+Sharding splits one large table across several databases by a key, so each
+holds and serves only its share, with a router that picks the shard from the
+key.
+"""
+verdict = """
+Shard only when one database truly cannot cope. Choose a key that spreads load
+evenly and matches your most common queries, plan for cross-shard questions,
+and use consistent hashing or a lookup table so adding shards moves little.
+"""
+recognise = [
+    "A shard key or partition key in database settings.",
+    "Code that picks a database from a key before querying.",
+    "Scatter-gather queries across several databases.",
+]
+
+[spec]
+purpose = """
+Teach Sharding with an online store's orders: one database leaving 1,500
+orders a minute waiting on Black Friday, then three shards by customer number
+(833, 834, 833), a one-shard lookup, an all-shard query merging 25 results, and
+1,874 of 2,500 customers moving when a fourth shard is added.
+"""
+nongoals = [
+    "Not a real database. Shards are lists.",
+    "Not consistent hashing. It is an exercise.",
+]
+problem = """
+One database cannot take all the writes or hold all the data, and a bigger
+server only goes so far.
+"""
+roles = [
+    ["The pattern", "`ShardedOrders`"],
+    ["A shard", "`OrderDatabase`"],
+    ["The data", "`Order`"],
+    ["Entry point", "`ShardingDemo`, five acts"],
+]
+requirements = [
+    "**Deterministic routing:** a customer always maps to the same shard.",
+    "**Even split:** each shard stays within its limit.",
+    "**One-shard lookups:** by key, one shard is asked.",
+    "**Every printed result is asserted** in `DemoRunsTest`.",
+]
+
+[[diagram]]
+name = "architecture-diagram"
+kind = "flow"
+title = "Sharding — the pieces"
+caption = "The router picks a shard from the customer number."
+nodes = [
+    { id = "o", label = "Orders", sub = "2,500 a minute", col = 0, row = 1, colour = "client" },
+    { id = "r", label = "Router", sub = "customer % 3", col = 1, row = 1, colour = "accent" },
+    { id = "a", label = "shard-0", sub = "833", col = 2, row = 0, colour = "green" },
+    { id = "b", label = "shard-1", sub = "834", col = 2, row = 1, colour = "green" },
+    { id = "c", label = "shard-2", sub = "833", col = 2, row = 2, colour = "green" },
+]
+edges = [
+    { from = "o", to = "r", label = "" },
+    { from = "r", to = "a", label = "% 3 = 0" },
+    { from = "r", to = "b", label = "% 3 = 1" },
+    { from = "r", to = "c", label = "% 3 = 2" },
+]
+
+[[diagram]]
+name = "class-diagram"
+kind = "class"
+title = "Sharding — classes"
+caption = "A router over several identical databases."
+nodes = [
+    { id = "s", label = "ShardedOrders", sub = ["- shards", "+ shardOf(customer)", "+ ordersOf(customer)", "+ everywhere(test)"], col = 0, row = 0, colour = "accent" },
+    { id = "d", label = "OrderDatabase", sub = ["+ insert(order)", "+ find(test)"], col = 1, row = 0, colour = "green" },
+    { id = "o", label = "«record» Order", sub = ["id, customer, pence"], col = 2, row = 0, colour = "client" },
+]
+edges = [
+    { from = "s", to = "d", label = "3 of" },
+    { from = "d", to = "o", label = "holds" },
+]
+
+[[diagram]]
+name = "data-flow-diagram"
+kind = "flow"
+title = "Sharding — two kinds of question"
+caption = "By key: one shard. About everyone: all shards."
+nodes = [
+    { id = "a", label = "customer 17's orders", sub = "", col = 0, row = 0, colour = "client" },
+    { id = "b", label = "shard-2 only", sub = "17 % 3 = 2", col = 2, row = 0, colour = "green" },
+    { id = "c", label = "orders over £500", sub = "", col = 0, row = 1, colour = "client" },
+    { id = "d", label = "all 3 shards, merged", sub = "25 found", col = 2, row = 1, colour = "amber" },
+]
+edges = [
+    { from = "a", to = "b", label = "route" },
+    { from = "c", to = "d", label = "scatter-gather" },
+]
+
+[[diagram]]
+name = "sequence-diagram"
+kind = "sequence"
+title = "Sharding — saving an order"
+caption = "The key decides the database."
+participants = ["Checkout", "Router", "shard-2"]
+steps = [
+    ["Checkout", "Router", "insert ORD-17 (customer 17)"],
+    ["note", "Router", "17 % 3 = 2"],
+    ["Router", "shard-2", "insert"],
+]
+
+[[diagram]]
+name = "uml-diagram"
+kind = "sequence"
+title = "1. A question about everyone"
+caption = "Ask every shard, then merge."
+participants = ["Report", "shard-0", "shard-1", "shard-2"]
+steps = [
+    ["Report", "shard-0", "over £500?"],
+    ["Report", "shard-1", "over £500?"],
+    ["Report", "shard-2", "over £500?"],
+    ["note", "Report", "merge: 25"],
+]
+
+[[diagram]]
+name = "uml-diagram-2"
+kind = "sequence"
+title = "2. Adding a shard"
+caption = "Most keys change home."
+participants = ["Router", "shard-3"]
+steps = [
+    ["note", "Router", "now customer % 4"],
+    ["Router", "shard-3", "move 1,874 customers' orders"],
+]
+
+[poster]
+headline = [["SHARDING", "text"]]
+before = { code = "one database", note = "1,500 orders waiting a minute", tag = "BEFORE" }
+after = { code = "customer % 3", note = "three shares, each within limits", tag = "AFTER" }
+taglines = [["Split the data, split the load", "gold"]]
+
+[[scene]]
+key = "01-poster"
+kind = "poster"
+title = "Sharding"
+narration = """
+Hello, and welcome. [[slnc 400]] This video explains the Sharding pattern, in Java. [[slnc 300]]
+This video is presented by Jayasekhar Konduru. [[slnc 600]]
+First, a simple definition. [[slnc 300]] Sharding splits one large set of data across several databases, called shards. [[slnc 300]] Each row goes to a shard chosen from a key, such as the customer number. [[slnc 300]] So each database holds, and serves, only its share. [[slnc 600]]
+Think of a doctor's surgery that has outgrown one filing cabinet. [[slnc 300]] The records are split into three cabinets: A to H, I to P, and Q to Z. [[slnc 300]] One patient's file is in one cabinet. [[slnc 300]] But a fourth cabinet means refiling many folders. [[slnc 700]]
+In this video, the domain is an online shop, on Black Friday. [[slnc 300]] Orders arrive faster than one database can take them. [[slnc 500]]
+By the end, you will hear how shards share the load. [[slnc 300]] Which questions are easy, and which are not. [[slnc 300]] And what adding a shard costs.
+"""
+
+[[scene]]
+key = "02-scenario"
+kind = "bullets"
+title = "The Scenario"
+body = ["One database for every order.", "It takes 1,000 orders a minute.", "", "Black Friday: 2,500 a minute."]
+narration = """
+Here is the scenario. [[slnc 400]] Every order is saved in one database. [[slnc 300]] It can take a thousand new orders a minute. [[slnc 600]]
+On Black Friday, two and a half thousand arrive every minute.
+"""
+
+[[scene]]
+key = "03-acts"
+kind = "acts"
+title = "acts"
+
+[[scene]]
+key = "04-pattern"
+kind = "bullets"
+title = "The Pattern"
+body = ["Several databases: shards.", "", "A shard key picks each row's shard.", "", "One key: one shard.", "Everyone: every shard, merged."]
+narration = """
+Let's name the pattern. [[slnc 400]] Use several databases, called shards. [[slnc 500]]
+A shard key, here the customer number, decides which shard each order goes to. [[slnc 500]]
+A question about one customer asks one shard. [[slnc 300]] A question about everyone asks every shard, and merges the answers.
+"""
+
+[[scene]]
+key = "05-roles"
+kind = "bullets"
+title = "Who Does What"
+body = ["ShardedOrders: the router", "OrderDatabase: one shard", "Order: the data, with its key"]
+narration = """
+Here is who does what. [[slnc 400]] Sharded orders is the router. [[slnc 300]] It works out the shard from the customer number, and asks the right database. [[slnc 500]]
+An order database is one shard, with its own limit. [[slnc 500]]
+And an order carries the customer number, its shard key.
+"""
+
+[[scene]]
+key = "06-recognise"
+kind = "bullets"
+title = "Where You Have Seen It"
+body = ["MongoDB, Elasticsearch shards", "Cassandra and DynamoDB partitions", "Vitess, Citus", "Consistent hashing"]
+narration = """
+You have probably met this pattern already. [[slnc 400]] MongoDB and Elasticsearch split data into shards. [[slnc 300]] Cassandra and DynamoDB split it into partitions, by a partition key. [[slnc 500]]
+Vitess and Citus shard MySQL and Postgres. [[slnc 300]] And consistent hashing is the trick that moves less data when shards are added.
+"""
+
+[[scene]]
+key = "07-verdict"
+kind = "bullets"
+title = "When To Use It"
+body = ["Only when one database", "truly cannot cope.", "", "A key that spreads load and", "matches common questions.", "", "Plan for adding shards."]
+narration = """
+So, when should you use it? [[slnc 400]] Only when one database truly cannot cope, after a bigger server, caching, and read copies. [[slnc 500]]
+Choose a key that spreads the load evenly, and matches your most common questions. [[slnc 500]]
+And plan, from day one, for adding shards.
+"""
+
+[[scene]]
+key = "08-outro"
+kind = "outro"
+title = "Thanks for Watching"
+body = ["Full source, notes, diagrams and an animated walkthrough", "are in the repository. Add a fourth shard", "with a lookup table."]
+narration = """
+That's the Sharding pattern. [[slnc 400]] If you remember one sentence, make it this one. [[slnc 300]] Split the data by a key, and each database carries only its share. [[slnc 500]]
+The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. [[slnc 300]] It runs offline, with nothing installed except a Java development kit. [[slnc 500]]
+Here is one exercise to try. [[slnc 300]] Add a fourth shard using a lookup table, so only new customers go there. [[slnc 500]]
+If this helped, a like really does help other people find it. [[slnc 300]] And subscribe, if you'd like the rest of the series. [[slnc 400]] Thanks for watching.
+"""

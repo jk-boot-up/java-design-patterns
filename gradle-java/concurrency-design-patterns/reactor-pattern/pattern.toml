@@ -1,0 +1,455 @@
+# pattern.toml for the Reactor project. See tools/patternkit.
+
+[project]
+slug = "reactor"
+category = "concurrency-design-patterns"
+title = "Reactor"
+package = "reactor"
+main_class = "ReactorDemo"
+tagline = "One thread, many connections"
+bold = "Let one thread wait for events on every connection at once, and hand each event to a short handler, instead of giving every connection a thread that mostly waits."
+domain_note = ""
+thumb_lines = ["REACTOR"]
+thumb_code = "selector.select()"
+youtube_title = "Reactor"
+youtube_tags = ["reactor pattern", "java nio", "selector", "event loop", "concurrency", "java"]
+
+[readme]
+intro = """
+Reactor is a concurrency pattern for servers with many connections. Instead
+of one thread per connection, each spending most of its life waiting for the
+client to say something, one thread waits for events on all connections at
+once. When something happens (a new client connects, bytes arrive), an event
+demultiplexer (in Java, the NIO `Selector`) says which connection is ready,
+and the thread dispatches the event to its handler.
+
+It is how Netty, Node.js, Nginx and Redis serve thousands of connections with
+a handful of threads. The rule that comes with it: handlers must be quick,
+because while one runs, nobody else is served.
+"""
+analogy = """
+Think of one waiter looking after a whole restaurant. They do not stand beside
+one table while its guests read the menu. They watch the room, and go to
+whichever table raises a hand. One waiter can serve many tables that way, as
+long as they never stop to cook a dish themselves; if they do, every table
+waits.
+"""
+scenario = """
+The online store's warehouse has a stock server that shop tills and packing
+stations connect to all day, asking short questions such as "stock KETTLE-1".
+The server started a new thread for every connection. With a hundred tills
+connected, a hundred threads sat almost entirely idle, each holding memory,
+waiting for the next question.
+"""
+costs = [
+    "**Handlers must never block.** One 300 ms handler held up every other client in the demo.",
+    "**Harder code.** Reads can arrive in pieces, and state for each connection must be kept by hand.",
+    "**One core.** A single reactor thread uses one CPU core; busy servers run several reactors.",
+]
+too_much = """
+With a few dozen connections, or with Java 21's virtual threads, a thread per
+connection is simpler and performs well. Reactor pays off with thousands of
+mostly idle connections, or where platform threads are expensive.
+"""
+met_before = [
+    "Java NIO's `Selector`, `ServerSocketChannel` and `SocketChannel`.",
+    "Netty's event loops, used by gRPC, Cassandra and many Java servers.",
+    "Node.js's event loop, Nginx, and Redis.",
+    "Spring WebFlux and Vert.x, built on reactors.",
+]
+where = """
+This project is in [concurrency-design-patterns](..), next to
+[Thread Pool](../thread-pool-pattern), which a reactor often hands its slow
+work to, and [Proactor](../proactor-pattern), its asynchronous-completion
+cousin.
+"""
+
+[[act]]
+title = "A thread per connection"
+summary = "100 tills connect and wait: 100 threads, almost all idle; the answer to stock KETTLE-1 is 4."
+detail = """
+`ThreadPerConnection` starts a new thread for every client. A hundred tills
+connect and wait for their next question: a hundred threads, nearly all of
+them idle, each holding its own stack. Till 1 asks "stock KETTLE-1" and gets
+4.
+"""
+speech = """
+First demo: a thread for every connection. [[slnc 400]] A hundred shop tills connect to the stock server. [[slnc 300]] The server starts a thread for each one. [[slnc 600]]
+That is a hundred threads. [[slnc 300]] Almost all of them are idle, waiting for their till to ask something. [[slnc 300]] Each one still holds memory. [[slnc 500]]
+Till one asks: how many kettles are in stock? [[slnc 300]] Four.
+"""
+rows = { tills = "active amber", threads = "active wrong" }
+console = [
+    ["100 tills: 100 threads, mostly idle", "bad"],
+    ["stock KETTLE-1: 4", "ok"],
+]
+
+[[act]]
+title = "One reactor thread"
+summary = "The same 100 tills connect to the reactor; one thread runs every handler."
+detail = """
+`Reactor` uses one thread and a `Selector`. The selector waits on all hundred
+connections at once and wakes the thread only when one is ready. Till 1's
+question is answered, and the number of threads that ever ran a handler is
+one.
+"""
+speech = """
+Second demo: a reactor. [[slnc 400]] One thread waits on every connection at once. [[slnc 500]]
+Java gives us a selector for this. [[slnc 300]] It sleeps until some connection is ready, then says which one. [[slnc 600]]
+A hundred tills connect. [[slnc 300]] Till one asks about kettles: four. [[slnc 500]]
+Threads running handlers: one.
+"""
+rows = { selector = "active ok", reactor = "active ok", tills = "active ok" }
+console = [
+    ["100 tills connect to the reactor", "muted"],
+    ["stock KETTLE-1: 4", "ok"],
+    ["threads running handlers: 1", "ok"],
+]
+
+[[act]]
+title = "A handler per event"
+summary = "A new connection goes to the accept handler, arriving bytes to the read handler; price MUG-1 is 800."
+detail = """
+The reactor's loop dispatches by event. A new connection goes to the accept
+handler, which registers it for reading. Arriving bytes go to the read
+handler, which answers the line. Till 2 asks "price MUG-1" and gets 800.
+"""
+speech = """
+Third demo: each kind of event has its handler. [[slnc 400]] When a new connection arrives, the accept handler registers it, so the selector will watch it. [[slnc 500]]
+When bytes arrive, the read handler answers the line. [[slnc 600]]
+Till two asks the price of a mug. [[slnc 300]] Eight hundred pence.
+"""
+rows = { reactor = "active ok", accept = "active ok", read = "active ok" }
+console = [
+    ["new connection -> accept handler", "ok"],
+    ["bytes arrive -> read handler", "ok"],
+    ["price MUG-1: 800", "ok"],
+]
+
+[[act]]
+title = "Every till, one thread"
+summary = "All 100 tills ask at once: 100 correct answers, still 1 thread."
+detail = """
+All hundred tills send "stock MUG-1" at once. The selector reports whichever
+are ready, and the one thread answers them in turn: 100 correct answers, and
+still only one thread ever ran a handler.
+"""
+speech = """
+Fourth demo: every till is answered by the one thread. [[slnc 400]] All hundred tills ask at the same moment. [[slnc 500]]
+The selector reports whichever connections are ready. [[slnc 300]] The one thread answers them, one after another. [[slnc 600]]
+A hundred correct answers. [[slnc 300]] Still one thread.
+"""
+rows = { reactor = "active ok", tills = "active ok" }
+console = [
+    ["100 tills ask at once", "muted"],
+    ["100 correct answers", "ok"],
+    ["threads running handlers: still 1", "ok"],
+]
+
+[[act]]
+title = "The bill"
+summary = "While till 2's 300 ms report runs, till 3's quick question waits over 200 ms."
+detail = """
+Till 2 asks for a report whose handler takes 300 milliseconds. Till 3 then
+asks a question that takes microseconds, and waits over 200 milliseconds,
+because the only thread is busy. Handlers must never block; slow work must be
+handed to another thread.
+"""
+speech = """
+Fifth demo: the bill. [[slnc 400]] Till two asks for a report. [[slnc 300]] Its handler takes three hundred milliseconds. [[slnc 500]]
+Meanwhile, till three asks a quick question. [[slnc 300]] It waits over two hundred milliseconds, for an answer that takes microseconds. [[slnc 600]]
+The only thread was busy. [[slnc 300]] Like the waiter who stopped to cook. [[slnc 300]] So handlers must never block, and slow work goes to another thread.
+"""
+rows = { reactor = "active wrong", slow = "active wrong", tills = "active amber" }
+console = [
+    ["till 2: 300 ms report", "amber"],
+    ["till 3's quick question: over 200 ms", "bad"],
+    ["handlers must never block", "amber"],
+]
+
+[animation]
+subtitle = "One reactor thread waits on every till's connection at once, and hands each event to a short handler."
+boxes = [
+    ["tills", "100 tills", "connected all day"],
+    ["threads", "100 threads", "the old way, mostly idle"],
+    ["selector", "Selector", "which connection is ready?"],
+    ["reactor", "Reactor thread", "one, dispatches events"],
+    ["accept", "Accept handler", "registers new clients"],
+    ["read", "Read handler", "answers a line"],
+    ["slow", "Slow handler", "300 ms report"],
+]
+
+[docs.problem]
+scenario = """
+A hundred shop tills stay connected to the warehouse stock server all day and
+ask short questions now and then.
+"""
+naive = """
+`ThreadPerConnection` gives each connection its own thread: a hundred threads,
+almost all waiting.
+"""
+deliver = [
+    "Thread count for a thread per connection: 100.",
+    "A NIO reactor serving the same 100 tills with 1 thread.",
+    "Accept and read handlers dispatched by event.",
+    "100 simultaneous questions answered by one thread.",
+    "A slow handler shown delaying another client.",
+    "Every printed result asserted by a test, over real sockets.",
+]
+
+[docs.prerequisites]
+required = [
+    "Java basics: classes, exceptions, threads at a beginner level.",
+    "What a socket connection is: a client and server talking over a network.",
+]
+not_required = [
+    "Netty or any framework. Plain Java NIO is used.",
+]
+
+[docs.session]
+objectives = [
+    "Explain why a thread per connection wastes threads.",
+    "Describe the selector as an event demultiplexer.",
+    "Write accept and read handlers for a reactor loop.",
+    "Explain why handlers must never block.",
+]
+walkthrough = """
+Run `./gradlew run` and compare the thread counts in acts one and two. Open
+`Reactor.run`: the whole pattern is the loop, `select`, and the two `if`s.
+End on act five and ask how the report could be run without stopping the
+reactor.
+"""
+exercises = [
+    "Hand the report to a thread pool and write its answer back when it is ready.",
+    "Handle a line that arrives in two pieces.",
+    "Run the thread-per-connection server on virtual threads. How many platform threads does it use?",
+]
+
+[docs.explained]
+sentence = """
+A reactor uses one thread to wait for events on many connections at once and
+dispatches each event to a short handler.
+"""
+verdict = """
+Use a reactor, usually through Netty or a framework built on it, for servers
+with many mostly idle connections. Keep handlers short and non-blocking, and
+hand slow work to a thread pool. For modest numbers of connections, virtual
+threads are simpler.
+"""
+recognise = [
+    "`Selector.select()` in a loop.",
+    "\"Event loop\" in a framework's documentation.",
+    "Warnings not to block the event loop.",
+]
+
+[spec]
+purpose = """
+Teach Reactor with an online store's warehouse stock server over real
+sockets: 100 tills taking 100 threads, then one NIO reactor thread with accept
+and read handlers answering all 100, and a 300 ms handler delaying another
+till's quick question.
+"""
+nongoals = [
+    "Not Netty. Plain NIO shows the pattern.",
+    "Not partial reads or writes in depth. Lines are short.",
+]
+problem = """
+A thread per connection spends most threads waiting, and runs out of threads
+long before it runs out of work.
+"""
+roles = [
+    ["The pattern", "`Reactor` (selector loop, accept and read handlers)"],
+    ["The work", "`StockCommands`"],
+    ["The clients", "`Clients`"],
+    ["The naive version", "`ThreadPerConnection`"],
+    ["Entry point", "`ReactorDemo`, five acts"],
+]
+requirements = [
+    "**Real sockets:** every question travels over localhost.",
+    "**One thread:** the reactor's handlers run on one thread, asserted.",
+    "**Every client answered:** 100 correct answers.",
+    "**Honest cost:** the slow handler's delay is shown.",
+    "**Every printed result is asserted** in `DemoRunsTest`.",
+]
+
+[[diagram]]
+name = "architecture-diagram"
+kind = "flow"
+title = "Reactor — the pieces"
+caption = "One thread, one selector, many connections."
+nodes = [
+    { id = "t", label = "100 tills", sub = "sockets", col = 0, row = 1, colour = "client" },
+    { id = "s", label = "Selector", sub = "who is ready?", col = 1, row = 1, colour = "amber" },
+    { id = "r", label = "Reactor thread", sub = "dispatch", col = 2, row = 1, colour = "accent" },
+    { id = "a", label = "accept handler", sub = "register client", col = 2, row = 0, colour = "green" },
+    { id = "d", label = "read handler", sub = "answer the line", col = 2, row = 2, colour = "green" },
+]
+edges = [
+    { from = "t", to = "s", label = "events" },
+    { from = "s", to = "r", label = "ready keys" },
+    { from = "r", to = "a", label = "OP_ACCEPT" },
+    { from = "r", to = "d", label = "OP_READ" },
+]
+
+[[diagram]]
+name = "class-diagram"
+kind = "class"
+title = "Reactor — classes"
+caption = "The reactor owns the selector and the handlers."
+nodes = [
+    { id = "r", label = "Reactor", sub = ["- Selector", "- ServerSocketChannel", "- run(): select, dispatch", "- onAccept(), onRead(key)"], col = 0, row = 0, colour = "accent" },
+    { id = "s", label = "StockCommands", sub = ["+ answer(line)", "stock, price, report"], col = 1, row = 0, colour = "green" },
+    { id = "c", label = "Clients", sub = ["+ ask(i, line)"], col = 2, row = 0, colour = "client" },
+    { id = "t", label = "ThreadPerConnection", sub = ["a thread per socket"], col = 1, row = 1, colour = "red" },
+]
+edges = [
+    { from = "r", to = "s", label = "answers with" },
+    { from = "t", to = "s", label = "answers with" },
+]
+
+[[diagram]]
+name = "data-flow-diagram"
+kind = "flow"
+title = "Reactor — one question"
+caption = "From bytes on a socket to a reply, on the one thread."
+nodes = [
+    { id = "a", label = "\"stock MUG-1\\n\"", sub = "till 2", col = 0, row = 0, colour = "client" },
+    { id = "b", label = "key readable", sub = "selector", col = 1, row = 0, colour = "amber" },
+    { id = "c", label = "onRead", sub = "reactor thread", col = 2, row = 0, colour = "accent" },
+    { id = "d", label = "\"20\\n\"", sub = "written back", col = 2, row = 1, colour = "green" },
+]
+edges = [
+    { from = "a", to = "b", label = "" },
+    { from = "b", to = "c", label = "dispatch" },
+    { from = "c", to = "d", label = "answer" },
+]
+
+[[diagram]]
+name = "sequence-diagram"
+kind = "sequence"
+title = "Reactor — the loop"
+caption = "Wait, dispatch, repeat."
+participants = ["Reactor", "Selector", "Till"]
+steps = [
+    ["Reactor", "Selector", "select()"],
+    ["Till", "Selector", "stock KETTLE-1"],
+    ["Selector", "Reactor", "key: till readable", "reply"],
+    ["Reactor", "Till", "4"],
+    ["Reactor", "Selector", "select() again"],
+]
+
+[[diagram]]
+name = "uml-diagram"
+kind = "sequence"
+title = "1. A blocking handler"
+caption = "Everyone waits for the slow one."
+participants = ["Till 2", "Reactor", "Till 3"]
+steps = [
+    ["Till 2", "Reactor", "report"],
+    ["note", "Reactor", "300 ms in the handler"],
+    ["Till 3", "Reactor", "stock KETTLE-1"],
+    ["Reactor", "Till 3", "4 (after the report)", "reply"],
+]
+
+[[diagram]]
+name = "uml-diagram-2"
+kind = "sequence"
+title = "2. A new connection"
+caption = "The accept handler hands it to the selector."
+participants = ["Till", "Reactor", "Selector"]
+steps = [
+    ["Till", "Reactor", "connect"],
+    ["Reactor", "Selector", "register(client, OP_READ)"],
+]
+
+[poster]
+headline = [["REACTOR", "text"]]
+before = { code = "new Thread(client)", note = "100 tills, 100 threads", tag = "BEFORE" }
+after = { code = "selector.select()", note = "100 tills, 1 thread", tag = "AFTER" }
+taglines = [["One thread, many connections", "gold"]]
+
+[[scene]]
+key = "01-poster"
+kind = "poster"
+title = "Reactor"
+narration = """
+Hello, and welcome. [[slnc 400]] This video explains the Reactor pattern, in Java. [[slnc 300]]
+This video is presented by Jayasekhar Konduru. [[slnc 600]]
+First, a simple definition. [[slnc 300]] In a reactor, one thread waits for events on many connections at once. [[slnc 300]] When something happens on a connection, the thread hands that event to a short piece of code called a handler. [[slnc 300]] No connection gets a thread of its own. [[slnc 600]]
+Think of one waiter looking after a whole restaurant. [[slnc 300]] They do not stand at one table while the guests read the menu. [[slnc 300]] They watch the room, and go to whichever table raises a hand. [[slnc 700]]
+In this video, the domain is an online shop's warehouse. [[slnc 300]] Its stock server has a hundred shop tills connected all day, asking short questions like: how many kettles are in stock? [[slnc 500]]
+By the end, you will hear why a thread per connection wastes threads. [[slnc 300]] How a reactor serves them all with one. [[slnc 300]] How handlers work. [[slnc 300]] And the one rule you must never break.
+"""
+
+[[scene]]
+key = "02-scenario"
+kind = "bullets"
+title = "The Scenario"
+body = ["A warehouse stock server.", "", "100 shop tills connected all day,", "asking short questions now and then.", "", "One thread per connection."]
+narration = """
+Here is the scenario. [[slnc 400]] The warehouse runs a stock server. [[slnc 500]]
+A hundred shop tills stay connected all day. [[slnc 300]] Now and then, each asks a short question. [[slnc 300]] How many kettles? [[slnc 300]] What does a mug cost? [[slnc 600]]
+The server gave every connection its own thread.
+"""
+
+[[scene]]
+key = "03-acts"
+kind = "acts"
+title = "acts"
+
+[[scene]]
+key = "04-pattern"
+kind = "bullets"
+title = "The Pattern"
+body = ["One thread waits on every", "connection at once: a selector.", "", "Event ready? Dispatch it", "to its handler.", "", "Handlers must be quick."]
+narration = """
+Let's name the pattern. [[slnc 400]] One thread waits on every connection at once. [[slnc 300]] In Java, a selector does the waiting. [[slnc 500]]
+When a connection is ready, the thread dispatches the event to its handler. [[slnc 300]] A new connection, to the accept handler. [[slnc 300]] Arriving bytes, to the read handler. [[slnc 500]]
+And every handler must be quick.
+"""
+
+[[scene]]
+key = "05-roles"
+kind = "bullets"
+title = "Who Does What"
+body = ["Selector: which connection is ready", "Reactor: the loop and dispatch", "Accept, read: the handlers", "StockCommands: the answers", "ThreadPerConnection: the old way"]
+narration = """
+Here is who does what. [[slnc 400]] The selector says which connections are ready. [[slnc 500]]
+The reactor runs the loop: wait, then dispatch. [[slnc 500]]
+The accept handler registers new tills. [[slnc 300]] The read handler answers their questions, using stock commands. [[slnc 500]]
+And thread per connection is the old way, kept for comparison.
+"""
+
+[[scene]]
+key = "06-recognise"
+kind = "bullets"
+title = "Where You Have Seen It"
+body = ["Java NIO Selector", "Netty event loops", "Node.js, Nginx, Redis", "Spring WebFlux, Vert.x"]
+narration = """
+You have probably met this pattern already. [[slnc 400]] Java's NIO selector is the reactor's building block. [[slnc 500]]
+Netty's event loops are reactors. [[slnc 300]] So are Node.js, Nginx, and Redis. [[slnc 500]]
+And Spring WebFlux and Vert.x are built on them.
+"""
+
+[[scene]]
+key = "07-verdict"
+kind = "bullets"
+title = "When To Use It"
+body = ["Many mostly idle connections.", "", "Keep handlers short.", "Slow work: a thread pool.", "", "A few dozen connections?", "Virtual threads are simpler."]
+narration = """
+So, when should you use it? [[slnc 400]] For servers with many connections that are mostly idle. [[slnc 300]] Usually through Netty, or a framework built on it. [[slnc 500]]
+Keep handlers short. [[slnc 300]] Hand slow work to a thread pool. [[slnc 500]]
+And for a few dozen connections, Java's virtual threads give you a thread per connection without the cost.
+"""
+
+[[scene]]
+key = "08-outro"
+kind = "outro"
+title = "Thanks for Watching"
+body = ["Full source, notes, diagrams and an animated walkthrough", "are in the repository. Hand the report", "to a thread pool."]
+narration = """
+That's the Reactor pattern. [[slnc 400]] If you remember one sentence, make it this one. [[slnc 300]] One thread watches every connection, and every handler must be quick. [[slnc 500]]
+The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. [[slnc 300]] It runs offline, with nothing installed except a Java development kit. [[slnc 500]]
+Here is one exercise to try. [[slnc 300]] Hand the slow report to a thread pool, so the other tills never wait. [[slnc 500]]
+If this helped, a like really does help other people find it. [[slnc 300]] And subscribe, if you'd like the rest of the series. [[slnc 400]] Thanks for watching.
+"""

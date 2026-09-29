@@ -1,0 +1,437 @@
+# pattern.toml for the Cell-Based Architecture project. See tools/patternkit.
+
+[project]
+slug = "cell-based"
+category = "architectural-design-patterns"
+title = "Cell-Based Architecture"
+package = "cellbased"
+main_class = "CellBasedDemo"
+tagline = "Small copies, small blast radius"
+bold = "Run the whole system as several complete, independent copies called cells, each serving its own share of customers, so a failure or a bad release only ever reaches one cell."
+domain_note = ""
+thumb_lines = ["CELL-BASED", "ARCHITECTURE"]
+thumb_code = "router.cellOf(customer)"
+youtube_title = "Cell-Based Architecture"
+youtube_tags = ["cell based architecture", "blast radius", "resilience", "scalability", "architecture patterns", "java"]
+
+[readme]
+intro = """
+Cell-based architecture splits a system into cells: complete, independent
+copies of the whole back end (services, databases, queues), each serving a
+fixed share of the customers. A thin router in front knows which cell each
+customer lives in and sends every request there. Cells share nothing with each
+other.
+
+When something goes wrong in a cell, whether a crash, a bad release or an
+overload, only that cell's customers notice. Releases can go to one cell
+first. And the system grows by adding cells rather than by making one copy
+ever bigger.
+"""
+analogy = """
+Think of a restaurant chain with branches in different neighbourhoods. Each
+branch has its own kitchen, staff and stock, and regulars always go to their
+local branch. If one branch's oven breaks, only that branch closes for the
+evening. A new recipe is tried in one branch first. And when a new
+neighbourhood grows, the chain opens another branch rather than doubling the
+size of one kitchen.
+"""
+scenario = """
+The online store ran as one shared stack for every customer. When a release
+with a checkout bug went out, every customer in the country was unable to
+check out until it was rolled back.
+"""
+costs = [
+    "**Questions across cells.** \"Today's total sales\" means asking every cell and adding up.",
+    "**More copies to run.** Four cells mean four copies of every service and database to run, watch and pay for.",
+    "**Moving customers is hard.** Moving a customer between cells means moving their data too.",
+]
+too_much = """
+A system with modest traffic, where an outage for everyone is acceptable for a
+short time, is simpler as one stack. Cells pay off for large systems where
+limiting the blast radius of failures and releases is worth running many
+copies.
+"""
+met_before = [
+    "AWS's cell-based architecture guidance, used in services such as DynamoDB.",
+    "Slack's and Salesforce's \"pods\" and \"cells\", each serving a set of customers.",
+    "Staged rollouts that release to one region or one cell first.",
+]
+where = """
+This project is in [architectural-design-patterns](..), next to
+[Space-Based Architecture](../space-based-pattern), which scales by copying
+data between identical units, and near
+[Bulkhead](../../micro-services-design-patterns/bulkhead-pattern), which
+isolates failures inside one service.
+"""
+
+[[act]]
+title = "One shared stack"
+summary = "A release with a checkout bug on the one shared stack: 30 of 30 customers cannot check out."
+detail = """
+Every customer is served by the same stack. A release with a checkout bug
+goes out, and every one of the thirty customers fails to check out until it is
+rolled back.
+"""
+speech = """
+First demo: one shared stack for every customer. [[slnc 400]] A new release goes out, with a bug in checkout. [[slnc 600]]
+Thirty customers try to check out. [[slnc 300]] All thirty fail. [[slnc 500]]
+Everyone, everywhere, is affected at once.
+"""
+rows = { router = "active amber", one = "active wrong" }
+console = [
+    ["a buggy release goes out", "amber"],
+    ["cannot check out: 30 of 30", "bad"],
+]
+
+[[act]]
+title = "Cells"
+summary = "Three complete cells, 10 customers each; the router sends C-1 to cell-1, C-2 to cell-2; 0 failures."
+detail = """
+The shop now runs as three cells, each a complete copy of the back end. The
+`CellRouter` places the thirty customers evenly, ten per cell, and sends each
+customer's requests to their cell: C-1 to cell-1, C-2 to cell-2. Everyone
+checks out.
+"""
+speech = """
+Second demo: cells. [[slnc 400]] The shop now runs as three cells. [[slnc 300]] Each is a complete copy of the back end, with its own database. [[slnc 600]]
+A thin router places the customers: ten in each cell. [[slnc 300]] Customer one lives in cell one, customer two in cell two. [[slnc 500]]
+Every request goes to the customer's own cell. [[slnc 300]] Everyone checks out.
+"""
+rows = { router = "active ok", c1 = "active ok", c2 = "active ok", c3 = "active ok" }
+console = [
+    ["{cell-1=10, cell-2=10, cell-3=10}", "ok"],
+    ["C-1 -> cell-1; C-2 -> cell-2", "ok"],
+    ["failures: 0", "ok"],
+]
+
+[[act]]
+title = "A small blast radius"
+summary = "The buggy release goes to cell-1 first: 10 of 30 fail; after rollback, 0; cells 2 and 3 never noticed."
+detail = """
+The same buggy release goes to cell-1 only. Its ten customers cannot check
+out; the other twenty can. The release is rolled back in cell-1, failures drop
+to zero, and cells 2 and 3 never noticed anything.
+"""
+speech = """
+Third demo: a bad release reaches one cell, not everyone. [[slnc 400]] The buggy release goes to cell one first. [[slnc 600]]
+Ten customers cannot check out. [[slnc 300]] The other twenty can. [[slnc 500]]
+Cell one is rolled back. [[slnc 300]] Failures: zero. [[slnc 300]] Cells two and three never noticed.
+"""
+rows = { c1 = "active wrong", c2 = "active ok", c3 = "active ok" }
+console = [
+    ["buggy release to cell-1 only", "amber"],
+    ["cannot check out: 10 of 30", "amber"],
+    ["rolled back: 0 failures", "ok"],
+]
+
+[[act]]
+title = "Add a cell"
+summary = "Cell-4 is added; 6 new customers are placed there; C-1 stays in cell-1; nobody is moved."
+detail = """
+The shop grows. Instead of enlarging the existing cells, a fourth cell is
+added and the router places new customers there. Six newcomers go to cell-4;
+C-1 is still in cell-1, and no existing customer was moved.
+"""
+speech = """
+Fourth demo: more customers, add a cell. [[slnc 400]] The shop grows. [[slnc 300]] A fourth cell is added. [[slnc 500]]
+The router places new customers there. [[slnc 300]] Six newcomers go to cell four. [[slnc 500]]
+Customer one is still in cell one. [[slnc 300]] Nobody was moved.
+"""
+rows = { router = "active ok", c4 = "active ok" }
+console = [
+    ["6 new customers placed in cell-4", "ok"],
+    ["C-1 still in cell-1; nobody moved", "ok"],
+]
+
+[[act]]
+title = "The bill"
+summary = "Today's total sales means asking all 4 cells (£1760.00); 4 copies of everything to run."
+detail = """
+Every cell is a separate world. A question about all customers, such as
+today's total sales, means asking all four cells and adding up: £1,760.00. And
+there are now four copies of every service and database to run, watch and
+pay for.
+"""
+speech = """
+Fifth demo: the bill. [[slnc 400]] Every cell is a separate world. [[slnc 500]]
+To answer: what were today's total sales? [[slnc 300]] You must ask all four cells, and add up. [[slnc 600]]
+And there are now four copies of every service and database to run, watch, and pay for.
+"""
+rows = { c1 = "active amber", c2 = "active amber", c3 = "active amber", c4 = "active amber" }
+console = [
+    ["total sales: ask all 4 cells", "amber"],
+    ["4 copies of everything", "amber"],
+]
+
+[animation]
+subtitle = "A thin router sends each customer to their own cell; each cell is a complete, independent copy of the shop."
+boxes = [
+    ["router", "Cell router", "customer -> cell"],
+    ["one", "One shared stack", "the old way"],
+    ["c1", "cell-1", "10 customers"],
+    ["c2", "cell-2", "10 customers"],
+    ["c3", "cell-3", "10 customers"],
+    ["c4", "cell-4", "new customers"],
+]
+
+[docs.problem]
+scenario = """
+Thirty customers use one shared back end; releases go to everyone at once.
+"""
+naive = """
+One shared stack: a release with a checkout bug stops all 30 customers from
+checking out.
+"""
+deliver = [
+    "A buggy release failing every customer on one shared stack.",
+    "Three cells with a router placing customers evenly.",
+    "The same bug limited to one cell's customers, then rolled back.",
+    "A new cell for new customers without moving anyone.",
+    "The costs shown: cross-cell questions and copies to run.",
+    "Every printed result asserted by a test.",
+]
+
+[docs.prerequisites]
+required = [
+    "Java basics: classes, lists, maps.",
+    "The idea of a release and a rollback.",
+]
+not_required = [
+    "Cloud infrastructure. Cells are objects in one program.",
+]
+
+[docs.session]
+objectives = [
+    "Explain blast radius.",
+    "Route customers to cells with a placement table.",
+    "Release to one cell first.",
+    "Name the costs of running many cells.",
+]
+walkthrough = """
+Run `./gradlew run` and compare act one's 30 failures with act three's 10.
+Open `CellRouter`: a placement map and one method that forwards. End on act
+five and ask which reports in a real shop would need to ask every cell.
+"""
+exercises = [
+    "Deploy to cells one at a time, checking failures after each, and stop at the first failure.",
+    "Move customer C-5 from cell-2 to cell-4, including its orders.",
+    "Place customers by a hash of their ID instead of a table. What happens when you add a cell?",
+]
+
+[docs.explained]
+sentence = """
+Cell-based architecture runs several complete, independent copies of a
+system, each serving a fixed share of customers behind a thin router, so
+failures and releases only reach one cell at a time.
+"""
+verdict = """
+Use cells for large systems where limiting the blast radius of failures and
+releases is worth running many copies. Keep the router thin, release one cell
+at a time, and plan how cross-cell questions and customer moves will work.
+"""
+recognise = [
+    "Customers or tenants assigned to a numbered pod, shard, stamp or cell.",
+    "A routing layer that looks up a customer's home before forwarding.",
+    "Deployments that go cell by cell.",
+]
+
+[spec]
+purpose = """
+Teach Cell-Based Architecture with an online store: one shared stack where a
+buggy release fails 30 of 30 customers, then three cells behind a router, the
+same bug limited to 10 of 30 in one cell and rolled back, a fourth cell for
+new customers, and the costs of cross-cell questions and extra copies.
+"""
+nongoals = [
+    "Not real infrastructure. Cells are in-process objects.",
+    "Not customer migration. It is an exercise.",
+]
+problem = """
+One shared stack means every failure and every bad release reaches every
+customer at once.
+"""
+roles = [
+    ["The router", "`CellRouter`"],
+    ["The cells", "`Cell`"],
+    ["The naive version", "one `Cell` serving everyone"],
+    ["Entry point", "`CellBasedDemo`, five acts"],
+]
+requirements = [
+    "**Sticky placement:** a customer always reaches the same cell.",
+    "**Isolation:** a bug in one cell fails only that cell's customers.",
+    "**Grow by cells:** new customers go to a new cell; nobody moves.",
+    "**Every printed result is asserted** in `DemoRunsTest`.",
+]
+
+[[diagram]]
+name = "architecture-diagram"
+kind = "flow"
+title = "Cell-Based Architecture — the pieces"
+caption = "A thin router in front of independent cells."
+nodes = [
+    { id = "c", label = "Customers", sub = "C-1 ... C-36", col = 0, row = 1, colour = "client" },
+    { id = "r", label = "CellRouter", sub = "customer -> cell", col = 1, row = 1, colour = "accent" },
+    { id = "a", label = "cell-1", sub = "full stack + database", col = 2, row = 0, colour = "green" },
+    { id = "b", label = "cell-2", sub = "full stack + database", col = 2, row = 1, colour = "green" },
+    { id = "d", label = "cell-3 / cell-4", sub = "full stack + database", col = 2, row = 2, colour = "green" },
+]
+edges = [
+    { from = "c", to = "r", label = "checkout" },
+    { from = "r", to = "a", label = "C-1, C-4 ..." },
+    { from = "r", to = "b", label = "C-2, C-5 ..." },
+    { from = "r", to = "d", label = "..." },
+]
+
+[[diagram]]
+name = "class-diagram"
+kind = "class"
+title = "Cell-Based Architecture — classes"
+caption = "The router places customers and forwards to their cell."
+nodes = [
+    { id = "r", label = "CellRouter", sub = ["- cells", "- placement: customer -> cell", "+ place(customers)", "+ checkout(customer, pence)"], col = 0, row = 0, colour = "accent" },
+    { id = "c", label = "Cell", sub = ["name, release, orders", "+ checkout(customer, pence)", "+ deploy(release)"], col = 1, row = 0, colour = "green" },
+]
+edges = [
+    { from = "r", to = "c", label = "forwards to" },
+]
+
+[[diagram]]
+name = "data-flow-diagram"
+kind = "flow"
+title = "Cell-Based Architecture — a bad release"
+caption = "Only one cell's customers are affected."
+nodes = [
+    { id = "a", label = "v2-buggy", sub = "released to cell-1", col = 0, row = 0, colour = "red" },
+    { id = "b", label = "cell-1 customers", sub = "10 fail", col = 1, row = 0, colour = "red" },
+    { id = "c", label = "cell-2, cell-3 customers", sub = "20 fine", col = 1, row = 1, colour = "green" },
+    { id = "d", label = "roll back cell-1", sub = "0 fail", col = 2, row = 0, colour = "green" },
+]
+edges = [
+    { from = "a", to = "b", label = "" },
+    { from = "b", to = "d", label = "" },
+]
+
+[[diagram]]
+name = "sequence-diagram"
+kind = "sequence"
+title = "Cell-Based Architecture — one checkout"
+caption = "The router looks up the customer's cell."
+participants = ["C-2", "CellRouter", "cell-2"]
+steps = [
+    ["C-2", "CellRouter", "checkout £20"],
+    ["CellRouter", "cell-2", "checkout(C-2, 2000)"],
+    ["cell-2", "C-2", "order placed in cell-2", "reply"],
+]
+
+[[diagram]]
+name = "uml-diagram"
+kind = "sequence"
+title = "1. One shared stack"
+caption = "One release, every customer."
+participants = ["Customers", "Shared stack"]
+steps = [
+    ["Customers", "Shared stack", "checkout x 30"],
+    ["Shared stack", "Customers", "30 failures", "reply"],
+]
+
+[[diagram]]
+name = "uml-diagram-2"
+kind = "sequence"
+title = "2. A cross-cell question"
+caption = "Ask every cell and add up."
+participants = ["Report", "cell-1", "cell-4"]
+steps = [
+    ["Report", "cell-1", "sales?"],
+    ["Report", "cell-4", "sales? (and the others)"],
+    ["note", "Report", "add up: £1760.00"],
+]
+
+[poster]
+headline = [["CELL-BASED", "text"], ["ARCHITECTURE", "text"]]
+before = { code = "one stack for everyone", note = "one bug: 30 of 30 down", tag = "BEFORE" }
+after = { code = "router.cellOf(customer)", note = "one bug: 10 of 30, one cell", tag = "AFTER" }
+taglines = [["Small copies, small blast radius", "gold"]]
+
+[[scene]]
+key = "01-poster"
+kind = "poster"
+title = "Cell-Based Architecture"
+narration = """
+Hello, and welcome. [[slnc 400]] This video explains Cell-Based Architecture, in Java. [[slnc 300]]
+This video is presented by Jayasekhar Konduru. [[slnc 600]]
+First, a simple definition. [[slnc 300]] In a cell-based system, the whole back end runs as several complete, independent copies, called cells. [[slnc 300]] Each cell serves its own share of the customers. [[slnc 300]] So a failure, or a bad release, only ever reaches one cell. [[slnc 600]]
+Think of a restaurant chain with branches in different neighbourhoods. [[slnc 300]] Each branch has its own kitchen and staff. [[slnc 300]] If one branch's oven breaks, only that branch closes for the evening. [[slnc 300]] And a new recipe is tried in one branch first. [[slnc 700]]
+In this video, the domain is an online shop, with thirty customers checking out. [[slnc 500]]
+By the end, you will hear how one shared back end fails everyone at once. [[slnc 300]] How cells limit the damage. [[slnc 300]] How to grow by adding a cell. [[slnc 300]] And what all those copies cost.
+"""
+
+[[scene]]
+key = "02-scenario"
+kind = "bullets"
+title = "The Scenario"
+body = ["One shared back end", "for every customer.", "", "A release with a checkout bug", "goes out to everyone."]
+narration = """
+Here is the scenario. [[slnc 400]] The shop ran one shared back end, for every customer. [[slnc 500]]
+Then a release went out, with a bug in checkout. [[slnc 300]] Every release goes to everyone, at once.
+"""
+
+[[scene]]
+key = "03-acts"
+kind = "acts"
+title = "acts"
+
+[[scene]]
+key = "04-pattern"
+kind = "bullets"
+title = "The Pattern"
+body = ["Several complete copies: cells.", "Each serves its own customers.", "Cells share nothing.", "", "A thin router: customer -> cell.", "", "Release one cell at a time."]
+narration = """
+Let's name the pattern. [[slnc 400]] Run several complete copies of the back end. [[slnc 300]] These are the cells. [[slnc 300]] They share nothing with each other. [[slnc 500]]
+Each customer lives in one cell. [[slnc 300]] A thin router in front knows which, and sends every request there. [[slnc 500]]
+And releases go to one cell at a time.
+"""
+
+[[scene]]
+key = "05-roles"
+kind = "bullets"
+title = "Who Does What"
+body = ["CellRouter: placement and forwarding", "Cell: a complete copy of the shop", "One shared stack: the old way"]
+narration = """
+Here is who does what. [[slnc 400]] The cell router keeps a table of which customer lives in which cell, and forwards every request. [[slnc 500]]
+A cell is a complete copy of the shop's back end, with its own database. [[slnc 500]]
+And one shared stack is the old way, kept for comparison.
+"""
+
+[[scene]]
+key = "06-recognise"
+kind = "bullets"
+title = "Where You Have Seen It"
+body = ["AWS cell-based architecture", "Slack and Salesforce pods", "Region-by-region rollouts"]
+narration = """
+You have probably met this pattern already. [[slnc 400]] Amazon Web Services builds many of its services from cells. [[slnc 500]]
+Slack and Salesforce place each customer in a pod. [[slnc 500]]
+And releases that go out region by region, or cell by cell, rely on the same idea.
+"""
+
+[[scene]]
+key = "07-verdict"
+kind = "bullets"
+title = "When To Use It"
+body = ["Large systems where limiting", "the blast radius is worth", "many copies.", "", "Thin router. One cell at a time.", "Plan cross-cell questions."]
+narration = """
+So, when should you use it? [[slnc 400]] For large systems, where limiting the damage of failures and releases is worth running many copies. [[slnc 500]]
+Keep the router thin. [[slnc 300]] Release one cell at a time. [[slnc 300]] And plan how questions across all customers, and customer moves, will work. [[slnc 500]]
+For a smaller system, one stack is simpler.
+"""
+
+[[scene]]
+key = "08-outro"
+kind = "outro"
+title = "Thanks for Watching"
+body = ["Full source, notes, diagrams and an animated walkthrough", "are in the repository. Roll a release out", "cell by cell."]
+narration = """
+That's Cell-Based Architecture. [[slnc 400]] If you remember one sentence, make it this one. [[slnc 300]] Run small, complete copies, so any problem stays small. [[slnc 500]]
+The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. [[slnc 300]] It runs offline, with nothing installed except a Java development kit. [[slnc 500]]
+Here is one exercise to try. [[slnc 300]] Roll a release out cell by cell, and stop at the first failure. [[slnc 500]]
+If this helped, a like really does help other people find it. [[slnc 300]] And subscribe, if you'd like the rest of the series. [[slnc 400]] Thanks for watching.
+"""
