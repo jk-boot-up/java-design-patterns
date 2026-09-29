@@ -81,9 +81,23 @@ The audience must be able to follow with **no screen at all**.
 
 ## 5. Animations and HTML
 
-- Animation narration uses the same voice, spoken from the animation's own step text:
-  `videokit.sh animation <project>` renders `docs/audio/step-N.m4a` (git-ignored, cached)
-  and injects the player between `videokit:narration` markers in `docs/animation.html`.
+- **Every animation speaks in the amy-slow voice only**, spoken from the animation's own step
+  text. `videokit.sh animation <project>` renders the clips (git-ignored, cached) and injects
+  the player between `videokit:narration` markers in `docs/animation.html`. A project whose
+  main voice is amy-slow uses `docs/audio/`; an original project whose video keeps its first
+  voice has its animation play `docs/audio-amy-slow/` instead.
+- The same injection adds the shared **UX layer** (`tools/videokit/videokit/web/ux.js`), so
+  every animation behaves alike:
+  - a **Light / Dim / Dark** theme switch, remembered per viewer (it starts from the
+    system's light or dark setting). The page's own colours are rewritten as `--vk-*`
+    variables when it is injected, and each theme remaps that palette;
+  - a clickable **timeline** of the steps, a **Back** button and a progress bar;
+  - **Predict first**: before each step the learner is shown what comes next and asked
+    to guess what will happen, then reveals it;
+  - **keyboard** control: arrows, Space, 1–9, R, N and P;
+  - a short glow on whatever just changed, console lines that slide in, and an
+    **All steps** list for revisiting any step;
+  - no sideways scrolling at phone width, and no motion when the viewer asks for less.
 - Every animation has a **Narration on/off** toggle (remembered per browser) and a
   **Play / Pause / Resume step** button for the narration of the step on screen. The page's
   own Step / Play / Reset buttons still drive the steps.

@@ -17,6 +17,8 @@
   // Remember whichever clip the page (or this script) last started.
   var realPlay = HTMLMediaElement.prototype.play;
   HTMLMediaElement.prototype.play = function () {
+    // While the UX layer jumps across several steps, nothing speaks.
+    if (window.vkQuiet) return Promise.resolve();
     if (current && current !== this) { try { current.pause(); } catch (e) {} }
     current = this;
     this.addEventListener("play", label);
@@ -88,9 +90,15 @@
     var i = stepFor(box.textContent);
     if (i === step) return;
     step = i;
-    if (!pageOwnsAudio) { stop(); if (on) play(i); }
+    window.vkStep = i;
+    if (!window.vkQuiet && !pageOwnsAudio) { stop(); if (on) play(i); }
     label();
+    try { document.dispatchEvent(new CustomEvent("vk:step", { detail: i })); } catch (e) {}
   }
+  // After a jump, speak the step that is now showing (if narration is on).
+  window.vkReplay = function () { if (!pageOwnsAudio) { stop(); if (on) play(step); } };
+  window.vkStepCount = STEPS.length;
+  window.vkStepTexts = STEPS;
   new MutationObserver(changed).observe(box, { childList: true, subtree: true, characterData: true });
   changed();
   label();

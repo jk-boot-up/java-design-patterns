@@ -6,17 +6,17 @@
 <title>Sidecar with a Java Proxy — Animated Walkthrough</title>
 <style>
   :root {
-    --bg: #0f172a;
-    --panel: #1e293b;
-    --panel-hi: #334155;
-    --line: #475569;
-    --text: #e2e8f0;
-    --muted: #94a3b8;
-    --client: #38bdf8;
-    --context: #34d399;
-    --strategy: #a78bfa;
-    --picked: #fbbf24;
-    --bad: #f87171;
+    --bg: var(--vk-0f172a, #0f172a);
+    --panel: var(--vk-1e293b, #1e293b);
+    --panel-hi: var(--vk-334155, #334155);
+    --line: var(--vk-475569, #475569);
+    --text: var(--vk-e2e8f0, #e2e8f0);
+    --muted: var(--vk-94a3b8, #94a3b8);
+    --client: var(--vk-38bdf8, #38bdf8);
+    --context: var(--vk-34d399, #34d399);
+    --strategy: var(--vk-a78bfa, #a78bfa);
+    --picked: var(--vk-fbbf24, #fbbf24);
+    --bad: var(--vk-f87171, #f87171);
   }
   * { box-sizing: border-box; }
   body {
@@ -37,13 +37,13 @@
     padding: 9px 20px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer;
     transition: background .15s, transform .1s;
   }
-  button:hover:not(:disabled) { background: #475569; }
+  button:hover:not(:disabled) { background: var(--vk-475569, #475569); }
   button:active:not(:disabled) { transform: translateY(1px); }
   button:disabled { opacity: .4; cursor: not-allowed; }
-  button.primary { background: var(--strategy); color: #1e1b4b; border-color: var(--strategy); }
-  button.primary:hover:not(:disabled) { background: #b9a3ff; }
-  button.on { background: #0c2b3d; border-color: var(--client); color: var(--client); }
-  button.on:hover:not(:disabled) { background: #123a52; }
+  button.primary { background: var(--strategy); color: var(--vk-1e1b4b, #1e1b4b); border-color: var(--strategy); }
+  button.primary:hover:not(:disabled) { background: var(--vk-b9a3ff, #b9a3ff); }
+  button.on { background: var(--vk-0c2b3d, #0c2b3d); border-color: var(--client); color: var(--client); }
+  button.on:hover:not(:disabled) { background: var(--vk-123a52, #123a52); }
 
   .audio-note {
     text-align: center; color: var(--muted); font-size: 12.5px;
@@ -64,12 +64,12 @@
   .box.active {
     transform: translateY(-3px);
     box-shadow: 0 0 0 3px rgba(255,255,255,.07), 0 10px 28px rgba(0,0,0,.45);
-    border-color: var(--client); background: #0c2b3d;
+    border-color: var(--client); background: var(--vk-0c2b3d, #0c2b3d);
   }
   /* the proxy box lights green when it is carrying the policy, red when it is down */
-  .box.car.active { border-color: var(--context); background: #06281f; box-shadow: 0 0 0 3px rgba(52,211,153,.15); }
+  .box.car.active { border-color: var(--context); background: var(--vk-06281f, #06281f); box-shadow: 0 0 0 3px rgba(52,211,153,.15); }
   .box.car.broken, .box.svc.broken {
-    border-color: var(--bad); background: #2b0f12; box-shadow: 0 0 0 3px rgba(248,113,113,.15);
+    border-color: var(--bad); background: var(--vk-2b0f12, #2b0f12); box-shadow: 0 0 0 3px rgba(248,113,113,.15);
   }
   .holding {
     margin-top: 9px; padding-top: 8px; border-top: 1px dashed var(--line);
@@ -103,17 +103,17 @@
   @keyframes appear { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: none; } }
   .field-row .nm { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .field-row .note { font-size: 11.5px; }
-  .field-row .tag { text-align: right; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; white-space: nowrap; }
+  .field-row .tag { text-align: right; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; }
   .field-row.drawn { border-color: var(--picked); background: rgba(251,191,36,.10); color: var(--text); }
   .field-row.drawn .nm { color: var(--picked); font-weight: 700; }
   .field-row.waste { border-color: rgba(248,113,113,.4); background: rgba(248,113,113,.07); }
-  .field-row.waste .tag { color: #fca5a5; }
+  .field-row.waste .tag { color: var(--vk-fca5a5, #fca5a5); }
   .field-row.call { border-color: var(--client); background: rgba(56,189,248,.08); color: var(--text); }
   .field-row.call .nm { color: var(--client); }
   .field-row.inner { border-color: rgba(52,211,153,.35); background: rgba(52,211,153,.06); }
   .field-row.inner .tag { color: var(--context); }
   .field-row.wrong { border-color: var(--bad); background: rgba(248,113,113,.13); color: var(--text); }
-  .field-row.wrong .nm { color: #fca5a5; font-weight: 700; }
+  .field-row.wrong .nm { color: var(--vk-fca5a5, #fca5a5); font-weight: 700; }
   .field-row.good { border-color: var(--context); background: rgba(52,211,153,.10); color: var(--text); }
   .field-row.good .nm { color: var(--context); font-weight: 700; }
 
@@ -125,7 +125,7 @@
     padding: 4px 8px; margin-bottom: 3px; border-radius: 6px;
     animation: appear .32s ease-out both;
   }
-  .bar-row .val { text-align: right; color: var(--muted); font-size: 11.5px; white-space: nowrap; }
+  .bar-row .val { text-align: right; color: var(--muted); font-size: 11.5px; }
   .bar-row .nm { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .bar { height: 13px; border-radius: 3px; background: var(--strategy); min-width: 3px; display: block;
          transition: width .4s ease; }
@@ -164,7 +164,7 @@
   .narration b { color: var(--picked); }
 
   .console {
-    background: #0b1220; border: 1px solid var(--line); border-radius: 12px;
+    background: var(--vk-0b1220, #0b1220); border: 1px solid var(--line); border-radius: 12px;
     padding: 14px 18px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
     font-size: 12.5px; min-height: 96px;
   }
@@ -545,7 +545,7 @@ STEPS.forEach(() => {
 // ---- optional narration ---------------------------------------------------
 
 const clips = STEPS.map((_, i) => {
-  const a = new Audio("audio/step-" + (i + 1) + ".m4a");
+  const a = new Audio("audio-amy-slow/step-" + (i + 1) + ".m4a");
   a.preload = "none";
   return a;
 });
@@ -763,5 +763,437 @@ document.addEventListener("keydown", e => {
 setAudio(false);
 reset();
 </script>
+<!-- videokit:narration -->
+<script>
+/* videokit narration player: a Narration on/off switch and a play/pause
+   button for the current step. It watches the page's own narration text,
+   works out which step is showing, and plays audio/step-N.m4a beside the
+   page (rendered by tools/videokit; not embedded, so the page stays small).
+   If the page already plays its own clips, only the pause button is added. */
+(function () {
+  "use strict";
+  var STEPS = ["Checkout takes payments, and the code that knows how to talk to the payment provider is not in it any more. It moved next door into a proxy \u2014 that is the Sidecar pattern, and that project is the one to read first. What matters here is the one line of configuration the service has left. An address on its own machine. Not a provider hostname, not a certificate, not a retry count. Whatever is listening there answers, and checkout has no way to find out what it is. Today it is nginx: about twenty-two lines of configuration in a container somebody else wrote, tested, hardened and has been patching for twenty years.", "In March the payment provider wrote to every merchant asking for two things. At most three attempts per payment, and wait properly between them. The shop agreed to both. The configuration says three attempts, and everybody went home. Read the second half of that sentence again, because it is the whole problem. nginx can say the first. It cannot say the second.", "The provider has a bad three hundred milliseconds. Nothing is broken and nobody needs paging \u2014 it declines everything, and then it is fine again. A customer buys a coffee maker for forty-seven pounds ninety-nine. The proxy makes its three allowed attempts, and here is what the provider itself recorded, with the times taken at its end rather than the shop's. One millisecond. Two milliseconds. Three milliseconds. Three attempts spanning two milliseconds, against a provider that did not recover until three hundred. Every one of them landed inside the bad window, because they were all made inside the bad window. The shop spent its entire allowance for that payment before the provider had time to get better, and the customer got nothing.", "This is the part that makes it a design problem rather than a defect. nginx does not have a retry counter. What it has is an upstream group \u2014 a list of servers \u2014 and a rule that says if this one fails, try the next one in the list. The shop's configuration lists the provider's address three times, because three entries is how you spell up to three attempts when the upstream is a single address. Moving to the next entry happens immediately, and that was a good decision for the case nginx was built for: in a pool of machines the next machine is a different machine and is probably fine, so waiting first would only make every request slower for nothing. It stops being a good decision the moment every entry in the pool is the one address that is currently unwell. There is nothing to fix. The sentence does not exist in the language.", "You could put the waiting back in the service \u2014 which undoes the entire previous project, because four services means four copies of the waiting and the next policy change lands in three of them. You could script the proxy: nginx will run Lua, and njs will run JavaScript, and either one can express a delay. But then you are writing code inside a proxy you chose because it was configured rather than programmed, in a language most of your team does not use, with worse tooling and nowhere obvious to put a test. Or you could put a different proxy on the port. That third option only exists because of a decision made in the last project: the contract between the service and its proxy is an address, not a library. Nothing about it is Java, and nothing about it is nginx.", "Somebody writes a proxy. It is about forty lines of Java and the whole of it is one shape: read the policy, try, catch, wait, double the wait, try again. Compare it with the nginx proxy's loop and they are the same loop with one statement missing \u2014 and the statement is not missing because whoever wrote the nginx version forgot it. It is missing because there was nothing to write it with. Now put the new one on the port, with one line. Look at what that line does not take: no reference to the service, nothing it could use to notify one, and nothing it could use to restart one. The start number did not move, and that is not the demo being careful. There is exactly one place in the whole program where a payments service is constructed, and it runs before the first act.", "Identical provider, identical bad three hundred milliseconds, identical payment, identical allowance of three attempts. One millisecond. Two hundred and two. Six hundred and three \u2014 and that one is charged. Read this against the earlier block and notice what is not different. Three attempts in both. The provider's allowance is untouched, the shop is not being greedier, and the change costs the provider nothing at all. The only thing that changed is when the third attempt arrives, and by six hundred milliseconds the provider is well again. The spacing was the difference between a customer walking away and a coffee maker being sold.", "The last two steps skipped something, and it is the thing that will actually page somebody. A swap is not instant. The old proxy stops and the new one starts, and in between there is a moment when nothing is listening on the port at all. A payment that arrives then does not fail slowly, it fails immediately \u2014 and the service has nothing to fall back on, because its retry code was deleted in the last project, on purpose. A healthy provider, a healthy network, a healthy service, and zero attempts reached anybody. The request never left the machine. So a real swap is not one line; it is a rollout. Start the new proxy before stopping the old one, move one service at a time, and keep the old proxy installable \u2014 because the honest reason to be able to swap forwards is to be able to swap back.", "Two proxies. One is configured in nginx's configuration language, the other is written in Java. They go on the same port, beside the same service, and they are handed the same policy object. The service's source file is byte-for-byte identical in both runs. The previous project claimed that a sidecar is language-independent \u2014 that the proxy may be written in a language nobody on your team knows, and the service will not care. That claim was true and it was unsupported, because every line of evidence in that project was Java talking to Java. This is not a claim about language independence. It is language independence, happening.", "A pattern taught without its costs is an advertisement, and the honest accounting here mostly argues against doing it. Twenty-two lines of somebody else's configuration became forty lines of your own code \u2014 yours to test, to review, to keep working on the next JDK, and to fix at three in the morning. Everything nginx brought for free is gone until you write it: TLS termination, a structured access log, connection pooling, and twenty years of somebody answering security advisories before you have heard of them. A JVM now sits beside every service where a few megabytes of nginx used to sit. And nothing stops the next person putting the shop's refund rules in the proxy, because a general-purpose language will happily let them. So the rule is narrow. Swap the proxy when the thing you need cannot be said in the configuration language at all. Not when it is awkward, and not when you would rather write Java. Here the missing sentence was the difference between a payment going through and a payment failing, and that clears the bar. Very little else does."];
+  var norm = function (s) { return String(s || "").replace(/\s+/g, " ").trim(); };
+  var box = document.getElementById("narration") || document.querySelector(".narration");
+  if (!box || !STEPS.length) return;
+
+  var pageOwnsAudio = !!document.getElementById("audio");
+  var current = null, step = -1, on = false;
+  try { on = localStorage.getItem("vk-narration") === "on"; } catch (e) {}
+
+  // Remember whichever clip the page (or this script) last started.
+  var realPlay = HTMLMediaElement.prototype.play;
+  HTMLMediaElement.prototype.play = function () {
+    // While the UX layer jumps across several steps, nothing speaks.
+    if (window.vkQuiet) return Promise.resolve();
+    if (current && current !== this) { try { current.pause(); } catch (e) {} }
+    current = this;
+    this.addEventListener("play", label);
+    this.addEventListener("pause", label);
+    this.addEventListener("ended", label);
+    var p = realPlay.apply(this, arguments);
+    label();
+    return p;
+  };
+
+  // Lets a page's Play button wait for the step's narration to finish.
+  window.vkSpeaking = function () { return !!(current && !current.paused && !current.ended); };
+
+  var bar = document.querySelector(".controls") || box.parentNode;
+  function button(id, text) {
+    var b = document.createElement("button");
+    b.id = id; b.type = "button"; b.textContent = text;
+    bar.appendChild(b);
+    return b;
+  }
+  var narrBtn = pageOwnsAudio ? null : button("vk-narration", "");
+  var stepBtn = button("vk-step-audio", "");
+  var note = document.createElement("span");
+  note.id = "vk-note";
+  note.style.cssText = "color:#94a3b8;font-size:.8rem;margin-left:8px";
+  bar.appendChild(note);
+
+  function stepFor(text) {
+    var t = norm(text);
+    for (var i = 0; i < STEPS.length; i++) {
+      var s = norm(STEPS[i]);
+      if (s && t.indexOf(s.slice(0, 60)) !== -1) return i;
+    }
+    return -1;
+  }
+  function stop() { if (current) { try { current.pause(); } catch (e) {} } current = null; label(); }
+  function play(i) {
+    if (i < 0) return;
+    var a = new Audio("audio-amy-slow/step-" + (i + 1) + ".m4a");
+    a.play().then(function () { note.textContent = ""; }, function (e) {
+      note.textContent = e && e.name === "NotAllowedError"
+        ? "Click Play step to hear this step."
+        : "Narration audio not found: run tools/videokit/videokit.sh animation <project>.";
+      label();
+    });
+  }
+  function label() {
+    if (narrBtn) narrBtn.textContent = (on ? "🔊 Narration: on" : "🔇 Narration: off");
+    if (narrBtn) narrBtn.setAttribute("aria-pressed", String(on));
+    var playing = current && !current.paused && !current.ended;
+    var paused = current && current.paused && !current.ended;
+    stepBtn.textContent = playing ? "⏸ Pause step" : paused ? "▶ Resume step" : "▶ Play step";
+    stepBtn.disabled = step < 0;
+  }
+
+  if (narrBtn) narrBtn.addEventListener("click", function () {
+    on = !on;
+    try { localStorage.setItem("vk-narration", on ? "on" : "off"); } catch (e) {}
+    if (on) { if (step >= 0) play(step); } else stop();
+    label();
+  });
+  stepBtn.addEventListener("click", function () {
+    if (current && !current.ended) {
+      if (current.paused) current.play(); else current.pause();
+    } else play(step);
+  });
+
+  function changed() {
+    var i = stepFor(box.textContent);
+    if (i === step) return;
+    step = i;
+    window.vkStep = i;
+    if (!window.vkQuiet && !pageOwnsAudio) { stop(); if (on) play(i); }
+    label();
+    try { document.dispatchEvent(new CustomEvent("vk:step", { detail: i })); } catch (e) {}
+  }
+  // After a jump, speak the step that is now showing (if narration is on).
+  window.vkReplay = function () { if (!pageOwnsAudio) { stop(); if (on) play(step); } };
+  window.vkStepCount = STEPS.length;
+  window.vkStepTexts = STEPS;
+  new MutationObserver(changed).observe(box, { childList: true, subtree: true, characterData: true });
+  changed();
+  label();
+})();
+</script>
+<script>
+/* videokit UX layer for every animation page (injected by tools/videokit).
+
+   It never reaches into a page's own code: it drives the page through its own
+   Step and Reset buttons and reads which step is showing from the narration
+   player (window.vkStep). It adds:
+     - a Light / Dim / Dark theme switch, remembered per viewer;
+     - a clickable timeline of the steps, a Back button and a progress bar;
+     - Predict mode: before each step, the learner is asked what happens next;
+     - keyboard control: arrows, space, R, N, 1-9;
+     - a short glow on whatever just changed, and console lines that slide in;
+     - an "All steps" list for revisiting any step.
+   Page colours were turned into --vk-* variables when the page was injected,
+   so the themes below remap the palette rather than filter the page. */
+(function () {
+  "use strict";
+  var N = window.vkStepCount || 0;
+  var TEXTS = window.vkStepTexts || [];
+  var box = document.querySelector(".narration") || document.getElementById("narration");
+  if (!box || !N) return;
+
+  // ---------- themes ----------
+  var THEMES = {
+    dark: {},
+    dim: {
+      "0f172a": "#253044", "020617": "#1a2232", "1e293b": "#323e54", "334155": "#4b5a73",
+      "475569": "#5f6f8a", "e2e8f0": "#f1f5f9", "94a3b8": "#bac6d8", "3f1d24": "#5a2f38",
+      "10261f": "#24473b", "2a2110": "#4d3f22", "0c2b3d": "#1f4560", "1e1b4b": "#3b3670",
+      "123a52": "#24506c", "2b0f12": "#522a2f", "06281f": "#1f4a3c", "2a1f05": "#4d3d18",
+      "2c1010": "#522a2a", "2b2247": "#453a68"
+    },
+    light: {
+      "0f172a": "#f4f6fb", "020617": "#ffffff", "1e293b": "#ffffff", "334155": "#cfd6e2",
+      "475569": "#b4bfcf", "e2e8f0": "#0f172a", "94a3b8": "#475569", "f87171": "#c0262d",
+      "34d399": "#047857", "fbbf24": "#a15c07", "7c3aed": "#6d28d9", "8b5cf6": "#7c3aed",
+      "a78bfa": "#6d28d9", "3f1d24": "#fde8e8", "10261f": "#dcf7ea", "2a2110": "#fdf1d6",
+      "0c2b3d": "#e0f2fe", "38bdf8": "#0369a1", "1e1b4b": "#ede9fe", "b9a3ff": "#6d28d9",
+      "123a52": "#cdebfb", "2b0f12": "#fde8e8", "06281f": "#dcf7ea", "fca5a5": "#b91c1c",
+      "0f766e": "#ccfbf1", "14b8a6": "#0f766e", "2a1f05": "#fdf1d6", "4ade80": "#15803d",
+      "2c1010": "#fde8e8", "2b2247": "#ede9fe", "c4b5fd": "#6d28d9", "f472b6": "#be185d",
+      "60a5fa": "#1d4ed8", "22d3ee": "#0e7490", "fde68a": "#92400e", "86efac": "#166534"
+    }
+  };
+  var LABELS = { light: "☀ Light", dim: "◐ Dim", dark: "☾ Dark" };
+  var root = document.documentElement;
+  var themeCss = document.createElement("style");
+  themeCss.id = "vk-theme-vars";
+  document.head.appendChild(themeCss);
+  function applyTheme(name) {
+    var map = THEMES[name] || {};
+    themeCss.textContent = ":root{" + Object.keys(map).map(function (k) {
+      return "--vk-" + k + ":" + map[k];
+    }).join(";") + "}";
+    root.setAttribute("data-vk-theme", name);
+    root.style.colorScheme = name === "light" ? "light" : "dark";
+    try { localStorage.setItem("vk-theme", name); } catch (e) {}
+    [].forEach.call(document.querySelectorAll("#vk-theme button"), function (b) {
+      b.setAttribute("aria-pressed", String(b.dataset.theme === name));
+    });
+  }
+  var saved = null;
+  try { saved = localStorage.getItem("vk-theme"); } catch (e) {}
+  var prefersLight = window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches;
+  var theme = THEMES[saved] ? saved : (prefersLight ? "light" : "dark");
+
+  // ---------- styles for the added controls ----------
+  var css = document.createElement("style");
+  css.id = "vk-ux-css";
+  css.textContent = [
+    "#vk-top{display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap;margin:0 0 10px}",
+    "#vk-theme{display:inline-flex;border:1px solid var(--vk-334155,#334155);border-radius:999px;overflow:hidden}",
+    "#vk-theme button{border:0;border-radius:0;background:transparent;color:var(--vk-94a3b8,#94a3b8);padding:6px 12px;font-size:.8rem;min-height:32px}",
+    "#vk-theme button[aria-pressed=true]{background:var(--vk-7c3aed,#7c3aed);color:#fff}",
+    "#vk-predict{border-radius:999px;padding:6px 12px;font-size:.8rem;min-height:32px}",
+    "html[data-vk-theme=light] button#play,html[data-vk-theme=light] button.primary,html[data-vk-theme=light] button.on{color:#fff!important}",
+    "#vk-predict[aria-pressed=true]{background:var(--vk-7c3aed,#7c3aed);border-color:var(--vk-7c3aed,#7c3aed);color:#fff}",
+    "#vk-bar{height:4px;border-radius:4px;background:var(--vk-334155,#334155);margin:10px 0 0;overflow:hidden}",
+    "#vk-bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--vk-7c3aed,#7c3aed),var(--vk-34d399,#34d399));transition:width .35s ease}",
+    "#vk-timeline{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 14px}",
+    "#vk-timeline button{min-width:38px;min-height:38px;padding:4px 10px;border-radius:999px;font-weight:700;font-size:.85rem;",
+    "  background:var(--vk-1e293b,#1e293b);color:var(--vk-94a3b8,#94a3b8);border:1px solid var(--vk-334155,#334155)}",
+    "#vk-timeline button.seen{color:var(--vk-e2e8f0,#e2e8f0);border-color:var(--vk-475569,#475569)}",
+    "#vk-timeline button[aria-current=step]{background:var(--vk-7c3aed,#7c3aed);border-color:var(--vk-7c3aed,#7c3aed);color:#fff;transform:scale(1.08)}",
+    "#vk-back{order:-1}",
+    "#vk-keys{color:var(--vk-94a3b8,#94a3b8);font-size:.78rem;margin:8px 0 0}",
+    "#vk-keys kbd{border:1px solid var(--vk-475569,#475569);border-bottom-width:2px;border-radius:4px;padding:0 5px;font:inherit;font-size:.74rem}",
+    "#vk-predict-card{border:2px dashed var(--vk-a78bfa,#a78bfa);border-radius:10px;padding:12px 16px;margin:0 0 14px;",
+    "  background:var(--vk-1e293b,#1e293b)}",
+    "#vk-predict-card b{color:var(--vk-a78bfa,#a78bfa)}",
+    "#vk-predict-card button{margin-top:10px}",
+    "#vk-all{margin:16px 0 0;border:1px solid var(--vk-334155,#334155);border-radius:10px;padding:10px 14px;background:var(--vk-1e293b,#1e293b)}",
+    "#vk-all summary{cursor:pointer;font-weight:700}",
+    "#vk-all ol{margin:10px 0 0;padding-left:1.4em}",
+    "#vk-all li{margin:6px 0;line-height:1.45}",
+    "#vk-all li a{color:var(--vk-e2e8f0,#e2e8f0);text-decoration:none;cursor:pointer}",
+    "#vk-all li a:hover{text-decoration:underline}",
+    "#vk-all li.here a{color:var(--vk-a78bfa,#a78bfa);font-weight:700}",
+    "button:focus-visible,#vk-all a:focus-visible{outline:3px solid var(--vk-a78bfa,#a78bfa);outline-offset:2px}",
+    ".vk-flash{animation:vkFlash 1s ease-out}",
+    "@keyframes vkFlash{0%{box-shadow:0 0 0 0 rgba(167,139,250,.9)}100%{box-shadow:0 0 0 14px rgba(167,139,250,0)}}",
+    ".vk-fade{animation:vkFade .45s ease-out}",
+    "@keyframes vkFade{from{opacity:.15;transform:translateY(4px)}to{opacity:1;transform:none}}",
+    ".console span,.console .ln,.console div{animation:vkIn .35s ease-out both}",
+    ".console span:nth-child(2){animation-delay:.08s}.console span:nth-child(3){animation-delay:.16s}",
+    ".console span:nth-child(4){animation-delay:.24s}.console span:nth-child(5){animation-delay:.32s}",
+    ".console span:nth-child(6){animation-delay:.4s}.console span:nth-child(n+7){animation-delay:.48s}",
+    "@keyframes vkIn{from{opacity:0;transform:translateX(-6px)}to{opacity:1;transform:none}}",
+    "@media (max-width:600px){#vk-keys{display:none}#vk-timeline button{min-width:40px;min-height:40px}}",
+    // Phone widths: no sideways scrolling, whatever the page's own grid says.
+    "body{overflow-wrap:anywhere}",
+    "@media (max-width:760px){",
+    "  body{padding-left:14px!important;padding-right:14px!important}",
+    "  .wrap,.stage,.boxes,.controls,.col-main,.col-client{max-width:100%!important;min-width:0!important}",
+    "  .stage,.cols,.grid,[class*=grid]{grid-template-columns:minmax(0,1fr)!important}",
+    "  .stage>*,.boxes>*,.row,.box,.family,.lane,.col-main>*,.col-client>*{min-width:0!important;max-width:100%}",
+    "  [style*=grid-template-columns]{grid-template-columns:minmax(0,1fr)!important}",
+    "  .row,.box,.name,.job,.role,.nm,.val,.ms,.note,.tag{white-space:normal!important}",
+    "  svg{max-width:100%;height:auto}",
+    "}",
+    "@media (prefers-reduced-motion:reduce){.vk-flash,.vk-fade,.console span,.console .ln,.console div{animation:none!important}#vk-bar i{transition:none}}"
+  ].join("\n");
+  document.head.appendChild(css);
+
+  // ---------- the page's own buttons ----------
+  function find(id, re) {
+    var b = document.getElementById(id);
+    if (b) return b;
+    return [].filter.call(document.querySelectorAll("button"), function (x) {
+      return !/^vk-/.test(x.id) && re.test(x.textContent);
+    })[0] || null;
+  }
+  var nextBtn = find("step", /^\s*(step|next)\b/i);
+  var resetBtn = find("reset", /reset|restart|start over/i);
+  var playBtn = find("play", /^\s*play\b|pause/i);
+  if (!nextBtn || !resetBtn) return;
+
+  // ---------- step titles ----------
+  function titleOf(k) {
+    var own = (typeof STEPS !== "undefined" && STEPS[k]) || null;   // eslint-disable-line no-undef
+    var t = own && (own.label || own.title || own.name || own.heading);
+    if (t) return String(t).replace(/<[^>]*>/g, "");
+    var first = String(TEXTS[k] || "").split(/(?<=[.!?])\s/)[0];
+    return first.length > 90 ? first.slice(0, 87) + "…" : first;
+  }
+  function current() { return typeof window.vkStep === "number" ? window.vkStep : -1; }
+
+  // ---------- jumping ----------
+  function jump(k) {
+    k = Math.max(-1, Math.min(N - 1, k));
+    var cur = current();
+    if (k === cur) return;
+    if (k === cur + 1) { nextBtn.click(); return; }
+    window.vkQuiet = true;
+    try {
+      resetBtn.click();
+      for (var j = 0; j <= k; j++) nextBtn.click();
+    } finally {
+      window.vkQuiet = false;
+    }
+  }
+
+  // ---------- controls ----------
+  var wrap = box.parentNode;
+  var top = document.createElement("div");
+  top.id = "vk-top";
+  var themeBox = document.createElement("div");
+  themeBox.id = "vk-theme";
+  themeBox.setAttribute("role", "group");
+  themeBox.setAttribute("aria-label", "Colour theme");
+  ["light", "dim", "dark"].forEach(function (name) {
+    var b = document.createElement("button");
+    b.type = "button"; b.dataset.theme = name; b.textContent = LABELS[name];
+    b.addEventListener("click", function () { applyTheme(name); });
+    themeBox.appendChild(b);
+  });
+  var predictBtn = document.createElement("button");
+  predictBtn.type = "button"; predictBtn.id = "vk-predict";
+  predictBtn.textContent = "🤔 Predict first";
+  predictBtn.title = "Before each step, stop and guess what will happen";
+  var predict = false;
+  try { predict = localStorage.getItem("vk-predict") === "on"; } catch (e) {}
+  top.appendChild(predictBtn);
+  top.appendChild(themeBox);
+  var h1 = document.querySelector("h1");
+  if (h1) h1.parentNode.insertBefore(top, h1);
+  else document.body.insertBefore(top, document.body.firstChild);
+
+  var timeline = document.createElement("div");
+  timeline.id = "vk-timeline";
+  timeline.setAttribute("aria-label", "Steps");
+  var chips = [];
+  for (var k = 0; k < N; k++) (function (k) {
+    var b = document.createElement("button");
+    b.type = "button";
+    b.textContent = String(k + 1);
+    b.title = "Step " + (k + 1) + ": " + titleOf(k);
+    b.setAttribute("aria-label", b.title);
+    b.addEventListener("click", function () { hidePredict(); jump(k); });
+    timeline.appendChild(b);
+    chips.push(b);
+  })(k);
+  var controlsRow = nextBtn.parentNode;
+  var anchor = (box.compareDocumentPosition(controlsRow) & Node.DOCUMENT_POSITION_FOLLOWING) ? box : controlsRow;
+  anchor.parentNode.insertBefore(timeline, anchor);
+
+  var bar = document.createElement("div");
+  bar.id = "vk-bar";
+  bar.innerHTML = "<i></i>";
+  box.appendChild(bar);
+
+  var back = document.createElement("button");
+  back.type = "button"; back.id = "vk-back"; back.textContent = "◂ Back";
+  back.addEventListener("click", function () { hidePredict(); jump(current() - 1); });
+  nextBtn.parentNode.insertBefore(back, nextBtn);
+
+  var keys = document.createElement("p");
+  keys.id = "vk-keys";
+  keys.innerHTML = "Keys: <kbd>→</kbd> next · <kbd>←</kbd> back · <kbd>Space</kbd> play/pause · " +
+    "<kbd>1</kbd>–<kbd>9</kbd> jump · <kbd>R</kbd> reset · <kbd>N</kbd> narration · <kbd>P</kbd> predict";
+  var controls = nextBtn.parentNode;
+  controls.parentNode.insertBefore(keys, controls.nextSibling);
+
+  var all = document.createElement("details");
+  all.id = "vk-all";
+  var list = "<summary>All steps — revisit any of them</summary><ol>";
+  for (var q = 0; q < N; q++) list += '<li><a tabindex="0" data-k="' + q + '"></a></li>';
+  all.innerHTML = list + "</ol>";
+  [].forEach.call(all.querySelectorAll("a"), function (a) {
+    var k = +a.dataset.k;
+    a.textContent = titleOf(k);
+    a.addEventListener("click", function () { hidePredict(); jump(k); });
+    a.addEventListener("keydown", function (e) { if (e.key === "Enter") { hidePredict(); jump(k); } });
+  });
+  var main = document.querySelector(".wrap") || (h1 && h1.parentNode) || document.body;
+  main.appendChild(all);
+
+  // ---------- predict mode ----------
+  var card = null, passOnce = false;
+  function hidePredict() { if (card) { card.remove(); card = null; } }
+  function showPredict() {
+    var next = current() + 1;
+    if (next >= N) return false;
+    card = document.createElement("div");
+    card.id = "vk-predict-card";
+    card.setAttribute("role", "status");
+    card.innerHTML = "<b>Predict first.</b> Step " + (next + 1) + " is: <span></span><br>" +
+      "What do you expect to happen? Say it out loud, then reveal.";
+    card.querySelector("span").textContent = titleOf(next);
+    var reveal = document.createElement("button");
+    reveal.type = "button"; reveal.textContent = "Reveal ▸";
+    reveal.addEventListener("click", function () { hidePredict(); passOnce = true; nextBtn.click(); });
+    card.appendChild(document.createElement("br"));
+    card.appendChild(reveal);
+    box.parentNode.insertBefore(card, box);
+    reveal.focus({ preventScroll: true });
+    return true;
+  }
+  function setPredict(v) {
+    predict = v;
+    predictBtn.setAttribute("aria-pressed", String(v));
+    try { localStorage.setItem("vk-predict", v ? "on" : "off"); } catch (e) {}
+    if (!v) hidePredict();
+  }
+  predictBtn.addEventListener("click", function () { setPredict(!predict); });
+  // In predict mode, the page's own Step button asks before it reveals.
+  nextBtn.addEventListener("click", function (e) {
+    if (passOnce) { passOnce = false; return; }
+    if (!predict || window.vkQuiet || card) return;
+    if (showPredict()) { e.stopImmediatePropagation(); e.preventDefault(); }
+  }, true);
+
+  // ---------- keyboard ----------
+  document.addEventListener("keydown", function (e) {
+    if (e.altKey || e.ctrlKey || e.metaKey) return;
+    var t = e.target;
+    if (t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName))) return;
+    var k = e.key;
+    if (k === "ArrowRight") { e.preventDefault(); if (card) { hidePredict(); passOnce = true; } nextBtn.click(); }
+    else if (k === "ArrowLeft") { e.preventDefault(); hidePredict(); jump(current() - 1); }
+    else if (k === " " && playBtn && !(t && t.tagName === "BUTTON")) { e.preventDefault(); playBtn.click(); }
+    else if (k === "r" || k === "R" || k === "Home") { hidePredict(); resetBtn.click(); }
+    else if (k === "n" || k === "N") { var nb = document.getElementById("vk-narration") || document.getElementById("audio"); if (nb) nb.click(); }
+    else if (k === "p" || k === "P") setPredict(!predict);
+    else if (/^[1-9]$/.test(k) && +k <= N) { hidePredict(); jump(+k - 1); }
+  });
+
+  // ---------- show what changed ----------
+  var stage = document.querySelector(".stage") || document.body;
+  new MutationObserver(function (muts) {
+    muts.forEach(function (m) {
+      var el = m.target;
+      if (m.type !== "attributes" || !el.classList || /^vk-/.test(el.id || "")) return;
+      var was = String(m.oldValue || "").replace(/\bvk-\S+/g, "").trim();
+      var now = String(el.className || "").replace(/\bvk-\S+/g, "").trim();
+      if (was === now || /\bdim\b/.test(now)) return;
+      el.classList.remove("vk-flash");
+      void el.offsetWidth;
+      el.classList.add("vk-flash");
+      setTimeout(function () { el.classList.remove("vk-flash"); }, 1000);
+    });
+  }).observe(stage, { subtree: true, attributes: true, attributeFilter: ["class"], attributeOldValue: true });
+
+  var textEl = document.getElementById("narration") || box;
+  function refresh() {
+    var cur = current();
+    chips.forEach(function (c, k) {
+      if (k === cur) c.setAttribute("aria-current", "step"); else c.removeAttribute("aria-current");
+      if (k <= cur) c.classList.add("seen");
+    });
+    bar.firstChild.style.width = (N ? ((cur + 1) / N) * 100 : 0) + "%";
+    back.disabled = cur < 0;
+    [].forEach.call(all.querySelectorAll("li"), function (li, k) { li.classList.toggle("here", k === cur); });
+    textEl.classList.remove("vk-fade");
+    void textEl.offsetWidth;
+    if (cur >= 0) textEl.classList.add("vk-fade");
+  }
+  document.addEventListener("vk:step", refresh);
+
+  applyTheme(theme);
+  setPredict(predict);
+  refresh();
+})();
+</script>
+<!-- /videokit:narration -->
 </body>
 </html>

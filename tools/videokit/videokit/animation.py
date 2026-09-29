@@ -31,11 +31,33 @@ def steps(html_path):
     return json.loads(out)
 
 
+HEX = re.compile(r"#([0-9a-fA-F]{6})\b")
+VAR = re.compile(r"var\(--vk-([0-9a-f]{6}), #\1\)")
+
+
+def themeable(html):
+    """Turn every six-digit colour in the page's CSS into a --vk-* variable
+    that falls back to the colour itself, so ux.js can switch themes by
+    remapping the palette. Running it twice changes nothing."""
+    def colours(text):
+        text = VAR.sub(lambda m: "#" + m.group(1), text)
+        return HEX.sub(lambda m: "var(--vk-%s, #%s)" % ((m.group(1).lower(),) * 2), text)
+    html = re.sub(r"(<style[^>]*>)(.*?)(</style>)",
+                  lambda m: m.group(1) + colours(m.group(2)) + m.group(3), html, flags=re.S | re.I)
+    return re.sub(r'(\sstyle=")([^"]*)(")',
+                  lambda m: m.group(1) + colours(m.group(2)) + m.group(3), html)
+
+
 def inject(html, texts, audio_dir="audio"):
     js = (WEB / "player.js").read_text().replace("__VK_STEPS__", json.dumps(texts)) \
         .replace("__VK_AUDIO_DIR__", audio_dir)
-    block = "%s\n<script>\n%s</script>\n%s\n" % (BEGIN, js, END)
-    html = BLOCK.sub("", html)
+    ux = (WEB / "ux.js").read_text()
+    block = "%s\n<script>\n%s</script>\n<script>\n%s</script>\n%s\n" % (BEGIN, js, ux, END)
+    html = themeable(BLOCK.sub("", html))
+    if audio_dir != "audio":
+        # A page that plays its own clips names "audio/step-N.m4a"; a version's
+        # copy must play the version's clips, or it speaks in the main voice.
+        html = re.sub(r"""(["'`])audio/""", lambda m: m.group(1) + audio_dir + "/", html)
     i = html.lower().rfind("</body>")
     return html[:i] + block + html[i:] if i >= 0 else html + block
 
@@ -79,6 +101,21 @@ exec ../../../tools/videokit/videokit.sh animation . "$@"
 """
 
 
+def amy_settings(project):
+    """The project's settings with its videokit-amy-slow.toml layered on."""
+    import os
+    from . import config
+    before = os.environ.get("VIDEOKIT_VERSION")
+    os.environ["VIDEOKIT_VERSION"] = "amy-slow"
+    try:
+        return config.load(project.video_dir)
+    finally:
+        if before is None:
+            os.environ.pop("VIDEOKIT_VERSION")
+        else:
+            os.environ["VIDEOKIT_VERSION"] = before
+
+
 def build(project, force=False):
     page = project.dir / "docs" / "animation.html"
     if not page.exists():
@@ -95,9 +132,14 @@ def build(project, force=False):
         out = page.with_name("animation-%s.html" % settings.version)
         out.write_text(inject(page.read_text(), texts, audio_dir))
         return "%d steps, %d voiced -> %s" % (len(texts), n, out.name)
-    n = voice(texts, settings, page.parent / "audio", force)
+    # Every animation speaks in the amy-slow voice. Where a project's main
+    # video still has an older voice, its animation plays the amy-slow clips.
+    audio_dir = "audio"
+    if (project.video_dir / "videokit-amy-slow.toml").exists():
+        settings, audio_dir = amy_settings(project), "audio-amy-slow"
+    n = voice(texts, settings, page.parent / audio_dir, force)
     html = page.read_text()
-    new = inject(html, texts)
+    new = inject(html, texts, audio_dir)
     if new != html:
         page.write_text(new)
     shim = page.parent / "make_animation_audio.sh"
