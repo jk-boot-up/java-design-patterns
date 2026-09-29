@@ -66,3 +66,15 @@ Upload `type-object-pattern-explained.mp4`, with
 `../docs/thumbnail.png` as the thumbnail and the `.srt` as the captions.
 Title, description, chapters and tags live in
 [`../docs/youtube.md`](../docs/youtube.md).
+
+Suggested description:
+
+> Learn the Type Object pattern in Java with an online store where books,
+> laptops and groceries differ in only a few numbers yet each has its own
+> class. A type object turns the kind of a thing into data: one class, with
+> each object pointing to a type that holds whatever differs, like shelf
+> labels that set the loan period for every book on a shelf. We replace the
+> subclasses with one class and some data, add a new kind while the program
+> runs, change a rule in one place for every product, and let one type
+> inherit from another. The price is late errors, and behaviour that data
+> cannot hold.

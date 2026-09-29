@@ -66,3 +66,15 @@ Upload `double-checked-locking-pattern-explained.mp4`, with
 `../docs/thumbnail.png` as the thumbnail and the `.srt` as the captions.
 Title, description, chapters and tags live in
 [`../docs/youtube.md`](../docs/youtube.md).
+
+Suggested description:
+
+> Learn the Double-Checked Locking pattern in Java with an online store
+> price list that is expensive to build. The object is created only when
+> first needed: check without a lock, and only if it looks missing, take the
+> lock and check again, like glancing at the office lights before walking
+> back to check properly. We watch two threads build it twice, try locking
+> every time, then check twice, hear why the field must be volatile, and
+> finish with the simplest correct way to do it. The pattern saves the lock
+> after the object exists, and costs a rule you can break without ever
+> seeing it fail.

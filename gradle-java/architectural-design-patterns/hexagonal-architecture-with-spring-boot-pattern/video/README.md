@@ -68,3 +68,14 @@ Upload `hexagonal-architecture-with-spring-boot-pattern-explained.mp4`, with
 `../docs/thumbnail.png` as the thumbnail and the `.srt` as the captions.
 Title, description, chapters and tags live in
 [`../docs/youtube.md`](../docs/youtube.md).
+
+Suggested description:
+
+> Learn Hexagonal Architecture in Java with Spring Boot, using the same
+> online store. The core stays a plain Java class that declares its ports,
+> and the adapters become Spring beans chosen by configuration, like
+> controllers plugged into the same games console. We run one core on two
+> storage adapters, through two different entry points, and with no
+> framework at all. Then we watch a use case reach for Spring, and a port
+> that has no adapter, and see what each costs. Spring wires the hexagon
+> together, but only a rule keeps the core free of Spring.

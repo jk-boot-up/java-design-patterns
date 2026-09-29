@@ -17,6 +17,8 @@ Monitor Object in Java - The Object That Guards Itself
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
+Learn the Monitor Object pattern in Java with an online store where many threads change the stock count of one product. A monitor object owns its own lock and its own waiting, so no caller can forget to be careful, like a fitting room attendant who lets one person in at a time. We hear a plain count lose an update, find that volatile is still not atomic, and see why a lock held by the caller is weaker than one the object owns. Then we cover waiting and signalling, why wait must sit in a loop, and how a correct monitor can still deadlock.
+
 CHAPTERS
 00:00 Introduction
 00:51 The Scenario

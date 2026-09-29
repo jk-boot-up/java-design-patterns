@@ -17,6 +17,8 @@ Bounded Context
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
+Learn the Bounded Context pattern from domain-driven design in Java with an online store where the word customer means three different things to three departments. A bounded context is a boundary inside which every word has one meaning and one model, like the word bank meaning money to a banker and a riverside to a fisherman. We watch one shared customer class try to serve everyone, then give each context its own small model, connect them through events, and check the boundary automatically. The price is translating between contexts.
+
 CHAPTERS
 00:00 Introduction
 00:51 The Scenario

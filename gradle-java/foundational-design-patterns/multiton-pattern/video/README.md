@@ -66,3 +66,14 @@ Upload `multiton-pattern-explained.mp4`, with
 `../docs/thumbnail.png` as the thumbnail and the `.srt` as the captions.
 Title, description, chapters and tags live in
 [`../docs/youtube.md`](../docs/youtube.md).
+
+Suggested description:
+
+> Learn the Multiton pattern in Java with an online store that has one
+> warehouse per region, where every part of the shop must agree which
+> warehouse is which. A multiton is a singleton with a key: exactly one
+> instance per key, handed back every time, like a hotel key cabinet with
+> one hook per room. We watch two copies of one warehouse disagree, then
+> keep one per region so everyone agrees. We refuse unknown regions with a
+> fixed set of keys, and hear a race between two threads. The price is
+> global state that outlives every test.

@@ -66,3 +66,15 @@ Upload `service-locator-with-consul-pattern-explained.mp4`, with
 `../docs/thumbnail.png` as the thumbnail and the `.srt` as the captions.
 Title, description, chapters and tags live in
 [`../docs/youtube.md`](../docs/youtube.md).
+
+Suggested description:
+
+> Learn the Service Locator pattern in Java with Consul, a real service
+> registry. A locator is still right when what is available is only known
+> while the program runs, and finding services across a network is exactly
+> that, like a taxi dispatcher who knows which cars are free right now. We
+> hear Consul answer as services come and go without the caller's code
+> changing, then the old costs return, a new one appears in a stale cache,
+> and we hear the alternative: be given an address and never ask. Finding
+> services is a fair use of a locator, but being given an address is better
+> still.

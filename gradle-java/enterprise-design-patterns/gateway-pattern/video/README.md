@@ -66,3 +66,15 @@ Upload `gateway-pattern-explained.mp4`, with
 `../docs/thumbnail.png` as the thumbnail and the `.srt` as the captions.
 Title, description, chapters and tags live in
 [`../docs/youtube.md`](../docs/youtube.md).
+
+Suggested description:
+
+> Learn the Gateway pattern in Java with an online store that talks to an
+> outside payment provider. A gateway is one class that wraps access to an
+> outside system, so the rest of the program speaks its own language and can
+> be tested without the real system, like a travel adapter plug that alone
+> knows the foreign socket. We watch three places call the provider's client
+> directly, then put one door in front of it. We test the shop with no
+> network, keep the network's habits in one class, and swap to another
+> provider without touching the shop. The price is that the door can only
+> say what every provider can say.

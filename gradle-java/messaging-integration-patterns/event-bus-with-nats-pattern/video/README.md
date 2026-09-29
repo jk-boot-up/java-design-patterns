@@ -69,3 +69,15 @@ Upload `event-bus-with-nats-pattern-explained.mp4`, with
 `../docs/thumbnail.png` as the thumbnail and the `.srt` as the captions.
 Title, description, chapters and tags live in
 [`../docs/youtube.md`](../docs/youtube.md).
+
+Suggested description:
+
+> Learn the Event Bus pattern in Java with NATS, a real messaging server on
+> the network that keeps nothing. Checkout announces that an order was
+> placed, and the email service, the warehouse and analytics each listen for
+> what they care about, like a warehouse loudspeaker: whoever is in the room
+> hears it, and someone who walks in a second later hears nothing. We
+> subscribe by name, survive a failing subscriber, hear an event nobody
+> hears, and use ask instead of tell when an answer matters. We finish with
+> the bill and the opposite trade. On this bus, publishing always succeeds,
+> and succeeding means nothing.

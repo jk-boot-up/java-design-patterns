@@ -17,6 +17,8 @@ Service Mesh with Envoy
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
+Learn the Service Mesh pattern in Java with Envoy, a real proxy. The proxy in front of a service applies the retry, identity and counting policy from its configuration, and the service carries none of that code. With an online store's payment service, we watch three callers retry three different ways, then let one real proxy retry for a caller that has no retry code, change the policy in one file, refuse an unknown caller before it reaches payments, and read the proxy's own counters. We finish with the bill.
+
 CHAPTERS
 00:00 Introduction
 01:01 The Partner Project

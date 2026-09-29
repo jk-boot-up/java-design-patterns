@@ -68,3 +68,18 @@ Upload `api-gateway-with-spring-cloud-gateway-pattern-explained.mp4`, with
 `../docs/thumbnail.png` as the thumbnail and the `.srt` as the captions.
 Title, description, chapters and tags live in
 [`../docs/youtube.md`](../docs/youtube.md).
+
+Suggested description:
+
+> Learn the API Gateway pattern in Java with Spring Cloud Gateway, using an
+> online store whose mobile app needs four services: catalogue, pricing,
+> inventory and recommendations. Instead of knowing four addresses, the app
+> talks to one front door, and the gateway routes each real HTTP request to
+> the right service, strips the outside path prefix and checks the token
+> once for every route. We then break things on purpose: a service goes down
+> and the gateway answers 500 rather than 503, a product page still needs
+> three separate calls because a gateway forwards but does not merge, and a
+> pricing service that never answers is cut off by a timeout with a clean
+> 504. We finish with a short verdict: set a timeout on every route, decide
+> what a dead service should look like to the app, and remember that
+> combining answers is code you write yourself.

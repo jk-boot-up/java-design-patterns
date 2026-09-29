@@ -17,6 +17,8 @@ Serverless with LocalStack
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
+Learn the Serverless pattern in Java with AWS Lambda running on LocalStack, using the same online store. We upload a real function once, send five orders at the same time and watch five real containers start, then watch them disappear when the platform goes quiet, like taxis pulling in for a crowd and driving away afterwards. We hear a real cold start, a function that forgets what it knew between calls, and a job stopped at its time limit. We finish with the honest price of all three.
+
 CHAPTERS
 00:00 Introduction
 01:02 The Partner Project

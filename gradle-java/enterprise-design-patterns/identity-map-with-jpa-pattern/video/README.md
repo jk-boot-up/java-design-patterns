@@ -68,3 +68,15 @@ Upload `identity-map-with-jpa-pattern-explained.mp4`, with
 `../docs/thumbnail.png` as the thumbnail and the `.srt` as the captions.
 Title, description, chapters and tags live in
 [`../docs/youtube.md`](../docs/youtube.md).
+
+Suggested description:
+
+> Learn the Identity Map pattern in Java with JPA, Java's standard for
+> storing objects in databases, using the same customer and order. JPA's
+> persistence context keeps one object per database row for as long as one
+> session lasts, like a hotel key desk that always hands you the same room
+> key. We load the same customer twice and get one object, keep both
+> changes, then meet the failures of its own: two contexts give two objects,
+> and a change made after the context has closed is never saved. The
+> persistence context is an identity map, and it belongs to one entity
+> manager.

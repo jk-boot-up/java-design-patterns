@@ -17,6 +17,8 @@ Leader Election with Kubernetes
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
+Learn the Leader Election pattern in Java with a real Kubernetes cluster. Several copies of a program agree that exactly one does a particular job by holding a lease, a claim that runs out unless it is renewed, while the others wait to take over. In our online store three copies of the reporting service run, and every night exactly one must send the sales report: not three, and not none. We watch Kubernetes refuse a write, a leader that dies leave nobody in charge for a whole lease, and a leader that freezes wake up and send the report after losing the lease, which is why fencing matters.
+
 CHAPTERS
 00:00 Introduction
 01:02 The Scenario

@@ -66,3 +66,14 @@ Upload `microkernel-pattern-explained.mp4`, with
 `../docs/thumbnail.png` as the thumbnail and the `.srt` as the captions.
 Title, description, chapters and tags live in
 [`../docs/youtube.md`](../docs/youtube.md).
+
+Suggested description:
+
+> Learn the Microkernel pattern in Java with an online store whose checkout
+> keeps gaining features, and every new feature means editing the same
+> class. A microkernel is a small core that only keeps plugins and runs
+> them, like a power strip that powers whatever you plug in. We move each
+> feature into a plugin, add and remove one while the shop is running,
+> survive a plugin that breaks, and see why the order of plugins matters. We
+> finish with the cost: a narrow plugin interface, and results that depend
+> on what happens to be installed.

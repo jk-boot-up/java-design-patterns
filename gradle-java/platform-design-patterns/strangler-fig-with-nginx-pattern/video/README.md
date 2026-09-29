@@ -99,3 +99,15 @@ picture the listener cannot see. Every figure is the output of `./gradlew run`.
 Upload `strangler-fig-with-nginx-pattern-explained.mp4`, with the project's
 thumbnail and the `.srt` as the captions. Title, description, chapters and tags
 live in the project's `docs/youtube.md`.
+
+Suggested description:
+
+> Learn the Strangler Fig pattern in Java with a real NGINX web server as
+> the front door. You replace an old system without switching it off,
+> growing the new one beside it one piece at a time, while the front door
+> decides which system answers each route. In our online store, prices move
+> to a new service while the old shop keeps the basket, checkout and past
+> orders. We move a route with a reload that restarts nothing, then hear the
+> traps: an older regular-expression rule that quietly cancels the move, one
+> slash that changes what the new service is asked for, a new service that
+> goes down, and a cookie only the old shop understands.

@@ -7,7 +7,7 @@ Chapter timings are generated from the video's `.srt`. Re-run `python3 docs/make
 ## Title
 
 ```
-Asynchronous Request-Reply
+Asynchronous Request-Reply Design Pattern in Java - Explained
 ```
 
 26 characters — under the 60 YouTube shows before truncating in search results.

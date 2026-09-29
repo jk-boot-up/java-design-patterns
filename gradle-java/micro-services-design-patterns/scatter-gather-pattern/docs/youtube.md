@@ -17,6 +17,8 @@ Scatter-Gather
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
+Learn the Scatter-Gather pattern in Java with an online store product page that shows the best price from four suppliers. Scatter-gather sends one request to many parties at the same time, gathers their answers up to a deadline, and combines them into one. We ask the four suppliers one after another, then all at once, stop the slowest one from setting the pace with a deadline, make the page say honestly what was left out, and keep one supplier's failure from failing the page. The bill is that one view becomes many calls.
+
 CHAPTERS
 00:00 Introduction
 00:52 The Scenario

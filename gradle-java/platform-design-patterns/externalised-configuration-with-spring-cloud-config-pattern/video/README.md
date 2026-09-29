@@ -99,3 +99,15 @@ picture the listener cannot see. Every figure is the output of `./gradlew run`.
 Upload `externalised-configuration-with-spring-cloud-config-pattern-explained.mp4`, with the project's
 thumbnail and the `.srt` as the captions. Title, description, chapters and tags
 live in the project's `docs/youtube.md`.
+
+Suggested description:
+
+> Learn the Externalised Configuration pattern in Java with a real Spring
+> Cloud Config server. A value that changes on somebody else's calendar
+> should live outside the program and be read while it runs, so changing it
+> needs no rebuild and no release. In our online store, marketing decides
+> the free-delivery threshold of fifty pounds and wants thirty-five for the
+> weekend. We serve the value over HTTP, watch a change that is committed
+> but not yet in force, refresh it with no restart, and find one running
+> shop believing two different numbers at the same time. We also hear what
+> happens to a value nobody checked, and when the server stops.

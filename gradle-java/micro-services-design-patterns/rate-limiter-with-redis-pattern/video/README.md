@@ -107,3 +107,14 @@ Upload `rate-limiter-with-redis-pattern-explained.mp4`, with
 `../docs/thumbnail.png` as the thumbnail and the `.srt` as the captions.
 Title, description, chapters and tags live in
 [`../docs/youtube.md`](../docs/youtube.md).
+
+Suggested description:
+
+> Learn the Rate Limiter pattern in Java with a real Redis server and the
+> Bucket4j library. Each caller gets a bucket of tokens, every request
+> spends one, and an empty bucket means a refusal until it refills. In our
+> online store a price-comparison robot hammers the product search, and ten
+> searches an hour must mean ten however many copies of the search are
+> running. We watch the limit leak when each server keeps its own bucket,
+> hold when the bucket moves into Redis, survive ninety searches at the same
+> instant, and break when one server's clock disagrees.

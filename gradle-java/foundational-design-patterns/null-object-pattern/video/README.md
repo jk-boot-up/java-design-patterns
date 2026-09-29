@@ -66,3 +66,15 @@ Upload `null-object-pattern-explained.mp4`, with
 `../docs/thumbnail.png` as the thumbnail and the `.srt` as the captions.
 Title, description, chapters and tags live in
 [`../docs/youtube.md`](../docs/youtube.md).
+
+Suggested description:
+
+> Learn the Null Object pattern in Java with an online store discount that
+> might not be there. Instead of returning null, you return an object that
+> implements the same interface and does nothing, so callers never have to
+> check, like a blank voucher the till accepts that takes nothing off the
+> price. We watch null checks spread until one is forgotten, then delete
+> every check. Then we cover the part most explanations leave out: how a
+> null object can hide a real error, where to draw the line, and the honest
+> alternatives. Absence can be a normal state, but it must never be a place
+> to hide a failure.

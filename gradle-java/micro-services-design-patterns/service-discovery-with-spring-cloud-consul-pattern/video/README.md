@@ -68,3 +68,14 @@ Upload `service-discovery-with-spring-cloud-consul-pattern-explained.mp4`, with
 `../docs/thumbnail.png` as the thumbnail and the `.srt` as the captions.
 Title, description, chapters and tags live in
 [`../docs/youtube.md`](../docs/youtube.md).
+
+Suggested description:
+
+> Learn the Service Registry and Discovery pattern in Java with Spring Cloud
+> Consul. A service registers itself when it starts, and a client asks the
+> registry for healthy copies by name instead of holding a fixed address.
+> Three real copies of an online store's Pricing service announce themselves
+> to a real Consul, and requests find them by name, even after a deployment
+> moves a copy. Then we hear how the list can be wrong: a graceful stop is
+> noticed at once, a crash is not, and the registry itself can go away. A
+> registry is only as good as its last update.

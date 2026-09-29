@@ -66,3 +66,14 @@ Upload `dead-letter-channel-pattern-explained.mp4`, with
 `../docs/thumbnail.png` as the thumbnail and the `.srt` as the captions.
 Title, description, chapters and tags live in
 [`../docs/youtube.md`](../docs/youtube.md).
+
+Suggested description:
+
+> Learn the Dead Letter Channel pattern in Java with an online store order
+> that arrives garbled and can never be read. A dead letter channel is where
+> a message goes after a fixed number of failed tries, so it stops blocking
+> the messages behind it and someone can look at it later, like the post
+> office's undeliverable mail room. We watch one bad message block
+> everything, then move it aside after three tries with its reason. We tell
+> a slow moment apart from a dead letter, replay a message after a fix, and
+> face the real cost: nobody is looking.

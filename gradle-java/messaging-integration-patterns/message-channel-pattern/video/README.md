@@ -66,3 +66,14 @@ Upload `message-channel-pattern-explained.mp4`, with
 `../docs/thumbnail.png` as the thumbnail and the `.srt` as the captions.
 Title, description, chapters and tags live in
 [`../docs/youtube.md`](../docs/youtube.md).
+
+Suggested description:
+
+> Learn the Message Channel pattern in Java with an online store where
+> checkout must talk to the warehouse. A message channel is a named queue
+> carrying messages from sender to receiver, so the two do not need to be
+> running at the same moment, like a letterbox that takes post while you are
+> out. We watch checkout fail while the warehouse is down, then add a
+> channel so it carries on. We hear messages wait and arrive in order, wrap
+> them in an envelope, and keep one kind of message per channel. The price
+> is that the sender never hears the answer.

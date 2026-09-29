@@ -66,3 +66,14 @@ Upload `bounded-context-pattern-explained.mp4`, with
 `../docs/thumbnail.png` as the thumbnail and the `.srt` as the captions.
 Title, description, chapters and tags live in
 [`../docs/youtube.md`](../docs/youtube.md).
+
+Suggested description:
+
+> Learn the Bounded Context pattern from domain-driven design in Java with
+> an online store where the word customer means three different things to
+> three departments. A bounded context is a boundary inside which every word
+> has one meaning and one model, like the word bank meaning money to a
+> banker and a riverside to a fisherman. We watch one shared customer class
+> try to serve everyone, then give each context its own small model, connect
+> them through events, and check the boundary automatically. The price is
+> translating between contexts.

@@ -66,3 +66,15 @@ Upload `serverless-pattern-explained.mp4`, with
 `../docs/thumbnail.png` as the thumbnail and the `.srt` as the captions.
 Title, description, chapters and tags live in
 [`../docs/youtube.md`](../docs/youtube.md).
+
+Suggested description:
+
+> Learn the Serverless pattern in Java with an online store that must send a
+> receipt for every order, where orders arrive in bursts with long quiet
+> gaps between them. Serverless runs each piece of work as a short function
+> that a platform starts when an event arrives and throws away when idle,
+> and you pay per call, like taking a taxi instead of owning a car. We
+> compare an always-on server with functions, then cover scaling out and
+> back to zero, the slow first call known as a cold start, and why a
+> function forgets everything between calls. We finish with the bill, which
+> grows with steady traffic.

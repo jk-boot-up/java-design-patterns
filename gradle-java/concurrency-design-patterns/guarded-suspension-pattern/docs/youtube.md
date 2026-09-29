@@ -17,6 +17,8 @@ Guarded Suspension
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
+Learn the Guarded Suspension pattern in Java with an online store warehouse picker who must wait for an order to arrive before taking it. The thread sleeps until a condition is true instead of asking again and again, and checks the condition once more when it wakes, like waiting for the doorbell rather than opening the door every ten seconds. We watch a picker waste a processor by asking, then sleep instead, hear why the guard must be rechecked after every wake, handle an order that arrived first, and add a time limit to the wait. We finish with the cost.
+
 CHAPTERS
 00:00 Introduction
 00:54 The Scenario

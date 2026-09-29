@@ -67,3 +67,14 @@ Upload `monitor-object-pattern-explained.mp4`, with
 `../docs/thumbnail.png` as the thumbnail and the `.srt` as the captions.
 Title, description, chapters and tags live in
 [`../docs/youtube.md`](../docs/youtube.md).
+
+Suggested description:
+
+> Learn the Monitor Object pattern in Java with an online store where many
+> threads change the stock count of one product. A monitor object owns its
+> own lock and its own waiting, so no caller can forget to be careful, like
+> a fitting room attendant who lets one person in at a time. We hear a plain
+> count lose an update, find that volatile is still not atomic, and see why
+> a lock held by the caller is weaker than one the object owns. Then we
+> cover waiting and signalling, why wait must sit in a loop, and how a
+> correct monitor can still deadlock.

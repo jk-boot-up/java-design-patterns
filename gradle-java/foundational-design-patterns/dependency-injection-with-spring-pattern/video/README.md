@@ -67,3 +67,15 @@ Upload `dependency-injection-with-spring-pattern-explained.mp4`, with
 `../docs/thumbnail.png` as the thumbnail and the `.srt` as the captions.
 Title, description, chapters and tags live in
 [`../docs/youtube.md`](../docs/youtube.md).
+
+Suggested description:
+
+> Learn Dependency Injection in Java with Spring, running the very same
+> online store classes that were wired by hand in nine lines. A class states
+> what it needs in its constructor and is given it, like actors whose props
+> are placed by the crew. We add one annotation per class, show Spring
+> builds the same object graph, and name exactly what each annotation
+> replaced. Then we hear two real start-up errors, a missing bean and a
+> circular dependency, look at field injection, and count what the magic
+> costs. Spring did not add the idea of dependency injection; it removed the
+> typing.

@@ -66,3 +66,13 @@ Upload `pessimistic-offline-lock-pattern-explained.mp4`, with
 `../docs/thumbnail.png` as the thumbnail and the `.srt` as the captions.
 Title, description, chapters and tags live in
 [`../docs/youtube.md`](../docs/youtube.md).
+
+Suggested description:
+
+> Learn the Pessimistic Offline Lock pattern in Java with an online store
+> where two clerks want to edit the same product and must not clash at all.
+> A person takes a lock before editing, and nobody else can edit until it is
+> released, so the clash is prevented rather than detected, like booking a
+> meeting room. We show that no update is lost, then hear the bill: waiting,
+> a lock nobody let go of, and two people each waiting for the other. We
+> finish by deciding how much to lock.

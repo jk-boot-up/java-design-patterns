@@ -66,3 +66,14 @@ Upload `timeout-pattern-explained.mp4`, with
 `../docs/thumbnail.png` as the thumbnail and the `.srt` as the captions.
 Title, description, chapters and tags live in
 [`../docs/youtube.md`](../docs/youtube.md).
+
+Suggested description:
+
+> Learn the Timeout pattern in Java with an online store that calls a
+> supplier's stock API that may never answer. A timeout is a limit on how
+> long you will wait, so a slow or silent service cannot hold you forever.
+> We watch a call that never returns hold a thread, then turn it into an
+> answer with a limit. We learn that giving up does not stop the work, that
+> choosing the number matters, and how one time budget can be shared by a
+> whole page. The bill is that after a timeout you do not know what
+> happened.

@@ -68,3 +68,15 @@ Upload `observer-with-spring-pattern-explained.mp4`, with
 `../docs/thumbnail.png` as the thumbnail and the `.srt` as the captions.
 Title, description, chapters and tags live in
 [`../docs/youtube.md`](../docs/youtube.md).
+
+Suggested description:
+
+> Learn the Observer pattern in Java with Spring Boot, using the same online
+> orders. One object announces that something happened and any number of
+> listeners react, without the announcer knowing who they are, like a radio
+> station that never knows who is tuned in. We publish order events through
+> Spring and then hear how delivery really behaves: on the caller's thread,
+> stopped by one failing listener, moved to another thread, filtered by a
+> condition, and silently dropped when nobody is listening. Spring's events
+> separate the publisher from its listeners, but delivery is synchronous and
+> silent.

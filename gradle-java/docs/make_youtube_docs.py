@@ -192,6 +192,8 @@ ORDER = [
     ("platform-design-patterns", "service-mesh-with-envoy"),
     ("platform-design-patterns", "feature-toggle-with-flagd"),
     ("platform-design-patterns", "consumer-driven-contract-with-pact"),
+    ("platform-design-patterns", "event-sourcing-with-eventstoredb"),
+    ("platform-design-patterns", "strangler-fig-with-nginx"),
     ("architectural-design-patterns", "event-driven-architecture-with-kafka"),
     ("architectural-design-patterns", "serverless-with-localstack"),
     ("messaging-integration-patterns", "splitter-aggregator-with-camel"),
@@ -812,6 +814,14 @@ META = {
     "feature-toggle-with-flagd": {
         "title": 'Feature Toggle with flagd',
         "tags": ['feature toggle', 'openfeature', 'flagd'],
+    },
+    "event-sourcing-with-eventstoredb": {
+        "title": "Event Sourcing with EventStoreDB - Real Revisions",
+        "tags": ["event sourcing", "eventstoredb", "kurrentdb", "optimistic concurrency"],
+    },
+    "strangler-fig-with-nginx": {
+        "title": "Strangler Fig with NGINX - One Route at a Time",
+        "tags": ["strangler fig pattern", "nginx", "legacy migration", "reverse proxy"],
     },
     "consumer-driven-contract-with-pact": {
         "title": 'Consumer-Driven Contract with Pact',

@@ -66,3 +66,14 @@ Upload `lazy-load-pattern-explained.mp4`, with
 `../docs/thumbnail.png` as the thumbnail and the `.srt` as the captions.
 Title, description, chapters and tags live in
 [`../docs/youtube.md`](../docs/youtube.md).
+
+Suggested description:
+
+> Learn the Lazy Load pattern in Java with an online store where loading one
+> order must not accidentally load the whole shop. You load the object you
+> asked for now, and the things it refers to only when someone actually asks
+> for them, like a streaming service fetching each part of a film just
+> before you watch it. We compare eager loading, show four ways to load
+> later, and then the costs: the N plus one query problem, a field that is
+> now input and output, and a closed session behind one of Java's most
+> searched errors. Lazy loading trades one big query for many small ones.

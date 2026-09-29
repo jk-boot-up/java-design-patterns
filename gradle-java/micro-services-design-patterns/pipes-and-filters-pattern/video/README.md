@@ -66,3 +66,14 @@ Upload `pipes-and-filters-pattern-explained.mp4`, with
 `../docs/thumbnail.png` as the thumbnail and the `.srt` as the captions.
 Title, description, chapters and tags live in
 [`../docs/youtube.md`](../docs/youtube.md).
+
+Suggested description:
+
+> Learn the Pipes and Filters pattern in Java by importing a partner's file
+> of orders into an online store. The job is broken into small independent
+> steps called filters, joined end to end, so each step does one thing and
+> steps can be added, swapped or reused. We replace one method doing five
+> jobs with five small steps, swap and add a step without touching the
+> others, reject bad lines with reasons while the rest carry on, and stream
+> to keep memory small. The bill is that every step must agree on the shape
+> of what flows between them.

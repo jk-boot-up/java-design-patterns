@@ -66,3 +66,14 @@ Upload `anti-corruption-layer-pattern-explained.mp4`, with
 `../docs/thumbnail.png` as the thumbnail and the `.srt` as the captions.
 Title, description, chapters and tags live in
 [`../docs/youtube.md`](../docs/youtube.md).
+
+Suggested description:
+
+> Learn the Anti-Corruption Layer pattern in Java with an online store that
+> must talk to an old inventory system nobody is allowed to change. The
+> layer is a translator between your model and theirs, so the other system's
+> names and codes never leak into yours, like an interpreter at a business
+> meeting. We watch the old system's codes spread through four features,
+> then translate them once in one place. We hear bad data stopped at the
+> door, the other side change without touching our model, and what the layer
+> costs and protects. The price is a translator you must maintain.

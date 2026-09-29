@@ -17,6 +17,8 @@ Publisher-Subscriber with Redis
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
+Learn the Publisher-Subscriber pattern in Java with a real Redis server. One part of a system announces something once to a named channel, any number of others listen there, and the announcer never learns who they are. In our online store the order service announces each order once, and inventory, email, analytics and loyalty points each do their own work. We hear Redis copy an order to a program in a different process, tell the publisher how many heard it, keep nothing for a listener that arrives late, and cut off a listener that falls too far behind, and we explain why.
+
 CHAPTERS
 00:00 Introduction
 00:57 The Scenario

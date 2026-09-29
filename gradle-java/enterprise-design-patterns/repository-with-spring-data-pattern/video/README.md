@@ -66,3 +66,14 @@ Upload `repository-with-spring-data-pattern-explained.mp4`, with
 `../docs/thumbnail.png` as the thumbnail and the `.srt` as the captions.
 Title, description, chapters and tags live in
 [`../docs/youtube.md`](../docs/youtube.md).
+
+Suggested description:
+
+> Learn the Repository pattern in Java with Spring Data. Where the plain
+> version built two implementations by hand, this one has none: we declare
+> an interface and Spring Data supplies the class behind it, like ordering
+> from a catalogue by item name. We hear a query built from a method's name,
+> a name that can be wrong, the leak on speed, and a surprising leak of
+> managed entities: objects that change the database without anyone calling
+> save. We also ask what happened to swapping the store. The interface hides
+> the database, but the objects it returns are still being watched by it.

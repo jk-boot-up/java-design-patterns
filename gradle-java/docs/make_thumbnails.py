@@ -468,6 +468,12 @@ META = {
     "feature-toggle-with-flagd": (['FEATURE TOGGLE', 'WITH FLAGD'],
                   'OpenFeature, in a real container',
                   'flags.json changed'),
+    "event-sourcing-with-eventstoredb": (['EVENT SOURCING', 'WITH EVENTSTOREDB'],
+                  'Two checkouts, one refused',
+                  'expectedRevision(7)'),
+    "strangler-fig-with-nginx": (['STRANGLER FIG', 'WITH NGINX'],
+                  'Move a route, restart nothing',
+                  'location /api/prices'),
     "consumer-driven-contract-with-pact": (['CONSUMER CONTRACT', 'WITH PACT'],
                   'A real pact file, verified',
                   'pact verify'),
@@ -712,6 +718,10 @@ GROUP["service-mesh-with-envoy"] = "platform-design-patterns"
 GROUP["feature-toggle-with-flagd"] = "platform-design-patterns"
 
 GROUP["consumer-driven-contract-with-pact"] = "platform-design-patterns"
+
+GROUP["event-sourcing-with-eventstoredb"] = "platform-design-patterns"
+
+GROUP["strangler-fig-with-nginx"] = "platform-design-patterns"
 
 GROUP["event-driven-architecture-with-kafka"] = "architectural-design-patterns"
 

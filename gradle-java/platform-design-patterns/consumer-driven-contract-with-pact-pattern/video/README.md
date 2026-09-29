@@ -68,3 +68,14 @@ Upload `consumer-driven-contract-with-pact-pattern-explained.mp4`, with
 `../docs/thumbnail.png` as the thumbnail and the `.srt` as the captions.
 Title, description, chapters and tags live in
 [`../docs/youtube.md`](../docs/youtube.md).
+
+Suggested description:
+
+> Learn the Consumer-Driven Contract pattern in Java with Pact. A consumer's
+> test writes a pact file, and the provider's build replays that file
+> against the real service and fails on any difference. With an online
+> store's price service and checkout, we watch a field rename break checkout
+> in production, let two consumers write real pact files, replay them over
+> real HTTP and pass, then catch the rename before release with the consumer
+> named. We confirm that adding a field is safe, and finish with what a pact
+> cannot catch: a change of meaning.

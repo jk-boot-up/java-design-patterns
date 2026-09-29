@@ -17,6 +17,8 @@ Dead Letter Channel with RabbitMQ
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
+Learn the Dead Letter Channel pattern in Java with RabbitMQ, using an online store queue of orders where one order's address can never be read. A dead letter channel takes a message that can never be handled off the belt and shelves it with a note, so the belt keeps moving and a person can look later. What is new with a real broker is who decides: the application writes a rule on the queue, and RabbitMQ takes the message off and writes down its own reason. We hear deaths nobody chose, fix and put a message back, and learn the three reasons a message dies. The bill is the same: someone has to look.
+
 CHAPTERS
 00:00 Introduction
 00:56 The Partner Video

@@ -66,3 +66,15 @@ Upload `registry-pattern-explained.mp4`, with
 `../docs/thumbnail.png` as the thumbnail and the `.srt` as the captions.
 Title, description, chapters and tags live in
 [`../docs/youtube.md`](../docs/youtube.md).
+
+Suggested description:
+
+> Learn the Registry pattern in Java with an online store checkout that
+> needs a discount policy, a payment gateway and a notifier. A registry is a
+> well-known place where things are kept, so any object can find what it
+> needs by asking, like an office noticeboard where nobody knows who pinned
+> what. It is one of three related answers to how an object gets what it
+> needs, alongside Service Locator and Dependency Injection. We show it
+> working, then the bill with evidence: invisible dependencies, order
+> dependence, and not knowing what is inside. A registry is a global
+> variable with better manners.

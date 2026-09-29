@@ -66,3 +66,14 @@ Upload `optimistic-offline-lock-pattern-explained.mp4`, with
 `../docs/thumbnail.png` as the thumbnail and the `.srt` as the captions.
 Title, description, chapters and tags live in
 [`../docs/youtube.md`](../docs/youtube.md).
+
+Suggested description:
+
+> Learn the Optimistic Offline Lock pattern in Java with an online store
+> where two clerks edit the same product at the same time. People edit
+> freely without locking anything, and a clash is only detected on save by
+> checking the data has not changed since it was read, like a shared
+> document checking for other edits when you reconnect. We watch the last
+> write silently win, then add a version number to every row, and reload,
+> reapply and save so both changes are kept. The costs: a busy row, and
+> finding out only at the end. It costs nothing until there is a clash.

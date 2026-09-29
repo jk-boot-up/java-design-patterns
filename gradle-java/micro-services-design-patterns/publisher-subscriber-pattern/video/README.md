@@ -66,3 +66,14 @@ Upload `publisher-subscriber-pattern-explained.mp4`, with
 `../docs/thumbnail.png` as the thumbnail and the `.srt` as the captions.
 Title, description, chapters and tags live in
 [`../docs/youtube.md`](../docs/youtube.md).
+
+Suggested description:
+
+> Learn the Publisher-Subscriber pattern in Java with an online store where
+> one thing happens, an order is placed, and several services care. The
+> publisher announces the event once to a topic, and any number of
+> subscribers listen without the publisher knowing who they are. We replace
+> an order service that calls three others by name with one that only
+> publishes, let subscribers go at their own pace and take only what they
+> want, and watch a late subscriber miss history unless the log is kept. The
+> bill is that the publisher never knows who got the event.

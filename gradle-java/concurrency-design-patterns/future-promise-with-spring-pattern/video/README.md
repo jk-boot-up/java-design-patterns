@@ -68,3 +68,15 @@ Upload `future-promise-with-spring-pattern-explained.mp4`, with
 `../docs/thumbnail.png` as the thumbnail and the `.srt` as the captions.
 Title, description, chapters and tags live in
 [`../docs/youtube.md`](../docs/youtube.md).
+
+Suggested description:
+
+> Learn the Future and Promise pattern in Java with Spring Boot, using the
+> same product page. You get a handle to a result straight away and collect
+> it later, like the ticket from a dry cleaner. We learn that the thread
+> pool, not the annotation, decides how much runs at once. We hear an error
+> vanish from a method that returns nothing, lose a customer's details
+> between threads, and find that both a timeout and cancel with interrupt
+> leave the work running. Then we compose the page from three futures. A
+> future promises when a value will be ready, never that the work can be
+> stopped.

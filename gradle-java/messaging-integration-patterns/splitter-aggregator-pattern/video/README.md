@@ -66,3 +66,14 @@ Upload `splitter-aggregator-pattern-explained.mp4`, with
 `../docs/thumbnail.png` as the thumbnail and the `.srt` as the captions.
 Title, description, chapters and tags live in
 [`../docs/youtube.md`](../docs/youtube.md).
+
+Suggested description:
+
+> Learn the Splitter and Aggregator pattern in Java with an online store
+> order whose lines sit in aisles far apart, picked by several people at
+> once. A splitter breaks one message into pieces that each carry an ID and
+> their place, like part two of three, and an aggregator gathers the pieces
+> by that ID back into one, like friends fetching parts of a shopping list
+> and meeting at the till. We split an order, let the parts finish in any
+> order, gather them back, and handle a part that never arrives with a
+> timeout. The price is state to hold, and a timeout to choose.

@@ -66,3 +66,14 @@ Upload `guarded-suspension-pattern-explained.mp4`, with
 `../docs/thumbnail.png` as the thumbnail and the `.srt` as the captions.
 Title, description, chapters and tags live in
 [`../docs/youtube.md`](../docs/youtube.md).
+
+Suggested description:
+
+> Learn the Guarded Suspension pattern in Java with an online store
+> warehouse picker who must wait for an order to arrive before taking it.
+> The thread sleeps until a condition is true instead of asking again and
+> again, and checks the condition once more when it wakes, like waiting for
+> the doorbell rather than opening the door every ten seconds. We watch a
+> picker waste a processor by asking, then sleep instead, hear why the guard
+> must be rechecked after every wake, handle an order that arrived first,
+> and add a time limit to the wait. We finish with the cost.

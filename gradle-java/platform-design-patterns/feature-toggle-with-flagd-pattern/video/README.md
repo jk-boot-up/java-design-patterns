@@ -68,3 +68,14 @@ Upload `feature-toggle-with-flagd-pattern-explained.mp4`, with
 `../docs/thumbnail.png` as the thumbnail and the `.srt` as the captions.
 Title, description, chapters and tags live in
 [`../docs/youtube.md`](../docs/youtube.md).
+
+Suggested description:
+
+> Learn the Feature Toggle pattern in Java with flagd and OpenFeature. With
+> flagd, a flag is an entry in a file that a daemon watches, and the
+> application asks the daemon whether a flag is on for a given customer.
+> Using an online store's gift-wrap feature, we watch a real flag daemon
+> serve a flag that is off, edit the file and see the daemon notice by
+> itself, roll out to a share of customers and to named testers, pull a kill
+> switch, and fall back safely when the daemon is stopped. We finish with
+> the bill.

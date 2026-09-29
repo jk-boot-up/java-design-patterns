@@ -17,6 +17,8 @@ Clean Architecture in Java - Which Way Does It Point?
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
+Learn Clean Architecture in Java through an online shop that places an order. The program is arranged in rings, with the business rules at the centre and the technical details on the outside, and one rule holds it together: code may only depend on things further in. We start from a naive version, wire the real graph by hand, and find the dependency-inversion moment the whole pattern rests on. We add two features at once, write the rule as an ArchUnit test, watch it go red, and finish with the honest bill and when the pattern is too much. Control flows outward, the dependency points inward, and that disagreement is the whole pattern.
+
 CHAPTERS
 00:00 Introduction
 00:55 The Scenario

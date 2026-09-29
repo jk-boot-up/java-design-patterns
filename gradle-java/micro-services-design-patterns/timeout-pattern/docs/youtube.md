@@ -17,6 +17,8 @@ Timeout
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
+Learn the Timeout pattern in Java with an online store that calls a supplier's stock API that may never answer. A timeout is a limit on how long you will wait, so a slow or silent service cannot hold you forever. We watch a call that never returns hold a thread, then turn it into an answer with a limit. We learn that giving up does not stop the work, that choosing the number matters, and how one time budget can be shared by a whole page. The bill is that after a timeout you do not know what happened.
+
 CHAPTERS
 00:00 Introduction
 00:49 The Scenario

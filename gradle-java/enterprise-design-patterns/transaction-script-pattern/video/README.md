@@ -66,3 +66,14 @@ Upload `transaction-script-pattern-explained.mp4`, with
 `../docs/thumbnail.png` as the thumbnail and the `.srt` as the captions.
 Title, description, chapters and tags live in
 [`../docs/youtube.md`](../docs/youtube.md).
+
+Suggested description:
+
+> Learn the Transaction Script pattern in Java by placing an order in an
+> online store. Business logic is organised as one procedure per request,
+> run as one transaction, with no business objects behind it; the steps are
+> the design, like a recipe card read top to bottom. We place and undo an
+> order as one transaction, watch two scripts drift apart when they copy a
+> rule, share a procedure, and hear how scripts grow in the middle. We also
+> hear where a transaction script is exactly right. It is the simplest
+> design that works, and its cost is measured in how it grows.

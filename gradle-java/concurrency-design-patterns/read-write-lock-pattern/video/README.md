@@ -67,3 +67,15 @@ Upload `read-write-lock-pattern-explained.mp4`, with
 `../docs/thumbnail.png` as the thumbnail and the `.srt` as the captions.
 Title, description, chapters and tags live in
 [`../docs/youtube.md`](../docs/youtube.md).
+
+Suggested description:
+
+> Learn the Read-Write Lock pattern in Java with an online store where many
+> shoppers read a product's price and a merchandiser sometimes changes it. A
+> read-write lock lets many readers in together but a writer only alone,
+> because reads never conflict with each other, like visitors viewing a
+> painting until the restorer closes the room. We hear a torn read with no
+> lock, a queue behind one plain lock, and then the two-lock version. Then
+> the costs: a waiting writer overtaken by readers, an upgrade from read to
+> write that deadlocks, and the surprise that the read-write lock can be
+> slower than a plain one when reads are cheap.

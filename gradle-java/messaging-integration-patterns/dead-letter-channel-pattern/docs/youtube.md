@@ -17,6 +17,8 @@ Dead Letter Channel
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
+Learn the Dead Letter Channel pattern in Java with an online store order that arrives garbled and can never be read. A dead letter channel is where a message goes after a fixed number of failed tries, so it stops blocking the messages behind it and someone can look at it later, like the post office's undeliverable mail room. We watch one bad message block everything, then move it aside after three tries with its reason. We tell a slow moment apart from a dead letter, replay a message after a fix, and face the real cost: nobody is looking.
+
 CHAPTERS
 00:00 Introduction
 00:56 The Scenario

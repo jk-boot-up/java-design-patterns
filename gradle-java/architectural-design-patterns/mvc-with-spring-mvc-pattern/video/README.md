@@ -68,3 +68,14 @@ Upload `mvc-with-spring-mvc-pattern-explained.mp4`, with
 `../docs/thumbnail.png` as the thumbnail and the `.srt` as the captions.
 Title, description, chapters and tags live in
 [`../docs/youtube.md`](../docs/youtube.md).
+
+Suggested description:
+
+> Learn the MVC pattern in Java with Spring MVC, using the same online
+> store. A controller method returns a view name together with a model, and
+> the framework does the rendering. We serve one order summary as a web page
+> and as data for other programs from a single model computed once, then
+> hear what goes wrong when a template does its own sums. We also cover
+> post, redirect, get, the habit that stops a refreshed page from placing an
+> order twice. Spring MVC does the rendering for you, and the pattern only
+> holds while templates just display.

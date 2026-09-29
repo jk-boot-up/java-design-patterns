@@ -17,6 +17,8 @@ Publisher-Subscriber
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
+Learn the Publisher-Subscriber pattern in Java with an online store where one thing happens, an order is placed, and several services care. The publisher announces the event once to a topic, and any number of subscribers listen without the publisher knowing who they are. We replace an order service that calls three others by name with one that only publishes, let subscribers go at their own pace and take only what they want, and watch a late subscriber miss history unless the log is kept. The bill is that the publisher never knows who got the event.
+
 CHAPTERS
 00:00 Introduction
 00:55 The Scenario

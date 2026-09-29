@@ -68,3 +68,15 @@ Upload `singleton-with-spring-pattern-explained.mp4`, with
 `../docs/thumbnail.png` as the thumbnail and the `.srt` as the captions.
 Title, description, chapters and tags live in
 [`../docs/youtube.md`](../docs/youtube.md).
+
+Suggested description:
+
+> Learn the Singleton pattern in Java with Spring Boot, using an online
+> store's order number generator. In Spring, singleton is a scope: the
+> container keeps one instance and hands it to everyone who asks, like a
+> shared office printer. We share the generator between three callers and
+> then hear how the guarantee weakens: nothing stops a plain new, a second
+> container makes a second instance, a scope change quietly ends the
+> sharing, and a counter that is not thread-safe loses numbers. We also
+> answer when the bean is built. A Spring singleton is one per container,
+> and only as safe as the data inside it.

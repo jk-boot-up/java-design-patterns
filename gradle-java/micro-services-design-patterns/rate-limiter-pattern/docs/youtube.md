@@ -17,6 +17,8 @@ Rate Limiter
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
+Learn the Rate Limiter pattern in Java with an online store product search that can serve a hundred requests but receives a thousand. A rate limiter refuses requests beyond an agreed rate, saying no early so the shared service does not fail late. We watch no limit at all, then a token bucket that allows a burst and then a steady rate, give each caller a bucket of their own to protect a polite caller from a greedy one, and make a refusal say exactly when to come back. We finish with the bill.
+
 CHAPTERS
 00:00 Introduction
 00:51 The Scenario

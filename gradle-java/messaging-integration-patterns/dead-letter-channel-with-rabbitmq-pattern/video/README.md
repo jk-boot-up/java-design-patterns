@@ -69,3 +69,15 @@ Upload `dead-letter-channel-with-rabbitmq-pattern-explained.mp4`, with
 `../docs/thumbnail.png` as the thumbnail and the `.srt` as the captions.
 Title, description, chapters and tags live in
 [`../docs/youtube.md`](../docs/youtube.md).
+
+Suggested description:
+
+> Learn the Dead Letter Channel pattern in Java with RabbitMQ, using an
+> online store queue of orders where one order's address can never be read.
+> A dead letter channel takes a message that can never be handled off the
+> belt and shelves it with a note, so the belt keeps moving and a person can
+> look later. What is new with a real broker is who decides: the application
+> writes a rule on the queue, and RabbitMQ takes the message off and writes
+> down its own reason. We hear deaths nobody chose, fix and put a message
+> back, and learn the three reasons a message dies. The bill is the same:
+> someone has to look.

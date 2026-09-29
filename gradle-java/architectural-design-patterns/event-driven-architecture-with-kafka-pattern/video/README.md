@@ -68,3 +68,14 @@ Upload `event-driven-architecture-with-kafka-pattern-explained.mp4`, with
 `../docs/thumbnail.png` as the thumbnail and the `.srt` as the captions.
 Title, description, chapters and tags live in
 [`../docs/youtube.md`](../docs/youtube.md).
+
+Suggested description:
+
+> Learn the Event-Driven Architecture pattern in Java with Apache Kafka,
+> using a real Kafka broker behind the same online store. Services stop
+> calling each other and write events to a topic instead, and the broker
+> remembers how far each reader has got, like a library that keeps a
+> bookmark for every reader. We lose an order the old way, send events to
+> Kafka, watch a service catch up after an outage, add a new reader that
+> replays history, and then price it honestly: a broker to run, and readers
+> that may see the same event twice.

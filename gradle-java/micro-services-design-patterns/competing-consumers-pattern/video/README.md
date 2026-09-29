@@ -66,3 +66,14 @@ Upload `competing-consumers-pattern-explained.mp4`, with
 `../docs/thumbnail.png` as the thumbnail and the `.srt` as the captions.
 Title, description, chapters and tags live in
 [`../docs/youtube.md`](../docs/youtube.md).
+
+Suggested description:
+
+> Learn the Competing Consumers pattern in Java with an online store queue
+> of orders. Several workers take messages from the same queue, each message
+> goes to exactly one of them, and the work is shared without the workers
+> ever coordinating. We go from one worker to three, show every message
+> handled exactly once, give up on ordering, and watch another worker take
+> over a failed message. Then the bills: at-least-once delivery means a
+> duplicate can arrive, and every worker still waits on the same downstream
+> limit.

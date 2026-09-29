@@ -17,6 +17,8 @@ Dependency Injection in Java - Without Spring, First
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
+Learn Dependency Injection in Java with an online store checkout that needs a discount policy, a payment gateway and a notifier. A class states what it needs in its constructor and is given those things, never going looking for them, like a chef whose ingredients are delivered to the station. We wire the application by hand in nine lines, compare the three forms of injection, and then build a small container from scratch, so a container becomes something you have watched being built. We finish with its bill: a container fails at start-up, not while you type. Stop asking, and be given.
+
 CHAPTERS
 00:00 Introduction
 00:50 The Argument So Far

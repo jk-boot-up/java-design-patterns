@@ -66,3 +66,14 @@ Upload `delegation-pattern-explained.mp4`, with
 `../docs/thumbnail.png` as the thumbnail and the `.srt` as the captions.
 Title, description, chapters and tags live in
 [`../docs/youtube.md`](../docs/youtube.md).
+
+Suggested description:
+
+> Learn the Delegation pattern in Java with an online store order that can
+> be priced in several ways. Instead of doing the job itself, an object
+> hands it to a helper object it holds, and that helper can be swapped, like
+> a manager who passes the diary to an assistant. We watch a subclass
+> multiply for every way of pricing, then let the order hand its pricing on,
+> change the helper while the order lives, combine two helpers, and give the
+> helper a view of the order. The price is an extra call, and forwarding
+> code you must write.

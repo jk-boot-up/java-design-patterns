@@ -17,6 +17,8 @@ Service Locator in Java - Why It Is Called An Anti-Pattern
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
+Learn the Service Locator pattern in Java, often called an anti-pattern, and see fairly why. A service locator is a middleman you ask for what you need, and it finds or creates it, like a hotel concierge: nobody can tell by looking at you that you needed a taxi. We show the real advances, recipes and swapping for a test, then the bill with evidence: the compiler says nothing when something is missing, and every class depends on the locator. We also cover where it is still right. The word that matters is ask, because a class that asks hides what it needs.
+
 CHAPTERS
 00:00 Introduction
 00:53 The Scenario

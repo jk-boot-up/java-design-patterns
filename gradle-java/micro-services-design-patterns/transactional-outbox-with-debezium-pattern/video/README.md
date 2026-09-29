@@ -104,3 +104,16 @@ Upload `transactional-outbox-with-debezium-pattern-explained.mp4`, with
 `../docs/thumbnail.png` as the thumbnail and the `.srt` as the captions.
 Title, description, chapters and tags live in
 [`../docs/youtube.md`](../docs/youtube.md).
+
+Suggested description:
+
+> Learn the Transactional Outbox pattern in Java with a real PostgreSQL
+> database, a real Kafka broker, and Debezium in between. When you must save
+> something and also tell others about it, save the message beside the
+> record in the same single transaction, and let something else send it
+> later. In our online store the Orders service saves the order and an
+> order-placed message together, and Debezium reads the database log and
+> sends it on. We watch two writes half happen in a crash, hear an event
+> sent for a row already deleted, a database keep its log for a reader that
+> is switched off, and a message sent but not written down. We finish with
+> ordering per key and the bill.

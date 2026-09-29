@@ -17,6 +17,8 @@ Template Method with Spring - Inside JdbcTemplate
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
+Learn the Template Method pattern in Java with Spring Boot, in the same online shop. A template owns the fixed steps of a task and leaves one step for you to fill in, like a car wash that always soaps, rinses and dries while you only pick the extras. We hear plain database code leak a connection, then run the same query through Spring's JDBC template, which closes it on every path and translates the exceptions. Then a transaction template undoes a half-finished checkout. A Spring template owns the fixed steps, and quietly makes some decisions for you.
+
 CHAPTERS
 00:00 Introduction
 00:57 The Partner Project

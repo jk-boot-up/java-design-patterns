@@ -103,3 +103,15 @@ Upload `idempotent-consumer-with-kafka-pattern-explained.mp4`, with
 `../docs/thumbnail.png` as the thumbnail and the `.srt` as the captions.
 Title, description, chapters and tags live in
 [`../docs/youtube.md`](../docs/youtube.md).
+
+Suggested description:
+
+> Learn the Idempotent Consumer pattern in Java with a real Kafka broker and
+> a real PostgreSQL database. A message can arrive more than once, so the
+> receiver records the ID of every message it handles in the same step as
+> the work, and does nothing when an ID it has already seen turns up. In our
+> online store, each order message queues one confirmation email, and the
+> customer must get exactly one. We watch Kafka hand the same three orders
+> to a second copy of the service, a list of IDs in memory fail to notice,
+> and two copies work on the same order at once while the database decides
+> which one wins.

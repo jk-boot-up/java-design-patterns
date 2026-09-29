@@ -67,3 +67,14 @@ Upload `identity-map-pattern-explained.mp4`, with
 `../docs/thumbnail.png` as the thumbnail and the `.srt` as the captions.
 Title, description, chapters and tags live in
 [`../docs/youtube.md`](../docs/youtube.md).
+
+Suggested description:
+
+> Learn the Identity Map pattern in Java with an online store customer
+> loaded twice in one session. An identity map keeps, for one session, one
+> object for each ID, so asking for the same thing twice hands back the very
+> same object, like a library desk that will not print you a second copy of
+> a book you already have. We watch two copies of one customer silently lose
+> a change, show why overriding equals does not fix it, and let the map fix
+> it. Then the costs: the map is a cache, it holds everything it has seen,
+> and its scope is a decision. One row should be one object, per session.

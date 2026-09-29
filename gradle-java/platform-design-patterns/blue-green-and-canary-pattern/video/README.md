@@ -66,3 +66,15 @@ Upload `blue-green-and-canary-pattern-explained.mp4`, with
 `../docs/thumbnail.png` as the thumbnail and the `.srt` as the captions.
 Title, description, chapters and tags live in
 [`../docs/youtube.md`](../docs/youtube.md).
+
+Suggested description:
+
+> Learn the Blue-Green and Canary release patterns in Java with a new
+> release of an online store's checkout that must go live without customers
+> noticing. Blue-green runs the old and new releases side by side and
+> switches traffic at once; a canary sends a small share of traffic to the
+> new release first and grows it only while it stays healthy. We watch a
+> release fail requests while it is replaced in place, then switch with none
+> failing, go back quickly, let a canary meet only a few failures, and use a
+> gate to halt a bad release and promote a good one. The bill is double
+> capacity and a shared database.

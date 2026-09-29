@@ -68,3 +68,15 @@ Upload `bulkhead-with-resilience4j-pattern-explained.mp4`, with
 `../docs/thumbnail.png` as the thumbnail and the `.srt` as the captions.
 Title, description, chapters and tags live in
 [`../docs/youtube.md`](../docs/youtube.md).
+
+Suggested description:
+
+> Learn the Bulkhead pattern in Java with Resilience4j. A bulkhead gives
+> each kind of work its own compartment, so a slow job fills only its own
+> room, just as watertight walls stop one hole from flooding a whole ship.
+> In our online store, a slow nightly supplier feed must never stop checkout
+> from selling. We hear one shared compartment let the feed starve checkout,
+> then a compartment each protect it, and what a full compartment does. Then
+> the costs: the idle room behind the wall, an annotation that is a proxy
+> and can be bypassed by accident, and the two kinds of bulkhead. The wall
+> always costs some idle capacity.

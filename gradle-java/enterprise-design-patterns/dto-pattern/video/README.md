@@ -67,3 +67,14 @@ Upload `dto-pattern-explained.mp4`, with
 `../docs/thumbnail.png` as the thumbnail and the `.srt` as the captions.
 Title, description, chapters and tags live in
 [`../docs/youtube.md`](../docs/youtube.md).
+
+Suggested description:
+
+> Learn the Data Transfer Object pattern, DTO, in Java with an online store
+> customer web service. A DTO is a small object built only for crossing a
+> boundary, carrying just what the other side needs so your business objects
+> never leave, like sending a postcard instead of your whole diary. We
+> return the real domain object and watch a private field rename break a
+> client, then introduce a DTO. We price it honestly: the mapping code, DTOs
+> that multiply, and a mapping that decides what gets loaded. A DTO is a
+> promise to the outside world, and the mapping code is what you pay for it.

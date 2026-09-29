@@ -230,3 +230,14 @@ Two further things that affect how well it plays for viewers:
   the topic and the author's name. In YouTube Studio: **Details** →
   **Thumbnail** → **Upload file**. (A custom thumbnail needs a verified
   channel; if the option is missing, verify the account first.)
+
+Suggested description:
+
+> Learn the Interpreter pattern in Java by writing an online shop's
+> promotion rules as simple text instead of code. You write one small class
+> for each kind of phrase, bigger phrases hold smaller ones, and the result
+> is a tree of objects you run with a single call, like a recipe card built
+> from a few words that combine. We start from rules copied into branches
+> with two bugs and no errors, build the tree, and show it can explain its
+> own decision and refuse a typo. We finish with tests that check the
+> grammar, not just the answer, and the honest limit of the pattern.

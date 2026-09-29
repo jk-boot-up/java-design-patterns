@@ -68,3 +68,15 @@ Upload `future-promise-pattern-explained.mp4`, with
 `../docs/thumbnail.png` as the thumbnail and the `.srt` as the captions.
 Title, description, chapters and tags live in
 [`../docs/youtube.md`](../docs/youtube.md).
+
+Suggested description:
+
+> Learn the Future and Promise pattern in Java with an online store product
+> page that needs three separate lookups. Starting a piece of work hands you
+> a future straight away, a handle to a result that does not exist yet, so
+> independent lookups run at the same time instead of one after another,
+> like the buzzer a coffee shop gives you. We separate the reader's half
+> from the writer's half, hear an error reported far from the line that
+> caused it, see why get with no timeout is a hang and why cancelling is
+> only a request, and finish with the bill. A future promises when a value
+> will be ready, never that the work can be stopped.

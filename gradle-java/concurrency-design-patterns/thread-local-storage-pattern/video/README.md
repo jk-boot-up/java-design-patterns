@@ -66,3 +66,15 @@ Upload `thread-local-storage-pattern-explained.mp4`, with
 `../docs/thumbnail.png` as the thumbnail and the `.srt` as the captions.
 Title, description, chapters and tags live in
 [`../docs/youtube.md`](../docs/youtube.md).
+
+Suggested description:
+
+> Learn the Thread-Local Storage pattern in Java with an online store where
+> every layer of a request needs to know which customer it serves, but few
+> of them care. Thread-local storage gives each thread its own private copy
+> of a value that any code on that thread can read without it being passed
+> down, like a conference name badge. We pass the customer through three
+> methods that do not need it, then keep it in the thread instead. We hear a
+> reused thread leak one request's customer into the next, and a value that
+> fails to reach a new thread. The price is a dependency you cannot see, and
+> a clear you must never forget.

@@ -17,6 +17,8 @@ Value Object
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
+Learn the Value Object pattern in Java by getting money right in an online store. A value object is a small object defined entirely by what it holds: it never changes after it is made, and it cannot be made wrong in the first place, like a banknote that is as good as any other of the same value. We watch money as a bare double go wrong in four ways, then fix every one with one small type that is equal by value, immutable, valid from the start, and honest about splitting. We finish with when not to use it. A value object makes the wrong thing impossible to say.
+
 CHAPTERS
 00:00 Introduction
 00:45 The Scenario

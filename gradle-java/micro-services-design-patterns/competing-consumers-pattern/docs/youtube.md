@@ -17,6 +17,8 @@ Competing Consumers
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
+Learn the Competing Consumers pattern in Java with an online store queue of orders. Several workers take messages from the same queue, each message goes to exactly one of them, and the work is shared without the workers ever coordinating. We go from one worker to three, show every message handled exactly once, give up on ordering, and watch another worker take over a failed message. Then the bills: at-least-once delivery means a duplicate can arrive, and every worker still waits on the same downstream limit.
+
 CHAPTERS
 00:00 Introduction
 00:52 The Scenario

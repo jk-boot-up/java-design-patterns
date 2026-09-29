@@ -220,3 +220,14 @@ Two further things that affect how well it plays for viewers:
   the topic and the author's name. In YouTube Studio: **Details** →
   **Thumbnail** → **Upload file**. (A custom thumbnail needs a verified
   channel; if the option is missing, verify the account first.)
+
+Suggested description:
+
+> Learn the Memento pattern in Java by adding an undo button to an online
+> shop's basket. A memento is a sealed copy of an object's state: the object
+> takes the copy itself and hands it to someone else to keep, like a save
+> point in a video game. We show how one misplaced equals sign makes undo
+> empty the whole basket, how to let a caretaker keep your state without
+> ever seeing inside it, and how two interfaces do that with no framework at
+> all. We finish with tests on the structure and the one honest cost of the
+> pattern.

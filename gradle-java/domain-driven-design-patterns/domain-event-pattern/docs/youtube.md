@@ -17,6 +17,8 @@ Domain Event
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
+Learn the Domain Event pattern in Java with an online store order being placed. A domain event is a record of something that has already happened, named in the past tense and never changed, and others react to it without the sender knowing who they are, like a birth announcement in a newspaper. We watch an order that calls three services fall into a half-done state, then let it simply say what happened, delivered after the save. We hear a failing reaction retried safely, and the real cost: the gap between saving and telling, which must be kept closed.
+
 CHAPTERS
 00:00 Introduction
 00:57 The Scenario

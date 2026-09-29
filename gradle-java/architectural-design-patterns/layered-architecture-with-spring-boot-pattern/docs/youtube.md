@@ -17,6 +17,8 @@ Layered Architecture with Spring Boot - Layers That Hold
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
+Learn the Layered Architecture pattern in Java with Spring Boot, using the same online store with controllers, services and repositories. We send one real web request through four layers inside a real transaction, and see failures turned into HTTP statuses in one place. Then we take a shortcut from a controller straight to a repository: Spring runs it without complaint, and it leaks data it should not. Spring gives every class a name badge, but the badges do not stop anyone walking into the store room. The container names the layers; only a test can say which dependencies are forbidden.
+
 CHAPTERS
 00:00 Introduction
 01:03 The Partner Project

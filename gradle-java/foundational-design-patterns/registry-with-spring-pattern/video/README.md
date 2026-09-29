@@ -66,3 +66,14 @@ Upload `registry-with-spring-pattern-explained.mp4`, with
 `../docs/thumbnail.png` as the thumbnail and the `.srt` as the captions.
 Title, description, chapters and tags live in
 [`../docs/youtube.md`](../docs/youtube.md).
+
+Suggested description:
+
+> Learn the Registry pattern in Java with Spring, whose application context
+> is a registry built far better than a hand-written one, like a phone
+> directory everyone shares. We show what Spring fixes, when asking the
+> context for things is used well or badly, and what happens with a registry
+> of strings and with two beans of the same type. Then we meet the failure
+> that is Spring's own: a cached test context that remembers what earlier
+> tests did. The registry done well is one you rarely call, and even then,
+> whatever it holds is shared.

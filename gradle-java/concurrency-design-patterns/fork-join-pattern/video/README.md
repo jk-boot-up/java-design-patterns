@@ -66,3 +66,14 @@ Upload `fork-join-pattern-explained.mp4`, with
 `../docs/thumbnail.png` as the thumbnail and the `.srt` as the captions.
 Title, description, chapters and tags live in
 [`../docs/youtube.md`](../docs/youtube.md).
+
+Suggested description:
+
+> Learn the Fork-Join pattern in Java by adding up one hundred thousand
+> order totals for an online store's daily report. The job is split into
+> smaller pieces of the same kind, the pieces run at the same time on
+> several workers, and their answers are joined back into one, like
+> districts counting votes in parallel before the totals are added. We split
+> the work in halves until the pieces are small, prove they really run
+> together, find how small is small enough, and see why one oversized piece
+> limits the speed. We finish with the cost.

@@ -66,3 +66,15 @@ Upload `callback-pattern-explained.mp4`, with
 `../docs/thumbnail.png` as the thumbnail and the `.srt` as the captions.
 Title, description, chapters and tags live in
 [`../docs/youtube.md`](../docs/youtube.md).
+
+Suggested description:
+
+> Learn the Callback pattern in Java with an online store card payment that
+> takes a while to be answered, while the shop must not stand still. A
+> callback is a piece of code you hand to someone else to run when the thing
+> you asked for has happened, like leaving your phone number with a shop. We
+> watch a caller keep asking for an answer, then hand over what to do and
+> carry on, with the outcome deciding which code runs. We hear a callback
+> that fails, answers that arrive in a different order, and the cost of
+> nesting. The price is code that runs out of written order, and failures no
+> caller sees.

@@ -68,3 +68,14 @@ Upload `active-object-with-spring-pattern-explained.mp4`, with
 `../docs/thumbnail.png` as the thumbnail and the `.srt` as the captions.
 Title, description, chapters and tags live in
 [`../docs/youtube.md`](../docs/youtube.md).
+
+Suggested description:
+
+> Learn the Active Object pattern in Java with Spring Boot, using the same
+> shop stock. We build it from a Spring bean and a one-thread executor: each
+> call drops a message into a mailbox and returns at once, and one worker
+> owns the data, so there is no lock, like a post box emptied by a single
+> postal worker. Then we hear the two ways the guarantee breaks, a call that
+> skips the proxy and a read that skips the mailbox, along with errors that
+> arrive later and the ceiling of one worker. The guarantee only holds for
+> calls that go through the queue.

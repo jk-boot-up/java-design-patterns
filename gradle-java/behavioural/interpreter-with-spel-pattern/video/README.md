@@ -68,3 +68,14 @@ Upload `interpreter-with-spel-pattern-explained.mp4`, with
 `../docs/thumbnail.png` as the thumbnail and the `.srt` as the captions.
 Title, description, chapters and tags live in
 [`../docs/youtube.md`](../docs/youtube.md).
+
+Suggested description:
+
+> Learn the Interpreter pattern in Java with the Spring Expression Language,
+> SpEL, a ready-made interpreter that turns a rule written as text into a
+> tree and checks it against an object, like a calculator you never had to
+> build. We keep the same online shop promotion rules and let the library
+> run them. Then we look at the costs: a language bigger than you wanted
+> that can reach into the program, two kinds of typo that surface at
+> different times, missing values, and parsing once instead of every time.
+> Choosing the evaluation context is your safety decision.

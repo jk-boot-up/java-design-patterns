@@ -63,3 +63,15 @@ Upload `hexagonal-architecture-pattern-explained.mp4`, with
 `../docs/thumbnail.png` as the thumbnail and the `.srt` as the captions.
 Title, description, chapters and tags live in
 [`../docs/youtube.md`](../docs/youtube.md).
+
+Suggested description:
+
+> Learn Hexagonal Architecture, also called Ports and Adapters, in Java with
+> an online shop. The core says what it needs from the outside world as
+> interfaces in its own words, called ports, and adapters plug into them,
+> like appliances into a wall socket. We start from a naive version, drive
+> the same core from HTTP and then from a command line, and cover the half
+> most explanations skip: the adapters the core itself depends on. We write
+> the rule as a test, watch it go red, make a forced change on both sides at
+> once, and finish with the bill. Hexagonal architecture is not about
+> databases; it is about who is allowed to name whom.

@@ -17,6 +17,8 @@ MVC with Spring MVC - What The Framework Adds
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
+Learn the MVC pattern in Java with Spring MVC, using the same online store. A controller method returns a view name together with a model, and the framework does the rendering. We serve one order summary as a web page and as data for other programs from a single model computed once, then hear what goes wrong when a template does its own sums. We also cover post, redirect, get, the habit that stops a refreshed page from placing an order twice. Spring MVC does the rendering for you, and the pattern only holds while templates just display.
+
 CHAPTERS
 00:00 Introduction
 00:58 The Partner Project

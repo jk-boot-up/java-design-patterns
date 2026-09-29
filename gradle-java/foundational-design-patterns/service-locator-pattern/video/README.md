@@ -65,3 +65,14 @@ Upload `service-locator-pattern-explained.mp4`, with
 `../docs/thumbnail.png` as the thumbnail and the `.srt` as the captions.
 Title, description, chapters and tags live in
 [`../docs/youtube.md`](../docs/youtube.md).
+
+Suggested description:
+
+> Learn the Service Locator pattern in Java, often called an anti-pattern,
+> and see fairly why. A service locator is a middleman you ask for what you
+> need, and it finds or creates it, like a hotel concierge: nobody can tell
+> by looking at you that you needed a taxi. We show the real advances,
+> recipes and swapping for a test, then the bill with evidence: the compiler
+> says nothing when something is missing, and every class depends on the
+> locator. We also cover where it is still right. The word that matters is
+> ask, because a class that asks hides what it needs.

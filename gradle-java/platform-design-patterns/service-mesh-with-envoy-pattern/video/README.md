@@ -68,3 +68,14 @@ Upload `service-mesh-with-envoy-pattern-explained.mp4`, with
 `../docs/thumbnail.png` as the thumbnail and the `.srt` as the captions.
 Title, description, chapters and tags live in
 [`../docs/youtube.md`](../docs/youtube.md).
+
+Suggested description:
+
+> Learn the Service Mesh pattern in Java with Envoy, a real proxy. The proxy
+> in front of a service applies the retry, identity and counting policy from
+> its configuration, and the service carries none of that code. With an
+> online store's payment service, we watch three callers retry three
+> different ways, then let one real proxy retry for a caller that has no
+> retry code, change the policy in one file, refuse an unknown caller before
+> it reaches payments, and read the proxy's own counters. We finish with the
+> bill.

@@ -17,6 +17,8 @@ Strategy with Spring - Let The Container Hold Them
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
+Learn the Strategy pattern in Java with Spring Boot, using the same delivery pricing for an online shop. Each pricing rule is its own class behind one interface, and Spring collects them into a map keyed by name, like a phone's contact list that turns a name into a number. We let Spring find the four rules, price the same shipments with every one, choose a rule through configuration, add a fifth without touching the others, and set a default for when nobody chooses. We also hear the failures that come with it: an ambiguous injection and a wrong name.
+
 CHAPTERS
 00:00 Introduction
 00:52 The Partner Project

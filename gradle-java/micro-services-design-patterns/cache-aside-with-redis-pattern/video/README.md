@@ -97,3 +97,15 @@ picture the listener cannot see. Every figure is the output of `./gradlew run`.
 Upload `cache-aside-with-redis-pattern-explained.mp4`, with the project's
 thumbnail and the `.srt` as the captions. Title, description, chapters and tags
 live in the project's `docs/youtube.md`.
+
+Suggested description:
+
+> Learn the Cache-Aside pattern in Java with a real Redis cache server. In
+> our online store every product page needs a price that lives in the
+> database, so the shop asks the cache first, and on a miss reads the
+> database and leaves a copy in the cache on the way back. We hear a second
+> shop process find the cache already filled, a price removed by Redis on
+> its own clock, one ordinary write that makes an old price last forever,
+> and fifty requests stampede the database with nobody arranging it. The
+> shop fills the cache, every shop sees what it filled, and an entry only
+> expires if every write remembers to say so.

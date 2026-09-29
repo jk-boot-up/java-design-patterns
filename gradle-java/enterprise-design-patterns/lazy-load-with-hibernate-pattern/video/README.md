@@ -67,3 +67,15 @@ Upload `lazy-load-with-hibernate-pattern-explained.mp4`, with
 `../docs/thumbnail.png` as the thumbnail and the `.srt` as the captions.
 Title, description, chapters and tags live in
 [`../docs/youtube.md`](../docs/youtube.md).
+
+Suggested description:
+
+> Learn the Lazy Load pattern in Java with Hibernate, and understand one of
+> the most searched Java errors: the LazyInitializationException. A lazy
+> field holds a stand-in that loads the real data the first time someone
+> asks, like a gift voucher that only turns into a gift while the shop is
+> still open. We make a field lazy with one word, trigger the exception, and
+> look at exactly what is in the field. Then we price the three usual fixes,
+> keeping the session open, fetching in the same query, and asking only for
+> what you need, plus the fix that is not on the list. A lazy field is a
+> promise that needs an open session.

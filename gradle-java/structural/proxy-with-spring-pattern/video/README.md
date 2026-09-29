@@ -68,3 +68,13 @@ Upload `proxy-with-spring-pattern-explained.mp4`, with
 `../docs/thumbnail.png` as the thumbnail and the `.srt` as the captions.
 Title, description, chapters and tags live in
 [`../docs/youtube.md`](../docs/youtube.md).
+
+Suggested description:
+
+> Learn the Proxy pattern in Java with Spring Boot, using an online store
+> product image. In Spring, a proxy is generated at run time around a bean,
+> and an aspect says what it does on each call, so the bean you receive is
+> not your class. We rebuild the hand-written protection and lazy-loading
+> proxies from Spring, then reuse one aspect across three screens. Then we
+> hear the two ways a call slips past the generated proxy: a call on this
+> from inside the class, and a final method.

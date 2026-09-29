@@ -101,3 +101,15 @@ Upload `competing-consumers-with-rabbitmq-pattern-explained.mp4`, with
 `../docs/thumbnail.png` as the thumbnail and the `.srt` as the captions.
 Title, description, chapters and tags live in
 [`../docs/youtube.md`](../docs/youtube.md).
+
+Suggested description:
+
+> Learn the Competing Consumers pattern in Java with a real RabbitMQ broker.
+> Several workers read one shared queue, each job goes to exactly one of
+> them, and adding a worker adds capacity without anyone else changing. In
+> our online store every order becomes a pick order, and several warehouse
+> pickers share the queue while the broker decides who gets which. We watch
+> one picker handed the whole queue while another stands idle, fix it with
+> prefetch, see a picker die holding five orders and hand back three, and
+> lose three orders for good by never saying done. Two settings decide it
+> all.

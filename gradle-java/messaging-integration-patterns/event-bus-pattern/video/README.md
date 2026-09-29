@@ -66,3 +66,15 @@ Upload `event-bus-pattern-explained.mp4`, with
 `../docs/thumbnail.png` as the thumbnail and the `.srt` as the captions.
 Title, description, chapters and tags live in
 [`../docs/youtube.md`](../docs/youtube.md).
+
+Suggested description:
+
+> Learn the Event Bus pattern in Java with an online store where five parts
+> of one program all want to know when an order is placed or cancelled. An
+> event bus is one central place: parts post events to it and others
+> subscribe to the kinds they care about, so none needs a reference to
+> another, like station announcements that each traveller filters for their
+> own train. We replace five parts that all know each other with a bus,
+> subscribe by type, keep a failing subscriber from harming the rest, and
+> hear an event nobody hears. The price is a flow you cannot see, and
+> subscriptions you must clean up.

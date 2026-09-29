@@ -67,3 +67,15 @@ Upload `unit-of-work-with-spring-pattern-explained.mp4`, with
 `../docs/thumbnail.png` as the thumbnail and the `.srt` as the captions.
 Title, description, chapters and tags live in
 [`../docs/youtube.md`](../docs/youtube.md).
+
+Suggested description:
+
+> Learn the Unit of Work pattern in Java with Spring, using the same order.
+> All the changes are collected and written together at the end, or not at
+> all, like a bank transfer that never moves just one half. We hear the
+> writes arrive at the end instead of where the code is, then meet three
+> failures that belong to Spring itself: a checked exception that saves
+> anyway unless you set rollbackFor, a flush nobody wrote, and a
+> @Transactional annotation that does nothing. We also explain why these
+> surprise people. An annotation hides the mechanism, but the mechanism
+> still has rules.

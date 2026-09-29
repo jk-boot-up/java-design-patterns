@@ -81,3 +81,15 @@ Upload `claim-check-with-s3-pattern-explained.mp4`, with
 `../docs/thumbnail.png` as the thumbnail and the `.srt` as the captions.
 Title, description, chapters and tags live in
 [`../docs/youtube.md`](../docs/youtube.md).
+
+Suggested description:
+
+> Learn the Claim Check pattern in Java with real Amazon S3 storage and a
+> real Amazon SQS queue, running on your own machine through LocalStack.
+> When something is too big to send in a message, you put it in storage and
+> send a small ticket instead, like the left-luggage office at a railway
+> station. In our online store, checkout hands a big invoice PDF to the
+> email service. We watch a real queue refuse the invoice, and learn why a
+> smaller PDF fails too. Then a ticket brings it back byte for byte. We hear
+> luggage nobody collected, the same key used twice, a delete that deletes
+> nothing, and how long each side waits.

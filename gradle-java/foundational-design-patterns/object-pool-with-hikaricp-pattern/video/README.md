@@ -66,3 +66,15 @@ Upload `object-pool-with-hikaricp-pattern-explained.mp4`, with
 `../docs/thumbnail.png` as the thumbnail and the `.srt` as the captions.
 Title, description, chapters and tags live in
 [`../docs/youtube.md`](../docs/youtube.md).
+
+Suggested description:
+
+> Learn the Object Pool pattern in Java with HikariCP, the database
+> connection pool inside most Java applications. A pool keeps a few
+> expensive objects, lends them out and takes them back, like supermarket
+> trolleys returned to the bay. The hand-built pool found four costs; here
+> we hear which ones a real library solves and which it cannot. HikariCP
+> opens only what demand needs and handles exhaustion with a timeout, but a
+> dirty return can still leak state it cannot reset, and sizing is still a
+> guess. Use a library that has solved the hard parts, and still reset what
+> it cannot see.

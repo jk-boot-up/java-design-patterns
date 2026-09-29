@@ -66,3 +66,14 @@ Upload `claim-check-pattern-explained.mp4`, with
 `../docs/thumbnail.png` as the thumbnail and the `.srt` as the captions.
 Title, description, chapters and tags live in
 [`../docs/youtube.md`](../docs/youtube.md).
+
+Suggested description:
+
+> Learn the Claim Check pattern in Java with an online store that must send
+> an invoice PDF to another service. A claim check stores a large payload
+> somewhere cheap and sends only a small ticket through the message broker,
+> and the receiver redeems the ticket for the payload, the way you collect a
+> coat from a cloakroom. We watch a broker refuse a big message, send a
+> ticket instead and see how little the broker carries, find luggage nobody
+> collected, and catch a changed payload with a checksum. The bill is extra
+> steps, and a ticket that must be hard to guess.

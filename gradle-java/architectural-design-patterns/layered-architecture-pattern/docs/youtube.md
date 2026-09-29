@@ -17,6 +17,8 @@ Layered Architecture in Java - The One Call That Ruins It
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
+Learn the Layered Architecture pattern in Java by building a real online shop with four layers, where each layer may only depend on the one directly beneath it, like a customer who talks to the waiter and never walks into the store room. Drawing four boxes costs nothing, so we watch a developer add one import that skips a layer and see that nothing complains. Then we write the rule as a test, watch it catch the shortcut, make a real change and count what it touched, and say plainly what layering does not fix. A layered architecture is not four folders; it is the test that fails when someone skips one.
+
 CHAPTERS
 00:00 Introduction
 01:06 The Scenario

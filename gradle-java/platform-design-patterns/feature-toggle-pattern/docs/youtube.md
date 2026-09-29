@@ -17,6 +17,8 @@ Feature Toggle
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
+Learn the Feature Toggle pattern in Java with an online store gift-wrap feature that is ready but should reach a few customers first and be switched off at once if it goes wrong. A feature toggle puts new code in the deployed program behind a switch read while it runs, so turning it on or off is a setting change, not a new release. We watch a feature that can only be released by deploying, then deploy it dark and switch it on later, turn it on for some customers, stop failures with a kill switch, and choose a safe answer when the switch table cannot be read. The bill is combinations, and old switches nobody removes.
+
 CHAPTERS
 00:00 Introduction
 00:57 The Scenario

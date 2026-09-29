@@ -99,3 +99,16 @@ picture the listener cannot see. Every figure is the output of `./gradlew run`.
 Upload `event-sourcing-with-eventstoredb-pattern-explained.mp4`, with the project's
 thumbnail and the `.srt` as the captions. Title, description, chapters and tags
 live in the project's `docs/youtube.md`.
+
+Suggested description:
+
+> Learn the Event Sourcing pattern in Java with a real event database,
+> EventStoreDB, recently renamed KurrentDB. Instead of overwriting what it
+> knows, the program writes down each thing that happened, in order, and
+> adds the list up when it needs the current state. Our online store's
+> loyalty scheme keeps every award, spend and expiry rather than one points
+> balance. We watch two checkouts spend the same points at the same moment
+> and the database refuse the second through an expected revision number,
+> see a retry the database recognises, and a screen that catches up by
+> reading the history. We finish with the bill, including what deleting a
+> customer's stream really removes.

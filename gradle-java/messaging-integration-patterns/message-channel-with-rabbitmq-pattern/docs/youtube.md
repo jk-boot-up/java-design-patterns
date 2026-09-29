@@ -17,6 +17,8 @@ Message Channel with RabbitMQ
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
+Learn the Message Channel pattern in Java with a real RabbitMQ broker. In our online store the shop drops a pick order into a channel and goes straight back to selling, and the warehouse takes it out whenever it is ready. We hear the broker hold orders for a warehouse that is not even running, hand an order out again when a picker crashes before saying done, share orders between a slow picker and a fast one, and survive its own restart with some orders kept and others gone. A broker only forgets an order when the receiver says it is done, and only keeps it through a restart if both queue and message were saved.
+
 CHAPTERS
 00:00 Introduction
 01:01 The Scenario

@@ -73,3 +73,15 @@ Upload `message-channel-with-rabbitmq-pattern-explained.mp4`, with
 `../docs/thumbnail.png` as the thumbnail and the `.srt` as the captions.
 Title, description, chapters and tags live in
 [`../docs/youtube.md`](../docs/youtube.md).
+
+Suggested description:
+
+> Learn the Message Channel pattern in Java with a real RabbitMQ broker. In
+> our online store the shop drops a pick order into a channel and goes
+> straight back to selling, and the warehouse takes it out whenever it is
+> ready. We hear the broker hold orders for a warehouse that is not even
+> running, hand an order out again when a picker crashes before saying done,
+> share orders between a slow picker and a fast one, and survive its own
+> restart with some orders kept and others gone. A broker only forgets an
+> order when the receiver says it is done, and only keeps it through a
+> restart if both queue and message were saved.

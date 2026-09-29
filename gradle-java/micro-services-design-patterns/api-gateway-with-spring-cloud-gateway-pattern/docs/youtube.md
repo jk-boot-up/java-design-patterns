@@ -17,6 +17,8 @@ API Gateway Design Pattern in Java with Spring Cloud Gateway - Explained - Real 
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
+Learn the API Gateway pattern in Java with Spring Cloud Gateway, using an online store whose mobile app needs four services: catalogue, pricing, inventory and recommendations. Instead of knowing four addresses, the app talks to one front door, and the gateway routes each real HTTP request to the right service, strips the outside path prefix and checks the token once for every route. We then break things on purpose: a service goes down and the gateway answers 500 rather than 503, a product page still needs three separate calls because a gateway forwards but does not merge, and a pricing service that never answers is cut off by a timeout with a clean 504. We finish with a short verdict: set a timeout on every route, decide what a dead service should look like to the app, and remember that combining answers is code you write yourself.
+
 CHAPTERS
 00:00 Introduction
 01:03 The Partner Project
