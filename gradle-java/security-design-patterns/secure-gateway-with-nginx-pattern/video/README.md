@@ -13,4 +13,11 @@ A narrated, slide-based video built by `./build_video.sh` with the shared videok
 
 Suggested description:
 
-> Put a real NGINX in front of the shop's order service as the gatekeeper: an allow-list of locations, limit_except for methods, client_max_body_size for size, and proxy_set_header to strip internal headers, with no secrets on the gate. With NGINX, a secure gateway is a secret-free reverse proxy whose configuration allow-lists locations and methods, limits size and strips internal headers.
+> Secure Gateway pattern in Java with NGINX as the gatekeeper, using an
+> online store order service that holds the database password. The services
+> with secrets never face the internet; NGINX does, holding no secrets and
+> letting through only a few allowed kinds of request, like a bank teller
+> with no vault key. We watch two tricks export every order, put an NGINX
+> gatekeeper in front with a short configuration, allow-list its locations,
+> and enforce size and shape limits. We finish with the bill: write the
+> gate's rules as an allow-list.

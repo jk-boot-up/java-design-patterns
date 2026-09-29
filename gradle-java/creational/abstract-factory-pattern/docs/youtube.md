@@ -17,7 +17,7 @@ Abstract Factory in Java - A Regional Checkout
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
-Learn the Abstract Factory pattern in Java 21 by building an online store's regional checkout. We start with the problem — three separate if/else chains that must all agree with each other, and silently produce a wrong invoice when they don't — and end with a design where a mismatched family is not caught but impossible. We also cover, honestly, why adding a new product kind is the expensive direction, and when the pattern is more machinery than the job needs. No prior design-pattern knowledge needed. Full source code and written notes are in the repository.
+Abstract Factory pattern in Java 21, explained by building an online store's regional checkout. We start with the problem — three separate if/else chains that must all agree with each other, and silently produce a wrong invoice when they don't — and end with a design where a mismatched family is not caught but impossible. We also cover, honestly, why adding a new product kind is the expensive direction, and when the pattern is more machinery than the job needs. No prior design-pattern knowledge needed. Full source code and written notes are in the repository.
 
 CHAPTERS
 00:00 Introduction

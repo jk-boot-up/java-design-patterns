@@ -69,7 +69,7 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Learn the Publisher-Subscriber pattern in Java with an online store where
+> Publisher-Subscriber pattern in Java, explained with an online store where
 > one thing happens, an order is placed, and several services care. The
 > publisher announces the event once to a topic, and any number of
 > subscribers listen without the publisher knowing who they are. We replace

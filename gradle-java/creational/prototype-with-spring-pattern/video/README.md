@@ -71,7 +71,7 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Learn the Prototype pattern in Java with Spring Boot, using the same
+> Prototype pattern in Java, explained with Spring Boot, using the same
 > online store product listings. In Spring, prototype is a scope: every
 > request for the bean builds a fresh one from its definition, like a cookie
 > cutter where icing one cookie does not ice the next. We make the listing a

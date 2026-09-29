@@ -110,7 +110,7 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Learn the Rate Limiter pattern in Java with a real Redis server and the
+> Rate Limiter pattern in Java, explained with a real Redis server and the
 > Bucket4j library. Each caller gets a bucket of tokens, every request
 > spends one, and an empty bucket means a refusal until it refills. In our
 > online store a price-comparison robot hammers the product search, and ten

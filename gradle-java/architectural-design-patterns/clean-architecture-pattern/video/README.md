@@ -70,8 +70,8 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Learn Clean Architecture in Java through an online shop that places an
-> order. The program is arranged in rings, with the business rules at the
+> Clean Architecture in Java, explained through an online shop that places
+> an order. The program is arranged in rings, with the business rules at the
 > centre and the technical details on the outside, and one rule holds it
 > together: code may only depend on things further in. We start from a naive
 > version, wire the real graph by hand, and find the dependency-inversion

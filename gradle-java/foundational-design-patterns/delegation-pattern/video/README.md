@@ -69,7 +69,7 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Learn the Delegation pattern in Java with an online store order that can
+> Delegation pattern in Java, explained with an online store order that can
 > be priced in several ways. Instead of doing the job itself, an object
 > hands it to a helper object it holds, and that helper can be swapped, like
 > a manager who passes the diary to an assistant. We watch a subclass

@@ -17,7 +17,7 @@ Gateway Offloading
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
-Move the chores every service needs, such as sign-in checks, rate limiting and compression, out of the services and into the gateway in front of them, so they are done once and the same way. Gateway Offloading moves the chores every service needs into the gateway in front of them, so they are done once and the same way.
+Gateway Offloading pattern in Java, explained with an online store running catalog, cart and orders services. Chores every service needs on every request, such as checking who the caller is, limiting callers who send too much, and compressing the answer, move into the gateway in front of them, so they are done once and the same way for everyone, like visitors signing in at reception instead of at every team's door. We watch three copies of a sign-in check drift apart, then check once at the gateway, add rate limiting and compression there. We finish with the bill.
 
 CHAPTERS
 00:00 Introduction

@@ -17,7 +17,7 @@ Blue-Green and Canary with Kubernetes
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
-Learn the Blue-Green and Canary release patterns in Java with a real Kubernetes cluster. On Kubernetes, blue-green is a change to a service's selector between two deployments, and a canary is a change to the replica counts of two deployments behind one service. Using an online store's checkout, we watch a real cluster fail every request while a release is replaced in place, then make a real switch and a real switch back, let the cluster itself spread a canary, and halt a bad release at a gate. We finish with the bill: running pods for two releases at once.
+Blue-Green and Canary release patterns in Java, explained with a real Kubernetes cluster. On Kubernetes, blue-green is a change to a service's selector between two deployments, and a canary is a change to the replica counts of two deployments behind one service. Using an online store's checkout, we watch a real cluster fail every request while a release is replaced in place, then make a real switch and a real switch back, let the cluster itself spread a canary, and halt a bad release at a gate. We finish with the bill: running pods for two releases at once.
 
 CHAPTERS
 00:00 Introduction

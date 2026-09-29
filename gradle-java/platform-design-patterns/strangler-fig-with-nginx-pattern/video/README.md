@@ -102,7 +102,7 @@ live in the project's `docs/youtube.md`.
 
 Suggested description:
 
-> Learn the Strangler Fig pattern in Java with a real NGINX web server as
+> Strangler Fig pattern in Java, explained with a real NGINX web server as
 > the front door. You replace an old system without switching it off,
 > growing the new one beside it one piece at a time, while the front door
 > decides which system answers each route. In our online store, prices move

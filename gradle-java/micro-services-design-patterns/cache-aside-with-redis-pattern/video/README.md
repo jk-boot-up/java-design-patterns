@@ -100,7 +100,7 @@ live in the project's `docs/youtube.md`.
 
 Suggested description:
 
-> Learn the Cache-Aside pattern in Java with a real Redis cache server. In
+> Cache-Aside pattern in Java, explained with a real Redis cache server. In
 > our online store every product page needs a price that lives in the
 > database, so the shop asks the cache first, and on a miss reads the
 > database and leaves a copy in the cache on the way back. We hear a second

@@ -17,7 +17,7 @@ Polling Consumer with RabbitMQ
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
-Let the label printer take orders from a real RabbitMQ queue only when it is ready, by polling with basicGet, and compare it with RabbitMQ's own answer: push with a prefetch limit. With RabbitMQ, a polling consumer asks for messages with `basicGet` when it is ready; push with a prefetch limit gives the same protection with less waste.
+Polling Consumer pattern in Java with a real RabbitMQ broker, using an online store warehouse label printer. A polling consumer asks for the next message when it is ready instead of having messages pushed at it as fast as they arrive, and RabbitMQ offers push, pull, and a middle way, like a kitchen that asks for the next ticket or keeps a few on the rail. We watch unlimited push overwhelm the printer, protect it by polling, learn that pausing is not polling, and see what polling costs when nothing is happening. We finish with RabbitMQ's middle way: prefetch.
 
 CHAPTERS
 00:00 Introduction

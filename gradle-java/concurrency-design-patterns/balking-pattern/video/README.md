@@ -69,7 +69,7 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Learn the Balking pattern in Java with an online store basket draft that
+> Balking pattern in Java, explained with an online store basket draft that
 > saves itself automatically. Balking means an action only happens when the
 > object is in the right state; otherwise the call returns at once, without
 > waiting and without failing, like pressing a lift button when the lift is

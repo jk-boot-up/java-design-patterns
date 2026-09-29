@@ -17,7 +17,7 @@ Bulkhead with Resilience4j - Two Kinds Of Wall
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
-Learn the Bulkhead pattern in Java with Resilience4j. A bulkhead gives each kind of work its own compartment, so a slow job fills only its own room, just as watertight walls stop one hole from flooding a whole ship. In our online store, a slow nightly supplier feed must never stop checkout from selling. We hear one shared compartment let the feed starve checkout, then a compartment each protect it, and what a full compartment does. Then the costs: the idle room behind the wall, an annotation that is a proxy and can be bypassed by accident, and the two kinds of bulkhead. The wall always costs some idle capacity.
+Bulkhead pattern in Java, explained with Resilience4j. A bulkhead gives each kind of work its own compartment, so a slow job fills only its own room, just as watertight walls stop one hole from flooding a whole ship. In our online store, a slow nightly supplier feed must never stop checkout from selling. We hear one shared compartment let the feed starve checkout, then a compartment each protect it, and what a full compartment does. Then the costs: the idle room behind the wall, an annotation that is a proxy and can be bypassed by accident, and the two kinds of bulkhead. The wall always costs some idle capacity.
 
 CHAPTERS
 00:00 Introduction

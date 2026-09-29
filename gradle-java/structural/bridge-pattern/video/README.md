@@ -218,7 +218,7 @@ Two further things that affect how well it plays for viewers:
 
 Suggested description:
 
-> Learn the Bridge design pattern in Java 21 by building a notification
+> Bridge design pattern in Java 21, explained by building a notification
 > system that sends messages over email, SMS and push. We start with the
 > problem — one class per (notification type, channel) combination, with
 > delivery logic copy-pasted across every one — and end with two small

@@ -72,12 +72,12 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Learn the Splitter and Aggregator pattern in Java with Apache Camel, using
-> an online store basket with three items in warehouses in Leeds, Reading
-> and Glasgow. Camel splits the order into one shipment per warehouse, each
-> prices its own line, and the aggregator gathers the answers back into one
-> price when a completion rule says they are ready. We hear an aggregator
-> wait forever because nobody gave it a deadline, a real deadline end that
-> wait, and the moment Camel declares an order finished when it is not. An
-> aggregator with only a count will wait forever, so the deadline is the
-> other half of the pattern.
+> Splitter and Aggregator pattern in Java, explained with Apache Camel,
+> using an online store basket with three items in warehouses in Leeds,
+> Reading and Glasgow. Camel splits the order into one shipment per
+> warehouse, each prices its own line, and the aggregator gathers the
+> answers back into one price when a completion rule says they are ready. We
+> hear an aggregator wait forever because nobody gave it a deadline, a real
+> deadline end that wait, and the moment Camel declares an order finished
+> when it is not. An aggregator with only a count will wait forever, so the
+> deadline is the other half of the pattern.

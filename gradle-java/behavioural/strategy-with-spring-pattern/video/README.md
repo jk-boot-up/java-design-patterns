@@ -71,7 +71,7 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Learn the Strategy pattern in Java with Spring Boot, using the same
+> Strategy pattern in Java, explained with Spring Boot, using the same
 > delivery pricing for an online shop. Each pricing rule is its own class
 > behind one interface, and Spring collects them into a map keyed by name,
 > like a phone's contact list that turns a name into a number. We let Spring

@@ -17,7 +17,7 @@ Message Channel
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
-Learn the Message Channel pattern in Java with an online store where checkout must talk to the warehouse. A message channel is a named queue carrying messages from sender to receiver, so the two do not need to be running at the same moment, like a letterbox that takes post while you are out. We watch checkout fail while the warehouse is down, then add a channel so it carries on. We hear messages wait and arrive in order, wrap them in an envelope, and keep one kind of message per channel. The price is that the sender never hears the answer.
+Message Channel pattern in Java, explained with an online store where checkout must talk to the warehouse. A message channel is a named queue carrying messages from sender to receiver, so the two do not need to be running at the same moment, like a letterbox that takes post while you are out. We watch checkout fail while the warehouse is down, then add a channel so it carries on. We hear messages wait and arrive in order, wrap them in an envelope, and keep one kind of message per channel. The price is that the sender never hears the answer.
 
 CHAPTERS
 00:00 Introduction

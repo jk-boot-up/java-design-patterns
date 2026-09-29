@@ -70,7 +70,7 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Learn the Unit of Work pattern in Java with an online store order that
+> Unit of Work pattern in Java, explained with an online store order that
 > writes seven things, where the seventh fails. A unit of work keeps a list
 > of what is new, changed and removed, then writes it all together at the
 > end, or not at all, like a shopping basket that charges nothing until you

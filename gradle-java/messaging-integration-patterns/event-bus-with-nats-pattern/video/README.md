@@ -72,7 +72,7 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Learn the Event Bus pattern in Java with NATS, a real messaging server on
+> Event Bus pattern in Java, explained with NATS, a real messaging server on
 > the network that keeps nothing. Checkout announces that an order was
 > placed, and the email service, the warehouse and analytics each listen for
 > what they care about, like a warehouse loudspeaker: whoever is in the room

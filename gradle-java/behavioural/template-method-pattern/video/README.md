@@ -220,17 +220,17 @@ Two further things that affect how well it plays for viewers:
 
 Suggested description:
 
-> Learn the Template Method design pattern in Java 21 by building order
+> Template Method design pattern in Java 21, explained by building order
 > fulfilment for an online store three completely different ways — own
 > warehouse, marketplace seller and digital download. We start with the
 > problem — three hand-written copies of the same six-step sequence, one of
 > which drifted, so a customer is emailed a licence key before the key is
-> minted and another is charged before the seller refuses the order — and end
-> with a single `final` template method that owns the order, abstract steps a
-> route must answer, defaults it can inherit, hooks it can opt into, a fourth
-> route added without reopening a single working file, and a test that asserts
-> on the call order directly. Also covers the three kinds of hole and how to
-> choose between them, the inheritance slot the pattern spends permanently,
-> and how Template Method differs from Factory Method and from Strategy. No
-> prior design-pattern knowledge needed. Full source code and written notes
-> are in the repository.
+> minted and another is charged before the seller refuses the order — and
+> end with a single `final` template method that owns the order, abstract
+> steps a route must answer, defaults it can inherit, hooks it can opt into,
+> a fourth route added without reopening a single working file, and a test
+> that asserts on the call order directly. Also covers the three kinds of
+> hole and how to choose between them, the inheritance slot the pattern
+> spends permanently, and how Template Method differs from Factory Method
+> and from Strategy. No prior design-pattern knowledge needed. Full source
+> code and written notes are in the repository.

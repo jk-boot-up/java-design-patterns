@@ -220,7 +220,7 @@ Two further things that affect how well it plays for viewers:
 
 Suggested description:
 
-> Learn the Observer design pattern in Java 21 by shipping an order in an
+> Observer design pattern in Java 21, explained by shipping an order in an
 > online shop and letting four unrelated systems react to it — inventory,
 > email, analytics, and the warehouse feed. We start with the problem — an
 > order service that calls each system by name, so the afternoon the mail

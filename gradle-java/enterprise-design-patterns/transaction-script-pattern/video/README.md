@@ -69,7 +69,7 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Learn the Transaction Script pattern in Java by placing an order in an
+> Transaction Script pattern in Java, explained by placing an order in an
 > online store. Business logic is organised as one procedure per request,
 > run as one transaction, with no business objects behind it; the steps are
 > the design, like a recipe card read top to bottom. We place and undo an

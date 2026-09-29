@@ -13,4 +13,12 @@ A narrated, slide-based video built by `./build_video.sh` with the shared videok
 
 Suggested description:
 
-> An object that can never change after it is made can be shared with anyone, read at any moment, and used as a key, because nobody can alter it behind your back. An immutable object never changes after it is made; to change something, you make a new object, so every holder of the old one keeps seeing exactly what it saw.
+> Immutable Object pattern in Java, explained with an online store that
+> passes addresses and price lists everywhere, where orders keep a shipping
+> address and checkout reads the prices. An immutable object can never
+> change after it is made; to change something you make a new object, and
+> everyone holding the old one still sees it exactly as it was, like a
+> printed till receipt rather than a café whiteboard. We watch a shared
+> address change under an order, a price list change while being read, and
+> an object get lost in a set, then fix all three with immutable objects. We
+> finish with the bill.

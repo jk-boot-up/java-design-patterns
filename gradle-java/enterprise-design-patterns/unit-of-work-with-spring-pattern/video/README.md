@@ -70,7 +70,7 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Learn the Unit of Work pattern in Java with Spring, using the same order.
+> Unit of Work pattern in Java, explained with Spring, using the same order.
 > All the changes are collected and written together at the end, or not at
 > all, like a bank transfer that never moves just one half. We hear the
 > writes arrive at the end instead of where the code is, then meet three

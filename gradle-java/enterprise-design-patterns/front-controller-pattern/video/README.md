@@ -69,7 +69,7 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Learn the Front Controller pattern in Java with an online store where
+> Front Controller pattern in Java, explained with an online store where
 > every visitor's web request arrives through one entry point. The shared
 > work of logging, checking who is asking, finding the right handler and
 > dealing with failures is done once there, like a building's reception

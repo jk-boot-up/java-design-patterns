@@ -69,7 +69,7 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Learn the Event-Driven Architecture pattern in Java with an online store
+> Event-Driven Architecture pattern in Java, explained with an online store
 > where orders, inventory and shipping must work together, and any of them
 > may be down. Instead of calling each other and waiting, each service
 > writes facts, called events, to a shared log and reads that log at its own

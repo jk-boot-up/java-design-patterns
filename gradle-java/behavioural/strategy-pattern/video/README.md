@@ -220,7 +220,7 @@ Two further things that affect how well it plays for viewers:
 
 Suggested description:
 
-> Learn the Strategy design pattern in Java 21 by pricing delivery for an
+> Strategy design pattern in Java 21, explained by pricing delivery for an
 > online shop four different ways — a flat rate, weight bands, distance, and
 > a free-over-fifty-pounds campaign. We start with the problem — one method
 > with one switch over a shipping-method flag, growing a branch every time

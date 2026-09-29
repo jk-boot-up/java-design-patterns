@@ -69,7 +69,7 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Learn the Service Mesh pattern in Java with an online store where every
+> Service Mesh pattern in Java, explained with an online store where every
 > service calls the payment service and each team wrote its own retry code
 > in its own way. A service mesh puts a proxy beside every service, and the
 > proxies handle retries, identity and measurement for all calls under one

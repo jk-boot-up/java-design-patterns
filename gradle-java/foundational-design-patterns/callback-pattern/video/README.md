@@ -69,7 +69,7 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Learn the Callback pattern in Java with an online store card payment that
+> Callback pattern in Java, explained with an online store card payment that
 > takes a while to be answered, while the shop must not stand still. A
 > callback is a piece of code you hand to someone else to run when the thing
 > you asked for has happened, like leaving your phone number with a shop. We

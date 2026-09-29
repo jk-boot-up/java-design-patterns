@@ -71,7 +71,7 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Learn the API Gateway pattern in Java with Spring Cloud Gateway, using an
+> API Gateway pattern in Java, explained with Spring Cloud Gateway, using an
 > online store whose mobile app needs four services: catalogue, pricing,
 > inventory and recommendations. Instead of knowing four addresses, the app
 > talks to one front door, and the gateway routes each real HTTP request to

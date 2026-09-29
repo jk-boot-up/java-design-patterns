@@ -17,7 +17,7 @@ Servant
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
-Put behaviour that many unrelated classes need into one separate helper, the servant, which works on anything that offers a small interface. A servant is a separate class that performs one job for many unrelated classes, each of which only offers a small interface with the facts the job needs.
+Servant pattern in Java, explained with an online store that posts parcels, letters and gift cards, and later pallets. A servant is a separate class that does one job for many classes that have nothing else in common: each class offers a few facts and the servant does the work, written once, like a car wash that cleans every make of car. We watch copied postage code drift apart, replace it with one servant, add a new kind of item with no new code, and test the servant on its own. We finish with the bill.
 
 CHAPTERS
 00:00 Introduction

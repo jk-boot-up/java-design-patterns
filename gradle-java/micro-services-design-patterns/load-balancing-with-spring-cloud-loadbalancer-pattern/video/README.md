@@ -71,10 +71,10 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Learn Client-Side Load Balancing in Java with Spring Cloud LoadBalancer,
-> using three copies of an online store's catalogue service. The caller uses
-> a service name, and a balancer inside the client picks one copy for each
-> request. We spread twelve real requests across the copies, show that fair
-> is not fast, write a strategy of our own, stop a copy and watch a retry
-> land elsewhere. We finish with the trap of real addresses: the balancer
-> only works for names.
+> Client-Side Load Balancing in Java, explained with Spring Cloud
+> LoadBalancer, using three copies of an online store's catalogue service.
+> The caller uses a service name, and a balancer inside the client picks one
+> copy for each request. We spread twelve real requests across the copies,
+> show that fair is not fast, write a strategy of our own, stop a copy and
+> watch a retry land elsewhere. We finish with the trap of real addresses:
+> the balancer only works for names.

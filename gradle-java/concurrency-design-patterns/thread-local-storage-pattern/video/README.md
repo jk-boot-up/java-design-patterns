@@ -69,7 +69,7 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Learn the Thread-Local Storage pattern in Java with an online store where
+> Thread-Local Storage pattern in Java, explained with an online store where
 > every layer of a request needs to know which customer it serves, but few
 > of them care. Thread-local storage gives each thread its own private copy
 > of a value that any code on that thread can read without it being passed

@@ -13,4 +13,11 @@ A narrated, slide-based video built by `./build_video.sh` with the shared videok
 
 Suggested description:
 
-> Make the stub your tests use from the same written contract that the real service is checked against, so the stub and the real service can never quietly drift apart. A Contract Stub is a test stub made from a shared contract that the real service is also checked against, so the two cannot drift apart.
+> Contract Stub pattern in Java, explained with an online store checkout
+> that calls a payment service run by another team. A stub is a stand-in for
+> that service in tests; a contract stub is made from a written agreement
+> between the two teams, and the real service is checked against the same
+> agreement, so the two can never quietly drift apart, like a fire drill
+> always run from the current floor plan. We watch a hand-written stub
+> drift, build one from the contract, check the provider too, and make the
+> stub strict. We finish with the bill.

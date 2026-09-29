@@ -17,7 +17,7 @@ Routing Slip
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
-Decide the steps a message needs once, when it enters, attach them to the message as a slip, and let each step pass it on to the next address on the slip. A routing slip is a list of processing steps worked out when a message enters and carried with it, so each step can pass the message on to the next one on the list.
+Routing Slip pattern in Java, explained with an online store whose orders need different steps: gift wrap for gifts, age checks for knives, customs for orders abroad. The steps a message needs are worked out once when it arrives and attached to it as a list, and each step does its work and passes it to the next, like a circulation slip clipped to an office magazine. We watch one fixed pipeline run every step for every order, attach routing slips, let steps pass orders on, and add a new step. We finish with the bill.
 
 CHAPTERS
 00:00 Introduction

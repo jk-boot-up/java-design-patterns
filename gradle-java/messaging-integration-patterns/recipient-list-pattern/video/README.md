@@ -13,4 +13,11 @@ A narrated, slide-based video built by `./build_video.sh` with the shared videok
 
 Suggested description:
 
-> For each message, work out the list of destinations that need it, from the message itself and from rules that can change, and send a copy to each of them and no one else. A recipient list works out, for each message, exactly which destinations need it, and sends a copy to each of them.
+> Recipient List pattern in Java, explained with an online store that ships
+> from four warehouses, each handling different kinds of product. A
+> recipient list works out, for each message, exactly which destinations
+> need it and sends a copy to each of them and nobody else, like a post room
+> routing sheet that sends contracts to legal and prices to accounts. We
+> hear what sending everything everywhere costs, build a recipient list, let
+> rules add recipients, change the routing table, and see what happens when
+> one recipient is down. We finish with the bill.

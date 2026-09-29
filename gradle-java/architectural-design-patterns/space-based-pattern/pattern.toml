@@ -8,6 +8,7 @@ package = "spacebased"
 main_class = "SpaceBasedDemo"
 tagline = "Take the database out of the way"
 bold = "Give every copy of the application its own in-memory copy of the data, keep the copies in step through a data grid, and update the database in the background, so no request waits for it."
+youtube_description = """Space-Based Architecture pattern in Java, explained with an online store kettle flash sale, where hundreds of orders arrive at once and every one must check the stock. Each copy of the application keeps the data in its own memory, the copies stay in step through a data grid, and the database is updated in the background so no request waits for it, like festival stalls radioing their sales to each other. We see why more servers did not help, add processing units with the data in memory, let the database catch up, and meet the kettle that was sold twice."""
 domain_note = ""
 thumb_lines = ["SPACE-BASED", "ARCHITECTURE"]
 thumb_code = "unit.takeOne()"

@@ -13,4 +13,11 @@ A narrated, slide-based video built by `./build_video.sh` with the shared videok
 
 Suggested description:
 
-> Let readers use the current copy with no locks at all, and make every writer copy the whole thing, change the copy, and swap it in. Copy-on-write lets readers use the current version with no locks and makes every writer copy it, change the copy and swap it in.
+> Copy-on-Write pattern in Java, explained with an online store that tells a
+> list of listeners about every price change: the web page cache, the
+> loyalty service and the phone app. Readers use the current version with no
+> locks at all, and a writer copies, changes the copy and swaps it in, like
+> a restaurant reprinting its menus while diners finish the old ones. We
+> watch a plain list crash when it changes while being read, switch to a
+> copy-on-write list, show that readers never lock and see snapshots. We
+> finish with what every write costs.

@@ -17,7 +17,7 @@ Scheduler
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
-When threads queue for one shared resource, let a scheduler with a replaceable policy decide whose turn is next, instead of whoever happens to grab the lock. A scheduler makes threads ask for their turn at a shared resource and lets a replaceable policy decide whose turn comes next.
+Scheduler pattern in Java, explained with an online store warehouse where six packing stations share one label printer and express orders must catch the afternoon van. When many threads wait for one shared resource, a scheduler decides whose turn is next by a policy that can be swapped without touching anything else, like a triage nurse deciding by urgency. We see why a fair lock serves the wrong job first, put express orders first, make the policy replaceable, and make sure nobody waits forever. We finish with the bill.
 
 CHAPTERS
 00:00 Introduction

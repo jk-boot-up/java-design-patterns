@@ -69,7 +69,7 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Learn the Dead Letter Channel pattern in Java with an online store order
+> Dead Letter Channel pattern in Java, explained with an online store order
 > that arrives garbled and can never be read. A dead letter channel is where
 > a message goes after a fixed number of failed tries, so it stops blocking
 > the messages behind it and someone can look at it later, like the post

@@ -13,4 +13,11 @@ A narrated, slide-based video built by `./build_video.sh` with the shared videok
 
 Suggested description:
 
-> Split one large table across several databases by a key, such as the customer number, so each database holds and serves only its share. Sharding splits one large table across several databases by a key, so each holds and serves only its share, with a router that picks the shard from the key.
+> Sharding pattern in Java, explained with an online store on Black Friday,
+> when orders arrive faster than one database can take them. Sharding splits
+> one large set of data across several databases called shards, each row
+> going to a shard chosen from a key such as the customer number, like
+> splitting patient records into A to H, I to P and Q to Z cabinets. We
+> watch one database fall behind, split it into three shards, keep one
+> customer on one shard, and see a question about everyone hit every shard.
+> We finish with the bill, including the refiling a fourth shard needs.

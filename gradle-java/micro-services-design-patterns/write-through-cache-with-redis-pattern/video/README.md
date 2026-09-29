@@ -13,4 +13,11 @@ A narrated, slide-based video built by `./build_video.sh` with the shared videok
 
 Suggested description:
 
-> Write every price to PostgreSQL and then to a real, shared Redis cache before the write returns, read pages from Redis, and see the one thing the plain version could not: two systems that no transaction spans. With Redis and PostgreSQL, a write-through cache writes every change to the database and then the shared cache before returning, and reads from the cache.
+> Write-Through Cache pattern in Java with a real Redis cache and a real
+> PostgreSQL database, using an online store's prices. Every write goes to
+> the database and then to the cache before it is finished, so the cache
+> never shows something the database does not have, like updating the back-
+> office price list and then the shelf tag. We watch a write round the cache
+> go stale, write through instead, serve reads from Redis, and handle the
+> moment when one of the two refuses a write. We finish with the bill: put a
+> limit on how long they can disagree.

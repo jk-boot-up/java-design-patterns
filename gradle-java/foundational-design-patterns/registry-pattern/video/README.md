@@ -69,7 +69,7 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Learn the Registry pattern in Java with an online store checkout that
+> Registry pattern in Java, explained with an online store checkout that
 > needs a discount policy, a payment gateway and a notifier. A registry is a
 > well-known place where things are kept, so any object can find what it
 > needs by asking, like an office noticeboard where nobody knows who pinned

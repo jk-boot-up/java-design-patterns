@@ -141,7 +141,7 @@ unreadable at 360p — and set the custom thumbnail under **Details** →
 
 Suggested description:
 
-> Learn the Layered Architecture pattern in Java by building a real online
+> Layered Architecture pattern in Java, explained by building a real online
 > shop with four layers, where each layer may only depend on the one
 > directly beneath it, like a customer who talks to the waiter and never
 > walks into the store room. Drawing four boxes costs nothing, so we watch a

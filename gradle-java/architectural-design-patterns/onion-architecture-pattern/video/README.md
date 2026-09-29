@@ -69,7 +69,7 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Learn the Onion Architecture pattern in Java with an online store whose
+> Onion Architecture pattern in Java, explained with an online store whose
 > order class saves itself to a database, so the storage cannot change
 > without editing the order. Onion Architecture puts the business rules at
 > the centre and lets every ring depend only on rings further in, like a

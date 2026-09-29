@@ -17,7 +17,7 @@ Routing Slip with Apache Camel
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
-Build the routing slip with Apache Camel: each order's list of steps is written once into a header, routingSlip() follows it, and dynamicRouter() shows what to use when the next step must be decided on the way. With Camel, a routing slip is a header listing each order's steps, and `routingSlip()` sends the order through them in turn.
+Routing Slip pattern in Java with Apache Camel, which follows slips for you, using an online store's order processing. A routing slip is a list of steps written once that travels with the message, and each step does its job and passes the message on, like a hospital treatment card listing the departments to visit. We watch one fixed pipeline, write each order's slip, let Camel follow it, and add a new step. We finish with the bill and compare the slip with Camel's dynamic router. Write the route once, and let the message carry it.
 
 CHAPTERS
 00:00 Introduction

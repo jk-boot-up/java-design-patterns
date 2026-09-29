@@ -13,4 +13,12 @@ A narrated, slide-based video built by `./build_video.sh` with the shared videok
 
 Suggested description:
 
-> Put a broker between clients and services: services register by name, clients call by name, and the broker finds the service and forwards the call. A broker sits between clients and services, lets services register by name and forwards clients' calls by name, so neither side needs the other's address.
+> Broker pattern in Java, explained with an online store checkout that calls
+> a stock service and a price service running as small web servers. A broker
+> sits between clients and services: services register with it by name,
+> clients call it by name, and the broker finds the service, forwards the
+> call and returns the answer, like an old hotel switchboard operator. We
+> watch hard-coded addresses break, route calls through a broker, move a
+> service without touching the checkout, and spread calls across several
+> copies. We finish with the bill. Call services by name, and let the broker
+> know where they live.

@@ -243,12 +243,12 @@ Two further things that affect how well it plays for viewers:
 
 Suggested description:
 
-> Learn the singleton pattern in Java 21 — the Gang of Four pattern for
-> guaranteeing exactly one instance of a class exists. We start from an
-> order-number sequencer built twice by mistake, fix it the textbook way
-> with a private constructor and a static `getInstance()`, and then break
-> that "fix" twice — once with reflection's `setAccessible(true)`, once with
-> a plain serialization round trip. We finish with the shape Effective Java
+> Singleton pattern in Java 21 — the Gang of Four pattern for guaranteeing
+> exactly one instance of a class exists. We start from an order-number
+> sequencer built twice by mistake, fix it the textbook way with a private
+> constructor and a static `getInstance()`, and then break that "fix" twice
+> — once with reflection's `setAccessible(true)`, once with a plain
+> serialization round trip. We finish with the shape Effective Java
 > recommends instead: a single-element `enum`, which closes both holes for
 > free because the JVM itself refuses to construct a second enum constant.
 > No prior design-pattern knowledge needed. Full source code and written

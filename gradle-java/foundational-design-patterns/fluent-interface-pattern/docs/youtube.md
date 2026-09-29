@@ -17,7 +17,7 @@ Fluent Interface
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
-Learn the Fluent Interface pattern in Java with an online store product search that takes five arguments, two of them easy-to-swap true or false values. A fluent interface chains method calls so code reads like a sentence, like giving someone directions step by step. We watch swapped values still compile, then turn the search into a sentence, leave out what we do not need, compare a query that changes itself with one that never does, and add guided steps that refuse a wrong order. The price is errors found late, harder debugging, and a small language to maintain.
+Fluent Interface pattern in Java, explained with an online store product search that takes five arguments, two of them easy-to-swap true or false values. A fluent interface chains method calls so code reads like a sentence, like giving someone directions step by step. We watch swapped values still compile, then turn the search into a sentence, leave out what we do not need, compare a query that changes itself with one that never does, and add guided steps that refuse a wrong order. The price is errors found late, harder debugging, and a small language to maintain.
 
 CHAPTERS
 00:00 Introduction

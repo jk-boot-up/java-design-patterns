@@ -13,4 +13,11 @@ A narrated, slide-based video built by `./build_video.sh` with the shared videok
 
 Suggested description:
 
-> Start slow operations without waiting for them, and give each one a completion handler that the system calls when it finishes, successfully or not. A proactor starts slow operations without waiting and lets the system call a completion handler, or a failure handler, when each finishes.
+> Proactor pattern in Java, explained with an online store warehouse that
+> asks five suppliers for today's kettle price, each taking a fifth of a
+> second to answer. You start slow operations without waiting, hand each a
+> completion handler for success and failure, and the system does the
+> waiting and calls you back, like buzzers at a food court. We watch asking
+> one after another add up, start everything at once, handle results in
+> completion handlers, and treat a failure as just another completion. We
+> finish with the bill.

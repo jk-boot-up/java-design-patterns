@@ -71,7 +71,7 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Learn the Serverless pattern in Java with AWS Lambda running on
+> Serverless pattern in Java, explained with AWS Lambda running on
 > LocalStack, using the same online store. We upload a real function once,
 > send five orders at the same time and watch five real containers start,
 > then watch them disappear when the platform goes quiet, like taxis pulling

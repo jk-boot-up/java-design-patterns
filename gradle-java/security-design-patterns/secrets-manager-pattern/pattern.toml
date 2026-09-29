@@ -8,6 +8,7 @@ package = "secrets"
 main_class = "SecretsManagerDemo"
 tagline = "Keys out of the code"
 bold = "Keep passwords and keys out of code and builds, in one guarded store that hands each service only the secrets it is allowed, logs every read, and lets a secret be rotated without a rebuild."
+youtube_description = """Secrets Manager pattern in Java, explained with an online store's key for its card-payment company. Passwords and keys are kept out of the code in one guarded store, each service gets only the secrets it is allowed, every read is logged, and a secret can be replaced without rebuilding anything, like a hotel key cabinet with a signing-out book. We watch a key hard-coded in the source, move it into a manager, rotate it without a rebuild, and respond to a leak. We finish with the bill."""
 domain_note = ""
 thumb_lines = ["SECRETS", "MANAGER"]
 thumb_code = "manager.read(\"payment-key\")"

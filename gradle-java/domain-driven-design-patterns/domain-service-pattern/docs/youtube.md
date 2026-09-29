@@ -17,7 +17,7 @@ Domain Service
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
-When a business rule involves several domain objects and belongs to none of them, give it its own stateless class in the domain, named in the business's own words. A domain service is a stateless class, named in business language, that holds a rule involving several domain objects and belonging to none of them.
+Domain Service pattern from domain-driven design in Java, with an online store where gold customers get ten percent off, a coupon takes five pounds off baskets over forty, and the two must not simply add up. Some rules involve several objects and belong to none of them, so a domain service holds the rule, keeps no data of its own, and is named in the business's words, like a referee applying the rules to two players. We watch copies of the rule drift apart, move it into one service that explains itself, and use it for every case. We finish with how services can empty your objects.
 
 CHAPTERS
 00:00 Introduction

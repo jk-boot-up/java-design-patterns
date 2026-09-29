@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Distributed Tracing with Jaeger — Animated Walkthrough</title>
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 24px;
+    background: #0f172a; color: #e2e8f0;
+    font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
+    padding-top: calc(24px + env(safe-area-inset-top, 0px));
+    padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+  }
+  h1 { font-size: 1.4rem; margin: 0 0 4px; }
+  p.sub { color: #94a3b8; margin: 0 0 20px; max-width: 70ch; }
+  .wrap { max-width: 1100px; margin: 0 auto; }
+  .stage {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+    margin-bottom: 16px;
+  }
+  @media (max-width: 760px) { .stage { grid-template-columns: 1fr; } }
+  .boxes { display: flex; flex-direction: column; gap: 10px; }
+  .row {
+    border: 2px solid #334155; border-radius: 10px; padding: 12px 16px;
+    background: #1e293b; transition: all .25s ease; opacity: .55;
+  }
+  .row .name { font-weight: 700; font-size: 1rem; }
+  .row .job { color: #94a3b8; font-size: .82rem; margin-top: 2px; }
+  .row.active { opacity: 1; box-shadow: 0 0 0 2px currentColor inset; }
+  .row.wrong { border-color: #f87171; color: #f87171; }
+  .row.wrong.active { background: #3f1d24; }
+  .row.ok { border-color: #34d399; color: #34d399; }
+  .row.ok.active { background: #10261f; }
+  .row.amber { border-color: #fbbf24; color: #fbbf24; }
+  .row.amber.active { background: #2a2110; }
+  .row.dim { opacity: .22; }
+  .console {
+    background: #020617; border: 1px solid #334155; border-radius: 10px;
+    padding: 16px; font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    font-size: .86rem; line-height: 1.55; overflow-y: auto; min-height: 320px;
+    white-space: pre-wrap;
+  }
+  #console-lines span.ok { color: #34d399; }
+  #console-lines span.bad { color: #f87171; }
+  #console-lines span.amber { color: #fbbf24; }
+  #console-lines span.muted { color: #94a3b8; }
+  .narration {
+    background: #1e293b; border: 1px solid #334155; border-radius: 10px;
+    padding: 14px 18px; margin-bottom: 16px; min-height: 3.2em;
+  }
+  .controls { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  button {
+    background: #334155; color: #e2e8f0; border: 1px solid #475569;
+    border-radius: 8px; padding: 10px 18px; font-size: .92rem; cursor: pointer;
+  }
+  button:hover { background: #475569; }
+  button#play { background: #7c3aed; border-color: #7c3aed; }
+  button#play:hover { background: #8b5cf6; }
+  button#audio.on { background: #0f766e; border-color: #14b8a6; }
+  #progress { color: #94a3b8; font-size: .85rem; margin-left: auto; }
+  .audio-note { color: #94a3b8; font-size: .78rem; margin: 10px 0 0; min-height: 1em; }
+  .step-label {
+    font-size: .78rem; text-transform: uppercase; letter-spacing: .04em;
+    color: #a78bfa; font-weight: 700; margin-bottom: 4px;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Distributed Tracing with Jaeger — Step by Step</h1>
+  <p class="sub">
+    Six acts, the same ones the demo prints against a real Jaeger collector. Green is a span that reached Jaeger
+    in the right trace, amber is a moment worth watching, red is a span that is missing, late, or in the wrong story.
+  </p>
+
+  <div class="narration">
+    <div class="step-label" id="step-label">Ready</div>
+    <div id="narration">Press Step or Play to begin.</div>
+  </div>
+
+  <div class="stage">
+    <div class="boxes" id="boxes">
+      <div class="row" id="row-page">
+        <div class="name">product page</div>
+        <div class="job">the front door: catalog, pricing, inventory, a call to recommendations, render; 6 spans</div>
+      </div>
+      <div class="row" id="row-header">
+        <div class="name">traceparent header</div>
+        <div class="job">55 characters on the call: version, trace ID, the caller's span ID, a keep-or-drop flag</div>
+      </div>
+      <div class="row" id="row-recs">
+        <div class="name">recommendations</div>
+        <div class="job">a second Java process with its own OpenTelemetry; the slow ranking model; 2 spans</div>
+      </div>
+      <div class="row" id="row-jaeger">
+        <div class="name">Jaeger 2.21.0</div>
+        <div class="job">the collector, in a container the demo starts and removes; joins spans by trace ID</div>
+      </div>
+    </div>
+    <div class="console"><div id="console-lines"></div></div>
+  </div>
+
+  <div class="controls">
+    <button id="step">Step &#9656;</button>
+    <button id="play">Play &#9654;</button>
+    <button id="reset">Reset &#8635;</button>
+    <button id="audio" aria-pressed="false">&#128263; Narration: off</button>
+    <span id="progress">0 / 0</span>
+  </div>
+  <p class="audio-note" id="audio-note"></p>
+</div>
+
+<script>
+const STEPS = [
+  {
+    label: "Act 1 \u2014 a hop that forgets the header",
+    narration: "Act one. The product page calls recommendations over the network, but leaves out the line that writes the trace header. Nothing fails. Recommendations finds no header and starts a trace of its own. Jaeger holds two traces for one page load: six spans from the page, whose call to recommendations has nothing under it, and two spans from recommendations with no page above them. Each looks perfectly healthy.",
+    rows: {"page": "active ok", "header": "active wrong", "recs": "active amber", "jaeger": "active amber"},
+    console: [["traceparent sent: none", "bad"], ["Jaeger holds 2 traces for one page load", "bad"], ["trace 1: 6 spans, product-page; call to recommendations: 0 spans under it", "muted"], ["trace 2: 2 spans, recommendations; no page above it", "muted"]],
+  },
+  {
+    label: "Act 2 \u2014 the header forwarded",
+    narration: "Act two. One line is added: write the current trace onto the outgoing request. The header sent and the header received are the same fifty-five characters. Jaeger now holds one trace: eight spans, from two services, with one root. The slowest piece of work by its own time is the ranking model, three hundred and forty milliseconds or more. The page's call lasts a little longer than recommendations took: that difference is the network hop.",
+    rows: {"page": "active ok", "header": "active ok", "recs": "active ok", "jaeger": "active ok"},
+    console: [["sent:     00-bfc846...532f-b9f24f7bae4a6586-01", "ok"], ["received: 00-bfc846...532f-b9f24f7bae4a6586-01", "ok"], ["Jaeger holds 1 trace: 8 spans from 2 services, 1 root", "ok"], ["slowest by its own time: ranking-model, 340 ms or more", "amber"]],
+  },
+  {
+    label: "Act 3 \u2014 the collector puts it together, later",
+    narration: "Act three. The customer already has the page, and Jaeger holds none of its spans. Each service sends its finished spans by itself, in a batch every five seconds. They arrive more than two seconds after the customer had the page. Then Jaeger holds eight spans: six sent by the page and two sent by recommendations, joined by trace ID.",
+    rows: {"page": "active amber", "recs": "active amber", "jaeger": "active ok"},
+    console: [["the customer has the page. Jaeger holds 0 spans of it", "amber"], ["batches every 5 seconds, from each service", "muted"], ["arrived more than 2 seconds later", "amber"], ["Jaeger holds 8 spans: 6 from product-page, 2 from recommendations", "ok"]],
+  },
+  {
+    label: "Act 4 \u2014 sampling at the front door",
+    narration: "Act four. The page keeps one trace in four, decided once at the front door. Twenty page loads: six kept, fourteen dropped. A kept load's header ends zero one; a dropped load's ends zero zero. Recommendations obeys the flag and records spans for the same six. Jaeger holds six traces of the twenty. A customer complains about the first page load, and Jaeger has no trace of it, and never will.",
+    rows: {"page": "active ok", "header": "active amber", "recs": "active ok", "jaeger": "active wrong"},
+    console: [["20 page loads. kept: 6. dropped: 14", "muted"], ["kept: header ends -01. dropped: header ends -00", "amber"], ["Jaeger holds 6 traces of the 20", "ok"], ["a complaint about visit 1: no trace, ever", "bad"]],
+  },
+  {
+    label: "Act 5 \u2014 a clock that is off",
+    narration: "Act five. The recommendations machine's clock is set three seconds slow; the page's clock is right. The trace is complete and every parent link is correct. But in time order, recommendations' span comes first, two to three seconds before the call that caused it. Jaeger warns that clock skew adjustment is disabled, and corrects nothing.",
+    rows: {"page": "active ok", "recs": "active wrong", "jaeger": "active amber", "header": "active ok"},
+    console: [["recommendations' clock: 3 seconds slow", "muted"], ["1 trace, 8 spans, 1 root; parent links correct", "ok"], ["recommendations starts 2 to 3 s before the call that caused it", "bad"], ["Jaeger: clock skew adjustment disabled", "amber"]],
+  },
+  {
+    label: "Act 6 \u2014 the bill",
+    narration: "Act six. Recommendations answers the customer and is then killed before its next batch. The page stops politely and sends what it holds. Jaeger holds six spans of that page load, all from the page, and none from recommendations: they never arrive. Every page load costs eight spans from two programs, and a fifty-five character header on every hop. And Jaeger, out of the box, keeps everything in memory.",
+    rows: {"page": "active ok", "recs": "active wrong", "jaeger": "active amber"},
+    console: [["recommendations killed before its next batch", "bad"], ["Jaeger holds 6 spans of visit 6: 6 from product-page, 0 from recommendations", "bad"], ["every page load: 8 spans from 2 processes, a 55-character header per hop", "amber"], ["Jaeger out of the box: memory storage", "amber"]],
+  },
+];
+
+const rowIds = ["page", "header", "recs", "jaeger"];
+const stepLabel = document.getElementById("step-label");
+const narrationEl = document.getElementById("narration");
+const consoleEl = document.getElementById("console-lines");
+const progressEl = document.getElementById("progress");
+const stepBtn = document.getElementById("step");
+const playBtn = document.getElementById("play");
+const resetBtn = document.getElementById("reset");
+const audioBtn = document.getElementById("audio");
+const audioNote = document.getElementById("audio-note");
+
+let i = -1;
+let timer = null;
+let audioOn = false;
+let current = null;
+
+const clips = STEPS.map((_, k) => {
+  const a = new Audio("audio/step-" + (k + 1) + ".m4a");
+  a.preload = "none";
+  return a;
+});
+
+function stopAudio() {
+  if (!current) return;
+  current.pause();
+  current.currentTime = 0;
+  current.onended = null;
+  current = null;
+}
+
+function playClip(k) {
+  stopAudio();
+  if (!audioOn || k < 0 || k >= clips.length) return;
+  const a = clips[k];
+  current = a;
+  a.currentTime = 0;
+  a.onended = () => { current = null; };
+  a.play().catch(() => {
+    current = null;
+    audioNote.textContent =
+      "Narration audio could not be played. Run docs/make_animation_audio.sh to generate the clips.";
+  });
+}
+
+function setAudio(on) {
+  audioOn = on;
+  audioBtn.classList.toggle("on", on);
+  audioBtn.setAttribute("aria-pressed", String(on));
+  audioBtn.innerHTML = (on ? "\u{1F50A}" : "\u{1F507}") + " Narration: " + (on ? "on" : "off");
+  audioNote.textContent = on ? "Each step is read aloud as it appears." : "";
+  if (!on) stopAudio();
+}
+
+function clearRows() {
+  for (const id of rowIds) {
+    document.getElementById("row-" + id).className = "row";
+  }
+}
+
+function render() {
+  clearRows();
+  if (i < 0) {
+    stepLabel.textContent = "Ready";
+    narrationEl.textContent = "Press Step or Play to begin.";
+    consoleEl.innerHTML = "";
+    progressEl.textContent = "0 / " + STEPS.length;
+    return;
+  }
+  const s = STEPS[i];
+  stepLabel.textContent = s.label;
+  narrationEl.textContent = s.narration;
+  for (const id of rowIds) {
+    const el = document.getElementById("row-" + id);
+    const cls = s.rows[id];
+    el.className = "row " + (cls ? cls : "dim");
+  }
+  consoleEl.innerHTML = s.console
+    .map(([text, cls]) => '<span class="' + cls + '">' + text + "</span>")
+    .join("\n");
+  progressEl.textContent = (i + 1) + " / " + STEPS.length;
+}
+
+function step() {
+  if (i >= STEPS.length - 1) { stopPlay(); return; }
+  i += 1;
+  render();
+  playClip(i);
+}
+
+function reset() {
+  stopPlay();
+  stopAudio();
+  i = -1;
+  render();
+}
+
+function startPlay() {
+  if (timer) return;
+  playBtn.innerHTML = "Pause &#10074;&#10074;";
+  timer = setInterval(() => {
+    if (i >= STEPS.length - 1) { stopPlay(); return; }
+    step();
+  }, 9000);
+}
+
+function stopPlay() {
+  if (timer) clearInterval(timer);
+  timer = null;
+  playBtn.innerHTML = "Play &#9654;";
+}
+
+stepBtn.addEventListener("click", () => { stopPlay(); step(); });
+resetBtn.addEventListener("click", reset);
+playBtn.addEventListener("click", () => { if (timer) stopPlay(); else startPlay(); });
+audioBtn.addEventListener("click", () => setAudio(!audioOn));
+
+render();
+</script>
+<!-- videokit:narration -->
+<script>
+/* videokit narration player: a Narration on/off switch and a play/pause
+   button for the current step. It watches the page's own narration text,
+   works out which step is showing, and plays audio/step-N.m4a beside the
+   page (rendered by tools/videokit; not embedded, so the page stays small).
+   If the page already plays its own clips, only the pause button is added. */
+(function () {
+  "use strict";
+  var STEPS = ["Act one. The product page calls recommendations over the network, but leaves out the line that writes the trace header. Nothing fails. Recommendations finds no header and starts a trace of its own. Jaeger holds two traces for one page load: six spans from the page, whose call to recommendations has nothing under it, and two spans from recommendations with no page above them. Each looks perfectly healthy.", "Act two. One line is added: write the current trace onto the outgoing request. The header sent and the header received are the same fifty-five characters. Jaeger now holds one trace: eight spans, from two services, with one root. The slowest piece of work by its own time is the ranking model, three hundred and forty milliseconds or more. The page's call lasts a little longer than recommendations took: that difference is the network hop.", "Act three. The customer already has the page, and Jaeger holds none of its spans. Each service sends its finished spans by itself, in a batch every five seconds. They arrive more than two seconds after the customer had the page. Then Jaeger holds eight spans: six sent by the page and two sent by recommendations, joined by trace ID.", "Act four. The page keeps one trace in four, decided once at the front door. Twenty page loads: six kept, fourteen dropped. A kept load's header ends zero one; a dropped load's ends zero zero. Recommendations obeys the flag and records spans for the same six. Jaeger holds six traces of the twenty. A customer complains about the first page load, and Jaeger has no trace of it, and never will.", "Act five. The recommendations machine's clock is set three seconds slow; the page's clock is right. The trace is complete and every parent link is correct. But in time order, recommendations' span comes first, two to three seconds before the call that caused it. Jaeger warns that clock skew adjustment is disabled, and corrects nothing.", "Act six. Recommendations answers the customer and is then killed before its next batch. The page stops politely and sends what it holds. Jaeger holds six spans of that page load, all from the page, and none from recommendations: they never arrive. Every page load costs eight spans from two programs, and a fifty-five character header on every hop. And Jaeger, out of the box, keeps everything in memory."];
+  var norm = function (s) { return String(s || "").replace(/\s+/g, " ").trim(); };
+  var box = document.getElementById("narration") || document.querySelector(".narration");
+  if (!box || !STEPS.length) return;
+
+  var pageOwnsAudio = !!document.getElementById("audio");
+  var current = null, step = -1, on = false;
+  try { on = localStorage.getItem("vk-narration") === "on"; } catch (e) {}
+
+  // Remember whichever clip the page (or this script) last started.
+  var realPlay = HTMLMediaElement.prototype.play;
+  HTMLMediaElement.prototype.play = function () {
+    if (current && current !== this) { try { current.pause(); } catch (e) {} }
+    current = this;
+    this.addEventListener("play", label);
+    this.addEventListener("pause", label);
+    this.addEventListener("ended", label);
+    var p = realPlay.apply(this, arguments);
+    label();
+    return p;
+  };
+
+  // Lets a page's Play button wait for the step's narration to finish.
+  window.vkSpeaking = function () { return !!(current && !current.paused && !current.ended); };
+
+  var bar = document.querySelector(".controls") || box.parentNode;
+  function button(id, text) {
+    var b = document.createElement("button");
+    b.id = id; b.type = "button"; b.textContent = text;
+    bar.appendChild(b);
+    return b;
+  }
+  var narrBtn = pageOwnsAudio ? null : button("vk-narration", "");
+  var stepBtn = button("vk-step-audio", "");
+  var note = document.createElement("span");
+  note.id = "vk-note";
+  note.style.cssText = "color:#94a3b8;font-size:.8rem;margin-left:8px";
+  bar.appendChild(note);
+
+  function stepFor(text) {
+    var t = norm(text);
+    for (var i = 0; i < STEPS.length; i++) {
+      var s = norm(STEPS[i]);
+      if (s && t.indexOf(s.slice(0, 60)) !== -1) return i;
+    }
+    return -1;
+  }
+  function stop() { if (current) { try { current.pause(); } catch (e) {} } current = null; label(); }
+  function play(i) {
+    if (i < 0) return;
+    var a = new Audio("audio/step-" + (i + 1) + ".m4a");
+    a.play().then(function () { note.textContent = ""; }, function (e) {
+      note.textContent = e && e.name === "NotAllowedError"
+        ? "Click Play step to hear this step."
+        : "Narration audio not found: run tools/videokit/videokit.sh animation <project>.";
+      label();
+    });
+  }
+  function label() {
+    if (narrBtn) narrBtn.textContent = (on ? "🔊 Narration: on" : "🔇 Narration: off");
+    if (narrBtn) narrBtn.setAttribute("aria-pressed", String(on));
+    var playing = current && !current.paused && !current.ended;
+    var paused = current && current.paused && !current.ended;
+    stepBtn.textContent = playing ? "⏸ Pause step" : paused ? "▶ Resume step" : "▶ Play step";
+    stepBtn.disabled = step < 0;
+  }
+
+  if (narrBtn) narrBtn.addEventListener("click", function () {
+    on = !on;
+    try { localStorage.setItem("vk-narration", on ? "on" : "off"); } catch (e) {}
+    if (on) { if (step >= 0) play(step); } else stop();
+    label();
+  });
+  stepBtn.addEventListener("click", function () {
+    if (current && !current.ended) {
+      if (current.paused) current.play(); else current.pause();
+    } else play(step);
+  });
+
+  function changed() {
+    var i = stepFor(box.textContent);
+    if (i === step) return;
+    step = i;
+    if (!pageOwnsAudio) { stop(); if (on) play(i); }
+    label();
+  }
+  new MutationObserver(changed).observe(box, { childList: true, subtree: true, characterData: true });
+  changed();
+  label();
+})();
+</script>
+<!-- /videokit:narration -->
+</body>
+</html>

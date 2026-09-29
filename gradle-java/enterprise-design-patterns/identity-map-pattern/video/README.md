@@ -70,7 +70,7 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Learn the Identity Map pattern in Java with an online store customer
+> Identity Map pattern in Java, explained with an online store customer
 > loaded twice in one session. An identity map keeps, for one session, one
 > object for each ID, so asking for the same thing twice hands back the very
 > same object, like a library desk that will not print you a second copy of

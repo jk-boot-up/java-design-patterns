@@ -71,7 +71,7 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Learn the Bulkhead pattern in Java with Resilience4j. A bulkhead gives
+> Bulkhead pattern in Java, explained with Resilience4j. A bulkhead gives
 > each kind of work its own compartment, so a slow job fills only its own
 > room, just as watertight walls stop one hole from flooding a whole ship.
 > In our online store, a slow nightly supplier feed must never stop checkout

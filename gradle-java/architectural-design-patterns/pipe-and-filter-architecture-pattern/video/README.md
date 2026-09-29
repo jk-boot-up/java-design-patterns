@@ -69,7 +69,7 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Learn the Pipe and Filter Architecture pattern in Java with an online
+> Pipe and Filter Architecture pattern in Java, explained with an online
 > store where orders arrive faster than they can be processed. The work is
 > split into stages that run at the same time, joined by waiting lines
 > called pipes, like the soap, scrub and dry stations of a car wash. We find

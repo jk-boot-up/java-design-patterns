@@ -13,4 +13,11 @@ A narrated, slide-based video built by `./build_video.sh` with the shared videok
 
 Suggested description:
 
-> Build one program, but split it into modules that own their data and talk only through front doors, and check those walls on every build. A modular monolith is one program split into modules that each own their data and rules and are reached only through small front doors, with the walls between them checked on every build.
+> Modular Monolith pattern in Java, explained with an online store that is
+> one program holding a catalogue, orders and payments. It is still built
+> and deployed as one piece, but inside it is split into modules that each
+> own their data and may only be used through their front door, like
+> departments in one store that ask at the counter instead of raiding each
+> other's stockrooms. We watch open tables let the shop sell one kettle
+> twice, add front doors, check the walls automatically, and move a module
+> out into its own service. We finish with the bill.

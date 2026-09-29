@@ -13,4 +13,11 @@ A narrated, slide-based video built by `./build_video.sh` with the shared videok
 
 Suggested description:
 
-> Put one component in charge of a multi-step process: it keeps each instance's state, sends it to the next step, and decides what happens after every reply, including the unhappy paths. A process manager keeps each instance of a multi-step process, sends it to the next step, and decides what to do after every reply, including undoing work when a step fails.
+> Process Manager pattern in Java, explained with an online store where each
+> order must be reserved, paid for and shipped. A process manager takes
+> charge of a multi-step process: it tracks where each case is, sends it to
+> the next step, and decides what happens after every reply, including when
+> something goes wrong, like a wedding planner who calls a backup florist.
+> We watch a simple chain of steps lose track, let a process manager run
+> each order, add a branch, and handle the unhappy path. We finish with the
+> bill.

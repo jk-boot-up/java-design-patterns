@@ -76,7 +76,7 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Learn the Content-Based Router pattern in Java with Apache Camel and a
+> Content-Based Router pattern in Java, explained with Apache Camel and a
 > real RabbitMQ broker. A router reads each message and sends it to the one
 > place that suits it, so the sender does not choose and receivers never see
 > messages that are not theirs. In our online store, same-day parcels go to

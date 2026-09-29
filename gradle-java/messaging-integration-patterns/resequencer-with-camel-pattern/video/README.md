@@ -13,4 +13,11 @@ A narrated, slide-based video built by `./build_video.sh` with the shared videok
 
 Suggested description:
 
-> Build the resequencer with Apache Camel: resequence() puts order-status updates back in order, either as a stream that releases each update as soon as it can, or as batches that are sorted and released together, with a timeout for updates that never arrive. With Camel, a resequencer is one `resequence()` step that restores order by sequence number, either as a stream with a gap timeout or in sorted batches.
+> Resequencer pattern in Java with Apache Camel, whose resequencer is built
+> in, using an online store order-tracking page and its status updates. A
+> resequencer puts out-of-order messages back in order using the number each
+> one carries, like a sorting office that either passes pages on as soon as
+> the next arrives or waits for the whole bundle. We watch updates applied
+> as they arrive, then compare Camel's stream mode and batch mode and what
+> each makes the customer see, handle two orders at once, and decide how
+> long to wait for a missing message. We finish with the bill.

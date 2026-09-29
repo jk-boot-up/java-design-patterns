@@ -69,7 +69,7 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Learn the Gateway pattern in Java with an online store that talks to an
+> Gateway pattern in Java, explained with an online store that talks to an
 > outside payment provider. A gateway is one class that wraps access to an
 > outside system, so the rest of the program speaks its own language and can
 > be tested without the real system, like a travel adapter plug that alone

@@ -69,7 +69,7 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Learn the Service Locator pattern in Java with Consul, a real service
+> Service Locator pattern in Java, explained with Consul, a real service
 > registry. A locator is still right when what is available is only known
 > while the program runs, and finding services across a network is exactly
 > that, like a taxi dispatcher who knows which cars are free right now. We

@@ -69,7 +69,7 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Learn Dependency Injection in Java with an online store checkout that
+> Dependency Injection in Java, explained with an online store checkout that
 > needs a discount policy, a payment gateway and a notifier. A class states
 > what it needs in its constructor and is given those things, never going
 > looking for them, like a chef whose ingredients are delivered to the

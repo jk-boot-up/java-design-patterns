@@ -69,7 +69,7 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Learn the Fork-Join pattern in Java by adding up one hundred thousand
+> Fork-Join pattern in Java, explained by adding up one hundred thousand
 > order totals for an online store's daily report. The job is split into
 > smaller pieces of the same kind, the pieces run at the same time on
 > several workers, and their answers are joined back into one, like

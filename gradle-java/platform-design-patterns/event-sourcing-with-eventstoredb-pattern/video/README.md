@@ -102,7 +102,7 @@ live in the project's `docs/youtube.md`.
 
 Suggested description:
 
-> Learn the Event Sourcing pattern in Java with a real event database,
+> Event Sourcing pattern in Java, explained with a real event database,
 > EventStoreDB, recently renamed KurrentDB. Instead of overwriting what it
 > knows, the program writes down each thing that happened, in order, and
 > adds the list up when it needs the current state. Our online store's

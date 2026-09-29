@@ -13,4 +13,11 @@ A narrated, slide-based video built by `./build_video.sh` with the shared videok
 
 Suggested description:
 
-> Run the whole system as several complete, independent copies called cells, each serving its own share of customers, so a failure or a bad release only ever reaches one cell. Cell-based architecture runs several complete, independent copies of a system, each serving a fixed share of customers behind a thin router, so failures and releases only reach one cell at a time.
+> Cell-Based Architecture pattern in Java, explained with an online store
+> where thirty customers check out. The whole back end runs as several
+> complete, independent copies called cells, each serving its own share of
+> customers, so a failure or a bad release only ever reaches one cell, like
+> branches of a restaurant chain with their own kitchens. We watch one
+> shared stack fail everyone at once, split it into cells, see the blast
+> radius shrink, and grow by adding a cell. We finish with what all those
+> copies cost. Run small, complete copies, so any problem stays small.

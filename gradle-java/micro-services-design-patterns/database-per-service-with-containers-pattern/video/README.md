@@ -111,7 +111,7 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Learn the Database per Service pattern in Java with two real databases,
+> Database per Service pattern in Java, explained with two real databases,
 > PostgreSQL and MongoDB, running in containers. Each service keeps its own
 > data in its own database, no other service may read it directly, and if
 > you want somebody else's data you ask them. In our online store, the

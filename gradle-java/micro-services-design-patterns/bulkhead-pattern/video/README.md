@@ -87,9 +87,9 @@ nothing warns you if you exceed it.
 
 Suggested description:
 
-> Learn the bulkhead pattern in Java 21, starting from one thread pool doing
-> two jobs with nothing in common: taking a customer's order, and importing
-> an overnight supplier feed. The shared pool is presented fairly — no bug,
+> Bulkhead pattern in Java 21, starting from one thread pool doing two jobs
+> with nothing in common: taking a customer's order, and importing an
+> overnight supplier feed. The shared pool is presented fairly — no bug,
 > every test passing, nobody would object in review — and then four slow
 > batches take four threads and the shopper is still waiting. Notice what
 > the logs show: nothing. Starved and broken look identical from outside. We

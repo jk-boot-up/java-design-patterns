@@ -17,7 +17,7 @@ Pipes and Filters
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
-Learn the Pipes and Filters pattern in Java by importing a partner's file of orders into an online store. The job is broken into small independent steps called filters, joined end to end, so each step does one thing and steps can be added, swapped or reused. We replace one method doing five jobs with five small steps, swap and add a step without touching the others, reject bad lines with reasons while the rest carry on, and stream to keep memory small. The bill is that every step must agree on the shape of what flows between them.
+Pipes and Filters pattern in Java, explained by importing a partner's file of orders into an online store. The job is broken into small independent steps called filters, joined end to end, so each step does one thing and steps can be added, swapped or reused. We replace one method doing five jobs with five small steps, swap and add a step without touching the others, reject bad lines with reasons while the rest carry on, and stream to keep memory small. The bill is that every step must agree on the shape of what flows between them.
 
 CHAPTERS
 00:00 Introduction

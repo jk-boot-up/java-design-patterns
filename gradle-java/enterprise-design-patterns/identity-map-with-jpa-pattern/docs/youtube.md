@@ -17,7 +17,7 @@ Identity Map with JPA - Why == Is True
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
-Learn the Identity Map pattern in Java with JPA, Java's standard for storing objects in databases, using the same customer and order. JPA's persistence context keeps one object per database row for as long as one session lasts, like a hotel key desk that always hands you the same room key. We load the same customer twice and get one object, keep both changes, then meet the failures of its own: two contexts give two objects, and a change made after the context has closed is never saved. The persistence context is an identity map, and it belongs to one entity manager.
+Identity Map pattern in Java, explained with JPA, Java's standard for storing objects in databases, using the same customer and order. JPA's persistence context keeps one object per database row for as long as one session lasts, like a hotel key desk that always hands you the same room key. We load the same customer twice and get one object, keep both changes, then meet the failures of its own: two contexts give two objects, and a change made after the context has closed is never saved. The persistence context is an identity map, and it belongs to one entity manager.
 
 CHAPTERS
 00:00 Introduction

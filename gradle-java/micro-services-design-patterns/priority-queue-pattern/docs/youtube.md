@@ -17,7 +17,7 @@ Priority Queue
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
-Let urgent messages overtake routine ones in the queue, and keep a share of capacity for routine work so it is never starved. A priority queue lets urgent messages overtake routine ones, with a share of capacity kept so routine work still gets done.
+Priority Queue pattern in Java, explained with an online store warehouse where pickers work through orders and same-day orders must catch the courier's van. Urgent messages overtake routine ones however long those have waited, while a share of capacity is kept so routine work still gets done, like airport fast-track with an officer always on the ordinary lane. We watch first come, first served miss the van, add a priority queue, survive a flood of standard orders, and prevent starvation with a reserved share. We finish with the bill.
 
 CHAPTERS
 00:00 Introduction

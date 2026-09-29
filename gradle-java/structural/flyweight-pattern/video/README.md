@@ -218,7 +218,7 @@ Two further things that affect how well it plays for viewers:
 
 Suggested description:
 
-> Learn the Flyweight design pattern in Java 21 by building badge rendering
+> Flyweight design pattern in Java 21, explained by building badge rendering
 > for an e-commerce catalog. We start with the problem — a hundred thousand
 > listings each duplicating the same badge artwork — and end with a shared
 > cache of as few as four instances. No prior design-pattern knowledge

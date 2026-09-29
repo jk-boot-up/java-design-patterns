@@ -17,7 +17,7 @@ Valet Key with Amazon S3 Presigned URLs
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
-Let customers upload review photos straight to object storage with S3 presigned URLs, signed by the shop with the AWS SDK: one object, an exact size, a few minutes, and nothing else. With S3, a valet key is a presigned URL: a signed, expiring permission for one request, checked by the storage service.
+Valet Key pattern in Java with Amazon S3 presigned URLs, running on LocalStack, using an online store's review photos. A valet key gives a client permission to do one thing directly for a short time without ever holding the real credentials, like a hotel valet key that starts the car but not the boot. We move photos off the shop's server with a presigned URL, show that a signed address allows that and nothing else, and watch the key run out. We finish with the bill, and an honest note on what LocalStack's free edition does not enforce.
 
 CHAPTERS
 00:00 Introduction

@@ -17,7 +17,7 @@ Proxy Pattern in Java - Lazy and Guarded Images
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
-Learn the Proxy design pattern in Java 21 by building a product listing where loading a full-resolution image is expensive and not every user is allowed to see one. We start with the problem — a listing that eagerly loads every image it may never show, and an access check copy-pasted into every screen — and end with two small proxies that fix both, including a look at how composing them gets lazy loading and access control at once, and at what actually separates Proxy from Decorator. No prior design-pattern knowledge needed. Full source code and written notes are in the repository.
+Proxy design pattern in Java 21, explained by building a product listing where loading a full-resolution image is expensive and not every user is allowed to see one. We start with the problem — a listing that eagerly loads every image it may never show, and an access check copy-pasted into every screen — and end with two small proxies that fix both, including a look at how composing them gets lazy loading and access control at once, and at what actually separates Proxy from Decorator. No prior design-pattern knowledge needed. Full source code and written notes are in the repository.
 
 CHAPTERS
 00:00 Introduction

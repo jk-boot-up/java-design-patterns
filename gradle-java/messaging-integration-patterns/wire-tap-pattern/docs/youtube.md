@@ -17,7 +17,7 @@ Wire Tap
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
-Attach a tap to a channel that sends a copy of every message to a second listener, such as an audit log, while the real message carries on untouched. A wire tap copies every message on a channel to a second listener, while the original is delivered unchanged, so traffic can be observed without touching senders or receivers.
+Wire Tap pattern in Java, explained with an online store checkout that sends charges and refunds to the payment service. A wire tap attached to a channel sends a copy of every message to a second listener, such as an audit log, while the real message carries on untouched, like a call recorded for training that pauses when a card number is read out. We see why typing logging into services goes wrong, add a wire tap, attach and detach it while running, and add a second tap. We finish with the bill: watch the traffic from the channel, never from inside the services.
 
 CHAPTERS
 00:00 Introduction

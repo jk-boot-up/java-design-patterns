@@ -13,4 +13,10 @@ A narrated, slide-based video built by `./build_video.sh` with the shared videok
 
 Suggested description:
 
-> Let Spring Security make every access decision in the shop: URL rules first, @PreAuthorize rules beside each endpoint for ownership and refund limits, denyAll() for anything nobody wrote a rule for, and an event for every refusal. With Spring Security, an authorization policy is URL rules that deny by default plus @PreAuthorize rules beside each endpoint, with refusals published as events.
+> Authorization Policy pattern in Java with Spring Security, using an online
+> store with customers, support staff and an admin. A policy decides by
+> rules what each signed-in person may do and refuses anything no rule
+> allows, like a hotel key card where a new door opens for nobody until
+> someone programs it. We watch signed-in-is-enough go wrong, see roles fall
+> short, put rules beside each endpoint, and deny by default. We finish with
+> the bill, including how Spring's error page can count a refusal twice.

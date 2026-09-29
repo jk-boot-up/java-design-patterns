@@ -13,4 +13,11 @@ A narrated, slide-based video built by `./build_video.sh` with the shared videok
 
 Suggested description:
 
-> Split the shop's orders across three real PostgreSQL databases by customer number, route every query to the right one, and see what no single database can do for you any more. With PostgreSQL, sharding splits the data across separate databases by a key, and a router in the application sends each query to the right one.
+> Sharding pattern in Java with real PostgreSQL databases, using an online
+> store's orders on Black Friday. Data is split across three databases by a
+> key such as the customer number, so no single database takes all the load,
+> like a library that splits its members across three branches by membership
+> number. We watch one database fall behind, spread the orders over three
+> real shards with a jump hash, answer one customer's question from one
+> shard, and see a question about everyone hit every shard. We finish with
+> the bill: resharding, and databases that each only know their own share.

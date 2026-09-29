@@ -17,7 +17,7 @@ Wire Tap with Apache Camel
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
-Build the wire tap with Apache Camel: wireTap() sends a copy of every payment to an audit route on its own thread, and onPrepare() makes sure the copy is truly a copy. With Camel, a wire tap is one `wireTap()` step that copies each message to a side route on its own thread; `onPrepare()` makes the copy independent.
+Wire Tap pattern in Java with Apache Camel, using an online store's payments and the auditors who want a copy of each one. A wire tap sends a copy of every message to a side channel while sender and receiver carry on as if nothing were listening, like a camera over a shop till that must only ever see a copy of the receipt. We tap every payment with one Camel step, discover that masking the card number in the tap also changed the real payment because it was not a copy after all, fix it with onPrepare, and watch the audit stop. We finish with the bill.
 
 CHAPTERS
 00:00 Introduction

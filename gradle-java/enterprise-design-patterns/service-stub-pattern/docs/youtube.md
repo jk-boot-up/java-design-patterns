@@ -17,7 +17,7 @@ Service Stub
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
-Put an external service behind a gateway interface, and during development and testing plug in a small, free, in-memory stub that behaves like it, checked regularly against the real thing. A service stub is a small in-memory stand-in for an external service, behind the same gateway interface, used in development and tests and checked against the real service regularly.
+Service Stub pattern in Java, explained with an online store checkout that turns a postcode into an address using a paid outside service. A service stub is a small, free stand-in behind the same interface that answers like the real service while you develop and test, like a flight simulator that can fail an engine on demand but is checked against the real plane. We hear what developing against the real service costs, swap in a stub, produce awkward cases on demand, and keep the stub honest with a contract check. We finish with the bill.
 
 CHAPTERS
 00:00 Introduction

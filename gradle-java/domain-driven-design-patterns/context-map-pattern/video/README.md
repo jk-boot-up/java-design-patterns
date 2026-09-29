@@ -13,4 +13,11 @@ A narrated, slide-based video built by `./build_video.sh` with the shared videok
 
 Suggested description:
 
-> Write down how the parts of a system relate, check the code against that map, and where two parts must agree exactly, share a tiny kernel that both own. A context map records how the parts of a system relate; a shared kernel is a tiny model two parts share and change only together.
+> Context Map and Shared Kernel patterns from domain-driven design in Java,
+> with an online store where Sales takes orders, Shipping prints labels and
+> the Catalogue supplies prices. A context map writes down how the parts of
+> a big system relate, and a shared kernel is a tiny piece of model two
+> parts share and change only together, like a garden wall between
+> neighbouring houses. We watch two copies of an address lose a flat number,
+> fix it with a shared kernel, draw the context map, and check it
+> automatically. We finish with what sharing costs.

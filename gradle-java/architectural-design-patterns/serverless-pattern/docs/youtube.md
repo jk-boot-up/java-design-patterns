@@ -17,7 +17,7 @@ Serverless Functions
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
-Learn the Serverless pattern in Java with an online store that must send a receipt for every order, where orders arrive in bursts with long quiet gaps between them. Serverless runs each piece of work as a short function that a platform starts when an event arrives and throws away when idle, and you pay per call, like taking a taxi instead of owning a car. We compare an always-on server with functions, then cover scaling out and back to zero, the slow first call known as a cold start, and why a function forgets everything between calls. We finish with the bill, which grows with steady traffic.
+Serverless pattern in Java, explained with an online store that must send a receipt for every order, where orders arrive in bursts with long quiet gaps between them. Serverless runs each piece of work as a short function that a platform starts when an event arrives and throws away when idle, and you pay per call, like taking a taxi instead of owning a car. We compare an always-on server with functions, then cover scaling out and back to zero, the slow first call known as a cold start, and why a function forgets everything between calls. We finish with the bill, which grows with steady traffic.
 
 CHAPTERS
 00:00 Introduction

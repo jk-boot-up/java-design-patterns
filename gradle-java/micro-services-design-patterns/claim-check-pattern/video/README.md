@@ -69,7 +69,7 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Learn the Claim Check pattern in Java with an online store that must send
+> Claim Check pattern in Java, explained with an online store that must send
 > an invoice PDF to another service. A claim check stores a large payload
 > somewhere cheap and sends only a small ticket through the message broker,
 > and the receiver redeems the ticket for the payload, the way you collect a

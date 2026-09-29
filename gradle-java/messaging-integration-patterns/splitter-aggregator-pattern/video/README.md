@@ -69,7 +69,7 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Learn the Splitter and Aggregator pattern in Java with an online store
+> Splitter and Aggregator pattern in Java, explained with an online store
 > order whose lines sit in aisles far apart, picked by several people at
 > once. A splitter breaks one message into pieces that each carry an ID and
 > their place, like part two of three, and an aggregator gathers the pieces

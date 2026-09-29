@@ -70,7 +70,7 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Learn the Monitor Object pattern in Java with an online store where many
+> Monitor Object pattern in Java, explained with an online store where many
 > threads change the stock count of one product. A monitor object owns its
 > own lock and its own waiting, so no caller can forget to be careful, like
 > a fitting room attendant who lets one person in at a time. We hear a plain

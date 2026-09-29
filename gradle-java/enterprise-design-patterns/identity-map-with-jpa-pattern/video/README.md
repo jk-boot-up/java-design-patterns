@@ -71,7 +71,7 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Learn the Identity Map pattern in Java with JPA, Java's standard for
+> Identity Map pattern in Java, explained with JPA, Java's standard for
 > storing objects in databases, using the same customer and order. JPA's
 > persistence context keeps one object per database row for as long as one
 > session lasts, like a hotel key desk that always hands you the same room

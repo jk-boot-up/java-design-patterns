@@ -8,6 +8,7 @@ package = "pollingconsumer"
 main_class = "PollingConsumerDemo"
 tagline = "Take messages when you are ready"
 bold = "Let the consumer decide when to take messages: each time it is ready, it asks the queue for as many as it can handle, and everything else waits safely in the queue."
+youtube_description = """Polling Consumer pattern in Java, explained with an online store warehouse whose label printer can only print so fast while orders arrive in bursts. A polling consumer decides when to take messages, asking the queue for as many as it can handle each time it is ready while the rest wait safely, like collecting letters from a post office box instead of answering the doorbell. We watch orders pushed at the printer overwhelm it, switch to polling, pause safely, and decide how often to poll. We finish with the bill."""
 domain_note = ""
 thumb_lines = ["POLLING", "CONSUMER"]
 thumb_code = "queue.poll(max 5)"

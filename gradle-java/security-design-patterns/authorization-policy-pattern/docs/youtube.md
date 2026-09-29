@@ -17,7 +17,7 @@ Authorization Policy (RBAC and ABAC)
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
-Make every access decision in one policy, written as rules over roles and attributes, deny anything no rule allows, and have every endpoint ask it. An Authorization Policy makes every access decision in one place, from rules over roles and attributes, and denies whatever no rule allows.
+Authorization Policy pattern in Java, explained with an online store that has customers, support staff and an admin. Signing in proves who you are; authorization decides what you may do, and a policy makes every one of those decisions in one place, from rules about roles and about details such as who owns what, refusing anything no rule allows, like a hotel key-card system. We watch checks scattered through every endpoint, see roles alone fall short, add rules on attributes, and deny by default. We finish with the bill: one place decides, and the answer starts as no.
 
 CHAPTERS
 00:00 Introduction

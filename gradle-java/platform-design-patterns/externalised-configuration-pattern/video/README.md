@@ -264,8 +264,8 @@ Two further things that affect how well it plays for viewers:
 
 Suggested description:
 
-> Learn externalised configuration in Java 21, starting from a constant that
-> is not wrong: free delivery over fifty pounds, named, typed as money, in
+> Externalised configuration in Java 21, starting from a constant that is
+> not wrong: free delivery over fifty pounds, named, typed as money, in
 > exactly one place, and a reviewer would approve it without a comment. Then
 > marketing ask at half past four on a Friday for thirty-five pounds by
 > Saturday morning, and the release pipeline prices that at a hundred and

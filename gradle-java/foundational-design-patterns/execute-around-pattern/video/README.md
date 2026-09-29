@@ -69,7 +69,7 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Learn the Execute Around pattern in Java with an online store where every
+> Execute Around pattern in Java, explained with an online store where every
 > piece of code that reads orders must open a database connection and close
 > it again, and someone always forgets when something goes wrong. Execute
 > Around puts the setting up and cleaning up in one method, and the caller

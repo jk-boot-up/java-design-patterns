@@ -71,7 +71,7 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Learn the MVC pattern in Java with Spring MVC, using the same online
+> MVC pattern in Java, explained with Spring MVC, using the same online
 > store. A controller method returns a view name together with a model, and
 > the framework does the rendering. We serve one order summary as a web page
 > and as data for other programs from a single model computed once, then

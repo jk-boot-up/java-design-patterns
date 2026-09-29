@@ -69,7 +69,7 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Learn the Message Channel pattern in Java with an online store where
+> Message Channel pattern in Java, explained with an online store where
 > checkout must talk to the warehouse. A message channel is a named queue
 > carrying messages from sender to receiver, so the two do not need to be
 > running at the same moment, like a letterbox that takes post while you are

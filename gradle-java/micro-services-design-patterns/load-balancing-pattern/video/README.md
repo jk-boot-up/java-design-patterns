@@ -251,7 +251,7 @@ Two further things that affect how well it plays for viewers:
 
 Suggested description:
 
-> Learn load balancing in Java 21, starting from one line — take the first
+> Load balancing in Java 21, starting from one line — take the first
 > instance — and a test suite written against it that passes. Catalog runs
 > as three copies, two answering in ten milliseconds and one in sixty, and
 > sending everything to the first one is the fastest number in the video

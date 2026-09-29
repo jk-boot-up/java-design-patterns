@@ -223,7 +223,7 @@ Two further things that affect how well it plays for viewers:
 
 Suggested description:
 
-> Learn the Mediator pattern in Java by building the checkout page of an
+> Mediator pattern in Java, explained by building the checkout page of an
 > online shop, where choosing a delivery country changes the couriers, the
 > gift wrapping, the total, and whether the order may be placed at all.
 > Instead of wiring every control to every other one, each control talks to

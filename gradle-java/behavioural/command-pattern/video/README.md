@@ -220,11 +220,11 @@ Two further things that affect how well it plays for viewers:
 
 Suggested description:
 
-> Learn the Command design pattern in Java 21 by building undo and redo for
-> a shopping cart in an online store. We start with the problem — a
-> hand-rolled undo that writes down what the customer asked for, so undoing
-> "add 2 headphones" deletes the 3 they already had and undoing a coupon
-> takes away the discount they never touched — and end with edits reified as
+> Command design pattern in Java 21, explained by building undo and redo for
+> a shopping cart in an online store. We start with the problem — a hand-
+> rolled undo that writes down what the customer asked for, so undoing "add
+> 2 headphones" deletes the 3 they already had and undoing a coupon takes
+> away the discount they never touched — and end with edits reified as
 > objects that capture the state they need *inside* `execute`, an invoker
 > holding two stacks of an interface it knows nothing about, a new kind of
 > edit added without reopening a single working file, an audit trail that

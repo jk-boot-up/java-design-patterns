@@ -17,7 +17,7 @@ Secrets Manager
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
-Keep passwords and keys out of code and builds, in one guarded store that hands each service only the secrets it is allowed, logs every read, and lets a secret be rotated without a rebuild. A Secrets Manager keeps secrets in one guarded store, grants each service only what it needs, logs every read, and rotates secrets without rebuilds.
+Secrets Manager pattern in Java, explained with an online store's key for its card-payment company. Passwords and keys are kept out of the code in one guarded store, each service gets only the secrets it is allowed, every read is logged, and a secret can be replaced without rebuilding anything, like a hotel key cabinet with a signing-out book. We watch a key hard-coded in the source, move it into a manager, rotate it without a rebuild, and respond to a leak. We finish with the bill.
 
 CHAPTERS
 00:00 Introduction

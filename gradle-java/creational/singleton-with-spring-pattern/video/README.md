@@ -71,7 +71,7 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Learn the Singleton pattern in Java with Spring Boot, using an online
+> Singleton pattern in Java, explained with Spring Boot, using an online
 > store's order number generator. In Spring, singleton is a scope: the
 > container keeps one instance and hands it to everyone who asks, like a
 > shared office printer. We share the generator between three callers and

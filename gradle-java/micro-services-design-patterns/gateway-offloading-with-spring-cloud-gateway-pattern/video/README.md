@@ -13,4 +13,11 @@ A narrated, slide-based video built by `./build_video.sh` with the shared videok
 
 Suggested description:
 
-> Put a real Spring Cloud Gateway in front of the shop's catalog, cart and orders services, and move the shared chores into it: the sign-in check, a per-customer rate limit, response compression, and stripping a caller's claim to be someone else. With Spring Cloud Gateway, offloading puts the shared chores in a global filter and server settings, so every service behind gets them for free.
+> Gateway Offloading pattern in Java with Spring Cloud Gateway, using an
+> online store's catalog, cart and orders services. Checking the caller,
+> limiting how often they call and compressing the answer move into the
+> gateway in front of the services, like an office reception where the teams
+> upstairs trust that everyone in the corridor was checked. We watch three
+> copies of a check drift apart, check once at the gateway, add a token-
+> bucket rate limit and compression, and learn that every other door must
+> then be locked. We finish with the bill.

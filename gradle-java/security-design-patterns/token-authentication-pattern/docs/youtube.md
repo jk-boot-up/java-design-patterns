@@ -17,7 +17,7 @@ Token Authentication (JWT)
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
-After sign-in, give the client a signed token that says who they are and when it expires, so any server holding the key can check it without a shared session store. Token Authentication gives the client a signed statement of who it is and until when, which any server with the key can check on its own.
+Token Authentication pattern in Java, explained with an online store website running on two servers. After you sign in, the server gives you a token that says who you are and when it expires, signed with a secret key so any server holding the key can trust it without looking anything up, like a festival wristband checked once at the gate. We watch sessions on one server fail on the other, switch to a signed token, reject forged and expired tokens, and deal with signing out early. We finish with the bill.
 
 CHAPTERS
 00:00 Introduction

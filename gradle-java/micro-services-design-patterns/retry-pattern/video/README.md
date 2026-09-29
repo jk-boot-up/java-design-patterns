@@ -253,11 +253,11 @@ Two further things that affect how well it plays for viewers:
 
 Suggested description:
 
-> Learn retry with backoff in Java 21, starting from the four-line loop
-> everybody writes first — and which rescues a checkout, throws nothing, and
-> passes every test written against it. One espresso machine at four hundred
-> and forty-nine pounds ninety-nine, a payment gateway across the internet,
-> and one call in five failing for reasons that have nothing to do with the
+> Retry with backoff in Java 21, starting from the four-line loop everybody
+> writes first — and which rescues a checkout, throws nothing, and passes
+> every test written against it. One espresso machine at four hundred and
+> forty-nine pounds ninety-nine, a payment gateway across the internet, and
+> one call in five failing for reasons that have nothing to do with the
 > payment. We add backoff as room for a struggling service rather than
 > politeness, jitter so a thousand callers do not return as one wave, and a
 > whitelist of what is worth another go, because the opposite rule

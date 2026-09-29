@@ -17,7 +17,7 @@ Single Table Inheritance
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
-Store every subclass in one table, with a type column that says which class each row becomes, and leave the columns another type needs empty. Single table inheritance stores every subclass in one table with a type column and a column for every field, leaving unused columns empty.
+Single Table Inheritance pattern in Java, explained with an online store that sells books, food and electronics, each with a code, a name, a price and one field of its own. Several related classes are stored in one database table, a type column says which class each row is, and each row leaves the other types' columns empty, like one expenses form with a section for every kind of trip. We see why a table per type makes simple questions slow, move to one table, turn each row back into its own class, and add a new type. We finish with the bill.
 
 CHAPTERS
 00:00 Introduction

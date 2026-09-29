@@ -284,23 +284,24 @@ Two further things that affect how well it plays for viewers:
 
 Suggested description:
 
-> Learn the Sidecar pattern in Java 21, starting from an online shop that
-> charges cards in four places — checkout, refunds, subscription billing and
-> marketplace payouts — with one payment provider behind all four. Each of the
-> four teams had to decide the same four things before going live: how many
-> times to retry, when to give up, which TLS profile to present, and what to
-> count. Sixteen copies of four decisions, and not one of them a fact about the
-> shop. When the provider changes its retry policy in March, the change lands in
-> three services and misses the fourth — not through carelessness, but because
-> there was no fourth place to look. Three weeks later, at two in the morning,
-> that stale copy spends half the account's attempt allowance and a completely
-> correct service is refused. Then we stand a proxy beside each service, state
-> the policy once, and run the same night clean. Then the bill, which is most of
-> the second half: twice as many processes to run and patch, a second thing that
-> can be down and takes every call with it, and one millisecond on every call —
-> the arithmetic that decides whether a service mesh belongs in your system.
-> Finishing with the admission most write-ups skip: in one program this
-> structure is Decorator, and what makes it a different pattern is not the code
-> but where the code runs. No prior design-pattern knowledge needed, and no
-> Docker, Kubernetes or network — it all runs in one JVM. Full source code and
+> Sidecar pattern in Java 21, starting from an online shop that charges
+> cards in four places — checkout, refunds, subscription billing and
+> marketplace payouts — with one payment provider behind all four. Each of
+> the four teams had to decide the same four things before going live: how
+> many times to retry, when to give up, which TLS profile to present, and
+> what to count. Sixteen copies of four decisions, and not one of them a
+> fact about the shop. When the provider changes its retry policy in March,
+> the change lands in three services and misses the fourth — not through
+> carelessness, but because there was no fourth place to look. Three weeks
+> later, at two in the morning, that stale copy spends half the account's
+> attempt allowance and a completely correct service is refused. Then we
+> stand a proxy beside each service, state the policy once, and run the same
+> night clean. Then the bill, which is most of the second half: twice as
+> many processes to run and patch, a second thing that can be down and takes
+> every call with it, and one millisecond on every call — the arithmetic
+> that decides whether a service mesh belongs in your system. Finishing with
+> the admission most write-ups skip: in one program this structure is
+> Decorator, and what makes it a different pattern is not the code but where
+> the code runs. No prior design-pattern knowledge needed, and no Docker,
+> Kubernetes or network — it all runs in one JVM. Full source code and
 > written notes are in the repository.

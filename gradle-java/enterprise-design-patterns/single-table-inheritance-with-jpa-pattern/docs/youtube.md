@@ -17,7 +17,7 @@ Single Table Inheritance with JPA and Hibernate
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
-Map the shop's product classes to one table with JPA's @Inheritance(SINGLE_TABLE), let Hibernate write the SQL and pick each row's class from a type column, and compare the SQL with a table per class. With JPA, single table inheritance is @Inheritance(SINGLE_TABLE): one table, a type column, and Hibernate building the right class for each row.
+Single Table Inheritance pattern in Java, explained with JPA and Hibernate, using an online store's books, electronics and food. Several related classes live in one database table with a type column saying which class each row is, like one stock book with a word at the start of each line naming the kind of item. We read the SQL Hibernate writes for a table per class and for one table, watch each row come back as its own class, and add a new type. We finish with the bill: a rule the database can no longer keep. Always look at the SQL.
 
 CHAPTERS
 00:00 Introduction

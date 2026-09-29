@@ -17,7 +17,7 @@ Write-Behind Cache
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
-Keep changes in memory and answer at once, then save them to the database in batches, and only for data you can afford to lose if the server dies in between. A write-behind cache answers every change from memory at once and saves the changed records to the database later, in batches, one write per record.
+Write-Behind Cache pattern in Java, explained with an online store where customers change their shopping carts all the time. A write-behind cache keeps each change in fast memory and answers straight away, then saves the changes to the database a few seconds later in one batch, so a record that changed ten times is saved once, like a document that autosaves every few minutes. We compare writing every change, write behind, keep working while the database is down, and lose changes in a crash before the flush. Answer now, save in a moment, and only for what you can afford to lose.
 
 CHAPTERS
 00:00 Introduction

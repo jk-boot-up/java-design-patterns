@@ -13,4 +13,11 @@ A narrated, slide-based video built by `./build_video.sh` with the shared videok
 
 Suggested description:
 
-> Issue a signed JSON Web Token when a customer signs in, and let Spring Security's resource-server support check it on every instance of the shop: signature, expiry and a revoked list, with no session store. With Spring Security, token authentication is a resource-server filter that checks every request's JWT, and an encoder that issues them at sign-in.
+> Token Authentication pattern in Java with Spring Security, using an online
+> store website running as two server instances. After signing in you carry
+> a signed token saying who you are and until when, and Spring Security
+> checks it on every request without looking anything up, like a festival
+> wristband any steward can trust. We watch sessions on one server fail,
+> issue a token from Spring Security, reject forged and expired tokens, and
+> handle signing out early. We finish with the bill: sign in once, carry
+> signed proof, and let the framework check it.

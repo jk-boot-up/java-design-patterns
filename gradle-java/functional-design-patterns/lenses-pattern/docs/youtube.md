@@ -17,7 +17,7 @@ Lenses for Immutable Updates
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
-Pair a getter and a setter for one part of an immutable object into a lens, then join lenses to read or replace a part deep inside, getting a new whole and leaving the old one untouched. A lens pairs a getter and a setter for one part of an immutable whole, and lenses join to update deep inside, returning a new whole.
+Lenses in Java, explained with an online store order that holds a customer who holds a delivery address, all immutable. A lens is a pair of functions for one part of an immutable object: one reads the part and the other returns a new object with that part replaced, and lenses join to reach deep inside, like a tool for replacing the smallest of a set of glued nesting dolls. We watch rebuilding by hand go wrong, write one lens, join lenses together, and change a value with a function. We finish with what lenses cost.
 
 CHAPTERS
 00:00 Introduction

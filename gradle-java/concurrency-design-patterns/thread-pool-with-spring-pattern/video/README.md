@@ -71,7 +71,7 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Learn the Thread Pool pattern in Java with Spring Boot, using the same
+> Thread Pool pattern in Java, explained with Spring Boot, using the same
 > order packing. A pool runs work on a few threads that are created once and
 > reused, so a burst of work cannot create a burst of threads, like a
 > restaurant that does not hire new waiters in a rush. We hear the pool

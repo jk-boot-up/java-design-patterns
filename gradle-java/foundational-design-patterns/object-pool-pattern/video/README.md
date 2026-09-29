@@ -70,7 +70,7 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Learn the Object Pool pattern in Java with an online store's connections
+> Object Pool pattern in Java, explained with an online store's connections
 > to a payment gateway. A pool keeps a few objects that are expensive to
 > create, lends them out and takes them back, so creation is paid for once,
 > like a city bike rental scheme. It is one of the most over-used ideas in

@@ -17,7 +17,7 @@ Content-Based Router
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
-Learn the Content-Based Router pattern in Java with an online store where orders of different kinds arrive together and each kind must go somewhere different. A router looks inside each message and sends it to a channel based on what it contains, so senders and receivers never know about each other, like a post office clerk reading addresses and filling bags. We watch the warehouse sort one mixed channel, then let a router do it. We hear why the first matching rule wins, what happens to a message nothing matches, and a new route added without changing anyone else. The price is depending on the content, and rules whose order matters.
+Content-Based Router pattern in Java, explained with an online store where orders of different kinds arrive together and each kind must go somewhere different. A router looks inside each message and sends it to a channel based on what it contains, so senders and receivers never know about each other, like a post office clerk reading addresses and filling bags. We watch the warehouse sort one mixed channel, then let a router do it. We hear why the first matching rule wins, what happens to a message nothing matches, and a new route added without changing anyone else. The price is depending on the content, and rules whose order matters.
 
 CHAPTERS
 00:00 Introduction

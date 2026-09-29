@@ -13,4 +13,11 @@ A narrated, slide-based video built by `./build_video.sh` with the shared videok
 
 Suggested description:
 
-> Ask and answer over a real RabbitMQ broker: each request carries a return address and a correlation ID, the inventory service replies to that address with that ID, and an expiry on the request makes sure an abandoned request is never handled late. With RabbitMQ, request-reply uses the `replyTo` and `correlationId` properties, and an expiry so a request nobody waits for is dropped.
+> Request-Reply pattern in Java with a real RabbitMQ broker, using an online
+> store checkout that asks an inventory service to reserve items. A question
+> travels in one message and the answer in another; each request says where
+> to reply and carries a reference so the answer can be matched, like
+> letters to a supplier with your address and a reference number. We watch
+> replies taken in arrival order go wrong, add correlation IDs and reply-to
+> addresses, keep many requests in flight, and handle a reply that never
+> comes. Say where to answer, say which question, and say when to give up.

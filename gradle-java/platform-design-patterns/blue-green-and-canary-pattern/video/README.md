@@ -69,7 +69,7 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Learn the Blue-Green and Canary release patterns in Java with a new
+> Blue-Green and Canary release patterns in Java, explained with a new
 > release of an online store's checkout that must go live without customers
 > noticing. Blue-green runs the old and new releases side by side and
 > switches traffic at once; a canary sends a small share of traffic to the

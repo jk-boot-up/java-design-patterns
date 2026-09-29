@@ -220,8 +220,8 @@ Two further things that affect how well it plays for viewers:
 
 Suggested description:
 
-> Learn the Facade design pattern in Java 21 by building an online store
+> Facade design pattern in Java 21, explained by building an online store
 > checkout. We start with the problem — four services that every caller has
-> to wire together itself — and end with a single, simple `placeOrder`
-> call. No prior design-pattern knowledge needed. Full source code and
-> written notes are in the repository.
+> to wire together itself — and end with a single, simple `placeOrder` call.
+> No prior design-pattern knowledge needed. Full source code and written
+> notes are in the repository.

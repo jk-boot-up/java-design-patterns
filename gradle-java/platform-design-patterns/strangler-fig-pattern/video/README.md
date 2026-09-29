@@ -71,7 +71,7 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Learn the Strangler Fig pattern in Java by replacing an online store's
+> Strangler Fig pattern in Java, explained by replacing an online store's
 > checkout. You grow the new system around the old one piece at a time,
 > behind a router that can send each piece to either, the way a strangler
 > fig grows around a tree. We see why the big-bang rewrite fails on a

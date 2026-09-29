@@ -17,7 +17,7 @@ Table Data Gateway
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
-Give each database table one class that holds all of its SQL, so the rest of the program asks plain questions and never writes SQL itself. A table data gateway is one class per table that holds all of that table's SQL, so the rest of the program asks plain questions and gets plain records back.
+Table Data Gateway pattern in Java, explained with an online store products table holding a code, a name, a price and the stock. A table data gateway is one class per table that holds all of that table's SQL, and the rest of the program asks it plain questions, like bank customers who ask at the counter and never enter the vault. We watch SQL spread through every caller break on a rename, move it into one gateway, fix the rename in one place, and decide where the SQL should live. We finish with the bill.
 
 CHAPTERS
 00:00 Introduction

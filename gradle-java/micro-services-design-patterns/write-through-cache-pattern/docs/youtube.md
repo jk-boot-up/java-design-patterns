@@ -17,7 +17,7 @@ Write-Through Cache
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
-Send every write through the cache, which writes the database first and then itself before returning, so reads from the cache always match the database. A write-through cache takes every write, writes the database, then updates itself before returning, so reads from it always match the database.
+Write-Through Cache pattern in Java, explained with an online store product page that reads prices from a cache while a nightly job changes them. Every write goes through the cache, which writes the database and then its own copy before saying the write is done, so cache reads always match the database, like a supermarket that changes the shelf label the moment it changes the till price. We watch a write that goes round the cache leave a stale price, switch to write-through, enjoy fast reads, and handle a refused write. We finish with the bill.
 
 CHAPTERS
 00:00 Introduction

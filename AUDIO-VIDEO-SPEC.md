@@ -18,6 +18,23 @@ every project into line is tracked in [`ROLLOUT-REPORT.md`](ROLLOUT-REPORT.md).
 
 ## 2. The voice
 
+**New projects use the amy-slow voice**, and only that voice:
+
+| Setting | Value |
+| --- | --- |
+| Engine | Piper (open source, MIT) |
+| Voice | `en_US-amy-medium`, US English, female |
+| Speed | 0.8 (slower than normal, for beginners listening without a screen) |
+| Pauses | `sentence_gap = 0.7`, `pause_scale = 1.5` |
+| Loudness | −16 LUFS integrated, peaks limited to −1.5 dBFS |
+
+It goes in the project's `video/videokit.toml`, which `tools/patternkit` writes when it
+scaffolds a project, so a new project needs no separate `amy-slow` version.
+
+**The original projects keep their first voice** and carry amy-slow as a second version
+beside it (`video/videokit-amy-slow.toml`, outputs with an `-amy-slow` suffix). That first
+voice was:
+
 | Setting | Value |
 | --- | --- |
 | Engine | Kokoro v1.0 (open source, Apache 2.0) |

@@ -70,7 +70,7 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Learn the Data Transfer Object pattern, DTO, in Java with an online store
+> Data Transfer Object pattern, DTO, in Java, explained with an online store
 > customer web service. A DTO is a small object built only for crossing a
 > boundary, carrying just what the other side needs so your business objects
 > never leave, like sending a postcard instead of your whole diary. We

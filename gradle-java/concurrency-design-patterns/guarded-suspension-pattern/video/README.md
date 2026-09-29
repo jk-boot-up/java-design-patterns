@@ -69,7 +69,7 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Learn the Guarded Suspension pattern in Java with an online store
+> Guarded Suspension pattern in Java, explained with an online store
 > warehouse picker who must wait for an order to arrive before taking it.
 > The thread sleeps until a condition is true instead of asking again and
 > again, and checks the condition once more when it wakes, like waiting for

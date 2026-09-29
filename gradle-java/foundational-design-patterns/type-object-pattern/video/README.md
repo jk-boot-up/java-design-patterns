@@ -69,7 +69,7 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Learn the Type Object pattern in Java with an online store where books,
+> Type Object pattern in Java, explained with an online store where books,
 > laptops and groceries differ in only a few numbers yet each has its own
 > class. A type object turns the kind of a thing into data: one class, with
 > each object pointing to a type that holds whatever differs, like shelf

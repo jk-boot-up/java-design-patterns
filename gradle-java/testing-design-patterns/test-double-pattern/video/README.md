@@ -13,4 +13,10 @@ A narrated, slide-based video built by `./build_video.sh` with the shared videok
 
 Suggested description:
 
-> A test double stands in for something your code depends on, so a test can run fast, offline, without real money, and ask exactly the question it needs. A test double takes the place of something your code depends on, so a test can run fast and offline and ask one precise question: a dummy for "unused", a stub for "what if", a spy for "what was called", a mock for "never anything else", and a fake for "the whole journey".
+> Test Double pattern in Java, explained with an online store checkout that
+> takes money through an outside payment provider. A test double stands in
+> for something your code depends on, just for a test, so it runs fast,
+> offline and without spending real money, like a stunt double taking the
+> fall. We start with the real provider, then meet all five kinds, a dummy,
+> a stub, a spy, a mock and a fake, and the question each one answers. We
+> finish with the bill: a double only checks what you told it to.

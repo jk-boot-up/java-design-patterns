@@ -69,7 +69,7 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Learn the Optimistic Offline Lock pattern in Java with an online store
+> Optimistic Offline Lock pattern in Java, explained with an online store
 > where two clerks edit the same product at the same time. People edit
 > freely without locking anything, and a clash is only detected on save by
 > checking the data has not changed since it was read, like a shared

@@ -115,7 +115,7 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Learn the Leader Election pattern in Java with a real Kubernetes cluster.
+> Leader Election pattern in Java, explained with a real Kubernetes cluster.
 > Several copies of a program agree that exactly one does a particular job
 > by holding a lease, a claim that runs out unless it is renewed, while the
 > others wait to take over. In our online store three copies of the

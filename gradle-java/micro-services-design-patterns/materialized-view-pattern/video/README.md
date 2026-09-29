@@ -13,4 +13,11 @@ A narrated, slide-based video built by `./build_video.sh` with the shared videok
 
 Suggested description:
 
-> When a page needs data from several services, keep a ready-made copy shaped exactly for that page, and update it from events, instead of asking every service on every visit. A materialized view is a ready-made copy of data from several services, shaped for one page and kept up to date from events, so reading it is one fast lookup that works even when those services are down.
+> Materialized View pattern in Java, explained with an online store's my-
+> orders page, which shows each order, the product name and whether it has
+> shipped, from three separate services. A materialized view is a ready-made
+> copy of data shaped for one page and kept up to date by listening to
+> events, so reading it is one quick lookup, like a railway departures
+> board. We watch the page ask three services on every visit, build a ready-
+> made view, see it run a moment behind, and rebuild it from the events. We
+> finish with the bill.

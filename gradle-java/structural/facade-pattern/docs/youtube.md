@@ -17,7 +17,7 @@ Facade Pattern in Java - One Call to Place an Order
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
-Learn the Facade design pattern in Java 21 by building an online store checkout. We start with the problem — four services that every caller has to wire together itself — and end with a single, simple `placeOrder` call. No prior design-pattern knowledge needed. Full source code and written notes are in the repository.
+Facade design pattern in Java 21, explained by building an online store checkout. We start with the problem — four services that every caller has to wire together itself — and end with a single, simple `placeOrder` call. No prior design-pattern knowledge needed. Full source code and written notes are in the repository.
 
 CHAPTERS
 00:00 Introduction

@@ -223,7 +223,7 @@ Two further things that affect how well it plays for viewers:
 
 Suggested description:
 
-> Learn the Memento pattern in Java by adding an undo button to an online
+> Memento pattern in Java, explained by adding an undo button to an online
 > shop's basket. A memento is a sealed copy of an object's state: the object
 > takes the copy itself and hands it to someone else to keep, like a save
 > point in a video game. We show how one misplaced equals sign makes undo

@@ -70,7 +70,7 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Learn the Thread Pool pattern in Java with a team of packers handling an
+> Thread Pool pattern in Java, explained with a team of packers handling an
 > online store's incoming orders. A pool creates a small, fixed number of
 > worker threads once and reuses them for every task, while tasks wait in a
 > queue whose size is also chosen on purpose, like a taxi rank with ten cars

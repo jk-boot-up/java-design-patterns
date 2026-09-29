@@ -17,7 +17,7 @@ Guaranteed Delivery
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
-Store every message safely on disk before accepting it, acknowledge it only after it is delivered, and after a crash deliver everything that was never acknowledged. Guaranteed delivery stores each message durably before accepting it and acknowledges it after delivery, so after a crash every unacknowledged message is delivered again.
+Guaranteed Delivery pattern in Java, explained with an online store that sends an order confirmation email for every order through a queue in front of a slow email provider. Every message is written to disk before it is accepted, marked done only after it is delivered, and everything not marked done is sent again after a crash, like recorded delivery with a ledger and a signature. We watch messages kept only in memory disappear, write them to disk first, add acknowledgements, and accept that this means at-least-once delivery. We finish with the bill.
 
 CHAPTERS
 00:00 Introduction

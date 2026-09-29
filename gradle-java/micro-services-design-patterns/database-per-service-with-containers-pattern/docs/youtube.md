@@ -17,7 +17,7 @@ Database per Service with Containers
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
-Learn the Database per Service pattern in Java with two real databases, PostgreSQL and MongoDB, running in containers. Each service keeps its own data in its own database, no other service may read it directly, and if you want somebody else's data you ask them. In our online store, the Orders team and the Catalog team each get a database of their own, of two different kinds. We watch one shared database work well and then break on a rename, the split survive the same change, and the old join tried against two real engines: one refuses it out loud, the other says nothing at all.
+Database per Service pattern in Java, explained with two real databases, PostgreSQL and MongoDB, running in containers. Each service keeps its own data in its own database, no other service may read it directly, and if you want somebody else's data you ask them. In our online store, the Orders team and the Catalog team each get a database of their own, of two different kinds. We watch one shared database work well and then break on a rename, the split survive the same change, and the old join tried against two real engines: one refuses it out loud, the other says nothing at all.
 
 CHAPTERS
 00:00 Introduction

@@ -13,4 +13,11 @@ A narrated, slide-based video built by `./build_video.sh` with the shared videok
 
 Suggested description:
 
-> Give every page of a web site its own small controller that reads that page's input, decides what to do and sends the reply, instead of one handler for everything. A page controller is a small class for one page or action of a web site that reads that page's input, decides what to do and sends the reply.
+> Page Controller pattern in Java, explained with an online store web site
+> that has a product page, a basket and a checkout, served by a real web
+> server. A page controller is a small class for one page: it reads that
+> page's input, decides what to do, and sends the reply, like separate desks
+> in a department store that each know only their own job. We watch one
+> handler for every page let changes leak between pages, give each page its
+> own controller, keep errors on their own page, and add a new page. We
+> finish with the bill: a check every page needs is easy to forget.

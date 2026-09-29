@@ -69,7 +69,7 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Learn the Double-Checked Locking pattern in Java with an online store
+> Double-Checked Locking pattern in Java, explained with an online store
 > price list that is expensive to build. The object is created only when
 > first needed: check without a lock, and only if it looks missing, take the
 > lock and check again, like glancing at the office lights before walking

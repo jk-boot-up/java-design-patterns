@@ -17,7 +17,7 @@ Queue-Based Load Leveling with SQS
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
-Learn the Queue-Based Load Leveling pattern in Java with a real Amazon SQS queue running on your own machine. When work arrives in bursts faster than a service can handle, a queue in between lets the burst wait in line while the service keeps its own pace, like numbered tickets at a busy post office. In our online store a sale sends a hundred orders at once, checkout queues them all, and the packer takes ten at a time. We watch the depth a burst builds, learn why a taken message is hidden rather than removed, and see what happens to a slow packer and to one that stops half way.
+Queue-Based Load Leveling pattern in Java, explained with a real Amazon SQS queue running on your own machine. When work arrives in bursts faster than a service can handle, a queue in between lets the burst wait in line while the service keeps its own pace, like numbered tickets at a busy post office. In our online store a sale sends a hundred orders at once, checkout queues them all, and the packer takes ten at a time. We watch the depth a burst builds, learn why a taken message is hidden rather than removed, and see what happens to a slow packer and to one that stops half way.
 
 CHAPTERS
 00:00 Introduction

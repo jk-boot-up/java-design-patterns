@@ -8,6 +8,7 @@ package = "tdgjdbc"
 main_class = "JdbcTemplateGatewayDemo"
 tagline = "One class of SQL, Spring does the plumbing"
 bold = "Keep all the product table's SQL in one gateway class built on Spring's JdbcTemplate, which borrows and returns connections, maps rows to records, and turns database errors into meaningful exceptions."
+youtube_description = """Table Data Gateway pattern in Java, explained with Spring's JdbcTemplate, using an online store's product table. One class holds all the SQL for one table and everyone else asks it, while JdbcTemplate takes care of the database plumbing, like a library desk that fetches and returns books the same careful way every time. We watch hand-written JDBC leak connections, rebuild the gateway on JdbcTemplate, turn errors into exceptions that mean something, and update stock in one statement. We finish with the bill."""
 domain_note = ""
 thumb_lines = ["TABLE DATA GATEWAY", "WITH JDBCTEMPLATE"]
 thumb_code = "jdbc.query(sql, rowMapper)"

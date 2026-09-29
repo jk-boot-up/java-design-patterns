@@ -69,7 +69,7 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Learn the Bounded Context pattern from domain-driven design in Java with
+> Bounded Context pattern from domain-driven design in Java, explained with
 > an online store where the word customer means three different things to
 > three departments. A bounded context is a boundary inside which every word
 > has one meaning and one model, like the word bank meaning money to a

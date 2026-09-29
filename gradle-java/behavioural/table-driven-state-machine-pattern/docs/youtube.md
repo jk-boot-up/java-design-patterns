@@ -17,7 +17,7 @@ Table-Driven State Machine
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
-Write down every allowed move as a row in one table, from this status on this action to that status, and refuse anything that is not in it. A table-driven state machine keeps every allowed move, from a status on an action to a new status, in one table, and refuses every move that is not in it.
+Table-Driven State Machine pattern in Java, explained with online store orders that move from placed to paid, shipped and delivered, and can be cancelled or refunded. Every allowed move is one row in a table, from this status on this action to that status, and anything not in the table is refused, like an airport's chart of check-in, security and gate. We watch scattered if statements hide missing rules, replace them with one table, refuse wrong moves, and add a rule in two lines. We finish with what the table does not do for you.
 
 CHAPTERS
 00:00 Introduction

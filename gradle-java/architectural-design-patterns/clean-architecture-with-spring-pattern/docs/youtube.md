@@ -17,7 +17,7 @@ Clean Architecture with Spring - Who Wires the Graph?
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
-Learn Clean Architecture in Java with Spring, taking the same online shop and letting the Spring container assemble it instead of wiring it by hand. The business rules stay in the middle and stay plain Java; only who builds the objects changes. We show that each @Bean method replaces the hand-written wiring line for line, that the same seven objects come out, and that a forced change costs nothing extra. Then we break the wiring both ways: hand-wiring fails while you compile, container wiring fails only when the program starts, and we explain why the container cannot see it coming. We finish with the cost of the extra dependency and when it is worth paying.
+Clean Architecture in Java, explained with Spring, taking the same online shop and letting the Spring container assemble it instead of wiring it by hand. The business rules stay in the middle and stay plain Java; only who builds the objects changes. We show that each @Bean method replaces the hand-written wiring line for line, that the same seven objects come out, and that a forced change costs nothing extra. Then we break the wiring both ways: hand-wiring fails while you compile, container wiring fails only when the program starts, and we explain why the container cannot see it coming. We finish with the cost of the extra dependency and when it is worth paying.
 
 CHAPTERS
 00:00 Introduction

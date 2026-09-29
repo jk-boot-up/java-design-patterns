@@ -71,7 +71,7 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Learn Hexagonal Architecture in Java with Spring Boot, using the same
+> Hexagonal Architecture in Java, explained with Spring Boot, using the same
 > online store. The core stays a plain Java class that declares its ports,
 > and the adapters become Spring beans chosen by configuration, like
 > controllers plugged into the same games console. We run one core on two

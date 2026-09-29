@@ -7,7 +7,7 @@ Chapter timings are generated from the video's `.srt`. Re-run `python3 docs/make
 ## Title
 
 ```
-Backpressure
+Backpressure Design Pattern in Java - Explained
 ```
 
 12 characters — under the 60 YouTube shows before truncating in search results.
@@ -17,7 +17,7 @@ Backpressure
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
-Let a slow consumer push back on a fast producer, by bounding what waits, asking for work in batches, or dropping stale updates, instead of buffering until memory runs out. Backpressure lets a slow consumer control how fast a producer sends, so waiting work stays bounded instead of filling memory.
+Backpressure pattern in Java, explained with an online store search indexer reading a supplier's product feed that is much faster than the indexer. Backpressure lets a slow consumer tell a fast producer to slow down, so the work waiting in between stays small instead of filling memory, like a kitchen telling front of house to stop seating tables. We watch the waiting pile grow without limit, add a bounded buffer, let the consumer ask only for what it can handle, and keep only the latest item when that is acceptable. We finish with the bill.
 
 CHAPTERS
 00:00 Introduction

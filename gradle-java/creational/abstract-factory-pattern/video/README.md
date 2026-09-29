@@ -226,7 +226,7 @@ Two further things that affect how well it plays for viewers:
 
 Suggested description:
 
-> Learn the Abstract Factory pattern in Java 21 by building an online
+> Abstract Factory pattern in Java 21, explained by building an online
 > store's regional checkout. We start with the problem — three separate
 > if/else chains that must all agree with each other, and silently produce a
 > wrong invoice when they don't — and end with a design where a mismatched

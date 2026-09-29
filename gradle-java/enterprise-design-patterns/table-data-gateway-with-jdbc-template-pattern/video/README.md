@@ -13,4 +13,10 @@ A narrated, slide-based video built by `./build_video.sh` with the shared videok
 
 Suggested description:
 
-> Keep all the product table's SQL in one gateway class built on Spring's JdbcTemplate, which borrows and returns connections, maps rows to records, and turns database errors into meaningful exceptions. With JdbcTemplate, a table data gateway keeps one table's SQL in one class while Spring handles connections, row mapping and error translation.
+> Table Data Gateway pattern in Java, explained with Spring's JdbcTemplate,
+> using an online store's product table. One class holds all the SQL for one
+> table and everyone else asks it, while JdbcTemplate takes care of the
+> database plumbing, like a library desk that fetches and returns books the
+> same careful way every time. We watch hand-written JDBC leak connections,
+> rebuild the gateway on JdbcTemplate, turn errors into exceptions that mean
+> something, and update stock in one statement. We finish with the bill.

@@ -69,7 +69,7 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Learn the Anti-Corruption Layer pattern in Java with an online store that
+> Anti-Corruption Layer pattern in Java, explained with an online store that
 > must talk to an old inventory system nobody is allowed to change. The
 > layer is a translator between your model and theirs, so the other system's
 > names and codes never leak into yours, like an interpreter at a business

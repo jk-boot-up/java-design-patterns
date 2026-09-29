@@ -17,7 +17,7 @@ Lock-Free Compare-and-Swap
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
-Read a value, work out the new one, and swap it in only if nobody changed it in the meantime; if they did, read again and retry, with no lock at all. Compare-and-swap changes a value only if it still holds what the thread saw, and otherwise retries, giving correct updates to a single value with no locks.
+Lock-Free Compare-and-Swap pattern in Java, explained with an online store flash sale: a hundred kettles and eight buyer threads racing for them. Compare-and-swap changes a shared value only if it still holds what you saw, and if someone changed it first you read it again and retry, with nobody waiting on a lock, like booking a concert seat that might just have been taken. We watch the shop sell more kettles than it has, fix it slowly with a lock, then without one using compare-and-swap, and fold the retry loop into one call. We finish with its limits.
 
 CHAPTERS
 00:00 Introduction

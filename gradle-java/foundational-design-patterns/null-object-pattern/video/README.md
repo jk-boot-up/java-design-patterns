@@ -69,7 +69,7 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Learn the Null Object pattern in Java with an online store discount that
+> Null Object pattern in Java, explained with an online store discount that
 > might not be there. Instead of returning null, you return an object that
 > implements the same interface and does nothing, so callers never have to
 > check, like a blank voucher the till accepts that takes nothing off the

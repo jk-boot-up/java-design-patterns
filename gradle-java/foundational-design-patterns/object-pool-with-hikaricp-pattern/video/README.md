@@ -69,7 +69,7 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Learn the Object Pool pattern in Java with HikariCP, the database
+> Object Pool pattern in Java, explained with HikariCP, the database
 > connection pool inside most Java applications. A pool keeps a few
 > expensive objects, lends them out and takes them back, like supermarket
 > trolleys returned to the bay. The hand-built pool found four costs; here

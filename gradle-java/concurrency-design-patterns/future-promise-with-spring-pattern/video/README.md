@@ -71,7 +71,7 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Learn the Future and Promise pattern in Java with Spring Boot, using the
+> Future and Promise pattern in Java, explained with Spring Boot, using the
 > same product page. You get a handle to a result straight away and collect
 > it later, like the ticket from a dry cleaner. We learn that the thread
 > pool, not the annotation, decides how much runs at once. We hear an error

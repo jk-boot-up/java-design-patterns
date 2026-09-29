@@ -13,4 +13,11 @@ A narrated, slide-based video built by `./build_video.sh` with the shared videok
 
 Suggested description:
 
-> Build the checkout railway with Vavr: Either for the two tracks, Try to move a throwing library onto them, and Validation to collect every problem in a form instead of stopping at the first. With Vavr, the railway is Either: steps chained with flatMap, exceptions brought on with Try, and every problem collected with Validation when needed.
+> Railway-Oriented Programming in Java with Vavr, an open-source functional
+> library that provides the two tracks, using an online store checkout. Each
+> step runs on the success track and a failure switches to the other track
+> so every later step is skipped. We wrap a throwing library, chain the
+> steps with Vavr's Either, skip on failure and catch exceptions with Try,
+> recover with map and orElse, and use Validation to report every problem in
+> a form at once. Keep failures on their own track, and when checking a
+> form, collect them all.

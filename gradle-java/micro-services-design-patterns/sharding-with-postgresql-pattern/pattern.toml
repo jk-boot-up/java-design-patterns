@@ -8,6 +8,7 @@ package = "shardingpostgres"
 main_class = "PostgresShardingDemo"
 tagline = "Three real databases, one router"
 bold = "Split the shop's orders across three real PostgreSQL databases by customer number, route every query to the right one, and see what no single database can do for you any more."
+youtube_description = """Sharding pattern in Java with real PostgreSQL databases, using an online store's orders on Black Friday. Data is split across three databases by a key such as the customer number, so no single database takes all the load, like a library that splits its members across three branches by membership number. We watch one database fall behind, spread the orders over three real shards with a jump hash, answer one customer's question from one shard, and see a question about everyone hit every shard. We finish with the bill: resharding, and databases that each only know their own share."""
 domain_note = ""
 thumb_lines = ["SHARDING", "WITH POSTGRESQL"]
 thumb_code = "customer % 3 -> database"

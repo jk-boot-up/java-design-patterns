@@ -69,7 +69,7 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Learn the Registry pattern in Java with Spring, whose application context
+> Registry pattern in Java, explained with Spring, whose application context
 > is a registry built far better than a hand-written one, like a phone
 > directory everyone shares. We show what Spring fixes, when asking the
 > context for things is used well or badly, and what happens with a registry

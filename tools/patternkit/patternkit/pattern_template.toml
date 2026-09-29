@@ -11,6 +11,8 @@ package = "__PACKAGE__"
 main_class = "__MAIN__"
 tagline = "TODO five-word idea"      # index and thumbnail
 bold = "TODO the lesson in one bold sentence."
+youtube_description = """TODO 90-130 words. Open with: Learn the <Name> pattern in Java
+(with <tool>). Then the store scenario, what the video shows, and the cost."""
 domain_note = ""                     # only if the code does not use the online store: why
 thumb_lines = ["TODO"]               # thumbnail headline, upper case, 1-2 lines
 thumb_code = "TODO()"                # a short code fragment for the thumbnail

@@ -17,7 +17,7 @@ Hedged Requests
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
-If a call has not answered within a short delay, send the same call to a second replica, use whichever answers first, and cancel the other. Hedged Requests sends a second copy of a slow call to another replica after a short delay, and uses whichever answer arrives first.
+Hedged Requests pattern in Java, explained with an online store product page that asks a price service, running as several replicas, for each price. If a call has not answered after a short wait, the same call goes to a second replica, the first answer wins and the other is cancelled, like ringing a shop's other branch when nobody picks up. We see why the average hides slow calls, hedge after fifty milliseconds, hedge at once, and run a real race. We finish with the bill: extra load, and requests that must be safe to send twice.
 
 CHAPTERS
 00:00 Introduction

@@ -13,4 +13,11 @@ A narrated, slide-based video built by `./build_video.sh` with the shared videok
 
 Suggested description:
 
-> Keep objects fine-grained inside the server, but give remote callers a coarse-grained front that answers a whole screen or makes a whole change in one call. A remote facade gives remote callers coarse-grained calls, a whole screen or a whole change at once, over fine-grained objects that stay unchanged inside.
+> Remote Facade pattern in Java, explained with an online store phone app
+> whose order screen shows the customer, items, total, address and delivery
+> slot. A remote facade gives callers across a network one call that returns
+> everything a screen needs and one call that makes a whole change, all or
+> nothing, while the objects inside stay small, like posting one letter with
+> every question instead of five. We hear why many small remote calls are
+> slow, replace them with one facade call, make a change in one call, and
+> keep the fine-grained objects inside. We finish with the bill.

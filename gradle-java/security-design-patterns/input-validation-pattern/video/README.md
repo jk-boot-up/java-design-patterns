@@ -13,4 +13,11 @@ A narrated, slide-based video built by `./build_video.sh` with the shared videok
 
 Suggested description:
 
-> Check everything that comes from outside at the boundary, turn it into types that cannot hold bad values, report every problem at once, and still encode text on its way out. Input Validation checks everything from outside at the boundary, against rules for what is allowed, before the program uses it.
+> Input Validation pattern in Java, explained with an online store checkout
+> form and its product reviews. Nothing that arrives from outside can be
+> trusted, so every field is checked where it enters the program, against
+> rules for what is allowed, before anything else uses it, like a post room
+> that checks every parcel once at the door. We watch trusting the form go
+> wrong, check at the boundary, use types that cannot hold a wrong value,
+> and encode data on the way out. We finish with the bill: check everything
+> that comes in, and encode everything that goes out.

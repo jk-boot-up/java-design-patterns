@@ -17,7 +17,7 @@ Page Object with Selenium WebDriver
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
-Drive the shop's real checkout page in a real Chromium browser with Selenium WebDriver, and wrap each page in a page object that knows its selectors and waits for the page, so tests speak in shop terms. With Selenium, a page object wraps a real page's selectors and waits in one class, so browser tests speak in shop terms.
+Page Object pattern in Java with Selenium, driving a real Chromium browser against an online store checkout page. A page object is a class for one page that knows how to find its boxes and buttons and how long the page takes to answer, so tests only say what a shopper does. We watch tests with selectors inside them fail when a button is renamed, move them into a page object, return the next page from each action, and learn why waiting belongs in the page object too. We finish with the bill.
 
 CHAPTERS
 00:00 Introduction

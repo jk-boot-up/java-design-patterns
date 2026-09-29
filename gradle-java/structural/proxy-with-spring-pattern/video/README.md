@@ -71,7 +71,7 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Learn the Proxy pattern in Java with Spring Boot, using an online store
+> Proxy pattern in Java, explained with Spring Boot, using an online store
 > product image. In Spring, a proxy is generated at run time around a bean,
 > and an aspect says what it does on each call, so the bean you receive is
 > not your class. We rebuild the hand-written protection and lazy-loading

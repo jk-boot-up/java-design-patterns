@@ -17,7 +17,7 @@ Strangler Fig with NGINX - One Route at a Time
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
-Learn the Strangler Fig pattern in Java with a real NGINX web server as the front door. You replace an old system without switching it off, growing the new one beside it one piece at a time, while the front door decides which system answers each route. In our online store, prices move to a new service while the old shop keeps the basket, checkout and past orders. We move a route with a reload that restarts nothing, then hear the traps: an older regular-expression rule that quietly cancels the move, one slash that changes what the new service is asked for, a new service that goes down, and a cookie only the old shop understands.
+Strangler Fig pattern in Java, explained with a real NGINX web server as the front door. You replace an old system without switching it off, growing the new one beside it one piece at a time, while the front door decides which system answers each route. In our online store, prices move to a new service while the old shop keeps the basket, checkout and past orders. We move a route with a reload that restarts nothing, then hear the traps: an older regular-expression rule that quietly cancels the move, one slash that changes what the new service is asked for, a new service that goes down, and a cookie only the old shop understands.
 
 CHAPTERS
 00:00 Introduction

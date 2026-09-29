@@ -69,7 +69,7 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Learn the Actor pattern in Java with an online store where many threads
+> Actor pattern in Java, explained with an online store where many threads
 > want to change the stock of one product. An actor owns its data, has a
 > mailbox, and handles one message at a time on its own thread, like a bank
 > teller who is the only person allowed to touch the cash drawer. We watch

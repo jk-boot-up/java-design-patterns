@@ -17,7 +17,7 @@ Message Translator and Normalizer
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
-Translate each incoming format into one canonical message at the edge, with one small translator per format and a normalizer that picks the right one, so the rest of the system speaks only one language. A message translator converts one format into another; a normalizer recognises each incoming format and picks the translator, so everything arrives in one canonical shape.
+Message Translator and Normalizer patterns in Java, explained with an online store warehouse that takes orders from its own web form and from marketplaces that each send their own format. A translator turns one format into the format your system uses, and a normalizer recognises each incoming format and picks the right translator, like one interpreter per language at an international meeting. We watch the warehouse try to read every format itself, add translators and a normalizer, and welcome a new marketplace with one more translator. Translate at the edge, so the inside speaks one language.
 
 CHAPTERS
 00:00 Introduction

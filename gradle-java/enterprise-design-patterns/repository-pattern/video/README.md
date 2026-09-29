@@ -70,7 +70,7 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Learn the Repository pattern in Java with an online store that needs to
+> Repository pattern in Java, explained with an online store that needs to
 > find customers in London who ordered in the last month. A repository is an
 > interface that looks like an in-memory collection of your objects, so
 > callers ask for objects and never learn where they are kept, like a

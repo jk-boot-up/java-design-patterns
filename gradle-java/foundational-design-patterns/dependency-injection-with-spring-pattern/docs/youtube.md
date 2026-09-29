@@ -17,7 +17,7 @@ Dependency Injection with Spring - Recognise The Wiring
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
-Learn Dependency Injection in Java with Spring, running the very same online store classes that were wired by hand in nine lines. A class states what it needs in its constructor and is given it, like actors whose props are placed by the crew. We add one annotation per class, show Spring builds the same object graph, and name exactly what each annotation replaced. Then we hear two real start-up errors, a missing bean and a circular dependency, look at field injection, and count what the magic costs. Spring did not add the idea of dependency injection; it removed the typing.
+Dependency Injection in Java, explained with Spring, running the very same online store classes that were wired by hand in nine lines. A class states what it needs in its constructor and is given it, like actors whose props are placed by the crew. We add one annotation per class, show Spring builds the same object graph, and name exactly what each annotation replaced. Then we hear two real start-up errors, a missing bean and a circular dependency, look at field injection, and count what the magic costs. Spring did not add the idea of dependency injection; it removed the typing.
 
 CHAPTERS
 00:00 Introduction

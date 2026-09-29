@@ -17,7 +17,7 @@ Railway-Oriented Programming
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
-Let every step return a result that is either a success or a failure, and chain the steps so that the first failure switches to a failure track and the remaining steps are skipped. Railway-Oriented Programming chains steps that each return success or failure, so the first failure skips the rest and must be handled at the end.
+Railway-Oriented Programming in Java, explained with an online store checkout of four steps. Picture two tracks, one for success and one for failure: every step runs on the success track, and the first failure switches the train to the failure track so every later step is skipped, like a rejected bag sent down an airport side belt. We watch an exception nobody caught become an error page, then return results that keep the steps in a straight line, switch tracks on failure, reuse plain functions, and find a way back. We finish with the bill.
 
 CHAPTERS
 00:00 Introduction

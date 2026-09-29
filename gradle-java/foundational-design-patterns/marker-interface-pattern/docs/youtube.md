@@ -17,7 +17,7 @@ Marker Interface
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
-Mark a type with an empty interface, so code and the compiler can tell what kind of thing it is, instead of trusting free-text tags. A marker interface is an empty interface whose name tells code and the compiler something about a type, replacing free-text tags that can be misspelt.
+Marker Interface pattern in Java, explained with an online store that ships milk and yoghurt with ice packs, mugs in bubble wrap, and kettles with nothing special. A marker interface has no methods at all; its name is the whole message, so a class that implements Perishable is saying it must travel cold, and the compiler can check it, like a printed keep-cold sticker the chilled van insists on. We watch free-text tags get misspelt, replace them with a marker interface, let the compiler do the checking, and see the mark passed on to subclasses. We finish with the bill.
 
 CHAPTERS
 00:00 Introduction

@@ -107,7 +107,7 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Learn the Transactional Outbox pattern in Java with a real PostgreSQL
+> Transactional Outbox pattern in Java, explained with a real PostgreSQL
 > database, a real Kafka broker, and Debezium in between. When you must save
 > something and also tell others about it, save the message beside the
 > record in the same single transaction, and let something else send it

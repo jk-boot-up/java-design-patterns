@@ -17,7 +17,7 @@ Reactor
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
-Let one thread wait for events on every connection at once, and hand each event to a short handler, instead of giving every connection a thread that mostly waits. A reactor uses one thread to wait for events on many connections at once and dispatches each event to a short handler.
+Reactor pattern in Java, explained with an online store warehouse stock server that has a hundred shop tills connected all day asking short questions. One thread waits for events on many connections at once and hands each event to a short handler, so no connection needs a thread of its own, like one waiter watching a whole restaurant for raised hands. We watch a thread per connection waste threads, replace them with one reactor thread, write a handler per event, and serve every till from one thread. We finish with the bill and the one rule you must never break: every handler must be quick.
 
 CHAPTERS
 00:00 Introduction

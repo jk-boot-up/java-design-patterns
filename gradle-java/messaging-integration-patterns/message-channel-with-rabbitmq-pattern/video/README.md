@@ -76,7 +76,7 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Learn the Message Channel pattern in Java with a real RabbitMQ broker. In
+> Message Channel pattern in Java, explained with a real RabbitMQ broker. In
 > our online store the shop drops a pick order into a channel and goes
 > straight back to selling, and the warehouse takes it out whenever it is
 > ready. We hear the broker hold orders for a warehouse that is not even

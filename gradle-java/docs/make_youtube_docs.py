@@ -194,6 +194,7 @@ ORDER = [
     ("platform-design-patterns", "consumer-driven-contract-with-pact"),
     ("platform-design-patterns", "event-sourcing-with-eventstoredb"),
     ("platform-design-patterns", "strangler-fig-with-nginx"),
+    ("platform-design-patterns", "distributed-tracing-with-jaeger"),
     ("architectural-design-patterns", "event-driven-architecture-with-kafka"),
     ("architectural-design-patterns", "serverless-with-localstack"),
     ("messaging-integration-patterns", "splitter-aggregator-with-camel"),
@@ -818,6 +819,10 @@ META = {
     "event-sourcing-with-eventstoredb": {
         "title": "Event Sourcing with EventStoreDB - Real Revisions",
         "tags": ["event sourcing", "eventstoredb", "kurrentdb", "optimistic concurrency"],
+    },
+    "distributed-tracing-with-jaeger": {
+        "title": "Distributed Tracing with Jaeger - One Trace, Two Services",
+        "tags": ["distributed tracing", "jaeger", "opentelemetry", "traceparent", "observability"],
     },
     "strangler-fig-with-nginx": {
         "title": "Strangler Fig with NGINX - One Route at a Time",

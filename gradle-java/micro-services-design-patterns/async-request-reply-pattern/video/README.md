@@ -13,4 +13,12 @@ A narrated, slide-based video built by `./build_video.sh` with the shared videok
 
 Suggested description:
 
-> When work takes longer than a caller can wait, accept the request at once, hand back a link to check, and let the caller come back for the result. Asynchronous Request-Reply accepts slow work at once with 202 and a status link, lets the caller check back when told, and sends it on to the result when the work is done.
+> Asynchronous Request-Reply pattern in Java, explained with an online store
+> where sellers ask for a monthly sales report that takes about six seconds
+> to build. When a job takes longer than a caller can wait, the server
+> accepts the request at once, hands back a link to check on the job, and
+> that link leads to the result when it is ready, like a dry cleaner's
+> ticket you bring back on Thursday. We watch a slow report fail behind a
+> normal request even when the work succeeds, then accept it at once with
+> 202 Accepted, check back and follow a 303 to the result, and stop a double
+> click from doing the work twice. We finish with what the pattern costs.

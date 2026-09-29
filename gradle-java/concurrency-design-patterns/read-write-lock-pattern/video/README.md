@@ -70,7 +70,7 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Learn the Read-Write Lock pattern in Java with an online store where many
+> Read-Write Lock pattern in Java, explained with an online store where many
 > shoppers read a product's price and a merchandiser sometimes changes it. A
 > read-write lock lets many readers in together but a writer only alone,
 > because reads never conflict with each other, like visitors viewing a

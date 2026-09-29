@@ -69,7 +69,7 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Learn the Pessimistic Offline Lock pattern in Java with an online store
+> Pessimistic Offline Lock pattern in Java, explained with an online store
 > where two clerks want to edit the same product and must not clash at all.
 > A person takes a lock before editing, and nobody else can edit until it is
 > released, so the clash is prevented rather than detected, like booking a

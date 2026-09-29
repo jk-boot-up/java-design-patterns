@@ -225,7 +225,7 @@ Two further things that affect how well it plays for viewers:
 
 Suggested description:
 
-> Learn the Simple Factory pattern in Java 21 by building an online store's
+> Simple Factory pattern in Java 21, explained by building an online store's
 > payment step. We start with the problem — an if/else chain copied into
 > every caller — and end with a single `create` call that hands back an
 > interface. We also cover, honestly, what the pattern costs and when to

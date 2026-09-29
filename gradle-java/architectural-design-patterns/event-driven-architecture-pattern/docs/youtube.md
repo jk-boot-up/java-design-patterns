@@ -17,7 +17,7 @@ Event-Driven Architecture
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
-Learn the Event-Driven Architecture pattern in Java with an online store where orders, inventory and shipping must work together, and any of them may be down. Instead of calling each other and waiting, each service writes facts, called events, to a shared log and reads that log at its own pace, like cooks reading tickets off a kitchen rail. We lose an order the old way, fix it with a log, watch a service catch up after an outage, and add a brand new reader without touching the others. We finish with the cost: nothing happens at the same instant, and the flow is harder to see.
+Event-Driven Architecture pattern in Java, explained with an online store where orders, inventory and shipping must work together, and any of them may be down. Instead of calling each other and waiting, each service writes facts, called events, to a shared log and reads that log at its own pace, like cooks reading tickets off a kitchen rail. We lose an order the old way, fix it with a log, watch a service catch up after an outage, and add a brand new reader without touching the others. We finish with the cost: nothing happens at the same instant, and the flow is harder to see.
 
 CHAPTERS
 00:00 Introduction

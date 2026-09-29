@@ -69,7 +69,7 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Learn the Domain Event pattern in Java with an online store order being
+> Domain Event pattern in Java, explained with an online store order being
 > placed. A domain event is a record of something that has already happened,
 > named in the past tense and never changed, and others react to it without
 > the sender knowing who they are, like a birth announcement in a newspaper.

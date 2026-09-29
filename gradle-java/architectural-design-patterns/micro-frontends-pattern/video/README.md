@@ -13,4 +13,11 @@ A narrated, slide-based video built by `./build_video.sh` with the shared videok
 
 Suggested description:
 
-> Split a web page into parts owned by different teams, let each team build and release its part on its own, and assemble the page from those parts, with a fallback when one fails. Micro-frontends split a page into parts owned and released by different teams, and assemble the page from those parts with a fallback for each.
+> Micro-Frontends pattern in Java, explained with an online store product
+> page built by three teams: the product, a basket summary, and
+> recommendations. The page is split into parts, each owned, built and
+> released by one team, and assembled with a fallback when a part fails,
+> like newspaper desks that each write their own pages. We watch one front
+> end for everything fail as a whole, let each team serve its part, keep a
+> failure inside its slot, and release parts independently. We finish with
+> the bill. One part failing never takes down the rest.

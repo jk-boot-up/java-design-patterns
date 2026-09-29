@@ -69,7 +69,7 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Learn the Microkernel pattern in Java with an online store whose checkout
+> Microkernel pattern in Java, explained with an online store whose checkout
 > keeps gaining features, and every new feature means editing the same
 > class. A microkernel is a small core that only keeps plugins and runs
 > them, like a power strip that powers whatever you plug in. We move each

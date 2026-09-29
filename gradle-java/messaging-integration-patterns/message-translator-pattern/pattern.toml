@@ -8,6 +8,7 @@ package = "translator"
 main_class = "MessageTranslatorDemo"
 tagline = "Many formats in, one format out"
 bold = "Translate each incoming format into one canonical message at the edge, with one small translator per format and a normalizer that picks the right one, so the rest of the system speaks only one language."
+youtube_description = """Message Translator and Normalizer patterns in Java, explained with an online store warehouse that takes orders from its own web form and from marketplaces that each send their own format. A translator turns one format into the format your system uses, and a normalizer recognises each incoming format and picks the right translator, like one interpreter per language at an international meeting. We watch the warehouse try to read every format itself, add translators and a normalizer, and welcome a new marketplace with one more translator. Translate at the edge, so the inside speaks one language."""
 domain_note = ""
 thumb_lines = ["MESSAGE", "TRANSLATOR"]
 thumb_code = "normalize(raw) -> OrderMessage"

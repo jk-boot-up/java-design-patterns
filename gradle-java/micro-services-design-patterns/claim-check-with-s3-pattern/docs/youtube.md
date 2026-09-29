@@ -17,7 +17,7 @@ Claim Check with S3
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
-Learn the Claim Check pattern in Java with real Amazon S3 storage and a real Amazon SQS queue, running on your own machine through LocalStack. When something is too big to send in a message, you put it in storage and send a small ticket instead, like the left-luggage office at a railway station. In our online store, checkout hands a big invoice PDF to the email service. We watch a real queue refuse the invoice, and learn why a smaller PDF fails too. Then a ticket brings it back byte for byte. We hear luggage nobody collected, the same key used twice, a delete that deletes nothing, and how long each side waits.
+Claim Check pattern in Java, explained with real Amazon S3 storage and a real Amazon SQS queue, running on your own machine through LocalStack. When something is too big to send in a message, you put it in storage and send a small ticket instead, like the left-luggage office at a railway station. In our online store, checkout hands a big invoice PDF to the email service. We watch a real queue refuse the invoice, and learn why a smaller PDF fails too. Then a ticket brings it back byte for byte. We hear luggage nobody collected, the same key used twice, a delete that deletes nothing, and how long each side waits.
 
 CHAPTERS
 00:00 Introduction

@@ -71,7 +71,7 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Learn the Retry with Backoff pattern in Java with Resilience4j, using an
+> Retry with Backoff pattern in Java, explained with Resilience4j, using an
 > online store's flaky payment gateway. A retry is safe only when the
 > failure is temporary and doing the operation twice cannot do it twice. In
 > Resilience4j the retry is an annotation on a method, and the attempts and

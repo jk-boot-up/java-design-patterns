@@ -13,4 +13,11 @@ A narrated, slide-based video built by `./build_video.sh` with the shared videok
 
 Suggested description:
 
-> Let the consumer decide when to take messages: each time it is ready, it asks the queue for as many as it can handle, and everything else waits safely in the queue. A polling consumer takes messages from a queue when it is ready, as many as it can handle, so it sets its own pace and can pause without losing anything.
+> Polling Consumer pattern in Java, explained with an online store warehouse
+> whose label printer can only print so fast while orders arrive in bursts.
+> A polling consumer decides when to take messages, asking the queue for as
+> many as it can handle each time it is ready while the rest wait safely,
+> like collecting letters from a post office box instead of answering the
+> doorbell. We watch orders pushed at the printer overwhelm it, switch to
+> polling, pause safely, and decide how often to poll. We finish with the
+> bill.

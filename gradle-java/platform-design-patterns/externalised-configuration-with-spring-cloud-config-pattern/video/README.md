@@ -102,7 +102,7 @@ live in the project's `docs/youtube.md`.
 
 Suggested description:
 
-> Learn the Externalised Configuration pattern in Java with a real Spring
+> Externalised Configuration pattern in Java, explained with a real Spring
 > Cloud Config server. A value that changes on somebody else's calendar
 > should live outside the program and be read while it runs, so changing it
 > needs no rebuild and no release. In our online store, marketing decides

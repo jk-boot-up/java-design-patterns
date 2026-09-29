@@ -84,7 +84,7 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Learn the Claim Check pattern in Java with real Amazon S3 storage and a
+> Claim Check pattern in Java, explained with real Amazon S3 storage and a
 > real Amazon SQS queue, running on your own machine through LocalStack.
 > When something is too big to send in a message, you put it in storage and
 > send a small ticket instead, like the left-luggage office at a railway

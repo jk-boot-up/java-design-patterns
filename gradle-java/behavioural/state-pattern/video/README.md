@@ -221,19 +221,20 @@ Two further things that affect how well it plays for viewers:
 
 Suggested description:
 
-> Learn the State design pattern in Java 21 by building the order lifecycle for
-> an online store — placed, paid, packed, shipped, delivered, with
-> cancellations and refunds. We start with the problem — a status field and one
-> chain of conditionals per method, where `cancel` was phrased as "anything
-> that has not arrived yet" and so refunds a parcel that is already on a van,
-> `refund` was widened to accept cancelled orders and so pays the customer a
-> second time, and a third copy written for the screen is correct and disagrees
-> with both — and end with one class per state, an interface where every
-> request refuses by default so a rule nobody wrote is a refusal rather than an
-> accident, a context with no conditionals in it at all, an eighth state added
-> without touching a single existing file, and a test that walks all seven
-> states and all six actions to prove the buttons and the endpoints agree. Also
-> covers what really separates State from Strategy when the two have identical
-> class diagrams, and the honest cost — seven classes, and a transition table
-> that no longer exists anywhere you can read it. No prior design-pattern
-> knowledge needed. Full source code and written notes are in the repository.
+> State design pattern in Java 21, explained by building the order lifecycle
+> for an online store — placed, paid, packed, shipped, delivered, with
+> cancellations and refunds. We start with the problem — a status field and
+> one chain of conditionals per method, where `cancel` was phrased as
+> "anything that has not arrived yet" and so refunds a parcel that is
+> already on a van, `refund` was widened to accept cancelled orders and so
+> pays the customer a second time, and a third copy written for the screen
+> is correct and disagrees with both — and end with one class per state, an
+> interface where every request refuses by default so a rule nobody wrote is
+> a refusal rather than an accident, a context with no conditionals in it at
+> all, an eighth state added without touching a single existing file, and a
+> test that walks all seven states and all six actions to prove the buttons
+> and the endpoints agree. Also covers what really separates State from
+> Strategy when the two have identical class diagrams, and the honest cost —
+> seven classes, and a transition table that no longer exists anywhere you
+> can read it. No prior design-pattern knowledge needed. Full source code
+> and written notes are in the repository.

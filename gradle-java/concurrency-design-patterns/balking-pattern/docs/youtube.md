@@ -17,7 +17,7 @@ Balking
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
-Learn the Balking pattern in Java with an online store basket draft that saves itself automatically. Balking means an action only happens when the object is in the right state; otherwise the call returns at once, without waiting and without failing, like pressing a lift button when the lift is already coming. We watch one edit cause five saves, then make the draft balk when nothing changed and when a save is already running. We hear an edit lost by a careless version and kept by a careful one, and make sure the caller is told. The price is that the request it turns away is not done.
+Balking pattern in Java, explained with an online store basket draft that saves itself automatically. Balking means an action only happens when the object is in the right state; otherwise the call returns at once, without waiting and without failing, like pressing a lift button when the lift is already coming. We watch one edit cause five saves, then make the draft balk when nothing changed and when a save is already running. We hear an edit lost by a careless version and kept by a careful one, and make sure the caller is told. The price is that the request it turns away is not done.
 
 CHAPTERS
 00:00 Introduction

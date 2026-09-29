@@ -17,7 +17,7 @@ Message Translator with Apache Camel
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
-Build the message translator with Apache Camel: one route per incoming format, Camel's own data formats to read CSV, JSON and XML, and a normalizer route that recognises the format and hands over to the right translator. With Camel, each translator is a route, each format is read by a data format, and a normalizer route sends each message to the right translator by name.
+Message Translator pattern in Java with Apache Camel, using an online store warehouse that takes orders from its web form and from marketplaces. A translator turns a message from one format into another, so the receiver only ever sees the one shape it understands, like an international post room that routes each letter to the right translator. We watch Camel refuse a foreign format sent straight to the warehouse, give each format its own translator route, add a normalizer that picks the route, and support a new format with a new route. We finish with the bill.
 
 CHAPTERS
 00:00 Introduction

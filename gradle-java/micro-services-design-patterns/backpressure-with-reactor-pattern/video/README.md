@@ -13,4 +13,11 @@ A narrated, slide-based video built by `./build_video.sh` with the shared videok
 
 Suggested description:
 
-> Handle a fast supplier feed and a slow search indexer with Project Reactor, where every subscriber states its demand: Reactor refuses a source that ignores it, limitRate() asks in batches, and onBackpressureLatest() keeps only the newest stock level. With Reactor, backpressure is built in: subscribers state their demand, and sources that cannot honour it must buffer, drop or keep the latest.
+> Backpressure pattern in Java with Project Reactor, where every stream
+> carries demand from consumer to producer, using an online store search
+> indexer reading a supplier's product feed. A slow consumer tells a fast
+> producer how much it can take, so work does not pile up in between, like a
+> chef calling for exactly two more tickets. We watch what Reactor does with
+> a source that ignores demand, produce only what is asked, use limitRate,
+> and keep only the latest item. We finish with the bill: decide on purpose
+> what happens when a source cannot wait.

@@ -17,7 +17,7 @@ Contract Stub with WireMock
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
-Build a real WireMock stub server from a shared contract file for checkout's tests, and replay the same file against the real payment service over HTTP, so the stub and the service can never quietly drift apart. With WireMock, a contract stub is a real HTTP stub server built from a shared contract file that the real service is also checked against.
+Contract Stub pattern in Java with WireMock, a stub server that answers real web requests, using an online store checkout calling another team's payment service. The stub is built from a written contract, and the real service is checked against the same contract, so the two cannot drift apart, like a fire drill run from a floor plan the builders must keep current. We watch a stub drift, build the WireMock stub from the contract, verify the provider against it, and make the stub strict about what it accepts. We finish with the bill.
 
 CHAPTERS
 00:00 Introduction

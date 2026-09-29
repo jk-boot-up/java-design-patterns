@@ -69,7 +69,7 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Learn the Queue-Based Load Leveling pattern in Java with an online store
+> Queue-Based Load Leveling pattern in Java, explained with an online store
 > sale where a hundred orders arrive at once. A queue sits between the
 > bursty source of work and the service that does it, so the service keeps
 > its own steady pace and the burst waits its turn. We watch a burst refused

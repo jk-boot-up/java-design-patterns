@@ -17,7 +17,7 @@ Event-Carried State Transfer with Kafka
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
-Carry each customer's address in events on a real Kafka topic, keyed by customer and compacted, so shipping can build its own copy from the topic, keep each customer's updates in order, and learn of deletions through tombstones. With Kafka, state events keyed by entity on a compacted topic let any service build and keep its own copy, in order, with deletions as tombstones.
+Event-Carried State Transfer pattern in Java with a real Kafka broker, using an online store where a customer service owns addresses and a shipping service prints labels. The new data travels in the event, so each service keeps its own copy, and Kafka keeps events on topics so a copy can be rebuilt at any time, like a town noticeboard a new postman reads once. We replace thin events and call-backs, build a brand-new copy from the topic, keep order within a partition by keying on the customer, and treat deleting as an event. We finish with the bill.
 
 CHAPTERS
 00:00 Introduction

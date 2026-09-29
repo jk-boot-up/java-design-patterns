@@ -13,4 +13,11 @@ A narrated, slide-based video built by `./build_video.sh` with the shared videok
 
 Suggested description:
 
-> Build the message filter with Apache Camel: a filter() step, written in Camel's Simple expression language, in front of each service, with rules that read their settings as each message passes and a discard channel so nothing vanishes unseen. With Camel, a message filter is a `filter()` step with a Simple rule in front of each receiver, and rejects can be sent to a discard channel.
+> Message Filter pattern in Java with Apache Camel, whose filter step is
+> built in, using an online store checkout that announces every order to its
+> services. A filter in front of each receiver lets through only the
+> messages it wants and drops the rest, like a company post room applying
+> each department's rule. We watch every service get every order, put a
+> Camel filter in front, combine two conditions, and change a rule while
+> everything is running. We finish with the bill and a discard channel,
+> because a good filter keeps what it rejects.

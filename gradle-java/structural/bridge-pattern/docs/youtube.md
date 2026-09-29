@@ -17,7 +17,7 @@ Bridge Pattern in Java - Notifications and Channels
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
-Learn the Bridge design pattern in Java 21 by building a notification system that sends messages over email, SMS and push. We start with the problem — one class per (notification type, channel) combination, with delivery logic copy-pasted across every one — and end with two small hierarchies connected by a single field, so a new channel or a new notification type each cost exactly one class. No prior design-pattern knowledge needed. Full source code and written notes are in the repository.
+Bridge design pattern in Java 21, explained by building a notification system that sends messages over email, SMS and push. We start with the problem — one class per (notification type, channel) combination, with delivery logic copy-pasted across every one — and end with two small hierarchies connected by a single field, so a new channel or a new notification type each cost exactly one class. No prior design-pattern knowledge needed. Full source code and written notes are in the repository.
 
 CHAPTERS
 00:00 Introduction

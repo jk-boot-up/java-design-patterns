@@ -87,10 +87,10 @@ tags live in [`../docs/youtube.md`](../docs/youtube.md).
 
 Suggested description:
 
-> Learn the Model View Controller pattern, MVC, in Java with an online store
-> where a screen and a confirmation email must show the same order total.
-> The model holds the data and does the one calculation that matters, the
-> views only display it, and the controller takes the input and picks a
+> Model View Controller pattern, MVC, in Java, explained with an online
+> store where a screen and a confirmation email must show the same order
+> total. The model holds the data and does the one calculation that matters,
+> the views only display it, and the controller takes the input and picks a
 > view, like one reporter's facts printed in the paper and on the website.
 > We watch one view work out the total for itself and explain why that is a
 > structural bug, not a typo. We compare classic MVC with the web MVC you

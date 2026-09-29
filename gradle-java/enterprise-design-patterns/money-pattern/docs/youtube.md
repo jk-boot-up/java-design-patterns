@@ -17,7 +17,7 @@ Money
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
-A price is not a number. It is an amount of the smallest coin, plus a currency, and it should never round without being asked. Money keeps a price as a whole number of the smallest coin plus its currency, so arithmetic is exact, currencies cannot be mixed, and rounding only happens when someone decides it should.
+Money pattern in Java, explained with an online store that adds up baskets, charges VAT, gives discounts, and sells in pounds, dollars and yen. A price is kept as a whole number of the smallest coin, such as pence, together with its currency, never as a decimal number, so every sum is exact, like counting coins in a cash drawer. We hear why ten pence plus twenty pence is not thirty in a double, replace doubles with Money, refuse to add pounds to dollars, treat rounding as a decision, and split ten pounds three ways without losing a penny. We finish with the bill.
 
 CHAPTERS
 00:00 Introduction

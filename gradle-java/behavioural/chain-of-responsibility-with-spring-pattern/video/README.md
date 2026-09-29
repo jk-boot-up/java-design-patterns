@@ -71,7 +71,7 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Learn the Chain of Responsibility pattern in Java with Spring Boot, using
+> Chain of Responsibility pattern in Java, explained with Spring Boot, using
 > the same online checkout. A request passes along a line of checks until
 > one of them answers, like a bag going through passport control, the
 > scanner and a hand search. Spring builds that line for you: every check is

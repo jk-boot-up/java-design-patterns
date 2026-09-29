@@ -69,7 +69,7 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Learn the MVP and MVVM patterns in Java with an online store cart screen
+> MVP and MVVM patterns in Java, explained with an online store cart screen
 > that shows a total, an item count and a checkout button, and currently
 > decides all three itself. In Model View Presenter, a presenter tells a
 > passive screen exactly what to show, like a director calling every move

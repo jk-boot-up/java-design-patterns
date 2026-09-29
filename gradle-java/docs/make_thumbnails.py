@@ -471,6 +471,9 @@ META = {
     "event-sourcing-with-eventstoredb": (['EVENT SOURCING', 'WITH EVENTSTOREDB'],
                   'Two checkouts, one refused',
                   'expectedRevision(7)'),
+    "distributed-tracing-with-jaeger": (['DISTRIBUTED TRACING', 'WITH JAEGER'],
+                  'One header, one trace',
+                  'propagator.inject(...)'),
     "strangler-fig-with-nginx": (['STRANGLER FIG', 'WITH NGINX'],
                   'Move a route, restart nothing',
                   'location /api/prices'),
@@ -722,6 +725,8 @@ GROUP["consumer-driven-contract-with-pact"] = "platform-design-patterns"
 GROUP["event-sourcing-with-eventstoredb"] = "platform-design-patterns"
 
 GROUP["strangler-fig-with-nginx"] = "platform-design-patterns"
+
+GROUP["distributed-tracing-with-jaeger"] = "platform-design-patterns"
 
 GROUP["event-driven-architecture-with-kafka"] = "architectural-design-patterns"
 

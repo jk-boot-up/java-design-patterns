@@ -8,6 +8,7 @@ package = "securenginx"
 main_class = "NginxSecureGatewayDemo"
 tagline = "The gatekeeper is a config file"
 bold = "Put a real NGINX in front of the shop's order service as the gatekeeper: an allow-list of locations, limit_except for methods, client_max_body_size for size, and proxy_set_header to strip internal headers, with no secrets on the gate."
+youtube_description = """Secure Gateway pattern in Java with NGINX as the gatekeeper, using an online store order service that holds the database password. The services with secrets never face the internet; NGINX does, holding no secrets and letting through only a few allowed kinds of request, like a bank teller with no vault key. We watch two tricks export every order, put an NGINX gatekeeper in front with a short configuration, allow-list its locations, and enforce size and shape limits. We finish with the bill: write the gate's rules as an allow-list."""
 domain_note = ""
 thumb_lines = ["SECURE GATEWAY", "WITH NGINX"]
 thumb_code = "location ~ ^/orders/[0-9]+$"

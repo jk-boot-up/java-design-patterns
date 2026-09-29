@@ -13,4 +13,11 @@ A narrated, slide-based video built by `./build_video.sh` with the shared videok
 
 Suggested description:
 
-> Build the recipient list with Apache Camel: recipientList() asks a routing table, for each order, which endpoints should get a copy, and sends one to each; the table can change while the routes run. With Camel, a recipient list is one `recipientList()` step that asks a routing table for each message's recipients and sends each a copy.
+> Recipient List pattern in Java with Apache Camel, whose recipient list
+> step is built in, using an online store sending orders to its warehouses.
+> For each message the list works out who should get it and sends a copy to
+> each of them and to nobody else, like a clerk writing the names on a
+> letter before the post room copies it. We watch every order go to every
+> warehouse, send each order only where it is needed, let rules add
+> recipients, change the table while running, and see what happens when one
+> recipient fails.

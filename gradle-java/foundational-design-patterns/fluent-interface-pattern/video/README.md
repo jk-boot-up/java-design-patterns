@@ -69,7 +69,7 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Learn the Fluent Interface pattern in Java with an online store product
+> Fluent Interface pattern in Java, explained with an online store product
 > search that takes five arguments, two of them easy-to-swap true or false
 > values. A fluent interface chains method calls so code reads like a
 > sentence, like giving someone directions step by step. We watch swapped

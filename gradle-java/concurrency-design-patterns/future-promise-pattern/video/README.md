@@ -71,7 +71,7 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Learn the Future and Promise pattern in Java with an online store product
+> Future and Promise pattern in Java, explained with an online store product
 > page that needs three separate lookups. Starting a piece of work hands you
 > a future straight away, a handle to a result that does not exist yet, so
 > independent lookups run at the same time instead of one after another,

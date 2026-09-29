@@ -17,7 +17,7 @@ Process Manager with Apache Camel (Saga)
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
-Build the process manager with Apache Camel's Saga step: one route owns each order's journey, each step names how to undo itself, and Camel runs the undo steps and a final completion or cancellation route for you. With Camel, a process manager can be a saga: one route runs the journey, each step names its undo, and Camel calls the undo steps and a final completion or cancellation route.
+Process Manager pattern in Java with Apache Camel's saga step, using online store orders that reserve stock, take payment and ship. A process manager runs a journey of several steps from one place and makes sure every journey ends in a known state; Camel's saga undoes earlier steps when a later one fails, like a travel agent cancelling the hotel and flight when the car hire falls through. We watch steps that hand on to each other lose track, run the journey as a saga, add a branch, and let Camel run the undo steps. We finish with the bill.
 
 CHAPTERS
 00:00 Introduction

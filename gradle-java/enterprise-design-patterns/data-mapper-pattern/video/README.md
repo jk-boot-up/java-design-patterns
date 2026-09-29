@@ -69,7 +69,7 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Learn the Data Mapper pattern in Java with an online store customer,
+> Data Mapper pattern in Java, explained with an online store customer,
 > asking who should know how a customer is saved. A data mapper is a
 > separate class that moves data between an object and its database rows, so
 > the object never knows it is stored, like movers who know how to pack

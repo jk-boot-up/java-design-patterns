@@ -17,7 +17,7 @@ Extension Object
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
-Keep the core class small, let other code attach extra roles to individual objects, and let clients ask whether an object has the role they need. An extension object lets code attach extra roles to individual objects and lets clients ask for a role by type, so a core class stays small while new abilities keep arriving.
+Extension Object pattern in Java, explained with an online store that sells downloadable e-books, kettles with a warranty, plain mugs, and later coffee subscriptions. The core class stays small, other code attaches extra roles to individual objects, and code that needs a role asks whether the object has it, like visas added to a passport that a border guard checks without the passport ever being reprinted. We watch one product class grow a field for everything, shrink it to a core with roles, ask for a role safely, and add a new role without touching the core. We finish with the bill.
 
 CHAPTERS
 00:00 Introduction

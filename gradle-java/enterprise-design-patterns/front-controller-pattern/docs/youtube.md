@@ -17,7 +17,7 @@ Front Controller
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
-Learn the Front Controller pattern in Java with an online store where every visitor's web request arrives through one entry point. The shared work of logging, checking who is asking, finding the right handler and dealing with failures is done once there, like a building's reception desk. We watch handlers that look after themselves forget a security check, then route everything through one front door with one routing table. We hear refused requests logged, a failure hidden safely from the customer, and the cost: one door that everything depends on.
+Front Controller pattern in Java, explained with an online store where every visitor's web request arrives through one entry point. The shared work of logging, checking who is asking, finding the right handler and dealing with failures is done once there, like a building's reception desk. We watch handlers that look after themselves forget a security check, then route everything through one front door with one routing table. We hear refused requests logged, a failure hidden safely from the customer, and the cost: one door that everything depends on.
 
 CHAPTERS
 00:00 Introduction

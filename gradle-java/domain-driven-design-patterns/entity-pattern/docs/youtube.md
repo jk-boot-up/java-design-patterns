@@ -17,7 +17,7 @@ Entity
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
-Some things are defined by who they are, not by their current details: give them an identity that never changes, and compare them by that identity alone. An entity is an object defined by an identity that never changes, compared by that identity alone, so it stays the same thing while its details change.
+Entity pattern from domain-driven design in Java, with online store customers who change their email, earn points, and sometimes share a name with someone else. An entity is defined by who it is, not by its current details: it has an identity that never changes, like a car's chassis number through new colours, plates and owners. We watch comparing customers by their values go wrong, give them an identity, keep look-alikes apart, and follow one customer's life story. We finish with the bill, including what equality does not tell you.
 
 CHAPTERS
 00:00 Introduction

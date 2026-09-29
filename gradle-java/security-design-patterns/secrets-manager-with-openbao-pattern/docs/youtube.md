@@ -17,7 +17,7 @@ Secrets Manager with OpenBao (open-source Vault)
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
-Keep the payment key in a real OpenBao server, the open-source fork of HashiCorp Vault: a policy decides which service may read it, each service has its own token, the key is versioned for rotation, and a leaked token is revoked at once. With OpenBao, secrets live at paths, policies decide who may read them, each service holds a revocable token, and every change is a new version.
+Secrets Manager pattern in Java with a real OpenBao server, the open-source community fork of HashiCorp Vault, using an online store's card-payment key. Secrets live in one guarded store, each service may read only what its policy allows, and secrets change without a rebuild, like safe-deposit boxes that each card opens only its own of. We move a key out of the code, give each service a policy and a token, keep versions and rotate the key, and revoke a leaked token at once. We finish with the bill.
 
 CHAPTERS
 00:00 Introduction

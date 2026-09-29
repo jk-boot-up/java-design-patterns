@@ -13,4 +13,12 @@ A narrated, slide-based video built by `./build_video.sh` with the shared videok
 
 Suggested description:
 
-> Put a hardened gatekeeper, holding no secrets and no data, between the internet and the trusted services, and let through only requests of an allowed shape. A Secure Gateway is a secret-free gatekeeper that is the only thing the internet can reach, passing on only requests of an allowed shape.
+> Secure Gateway pattern in Java, also called the Gatekeeper, explained with
+> an online store order service that holds the database password. The
+> services holding secrets never face the internet; a separate gatekeeper
+> does, holding no secrets and letting through only requests of a few
+> allowed shapes, like a bank teller with no key to the vault. We watch two
+> tricks export every order from a service facing the internet, put a
+> gatekeeper in front, write an allow-list, and add size and shape limits.
+> We finish with the bill: let only a gate with nothing to steal face the
+> internet.

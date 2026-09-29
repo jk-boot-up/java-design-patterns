@@ -8,6 +8,7 @@ package = "proactor"
 main_class = "ProactorDemo"
 tagline = "Start it all, get called back"
 bold = "Start slow operations without waiting for them, and give each one a completion handler that the system calls when it finishes, successfully or not."
+youtube_description = """Proactor pattern in Java, explained with an online store warehouse that asks five suppliers for today's kettle price, each taking a fifth of a second to answer. You start slow operations without waiting, hand each a completion handler for success and failure, and the system does the waiting and calls you back, like buzzers at a food court. We watch asking one after another add up, start everything at once, handle results in completion handlers, and treat a failure as just another completion. We finish with the bill."""
 domain_note = ""
 thumb_lines = ["PROACTOR"]
 thumb_code = "CompletionHandler"

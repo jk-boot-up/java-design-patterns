@@ -69,7 +69,7 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Learn the Specification pattern in Java with an online store rule: which
+> Specification pattern in Java, explained with an online store rule: which
 > products are cheap and available? A specification is a business rule
 > written as an object that can say whether something meets it, explain why
 > not, and combine with other rules, like the requirements in a job advert.

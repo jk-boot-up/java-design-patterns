@@ -230,14 +230,14 @@ Two further things that affect how well it plays for viewers:
 
 Suggested description:
 
-> Learn the prototype pattern in Java 21 — a Gang of Four creational pattern
-> for cheaply producing near-duplicates of an object that was expensive to
+> Prototype pattern in Java 21 — a Gang of Four creational pattern for
+> cheaply producing near-duplicates of an object that was expensive to
 > assemble correctly. We start from a marketplace listing built twice with
 > eight repeated arguments, look at why Java's own `Cloneable` disappoints
 > (Effective Java, item thirteen), then build a plain `Prototype<T>`
-> interface whose `copy()` reuses an existing defensive-copy constructor
-> and makes a deliberate field-by-field choice: deep-copy what's mutable,
-> share what's immutable. We finish with a prototype registry — the GoF's
-> own named variant — for when the set of templates is decided at runtime.
-> No prior design-pattern knowledge needed. Full source code and written
-> notes are in the repository.
+> interface whose `copy()` reuses an existing defensive-copy constructor and
+> makes a deliberate field-by-field choice: deep-copy what's mutable, share
+> what's immutable. We finish with a prototype registry — the GoF's own
+> named variant — for when the set of templates is decided at runtime. No
+> prior design-pattern knowledge needed. Full source code and written notes
+> are in the repository.

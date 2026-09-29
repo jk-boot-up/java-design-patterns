@@ -13,4 +13,11 @@ A narrated, slide-based video built by `./build_video.sh` with the shared videok
 
 Suggested description:
 
-> Write functions that take other functions, or return them, so one piece of code can serve many questions and small rules can be combined into bigger ones. A higher-order function takes a function or returns one, so behaviour can be passed in, made to order, and combined.
+> Higher-Order Functions in Java, explained with an online store catalogue
+> page and its prices. A higher-order function takes another function or
+> gives one back, so one piece of code can serve many questions and small
+> rules can be joined into bigger ones, like a coffee machine where the pod
+> decides the drink. We watch a copied loop for every question pile up, pass
+> the test in instead, write functions that make functions, and treat price
+> rules as values we can join. We finish with the bill, including why the
+> order of price rules matters.

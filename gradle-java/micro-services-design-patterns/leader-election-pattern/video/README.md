@@ -69,7 +69,7 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Learn the Leader Election pattern in Java with an online store's nightly
+> Leader Election pattern in Java, explained with an online store's nightly
 > sales report, which must be sent exactly once. Leader election makes
 > exactly one of several identical copies of a service responsible for a
 > job, and hands the job to another copy if the leader disappears. We watch

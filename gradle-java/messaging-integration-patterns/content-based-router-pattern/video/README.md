@@ -69,7 +69,7 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Learn the Content-Based Router pattern in Java with an online store where
+> Content-Based Router pattern in Java, explained with an online store where
 > orders of different kinds arrive together and each kind must go somewhere
 > different. A router looks inside each message and sends it to a channel
 > based on what it contains, so senders and receivers never know about each

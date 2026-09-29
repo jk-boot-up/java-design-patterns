@@ -66,8 +66,8 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Learn Hexagonal Architecture, also called Ports and Adapters, in Java with
-> an online shop. The core says what it needs from the outside world as
+> Hexagonal Architecture, also called Ports and Adapters, in Java, explained
+> with an online shop. The core says what it needs from the outside world as
 > interfaces in its own words, called ports, and adapters plug into them,
 > like appliances into a wall socket. We start from a naive version, drive
 > the same core from HTTP and then from a command line, and cover the half

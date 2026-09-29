@@ -71,7 +71,7 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Learn the Event-Driven Architecture pattern in Java with Apache Kafka,
+> Event-Driven Architecture pattern in Java, explained with Apache Kafka,
 > using a real Kafka broker behind the same online store. Services stop
 > calling each other and write events to a topic instead, and the broker
 > remembers how far each reader has got, like a library that keeps a

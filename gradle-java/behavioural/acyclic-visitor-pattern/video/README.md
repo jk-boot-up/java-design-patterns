@@ -13,4 +13,12 @@ A narrated, slide-based video built by `./build_video.sh` with the shared videok
 
 Suggested description:
 
-> Give every product type its own tiny visitor interface, so each visitor handles only the types it cares about and a new type changes nothing that already exists. An acyclic visitor gives each type its own one-method visitor interface and an empty root, so each visitor handles only the types it chooses and new types change nothing existing.
+> Acyclic Visitor pattern in Java, explained with an online store catalogue
+> of books, food and electronics, and later gift cards, where visitors work
+> out VAT and customs forms. A visitor is an operation kept outside the
+> classes it works on; in the acyclic version each type gets its own tiny
+> visitor interface, so a new type changes nothing that already exists, like
+> hotel staff wearing one badge per language they speak. We see what goes
+> wrong with the classic visitor, fix it, add a product type without
+> touching old code, and write a visitor for just one type. We finish with
+> the bill.

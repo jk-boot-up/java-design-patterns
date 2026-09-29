@@ -8,6 +8,7 @@ package = "servicestub"
 main_class = "ServiceStubDemo"
 tagline = "Develop without the real service"
 bold = "Put an external service behind a gateway interface, and during development and testing plug in a small, free, in-memory stub that behaves like it, checked regularly against the real thing."
+youtube_description = """Service Stub pattern in Java, explained with an online store checkout that turns a postcode into an address using a paid outside service. A service stub is a small, free stand-in behind the same interface that answers like the real service while you develop and test, like a flight simulator that can fail an engine on demand but is checked against the real plane. We hear what developing against the real service costs, swap in a stub, produce awkward cases on demand, and keep the stub honest with a contract check. We finish with the bill."""
 domain_note = ""
 thumb_lines = ["SERVICE", "STUB"]
 thumb_code = "new PostcodeStub()"

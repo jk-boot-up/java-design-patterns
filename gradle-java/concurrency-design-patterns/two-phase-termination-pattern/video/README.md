@@ -69,12 +69,12 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Learn the Two-Phase Termination pattern in Java by shutting down an online
-> store's order worker without losing or damaging an order. The thread is
-> first asked to stop, so it can finish what it is doing and tidy up, and
-> then the caller waits for it, but only for a limited time, like closing a
-> shop by locking the door and letting the customers inside finish paying.
-> We watch a worker stopped suddenly leave an order half written, then one
-> asked politely finish it. We wake a sleeping worker, run clean-up on the
-> way out, and meet a worker that will not stop. The price is that stopping
-> takes as long as the work in progress.
+> Two-Phase Termination pattern in Java, explained by shutting down an
+> online store's order worker without losing or damaging an order. The
+> thread is first asked to stop, so it can finish what it is doing and tidy
+> up, and then the caller waits for it, but only for a limited time, like
+> closing a shop by locking the door and letting the customers inside finish
+> paying. We watch a worker stopped suddenly leave an order half written,
+> then one asked politely finish it. We wake a sleeping worker, run clean-up
+> on the way out, and meet a worker that will not stop. The price is that
+> stopping takes as long as the work in progress.

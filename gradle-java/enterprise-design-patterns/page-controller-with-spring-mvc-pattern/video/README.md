@@ -13,4 +13,11 @@ A narrated, slide-based video built by `./build_video.sh` with the shared videok
 
 Suggested description:
 
-> Give each page of the shop its own Spring MVC controller, let Spring convert and check each page's input, add pages without opening the others, and keep checks every page needs in one HandlerInterceptor. With Spring MVC, a page controller is a @RestController per page, found by annotation, with shared checks in a HandlerInterceptor.
+> Page Controller pattern in Java, explained with Spring MVC, the web
+> framework most Java applications use, and an online store's product,
+> basket, reviews and checkout pages. Each page gets its own controller that
+> reads its input, does its work and handles its errors, like department
+> counters in one store sharing the front doors. We watch one handler for
+> every page break, let Spring find a controller for each page, have Spring
+> check the input, and add a new page. We finish with the bill and where
+> checks every page needs should live: in one interceptor.

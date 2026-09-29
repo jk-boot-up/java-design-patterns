@@ -17,7 +17,7 @@ Unit of Work in Java - All Of The Order Or None
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
-Learn the Unit of Work pattern in Java with an online store order that writes seven things, where the seventh fails. A unit of work keeps a list of what is new, changed and removed, then writes it all together at the end, or not at all, like a shopping basket that charges nothing until you press pay. We see what half an order looks like, what wrapping it in a transaction fixes and still costs, and how a unit of work does better. Then the costs: the order of writes, knowing what changed, and memory that disagrees with the database. Do the slow work first, then write everything once.
+Unit of Work pattern in Java, explained with an online store order that writes seven things, where the seventh fails. A unit of work keeps a list of what is new, changed and removed, then writes it all together at the end, or not at all, like a shopping basket that charges nothing until you press pay. We see what half an order looks like, what wrapping it in a transaction fixes and still costs, and how a unit of work does better. Then the costs: the order of writes, knowing what changed, and memory that disagrees with the database. Do the slow work first, then write everything once.
 
 CHAPTERS
 00:00 Introduction

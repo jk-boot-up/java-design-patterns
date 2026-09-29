@@ -17,7 +17,7 @@ Producer-Consumer in Java - The Bounded Queue
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
-Learn the Producer Consumer pattern in Java with an online store where checkout accepts orders faster than the packing step can wrap them for the courier. A queue with a size limit sits between the two sides so each works at its own pace, and the limit is chosen on purpose, like the conveyor belt between a bakery's oven and its packing table. We try letting checkout pack its own orders and giving every order its own thread, then add the bound, force the queue to fill on every run, and compare a clean shutdown with an abrupt one. A queue with no limit is not safer; it is the thread-per-order failure with a nicer name.
+Producer Consumer pattern in Java, explained with an online store where checkout accepts orders faster than the packing step can wrap them for the courier. A queue with a size limit sits between the two sides so each works at its own pace, and the limit is chosen on purpose, like the conveyor belt between a bakery's oven and its packing table. We try letting checkout pack its own orders and giving every order its own thread, then add the bound, force the queue to fill on every run, and compare a clean shutdown with an abrupt one. A queue with no limit is not safer; it is the thread-per-order failure with a nicer name.
 
 CHAPTERS
 00:00 Introduction

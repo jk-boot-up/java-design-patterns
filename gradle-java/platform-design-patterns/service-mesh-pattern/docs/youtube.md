@@ -17,7 +17,7 @@ Service Mesh
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
-Learn the Service Mesh pattern in Java with an online store where every service calls the payment service and each team wrote its own retry code in its own way. A service mesh puts a proxy beside every service, and the proxies handle retries, identity and measurement for all calls under one policy set in one place. We watch three services retry three different ways, then give everyone the same behaviour with one policy, change it once, turn away an unknown caller before it reaches payments, and keep counts with no service code. The bill is load, delay and more processes to run.
+Service Mesh pattern in Java, explained with an online store where every service calls the payment service and each team wrote its own retry code in its own way. A service mesh puts a proxy beside every service, and the proxies handle retries, identity and measurement for all calls under one policy set in one place. We watch three services retry three different ways, then give everyone the same behaviour with one policy, change it once, turn away an unknown caller before it reaches payments, and keep counts with no service code. The bill is load, delay and more processes to run.
 
 CHAPTERS
 00:00 Introduction

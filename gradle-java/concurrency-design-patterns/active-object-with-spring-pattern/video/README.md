@@ -71,7 +71,7 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Learn the Active Object pattern in Java with Spring Boot, using the same
+> Active Object pattern in Java, explained with Spring Boot, using the same
 > shop stock. We build it from a Spring bean and a one-thread executor: each
 > call drops a message into a mailbox and returns at once, and one worker
 > owns the data, so there is no lock, like a post box emptied by a single

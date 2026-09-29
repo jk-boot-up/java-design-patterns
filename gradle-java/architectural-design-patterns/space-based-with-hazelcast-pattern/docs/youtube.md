@@ -17,7 +17,7 @@ Space-Based Architecture with Hazelcast
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
-Keep the shop's stock in a real Hazelcast data grid spread across three processing units, sell with an entry processor that runs on the key's owner, write the database behind the scenes, and survive a unit crashing. With Hazelcast, a space-based design keeps data in a partitioned in-memory grid with backups, runs changes on each key's owner, and writes the database behind.
+Space-Based Architecture pattern in Java, explained with Hazelcast, an open-source in-memory data grid, using an online store's kettle flash sale. The busy data lives in the memory of the processing units themselves, and the database is written later in the background, like market stalls sharing one stock with a partner keeping a backup note. We see why the database was the bottleneck, hold the stock in a real grid as one copy rather than three, sell the last kettle exactly once by changing it where it lives, write the database behind, and watch what happens when a unit crashes.
 
 CHAPTERS
 00:00 Introduction

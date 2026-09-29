@@ -13,4 +13,11 @@ A narrated, slide-based video built by `./build_video.sh` with the shared videok
 
 Suggested description:
 
-> Let same-day orders overtake standard ones on a real RabbitMQ priority queue, and see its two limits: priority only reorders messages still waiting on the queue, and it keeps no share for routine work. With RabbitMQ, a queue declared with `x-max-priority` hands out higher-priority messages first, but only among those still waiting on the queue.
+> Priority Queue pattern in Java with a real RabbitMQ broker, using an
+> online store warehouse where same-day orders must catch the courier's van.
+> Urgent messages overtake routine ones, and RabbitMQ can make a queue a
+> priority queue, but nobody can overtake someone already in the scanner, as
+> at airport fast-track. We watch first in, first out miss the van, put
+> same-day orders first, survive a flood, and see why prefetch means
+> priority only applies to what is still waiting. We finish with the bill:
+> starvation of routine orders.

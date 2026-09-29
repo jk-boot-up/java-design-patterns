@@ -17,7 +17,7 @@ Transaction Script
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
-Learn the Transaction Script pattern in Java by placing an order in an online store. Business logic is organised as one procedure per request, run as one transaction, with no business objects behind it; the steps are the design, like a recipe card read top to bottom. We place and undo an order as one transaction, watch two scripts drift apart when they copy a rule, share a procedure, and hear how scripts grow in the middle. We also hear where a transaction script is exactly right. It is the simplest design that works, and its cost is measured in how it grows.
+Transaction Script pattern in Java, explained by placing an order in an online store. Business logic is organised as one procedure per request, run as one transaction, with no business objects behind it; the steps are the design, like a recipe card read top to bottom. We place and undo an order as one transaction, watch two scripts drift apart when they copy a rule, share a procedure, and hear how scripts grow in the middle. We also hear where a transaction script is exactly right. It is the simplest design that works, and its cost is measured in how it grows.
 
 CHAPTERS
 00:00 Introduction

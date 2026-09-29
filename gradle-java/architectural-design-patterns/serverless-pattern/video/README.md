@@ -69,8 +69,8 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Learn the Serverless pattern in Java with an online store that must send a
-> receipt for every order, where orders arrive in bursts with long quiet
+> Serverless pattern in Java, explained with an online store that must send
+> a receipt for every order, where orders arrive in bursts with long quiet
 > gaps between them. Serverless runs each piece of work as a short function
 > that a platform starts when an event arrives and throws away when idle,
 > and you pay per call, like taking a taxi instead of owning a car. We

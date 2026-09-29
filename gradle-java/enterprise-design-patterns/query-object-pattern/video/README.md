@@ -13,4 +13,11 @@ A narrated, slide-based video built by `./build_video.sh` with the shared videok
 
 Suggested description:
 
-> Represent a search as an object made of criteria, which can write itself as safe SQL with placeholders and can also run over a list in memory. A query object holds a search as a set of criteria that can write themselves as safe SQL with placeholders and can also run over data in memory.
+> Query Object pattern in Java, explained with an online store search page
+> that filters products by category, price and name. A query object holds a
+> search as an object made of small criteria that can write itself as safe
+> SQL, or run over a plain list in memory for testing, like a library
+> request form where the author box is always treated as a name. We watch
+> SQL glued together from strings go wrong, build a query object, run the
+> same query in memory, and reuse it safely. We finish with what it costs.
+> Hold a search as criteria, never as glued-together text.

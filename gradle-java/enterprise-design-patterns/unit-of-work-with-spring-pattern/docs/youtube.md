@@ -17,7 +17,7 @@ Unit of Work with Spring - The Flush You Did Not Write
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
-Learn the Unit of Work pattern in Java with Spring, using the same order. All the changes are collected and written together at the end, or not at all, like a bank transfer that never moves just one half. We hear the writes arrive at the end instead of where the code is, then meet three failures that belong to Spring itself: a checked exception that saves anyway unless you set rollbackFor, a flush nobody wrote, and a @Transactional annotation that does nothing. We also explain why these surprise people. An annotation hides the mechanism, but the mechanism still has rules.
+Unit of Work pattern in Java, explained with Spring, using the same order. All the changes are collected and written together at the end, or not at all, like a bank transfer that never moves just one half. We hear the writes arrive at the end instead of where the code is, then meet three failures that belong to Spring itself: a checked exception that saves anyway unless you set rollbackFor, a flush nobody wrote, and a @Transactional annotation that does nothing. We also explain why these surprise people. An annotation hides the mechanism, but the mechanism still has rules.
 
 CHAPTERS
 00:00 Introduction

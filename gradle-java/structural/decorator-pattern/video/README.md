@@ -217,11 +217,11 @@ Two further things that affect how well it plays for viewers:
 
 Suggested description:
 
-> Learn the Decorator design pattern in Java 21 by building checkout
+> Decorator design pattern in Java 21, explained by building checkout
 > pricing with stackable optional extras — gift wrapping, insurance, and
-> express handling. We start with the problem — a new class needed for
-> every combination of features, with fee logic duplicated across all of
-> them — and end with a small set of decorators that stack in any order,
-> including a look at how stacking order itself changes the total when a
-> percentage-based fee is involved. No prior design-pattern knowledge
-> needed. Full source code and written notes are in the repository.
+> express handling. We start with the problem — a new class needed for every
+> combination of features, with fee logic duplicated across all of them —
+> and end with a small set of decorators that stack in any order, including
+> a look at how stacking order itself changes the total when a percentage-
+> based fee is involved. No prior design-pattern knowledge needed. Full
+> source code and written notes are in the repository.

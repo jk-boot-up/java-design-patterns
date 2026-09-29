@@ -69,7 +69,7 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Learn the Multiton pattern in Java with an online store that has one
+> Multiton pattern in Java, explained with an online store that has one
 > warehouse per region, where every part of the shop must agree which
 > warehouse is which. A multiton is a singleton with a key: exactly one
 > instance per key, handed back every time, like a hotel key cabinet with

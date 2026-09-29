@@ -8,6 +8,7 @@ package = "remotefacade"
 main_class = "RemoteFacadeDemo"
 tagline = "Fewer, bigger calls across the network"
 bold = "Keep objects fine-grained inside the server, but give remote callers a coarse-grained front that answers a whole screen or makes a whole change in one call."
+youtube_description = """Remote Facade pattern in Java, explained with an online store phone app whose order screen shows the customer, items, total, address and delivery slot. A remote facade gives callers across a network one call that returns everything a screen needs and one call that makes a whole change, all or nothing, while the objects inside stay small, like posting one letter with every question instead of five. We hear why many small remote calls are slow, replace them with one facade call, make a change in one call, and keep the fine-grained objects inside. We finish with the bill."""
 domain_note = ""
 thumb_lines = ["REMOTE", "FACADE"]
 thumb_code = "GET /order-summary"

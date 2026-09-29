@@ -13,4 +13,11 @@ A narrated, slide-based video built by `./build_video.sh` with the shared videok
 
 Suggested description:
 
-> Give tests ready-made, named test objects (an Object Mother), or a builder with sensible defaults where each test states only the details it cares about (a Test Data Builder). An Object Mother hands tests named, ready-made objects; a Test Data Builder starts from defaults and lets each test state only what it cares about.
+> Object Mother and Test Data Builder patterns in Java, explained with an
+> online store's tests. Both help tests create the objects they need: an
+> Object Mother is a class of ready-made objects with clear names, and a
+> Test Data Builder starts from sensible defaults so each test changes only
+> what it cares about, like a chef's shelf of ready-made sauces and a cook
+> making the usual without onions. We watch test data built by hand bury the
+> point, add an Object Mother, see it multiply, and switch to a builder. We
+> finish with the bill: a test should only show the details it depends on.

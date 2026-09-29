@@ -17,7 +17,7 @@ Thread Pool in Java - A Thread Per Order, Until It Isn't
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
-Learn the Thread Pool pattern in Java with a team of packers handling an online store's incoming orders. A pool creates a small, fixed number of worker threads once and reuses them for every task, while tasks wait in a queue whose size is also chosen on purpose, like a taxi rank with ten cars and a limited waiting line. We see why Java's most popular pool factory hides a queue with no limit, force the queue to capacity, treat sizing as a real decision, and hear a deadlock that a pool of any size can reach. We finish with what virtual threads do and do not change. A fixed number of workers is only half the pattern.
+Thread Pool pattern in Java, explained with a team of packers handling an online store's incoming orders. A pool creates a small, fixed number of worker threads once and reuses them for every task, while tasks wait in a queue whose size is also chosen on purpose, like a taxi rank with ten cars and a limited waiting line. We see why Java's most popular pool factory hides a queue with no limit, force the queue to capacity, treat sizing as a real decision, and hear a deadlock that a pool of any size can reach. We finish with what virtual threads do and do not change. A fixed number of workers is only half the pattern.
 
 CHAPTERS
 00:00 Introduction

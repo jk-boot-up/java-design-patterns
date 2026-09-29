@@ -218,7 +218,7 @@ Two further things that affect how well it plays for viewers:
 
 Suggested description:
 
-> Learn the Composite design pattern in Java 21 by building a category tree
+> Composite design pattern in Java 21, explained by building a category tree
 > for an e-commerce catalog. We start with the problem — an `instanceof`
 > chain repeated in every operation that walks the tree — and end with one
 > polymorphic method that recurses through leaves and branches alike, no

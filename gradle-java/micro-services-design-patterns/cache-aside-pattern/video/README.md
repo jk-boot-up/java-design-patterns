@@ -69,7 +69,7 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Learn the Cache-Aside pattern in Java with an online store product page
+> Cache-Aside pattern in Java, explained with an online store product page
 > that is asked for again and again. The application looks in a fast cache
 > first, and on a miss reads the real source itself and stores the answer
 > for next time, like a shop assistant who keeps popular leaflets on the

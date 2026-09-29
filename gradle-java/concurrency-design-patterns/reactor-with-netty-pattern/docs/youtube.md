@@ -17,7 +17,7 @@ Reactor Pattern with Netty
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
-Serve a hundred shop tills from one Netty event loop, let the channel pipeline turn bytes into whole questions, spread connections over several event loops, and move slow work off the loop. With Netty, the reactor is an event loop: one thread waiting on many connections, running a pipeline of handlers for each.
+Reactor pattern in Java, explained with Netty, the open-source networking library underneath much of the Java world, whose event loops are reactors. One thread waits on many connections at once and calls each connection's handler when something happens, like one fast waiter covering many tables. Using an online store's tills asking a stock server short questions, we serve a hundred tills from one event loop, let the pipeline handle half-sent questions, serve everyone at once, and add more event loops. We finish with the bill and the one rule you must never break: nothing on the loop may ever block.
 
 CHAPTERS
 00:00 Introduction

@@ -95,7 +95,7 @@ Title, description, chapters and tags live in `../docs/youtube.md`.
 
 Suggested description:
 
-> Learn the Publisher-Subscriber pattern in Java with a real Redis server.
+> Publisher-Subscriber pattern in Java, explained with a real Redis server.
 > One part of a system announces something once to a named channel, any
 > number of others listen there, and the announcer never learns who they
 > are. In our online store the order service announces each order once, and

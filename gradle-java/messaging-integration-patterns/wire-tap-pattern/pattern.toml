@@ -8,6 +8,7 @@ package = "wiretap"
 main_class = "WireTapDemo"
 tagline = "See the traffic without touching it"
 bold = "Attach a tap to a channel that sends a copy of every message to a second listener, such as an audit log, while the real message carries on untouched."
+youtube_description = """Wire Tap pattern in Java, explained with an online store checkout that sends charges and refunds to the payment service. A wire tap attached to a channel sends a copy of every message to a second listener, such as an audit log, while the real message carries on untouched, like a call recorded for training that pauses when a card number is read out. We see why typing logging into services goes wrong, add a wire tap, attach and detach it while running, and add a second tap. We finish with the bill: watch the traffic from the channel, never from inside the services."""
 domain_note = ""
 thumb_lines = ["WIRE TAP"]
 thumb_code = "channel.attach(audit)"

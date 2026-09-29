@@ -44,6 +44,15 @@
   "v:amy-slow": "done",
   "video": "done"
  },
+ "acyclic-visitor": {
+  "animation": "pending",
+  "group": "behavioural",
+  "note": "main build already uses the amy-slow voice",
+  "script": "pending",
+  "updated": "2026-09-29 19:24",
+  "v:amy-slow": "done",
+  "video": "pending"
+ },
  "adapter": {
   "animation": "pending",
   "group": "structural",
@@ -98,6 +107,33 @@
   "v:amy-slow": "done",
   "video": "done"
  },
+ "async-request-reply": {
+  "animation": "pending",
+  "group": "micro-services-design-patterns",
+  "note": "main build already uses the amy-slow voice",
+  "script": "pending",
+  "updated": "2026-09-29 19:24",
+  "v:amy-slow": "done",
+  "video": "pending"
+ },
+ "authorization-policy": {
+  "animation": "pending",
+  "group": "security-design-patterns",
+  "note": "main build already uses the amy-slow voice",
+  "script": "pending",
+  "updated": "2026-09-29 19:24",
+  "v:amy-slow": "done",
+  "video": "pending"
+ },
+ "authorization-policy-with-spring-security": {
+  "animation": "pending",
+  "group": "security-design-patterns",
+  "note": "main build already uses the amy-slow voice",
+  "script": "pending",
+  "updated": "2026-09-29 19:24",
+  "v:amy-slow": "done",
+  "video": "pending"
+ },
  "backends-for-frontends": {
   "animation": "pending",
   "group": "platform-design-patterns",
@@ -107,6 +143,24 @@
   "v:amy-slow": "done",
   "video": "queued"
  },
+ "backpressure": {
+  "animation": "pending",
+  "group": "micro-services-design-patterns",
+  "note": "main build already uses the amy-slow voice",
+  "script": "pending",
+  "updated": "2026-09-29 19:24",
+  "v:amy-slow": "done",
+  "video": "pending"
+ },
+ "backpressure-with-reactor": {
+  "animation": "pending",
+  "group": "micro-services-design-patterns",
+  "note": "main build already uses the amy-slow voice",
+  "script": "pending",
+  "updated": "2026-09-29 19:24",
+  "v:amy-slow": "done",
+  "video": "pending"
+ },
  "balking": {
   "animation": "done",
   "group": "concurrency-design-patterns",
@@ -115,6 +169,15 @@
   "updated": "2026-09-28 17:20",
   "v:amy-slow": "done",
   "video": "done"
+ },
+ "blackboard": {
+  "animation": "pending",
+  "group": "behavioural",
+  "note": "main build already uses the amy-slow voice",
+  "script": "pending",
+  "updated": "2026-09-29 19:24",
+  "v:amy-slow": "done",
+  "video": "pending"
  },
  "blue-green-and-canary": {
   "animation": "pending",
@@ -151,6 +214,15 @@
   "updated": "2026-09-28 21:50",
   "v:amy-slow": "done",
   "video": "queued"
+ },
+ "broker": {
+  "animation": "pending",
+  "group": "architectural-design-patterns",
+  "note": "main build already uses the amy-slow voice",
+  "script": "pending",
+  "updated": "2026-09-29 19:24",
+  "v:amy-slow": "done",
+  "video": "pending"
  },
  "builder": {
   "animation": "done",
@@ -205,6 +277,15 @@
   "updated": "2026-09-28 18:48",
   "v:amy-slow": "done",
   "video": "done"
+ },
+ "cell-based": {
+  "animation": "pending",
+  "group": "architectural-design-patterns",
+  "note": "main build already uses the amy-slow voice",
+  "script": "pending",
+  "updated": "2026-09-29 19:24",
+  "v:amy-slow": "done",
+  "video": "pending"
  },
  "chain-of-responsibility": {
   "animation": "done",
@@ -287,6 +368,15 @@
   "v:amy-slow": "done",
   "video": "done"
  },
+ "compare-and-swap": {
+  "animation": "pending",
+  "group": "concurrency-design-patterns",
+  "note": "main build already uses the amy-slow voice",
+  "script": "pending",
+  "updated": "2026-09-29 19:24",
+  "v:amy-slow": "done",
+  "video": "pending"
+ },
  "competing-consumers": {
   "animation": "done",
   "group": "micro-services-design-patterns",
@@ -350,6 +440,51 @@
   "v:amy-slow": "done",
   "video": "done"
  },
+ "content-enricher": {
+  "animation": "pending",
+  "group": "messaging-integration-patterns",
+  "note": "main build already uses the amy-slow voice",
+  "script": "pending",
+  "updated": "2026-09-29 19:24",
+  "v:amy-slow": "done",
+  "video": "pending"
+ },
+ "context-map": {
+  "animation": "pending",
+  "group": "domain-driven-design-patterns",
+  "note": "main build already uses the amy-slow voice",
+  "script": "pending",
+  "updated": "2026-09-29 19:24",
+  "v:amy-slow": "done",
+  "video": "pending"
+ },
+ "contract-stub": {
+  "animation": "pending",
+  "group": "testing-design-patterns",
+  "note": "main build already uses the amy-slow voice",
+  "script": "pending",
+  "updated": "2026-09-29 19:24",
+  "v:amy-slow": "done",
+  "video": "pending"
+ },
+ "contract-stub-with-wiremock": {
+  "animation": "pending",
+  "group": "testing-design-patterns",
+  "note": "main build already uses the amy-slow voice",
+  "script": "pending",
+  "updated": "2026-09-29 19:24",
+  "v:amy-slow": "done",
+  "video": "pending"
+ },
+ "copy-on-write": {
+  "animation": "pending",
+  "group": "concurrency-design-patterns",
+  "note": "main build already uses the amy-slow voice",
+  "script": "pending",
+  "updated": "2026-09-29 19:24",
+  "v:amy-slow": "done",
+  "video": "pending"
+ },
  "cqrs": {
   "animation": "done",
   "group": "micro-services-design-patterns",
@@ -358,6 +493,15 @@
   "updated": "2026-09-28 20:05",
   "v:amy-slow": "done",
   "video": "queued"
+ },
+ "currying": {
+  "animation": "pending",
+  "group": "functional-design-patterns",
+  "note": "main build already uses the amy-slow voice",
+  "script": "pending",
+  "updated": "2026-09-29 19:24",
+  "v:amy-slow": "done",
+  "video": "pending"
  },
  "data-mapper": {
   "animation": "done",
@@ -449,6 +593,15 @@
   "v:amy-slow": "done",
   "video": "queued"
  },
+ "distributed-tracing-with-jaeger": {
+  "animation": "pending",
+  "group": "platform-design-patterns",
+  "note": "main build already uses the amy-slow voice",
+  "script": "pending",
+  "updated": "2026-09-29 19:24",
+  "v:amy-slow": "done",
+  "video": "pending"
+ },
  "domain-event": {
   "animation": "done",
   "group": "domain-driven-design-patterns",
@@ -457,6 +610,15 @@
   "updated": "2026-09-28 18:14",
   "v:amy-slow": "done",
   "video": "done"
+ },
+ "domain-service": {
+  "animation": "pending",
+  "group": "domain-driven-design-patterns",
+  "note": "main build already uses the amy-slow voice",
+  "script": "pending",
+  "updated": "2026-09-29 19:24",
+  "v:amy-slow": "done",
+  "video": "pending"
  },
  "double-checked-locking": {
   "animation": "done",
@@ -476,6 +638,15 @@
   "v:amy-slow": "done",
   "video": "done"
  },
+ "entity": {
+  "animation": "pending",
+  "group": "domain-driven-design-patterns",
+  "note": "main build already uses the amy-slow voice",
+  "script": "pending",
+  "updated": "2026-09-29 19:24",
+  "v:amy-slow": "done",
+  "video": "pending"
+ },
  "event-bus": {
   "animation": "done",
   "group": "messaging-integration-patterns",
@@ -493,6 +664,24 @@
   "updated": "2026-09-28 19:27",
   "v:amy-slow": "done",
   "video": "done"
+ },
+ "event-carried-state-transfer": {
+  "animation": "pending",
+  "group": "micro-services-design-patterns",
+  "note": "main build already uses the amy-slow voice",
+  "script": "pending",
+  "updated": "2026-09-29 19:24",
+  "v:amy-slow": "done",
+  "video": "pending"
+ },
+ "event-carried-state-transfer-with-kafka": {
+  "animation": "pending",
+  "group": "micro-services-design-patterns",
+  "note": "main build already uses the amy-slow voice",
+  "script": "pending",
+  "updated": "2026-09-29 19:24",
+  "v:amy-slow": "done",
+  "video": "pending"
  },
  "event-driven-architecture": {
   "animation": "done",
@@ -538,6 +727,15 @@
   "updated": "2026-09-28 18:56",
   "v:amy-slow": "done",
   "video": "done"
+ },
+ "extension-object": {
+  "animation": "pending",
+  "group": "foundational-design-patterns",
+  "note": "main build already uses the amy-slow voice",
+  "script": "pending",
+  "updated": "2026-09-29 19:24",
+  "v:amy-slow": "done",
+  "video": "pending"
  },
  "externalised-configuration": {
   "animation": "pending",
@@ -656,6 +854,42 @@
   "v:amy-slow": "done",
   "video": "done"
  },
+ "gateway-offloading": {
+  "animation": "pending",
+  "group": "micro-services-design-patterns",
+  "note": "main build already uses the amy-slow voice",
+  "script": "pending",
+  "updated": "2026-09-29 19:24",
+  "v:amy-slow": "done",
+  "video": "pending"
+ },
+ "gateway-offloading-with-spring-cloud-gateway": {
+  "animation": "pending",
+  "group": "micro-services-design-patterns",
+  "note": "main build already uses the amy-slow voice",
+  "script": "pending",
+  "updated": "2026-09-29 19:24",
+  "v:amy-slow": "done",
+  "video": "pending"
+ },
+ "guaranteed-delivery": {
+  "animation": "pending",
+  "group": "messaging-integration-patterns",
+  "note": "main build already uses the amy-slow voice",
+  "script": "pending",
+  "updated": "2026-09-29 19:24",
+  "v:amy-slow": "done",
+  "video": "pending"
+ },
+ "guaranteed-delivery-with-rabbitmq": {
+  "animation": "pending",
+  "group": "messaging-integration-patterns",
+  "note": "main build already uses the amy-slow voice",
+  "script": "pending",
+  "updated": "2026-09-29 19:24",
+  "v:amy-slow": "done",
+  "video": "pending"
+ },
  "guarded-suspension": {
   "animation": "done",
   "group": "concurrency-design-patterns",
@@ -664,6 +898,42 @@
   "updated": "2026-09-28 17:29",
   "v:amy-slow": "done",
   "video": "done"
+ },
+ "half-sync-half-async": {
+  "animation": "pending",
+  "group": "concurrency-design-patterns",
+  "note": "main build already uses the amy-slow voice",
+  "script": "pending",
+  "updated": "2026-09-29 19:24",
+  "v:amy-slow": "done",
+  "video": "pending"
+ },
+ "health-endpoint-monitoring": {
+  "animation": "pending",
+  "group": "micro-services-design-patterns",
+  "note": "main build already uses the amy-slow voice",
+  "script": "pending",
+  "updated": "2026-09-29 19:24",
+  "v:amy-slow": "done",
+  "video": "pending"
+ },
+ "hedged-requests": {
+  "animation": "pending",
+  "group": "micro-services-design-patterns",
+  "note": "main build already uses the amy-slow voice",
+  "script": "pending",
+  "updated": "2026-09-29 19:24",
+  "v:amy-slow": "done",
+  "video": "pending"
+ },
+ "hedged-requests-with-grpc": {
+  "animation": "pending",
+  "group": "micro-services-design-patterns",
+  "note": "main build already uses the amy-slow voice",
+  "script": "pending",
+  "updated": "2026-09-29 19:24",
+  "v:amy-slow": "done",
+  "video": "pending"
  },
  "hexagonal-architecture": {
   "animation": "done",
@@ -682,6 +952,15 @@
   "updated": "2026-09-28 16:15",
   "v:amy-slow": "done",
   "video": "done"
+ },
+ "higher-order-functions": {
+  "animation": "pending",
+  "group": "functional-design-patterns",
+  "note": "main build already uses the amy-slow voice",
+  "script": "pending",
+  "updated": "2026-09-29 19:24",
+  "v:amy-slow": "done",
+  "video": "pending"
  },
  "idempotent-consumer": {
   "animation": "pending",
@@ -718,6 +997,24 @@
   "updated": "2026-09-28 18:28",
   "v:amy-slow": "done",
   "video": "done"
+ },
+ "immutable-object": {
+  "animation": "pending",
+  "group": "foundational-design-patterns",
+  "note": "main build already uses the amy-slow voice",
+  "script": "pending",
+  "updated": "2026-09-29 19:24",
+  "v:amy-slow": "done",
+  "video": "pending"
+ },
+ "input-validation": {
+  "animation": "pending",
+  "group": "security-design-patterns",
+  "note": "main build already uses the amy-slow voice",
+  "script": "pending",
+  "updated": "2026-09-29 19:24",
+  "v:amy-slow": "done",
+  "video": "pending"
  },
  "interpreter": {
   "animation": "done",
@@ -800,6 +1097,24 @@
   "v:amy-slow": "done",
   "video": "queued"
  },
+ "leader-followers": {
+  "animation": "pending",
+  "group": "concurrency-design-patterns",
+  "note": "main build already uses the amy-slow voice",
+  "script": "pending",
+  "updated": "2026-09-29 19:24",
+  "v:amy-slow": "done",
+  "video": "pending"
+ },
+ "lenses": {
+  "animation": "pending",
+  "group": "functional-design-patterns",
+  "note": "main build already uses the amy-slow voice",
+  "script": "pending",
+  "updated": "2026-09-29 19:24",
+  "v:amy-slow": "done",
+  "video": "pending"
+ },
  "load-balancing": {
   "animation": "pending",
   "group": "micro-services-design-patterns",
@@ -817,6 +1132,24 @@
   "updated": "2026-09-28 20:25",
   "v:amy-slow": "done",
   "video": "queued"
+ },
+ "marker-interface": {
+  "animation": "pending",
+  "group": "foundational-design-patterns",
+  "note": "main build already uses the amy-slow voice",
+  "script": "pending",
+  "updated": "2026-09-29 19:24",
+  "v:amy-slow": "done",
+  "video": "pending"
+ },
+ "materialized-view": {
+  "animation": "pending",
+  "group": "micro-services-design-patterns",
+  "note": "main build already uses the amy-slow voice",
+  "script": "pending",
+  "updated": "2026-09-29 19:24",
+  "v:amy-slow": "done",
+  "video": "pending"
  },
  "mediator": {
   "animation": "done",
@@ -836,6 +1169,15 @@
   "v:amy-slow": "done",
   "video": "done"
  },
+ "memoization": {
+  "animation": "pending",
+  "group": "foundational-design-patterns",
+  "note": "main build already uses the amy-slow voice",
+  "script": "pending",
+  "updated": "2026-09-29 19:24",
+  "v:amy-slow": "done",
+  "video": "pending"
+ },
  "message-channel": {
   "animation": "done",
   "group": "messaging-integration-patterns",
@@ -854,6 +1196,51 @@
   "v:amy-slow": "done",
   "video": "done"
  },
+ "message-filter": {
+  "animation": "pending",
+  "group": "messaging-integration-patterns",
+  "note": "main build already uses the amy-slow voice",
+  "script": "pending",
+  "updated": "2026-09-29 19:24",
+  "v:amy-slow": "done",
+  "video": "pending"
+ },
+ "message-filter-with-camel": {
+  "animation": "pending",
+  "group": "messaging-integration-patterns",
+  "note": "main build already uses the amy-slow voice",
+  "script": "pending",
+  "updated": "2026-09-29 19:24",
+  "v:amy-slow": "done",
+  "video": "pending"
+ },
+ "message-translator": {
+  "animation": "pending",
+  "group": "messaging-integration-patterns",
+  "note": "main build already uses the amy-slow voice",
+  "script": "pending",
+  "updated": "2026-09-29 19:24",
+  "v:amy-slow": "done",
+  "video": "pending"
+ },
+ "message-translator-with-camel": {
+  "animation": "pending",
+  "group": "messaging-integration-patterns",
+  "note": "main build already uses the amy-slow voice",
+  "script": "pending",
+  "updated": "2026-09-29 19:24",
+  "v:amy-slow": "done",
+  "video": "pending"
+ },
+ "micro-frontends": {
+  "animation": "pending",
+  "group": "architectural-design-patterns",
+  "note": "main build already uses the amy-slow voice",
+  "script": "pending",
+  "updated": "2026-09-29 19:24",
+  "v:amy-slow": "done",
+  "video": "pending"
+ },
  "microkernel": {
   "animation": "done",
   "group": "architectural-design-patterns",
@@ -862,6 +1249,24 @@
   "updated": "2026-09-28 16:20",
   "v:amy-slow": "done",
   "video": "done"
+ },
+ "modular-monolith": {
+  "animation": "pending",
+  "group": "architectural-design-patterns",
+  "note": "main build already uses the amy-slow voice",
+  "script": "pending",
+  "updated": "2026-09-29 19:24",
+  "v:amy-slow": "done",
+  "video": "pending"
+ },
+ "money": {
+  "animation": "pending",
+  "group": "enterprise-design-patterns",
+  "note": "main build already uses the amy-slow voice",
+  "script": "pending",
+  "updated": "2026-09-29 19:24",
+  "v:amy-slow": "done",
+  "video": "pending"
  },
  "monitor-object": {
   "animation": "done",
@@ -915,6 +1320,15 @@
   "updated": "2026-09-28 19:00",
   "v:amy-slow": "done",
   "video": "done"
+ },
+ "object-mother": {
+  "animation": "pending",
+  "group": "testing-design-patterns",
+  "note": "main build already uses the amy-slow voice",
+  "script": "pending",
+  "updated": "2026-09-29 19:24",
+  "v:amy-slow": "done",
+  "video": "pending"
  },
  "object-pool": {
   "animation": "done",
@@ -970,6 +1384,42 @@
   "v:amy-slow": "done",
   "video": "done"
  },
+ "page-controller": {
+  "animation": "pending",
+  "group": "enterprise-design-patterns",
+  "note": "main build already uses the amy-slow voice",
+  "script": "pending",
+  "updated": "2026-09-29 19:24",
+  "v:amy-slow": "done",
+  "video": "pending"
+ },
+ "page-controller-with-spring-mvc": {
+  "animation": "pending",
+  "group": "enterprise-design-patterns",
+  "note": "main build already uses the amy-slow voice",
+  "script": "pending",
+  "updated": "2026-09-29 19:24",
+  "v:amy-slow": "done",
+  "video": "pending"
+ },
+ "page-object": {
+  "animation": "pending",
+  "group": "testing-design-patterns",
+  "note": "main build already uses the amy-slow voice",
+  "script": "pending",
+  "updated": "2026-09-29 19:24",
+  "v:amy-slow": "done",
+  "video": "pending"
+ },
+ "page-object-with-selenium": {
+  "animation": "pending",
+  "group": "testing-design-patterns",
+  "note": "main build already uses the amy-slow voice",
+  "script": "pending",
+  "updated": "2026-09-29 19:24",
+  "v:amy-slow": "done",
+  "video": "pending"
+ },
  "pessimistic-offline-lock": {
   "animation": "done",
   "group": "enterprise-design-patterns",
@@ -996,6 +1446,87 @@
   "updated": "2026-09-28 20:28",
   "v:amy-slow": "done",
   "video": "queued"
+ },
+ "plugin": {
+  "animation": "pending",
+  "group": "enterprise-design-patterns",
+  "note": "main build already uses the amy-slow voice",
+  "script": "pending",
+  "updated": "2026-09-29 19:24",
+  "v:amy-slow": "done",
+  "video": "pending"
+ },
+ "polling-consumer": {
+  "animation": "pending",
+  "group": "messaging-integration-patterns",
+  "note": "main build already uses the amy-slow voice",
+  "script": "pending",
+  "updated": "2026-09-29 19:24",
+  "v:amy-slow": "done",
+  "video": "pending"
+ },
+ "polling-consumer-with-rabbitmq": {
+  "animation": "pending",
+  "group": "messaging-integration-patterns",
+  "note": "main build already uses the amy-slow voice",
+  "script": "pending",
+  "updated": "2026-09-29 19:24",
+  "v:amy-slow": "done",
+  "video": "pending"
+ },
+ "priority-queue": {
+  "animation": "pending",
+  "group": "micro-services-design-patterns",
+  "note": "main build already uses the amy-slow voice",
+  "script": "pending",
+  "updated": "2026-09-29 19:24",
+  "v:amy-slow": "done",
+  "video": "pending"
+ },
+ "priority-queue-with-rabbitmq": {
+  "animation": "pending",
+  "group": "micro-services-design-patterns",
+  "note": "main build already uses the amy-slow voice",
+  "script": "pending",
+  "updated": "2026-09-29 19:24",
+  "v:amy-slow": "done",
+  "video": "pending"
+ },
+ "private-class-data": {
+  "animation": "pending",
+  "group": "foundational-design-patterns",
+  "note": "main build already uses the amy-slow voice",
+  "script": "pending",
+  "updated": "2026-09-29 19:24",
+  "v:amy-slow": "done",
+  "video": "pending"
+ },
+ "proactor": {
+  "animation": "pending",
+  "group": "concurrency-design-patterns",
+  "note": "main build already uses the amy-slow voice",
+  "script": "pending",
+  "updated": "2026-09-29 19:24",
+  "v:amy-slow": "done",
+  "video": "pending"
+ },
+ "process-manager": {
+  "animation": "pending",
+  "group": "messaging-integration-patterns",
+  "note": "main build already uses the amy-slow voice",
+  "script": "pending",
+  "updated": "2026-09-29 19:24",
+  "v:amy-slow": "done",
+  "video": "pending"
+ },
+ "process-manager-with-camel": {
+  "animation": "pending",
+  "group": "messaging-integration-patterns",
+  "note": "main build already uses the amy-slow voice",
+  "script": "pending",
+  "updated": "2026-09-29 19:24",
+  "v:amy-slow": "done",
+  "video": "pending"
  },
  "producer-consumer": {
   "animation": "done",
@@ -1060,6 +1591,15 @@
   "v:amy-slow": "done",
   "video": "queued"
  },
+ "query-object": {
+  "animation": "pending",
+  "group": "enterprise-design-patterns",
+  "note": "main build already uses the amy-slow voice",
+  "script": "pending",
+  "updated": "2026-09-29 19:24",
+  "v:amy-slow": "done",
+  "video": "pending"
+ },
  "queue-based-load-leveling": {
   "animation": "pending",
   "group": "micro-services-design-patterns",
@@ -1077,6 +1617,24 @@
   "updated": "2026-09-28 20:36",
   "v:amy-slow": "done",
   "video": "queued"
+ },
+ "railway-oriented": {
+  "animation": "pending",
+  "group": "functional-design-patterns",
+  "note": "main build already uses the amy-slow voice",
+  "script": "pending",
+  "updated": "2026-09-29 19:24",
+  "v:amy-slow": "done",
+  "video": "pending"
+ },
+ "railway-oriented-with-vavr": {
+  "animation": "pending",
+  "group": "functional-design-patterns",
+  "note": "main build already uses the amy-slow voice",
+  "script": "pending",
+  "updated": "2026-09-29 19:24",
+  "v:amy-slow": "done",
+  "video": "pending"
  },
  "rate-limiter": {
   "animation": "pending",
@@ -1096,6 +1654,24 @@
   "v:amy-slow": "done",
   "video": "queued"
  },
+ "reactor": {
+  "animation": "pending",
+  "group": "concurrency-design-patterns",
+  "note": "main build already uses the amy-slow voice",
+  "script": "pending",
+  "updated": "2026-09-29 19:24",
+  "v:amy-slow": "done",
+  "video": "pending"
+ },
+ "reactor-with-netty": {
+  "animation": "pending",
+  "group": "concurrency-design-patterns",
+  "note": "main build already uses the amy-slow voice",
+  "script": "pending",
+  "updated": "2026-09-29 19:24",
+  "v:amy-slow": "done",
+  "video": "pending"
+ },
  "read-write-lock": {
   "animation": "done",
   "group": "concurrency-design-patterns",
@@ -1104,6 +1680,24 @@
   "updated": "2026-09-28 17:37",
   "v:amy-slow": "done",
   "video": "done"
+ },
+ "recipient-list": {
+  "animation": "pending",
+  "group": "messaging-integration-patterns",
+  "note": "main build already uses the amy-slow voice",
+  "script": "pending",
+  "updated": "2026-09-29 19:24",
+  "v:amy-slow": "done",
+  "video": "pending"
+ },
+ "recipient-list-with-camel": {
+  "animation": "pending",
+  "group": "messaging-integration-patterns",
+  "note": "main build already uses the amy-slow voice",
+  "script": "pending",
+  "updated": "2026-09-29 19:24",
+  "v:amy-slow": "done",
+  "video": "pending"
  },
  "registry": {
   "animation": "done",
@@ -1123,6 +1717,24 @@
   "v:amy-slow": "done",
   "video": "done"
  },
+ "remote-facade": {
+  "animation": "pending",
+  "group": "enterprise-design-patterns",
+  "note": "main build already uses the amy-slow voice",
+  "script": "pending",
+  "updated": "2026-09-29 19:24",
+  "v:amy-slow": "done",
+  "video": "pending"
+ },
+ "remote-facade-with-spring-mvc": {
+  "animation": "pending",
+  "group": "enterprise-design-patterns",
+  "note": "main build already uses the amy-slow voice",
+  "script": "pending",
+  "updated": "2026-09-29 19:24",
+  "v:amy-slow": "done",
+  "video": "pending"
+ },
  "repository": {
   "animation": "done",
   "group": "enterprise-design-patterns",
@@ -1140,6 +1752,42 @@
   "updated": "2026-09-28 18:39",
   "v:amy-slow": "done",
   "video": "done"
+ },
+ "request-reply": {
+  "animation": "pending",
+  "group": "messaging-integration-patterns",
+  "note": "main build already uses the amy-slow voice",
+  "script": "pending",
+  "updated": "2026-09-29 19:24",
+  "v:amy-slow": "done",
+  "video": "pending"
+ },
+ "request-reply-with-rabbitmq": {
+  "animation": "pending",
+  "group": "messaging-integration-patterns",
+  "note": "main build already uses the amy-slow voice",
+  "script": "pending",
+  "updated": "2026-09-29 19:24",
+  "v:amy-slow": "done",
+  "video": "pending"
+ },
+ "resequencer": {
+  "animation": "pending",
+  "group": "messaging-integration-patterns",
+  "note": "main build already uses the amy-slow voice",
+  "script": "pending",
+  "updated": "2026-09-29 19:24",
+  "v:amy-slow": "done",
+  "video": "pending"
+ },
+ "resequencer-with-camel": {
+  "animation": "pending",
+  "group": "messaging-integration-patterns",
+  "note": "main build already uses the amy-slow voice",
+  "script": "pending",
+  "updated": "2026-09-29 19:24",
+  "v:amy-slow": "done",
+  "video": "pending"
  },
  "retry": {
   "animation": "pending",
@@ -1159,6 +1807,33 @@
   "v:amy-slow": "done",
   "video": "queued"
  },
+ "role-object": {
+  "animation": "pending",
+  "group": "foundational-design-patterns",
+  "note": "main build already uses the amy-slow voice",
+  "script": "pending",
+  "updated": "2026-09-29 19:24",
+  "v:amy-slow": "done",
+  "video": "pending"
+ },
+ "routing-slip": {
+  "animation": "pending",
+  "group": "messaging-integration-patterns",
+  "note": "main build already uses the amy-slow voice",
+  "script": "pending",
+  "updated": "2026-09-29 19:24",
+  "v:amy-slow": "done",
+  "video": "pending"
+ },
+ "routing-slip-with-camel": {
+  "animation": "pending",
+  "group": "messaging-integration-patterns",
+  "note": "main build already uses the amy-slow voice",
+  "script": "pending",
+  "updated": "2026-09-29 19:24",
+  "v:amy-slow": "done",
+  "video": "pending"
+ },
  "saga": {
   "animation": "pending",
   "group": "micro-services-design-patterns",
@@ -1176,6 +1851,60 @@
   "updated": "2026-09-28 20:46",
   "v:amy-slow": "done",
   "video": "queued"
+ },
+ "scheduler": {
+  "animation": "pending",
+  "group": "concurrency-design-patterns",
+  "note": "main build already uses the amy-slow voice",
+  "script": "pending",
+  "updated": "2026-09-29 19:24",
+  "v:amy-slow": "done",
+  "video": "pending"
+ },
+ "secrets-manager": {
+  "animation": "pending",
+  "group": "security-design-patterns",
+  "note": "main build already uses the amy-slow voice",
+  "script": "pending",
+  "updated": "2026-09-29 19:24",
+  "v:amy-slow": "done",
+  "video": "pending"
+ },
+ "secrets-manager-with-openbao": {
+  "animation": "pending",
+  "group": "security-design-patterns",
+  "note": "main build already uses the amy-slow voice",
+  "script": "pending",
+  "updated": "2026-09-29 19:24",
+  "v:amy-slow": "done",
+  "video": "pending"
+ },
+ "secure-gateway": {
+  "animation": "pending",
+  "group": "security-design-patterns",
+  "note": "main build already uses the amy-slow voice",
+  "script": "pending",
+  "updated": "2026-09-29 19:24",
+  "v:amy-slow": "done",
+  "video": "pending"
+ },
+ "secure-gateway-with-nginx": {
+  "animation": "pending",
+  "group": "security-design-patterns",
+  "note": "main build already uses the amy-slow voice",
+  "script": "pending",
+  "updated": "2026-09-29 19:24",
+  "v:amy-slow": "done",
+  "video": "pending"
+ },
+ "servant": {
+  "animation": "pending",
+  "group": "behavioural",
+  "note": "main build already uses the amy-slow voice",
+  "script": "pending",
+  "updated": "2026-09-29 19:24",
+  "v:amy-slow": "done",
+  "video": "pending"
  },
  "serverless": {
   "animation": "done",
@@ -1258,6 +1987,33 @@
   "v:amy-slow": "done",
   "video": "queued"
  },
+ "service-stub": {
+  "animation": "pending",
+  "group": "enterprise-design-patterns",
+  "note": "main build already uses the amy-slow voice",
+  "script": "pending",
+  "updated": "2026-09-29 19:24",
+  "v:amy-slow": "done",
+  "video": "pending"
+ },
+ "sharding": {
+  "animation": "pending",
+  "group": "micro-services-design-patterns",
+  "note": "main build already uses the amy-slow voice",
+  "script": "pending",
+  "updated": "2026-09-29 19:24",
+  "v:amy-slow": "done",
+  "video": "pending"
+ },
+ "sharding-with-postgresql": {
+  "animation": "pending",
+  "group": "micro-services-design-patterns",
+  "note": "main build already uses the amy-slow voice",
+  "script": "pending",
+  "updated": "2026-09-29 19:24",
+  "v:amy-slow": "done",
+  "video": "pending"
+ },
  "sidecar": {
   "animation": "pending",
   "group": "platform-design-patterns",
@@ -1294,6 +2050,24 @@
   "v:amy-slow": "done",
   "video": "done"
  },
+ "single-table-inheritance": {
+  "animation": "pending",
+  "group": "enterprise-design-patterns",
+  "note": "main build already uses the amy-slow voice",
+  "script": "pending",
+  "updated": "2026-09-29 19:24",
+  "v:amy-slow": "done",
+  "video": "pending"
+ },
+ "single-table-inheritance-with-jpa": {
+  "animation": "pending",
+  "group": "enterprise-design-patterns",
+  "note": "main build already uses the amy-slow voice",
+  "script": "pending",
+  "updated": "2026-09-29 19:24",
+  "v:amy-slow": "done",
+  "video": "pending"
+ },
  "singleton": {
   "animation": "done",
   "group": "creational",
@@ -1311,6 +2085,33 @@
   "updated": "2026-09-28 18:05",
   "v:amy-slow": "done",
   "video": "done"
+ },
+ "space-based": {
+  "animation": "pending",
+  "group": "architectural-design-patterns",
+  "note": "main build already uses the amy-slow voice",
+  "script": "pending",
+  "updated": "2026-09-29 19:24",
+  "v:amy-slow": "done",
+  "video": "pending"
+ },
+ "space-based-with-hazelcast": {
+  "animation": "pending",
+  "group": "architectural-design-patterns",
+  "note": "main build already uses the amy-slow voice",
+  "script": "pending",
+  "updated": "2026-09-29 19:24",
+  "v:amy-slow": "done",
+  "video": "pending"
+ },
+ "special-case": {
+  "animation": "pending",
+  "group": "enterprise-design-patterns",
+  "note": "main build already uses the amy-slow voice",
+  "script": "pending",
+  "updated": "2026-09-29 19:24",
+  "v:amy-slow": "done",
+  "video": "pending"
  },
  "specification": {
   "animation": "done",
@@ -1393,6 +2194,33 @@
   "v:amy-slow": "done",
   "video": "done"
  },
+ "table-data-gateway": {
+  "animation": "pending",
+  "group": "enterprise-design-patterns",
+  "note": "main build already uses the amy-slow voice",
+  "script": "pending",
+  "updated": "2026-09-29 19:24",
+  "v:amy-slow": "done",
+  "video": "pending"
+ },
+ "table-data-gateway-with-jdbc-template": {
+  "animation": "pending",
+  "group": "enterprise-design-patterns",
+  "note": "main build already uses the amy-slow voice",
+  "script": "pending",
+  "updated": "2026-09-29 19:24",
+  "v:amy-slow": "done",
+  "video": "pending"
+ },
+ "table-driven-state-machine": {
+  "animation": "pending",
+  "group": "behavioural",
+  "note": "main build already uses the amy-slow voice",
+  "script": "pending",
+  "updated": "2026-09-29 19:24",
+  "v:amy-slow": "done",
+  "video": "pending"
+ },
  "template-method": {
   "animation": "done",
   "group": "behavioural",
@@ -1410,6 +2238,15 @@
   "updated": "2026-09-28 17:05",
   "v:amy-slow": "done",
   "video": "done"
+ },
+ "test-double": {
+  "animation": "pending",
+  "group": "testing-design-patterns",
+  "note": "main build already uses the amy-slow voice",
+  "script": "pending",
+  "updated": "2026-09-29 19:24",
+  "v:amy-slow": "done",
+  "video": "pending"
  },
  "thread-local-storage": {
   "animation": "done",
@@ -1446,6 +2283,24 @@
   "updated": "2026-09-28 20:55",
   "v:amy-slow": "done",
   "video": "queued"
+ },
+ "token-authentication": {
+  "animation": "pending",
+  "group": "security-design-patterns",
+  "note": "main build already uses the amy-slow voice",
+  "script": "pending",
+  "updated": "2026-09-29 19:24",
+  "v:amy-slow": "done",
+  "video": "pending"
+ },
+ "token-authentication-with-spring-security": {
+  "animation": "pending",
+  "group": "security-design-patterns",
+  "note": "main build already uses the amy-slow voice",
+  "script": "pending",
+  "updated": "2026-09-29 19:24",
+  "v:amy-slow": "done",
+  "video": "pending"
  },
  "transaction-script": {
   "animation": "done",
@@ -1510,6 +2365,24 @@
   "v:amy-slow": "done",
   "video": "done"
  },
+ "valet-key": {
+  "animation": "pending",
+  "group": "micro-services-design-patterns",
+  "note": "main build already uses the amy-slow voice",
+  "script": "pending",
+  "updated": "2026-09-29 19:24",
+  "v:amy-slow": "done",
+  "video": "pending"
+ },
+ "valet-key-with-s3": {
+  "animation": "pending",
+  "group": "micro-services-design-patterns",
+  "note": "main build already uses the amy-slow voice",
+  "script": "pending",
+  "updated": "2026-09-29 19:24",
+  "v:amy-slow": "done",
+  "video": "pending"
+ },
  "value-object": {
   "animation": "done",
   "group": "domain-driven-design-patterns",
@@ -1527,5 +2400,50 @@
   "updated": "2026-09-28 17:14",
   "v:amy-slow": "done",
   "video": "done"
+ },
+ "wire-tap": {
+  "animation": "pending",
+  "group": "messaging-integration-patterns",
+  "note": "main build already uses the amy-slow voice",
+  "script": "pending",
+  "updated": "2026-09-29 19:24",
+  "v:amy-slow": "done",
+  "video": "pending"
+ },
+ "wire-tap-with-camel": {
+  "animation": "pending",
+  "group": "messaging-integration-patterns",
+  "note": "main build already uses the amy-slow voice",
+  "script": "pending",
+  "updated": "2026-09-29 19:24",
+  "v:amy-slow": "done",
+  "video": "pending"
+ },
+ "write-behind-cache": {
+  "animation": "pending",
+  "group": "micro-services-design-patterns",
+  "note": "main build already uses the amy-slow voice",
+  "script": "pending",
+  "updated": "2026-09-29 19:24",
+  "v:amy-slow": "done",
+  "video": "pending"
+ },
+ "write-through-cache": {
+  "animation": "pending",
+  "group": "micro-services-design-patterns",
+  "note": "main build already uses the amy-slow voice",
+  "script": "pending",
+  "updated": "2026-09-29 19:24",
+  "v:amy-slow": "done",
+  "video": "pending"
+ },
+ "write-through-cache-with-redis": {
+  "animation": "pending",
+  "group": "micro-services-design-patterns",
+  "note": "main build already uses the amy-slow voice",
+  "script": "pending",
+  "updated": "2026-09-29 19:24",
+  "v:amy-slow": "done",
+  "video": "pending"
  }
 }

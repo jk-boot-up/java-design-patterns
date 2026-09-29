@@ -69,7 +69,7 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Learn the Consumer-Driven Contract pattern in Java with an online store
+> Consumer-Driven Contract pattern in Java, explained with an online store
 > where the catalog team renamed a field in the price service and checkout
 > broke in production. Each consumer writes down exactly what it needs from
 > a service, and the provider checks every release against those contracts

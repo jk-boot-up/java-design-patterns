@@ -79,8 +79,8 @@ nothing warns you if you exceed it.
 
 Suggested description:
 
-> Learn the circuit breaker pattern in Java 21, starting from a service that
-> has stopped answering — not refusing, which would be easy, but simply not
+> Circuit breaker pattern in Java 21, starting from a service that has
+> stopped answering — not refusing, which would be easy, but simply not
 > replying. The retry loop is presented fairly: no bug, the right page,
 > every test passing, and nine seconds spent producing a page you could have
 > had immediately. The third cost is the one that actually breaks the shop:

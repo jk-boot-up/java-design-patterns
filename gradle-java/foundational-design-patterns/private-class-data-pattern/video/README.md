@@ -13,4 +13,12 @@ A narrated, slide-based video built by `./build_video.sh` with the shared videok
 
 Suggested description:
 
-> Put the figures a class must never change into a private, unchangeable data object, so not even the class's own methods can overwrite them. Private class data moves the values a class must never change into a private, unchangeable data object, so not even the class's own methods can overwrite them.
+> Private Class Data pattern in Java, explained with an online store that
+> prints invoices, sometimes with a staff discount shown. The values a class
+> must never change move into a separate private data object that cannot be
+> changed, so not even the class's own methods can overwrite them, like a
+> museum exhibit in a glass case that even the staff cannot alter. We watch
+> a method quietly change its own invoice figures, protect them with private
+> class data so nothing can write to them, and keep working state beside the
+> data where it may change. We finish with the bill and when this is just an
+> immutable object.

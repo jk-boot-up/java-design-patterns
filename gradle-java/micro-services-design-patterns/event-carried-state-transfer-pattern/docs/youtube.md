@@ -17,7 +17,7 @@ Event-Carried State Transfer
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
-Put the changed data itself in the event, so each service that cares can keep its own copy and never has to call the owner back. Event-Carried State Transfer puts the changed data in the event, so listeners keep their own copies and never call the owner back.
+Event-Carried State Transfer pattern in Java, explained with an online store where a customer service owns the addresses and a shipping service prints delivery labels. When data changes, the new data travels in the event itself, so every service that cares keeps its own copy and never calls the owner back, like a change-of-address card with the address on it. We watch a thin event force a call back, put the address in the event, see the copy lag behind, and handle events out of order. We finish with the bill: send the new data, not just the news.
 
 CHAPTERS
 00:00 Introduction

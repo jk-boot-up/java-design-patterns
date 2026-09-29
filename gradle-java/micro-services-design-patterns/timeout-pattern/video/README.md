@@ -69,7 +69,7 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Learn the Timeout pattern in Java with an online store that calls a
+> Timeout pattern in Java, explained with an online store that calls a
 > supplier's stock API that may never answer. A timeout is a limit on how
 > long you will wait, so a slow or silent service cannot hold you forever.
 > We watch a call that never returns hold a thread, then turn it into an

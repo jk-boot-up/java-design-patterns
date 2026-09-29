@@ -71,7 +71,7 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Learn the Circuit Breaker pattern in Java with Resilience4j, using an
+> Circuit Breaker pattern in Java, explained with Resilience4j, using an
 > online store product page that shows recommendations from a separate
 > service. A circuit breaker stops calling a service that keeps failing,
 > fails fast for a while, then lets one probe through to test recovery, like

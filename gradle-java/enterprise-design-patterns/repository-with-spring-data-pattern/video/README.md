@@ -69,7 +69,7 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Learn the Repository pattern in Java with Spring Data. Where the plain
+> Repository pattern in Java, explained with Spring Data. Where the plain
 > version built two implementations by hand, this one has none: we declare
 > an interface and Spring Data supplies the class behind it, like ordering
 > from a catalogue by item name. We hear a query built from a method's name,

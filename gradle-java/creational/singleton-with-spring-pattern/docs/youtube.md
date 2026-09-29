@@ -17,7 +17,7 @@ Singleton with Spring - One Per Container, Not Per JVM
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
-Learn the Singleton pattern in Java with Spring Boot, using an online store's order number generator. In Spring, singleton is a scope: the container keeps one instance and hands it to everyone who asks, like a shared office printer. We share the generator between three callers and then hear how the guarantee weakens: nothing stops a plain new, a second container makes a second instance, a scope change quietly ends the sharing, and a counter that is not thread-safe loses numbers. We also answer when the bean is built. A Spring singleton is one per container, and only as safe as the data inside it.
+Singleton pattern in Java, explained with Spring Boot, using an online store's order number generator. In Spring, singleton is a scope: the container keeps one instance and hands it to everyone who asks, like a shared office printer. We share the generator between three callers and then hear how the guarantee weakens: nothing stops a plain new, a second container makes a second instance, a scope change quietly ends the sharing, and a counter that is not thread-safe loses numbers. We also answer when the bean is built. A Spring singleton is one per container, and only as safe as the data inside it.
 
 CHAPTERS
 00:00 Introduction

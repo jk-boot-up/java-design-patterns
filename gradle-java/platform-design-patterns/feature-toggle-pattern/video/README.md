@@ -69,7 +69,7 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Learn the Feature Toggle pattern in Java with an online store gift-wrap
+> Feature Toggle pattern in Java, explained with an online store gift-wrap
 > feature that is ready but should reach a few customers first and be
 > switched off at once if it goes wrong. A feature toggle puts new code in
 > the deployed program behind a switch read while it runs, so turning it on

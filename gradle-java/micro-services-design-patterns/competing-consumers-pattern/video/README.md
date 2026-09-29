@@ -69,7 +69,7 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Learn the Competing Consumers pattern in Java with an online store queue
+> Competing Consumers pattern in Java, explained with an online store queue
 > of orders. Several workers take messages from the same queue, each message
 > goes to exactly one of them, and the work is shared without the workers
 > ever coordinating. We go from one worker to three, show every message

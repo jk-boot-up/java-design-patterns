@@ -72,7 +72,7 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Learn the Dead Letter Channel pattern in Java with RabbitMQ, using an
+> Dead Letter Channel pattern in Java, explained with RabbitMQ, using an
 > online store queue of orders where one order's address can never be read.
 > A dead letter channel takes a message that can never be handled off the
 > belt and shelves it with a note, so the belt keeps moving and a person can

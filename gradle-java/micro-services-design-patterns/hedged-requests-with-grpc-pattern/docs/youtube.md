@@ -17,7 +17,7 @@ Hedged Requests with gRPC
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
-Cut the slow tail of price lookups with gRPC's built-in hedging policy: a second attempt after 50 ms, set in the channel's service config, with the losing attempt cancelled by gRPC itself. With gRPC, hedging is a service-config policy: send another attempt after a delay, take the first answer, and cancel the rest.
+Hedged Requests pattern in Java with gRPC, which can hedge for you as a setting, using an online store product page asking a price service for each price. If a call has not answered after a short wait, the same call is sent again, the first answer is used and the other is cancelled, like ringing a second branch and hanging up on the first. We cut the slow tail with one hedging policy, watch gRPC cancel the loser, hedge at once, and see why placing an order must never be hedged. Only hedge questions that are safe to ask twice.
 
 CHAPTERS
 00:00 Introduction

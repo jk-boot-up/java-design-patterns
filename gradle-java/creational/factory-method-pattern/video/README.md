@@ -225,10 +225,10 @@ Two further things that affect how well it plays for viewers:
 
 Suggested description:
 
-> Learn the Factory Method pattern in Java 21 by building an online store's
+> Factory Method pattern in Java 21, explained by building an online store's
 > delivery tiers. We start with the problem — a shipping method with an
 > if/else chain buried in the middle of it — and end with an abstract
 > creator whose subclasses answer one question each, and no `switch`
-> anywhere. We also cover, honestly, when the pattern is more machinery
-> than the job needs. No prior design-pattern knowledge needed. Full source
-> code and written notes are in the repository.
+> anywhere. We also cover, honestly, when the pattern is more machinery than
+> the job needs. No prior design-pattern knowledge needed. Full source code
+> and written notes are in the repository.

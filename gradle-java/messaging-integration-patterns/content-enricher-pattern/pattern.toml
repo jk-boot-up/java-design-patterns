@@ -8,6 +8,7 @@ package = "contentenricher"
 main_class = "ContentEnricherDemo"
 tagline = "Fill in the message once, on the way"
 bold = "When a message is too thin for its receivers, add the missing details once, in the middle, instead of making every receiver look them up."
+youtube_description = """Content Enricher pattern in Java, explained with an online store checkout that announces each paid order to a warehouse and an email service with a message that is missing details. A content enricher looks the details up once, adds them to the message and passes the fuller message on, so receivers never look anything up themselves, like a post office clerk adding the house number and postcode before the postman sees the letter. We watch the thin message force every receiver to do its own lookup, add an enricher in the middle, and handle a customer who cannot be found. We finish with the bill."""
 domain_note = ""
 thumb_lines = ["CONTENT", "ENRICHER"]
 thumb_code = "enrich(order)"

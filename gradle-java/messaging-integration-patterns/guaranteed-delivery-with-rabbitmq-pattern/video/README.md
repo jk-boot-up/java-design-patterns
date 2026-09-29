@@ -13,4 +13,12 @@ A narrated, slide-based video built by `./build_video.sh` with the shared videok
 
 Suggested description:
 
-> Guarantee delivery with a real RabbitMQ broker: persistent messages on a durable queue, publisher confirms so the sender knows each message is stored, and acknowledgements so a message leaves the queue only after it has been handled. With RabbitMQ, guaranteed delivery takes a durable queue, persistent messages, publisher confirms and acknowledgements after the work is done.
+> Guaranteed Delivery pattern in Java with a real RabbitMQ broker, using an
+> online store's order confirmation emails. A message, once accepted, must
+> never be lost, not when the program crashes and not when the broker
+> restarts, and RabbitMQ can give that guarantee if you ask correctly, like
+> recorded delivery with a receipt at each end. We watch a durable queue
+> lose transient messages, make them persistent and confirmed, acknowledge
+> only after sending, and crash before the acknowledgement to see a message
+> delivered twice. Store it, confirm it, and acknowledge it only when the
+> work is done.

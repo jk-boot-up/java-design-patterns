@@ -72,7 +72,7 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Learn the Producer Consumer pattern in Java with an online store where
+> Producer Consumer pattern in Java, explained with an online store where
 > checkout accepts orders faster than the packing step can wrap them for the
 > courier. A queue with a size limit sits between the two sides so each
 > works at its own pace, and the limit is chosen on purpose, like the

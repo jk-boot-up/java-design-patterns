@@ -69,7 +69,7 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Learn the Aggregate pattern from domain-driven design in Java with an
+> Aggregate pattern from domain-driven design in Java, explained with an
 > online store order and its lines. An aggregate is a small group of objects
 > treated as one unit, with a single root object as the only way in, so the
 > group's rules cannot be broken from outside, like a bank teller who guards

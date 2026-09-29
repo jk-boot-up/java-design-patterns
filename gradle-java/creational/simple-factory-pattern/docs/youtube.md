@@ -17,7 +17,7 @@ Simple Factory Pattern in Java - Payment Methods
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
-Learn the Simple Factory pattern in Java 21 by building an online store's payment step. We start with the problem — an if/else chain copied into every caller — and end with a single `create` call that hands back an interface. We also cover, honestly, what the pattern costs and when to reach for Factory Method instead. No prior design-pattern knowledge needed. Full source code and written notes are in the repository.
+Simple Factory pattern in Java 21, explained by building an online store's payment step. We start with the problem — an if/else chain copied into every caller — and end with a single `create` call that hands back an interface. We also cover, honestly, what the pattern costs and when to reach for Factory Method instead. No prior design-pattern knowledge needed. Full source code and written notes are in the repository.
 
 CHAPTERS
 00:00 Introduction

@@ -8,6 +8,7 @@ package = "secretsopenbao"
 main_class = "OpenBaoSecretsDemo"
 tagline = "Policies, tokens, versions, revocation"
 bold = "Keep the payment key in a real OpenBao server, the open-source fork of HashiCorp Vault: a policy decides which service may read it, each service has its own token, the key is versioned for rotation, and a leaked token is revoked at once."
+youtube_description = """Secrets Manager pattern in Java with a real OpenBao server, the open-source community fork of HashiCorp Vault, using an online store's card-payment key. Secrets live in one guarded store, each service may read only what its policy allows, and secrets change without a rebuild, like safe-deposit boxes that each card opens only its own of. We move a key out of the code, give each service a policy and a token, keep versions and rotate the key, and revoke a leaked token at once. We finish with the bill."""
 domain_note = ""
 thumb_lines = ["SECRETS MANAGER", "WITH OPENBAO"]
 thumb_code = "GET /v1/secret/data/payment-key"

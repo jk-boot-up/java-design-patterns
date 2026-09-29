@@ -69,7 +69,7 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Learn the Pipes and Filters pattern in Java by importing a partner's file
+> Pipes and Filters pattern in Java, explained by importing a partner's file
 > of orders into an online store. The job is broken into small independent
 > steps called filters, joined end to end, so each step does one thing and
 > steps can be added, swapped or reused. We replace one method doing five
