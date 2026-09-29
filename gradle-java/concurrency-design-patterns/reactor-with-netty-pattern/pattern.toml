@@ -1,0 +1,473 @@
+# pattern.toml for the Reactor with Netty project. See tools/patternkit.
+
+[project]
+slug = "reactor-with-netty"
+category = "concurrency-design-patterns"
+title = "Reactor with Netty"
+package = "reactornetty"
+main_class = "NettyReactorDemo"
+tagline = "Event loops, pipelines, and never blocking"
+bold = "Serve a hundred shop tills from one Netty event loop, let the channel pipeline turn bytes into whole questions, spread connections over several event loops, and move slow work off the loop."
+domain_note = ""
+thumb_lines = ["REACTOR", "WITH NETTY"]
+thumb_code = "group(boss, workers)"
+youtube_title = "Reactor Pattern with Netty"
+youtube_tags = ["reactor pattern", "netty", "event loop", "non-blocking io", "channel pipeline", "java"]
+
+[readme]
+intro = """
+This is the framework version of the Reactor pattern. The plain Java version,
+a separate project in this category, builds a reactor from the JDK's NIO
+`Selector`. Here Netty, the networking library underneath much of the Java
+world, provides it: an event loop is a reactor running on one thread,
+waiting on many connections at once and calling handlers when something
+happens.
+
+Netty adds three things the plain version wrote by hand or did not have. A
+channel pipeline of handlers, where ready-made decoders turn bytes into whole
+lines. A boss event loop that accepts connections and several worker event
+loops that serve them, the multi-reactor. And executor groups, so a slow
+handler can run away from the event loop instead of blocking it.
+"""
+analogy = """
+Think of a restaurant with one very fast waiter covering many tables. The
+waiter never stands at a table waiting for someone to decide; they go wherever
+a hand is raised. If the restaurant grows, it adds a few more such waiters,
+each looking after their own tables. And if someone asks for a dish that takes
+an hour, the waiter passes it to the kitchen rather than standing there
+cooking it.
+"""
+scenario = """
+The online store's shops have a hundred tills that stay connected to a stock
+server and ask short questions such as "stock KETTLE-1". A thread per till
+meant a hundred threads, almost all of them idle, waiting.
+"""
+test_note = """
+Every result the demo prints is asserted, with a real Netty server on a local
+port and real TCP clients. Timings are printed as thresholds.
+"""
+run_note = """
+Nothing to install beyond a Java 21 JDK: the Netty server and the hundred till
+connections run inside the program, on the local machine.
+"""
+twin = """
+The plain Java version got the idea right: one thread waits on every
+connection with a selector, dispatches each event to its handler, answers
+every till, and is held up by any handler that blocks. What it left out is
+what a production reactor library adds. Netty's pipeline reassembles a
+question sent in two pieces, so the handler only sees whole lines. Its boss
+and worker groups run several reactors, with each connection staying on one
+thread. And an executor group moves a slow handler off the event loop, so a
+quick question no longer waits behind a slow report.
+"""
+technologies = [
+    ["Netty", "4.2.18.Final", "event loops, channel pipeline, codecs, executor groups"],
+]
+costs = [
+    "**Never block the loop.** A 300 ms report held up a quick question for over 0.2 s until it was moved to its own executor group.",
+    "**A new vocabulary.** Channels, pipelines, handlers, event loops and executor groups.",
+    "**Framing and memory are yours to decide.** Decoders, buffer sizes and limits must be chosen.",
+]
+too_much = """
+For a handful of connections, a thread each is simpler and perfectly fine.
+Netty pays off with many connections that are mostly idle, or when you need
+full control of a network protocol.
+"""
+met_before = [
+    "Netty underneath gRPC, Spring WebFlux, Vert.x and many databases' drivers.",
+    "Node.js's event loop and Nginx's worker processes.",
+    "The JDK's NIO `Selector`, which Netty's NIO transport is built on.",
+]
+where = """
+This project is in [concurrency-design-patterns](..). It is the framework
+version of the plain Java Reactor project in the same category, which is left
+unchanged.
+"""
+
+[[act]]
+title = "One event loop"
+summary = "100 tills connect to a Netty server with one worker event loop; till 1 gets stock 4, and handlers run on 1 thread."
+detail = """
+A Netty server starts with one boss event loop to accept connections and one
+worker event loop to serve them. A hundred tills connect. Till 1 asks for the
+kettle's stock and gets four. Every handler has run on one thread.
+"""
+speech = """
+First demo: one Netty event loop serves every till. [[slnc 400]] An event loop is a reactor. [[slnc 300]] One thread, waiting on many connections at once. [[slnc 600]]
+A hundred tills connect. [[slnc 300]] Till one asks for the kettle's stock. [[slnc 300]] Four. [[slnc 500]]
+Every handler ran on one thread.
+"""
+rows = { loop = "active ok", tills = "active ok" }
+console = [
+    ["100 tills connected", "muted"],
+    ["stock KETTLE-1: 4; handler threads: 1", "ok"],
+]
+
+[[act]]
+title = "The pipeline"
+summary = "Till 2 sends \"price MU\" and \"G-1\" as two writes; LineBasedFrameDecoder waits for the end of the line, and the answer is 800."
+detail = """
+Network data arrives as bytes, not questions. Till 2 sends "price MU" and then
+"G-1" as two separate writes. Netty's pipeline starts with a line decoder that
+waits for the end of the line, so the handler sees one whole question and
+answers 800.
+"""
+speech = """
+Second demo: the pipeline turns bytes into whole questions. [[slnc 400]] Till two sends half a question. [[slnc 300]] Then the other half, separately. [[slnc 600]]
+Netty's pipeline starts with a line decoder. [[slnc 300]] It waits for the end of the line. [[slnc 500]]
+So the handler only sees one whole question. [[slnc 300]] The answer: eight hundred pence.
+"""
+rows = { pipeline = "active ok" }
+console = [
+    ["\"price MU\" + \"G-1\"", "muted"],
+    ["answer 800", "ok"],
+]
+
+[[act]]
+title = "Everyone at once"
+summary = "100 tills ask at once: 100 correct answers, all handled by the one event-loop thread."
+detail = """
+All hundred tills ask about the mug at the same moment. All hundred get the
+right answer, twenty-five, and every handler still ran on the one event-loop
+thread.
+"""
+speech = """
+Third demo: every till asks at once. [[slnc 400]] A hundred questions, at the same moment. [[slnc 600]]
+A hundred correct answers. [[slnc 300]] Still one thread running the handlers.
+"""
+rows = { loop = "active ok", tills = "active ok" }
+console = [
+    ["100 correct answers", "ok"],
+    ["handler threads: 1", "ok"],
+]
+
+[[act]]
+title = "Several event loops"
+summary = "With 4 worker event loops, the 100 connections are spread over 4 threads, and each connection stays on its own."
+detail = """
+With four worker event loops, Netty spreads the hundred connections over four
+threads, one reactor each. A connection is assigned to one loop and always
+stays on it, so its handlers never run on two threads at once.
+"""
+speech = """
+Fourth demo: several event loops. [[slnc 400]] Netty can run several reactors, one per thread. [[slnc 600]]
+With four worker loops, the hundred connections are spread over four threads. [[slnc 500]]
+And each connection always stays on its own loop. [[slnc 300]] So its handlers never run on two threads at once.
+"""
+rows = { loop = "active ok" }
+console = [
+    ["spread over 4 threads", "ok"],
+]
+
+[[act]]
+title = "The bill: never block"
+summary = "A 300 ms report on the event loop makes a quick question wait over 0.2 s; on its own executor group, it is answered in under 0.2 s."
+detail = """
+Till 2 asks for a report that takes 300 milliseconds, and the handler runs it
+on the event loop. Till 3's quick question has to wait over 0.2 seconds, for
+an answer that takes microseconds. With the handler added to the pipeline on
+its own executor group, the report runs away from the event loop, and till 3
+is answered in under 0.2 seconds.
+"""
+speech = """
+Fifth demo: the bill. [[slnc 400]] Till two asks for a slow report. [[slnc 300]] It takes almost a third of a second, and it runs on the event loop. [[slnc 600]]
+Till three asks a quick question. [[slnc 300]] It waits more than a fifth of a second. [[slnc 600]]
+Now the handler runs on its own group of threads, away from the event loop. [[slnc 500]]
+Till three is answered at once. [[slnc 300]] The rule: never block the event loop.
+"""
+rows = { loop = "active wrong", tills = "active amber" }
+console = [
+    ["on the loop: waited over 0.2 s", "bad"],
+    ["own executor group: under 0.2 s", "ok"],
+]
+
+[animation]
+subtitle = "A hundred tills connect to a Netty server; event loops run the pipeline for each question."
+boxes = [
+    ["tills", "100 shop tills", "TCP connections"],
+    ["loop", "Event loops", "boss + workers"],
+    ["pipeline", "Channel pipeline", "line decoder, handler"],
+]
+
+[docs.problem]
+scenario = """
+A hundred tills keep connections open to a stock server and ask short
+questions.
+"""
+naive = """
+A thread per till means a hundred threads, almost all idle.
+"""
+deliver = [
+    "One event loop serving a hundred tills.",
+    "A line decoder reassembling a split question.",
+    "A hundred simultaneous questions on one thread.",
+    "Four worker loops sharing the connections.",
+    "A blocking handler, and its fix with an executor group.",
+    "Every printed result asserted by a test.",
+]
+
+[docs.prerequisites]
+required = [
+    "Java basics: threads in outline, sockets in outline.",
+    "The Reactor idea, ideally from the plain Java version of this pattern.",
+]
+not_required = [
+    "Earlier Netty experience. The dependencies page explains the words used.",
+]
+
+[docs.dependencies]
+intro = """
+This project uses Netty, which the plain Java version of Reactor does not.
+Skipping it loses none of the pattern: the plain version teaches all of it
+with nothing installed.
+"""
+what = [
+    ["Netty", "Netty is a library for network servers and clients. An event loop is one thread that waits on many connections and runs their handlers: a reactor. A boss group accepts connections; a worker group serves them. Each connection has a channel pipeline: a chain of handlers that data passes through, such as LineBasedFrameDecoder, which turns bytes into whole lines, and your own handler at the end. An executor group is a set of ordinary threads; a handler added with one runs there instead of on the event loop."],
+]
+why = """
+The plain version shows the reactor built from a selector. This version shows
+the library most Java networking is built on, and the tools it gives for
+framing, scaling and slow work.
+"""
+install_note = "Only a JDK, version 21. Gradle downloads the rest, and the version is pinned:"
+versions = [
+    ["Java", "21"],
+    ["Netty", "4.2.18.Final"],
+]
+costs = [
+    "A new vocabulary to learn.",
+    "The discipline of never blocking an event loop.",
+]
+
+[docs.session]
+objectives = [
+    "Start a Netty server with boss and worker groups.",
+    "Build a pipeline with a line decoder and a handler.",
+    "Explain how connections are spread over event loops.",
+    "Move slow work off the event loop.",
+]
+walkthrough = """
+Run `./gradlew run`. Open `ShopServer`: the bootstrap and the pipeline are a
+dozen lines. Compare act five's two results: the same handler, on the loop
+and on its own executor group.
+"""
+exercises = [
+    "Add a handler that logs every question before it is answered.",
+    "Limit lines to 32 characters and send a longer one.",
+    "Replace the blocking tills with a Netty client.",
+]
+
+[docs.explained]
+sentence = """
+With Netty, the reactor is an event loop: one thread waiting on many
+connections, running a pipeline of handlers for each.
+"""
+verdict = """
+Use Netty for servers with many mostly idle connections or custom protocols.
+Keep handlers short, decode with ready-made framers, and move anything slow
+to an executor group.
+"""
+recognise = [
+    "`ServerBootstrap().group(boss, workers)`.",
+    "`ch.pipeline().addLast(...)` with decoders and handlers.",
+    "`SimpleChannelInboundHandler` subclasses.",
+]
+
+[spec]
+purpose = """
+Teach Reactor with Netty: one event loop for a hundred tills, a pipeline that
+reassembles split questions, simultaneous questions on one thread, four
+worker loops, and a blocking handler moved to an executor group.
+"""
+nongoals = [
+    "Not a production protocol. Questions are single text lines.",
+]
+problem = """
+A thread per connection wastes threads on idle connections.
+"""
+roles = [
+    ["The server and pipeline", "`ShopServer`"],
+    ["The handler", "`ShopServer.QuestionHandler`"],
+    ["The clients", "`Till`"],
+    ["Entry point", "`NettyReactorDemo`, five acts"],
+]
+requirements = [
+    "**One thread:** a hundred tills are served by one event loop.",
+    "**Whole lines:** a split question is answered once, correctly.",
+    "**Off the loop:** a slow report does not delay a quick question.",
+    "**Every printed result is asserted** in `DemoRunsTest`.",
+]
+
+[[diagram]]
+name = "architecture-diagram"
+kind = "flow"
+title = "Reactor with Netty — the pieces"
+caption = "Accept on the boss; serve on the workers."
+nodes = [
+    { id = "t", label = "100 tills", sub = "TCP", col = 0, row = 0, colour = "client" },
+    { id = "b", label = "Boss event loop", sub = "accepts", col = 1, row = 0, colour = "accent" },
+    { id = "w", label = "Worker event loops", sub = "one thread each", col = 2, row = 0, colour = "accent" },
+    { id = "p", label = "Pipeline", sub = "line decoder, handler", col = 3, row = 0, colour = "green" },
+]
+edges = [
+    { from = "t", to = "b", label = "connect" },
+    { from = "b", to = "w", label = "register" },
+    { from = "w", to = "p", label = "events" },
+]
+
+[[diagram]]
+name = "class-diagram"
+kind = "class"
+title = "Reactor with Netty — classes"
+caption = "A server and its handler."
+nodes = [
+    { id = "s", label = "ShopServer", sub = ["boss + worker groups", "optional executor group", "+ port()"], col = 0, row = 0, colour = "accent" },
+    { id = "h", label = "QuestionHandler", sub = ["extends SimpleChannelInboundHandler", "+ channelRead0(line)"], col = 1, row = 0, colour = "green" },
+    { id = "t", label = "Till", sub = ["+ ask(question)", "+ send(text)"], col = 0, row = 1, colour = "client" },
+]
+edges = [
+    { from = "s", to = "h", label = "pipeline ends in" },
+    { from = "t", to = "s", label = "connects to" },
+]
+
+[[diagram]]
+name = "data-flow-diagram"
+kind = "flow"
+title = "Reactor with Netty — a split question"
+caption = "Bytes in, one whole line out."
+nodes = [
+    { id = "a", label = "\"price MU\"", sub = "write 1", col = 0, row = 0, colour = "client" },
+    { id = "b", label = "\"G-1\\n\"", sub = "write 2", col = 0, row = 1, colour = "client" },
+    { id = "c", label = "LineBasedFrameDecoder", sub = "waits for the line end", col = 1, row = 0, colour = "accent" },
+    { id = "d", label = "Handler", sub = "\"price MUG-1\" -> 800", col = 2, row = 0, colour = "green" },
+]
+edges = [
+    { from = "a", to = "c", label = "" },
+    { from = "b", to = "c", label = "" },
+    { from = "c", to = "d", label = "" },
+]
+
+[[diagram]]
+name = "sequence-diagram"
+kind = "sequence"
+title = "Reactor with Netty — one question"
+caption = "The event loop runs the pipeline."
+participants = ["Till", "Event loop", "Decoder", "Handler"]
+steps = [
+    ["Till", "Event loop", "bytes readable"],
+    ["Event loop", "Decoder", "bytes"],
+    ["Decoder", "Handler", "\"stock KETTLE-1\""],
+    ["Handler", "Till", "4", "reply"],
+]
+
+[[diagram]]
+name = "uml-diagram"
+kind = "sequence"
+title = "1. A blocking handler"
+caption = "The whole loop waits."
+participants = ["Till 2", "Event loop", "Till 3"]
+steps = [
+    ["Till 2", "Event loop", "report (300 ms)"],
+    ["Till 3", "Event loop", "stock?"],
+    ["note", "Event loop", "busy: till 3 waits"],
+]
+
+[[diagram]]
+name = "uml-diagram-2"
+kind = "sequence"
+title = "2. Off the loop"
+caption = "An executor group runs the handler."
+participants = ["Event loop", "Executor group", "Till 3"]
+steps = [
+    ["Event loop", "Executor group", "report"],
+    ["Event loop", "Till 3", "stock: answered at once"],
+]
+
+[poster]
+headline = [["REACTOR", "text"], ["WITH NETTY", "text"]]
+before = { code = "a thread per till", note = "100 threads, mostly idle", tag = "BEFORE" }
+after = { code = "group(boss, workers)", note = "100 tills, 1 event loop", tag = "AFTER" }
+taglines = [["Event loops, and never block", "gold"]]
+
+[[scene]]
+key = "01-poster"
+kind = "poster"
+title = "Reactor with Netty"
+narration = """
+Hello, and welcome. [[slnc 400]] This video explains the Reactor pattern, built with Netty, in Java. [[slnc 300]]
+This video is presented by Jayasekhar Konduru. [[slnc 600]]
+First, a simple definition. [[slnc 300]] A reactor is one thread that waits on many connections at once. [[slnc 300]] When something happens on one, it calls that connection's handler. [[slnc 500]] Netty is the open-source networking library underneath much of the Java world, and its event loops are reactors. [[slnc 600]]
+Think of a restaurant with one fast waiter covering many tables, going wherever a hand is raised. [[slnc 300]] And passing any hour-long dish straight to the kitchen. [[slnc 700]]
+In this video, the domain is an online shop's tills, asking a stock server short questions. [[slnc 500]]
+By the end, you will hear how one event loop serves a hundred tills. [[slnc 300]] How the pipeline handles half-sent questions. [[slnc 300]] How to add more loops. [[slnc 300]] And the one rule you must never break.
+"""
+
+[[scene]]
+key = "02-scenario"
+kind = "bullets"
+title = "The Scenario"
+body = ["100 tills stay connected.", "", "They ask short questions:", "\"stock KETTLE-1\".", "", "A thread per till: 100 threads."]
+narration = """
+Here is the scenario. [[slnc 400]] A hundred shop tills stay connected to a stock server. [[slnc 500]]
+They ask short questions, such as, how many kettles are in stock. [[slnc 500]]
+A thread for every till meant a hundred threads, almost all of them waiting.
+"""
+
+[[scene]]
+key = "03-acts"
+kind = "acts"
+title = "acts"
+
+[[scene]]
+key = "04-pattern"
+kind = "bullets"
+title = "The Pattern, in Netty"
+body = ["An event loop: one thread,", "many connections.", "", "A pipeline of handlers.", "", "Slow work: an executor group."]
+narration = """
+Let's name the pattern, in Netty's words. [[slnc 400]] An event loop is one thread, serving many connections. [[slnc 500]]
+Each connection has a pipeline of handlers. [[slnc 500]]
+And slow work runs on an executor group, away from the loop.
+"""
+
+[[scene]]
+key = "05-roles"
+kind = "bullets"
+title = "Who Does What"
+body = ["Boss loop: accepts", "Worker loops: serve connections", "Line decoder: whole questions", "QuestionHandler: answers"]
+narration = """
+Here is who does what. [[slnc 400]] The boss loop accepts new connections. [[slnc 300]] The worker loops serve them. [[slnc 500]]
+The line decoder turns bytes into whole questions. [[slnc 500]]
+And the question handler answers each one.
+"""
+
+[[scene]]
+key = "06-recognise"
+kind = "bullets"
+title = "Where You Have Seen It"
+body = ["gRPC, WebFlux and Vert.x on Netty", "Node.js event loop", "Nginx worker processes"]
+narration = """
+You have probably met this already. [[slnc 400]] gRPC, Spring WebFlux, and Vert.x all run on Netty. [[slnc 500]]
+Node.js has an event loop. [[slnc 300]] And Nginx runs a few worker processes, each an event loop.
+"""
+
+[[scene]]
+key = "07-verdict"
+kind = "bullets"
+title = "When To Use It"
+body = ["Many connections, mostly idle.", "Custom protocols.", "", "Short handlers.", "Ready-made decoders.", "Never block the loop."]
+narration = """
+So, when should you use it? [[slnc 400]] For many connections that are mostly idle, or for your own network protocol. [[slnc 500]]
+Keep handlers short. [[slnc 300]] Use ready-made decoders. [[slnc 300]] And never block the event loop.
+"""
+
+[[scene]]
+key = "08-outro"
+kind = "outro"
+title = "Thanks for Watching"
+body = ["Full source, notes, diagrams and an animated walkthrough", "are in the repository. Add a", "logging handler."]
+narration = """
+That's the Reactor, with Netty. [[slnc 400]] If you remember one sentence, make it this one. [[slnc 300]] One thread can serve many connections, as long as nothing it runs ever blocks. [[slnc 500]]
+The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. [[slnc 300]] It runs offline, with nothing installed except a Java development kit. [[slnc 500]]
+Here is one exercise to try. [[slnc 300]] Add a handler that logs every question before it is answered. [[slnc 500]]
+If this helped, a like really does help other people find it. [[slnc 300]] And subscribe, if you'd like the rest of the series. [[slnc 400]] Thanks for watching.
+"""

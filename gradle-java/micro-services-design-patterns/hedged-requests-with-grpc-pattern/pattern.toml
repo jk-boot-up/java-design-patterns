@@ -1,0 +1,457 @@
+# pattern.toml for the Hedged Requests with gRPC project. See tools/patternkit.
+
+[project]
+slug = "hedged-requests-with-grpc"
+category = "micro-services-design-patterns"
+title = "Hedged Requests with gRPC"
+package = "hedgedgrpc"
+main_class = "GrpcHedgedRequestsDemo"
+tagline = "Hedging as a policy, not code"
+bold = "Cut the slow tail of price lookups with gRPC's built-in hedging policy: a second attempt after 50 ms, set in the channel's service config, with the losing attempt cancelled by gRPC itself."
+domain_note = ""
+thumb_lines = ["HEDGED REQUESTS", "WITH GRPC"]
+thumb_code = "hedgingPolicy: 0.05s"
+youtube_title = "Hedged Requests with gRPC"
+youtube_tags = ["hedged requests", "grpc", "tail latency", "service config", "retry", "java"]
+
+[readme]
+intro = """
+This is the framework version of the Hedged Requests pattern. The plain Java
+version, a separate project in this category, writes a hedger with threads
+and futures. Here gRPC, the remote-call framework, does it: hedging is a
+policy in the client channel's service config, not code in the shop. The
+demo runs a real gRPC server on a local port and calls it for real.
+
+The policy says: for calls to this service, if no answer has arrived after
+50 milliseconds, send a second attempt, take whichever answers first, and
+cancel the other. Because it is configuration, the same policy could be
+delivered by a name resolver to every client of the service.
+"""
+analogy = """
+Think of phoning a shop's two branches about the same item. You ring the
+first; if nobody picks up within a few rings, you ring the second, take
+whichever answers, and hang up on the other. Here the phone itself does this
+for you, because someone set it to.
+"""
+scenario = """
+The online store's product page asks the price service for each price. Most
+answers take twenty milliseconds, but about one call in thirty-three lands on
+a paused worker and takes a whole second, so the slowest pages wait that long.
+"""
+test_note = """
+Every result the demo prints is asserted, against a real gRPC server on a
+local port. Timings are printed as thresholds, and waits are bounded polls.
+"""
+run_note = """
+Nothing to install beyond a Java 21 JDK: the gRPC server and client run inside
+the program, over a local port.
+"""
+twin = """
+The plain Java version got the idea right: hedge after a delay near the
+normal worst case, take the first answer, cancel the other, never hedge what
+is unsafe to repeat, and cap the extra load. What it left out is what a real
+remote-call framework provides. In gRPC, hedging is a policy in the service
+config, with no hedging code in the caller. gRPC cancels the losing attempt
+and the server can see the cancellation. And the same policy wrongly applied
+to PlaceOrder really does place an order twice, which is why gRPC applies it
+per service or per method.
+"""
+technologies = [
+    ["gRPC Java", "1.84.0", "client channel with a hedging policy, server, Netty transport"],
+]
+costs = [
+    "**Only for calls safe to repeat.** Hedging PlaceOrder placed two orders for one click.",
+    "**Extra load.** A delay of 0 sent 200 calls for 100 lookups; a 50 ms delay sent only 3 extra.",
+    "**Cap it.** Under overload hedges add load; gRPC's `retryThrottling` stops hedging when too many calls fail.",
+]
+too_much = """
+If calls are uniformly fast, or every call is expensive for the server, do
+not hedge. Hedging pays off for cheap, repeatable reads with a rare slow
+outlier.
+"""
+met_before = [
+    "gRPC's `hedgingPolicy` and `retryPolicy` in a service config.",
+    "Cassandra's speculative retry and HDFS hedged reads.",
+    "Service meshes such as Envoy, which can hedge too.",
+]
+where = """
+This project is in [micro-services-design-patterns](..). It is the framework
+version of the plain Java Hedged Requests project in the same category, which
+is left unchanged.
+"""
+
+[[act]]
+title = "A slow tail"
+summary = "100 price lookups over gRPC: 3 take about a second, the rest about 20 ms, so the 99th percentile is a whole second."
+detail = """
+The product page looks up a hundred prices over a plain gRPC channel. Three
+land on a paused worker and take about a second; the rest take about twenty
+milliseconds. So the slowest one percent of lookups, and the pages waiting on
+them, take a whole second.
+"""
+speech = """
+First demo: one call per price, and a slow tail. [[slnc 400]] The product page looks up a hundred prices, over gRPC. [[slnc 600]]
+Three of them take about a second. [[slnc 300]] The rest, about twenty milliseconds. [[slnc 500]]
+So the slowest pages wait a whole second.
+"""
+rows = { page = "active amber", server = "active wrong" }
+console = [
+    ["3 of 100 took about a second", "bad"],
+]
+
+[[act]]
+title = "A hedging policy"
+summary = "With hedgingPolicy (2 attempts, 0.05 s delay) in the service config: 0 lookups over 0.2 s, and gRPC sent 3 extra calls."
+detail = """
+The channel is given a service config with a hedging policy: up to two
+attempts, the second after 0.05 seconds. The shop's code does not change. Now
+none of the hundred lookups takes over 0.2 seconds, and gRPC sent only three
+extra calls, one for each slow one.
+"""
+speech = """
+Second demo: gRPC's hedging policy. [[slnc 400]] The channel gets one setting. [[slnc 300]] If no answer after fifty milliseconds, send a second attempt. [[slnc 600]]
+The shop's code does not change at all. [[slnc 500]]
+Now none of the hundred lookups is slow. [[slnc 300]] And gRPC sent just three extra calls.
+"""
+rows = { page = "active ok", policy = "active ok", server = "active ok" }
+console = [
+    ["0 over 0.2 s", "ok"],
+    ["extra calls: 3", "ok"],
+]
+
+[[act]]
+title = "The loser is cancelled"
+summary = "The 3 slow attempts that lost see their call cancelled by gRPC and never reply."
+detail = """
+When the second attempt answers first, gRPC cancels the first. The server can
+see this: the three slow attempts, when their pause ends, find their call
+cancelled and never send a reply.
+"""
+speech = """
+Third demo: the loser is cancelled. [[slnc 400]] When the second attempt answers first, gRPC cancels the first. [[slnc 600]]
+The server can see it. [[slnc 300]] The three slow attempts find their call cancelled. [[slnc 300]] They never reply.
+"""
+rows = { policy = "active ok", server = "active ok" }
+console = [
+    ["cancelled, never replied: 3", "ok"],
+]
+
+[[act]]
+title = "Hedge at once"
+summary = "With hedgingDelay 0, 100 lookups send 200 calls: twice the load on the price service."
+detail = """
+With a hedging delay of zero, gRPC sends both attempts at once, every time. A
+hundred lookups send two hundred calls: twice the load on the price service,
+to save a few rare slow ones.
+"""
+speech = """
+Fourth demo: hedge at once, with a delay of zero. [[slnc 400]] Every lookup is sent twice, immediately. [[slnc 600]]
+A hundred lookups, two hundred calls. [[slnc 300]] Twice the load on the price service.
+"""
+rows = { policy = "active amber", server = "active amber" }
+console = [
+    ["100 lookups, 200 calls", "bad"],
+]
+
+[[act]]
+title = "The bill"
+summary = "Hedging PlaceOrder by mistake: the customer sees one confirmation, the server places 2 orders."
+detail = """
+The same policy, applied by mistake to the orders service, sends PlaceOrder
+twice. The customer sees one confirmation; the server has placed two orders.
+Hedge only reads, per service or per method, and cap hedges with gRPC's
+retry throttling so an overloaded service is not sent more.
+"""
+speech = """
+Fifth demo: the bill. [[slnc 400]] The same policy is applied, by mistake, to placing orders. [[slnc 600]]
+The customer sees one confirmation. [[slnc 300]] The server placed two orders. [[slnc 600]]
+Hedge only reads. [[slnc 300]] And cap hedging, so an overloaded service is not sent even more.
+"""
+rows = { policy = "active wrong", server = "active wrong" }
+console = [
+    ["one click, 2 orders placed", "bad"],
+]
+
+[animation]
+subtitle = "The product page calls a real gRPC price server; a hedging policy sends a second attempt after 50 ms."
+boxes = [
+    ["page", "Product page", "gRPC client"],
+    ["policy", "Hedging policy", "2 attempts, 0.05 s"],
+    ["server", "Price server", "1 call in 33 paused"],
+]
+
+[docs.problem]
+scenario = """
+The product page calls the price service over gRPC; one call in thirty-three
+takes a second.
+"""
+naive = """
+Waiting on whichever attempt was sent makes the slowest pages take a second.
+"""
+deliver = [
+    "The slow tail measured over real gRPC calls.",
+    "A hedging policy in the service config.",
+    "Losing attempts cancelled, seen on the server.",
+    "Hedging at once doubling the load.",
+    "A non-idempotent call hedged by mistake.",
+    "Every printed result asserted by a test.",
+]
+
+[docs.prerequisites]
+required = [
+    "Java basics: maps, lists.",
+    "The Hedged Requests idea, ideally from the plain Java version of this pattern.",
+]
+not_required = [
+    "Protocol Buffers. Methods are described by hand with a text marshaller.",
+]
+
+[docs.dependencies]
+intro = """
+This project uses gRPC, which the plain Java version of Hedged Requests does
+not. Skipping it loses none of the pattern: the plain version teaches all of
+it with nothing installed.
+"""
+what = [
+    ["gRPC", "gRPC is a framework for calling methods on another server. A channel is the client's connection. A method descriptor names a method and says how to turn requests and replies into bytes; here a simple text marshaller, instead of the usual Protocol Buffers. A service config is a set of policies for a channel; its hedgingPolicy gives the maximum attempts and the delay before each extra attempt, and applies only to the services or methods it names. enableRetry turns on this retry and hedging support. When an attempt loses, gRPC cancels it, and the server can check Context.current().isCancelled()."],
+]
+why = """
+The plain version shows the idea with futures. This version shows hedging as
+the framework feature most teams actually use: a policy, not code.
+"""
+install_note = "Only a JDK, version 21. Gradle downloads the rest, and the version is pinned:"
+versions = [
+    ["Java", "21"],
+    ["gRPC Java (netty-shaded, stub)", "1.84.0"],
+]
+costs = [
+    "A policy that must be scoped to safe methods.",
+    "Extra server load, to be capped with throttling.",
+]
+
+[docs.session]
+objectives = [
+    "Configure a gRPC hedging policy in a service config.",
+    "Choose a hedging delay.",
+    "Show the server seeing a cancelled attempt.",
+    "Scope hedging to methods that are safe to repeat.",
+]
+walkthrough = """
+Run `./gradlew run`. Compare act one's 3 slow lookups with act two's 0. Open
+`Channels.hedged`: the whole feature is a map. End on act five's two orders.
+"""
+exercises = [
+    "Add a `retryThrottling` section and make the server slow for every call.",
+    "Scope the policy to the Price method only, by method name.",
+    "Try a hedging delay of 0.5 s and count slow lookups.",
+]
+
+[docs.explained]
+sentence = """
+With gRPC, hedging is a service-config policy: send another attempt after a
+delay, take the first answer, and cancel the rest.
+"""
+verdict = """
+Use gRPC's hedging for cheap, repeatable reads with a rare slow outlier. Scope
+it to those methods, choose a delay near the normal worst case, and add
+throttling.
+"""
+recognise = [
+    "`\"hedgingPolicy\"` in a service config.",
+    "`.defaultServiceConfig(...)` and `.enableRetry()` on a channel.",
+    "Servers checking `Context.current().isCancelled()`.",
+]
+
+[spec]
+purpose = """
+Teach Hedged Requests with gRPC: a slow tail over real calls, a hedging
+policy in the service config, losing attempts cancelled, hedging at once
+doubling the load, and a non-idempotent call hedged by mistake.
+"""
+nongoals = [
+    "Not Protocol Buffers or several replicas. One server, text messages.",
+]
+problem = """
+A rare slow call sets the waiting time of every page that makes it.
+"""
+roles = [
+    ["The policy", "`Channels.hedged`"],
+    ["The server", "`PriceServer`"],
+    ["The methods", "`Shop`"],
+    ["Entry point", "`GrpcHedgedRequestsDemo`, five acts"],
+]
+requirements = [
+    "**Tail cut:** no lookup takes over 0.2 s with hedging.",
+    "**Few extra calls:** only slow lookups are hedged.",
+    "**Cancelled:** losing attempts never reply.",
+    "**Every printed result is asserted** in `DemoRunsTest`.",
+]
+
+[[diagram]]
+name = "architecture-diagram"
+kind = "flow"
+title = "Hedged Requests with gRPC — the pieces"
+caption = "The policy lives in the channel."
+nodes = [
+    { id = "p", label = "Product page", sub = "calls Price", col = 0, row = 0, colour = "client" },
+    { id = "c", label = "gRPC channel", sub = "hedgingPolicy 0.05s", col = 1, row = 0, colour = "accent" },
+    { id = "s", label = "Price server", sub = "1 in 33 paused", col = 2, row = 0, colour = "green" },
+]
+edges = [
+    { from = "p", to = "c", label = "one call" },
+    { from = "c", to = "s", label = "1 or 2 attempts" },
+]
+
+[[diagram]]
+name = "class-diagram"
+kind = "class"
+title = "Hedged Requests with gRPC — classes"
+caption = "No hedging code: a map of policy."
+nodes = [
+    { id = "c", label = "Channels", sub = ["+ plain(port)", "+ hedged(port, service, delay)"], col = 0, row = 0, colour = "accent" },
+    { id = "s", label = "PriceServer", sub = ["Price: 20 ms, or 1 s", "PlaceOrder", "counts calls, cancels"], col = 1, row = 0, colour = "green" },
+    { id = "m", label = "Shop", sub = ["PRICE, PLACE_ORDER", "text marshaller"], col = 0, row = 1, colour = "client" },
+]
+edges = [
+    { from = "c", to = "s", label = "calls" },
+]
+
+[[diagram]]
+name = "data-flow-diagram"
+kind = "flow"
+title = "Hedged Requests with gRPC — three settings"
+caption = "Slow lookups against extra calls."
+nodes = [
+    { id = "a", label = "No policy", sub = "3 slow, 0 extra", col = 0, row = 0, colour = "red" },
+    { id = "b", label = "Delay 0.05 s", sub = "0 slow, 3 extra", col = 1, row = 0, colour = "green" },
+    { id = "c", label = "Delay 0", sub = "0 slow, 100 extra", col = 2, row = 0, colour = "amber" },
+]
+edges = []
+
+[[diagram]]
+name = "sequence-diagram"
+kind = "sequence"
+title = "Hedged Requests with gRPC — a slow call"
+caption = "gRPC sends the hedge and cancels the loser."
+participants = ["Page", "Channel", "Attempt 1", "Attempt 2"]
+steps = [
+    ["Page", "Channel", "Price(MUG-33)"],
+    ["Channel", "Attempt 1", "call"],
+    ["note", "Channel", "0.05 s, no answer"],
+    ["Channel", "Attempt 2", "call"],
+    ["Attempt 2", "Channel", "19.99", "reply"],
+    ["Channel", "Attempt 1", "cancel"],
+]
+
+[[diagram]]
+name = "uml-diagram"
+kind = "sequence"
+title = "1. A fast call"
+caption = "No second attempt."
+participants = ["Page", "Server"]
+steps = [
+    ["Page", "Server", "Price(MUG-1)"],
+    ["Server", "Page", "19.99 in 20 ms", "reply"],
+]
+
+[[diagram]]
+name = "uml-diagram-2"
+kind = "sequence"
+title = "2. PlaceOrder hedged"
+caption = "Two orders for one click."
+participants = ["Checkout", "Orders server"]
+steps = [
+    ["Checkout", "Orders server", "PlaceOrder(ORD-1), attempt 1"],
+    ["Checkout", "Orders server", "PlaceOrder(ORD-1), attempt 2"],
+    ["note", "Orders server", "2 orders placed"],
+]
+
+[poster]
+headline = [["HEDGED REQUESTS", "text"], ["WITH GRPC", "text"]]
+before = { code = "one attempt per call", note = "3 of 100 take a second", tag = "BEFORE" }
+after = { code = "hedgingPolicy: 0.05s", note = "0 slow, 3 extra calls", tag = "AFTER" }
+taglines = [["Hedging as a policy, not code", "gold"]]
+
+[[scene]]
+key = "01-poster"
+kind = "poster"
+title = "Hedged Requests with gRPC"
+narration = """
+Hello, and welcome. [[slnc 400]] This video explains the Hedged Requests pattern, with gRPC, in Java. [[slnc 300]]
+This video is presented by Jayasekhar Konduru. [[slnc 600]]
+First, a simple definition. [[slnc 300]] If a call has not answered after a short wait, send the same call again. [[slnc 300]] Use whichever answer comes first, and cancel the other. [[slnc 500]] gRPC is an open-source framework for calling other services, and it can hedge for you, as a setting. [[slnc 600]]
+Think of phoning two branches of a shop. [[slnc 300]] Ring one. [[slnc 300]] If nobody answers after a few rings, ring the other, and hang up on the first. [[slnc 700]]
+In this video, the domain is an online shop's product page, asking a price service for each price. [[slnc 500]]
+By the end, you will hear how one setting cuts the slow calls. [[slnc 300]] How gRPC cancels the loser. [[slnc 300]] And why an order must never be hedged.
+"""
+
+[[scene]]
+key = "02-scenario"
+kind = "bullets"
+title = "The Scenario"
+body = ["The product page asks for prices.", "", "Most answers: 20 ms.", "", "1 call in 33: a whole second."]
+narration = """
+Here is the scenario. [[slnc 400]] The product page asks the price service for each price, over gRPC. [[slnc 500]]
+Most answers take twenty milliseconds. [[slnc 500]]
+But about one call in thirty-three lands on a paused worker, and takes a whole second.
+"""
+
+[[scene]]
+key = "03-acts"
+kind = "acts"
+title = "acts"
+
+[[scene]]
+key = "04-pattern"
+kind = "bullets"
+title = "The Pattern, in gRPC"
+body = ["A hedging policy in the", "channel's service config.", "", "maxAttempts: 2", "hedgingDelay: 0.05s", "", "Only for safe methods."]
+narration = """
+Let's name the pattern, in gRPC's words. [[slnc 400]] A hedging policy, in the channel's service config. [[slnc 500]]
+Up to two attempts. [[slnc 300]] The second after fifty milliseconds. [[slnc 500]]
+And applied only to methods that are safe to repeat.
+"""
+
+[[scene]]
+key = "05-roles"
+kind = "bullets"
+title = "Who Does What"
+body = ["Channels: plain or hedged", "PriceServer: sometimes slow", "Shop: the two methods"]
+narration = """
+Here is who does what. [[slnc 400]] Channels builds a plain gRPC channel, or one with the hedging policy. [[slnc 500]]
+The price server answers, and is sometimes slow. [[slnc 500]]
+And shop describes the two methods, price and place order.
+"""
+
+[[scene]]
+key = "06-recognise"
+kind = "bullets"
+title = "Where You Have Seen It"
+body = ["gRPC hedging and retry policies", "Cassandra speculative retry", "Envoy hedging"]
+narration = """
+You have probably met this already. [[slnc 400]] gRPC's hedging and retry policies. [[slnc 500]]
+Cassandra's speculative retry. [[slnc 500]]
+And service meshes such as Envoy, which can hedge too.
+"""
+
+[[scene]]
+key = "07-verdict"
+kind = "bullets"
+title = "When To Use It"
+body = ["Cheap, repeatable reads.", "A rare slow outlier.", "", "Scope to safe methods.", "Delay near the worst case.", "Throttle."]
+narration = """
+So, when should you use it? [[slnc 400]] For cheap reads that are safe to repeat, with a rare slow outlier. [[slnc 500]]
+Scope the policy to those methods. [[slnc 300]] Choose a delay near the normal worst case. [[slnc 300]] And add throttling.
+"""
+
+[[scene]]
+key = "08-outro"
+kind = "outro"
+title = "Thanks for Watching"
+body = ["Full source, notes, diagrams and an animated walkthrough", "are in the repository. Add", "retryThrottling."]
+narration = """
+That's Hedged Requests, with gRPC. [[slnc 400]] If you remember one sentence, make it this one. [[slnc 300]] Let the framework ask twice, but only for questions that are safe to ask twice. [[slnc 500]]
+The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. [[slnc 300]] It runs offline, with nothing installed except a Java development kit. [[slnc 500]]
+Here is one exercise to try. [[slnc 300]] Add retry throttling, and make the server slow for every call. [[slnc 500]]
+If this helped, a like really does help other people find it. [[slnc 300]] And subscribe, if you'd like the rest of the series. [[slnc 400]] Thanks for watching.
+"""

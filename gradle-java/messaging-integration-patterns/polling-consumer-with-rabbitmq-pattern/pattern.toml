@@ -1,0 +1,483 @@
+# pattern.toml for the Polling Consumer with RabbitMQ project. See tools/patternkit.
+
+[project]
+slug = "polling-consumer-with-rabbitmq"
+category = "messaging-integration-patterns"
+title = "Polling Consumer with RabbitMQ"
+package = "pollingrabbit"
+main_class = "RabbitPollingConsumerDemo"
+tagline = "basicGet when ready, or push with a limit"
+bold = "Let the label printer take orders from a real RabbitMQ queue only when it is ready, by polling with basicGet, and compare it with RabbitMQ's own answer: push with a prefetch limit."
+domain_note = ""
+thumb_lines = ["POLLING CONSUMER", "WITH RABBITMQ"]
+thumb_code = "basicGet vs basicQos(5)"
+youtube_title = "Polling Consumer with RabbitMQ"
+youtube_tags = ["polling consumer", "rabbitmq", "basicget", "prefetch", "backpressure", "java"]
+
+[readme]
+intro = """
+This is the real-infrastructure version of the Polling Consumer pattern. The
+plain Java version, a separate project in this category, simulates a queue
+and ticks of a clock. Here a real RabbitMQ broker, started in a container by
+the demo itself, holds the orders.
+
+RabbitMQ can hand messages to a receiver in two ways. It can push them as fast
+as it can, which is `basicConsume`, or the receiver can ask for one at a time,
+which is `basicGet`: the polling consumer. The demo shows both, the cost of
+each, and RabbitMQ's own middle way: push, but with a prefetch limit, so the
+broker never hands over more than the receiver can hold.
+"""
+analogy = """
+Think of a busy restaurant kitchen. A waiter could keep shoving every order
+through the hatch as it comes, until the rail overflows. Or the chef could walk
+out and ask for the next order when ready, which means many wasted trips when
+the dining room is empty. Most kitchens do something in between: the waiter
+keeps a few tickets on the rail, and adds one each time the chef finishes one.
+"""
+scenario = """
+The online store's warehouse label printer prints a label for each order. Its
+memory holds only ten jobs. During a sale, fifty orders arrive in a burst,
+and when the printer runs out of paper it must stop taking work without any
+orders being lost.
+"""
+test_note = """
+Every number the demo prints is asserted against a real broker. Waits are
+bounded polls on real conditions, never fixed sleeps. Without a container
+runtime, the broker test is skipped rather than failed.
+"""
+run_note = """
+This project needs a running container runtime, such as Docker Desktop: the
+demo starts a real RabbitMQ 4.3.6 broker in a container and removes it again.
+Without one, it prints a sentence saying what to start, rather than failing.
+"""
+twin = """
+The plain Java version got the idea right: a consumer that asks when it is
+ready is never overwhelmed, pausing is simply not asking, and polling a quiet
+queue wastes requests while a slow poll adds waiting. What it left out is how a
+real broker behaves. Without a limit, RabbitMQ pushed all fifty orders into
+the printer's memory at once, and would have sent all fifty again after a
+crash. Every empty `basicGet` is a real request to the broker. And RabbitMQ
+has a better middle way than long polling: push with a prefetch limit, so the
+receiver holds at most a set number and the broker waits for acknowledgements
+before sending more.
+"""
+technologies = [
+    ["RabbitMQ", "4.3.6 (container image)", "the broker: basicGet, basicConsume and prefetch"],
+    ["RabbitMQ Java client", "5.36.0", "polling, consuming and acknowledging"],
+    ["Testcontainers", "2.0.5", "starts and stops the broker container from the demo"],
+    ["Docker", "24 or later", "runs the container"],
+    ["SLF4J simple", "2.0.17", "library logging, switched off"],
+]
+costs = [
+    "**Waiting between polls.** An order that arrives just after a poll waits a whole interval.",
+    "**Empty requests.** A quiet minute of polling every tenth of a second was 600 empty requests to the broker.",
+    "**Prefetch is a tuning knob.** Too low and the receiver idles between deliveries; too high and it is back to being flooded.",
+]
+too_much = """
+If the receiver can always keep up, plain push is simplest. Polling pays off
+when the receiver must control exactly when it takes work; for most
+receivers, push with a prefetch limit gives the same protection with less
+waste.
+"""
+met_before = [
+    "RabbitMQ `basicGet` and `basicQos` prefetch.",
+    "Amazon SQS `ReceiveMessage` with long polling.",
+    "Kafka consumers, which always poll, with `max.poll.records`.",
+]
+where = """
+This project is in [messaging-integration-patterns](..). It is the
+real-infrastructure version of the plain Java Polling Consumer project in the
+same category, which is left unchanged.
+"""
+
+[[act]]
+title = "Push with no limit"
+summary = "RabbitMQ pushes all 50 orders into the printer's memory at once; after a crash all 50 are back on the queue."
+detail = """
+The printer subscribes with no prefetch limit. A burst of fifty orders
+arrives, and RabbitMQ pushes all fifty into the printer's memory at once,
+although its buffer holds ten. When the printer crashes, all fifty,
+unacknowledged, go back on the queue to be sent again.
+"""
+speech = """
+First demo: RabbitMQ pushes orders at the printer, with no limit. [[slnc 400]] A burst of fifty orders arrives. [[slnc 600]]
+The broker pushes all fifty into the printer's memory, at once. [[slnc 300]] Its buffer holds ten. [[slnc 600]]
+The printer crashes. [[slnc 300]] All fifty go back on the queue, to be sent again.
+"""
+rows = { broker = "active amber", printer = "active wrong" }
+console = [
+    ["pushed 50 at once", "bad"],
+    ["after the crash: 50 back on the queue", "amber"],
+]
+
+[[act]]
+title = "A polling consumer"
+summary = "The printer polls with basicGet, up to 5 each tick: 50 of 50 printed in 10 ticks, never more than 5 in hand."
+detail = """
+Now the printer polls: each tick, it asks the broker for up to five orders
+with `basicGet`, prints them and acknowledges each. Fifty orders are printed
+in ten ticks, and it never holds more than five.
+"""
+speech = """
+Second demo: a polling consumer. [[slnc 400]] Each tick, the printer asks the broker for up to five orders. [[slnc 600]]
+It prints them, and acknowledges each one. [[slnc 500]]
+Fifty orders, in ten ticks. [[slnc 300]] Never more than five in hand.
+"""
+rows = { broker = "active ok", printer = "active ok" }
+console = [
+    ["50 of 50 in 10 ticks", "ok"],
+    ["never more than 5 in hand", "ok"],
+]
+
+[[act]]
+title = "Pausing is not polling"
+summary = "Paper runs out after one tick: 5 printed, 15 safely waiting on the queue; once paper is loaded, 20 of 20 printed."
+detail = """
+Twenty more orders arrive. After one tick the paper runs out, so the printer
+stops polling: five are printed and fifteen wait safely on the queue. When
+paper is loaded and polling resumes, all twenty are printed and none is lost.
+"""
+speech = """
+Third demo: pausing is simply not polling. [[slnc 400]] Twenty orders arrive. [[slnc 300]] After one tick, the paper runs out. [[slnc 600]]
+The printer stops asking. [[slnc 300]] Five printed. [[slnc 300]] Fifteen wait safely on the queue. [[slnc 500]]
+Paper is loaded. [[slnc 300]] Polling resumes. [[slnc 300]] Twenty of twenty, none lost.
+"""
+rows = { broker = "active ok", printer = "active amber" }
+console = [
+    ["out of paper: printed 5, waiting 15", "amber"],
+    ["resumed: 20 of 20", "ok"],
+]
+
+[[act]]
+title = "When nothing is happening"
+summary = "A quiet minute polled every 0.1 s is 600 empty requests; push with prefetch 5 holds 5 and costs no requests when quiet."
+detail = """
+In a quiet minute, polling every tenth of a second makes six hundred requests
+to the broker, all empty. RabbitMQ's middle way is push with a prefetch limit:
+with a limit of five, the printer holds five of the twenty orders waiting, and
+the broker sends more only as it acknowledges. A quiet queue then costs no
+requests at all.
+"""
+speech = """
+Fourth demo: when nothing is happening. [[slnc 400]] A quiet minute, asking every tenth of a second. [[slnc 300]] Six hundred requests to the broker. [[slnc 300]] All empty. [[slnc 600]]
+RabbitMQ has a middle way. [[slnc 300]] Push, but with a limit, called prefetch. [[slnc 500]]
+With a limit of five, the printer holds five orders. [[slnc 300]] The broker sends more only as it finishes them. [[slnc 500]]
+And a quiet queue costs no requests at all.
+"""
+rows = { broker = "active ok", printer = "active ok" }
+console = [
+    ["600 empty polls in a quiet minute", "bad"],
+    ["prefetch 5: holds 5, no empty requests", "ok"],
+]
+
+[[act]]
+title = "The bill"
+summary = "With polling, an order can wait a whole interval, and every empty poll is a request; RabbitMQ advises consuming with a prefetch limit."
+detail = """
+With polling, an order that arrives just after a poll waits a whole interval,
+and every empty poll is a request to the broker. RabbitMQ's own advice is to
+consume with a prefetch limit, keeping `basicGet` for the cases where the
+receiver must control exactly when it takes work.
+"""
+speech = """
+Fifth demo: the bill. [[slnc 400]] With polling, an order that arrives just after a poll waits a whole interval. [[slnc 500]]
+And every empty poll is a request to the broker. [[slnc 600]]
+RabbitMQ's own advice is to push with a prefetch limit. [[slnc 300]] Keep polling for when the receiver must decide exactly when to take work.
+"""
+rows = { printer = "active amber" }
+console = [
+    ["waits up to one interval", "amber"],
+    ["prefer push with prefetch", "ok"],
+]
+
+[animation]
+subtitle = "Orders wait on a real RabbitMQ queue; the label printer polls for them, or is pushed a limited number."
+boxes = [
+    ["broker", "RabbitMQ queue", "labels"],
+    ["printer", "Label printer", "buffer of 10"],
+]
+
+[docs.problem]
+scenario = """
+A label printer with a ten-job buffer must print a burst of fifty orders, and
+pause when paper runs out.
+"""
+naive = """
+Pushing every order as it arrives floods the printer's memory.
+"""
+deliver = [
+    "Unlimited push flooding the printer.",
+    "Polling with `basicGet`, five per tick.",
+    "Pausing by not polling, with nothing lost.",
+    "Empty polls counted, and push with prefetch as the middle way.",
+    "The costs named.",
+    "Every printed result asserted by a test, skipped without Docker.",
+]
+
+[docs.prerequisites]
+required = [
+    "Java basics: lists, loops.",
+    "The Polling Consumer idea, ideally from the plain Java version of this pattern.",
+]
+not_required = [
+    "Earlier RabbitMQ experience. The dependencies page explains the words used.",
+]
+install = [
+    "A running container runtime such as Docker Desktop. The demo starts and removes RabbitMQ itself.",
+]
+
+[docs.dependencies]
+intro = """
+This project uses a real RabbitMQ broker, run in a container by
+Testcontainers, which the plain Java version of Polling Consumer does not.
+Skipping it loses none of the pattern: the plain version teaches all of it
+with nothing installed.
+"""
+what = [
+    ["RabbitMQ", "RabbitMQ is a message broker: a separate program that holds messages on queues. basicGet asks for one message now, and gets nothing if the queue is empty: that is polling. basicConsume asks the broker to push messages as they arrive. basicQos sets the prefetch: the most unacknowledged messages the broker will push to one receiver; zero means no limit. An acknowledgement tells the broker a message is finished; unacknowledged messages go back on the queue if the receiver disappears."],
+    ["Testcontainers", "Testcontainers is a Java library that starts a container, here the RabbitMQ image, from inside a program, and removes it afterwards."],
+]
+why = """
+The plain version shows the idea. This version shows what a real broker does
+when it is allowed to push without a limit, what each poll costs, and the
+limit RabbitMQ offers instead.
+"""
+versions = [
+    ["Java", "21"],
+    ["Docker", "running; 24 or later"],
+    ["RabbitMQ image", "rabbitmq:4.3.6"],
+    ["RabbitMQ Java client", "5.36.0"],
+    ["Testcontainers", "2.0.5"],
+]
+costs = [
+    "A container runtime, and a first run that downloads the broker image.",
+    "A prefetch value to choose and tune.",
+]
+
+[docs.session]
+objectives = [
+    "Poll a queue with `basicGet` and acknowledge each message.",
+    "Explain what unlimited push does to a slow receiver.",
+    "Use `basicQos` to push with a limit.",
+    "Weigh polling intervals against empty requests.",
+]
+walkthrough = """
+Run `./gradlew run` with Docker running. Compare act one's 50 in hand with act
+two's 5. Open `LabelPrinter`: `poll` and `subscribe`. End on act four's 600
+empty polls and the prefetch of 5.
+"""
+exercises = [
+    "Try prefetch 1 and prefetch 50, and describe the difference.",
+    "Poll every second instead of every tenth, and count the empty polls.",
+    "Replace the polling loop with Spring AMQP's `receive()`.",
+]
+
+[docs.explained]
+sentence = """
+With RabbitMQ, a polling consumer asks for messages with `basicGet` when it is
+ready; push with a prefetch limit gives the same protection with less waste.
+"""
+verdict = """
+Poll when the receiver must decide exactly when to take work. Otherwise
+consume with a prefetch limit, sized to what the receiver can hold.
+"""
+recognise = [
+    "`channel.basicGet(queue, false)` in a loop.",
+    "`channel.basicQos(n)` before `basicConsume`.",
+    "Scheduled jobs that drain a queue.",
+]
+
+[spec]
+purpose = """
+Teach Polling Consumer with a real RabbitMQ broker: unlimited push flooding a
+label printer, polling with basicGet, pausing by not polling, empty polls
+counted, and push with prefetch as RabbitMQ's middle way.
+"""
+nongoals = [
+    "Not real time. Ticks are loop iterations, not a clock.",
+]
+problem = """
+A receiver pushed more work than it can hold is overwhelmed, and loses it on a
+crash.
+"""
+roles = [
+    ["The broker in a container", "`Broker`"],
+    ["The receiver", "`LabelPrinter`"],
+    ["The sender", "`Orders`"],
+    ["Waiting for real conditions", "`Poll`"],
+    ["Entry point", "`RabbitPollingConsumerDemo`, five acts"],
+]
+requirements = [
+    "**Bounded:** polling never holds more than five.",
+    "**Nothing lost:** a pause leaves orders on the queue.",
+    "**Limited push:** prefetch 5 holds exactly five.",
+    "**No Docker, no crash:** without a runtime the demo prints advice.",
+]
+
+[[diagram]]
+name = "architecture-diagram"
+kind = "flow"
+title = "Polling Consumer with RabbitMQ — the pieces"
+caption = "The printer asks; the queue holds the rest."
+nodes = [
+    { id = "c", label = "Checkout", sub = "50 orders", col = 0, row = 0, colour = "client" },
+    { id = "q", label = "RabbitMQ", sub = "labels queue", col = 1, row = 0, colour = "accent" },
+    { id = "p", label = "Label printer", sub = "basicGet, up to 5", col = 2, row = 0, colour = "green" },
+]
+edges = [
+    { from = "c", to = "q", label = "publish" },
+    { from = "p", to = "q", label = "poll" },
+]
+
+[[diagram]]
+name = "class-diagram"
+kind = "class"
+title = "Polling Consumer with RabbitMQ — classes"
+caption = "Poll or subscribe."
+nodes = [
+    { id = "l", label = "LabelPrinter", sub = ["+ poll(max)", "+ subscribe(prefetch)", "+ printInHand()"], col = 0, row = 0, colour = "green" },
+    { id = "o", label = "Orders", sub = ["+ send(broker, count)"], col = 1, row = 0, colour = "client" },
+    { id = "b", label = "Broker", sub = ["+ start() / waiting(queue)"], col = 0, row = 1, colour = "accent" },
+]
+edges = [
+    { from = "l", to = "b", label = "takes from" },
+    { from = "o", to = "b", label = "publishes to" },
+]
+
+[[diagram]]
+name = "data-flow-diagram"
+kind = "flow"
+title = "Polling Consumer with RabbitMQ — three ways"
+caption = "How many orders the printer holds."
+nodes = [
+    { id = "a", label = "Push, no limit", sub = "holds 50", col = 0, row = 0, colour = "red" },
+    { id = "b", label = "Poll, 5 per tick", sub = "holds at most 5", col = 1, row = 0, colour = "green" },
+    { id = "c", label = "Push, prefetch 5", sub = "holds 5, no empty polls", col = 2, row = 0, colour = "green" },
+]
+edges = []
+
+[[diagram]]
+name = "sequence-diagram"
+kind = "sequence"
+title = "Polling Consumer with RabbitMQ — one tick"
+caption = "Ask, print, acknowledge."
+participants = ["Printer", "RabbitMQ"]
+steps = [
+    ["Printer", "RabbitMQ", "basicGet"],
+    ["RabbitMQ", "Printer", "ORD-1", "reply"],
+    ["Printer", "RabbitMQ", "ack"],
+]
+
+[[diagram]]
+name = "uml-diagram"
+kind = "sequence"
+title = "1. Out of paper"
+caption = "Not polling leaves orders safe."
+participants = ["Printer", "RabbitMQ"]
+steps = [
+    ["note", "Printer", "stops asking"],
+    ["note", "RabbitMQ", "15 orders waiting"],
+]
+
+[[diagram]]
+name = "uml-diagram-2"
+kind = "sequence"
+title = "2. Prefetch 5"
+caption = "The broker waits for acknowledgements."
+participants = ["RabbitMQ", "Printer"]
+steps = [
+    ["RabbitMQ", "Printer", "5 orders"],
+    ["note", "RabbitMQ", "waits"],
+    ["Printer", "RabbitMQ", "5 acks"],
+    ["RabbitMQ", "Printer", "5 more"],
+]
+
+[poster]
+headline = [["POLLING CONSUMER", "text"], ["WITH RABBITMQ", "text"]]
+before = { code = "basicConsume, no limit", note = "50 pushed into a buffer of 10", tag = "BEFORE" }
+after = { code = "basicGet / basicQos(5)", note = "never more than 5 in hand", tag = "AFTER" }
+taglines = [["Take work when ready", "gold"]]
+
+[[scene]]
+key = "01-poster"
+kind = "poster"
+title = "Polling Consumer with RabbitMQ"
+narration = """
+Hello, and welcome. [[slnc 400]] This video explains the Polling Consumer pattern, with a real RabbitMQ broker, in Java. [[slnc 300]]
+This video is presented by Jayasekhar Konduru. [[slnc 600]]
+First, a simple definition. [[slnc 300]] A polling consumer asks for the next message when it is ready. [[slnc 300]] Instead of having messages pushed at it as fast as they arrive. [[slnc 500]] RabbitMQ is an open-source message broker, and it can do both, plus a middle way. [[slnc 600]]
+Think of a restaurant kitchen. [[slnc 300]] Orders shoved through the hatch as they come, until the rail overflows. [[slnc 300]] Or the chef asking for the next one when ready. [[slnc 300]] Or a few tickets on the rail, topped up as each is finished. [[slnc 700]]
+In this video, the domain is an online shop's warehouse label printer. [[slnc 500]]
+By the end, you will hear what unlimited push does. [[slnc 300]] How polling protects the printer. [[slnc 300]] What polling costs. [[slnc 300]] And RabbitMQ's middle way.
+"""
+
+[[scene]]
+key = "02-scenario"
+kind = "bullets"
+title = "The Scenario"
+body = ["A label printer holds 10 jobs.", "", "A sale: 50 orders at once.", "", "Paper runs out mid-burst."]
+narration = """
+Here is the scenario. [[slnc 400]] The warehouse label printer holds ten jobs in its memory. [[slnc 500]]
+During a sale, fifty orders arrive at once. [[slnc 500]]
+And sometimes the paper runs out, and no order may be lost.
+"""
+
+[[scene]]
+key = "03-acts"
+kind = "acts"
+title = "acts"
+
+[[scene]]
+key = "04-pattern"
+kind = "bullets"
+title = "The Pattern, in RabbitMQ"
+body = ["basicGet: ask for one now.", "", "basicConsume: be pushed.", "", "basicQos(n): pushed, but never", "more than n unacknowledged."]
+narration = """
+Let's name the pattern, in RabbitMQ's words. [[slnc 400]] Basic get asks for one message, now. [[slnc 300]] That is polling. [[slnc 500]]
+Basic consume asks the broker to push. [[slnc 500]]
+And basic Q o S sets a prefetch limit. [[slnc 300]] Pushed, but never more than that many unfinished at once.
+"""
+
+[[scene]]
+key = "05-roles"
+kind = "bullets"
+title = "Who Does What"
+body = ["LabelPrinter: polls or subscribes", "Orders: checkout's sender", "Broker: RabbitMQ in a container", "Poll: waits for real conditions"]
+narration = """
+Here is who does what. [[slnc 400]] The label printer either polls, or subscribes with a limit. [[slnc 500]]
+Orders is checkout, putting orders on the queue. [[slnc 500]]
+The broker class runs RabbitMQ in a container. [[slnc 300]] And poll waits for real conditions.
+"""
+
+[[scene]]
+key = "06-recognise"
+kind = "bullets"
+title = "Where You Have Seen It"
+body = ["RabbitMQ basicGet and prefetch", "Amazon SQS ReceiveMessage", "Kafka consumers, which always poll"]
+narration = """
+You have probably met this already. [[slnc 400]] RabbitMQ's basic get, and its prefetch setting. [[slnc 500]]
+Amazon SQS, where receivers always ask, and can wait for a message to arrive. [[slnc 500]]
+And Kafka, whose consumers always poll.
+"""
+
+[[scene]]
+key = "07-verdict"
+kind = "bullets"
+title = "When To Use It"
+body = ["The receiver must choose", "when to take work: poll.", "", "Otherwise: push with", "a prefetch limit."]
+narration = """
+So, when should you use it? [[slnc 400]] Poll when the receiver must decide exactly when to take work. [[slnc 500]]
+Otherwise, push with a prefetch limit, sized to what the receiver can hold.
+"""
+
+[[scene]]
+key = "08-outro"
+kind = "outro"
+title = "Thanks for Watching"
+body = ["Full source, notes, diagrams and an animated walkthrough", "are in the repository. Try prefetch", "1 and 50."]
+narration = """
+That's the Polling Consumer, with RabbitMQ. [[slnc 400]] If you remember one sentence, make it this one. [[slnc 300]] Take work only when you are ready, and never more than you can hold. [[slnc 500]]
+The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. [[slnc 300]] It needs Docker running, and starts the broker for you. [[slnc 500]]
+Here is one exercise to try. [[slnc 300]] Try a prefetch of one, and of fifty, and describe the difference. [[slnc 500]]
+If this helped, a like really does help other people find it. [[slnc 300]] And subscribe, if you'd like the rest of the series. [[slnc 400]] Thanks for watching.
+"""

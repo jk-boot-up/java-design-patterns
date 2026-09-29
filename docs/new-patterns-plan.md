@@ -149,3 +149,49 @@ Updated automatically by `patternkit.sh build` (and `patternkit.sh plan`).
 | 60 | Lenses for Immutable Updates | functional-design-patterns | ✅ done |
 
 <!-- phase2:end -->
+
+## Phase 3: framework and real-infrastructure versions, one by one
+
+Each is a new project beside its plain-Java twin; the twin is never edited or removed.
+
+<!-- phase3:start -->
+
+Updated automatically by `patternkit.sh build` (and `patternkit.sh plan`).
+
+**31 of 31 done.**
+
+| # | New project | Plain-Java twin (unchanged) | Framework or infrastructure | Status |
+| ---: | --- | --- | --- | --- |
+| 1 | message-translator-with-camel | message-translator | Apache Camel | ✅ done |
+| 2 | message-filter-with-camel | message-filter | Apache Camel | ✅ done |
+| 3 | recipient-list-with-camel | recipient-list | Apache Camel | ✅ done |
+| 4 | wire-tap-with-camel | wire-tap | Apache Camel | ✅ done |
+| 5 | resequencer-with-camel | resequencer | Apache Camel | ✅ done |
+| 6 | routing-slip-with-camel | routing-slip | Apache Camel | ✅ done |
+| 7 | process-manager-with-camel | process-manager | Apache Camel | ✅ done |
+| 8 | guaranteed-delivery-with-rabbitmq | guaranteed-delivery | RabbitMQ | ✅ done |
+| 9 | request-reply-with-rabbitmq | request-reply | RabbitMQ | ✅ done |
+| 10 | polling-consumer-with-rabbitmq | polling-consumer | RabbitMQ | ✅ done |
+| 11 | priority-queue-with-rabbitmq | priority-queue | RabbitMQ | ✅ done |
+| 12 | event-carried-state-transfer-with-kafka | event-carried-state-transfer | Apache Kafka | ✅ done |
+| 13 | write-through-cache-with-redis | write-through-cache | Redis | ✅ done |
+| 14 | space-based-with-hazelcast | space-based | Hazelcast | ✅ done |
+| 15 | sharding-with-postgresql | sharding | PostgreSQL | ✅ done |
+| 16 | backpressure-with-reactor | backpressure | Project Reactor | ✅ done |
+| 17 | reactor-with-netty | reactor | Netty | ✅ done |
+| 18 | hedged-requests-with-grpc | hedged-requests | gRPC | ✅ done |
+| 19 | valet-key-with-s3 | valet-key | Amazon S3 (LocalStack) | ✅ done |
+| 20 | secrets-manager-with-openbao | secrets-manager | OpenBao (open-source Vault) | ✅ done |
+| 21 | token-authentication-with-spring-security | token-authentication | Spring Security | ✅ done |
+| 22 | authorization-policy-with-spring-security | authorization-policy | Spring Security | ✅ done |
+| 23 | gateway-offloading-with-spring-cloud-gateway | gateway-offloading | Spring Cloud Gateway | ✅ done |
+| 24 | secure-gateway-with-nginx | secure-gateway | NGINX | ✅ done |
+| 25 | contract-stub-with-wiremock | contract-stub | WireMock (the stubs Spring Cloud Contract generates) | ✅ done |
+| 26 | page-object-with-selenium | page-object | Selenium WebDriver | ✅ done |
+| 27 | single-table-inheritance-with-jpa | single-table-inheritance | JPA (Hibernate) | ✅ done |
+| 28 | table-data-gateway-with-jdbc-template | table-data-gateway | Spring JdbcTemplate | ✅ done |
+| 29 | page-controller-with-spring-mvc | page-controller | Spring MVC | ✅ done |
+| 30 | remote-facade-with-spring-mvc | remote-facade | Spring MVC | ✅ done |
+| 31 | railway-oriented-with-vavr | railway-oriented | Vavr | ✅ done |
+
+<!-- phase3:end -->

@@ -1,0 +1,489 @@
+# pattern.toml for the Event-Carried State Transfer with Kafka project. See tools/patternkit.
+
+[project]
+slug = "event-carried-state-transfer-with-kafka"
+category = "micro-services-design-patterns"
+title = "Event-Carried State Transfer with Kafka"
+package = "ecstkafka"
+main_class = "KafkaEventCarriedDemo"
+tagline = "A compacted topic of addresses"
+bold = "Carry each customer's address in events on a real Kafka topic, keyed by customer and compacted, so shipping can build its own copy from the topic, keep each customer's updates in order, and learn of deletions through tombstones."
+domain_note = ""
+thumb_lines = ["EVENT-CARRIED STATE", "WITH KAFKA"]
+thumb_code = "key = customer, compacted"
+youtube_title = "Event-Carried State Transfer with Kafka"
+youtube_tags = ["event-carried state transfer", "kafka", "compacted topic", "tombstone", "partition key", "java"]
+
+[readme]
+intro = """
+This is the real-infrastructure version of the Event-Carried State Transfer
+pattern. The plain Java version, a separate project in this category, passes
+events by method calls and adds version numbers to keep them in order. Here a
+real Kafka broker, started in a container by the demo itself, carries the
+events.
+
+Kafka changes three things. Events are kept on a topic, so a new copy can be
+built by reading the topic from the beginning. Events with the same key go to
+the same partition and stay in order, which replaces the version numbers. And
+a compacted topic keeps the latest event for each key, with a tombstone, an
+event with no value, meaning "this customer is gone".
+"""
+analogy = """
+Think of a town's public noticeboard of address changes. Every move is pinned
+up under the person's name, so a new postman can read the board once and know
+every current address without asking anyone. Old notices for the same name
+are taken down as new ones go up. And when someone leaves town, a notice says
+so, and every postman must cross them off.
+"""
+scenario = """
+The online store's shipping service prints delivery labels, and the customer
+service owns the addresses. Shipping used to call the customer service for
+every label, so when that service was down, no labels could be printed at all.
+"""
+test_note = """
+Every number the demo prints is asserted against a real Kafka broker. Reads
+stop when they have caught up with the topic, never after a fixed time.
+Without a container runtime, the broker test is skipped rather than failed.
+"""
+run_note = """
+This project needs a running container runtime, such as Docker Desktop: the
+demo starts a real Kafka 4.3.1 broker in a container and removes it again.
+Without one, it prints a sentence saying what to start, rather than failing.
+"""
+twin = """
+The plain Java version got the idea right: put the address in the event, keep
+a local copy, stop calling the owner, accept that the copy lags, and guard
+against events arriving out of order. What it left out is what Kafka adds. The
+topic is the history, so a brand-new copy is built by reading it from the
+start. Keying events by customer keeps each customer's updates in order on
+one partition, where the plain version needed version numbers; unkeyed
+events on two partitions arrived in the wrong order. A compacted topic keeps
+the latest address for each customer. And deleting is an event too: a
+tombstone that every copy must honour.
+"""
+technologies = [
+    ["Apache Kafka", "4.3.1 (container image apache/kafka)", "the topics, partitions, compaction and tombstones"],
+    ["Kafka Java client", "4.3.1", "producing keyed events and reading topics"],
+    ["Testcontainers", "2.0.5", "starts and stops the Kafka container from the demo"],
+    ["Docker", "24 or later", "runs the container"],
+    ["SLF4J simple", "2.0.17", "library logging, switched off"],
+]
+costs = [
+    "**Order only within a partition.** Events for one customer must share a key, or they can arrive out of order.",
+    "**Deleting is work.** A tombstone must be read and honoured by every copy, or personal data lives on.",
+    "**More to run and store.** A Kafka cluster, a topic of every address, and a copy in each service.",
+]
+too_much = """
+If only one or two services need the data, and rarely, calling the owner is
+simpler. A Kafka topic of state pays off when many services read the data
+often and must keep working when its owner is down.
+"""
+met_before = [
+    "Compacted Kafka topics used as the source of a service's local table.",
+    "Kafka Streams `KTable`s, which are exactly this local copy.",
+    "Change data capture with Debezium, publishing every row change.",
+]
+where = """
+This project is in [micro-services-design-patterns](..). It is the
+real-infrastructure version of the plain Java Event-Carried State Transfer
+project in the same category, which is left unchanged.
+"""
+
+[[act]]
+title = "Thin events and call-backs"
+summary = "Events say only \"changed\": 100 labels need 100 calls to the customer service, and with it down, 0 of 100 are printed."
+detail = """
+The customer service publishes events to Kafka that say only that a customer
+changed. Shipping reads ten of them, but still has to call the customer
+service for every label: a hundred labels, a hundred calls. When the customer
+service is down, not one label is printed.
+"""
+speech = """
+First demo: thin events on Kafka, and a call back for every label. [[slnc 400]] Each event says only, this customer changed. [[slnc 600]]
+So shipping still asks the customer service for every address. [[slnc 300]] A hundred labels. [[slnc 300]] A hundred calls. [[slnc 600]]
+The customer service goes down. [[slnc 300]] Not one label can be printed.
+"""
+rows = { owner = "active wrong", shipping = "active wrong" }
+console = [
+    ["100 labels, 100 calls", "amber"],
+    ["owner down: 0 of 100", "bad"],
+]
+
+[[act]]
+title = "The address in the event"
+summary = "Address events on a compacted topic keyed by customer: shipping's copy holds 10 addresses and prints 100 of 100 labels with the owner down."
+detail = """
+Now each event carries the address, keyed by customer, on a compacted topic.
+Shipping reads the topic into its own copy: ten addresses. With the customer
+service still down, all hundred labels are printed, with no calls at all.
+"""
+speech = """
+Second demo: the event carries the address. [[slnc 400]] Each event is keyed by the customer, on a topic that keeps the latest per customer. [[slnc 600]]
+Shipping reads the topic into its own copy. [[slnc 300]] Ten addresses. [[slnc 500]]
+The customer service is still down. [[slnc 300]] All hundred labels are printed. [[slnc 300]] No calls at all.
+"""
+rows = { topic = "active ok", shipping = "active ok", owner = "active amber" }
+console = [
+    ["copy holds 10 addresses", "ok"],
+    ["owner down: 100 of 100, 0 calls", "ok"],
+]
+
+[[act]]
+title = "A new copy from the topic"
+summary = "C1 moves to York; a fresh shipping instance reads 11 events for 10 customers and prints York; the old copy still says Leeds."
+detail = """
+Customer C1 moves to York. A new shipping instance starts with nothing and
+reads the topic from the beginning: eleven events for ten customers, and the
+latest event for C1 wins, so its label goes to York. The old copy, which has
+not read the new event yet, still says Leeds: copies lag until they read.
+"""
+speech = """
+Third demo: a new copy, from the topic. [[slnc 400]] A customer moves, from Leeds to York. [[slnc 600]]
+A brand-new shipping instance starts with nothing. [[slnc 300]] It reads the topic from the beginning. [[slnc 300]] Eleven events, for ten customers. [[slnc 500]]
+The latest event wins. [[slnc 300]] Its label goes to York. [[slnc 500]]
+The old copy has not read the new event yet. [[slnc 300]] It still says Leeds.
+"""
+rows = { topic = "active ok", shipping = "active amber" }
+console = [
+    ["fresh copy: 11 events, 10 customers", "ok"],
+    ["C1 -> York; old copy -> Leeds", "amber"],
+]
+
+[[act]]
+title = "Order within a partition"
+summary = "Two moves on different partitions, read partition 1 first, leave Hull; keyed by customer on one partition, they end on Bristol."
+detail = """
+Customer C2 moves to Hull, then Bristol. Sent without a key to two different
+partitions, and read partition 1 first, the older address, Hull, ends up in
+the copy. Kafka only keeps order within a partition. Keyed by customer, both
+events land on the same partition in order, and the copy ends on Bristol, with
+no version numbers needed.
+"""
+speech = """
+Fourth demo: Kafka keeps order only within a partition. [[slnc 400]] A customer moves to Hull, then to Bristol. [[slnc 600]]
+Sent to two different partitions, and read in the wrong order, the copy ends on Hull. [[slnc 300]] The older address. [[slnc 600]]
+Keyed by the customer, both events go to the same partition, in order. [[slnc 300]] The copy ends on Bristol. [[slnc 300]] No version numbers needed.
+"""
+rows = { topic = "active amber", shipping = "active ok" }
+console = [
+    ["two partitions: Hull (old)", "bad"],
+    ["keyed, one partition: Bristol", "ok"],
+]
+
+[[act]]
+title = "Deleting is an event"
+summary = "C3 closes the account: a tombstone is sent, and a copy built from the topic holds 9 addresses and no label for C3."
+detail = """
+Customer C3 closes the account. The customer service sends a tombstone: an
+event for C3 with no value. A copy built from the topic now holds nine
+addresses, and C3 has no label. Every service holding a copy must read and
+honour tombstones, or the address lives on; and the topic and every copy are
+more data to store, secure and keep in step.
+"""
+speech = """
+Fifth demo: the bill. [[slnc 400]] Customer three closes the account. [[slnc 600]]
+The customer service sends a special event, with no address at all. [[slnc 300]] Kafka calls it a tombstone. [[slnc 500]]
+A copy built from the topic now holds nine addresses. [[slnc 300]] Customer three is gone. [[slnc 600]]
+Every service with a copy must honour it. [[slnc 300]] Or the address lives on. [[slnc 300]] And every copy is more data to store, and protect.
+"""
+rows = { topic = "active amber", shipping = "active amber" }
+console = [
+    ["tombstone for C3", "muted"],
+    ["copy holds 9; C3 has no label", "ok"],
+]
+
+[animation]
+subtitle = "The customer service publishes address events to Kafka; shipping builds its own copy from the topic."
+boxes = [
+    ["owner", "Customer service", "publishes addresses"],
+    ["topic", "Kafka topic", "keyed, compacted"],
+    ["shipping", "Shipping", "own copy, prints labels"],
+]
+
+[docs.problem]
+scenario = """
+Shipping prints labels; the customer service owns the addresses.
+"""
+naive = """
+Thin events force a call back for every label, and labels stop when the owner
+is down.
+"""
+deliver = [
+    "Thin events and call-backs failing with the owner down.",
+    "Address events on a compacted, keyed topic, and a local copy.",
+    "A new copy built from the topic, and the lag of an old one.",
+    "Order kept by key within a partition.",
+    "A tombstone deleting a customer from copies.",
+    "Every printed result asserted by a test, skipped without Docker.",
+]
+
+[docs.prerequisites]
+required = [
+    "Java basics: maps, lists.",
+    "The Event-Carried State Transfer idea, ideally from the plain Java version of this pattern.",
+]
+not_required = [
+    "Earlier Kafka experience. The dependencies page explains the words used.",
+]
+install = [
+    "A running container runtime such as Docker Desktop. The demo starts and removes Kafka itself.",
+]
+
+[docs.dependencies]
+intro = """
+This project uses a real Kafka broker, run in a container by Testcontainers,
+which the plain Java version of Event-Carried State Transfer does not.
+Skipping it loses none of the pattern: the plain version teaches all of it
+with nothing installed.
+"""
+what = [
+    ["Apache Kafka", "Kafka stores events on topics, and keeps them after they are read, so anyone can read a topic from the beginning. A topic is split into partitions; events with the same key always go to the same partition, and order is kept only within a partition. A compacted topic keeps at least the latest event for each key and may discard older ones. A tombstone is an event with a key and no value; on a compacted topic it means the key is deleted."],
+    ["Testcontainers", "Testcontainers is a Java library that starts a container, here the Kafka image, from inside a program, and removes it afterwards."],
+]
+why = """
+The plain version shows the idea. This version shows how the most common
+real carrier of state events, Kafka, handles history, order and deletion.
+"""
+versions = [
+    ["Java", "21"],
+    ["Docker", "running; 24 or later"],
+    ["Kafka image", "apache/kafka:4.3.1"],
+    ["Kafka Java client", "4.3.1"],
+    ["Testcontainers", "2.0.5"],
+]
+costs = [
+    "A container runtime, and a first run that downloads the Kafka image.",
+    "A Kafka cluster to run in production, and keys chosen with care.",
+]
+
+[docs.session]
+objectives = [
+    "Publish state events keyed by entity to a compacted topic.",
+    "Build a local copy by reading a topic from the beginning.",
+    "Explain why a key keeps order.",
+    "Delete with a tombstone.",
+]
+walkthrough = """
+Run `./gradlew run` with Docker running. Compare act one's 0 of 100 with act
+two's 100 of 100. Open `ShippingCopy.apply`: put, or remove on a tombstone.
+End on act four's two results.
+"""
+exercises = [
+    "Keep a consumer running and apply new events as they arrive, instead of re-reading.",
+    "Rebuild the copy with a Kafka Streams `KTable`.",
+    "Publish only the city and postcode, and see what shipping can still do.",
+]
+
+[docs.explained]
+sentence = """
+With Kafka, state events keyed by entity on a compacted topic let any service
+build and keep its own copy, in order, with deletions as tombstones.
+"""
+verdict = """
+Carry state on a compacted, keyed Kafka topic when many services need the
+data and must work when its owner is down. Key by entity, honour tombstones,
+and copy only the fields each service needs.
+"""
+recognise = [
+    "Topics with `cleanup.policy=compact`.",
+    "Events keyed by an entity's identifier.",
+    "Null-valued events used as deletes.",
+]
+
+[spec]
+purpose = """
+Teach Event-Carried State Transfer with a real Kafka broker: thin events and
+call-backs, address events on a compacted keyed topic, a new copy built from
+the topic, order kept by key, and a tombstone deleting a customer.
+"""
+nongoals = [
+    "Not Kafka Streams or a cluster. One broker and the plain client are used.",
+]
+problem = """
+Services that call a data owner for every use stop working when it is down.
+"""
+roles = [
+    ["The broker in a container", "`Kafka`"],
+    ["The owner", "`CustomerService`"],
+    ["The local copy", "`ShippingCopy`"],
+    ["Entry point", "`KafkaEventCarriedDemo`, five acts"],
+]
+requirements = [
+    "**Independent:** labels print with the owner down.",
+    "**Rebuildable:** a new copy is built by reading the topic.",
+    "**Ordered by key:** keyed moves end on the latest address.",
+    "**No Docker, no crash:** without a runtime the demo prints advice.",
+]
+
+[[diagram]]
+name = "architecture-diagram"
+kind = "flow"
+title = "Event-Carried State Transfer with Kafka — the pieces"
+caption = "The topic is the history; shipping keeps its own copy."
+nodes = [
+    { id = "c", label = "Customer service", sub = "owns addresses", col = 0, row = 0, colour = "client" },
+    { id = "t", label = "customer-addresses", sub = "keyed, compacted", col = 1, row = 0, colour = "accent" },
+    { id = "s", label = "Shipping", sub = "own copy", col = 2, row = 0, colour = "green" },
+    { id = "n", label = "New shipping instance", sub = "reads from the start", col = 2, row = 1, colour = "green" },
+]
+edges = [
+    { from = "c", to = "t", label = "address events" },
+    { from = "t", to = "s", label = "" },
+    { from = "t", to = "n", label = "" },
+]
+
+[[diagram]]
+name = "class-diagram"
+kind = "class"
+title = "Event-Carried State Transfer with Kafka — classes"
+caption = "The copy is built only from events."
+nodes = [
+    { id = "k", label = "Kafka", sub = ["+ createTopic(name, parts, compact)", "+ send(topic, key, value)", "+ readAll(topic, order)"], col = 0, row = 0, colour = "accent" },
+    { id = "s", label = "ShippingCopy", sub = ["+ apply(events)", "+ label(order, customer)"], col = 1, row = 0, colour = "green" },
+    { id = "c", label = "CustomerService", sub = ["+ lookup(customer)"], col = 0, row = 1, colour = "client" },
+]
+edges = [
+    { from = "s", to = "k", label = "reads from" },
+]
+
+[[diagram]]
+name = "data-flow-diagram"
+kind = "flow"
+title = "Event-Carried State Transfer with Kafka — keys and order"
+caption = "Same key, same partition, same order."
+nodes = [
+    { id = "a", label = "No key, two partitions", sub = "", col = 0, row = 0, colour = "red" },
+    { id = "b", label = "Hull (older) wins", sub = "", col = 2, row = 0, colour = "red" },
+    { id = "c", label = "Key = customer", sub = "one partition", col = 0, row = 1, colour = "green" },
+    { id = "d", label = "Bristol (latest) wins", sub = "", col = 2, row = 1, colour = "green" },
+]
+edges = [
+    { from = "a", to = "b", label = "" },
+    { from = "c", to = "d", label = "" },
+]
+
+[[diagram]]
+name = "sequence-diagram"
+kind = "sequence"
+title = "Event-Carried State Transfer with Kafka — a move"
+caption = "Shipping never calls back."
+participants = ["Customer service", "Kafka", "Shipping"]
+steps = [
+    ["Customer service", "Kafka", "C1 = 9 Mill Lane, York"],
+    ["Shipping", "Kafka", "read"],
+    ["Kafka", "Shipping", "C1 = York", "reply"],
+    ["note", "Shipping", "label ORD-1 -> York"],
+]
+
+[[diagram]]
+name = "uml-diagram"
+kind = "sequence"
+title = "1. A tombstone"
+caption = "Deleting is an event."
+participants = ["Customer service", "Kafka", "Shipping"]
+steps = [
+    ["Customer service", "Kafka", "C3 = (no value)"],
+    ["Kafka", "Shipping", "tombstone for C3"],
+    ["note", "Shipping", "remove C3"],
+]
+
+[[diagram]]
+name = "uml-diagram-2"
+kind = "sequence"
+title = "2. Thin events"
+caption = "Every label is a call."
+participants = ["Kafka", "Shipping", "Customer service"]
+steps = [
+    ["Kafka", "Shipping", "C1 changed"],
+    ["Shipping", "Customer service", "lookup C1"],
+]
+
+[poster]
+headline = [["EVENT-CARRIED STATE", "text"], ["WITH KAFKA", "text"]]
+before = { code = "\"customer changed\" + call back", note = "owner down: 0 labels", tag = "BEFORE" }
+after = { code = "key = customer, compacted", note = "owner down: 100 labels", tag = "AFTER" }
+taglines = [["The topic is the copy's history", "gold"]]
+
+[[scene]]
+key = "01-poster"
+kind = "poster"
+title = "Event-Carried State Transfer with Kafka"
+narration = """
+Hello, and welcome. [[slnc 400]] This video explains Event-Carried State Transfer, with a real Kafka broker, in Java. [[slnc 300]]
+This video is presented by Jayasekhar Konduru. [[slnc 600]]
+First, a simple definition. [[slnc 300]] When data changes, the new data travels in the event itself. [[slnc 300]] So every service that cares can keep its own copy, and never call the owner back. [[slnc 500]] Kafka is an open-source event platform that keeps events on topics, so a copy can be built from them at any time. [[slnc 600]]
+Think of a town noticeboard of address changes. [[slnc 300]] A new postman reads the board once, and knows every current address. [[slnc 700]]
+In this video, the domain is an online shop, whose shipping service prints labels, and whose customer service owns the addresses. [[slnc 500]]
+By the end, you will hear how a Kafka topic becomes shipping's copy. [[slnc 300]] How keys keep events in order. [[slnc 300]] And how a deletion travels too.
+"""
+
+[[scene]]
+key = "02-scenario"
+kind = "bullets"
+title = "The Scenario"
+body = ["Shipping prints labels.", "", "The customer service owns addresses.", "", "Shipping called it for every label."]
+narration = """
+Here is the scenario. [[slnc 400]] The shipping service prints delivery labels. [[slnc 500]]
+The customer service owns the addresses. [[slnc 500]]
+Shipping used to call it for every label. [[slnc 300]] When it was down, no labels were printed.
+"""
+
+[[scene]]
+key = "03-acts"
+kind = "acts"
+title = "acts"
+
+[[scene]]
+key = "04-pattern"
+kind = "bullets"
+title = "The Pattern, in Kafka"
+body = ["Events carry the address.", "", "Keyed by customer: in order.", "Compacted: the latest per key.", "Tombstones: deletions."]
+narration = """
+Let's name the pattern, in Kafka's words. [[slnc 400]] Events carry the address. [[slnc 500]]
+Keyed by customer, so each customer's events stay in order. [[slnc 300]] On a compacted topic, which keeps the latest per customer. [[slnc 500]]
+And tombstones, to say a customer is gone.
+"""
+
+[[scene]]
+key = "05-roles"
+kind = "bullets"
+title = "Who Does What"
+body = ["Kafka: the broker, in a container", "CustomerService: the owner", "ShippingCopy: built from events"]
+narration = """
+Here is who does what. [[slnc 400]] The Kafka class runs a real broker in a container, and sends and reads events. [[slnc 500]]
+The customer service owns the addresses. [[slnc 500]]
+And shipping's copy is built only from the events on the topic.
+"""
+
+[[scene]]
+key = "06-recognise"
+kind = "bullets"
+title = "Where You Have Seen It"
+body = ["Compacted Kafka topics", "Kafka Streams KTables", "Change data capture"]
+narration = """
+You have probably met this already. [[slnc 400]] Compacted Kafka topics, used as a service's own table. [[slnc 500]]
+Kafka Streams tables, which are exactly this local copy. [[slnc 500]]
+And change data capture, which publishes every changed database row.
+"""
+
+[[scene]]
+key = "07-verdict"
+kind = "bullets"
+title = "When To Use It"
+body = ["Many services read the data often.", "", "Key by entity.", "Honour tombstones.", "Copy only what you need."]
+narration = """
+So, when should you use it? [[slnc 400]] When many services read the same data often, and must keep working when its owner is down. [[slnc 500]]
+Key events by the entity. [[slnc 300]] Honour tombstones. [[slnc 300]] And copy only the fields you need.
+"""
+
+[[scene]]
+key = "08-outro"
+kind = "outro"
+title = "Thanks for Watching"
+body = ["Full source, notes, diagrams and an animated walkthrough", "are in the repository. Keep a consumer", "running."]
+narration = """
+That's Event-Carried State Transfer, with Kafka. [[slnc 400]] If you remember one sentence, make it this one. [[slnc 300]] Put the data in the event, key it by who it is about, and let every service keep its own copy. [[slnc 500]]
+The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. [[slnc 300]] It needs Docker running, and starts Kafka for you. [[slnc 500]]
+Here is one exercise to try. [[slnc 300]] Keep a consumer running, and apply new events as they arrive. [[slnc 500]]
+If this helped, a like really does help other people find it. [[slnc 300]] And subscribe, if you'd like the rest of the series. [[slnc 400]] Thanks for watching.
+"""

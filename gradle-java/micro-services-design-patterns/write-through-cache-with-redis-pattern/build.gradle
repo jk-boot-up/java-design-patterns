@@ -1,0 +1,45 @@
+plugins {
+    id 'java'
+    id 'application'
+}
+
+group = 'com.jk.explore'
+version = '1.0-SNAPSHOT'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // Jedis 8.0.1, the newest generally available Redis client for Java.
+    implementation 'redis.clients:jedis:8.0.1'
+
+    // The PostgreSQL JDBC driver 42.7.13, the newest release.
+    implementation 'org.postgresql:postgresql:42.7.13'
+
+    // Testcontainers 2.0.5 starts and stops Redis and PostgreSQL containers for the demo itself.
+    implementation 'org.testcontainers:testcontainers:2.0.5'
+    implementation 'org.testcontainers:testcontainers-postgresql:2.0.5'
+
+    // The libraries log through SLF4J; the simple binding is switched off.
+    runtimeOnly 'org.slf4j:slf4j-simple:2.0.17'
+
+    testImplementation platform('org.junit:junit-bom:5.10.2')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testImplementation 'org.junit.jupiter:junit-jupiter-params'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+application {
+    mainClass = 'com.jk.explore.writethroughredis.RedisWriteThroughDemo'
+}
+
+test {
+    useJUnitPlatform()
+}

@@ -1,0 +1,473 @@
+# pattern.toml for the Resequencer with Apache Camel project. See tools/patternkit.
+
+[project]
+slug = "resequencer-with-camel"
+category = "messaging-integration-patterns"
+title = "Resequencer with Apache Camel"
+package = "resequencercamel"
+main_class = "CamelResequencerDemo"
+tagline = "resequence(): back in order, stream or batch"
+bold = "Build the resequencer with Apache Camel: resequence() puts order-status updates back in order, either as a stream that releases each update as soon as it can, or as batches that are sorted and released together, with a timeout for updates that never arrive."
+domain_note = ""
+thumb_lines = ["RESEQUENCER", "WITH CAMEL"]
+thumb_code = "resequence(header(\"seq\"))"
+youtube_title = "Resequencer with Apache Camel"
+youtube_tags = ["resequencer", "apache camel", "enterprise integration patterns", "message ordering", "stream", "java"]
+
+[readme]
+intro = """
+This is the framework version of the Resequencer pattern. The plain Java
+version, a separate project in this category, writes the holding and
+releasing by hand. Here Apache Camel provides it: `resequence()` reads a
+sequence number from each message and puts the messages back in order before
+they reach the order-tracking page.
+
+Camel offers two modes. Stream mode releases each message as soon as all the
+ones before it have been seen, and waits a set time for a missing one before
+giving up on it. Batch mode collects a group, sorts it, and releases the group
+together. Each mode has a real behaviour the plain version did not show.
+"""
+analogy = """
+Think of a postal sorting office receiving the numbered pages of a long
+letter out of order. It can hand pages to the reader as soon as the next one
+in the run arrives, waiting a while for any missing page. Or it can wait for
+the whole bundle, put it in order, and hand it over at once. Either way, a
+page that never comes must eventually be given up on.
+"""
+scenario = """
+The online store's order-tracking page shows status updates: placed, paid,
+packed, shipped, delivered. They travel by different paths and can arrive out
+of order, so a customer saw "shipped" as the final status although the parcel
+had been delivered.
+"""
+run_note = """
+Nothing to install beyond a Java 21 JDK: Camel runs inside the program on its
+in-memory `direct:` endpoints.
+"""
+twin = """
+The plain Java version got the idea right: hold early messages, release them
+when the gap is filled, keep one sequence per order, and give up on a message
+that is lost. What it left out is how a real resequencer behaves. Camel's
+stream mode cannot know which message is the first, so the very first update
+waits one timeout before it is shown. Its batch mode never releases anything
+out of order, but shows nothing until the batch is full. And Camel's stream
+mode keeps one sequence for everything, so per-order sequences need batch
+mode or another key.
+"""
+technologies = [
+    ["Apache Camel", "4.22.1", "resequence() in stream and batch modes"],
+    ["SLF4J simple", "2.0.17", "Camel's logging, switched off"],
+]
+costs = [
+    "**A delay at the start.** Stream mode shows the first update only after one timeout.",
+    "**Batch mode shows nothing until full.** Four of five updates arrived and the page still showed nothing.",
+    "**Lost messages still cost time.** The page stayed on PAID for half a second before the gap was given up.",
+]
+too_much = """
+If messages travel one path and cannot overtake each other, there is nothing
+to resequence. A resequencer pays off when updates travel different paths or
+are processed in parallel, and their order matters to someone.
+"""
+met_before = [
+    "Camel's `resequence()` and Spring Integration's resequencer.",
+    "TCP, which reorders packets by sequence number before an application sees them.",
+    "Kafka, which keeps order within a partition, so order keys are chosen for that.",
+]
+where = """
+This project is in [messaging-integration-patterns](..). It is the framework
+version of the plain Java Resequencer project in the same category, which is
+left unchanged.
+"""
+
+[[act]]
+title = "Applied as they arrive"
+summary = "Updates arrive #1, #3, #2, #5, #4; the page shows them in that order and ends on SHIPPED, though the parcel was DELIVERED."
+detail = """
+Without a resequencer, updates are applied in arrival order: #1, #3, #2, #5,
+#4. The customer sees placed, packed, paid, delivered, then shipped, and the
+page ends on SHIPPED although the parcel was delivered.
+"""
+speech = """
+First demo: updates applied as they arrive. [[slnc 400]] They arrive in the order one, three, two, five, four. [[slnc 600]]
+The customer sees placed, packed, paid, delivered, shipped. [[slnc 500]]
+The page ends on shipped. [[slnc 300]] But the parcel was delivered.
+"""
+rows = { updates = "active amber", page = "active wrong" }
+console = [
+    ["arrival: #1, #3, #2, #5, #4", "muted"],
+    ["final status: SHIPPED", "bad"],
+]
+
+[[act]]
+title = "Stream mode"
+summary = "resequence(header(\"seq\")).stream() shows all five in order, ending DELIVERED; the first update waited one timeout, 0.3 s."
+detail = """
+`resequence(header("seq")).stream()` releases each update as soon as all the
+earlier ones have been seen. The page shows placed, paid, packed, shipped,
+delivered. One surprise: the first update appeared only after about 0.3
+seconds, the timeout, because Camel cannot know that #1 is the first.
+"""
+speech = """
+Second demo: Camel's resequencer, in stream mode. [[slnc 400]] Each update is released as soon as all the earlier ones have been seen. [[slnc 600]]
+The page shows placed, paid, packed, shipped, delivered. [[slnc 300]] In order. [[slnc 600]]
+One surprise. [[slnc 300]] The very first update waited about a third of a second. [[slnc 300]] Camel cannot know that number one is the first. [[slnc 300]] So it waits one timeout.
+"""
+rows = { resequencer = "active ok", page = "active ok" }
+console = [
+    ["page: PLACED ... DELIVERED", "ok"],
+    ["first update after about 0.3 s", "amber"],
+]
+
+[[act]]
+title = "Batch mode"
+summary = "Batch mode collects 5: after 4 arrivals the page shows nothing; after the 5th, all five appear in order."
+detail = """
+Batch mode collects a group of five, sorts it, and releases it together.
+After four arrivals the page shows nothing at all. When the fifth arrives,
+all five appear at once, in order. Batch mode never shows anything out of
+order, but the customer waits for the whole group.
+"""
+speech = """
+Third demo: batch mode. [[slnc 400]] Camel collects a group of five, sorts it, and releases it together. [[slnc 600]]
+After four updates, the page shows nothing at all. [[slnc 500]]
+The fifth arrives. [[slnc 300]] All five appear at once, in order. [[slnc 500]]
+Never out of order. [[slnc 300]] But the customer waits for the whole group.
+"""
+rows = { resequencer = "active ok", page = "active amber" }
+console = [
+    ["after 4: page shows []", "amber"],
+    ["after 5: all five, in order", "ok"],
+]
+
+[[act]]
+title = "Two orders at once"
+summary = "Interleaved updates for ORD-2 and ORD-3, sorted by order then number, are released as each order's own sequence."
+detail = """
+Updates for two orders arrive interleaved. Camel's stream mode keeps one
+sequence for everything, so it cannot keep two orders apart. Batch mode,
+sorting by order and then number, releases ORD-2's placed and paid, then
+ORD-3's placed, paid and packed.
+"""
+speech = """
+Fourth demo: two orders at once. [[slnc 400]] Updates for two orders arrive mixed together. [[slnc 600]]
+Camel's stream mode keeps one sequence for everything. [[slnc 300]] It cannot keep two orders apart. [[slnc 500]]
+Batch mode sorts by order, then by number. [[slnc 300]] Order two's updates come out in order. [[slnc 300]] Then order three's.
+"""
+rows = { resequencer = "active ok" }
+console = [
+    ["ORD-2 PLACED, PAID", "ok"],
+    ["ORD-3 PLACED, PAID, PACKED", "ok"],
+]
+
+[[act]]
+title = "The bill"
+summary = "#3 is lost: #4 and #5 wait while the page says PAID; after about half a second the gap is given up and the page says DELIVERED."
+detail = """
+Update #3 is lost. #4 and #5 arrive and wait, and the page stays on PAID.
+After about half a second, the timeout, Camel gives up on #3 and releases the
+rest: the page says DELIVERED. A short timeout gives up on a late message
+quickly; a long one leaves the customer on an old status for longer.
+"""
+speech = """
+Fifth demo: the bill. [[slnc 400]] Update three is lost. [[slnc 600]]
+Updates four and five arrive. [[slnc 300]] They wait. [[slnc 300]] The page stays on paid. [[slnc 500]]
+After about half a second, Camel gives up on number three. [[slnc 300]] The page says delivered. [[slnc 600]]
+A short timeout gives up on late messages quickly. [[slnc 300]] A long one leaves the customer on an old status for longer.
+"""
+rows = { resequencer = "active amber", page = "active amber" }
+console = [
+    ["#4, #5 wait: page says PAID", "amber"],
+    ["after 0.5 s: DELIVERED", "ok"],
+]
+
+[animation]
+subtitle = "Status updates arrive out of order; Camel's resequencer releases them to the tracking page in order."
+boxes = [
+    ["updates", "Status updates", "#1, #3, #2, #5, #4"],
+    ["resequencer", "resequence()", "stream or batch"],
+    ["page", "Tracking page", "what the customer sees"],
+]
+
+[docs.problem]
+scenario = """
+Order-status updates travel different paths and reach the tracking page out
+of order.
+"""
+naive = """
+Applying them as they arrive leaves the page on the wrong final status.
+"""
+deliver = [
+    "Out-of-order updates applied as they arrive.",
+    "Camel's stream resequencer, and its first-message delay.",
+    "Camel's batch resequencer, and its wait for a full batch.",
+    "Two orders' updates sorted in batch mode.",
+    "A lost update given up after a timeout.",
+    "Every printed result asserted by a test.",
+]
+
+[docs.prerequisites]
+required = [
+    "Java basics: lists, maps, threads in outline.",
+    "The Resequencer idea, ideally from the plain Java version of this pattern.",
+]
+not_required = [
+    "Docker or a broker. Camel runs in memory.",
+]
+
+[docs.dependencies]
+intro = """
+This project uses Apache Camel, which the plain Java version of Resequencer
+does not. Skipping it loses none of the pattern: the plain version teaches
+all of it with nothing installed.
+"""
+what = [
+    ["Apache Camel", "Camel is a library for moving messages. A route begins with from and lists steps. resequence takes an expression that gives each message's sequence number, here a header called seq. In stream mode, a message is released when the one before it has been released, and a gap is waited for until the timeout. In batch mode, messages are collected until the batch size or the timeout is reached, sorted, and released together. The release happens on Camel's own thread, which is why the demo waits for the page with a bounded poll."],
+]
+why = """
+The plain version shows the idea. This version shows how a production
+resequencer actually behaves at the edges: the first message, a full batch,
+several sequences, and a lost message.
+"""
+install_note = "Only a JDK, version 21. Gradle downloads the rest, and the versions are pinned:"
+versions = [
+    ["Java", "21"],
+    ["Apache Camel (core)", "4.22.1"],
+    ["SLF4J simple", "2.0.17"],
+]
+costs = [
+    "More than ten library files on the classpath.",
+    "Timing behaviour to understand: timeouts, and releases on another thread.",
+]
+
+[docs.session]
+objectives = [
+    "Use `resequence()` in stream and batch modes.",
+    "Explain the first-message delay of stream mode.",
+    "Keep several sequences apart with batch mode.",
+    "Choose a timeout for lost messages.",
+]
+walkthrough = """
+Run `./gradlew run`. Compare acts two and three: the same updates, released
+as a stream and as a batch. Open `ShopRoutes`: each mode is one line. End on
+act five's half-second wait.
+"""
+exercises = [
+    "Set the stream timeout to 2 seconds and time how long the page stays on PAID.",
+    "Add `rejectOld()` and send #2 again after #4 has been released.",
+    "Give each order its own route so stream mode can keep per-order sequences.",
+]
+
+[docs.explained]
+sentence = """
+With Camel, a resequencer is one `resequence()` step that restores order by
+sequence number, either as a stream with a gap timeout or in sorted batches.
+"""
+verdict = """
+Use stream mode when updates should appear as soon as possible, and batch mode
+when nothing may ever appear out of order and a short wait is fine. Choose the
+timeout deliberately: it decides how long a customer sees an old status when a
+message is lost.
+"""
+recognise = [
+    "`.resequence(header(\"seq\")).stream().timeout(...)`.",
+    "`.resequence(...).batch().size(...)`.",
+    "Sequence numbers in message headers.",
+]
+
+[spec]
+purpose = """
+Teach Resequencer with Apache Camel: out-of-order status updates, stream mode
+and its first-message delay, batch mode and its full-batch wait, two orders
+sorted in batch mode, and a lost update given up after a timeout.
+"""
+nongoals = [
+    "Not a real broker. Camel's direct endpoints run in memory.",
+]
+problem = """
+Status updates arrive out of order, and applying them as they come shows the
+wrong status.
+"""
+roles = [
+    ["The routes and resequencers", "`ShopRoutes`"],
+    ["What the customer sees", "`OrderPage`"],
+    ["Entry point", "`CamelResequencerDemo`, five acts"],
+]
+requirements = [
+    "**In order:** both modes release ORD-1's five updates in sequence.",
+    "**Per order:** batch mode keeps ORD-2 and ORD-3 apart.",
+    "**Bounded wait:** a lost update is given up after the timeout.",
+    "**No fixed sleeps:** the demo waits with bounded polls.",
+]
+
+[[diagram]]
+name = "architecture-diagram"
+kind = "flow"
+title = "Resequencer with Camel — the route"
+caption = "Out of order in, in order out."
+nodes = [
+    { id = "u", label = "Status updates", sub = "#1, #3, #2, #5, #4", col = 0, row = 0, colour = "client" },
+    { id = "r", label = "resequence(seq)", sub = "stream or batch", col = 1, row = 0, colour = "accent" },
+    { id = "p", label = "Tracking page", sub = "#1 ... #5", col = 2, row = 0, colour = "green" },
+]
+edges = [
+    { from = "u", to = "r", label = "" },
+    { from = "r", to = "p", label = "in order" },
+]
+
+[[diagram]]
+name = "class-diagram"
+kind = "class"
+title = "Resequencer with Camel — classes"
+caption = "Each mode is one route line."
+nodes = [
+    { id = "r", label = "ShopRoutes", sub = ["direct:as-they-come", "direct:stream", "direct:batch"], col = 0, row = 0, colour = "accent" },
+    { id = "p", label = "OrderPage", sub = ["+ apply(update)", "+ await(count, timeout)"], col = 1, row = 0, colour = "green" },
+]
+edges = [
+    { from = "r", to = "p", label = "delivers to" },
+]
+
+[[diagram]]
+name = "data-flow-diagram"
+kind = "flow"
+title = "Resequencer with Camel — two modes"
+caption = "Soon, or all at once."
+nodes = [
+    { id = "a", label = "Stream", sub = "each as soon as it can", col = 0, row = 0, colour = "accent" },
+    { id = "b", label = "first waits one timeout", sub = "", col = 2, row = 0, colour = "amber" },
+    { id = "c", label = "Batch", sub = "collect 5, sort", col = 0, row = 1, colour = "accent" },
+    { id = "d", label = "nothing until full", sub = "", col = 2, row = 1, colour = "amber" },
+]
+edges = [
+    { from = "a", to = "b", label = "" },
+    { from = "c", to = "d", label = "" },
+]
+
+[[diagram]]
+name = "sequence-diagram"
+kind = "sequence"
+title = "Resequencer with Camel — a lost update"
+caption = "The gap is given up after the timeout."
+participants = ["Updates", "Resequencer", "Page"]
+steps = [
+    ["Updates", "Resequencer", "#1, #2"],
+    ["Resequencer", "Page", "PLACED, PAID"],
+    ["Updates", "Resequencer", "#4, #5"],
+    ["note", "Resequencer", "waits 0.5 s for #3"],
+    ["Resequencer", "Page", "SHIPPED, DELIVERED"],
+]
+
+[[diagram]]
+name = "uml-diagram"
+kind = "sequence"
+title = "1. Batch mode"
+caption = "Held until the fifth arrives."
+participants = ["Updates", "Batch", "Page"]
+steps = [
+    ["Updates", "Batch", "4 updates"],
+    ["note", "Page", "shows nothing"],
+    ["Updates", "Batch", "5th"],
+    ["Batch", "Page", "all five, sorted"],
+]
+
+[[diagram]]
+name = "uml-diagram-2"
+kind = "sequence"
+title = "2. The first message"
+caption = "Stream mode cannot know #1 is first."
+participants = ["Updates", "Stream", "Page"]
+steps = [
+    ["Updates", "Stream", "#1"],
+    ["note", "Stream", "waits one timeout"],
+    ["Stream", "Page", "PLACED"],
+]
+
+[poster]
+headline = [["RESEQUENCER", "text"], ["WITH CAMEL", "text"]]
+before = { code = "as they arrive", note = "final status: SHIPPED", tag = "BEFORE" }
+after = { code = "resequence(header(\"seq\"))", note = "in order: DELIVERED", tag = "AFTER" }
+taglines = [["Back in order: stream or batch", "gold"]]
+
+[[scene]]
+key = "01-poster"
+kind = "poster"
+title = "Resequencer with Apache Camel"
+narration = """
+Hello, and welcome. [[slnc 400]] This video explains the Resequencer pattern, built with Apache Camel, in Java. [[slnc 300]]
+This video is presented by Jayasekhar Konduru. [[slnc 600]]
+First, a simple definition. [[slnc 300]] A resequencer puts messages that arrived out of order back in order. [[slnc 300]] Using a number each message carries. [[slnc 500]] Apache Camel is an open-source library for moving messages, and it has a resequencer built in. [[slnc 600]]
+Think of a sorting office receiving the numbered pages of a letter, out of order. [[slnc 300]] It can pass pages on as soon as the next one arrives. [[slnc 300]] Or wait for the whole bundle, and sort it. [[slnc 700]]
+In this video, the domain is an online shop's order-tracking page, and the status updates it shows. [[slnc 500]]
+By the end, you will hear Camel's two modes, stream and batch. [[slnc 300]] What each makes the customer wait for. [[slnc 300]] And what happens when an update is lost.
+"""
+
+[[scene]]
+key = "02-scenario"
+kind = "bullets"
+title = "The Scenario"
+body = ["Placed, paid, packed,", "shipped, delivered.", "", "They arrive out of order.", "", "The page ended on SHIPPED."]
+narration = """
+Here is the scenario. [[slnc 400]] The tracking page shows five updates. [[slnc 300]] Placed, paid, packed, shipped, delivered. [[slnc 500]]
+They travel different paths, and arrive out of order. [[slnc 500]]
+The page ended on shipped, although the parcel was delivered.
+"""
+
+[[scene]]
+key = "03-acts"
+kind = "acts"
+title = "acts"
+
+[[scene]]
+key = "04-pattern"
+kind = "bullets"
+title = "The Pattern, in Camel"
+body = ["resequence(sequence number).", "", "Stream: release as soon as", "the gap is filled.", "", "Batch: collect, sort, release."]
+narration = """
+Let's name the pattern, in Camel's words. [[slnc 400]] The resequence step, given each message's number. [[slnc 500]]
+Stream mode releases each message as soon as the ones before it have gone. [[slnc 500]]
+Batch mode collects a group, sorts it, and releases it together.
+"""
+
+[[scene]]
+key = "05-roles"
+kind = "bullets"
+title = "Who Does What"
+body = ["ShopRoutes: the three routes", "resequence(): holds and releases", "OrderPage: what the customer sees"]
+narration = """
+Here is who does what. [[slnc 400]] Shop routes holds three routes. [[slnc 300]] Straight through, stream, and batch. [[slnc 500]]
+The resequence step holds messages, and releases them in order. [[slnc 500]]
+And the order page is what the customer sees.
+"""
+
+[[scene]]
+key = "06-recognise"
+kind = "bullets"
+title = "Where You Have Seen It"
+body = ["Camel resequence()", "Spring Integration resequencer", "TCP packet ordering", "Kafka partitions"]
+narration = """
+You have probably met this already. [[slnc 400]] Camel's resequence step, and Spring Integration's resequencer. [[slnc 500]]
+The network does it too. [[slnc 300]] TCP puts packets back in order before your program sees them. [[slnc 500]]
+And Kafka keeps order within a partition.
+"""
+
+[[scene]]
+key = "07-verdict"
+kind = "bullets"
+title = "When To Use It"
+body = ["Updates travel different paths", "and order matters.", "", "Stream: show soon.", "Batch: never out of order.", "Choose the timeout."]
+narration = """
+So, when should you use it? [[slnc 400]] When updates travel different paths, and their order matters. [[slnc 500]]
+Use stream mode to show updates soon. [[slnc 300]] Batch mode when nothing may ever appear out of order. [[slnc 300]] And choose the timeout on purpose.
+"""
+
+[[scene]]
+key = "08-outro"
+kind = "outro"
+title = "Thanks for Watching"
+body = ["Full source, notes, diagrams and an animated walkthrough", "are in the repository. Try a", "2-second timeout."]
+narration = """
+That's the Resequencer, with Apache Camel. [[slnc 400]] If you remember one sentence, make it this one. [[slnc 300]] Put messages back in order, and decide how long to wait for a missing one. [[slnc 500]]
+The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. [[slnc 300]] It runs offline, with nothing installed except a Java development kit. [[slnc 500]]
+Here is one exercise to try. [[slnc 300]] Set the timeout to two seconds, and time how long the page stays on paid. [[slnc 500]]
+If this helped, a like really does help other people find it. [[slnc 300]] And subscribe, if you'd like the rest of the series. [[slnc 400]] Thanks for watching.
+"""

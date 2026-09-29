@@ -7,6 +7,7 @@
     patternkit.sh build <slug>     docs, then ./gradlew test, thumbnail, README.html,
                                    video + audio + animation narration, spec, YouTube doc
                                    and the root index
+    patternkit.sh readme <slug>    README.md and README.html only (leaves the animation and video alone)
     patternkit.sh index            regenerate index.md / index.html / the catalogue
     patternkit.sh next             the next pattern in the catalogue with no project yet
     patternkit.sh plan             rewrite the phase 2 status table in docs/new-patterns-plan.md
@@ -158,10 +159,79 @@ def build(slug, media=True):
             print("  spec      docs/spec.md + spec.html (video not built yet)")
         run(log, "python3", DOCS / "make_index.py", cwd=REPO)
         print("  index     index.md, index.html, docs/design-patterns-catalog.md")
-        print("  plan      phase 2: " + plan())
+        print("  plan      phase 2: %s; phase 3: %s" % (plan(), plan3()))
 
 
 PLAN = REPO / "docs" / "new-patterns-plan.md"
+
+# Phase 3: framework and real-infrastructure versions of phase-2 patterns, each a new
+# project <base>-with-<tool>-pattern beside its plain-Java twin, which is never changed.
+FRAMEWORK = [
+    ("messaging-integration-patterns", "message-translator", "camel", "Apache Camel"),
+    ("messaging-integration-patterns", "message-filter", "camel", "Apache Camel"),
+    ("messaging-integration-patterns", "recipient-list", "camel", "Apache Camel"),
+    ("messaging-integration-patterns", "wire-tap", "camel", "Apache Camel"),
+    ("messaging-integration-patterns", "resequencer", "camel", "Apache Camel"),
+    ("messaging-integration-patterns", "routing-slip", "camel", "Apache Camel"),
+    ("messaging-integration-patterns", "process-manager", "camel", "Apache Camel"),
+    ("messaging-integration-patterns", "guaranteed-delivery", "rabbitmq", "RabbitMQ"),
+    ("messaging-integration-patterns", "request-reply", "rabbitmq", "RabbitMQ"),
+    ("messaging-integration-patterns", "polling-consumer", "rabbitmq", "RabbitMQ"),
+    ("micro-services-design-patterns", "priority-queue", "rabbitmq", "RabbitMQ"),
+    ("micro-services-design-patterns", "event-carried-state-transfer", "kafka", "Apache Kafka"),
+    ("micro-services-design-patterns", "write-through-cache", "redis", "Redis"),
+    ("architectural-design-patterns", "space-based", "hazelcast", "Hazelcast"),
+    ("micro-services-design-patterns", "sharding", "postgresql", "PostgreSQL"),
+    ("micro-services-design-patterns", "backpressure", "reactor", "Project Reactor"),
+    ("concurrency-design-patterns", "reactor", "netty", "Netty"),
+    ("micro-services-design-patterns", "hedged-requests", "grpc", "gRPC"),
+    ("micro-services-design-patterns", "valet-key", "s3", "Amazon S3 (LocalStack)"),
+    ("security-design-patterns", "secrets-manager", "openbao", "OpenBao (open-source Vault)"),
+    ("security-design-patterns", "token-authentication", "spring-security", "Spring Security"),
+    ("security-design-patterns", "authorization-policy", "spring-security", "Spring Security"),
+    ("micro-services-design-patterns", "gateway-offloading", "spring-cloud-gateway", "Spring Cloud Gateway"),
+    ("security-design-patterns", "secure-gateway", "nginx", "NGINX"),
+    ("testing-design-patterns", "contract-stub", "wiremock", "WireMock (the stubs Spring Cloud Contract generates)"),
+    ("testing-design-patterns", "page-object", "selenium", "Selenium WebDriver"),
+    ("enterprise-design-patterns", "single-table-inheritance", "jpa", "JPA (Hibernate)"),
+    ("enterprise-design-patterns", "table-data-gateway", "jdbc-template", "Spring JdbcTemplate"),
+    ("enterprise-design-patterns", "page-controller", "spring-mvc", "Spring MVC"),
+    ("enterprise-design-patterns", "remote-facade", "spring-mvc", "Spring MVC"),
+    ("functional-design-patterns", "railway-oriented", "vavr", "Vavr"),
+]
+P3_START, P3_END = "<!-- phase3:start -->", "<!-- phase3:end -->"
+
+
+def framework_pending():
+    return [(c, "%s-with-%s" % (b, t), tool) for c, b, t, tool in FRAMEWORK
+            if not (GRADLE / c / ("%s-with-%s-pattern" % (b, t))).exists()]
+
+
+def plan3():
+    rows, done = [], 0
+    for c, b, t, tool in FRAMEWORK:
+        s = "%s-with-%s" % (b, t)
+        p = GRADLE / c / (s + "-pattern")
+        if not p.exists():
+            mark = "⏳ to do"
+        elif (p / "video" / (s + "-pattern-explained.mp4")).exists():
+            mark, done = "✅ done", done + 1
+        else:
+            mark = "🔨 in progress"
+        rows.append("| %d | %s | %s | %s | %s |" % (len(rows) + 1, s, b, tool, mark))
+    table = "\n".join([P3_START, "", "Updated automatically by `patternkit.sh build` (and `patternkit.sh plan`).", "",
+                       "**%d of %d done.**" % (done, len(rows)), "",
+                       "| # | New project | Plain-Java twin (unchanged) | Framework or infrastructure | Status |",
+                       "| ---: | --- | --- | --- | --- |"] + rows + ["", P3_END])
+    text = PLAN.read_text()
+    if P3_START in text:
+        text = text[:text.index(P3_START)] + table + text[text.index(P3_END) + len(P3_END):]
+    else:
+        text = (text.rstrip() + "\n\n## Phase 3: framework and real-infrastructure versions, one by one\n\n"
+                "Each is a new project beside its plain-Java twin; the twin is never edited or removed.\n\n"
+                + table + "\n")
+    PLAN.write_text(text)
+    return "%d of %d done" % (done, len(rows))
 START, END = "<!-- phase2:start -->", "<!-- phase2:end -->"
 
 
@@ -221,11 +291,17 @@ def main(argv):
         print(generate.all_docs(project_dir(rest[0])))
     elif cmd == "build":
         build(rest[0], media="--no-media" not in rest)
+    elif cmd == "readme":
+        p = project_dir(rest[0])
+        (p / "README.md").write_text(generate.readme(generate.load(p), p))
+        subprocess.run(["python3", str(DOCS / "make_readme_html.py"), str(p.relative_to(GRADLE))],
+                       cwd=GRADLE, check=True, capture_output=True)
+        print("README.md, README.html")
     elif cmd == "next":
-        nxt = pending()
+        nxt = pending() or framework_pending()
         print(" ".join(nxt[0]) if nxt else "nothing left")
     elif cmd == "plan":
-        print(plan())
+        print("phase 2: %s; phase 3: %s" % (plan(), plan3()))
     elif cmd == "index":
         subprocess.run(["python3", str(DOCS / "make_index.py")], check=True)
     else:

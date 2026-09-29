@@ -1,0 +1,472 @@
+# pattern.toml for the Sharding with PostgreSQL project. See tools/patternkit.
+
+[project]
+slug = "sharding-with-postgresql"
+category = "micro-services-design-patterns"
+title = "Sharding with PostgreSQL"
+package = "shardingpostgres"
+main_class = "PostgresShardingDemo"
+tagline = "Three real databases, one router"
+bold = "Split the shop's orders across three real PostgreSQL databases by customer number, route every query to the right one, and see what no single database can do for you any more."
+domain_note = ""
+thumb_lines = ["SHARDING", "WITH POSTGRESQL"]
+thumb_code = "customer % 3 -> database"
+youtube_title = "Sharding with PostgreSQL"
+youtube_tags = ["sharding", "postgresql", "horizontal scaling", "consistent hashing", "databases", "java"]
+
+[readme]
+intro = """
+This is the real-infrastructure version of the Sharding pattern. The plain
+Java version, a separate project in this category, keeps each shard as a list
+in one program. Here each shard is a real PostgreSQL database in its own
+container, started by the demo itself, and a small router in the application
+decides which database holds each customer and sends every query there.
+
+Real databases make the costs concrete. A question about everyone must be
+asked of every database and the answers added up by the application. A rule
+that PostgreSQL enforces perfectly inside one database, such as a unique
+coupon, no longer holds across shards. And adding a shard means moving data,
+far less of it with consistent hashing than with a simple modulo.
+"""
+analogy = """
+Think of a large library that splits its members across three branches by
+membership number. Each branch keeps only its own members' records, so no
+branch is overwhelmed. Asking about one member means phoning one branch;
+asking how many books are overdue across the city means phoning all three and
+adding up. And each branch can only stop its own members borrowing the same
+book twice.
+"""
+scenario = """
+On Black Friday the online store takes about 2,500 orders a minute, more than
+one database can handle. Every read and every write of every order landed on
+that one database.
+"""
+test_note = """
+Every number the demo prints is asserted against real PostgreSQL databases.
+Without a container runtime, the database test is skipped rather than failed.
+"""
+run_note = """
+This project needs a running container runtime, such as Docker Desktop: the
+demo starts real PostgreSQL 18.6 databases in containers and removes them
+again. Without one, it prints a sentence saying what to start, rather than
+failing.
+"""
+twin = """
+The plain Java version got the idea right: split by a key, send one-customer
+questions to one shard, ask every shard for questions about everyone, and pay
+for resharding by moving customers. What it left out is what real databases
+make visible. Each shard is its own server with its own connection and
+tables. Cross-shard questions are merged by application code, not SQL. A
+UNIQUE constraint only holds inside one database, so a one-use coupon was
+accepted twice. No transaction spans two shards. And consistent hashing moves
+630 customers where a modulo moves 1,874.
+"""
+technologies = [
+    ["PostgreSQL", "18.6 (container image)", "three separate databases, one per shard"],
+    ["PostgreSQL JDBC driver", "42.7.13", "talking to each database"],
+    ["Testcontainers", "2.0.5", "starts and stops the database containers"],
+    ["Docker", "24 or later", "runs the containers"],
+]
+costs = [
+    "**Rules stop at the shard's edge.** A UNIQUE coupon was accepted on two shards; cross-shard rules are the application's job.",
+    "**Questions about everyone ask everyone.** Every shard is queried and the answers merged in code.",
+    "**Resharding moves data.** A fourth shard by modulo moved 1,874 of 2,500 customers; consistent hashing 630.",
+]
+too_much = """
+While one database, perhaps with read replicas, keeps up, sharding only adds
+work. Shard when writes outgrow the largest single database you can run.
+"""
+met_before = [
+    "Citus, Vitess and other sharding layers for PostgreSQL and MySQL.",
+    "MongoDB and Cassandra, which shard by a key built in.",
+    "Consistent hashing in caches such as Memcached clients.",
+]
+where = """
+This project is in [micro-services-design-patterns](..). It is the
+real-infrastructure version of the plain Java Sharding project in the same
+category, which is left unchanged.
+"""
+
+[[act]]
+title = "One database"
+summary = "One PostgreSQL holds all 2,500 orders; every read and write of Black Friday lands on it."
+detail = """
+All 2,500 orders go into a single PostgreSQL database. It holds them all, and
+every read and write of Black Friday lands on that one server.
+"""
+speech = """
+First demo: one database for every order. [[slnc 400]] Two and a half thousand orders go into one PostgreSQL database. [[slnc 600]]
+Every read, and every write, of Black Friday lands on that one server.
+"""
+rows = { one = "active wrong" }
+console = [
+    ["one database: 2500 orders", "amber"],
+]
+
+[[act]]
+title = "Three shards"
+summary = "Three PostgreSQL databases, split by customer modulo 3: 833, 834 and 833 orders; customer 17 on shard-2, 42 on shard-0."
+detail = """
+Now there are three PostgreSQL databases, each in its own container. The
+router puts each customer on the database numbered by customer number modulo
+three. They hold 833, 834 and 833 orders. Customer 17 lives on shard 2, and
+customer 42 on shard 0.
+"""
+speech = """
+Second demo: three shards. [[slnc 400]] Three separate PostgreSQL databases. [[slnc 300]] The router picks one for each customer, from the customer number. [[slnc 600]]
+They hold eight hundred and thirty-three, eight hundred and thirty-four, and eight hundred and thirty-three orders. [[slnc 500]]
+Customer seventeen lives on shard two. [[slnc 300]] Customer forty-two on shard zero.
+"""
+rows = { router = "active ok", shards = "active ok" }
+console = [
+    ["shards: 833, 834, 833", "ok"],
+    ["customer 17 -> shard-2", "muted"],
+]
+
+[[act]]
+title = "One customer, one shard"
+summary = "Customer 17's orders come from one database: [ORD-17], 1 shard asked."
+detail = """
+A question about one customer goes to one database only. Customer 17's
+orders, ORD-17, come from shard 2; the other two databases are not asked.
+"""
+speech = """
+Third demo: a question about one customer asks one shard. [[slnc 400]] Customer seventeen's orders come from shard two alone. [[slnc 500]]
+The other two databases are not asked at all.
+"""
+rows = { router = "active ok", shards = "active ok" }
+console = [
+    ["customer 17: [ORD-17]; 1 shard asked", "ok"],
+]
+
+[[act]]
+title = "Everyone, every shard"
+summary = "Orders over £500: 1,250, from 3 databases added up in code; a UNIQUE coupon is accepted on two shards."
+detail = """
+"How many orders are over £500?" must be asked of all three databases, and the
+application adds the answers: 1,250. Worse, rules PostgreSQL enforces inside
+one database stop at its edge. The coupon WELCOME10 is UNIQUE in every shard,
+yet customer 17 on shard 2 and customer 42 on shard 0 both redeem it: each
+database only knows its own rows.
+"""
+speech = """
+Fourth demo: a question about everyone asks every shard. [[slnc 400]] How many orders are over five hundred pounds? [[slnc 300]] All three databases are asked, and the application adds up the answers. [[slnc 300]] One thousand, two hundred and fifty. [[slnc 600]]
+Worse. [[slnc 300]] A welcome coupon may only be used once. [[slnc 300]] Each database enforces that. [[slnc 500]]
+But customer seventeen and customer forty-two live on different shards. [[slnc 300]] Both use it. [[slnc 300]] Each database only knows its own rows.
+"""
+rows = { router = "active amber", shards = "active wrong" }
+console = [
+    ["over £500: 1250, from 3 databases", "amber"],
+    ["WELCOME10 accepted twice", "bad"],
+]
+
+[[act]]
+title = "The bill: resharding"
+summary = "A fourth shard by modulo moves 1,874 of 2,500 customers; jump consistent hashing moves 630."
+detail = """
+Adding a fourth shard with customer modulo four puts 1,874 of the 2,500
+customers on a different database, and their orders must be copied across.
+Jump consistent hashing moves only 630. And no transaction spans two shards,
+while one very busy customer still overloads their one shard.
+"""
+speech = """
+Fifth demo: the bill. [[slnc 400]] A fourth shard is added. [[slnc 600]]
+With the simple rule, customer number modulo four, one thousand eight hundred and seventy-four customers must move to another database. [[slnc 500]]
+With consistent hashing, only six hundred and thirty. [[slnc 600]]
+And no transaction covers two shards. [[slnc 300]] One very busy customer still overloads their own shard.
+"""
+rows = { shards = "active amber" }
+console = [
+    ["modulo 4: 1874 must move", "bad"],
+    ["jump hash: 630 must move", "ok"],
+]
+
+[animation]
+subtitle = "A router sends each customer's orders to one of three real PostgreSQL databases."
+boxes = [
+    ["one", "One database", "every order"],
+    ["router", "ShardRouter", "customer % 3"],
+    ["shards", "Three PostgreSQL shards", "833, 834, 833"],
+]
+
+[docs.problem]
+scenario = """
+Black Friday brings 2,500 orders a minute, more than one database can take.
+"""
+naive = """
+One database takes every read and write, and becomes the limit.
+"""
+deliver = [
+    "All orders on one PostgreSQL.",
+    "Three PostgreSQL shards behind a router.",
+    "A one-customer query asking one shard.",
+    "A cross-shard query merged in code, and a unique rule broken across shards.",
+    "Modulo against consistent hashing when resharding.",
+    "Every printed result asserted by a test, skipped without Docker.",
+]
+
+[docs.prerequisites]
+required = [
+    "Java basics: JDBC in outline, loops.",
+    "The Sharding idea, ideally from the plain Java version of this pattern.",
+]
+not_required = [
+    "Earlier PostgreSQL experience. Plain SQL is used.",
+]
+install = [
+    "A running container runtime such as Docker Desktop. The demo starts and removes the databases itself.",
+]
+
+[docs.dependencies]
+intro = """
+This project uses real PostgreSQL databases, run in containers by
+Testcontainers, which the plain Java version of Sharding does not. Skipping it
+loses none of the pattern: the plain version teaches all of it with nothing
+installed.
+"""
+what = [
+    ["PostgreSQL", "PostgreSQL is a relational database. Here there are three separate PostgreSQL servers, each with the same two tables. A UNIQUE constraint makes one database refuse a second row with the same value, but it only sees its own rows."],
+    ["Testcontainers", "Testcontainers is a Java library that starts containers from inside a program and removes them afterwards. The demo starts the three databases at the same time."],
+]
+why = """
+The plain version shows the idea. This version shows what three real
+databases can no longer do together: answer one query, enforce one rule, or
+share one transaction.
+"""
+versions = [
+    ["Java", "21"],
+    ["Docker", "running; 24 or later"],
+    ["PostgreSQL image", "postgres:18.6-alpine"],
+    ["PostgreSQL JDBC driver", "42.7.13"],
+    ["Testcontainers", "2.0.5"],
+]
+costs = [
+    "A container runtime, and several database containers to start.",
+    "Routing, merging and cross-shard rules written in the application.",
+]
+
+[docs.session]
+objectives = [
+    "Route queries to shards by key.",
+    "Merge a cross-shard query in code.",
+    "Explain why a unique constraint no longer holds across shards.",
+    "Compare modulo and consistent hashing for resharding.",
+]
+walkthrough = """
+Run `./gradlew run` with Docker running. Open `ShardRouter`: `shardFor` is one
+line; `countOver` loops over every database. End on act four's coupon and act
+five's 1,874 against 630.
+"""
+exercises = [
+    "Enforce the one-use coupon with a separate coupons database that every shard asks.",
+    "Route with jump hash instead of modulo, and count the orders per shard.",
+    "Move the customers that change shard when a fourth database is added.",
+]
+
+[docs.explained]
+sentence = """
+With PostgreSQL, sharding splits the data across separate databases by a key,
+and a router in the application sends each query to the right one.
+"""
+verdict = """
+Shard when writes outgrow one database. Choose a key most queries share,
+route with consistent hashing, and keep rules that span customers in a place
+every shard can see.
+"""
+recognise = [
+    "A `shardFor(key)` method choosing a connection.",
+    "Loops over several data sources that merge results.",
+    "Sharding layers such as Citus or Vitess.",
+]
+
+[spec]
+purpose = """
+Teach Sharding with real PostgreSQL databases: one database for everything,
+three shards behind a router, one-customer and all-customer queries, a unique
+rule broken across shards, and resharding by modulo and by consistent
+hashing.
+"""
+nongoals = [
+    "Not a sharding layer such as Citus. The router is plain application code.",
+]
+problem = """
+One database cannot take every read and write when load grows past it.
+"""
+roles = [
+    ["The pattern", "`ShardRouter`"],
+    ["The databases", "`Shards`"],
+    ["Entry point", "`PostgresShardingDemo`, five acts"],
+]
+requirements = [
+    "**Routed:** each customer's orders live on one database.",
+    "**One shard:** a one-customer query asks one database.",
+    "**Merged:** a cross-shard count asks all three.",
+    "**No Docker, no crash:** without a runtime the demo prints advice.",
+]
+
+[[diagram]]
+name = "architecture-diagram"
+kind = "flow"
+title = "Sharding with PostgreSQL — the pieces"
+caption = "One router, three real databases."
+nodes = [
+    { id = "a", label = "Shop", sub = "orders", col = 0, row = 1, colour = "client" },
+    { id = "r", label = "ShardRouter", sub = "customer % 3", col = 1, row = 1, colour = "accent" },
+    { id = "s0", label = "PostgreSQL shard-0", sub = "833", col = 2, row = 0, colour = "green" },
+    { id = "s1", label = "PostgreSQL shard-1", sub = "834", col = 2, row = 1, colour = "green" },
+    { id = "s2", label = "PostgreSQL shard-2", sub = "833", col = 2, row = 2, colour = "green" },
+]
+edges = [
+    { from = "a", to = "r", label = "" },
+    { from = "r", to = "s0", label = "" },
+    { from = "r", to = "s1", label = "" },
+    { from = "r", to = "s2", label = "" },
+]
+
+[[diagram]]
+name = "class-diagram"
+kind = "class"
+title = "Sharding with PostgreSQL — classes"
+caption = "The router owns every decision."
+nodes = [
+    { id = "r", label = "ShardRouter", sub = ["+ shardFor(customer)", "+ ordersOf(customer)", "+ countOver(pence)", "+ redeem(coupon, customer)"], col = 0, row = 0, colour = "accent" },
+    { id = "s", label = "Shards", sub = ["+ start()", "+ connect(i)", "3 PostgreSQL containers"], col = 1, row = 0, colour = "green" },
+]
+edges = [
+    { from = "r", to = "s", label = "connects via" },
+]
+
+[[diagram]]
+name = "data-flow-diagram"
+kind = "flow"
+title = "Sharding with PostgreSQL — resharding"
+caption = "How many customers move when a fourth shard is added."
+nodes = [
+    { id = "a", label = "customer % 4", sub = "1874 of 2500 move", col = 0, row = 0, colour = "red" },
+    { id = "b", label = "jump consistent hash", sub = "630 move", col = 0, row = 1, colour = "green" },
+]
+edges = []
+
+[[diagram]]
+name = "sequence-diagram"
+kind = "sequence"
+title = "Sharding with PostgreSQL — orders over £500"
+caption = "Ask every shard, add up in code."
+participants = ["ShardRouter", "shard-0", "shard-1", "shard-2"]
+steps = [
+    ["ShardRouter", "shard-0", "count over 50000"],
+    ["ShardRouter", "shard-1", "count over 50000"],
+    ["ShardRouter", "shard-2", "count over 50000"],
+    ["note", "ShardRouter", "add: 1250"],
+]
+
+[[diagram]]
+name = "uml-diagram"
+kind = "sequence"
+title = "1. One customer"
+caption = "One shard asked."
+participants = ["ShardRouter", "shard-2"]
+steps = [
+    ["ShardRouter", "shard-2", "orders of customer 17"],
+    ["shard-2", "ShardRouter", "[ORD-17]", "reply"],
+]
+
+[[diagram]]
+name = "uml-diagram-2"
+kind = "sequence"
+title = "2. A coupon used twice"
+caption = "Each database only knows its own rows."
+participants = ["ShardRouter", "shard-2", "shard-0"]
+steps = [
+    ["ShardRouter", "shard-2", "WELCOME10 for 17: ok"],
+    ["ShardRouter", "shard-0", "WELCOME10 for 42: ok"],
+]
+
+[poster]
+headline = [["SHARDING", "text"], ["WITH POSTGRESQL", "text"]]
+before = { code = "one PostgreSQL", note = "every order, one server", tag = "BEFORE" }
+after = { code = "customer % 3 -> database", note = "833, 834, 833 per shard", tag = "AFTER" }
+taglines = [["Three real databases, one router", "gold"]]
+
+[[scene]]
+key = "01-poster"
+kind = "poster"
+title = "Sharding with PostgreSQL"
+narration = """
+Hello, and welcome. [[slnc 400]] This video explains the Sharding pattern, with real PostgreSQL databases, in Java. [[slnc 300]]
+This video is presented by Jayasekhar Konduru. [[slnc 600]]
+First, a simple definition. [[slnc 300]] Sharding splits data across several databases, by a key such as the customer number. [[slnc 300]] So no single database has to take all the load. [[slnc 500]] PostgreSQL is an open-source relational database. [[slnc 300]] Here, three of them each hold a share of the shop's orders. [[slnc 600]]
+Think of a library that splits its members across three branches, by membership number. [[slnc 300]] Asking about one member means phoning one branch. [[slnc 300]] Asking about everyone means phoning all three. [[slnc 700]]
+In this video, the domain is an online shop's orders on Black Friday. [[slnc 500]]
+By the end, you will hear how a router splits the orders. [[slnc 300]] Which questions get easier, and which get harder. [[slnc 300]] And what adding a shard costs.
+"""
+
+[[scene]]
+key = "02-scenario"
+kind = "bullets"
+title = "The Scenario"
+body = ["Black Friday: 2,500 orders", "a minute.", "", "One database took every", "read and every write."]
+narration = """
+Here is the scenario. [[slnc 400]] On Black Friday, the shop takes two and a half thousand orders a minute. [[slnc 500]]
+One database took every read, and every write. [[slnc 300]] It became the limit.
+"""
+
+[[scene]]
+key = "03-acts"
+kind = "acts"
+title = "acts"
+
+[[scene]]
+key = "04-pattern"
+kind = "bullets"
+title = "The Pattern"
+body = ["Several databases.", "A key decides where each", "row lives.", "", "A router sends each query", "to the right one."]
+narration = """
+Let's name the pattern. [[slnc 400]] Several databases, each holding a share. [[slnc 500]]
+A key, here the customer number, decides where each row lives. [[slnc 500]]
+And a router sends each query to the right database.
+"""
+
+[[scene]]
+key = "05-roles"
+kind = "bullets"
+title = "Who Does What"
+body = ["ShardRouter: picks the database", "Shards: three PostgreSQL containers", "The application: merges answers"]
+narration = """
+Here is who does what. [[slnc 400]] The shard router picks the database for each customer, and sends each query there. [[slnc 500]]
+The shards are three PostgreSQL databases, in containers. [[slnc 500]]
+And the application itself merges answers from several shards.
+"""
+
+[[scene]]
+key = "06-recognise"
+kind = "bullets"
+title = "Where You Have Seen It"
+body = ["Citus and Vitess", "MongoDB and Cassandra", "Consistent hashing in caches"]
+narration = """
+You have probably met this already. [[slnc 400]] Citus, and Vitess, add sharding to PostgreSQL and MySQL. [[slnc 500]]
+MongoDB and Cassandra shard by a key, built in. [[slnc 500]]
+And cache clients use consistent hashing to pick a server.
+"""
+
+[[scene]]
+key = "07-verdict"
+kind = "bullets"
+title = "When To Use It"
+body = ["Writes outgrow one database.", "", "A key most queries share.", "Consistent hashing.", "Cross-shard rules in one place."]
+narration = """
+So, when should you use it? [[slnc 400]] When writes outgrow the largest single database you can run. [[slnc 500]]
+Choose a key most queries share. [[slnc 300]] Route with consistent hashing. [[slnc 300]] And keep rules that span customers somewhere every shard can see.
+"""
+
+[[scene]]
+key = "08-outro"
+kind = "outro"
+title = "Thanks for Watching"
+body = ["Full source, notes, diagrams and an animated walkthrough", "are in the repository. Enforce the", "coupon across shards."]
+narration = """
+That's Sharding, with PostgreSQL. [[slnc 400]] If you remember one sentence, make it this one. [[slnc 300]] Split the data by a key, and remember that each database only knows its own share. [[slnc 500]]
+The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. [[slnc 300]] It needs Docker running, and starts the databases for you. [[slnc 500]]
+Here is one exercise to try. [[slnc 300]] Make the one-use coupon hold across all shards. [[slnc 500]]
+If this helped, a like really does help other people find it. [[slnc 300]] And subscribe, if you'd like the rest of the series. [[slnc 400]] Thanks for watching.
+"""

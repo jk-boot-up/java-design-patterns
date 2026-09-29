@@ -1,0 +1,47 @@
+plugins {
+    id 'java'
+    id 'application'
+}
+
+group = 'com.jk.explore'
+version = '1.0-SNAPSHOT'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // Hazelcast 5.7.0, the newest release: an in-memory data grid, run embedded, so three real
+    // cluster members start inside this program with nothing else installed.
+    implementation 'com.hazelcast:hazelcast:5.7.0'
+
+    testImplementation platform('org.junit:junit-bom:5.10.2')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testImplementation 'org.junit.jupiter:junit-jupiter-params'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+
+// Hazelcast asks for these module openings on Java 17 and later; without them it prints a warning.
+def hazelcastJvmArgs = ['--add-modules', 'java.se',
+        '--add-exports', 'java.base/jdk.internal.ref=ALL-UNNAMED',
+        '--add-opens', 'java.base/java.lang=ALL-UNNAMED',
+        '--add-opens', 'java.base/sun.nio.ch=ALL-UNNAMED',
+        '--add-opens', 'java.management/sun.management=ALL-UNNAMED',
+        '--add-opens', 'jdk.management/com.sun.management.internal=ALL-UNNAMED']
+
+application {
+    applicationDefaultJvmArgs = hazelcastJvmArgs
+    mainClass = 'com.jk.explore.spacehazelcast.HazelcastSpaceBasedDemo'
+}
+
+test {
+    useJUnitPlatform()
+    jvmArgs hazelcastJvmArgs
+}

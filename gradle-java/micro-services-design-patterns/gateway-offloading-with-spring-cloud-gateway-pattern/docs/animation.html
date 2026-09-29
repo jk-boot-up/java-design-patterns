@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gateway Offloading with Spring Cloud Gateway Pattern — Animated Walkthrough</title>
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 24px;
+    background: #0f172a; color: #e2e8f0;
+    font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
+    padding-top: calc(24px + env(safe-area-inset-top, 0px));
+    padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+  }
+  h1 { font-size: 1.4rem; margin: 0 0 4px; }
+  p.sub { color: #94a3b8; margin: 0 0 20px; max-width: 70ch; }
+  .wrap { max-width: 1100px; margin: 0 auto; }
+  .stage { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+  @media (max-width: 760px) { .stage { grid-template-columns: 1fr; } }
+  .boxes { display: flex; flex-direction: column; gap: 10px; }
+  .row { border: 2px solid #334155; border-radius: 10px; padding: 12px 16px;
+         background: #1e293b; transition: all .25s ease; opacity: .55; }
+  .row .name { font-weight: 700; font-size: 1rem; }
+  .row .job { color: #94a3b8; font-size: .82rem; margin-top: 2px; }
+  .row.active { opacity: 1; box-shadow: 0 0 0 2px currentColor inset; }
+  .row.wrong { border-color: #f87171; color: #f87171; }
+  .row.wrong.active { background: #3f1d24; }
+  .row.ok { border-color: #34d399; color: #34d399; }
+  .row.ok.active { background: #10261f; }
+  .row.amber { border-color: #fbbf24; color: #fbbf24; }
+  .row.amber.active { background: #2a2110; }
+  .row.dim { opacity: .22; }
+  .console { background: #020617; border: 1px solid #334155; border-radius: 10px; padding: 16px;
+             font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: .86rem;
+             line-height: 1.55; overflow-y: auto; min-height: 320px; white-space: pre-wrap; }
+  #console-lines span.ok { color: #34d399; }
+  #console-lines span.bad { color: #f87171; }
+  #console-lines span.amber { color: #fbbf24; }
+  #console-lines span.muted { color: #94a3b8; }
+  .narration { background: #1e293b; border: 1px solid #334155; border-radius: 10px;
+               padding: 14px 18px; margin-bottom: 16px; min-height: 3.2em; }
+  .controls { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  button { background: #334155; color: #e2e8f0; border: 1px solid #475569; border-radius: 8px;
+           padding: 10px 18px; font-size: .92rem; cursor: pointer; }
+  button:hover { background: #475569; }
+  button:disabled { opacity: .45; cursor: default; }
+  button#play { background: #7c3aed; border-color: #7c3aed; }
+  button#play:hover { background: #8b5cf6; }
+  #progress { color: #94a3b8; font-size: .85rem; margin-left: auto; }
+  .step-label { font-size: .78rem; text-transform: uppercase; letter-spacing: .04em;
+                color: #a78bfa; font-weight: 700; margin-bottom: 4px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Gateway Offloading with Spring Cloud Gateway — Step by Step</h1>
+  <p class="sub">Requests pass a real Spring Cloud Gateway, whose filter checks, limits and passes on the customer.</p>
+
+  <div class="narration">
+    <div class="step-label" id="step-label">Ready</div>
+    <div id="narration">Press Step or Play to begin.</div>
+  </div>
+
+  <div class="stage">
+    <div class="boxes" id="boxes">
+      <div class="row" id="row-gateway">
+        <div class="name">Spring Cloud Gateway</div>
+        <div class="job">filter: sign-in, limit</div>
+      </div>
+      <div class="row" id="row-catalog">
+        <div class="name">Catalog</div>
+        <div class="job">service</div>
+      </div>
+      <div class="row" id="row-cart">
+        <div class="name">Cart</div>
+        <div class="job">service</div>
+      </div>
+      <div class="row" id="row-orders">
+        <div class="name">Orders</div>
+        <div class="job">service</div>
+      </div>
+    </div>
+    <div class="console"><div id="console-lines"></div></div>
+  </div>
+
+  <div class="controls">
+    <button id="step">Step ▸</button>
+    <button id="play">Play ▶</button>
+    <button id="reset">Reset ↺</button>
+    <span id="progress">0 / 0</span>
+  </div>
+</div>
+
+<script>
+const STEPS = [
+ {
+  "label": "Act 1 — Every service checks for itself",
+  "narration": "First demo: every service checks the sign-in token itself. The customer's token expired a minute ago. The catalog service refuses it. The cart service refuses it. The orders service lets the customer in. Its copy of the check forgot about expiry.",
+  "rows": {
+   "catalog": "active ok",
+   "cart": "active ok",
+   "orders": "active wrong"
+  },
+  "console": [
+   [
+    "catalog, cart: 401 token expired",
+    "ok"
+   ],
+   [
+    "orders: 200 orders for ana",
+    "bad"
+   ]
+  ]
+ },
+ {
+  "label": "Act 2 — One check at the gateway",
+  "narration": "Second demo: Spring Cloud Gateway checks the token, once. A filter runs before any route. The expired token is refused for all three services. A valid token gets through. The gateway tells the orders service who the customer is. The services hold no sign-in code at all.",
+  "rows": {
+   "gateway": "active ok",
+   "catalog": "active ok",
+   "cart": "active ok",
+   "orders": "active ok"
+  },
+  "console": [
+   [
+    "expired -> all three: 401",
+    "ok"
+   ],
+   [
+    "valid -> orders: 200",
+    "ok"
+   ]
+  ]
+ },
+ {
+  "label": "Act 3 — Rate limiting",
+  "narration": "Third demo: rate limiting at the gateway. Each customer may make five requests a minute. Eight requests in a row. Five pass. Three are refused, with too many requests. No service had to write a limiter.",
+  "rows": {
+   "gateway": "active ok"
+  },
+  "console": [
+   [
+    "8 requests: 5 passed, 3 refused (429)",
+    "ok"
+   ]
+  ]
+ },
+ {
+  "label": "Act 4 — Compression",
+  "narration": "Fourth demo: compression at the gateway. The catalog page is about ten thousand bytes. Three settings on the gateway's server switch compression on. The page arrives compressed, at under a fifth of its size. The catalog service knows nothing about it.",
+  "rows": {
+   "gateway": "active ok",
+   "catalog": "active ok"
+  },
+  "console": [
+   [
+    "catalog: 10093 bytes plain",
+    "muted"
+   ],
+   [
+    "gzip: under a fifth",
+    "ok"
+   ]
+  ]
+ },
+ {
+  "label": "Act 5 — The bill",
+  "narration": "Fifth demo: the bill. Through the gateway, a caller claims to be Ben. The gateway removes the claim, and says Ana. But straight to the orders service, the same claim is believed. Ben's orders. The services must be reachable only through the gateway. And every request passes one more hop.",
+  "rows": {
+   "gateway": "active ok",
+   "orders": "active wrong"
+  },
+  "console": [
+   [
+    "via gateway, spoofed ben: ana's orders",
+    "ok"
+   ],
+   [
+    "straight to orders as ben: 200",
+    "bad"
+   ]
+  ]
+ }
+];
+const rowIds = ["gateway", "catalog", "cart", "orders"];
+const stepLabel = document.getElementById("step-label");
+const narrationEl = document.getElementById("narration");
+const consoleEl = document.getElementById("console-lines");
+const progressEl = document.getElementById("progress");
+const playBtn = document.getElementById("play");
+let i = -1, timer = null;
+
+function esc(t) { return t.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+
+function render() {
+  for (const id of rowIds) document.getElementById("row-" + id).className = "row";
+  if (i < 0) {
+    stepLabel.textContent = "Ready";
+    narrationEl.textContent = "Press Step or Play to begin.";
+    consoleEl.innerHTML = "";
+    progressEl.textContent = "0 / " + STEPS.length;
+    return;
+  }
+  const s = STEPS[i];
+  stepLabel.textContent = s.label;
+  narrationEl.textContent = s.narration;
+  for (const id of rowIds) {
+    const cls = s.rows[id];
+    document.getElementById("row-" + id).className = "row " + (cls ? cls : "dim");
+  }
+  consoleEl.innerHTML = s.console.map(([t, c]) => '<span class="' + c + '">' + esc(t) + "</span>").join("\n");
+  progressEl.textContent = (i + 1) + " / " + STEPS.length;
+}
+function step() { if (i >= STEPS.length - 1) { stopPlay(); return; } i += 1; render(); }
+function reset() { stopPlay(); i = -1; render(); }
+// While a step's narration is playing, Play waits for it to finish.
+function speaking() { return typeof window.vkSpeaking === "function" && window.vkSpeaking(); }
+function startPlay() {
+  if (timer) return;
+  playBtn.textContent = "Pause ❚❚";
+  let quiet = 0;
+  timer = setInterval(() => {
+    if (speaking()) { quiet = 0; return; }
+    if (++quiet < 6) return;                     // 6 × 500 ms of reading time
+    quiet = 0;
+    if (i >= STEPS.length - 1) { stopPlay(); return; }
+    step();
+  }, 500);
+  if (i < 0) step();
+}
+function stopPlay() { if (timer) clearInterval(timer); timer = null; playBtn.textContent = "Play ▶"; }
+
+document.getElementById("step").addEventListener("click", () => { stopPlay(); step(); });
+document.getElementById("reset").addEventListener("click", reset);
+playBtn.addEventListener("click", () => { if (timer) stopPlay(); else startPlay(); });
+render();
+</script>
+<!-- videokit:narration -->
+<script>
+/* videokit narration player: a Narration on/off switch and a play/pause
+   button for the current step. It watches the page's own narration text,
+   works out which step is showing, and plays audio/step-N.m4a beside the
+   page (rendered by tools/videokit; not embedded, so the page stays small).
+   If the page already plays its own clips, only the pause button is added. */
+(function () {
+  "use strict";
+  var STEPS = ["First demo: every service checks the sign-in token itself. The customer's token expired a minute ago. The catalog service refuses it. The cart service refuses it. The orders service lets the customer in. Its copy of the check forgot about expiry.", "Second demo: Spring Cloud Gateway checks the token, once. A filter runs before any route. The expired token is refused for all three services. A valid token gets through. The gateway tells the orders service who the customer is. The services hold no sign-in code at all.", "Third demo: rate limiting at the gateway. Each customer may make five requests a minute. Eight requests in a row. Five pass. Three are refused, with too many requests. No service had to write a limiter.", "Fourth demo: compression at the gateway. The catalog page is about ten thousand bytes. Three settings on the gateway's server switch compression on. The page arrives compressed, at under a fifth of its size. The catalog service knows nothing about it.", "Fifth demo: the bill. Through the gateway, a caller claims to be Ben. The gateway removes the claim, and says Ana. But straight to the orders service, the same claim is believed. Ben's orders. The services must be reachable only through the gateway. And every request passes one more hop."];
+  var norm = function (s) { return String(s || "").replace(/\s+/g, " ").trim(); };
+  var box = document.getElementById("narration") || document.querySelector(".narration");
+  if (!box || !STEPS.length) return;
+
+  var pageOwnsAudio = !!document.getElementById("audio");
+  var current = null, step = -1, on = false;
+  try { on = localStorage.getItem("vk-narration") === "on"; } catch (e) {}
+
+  // Remember whichever clip the page (or this script) last started.
+  var realPlay = HTMLMediaElement.prototype.play;
+  HTMLMediaElement.prototype.play = function () {
+    if (current && current !== this) { try { current.pause(); } catch (e) {} }
+    current = this;
+    this.addEventListener("play", label);
+    this.addEventListener("pause", label);
+    this.addEventListener("ended", label);
+    var p = realPlay.apply(this, arguments);
+    label();
+    return p;
+  };
+
+  // Lets a page's Play button wait for the step's narration to finish.
+  window.vkSpeaking = function () { return !!(current && !current.paused && !current.ended); };
+
+  var bar = document.querySelector(".controls") || box.parentNode;
+  function button(id, text) {
+    var b = document.createElement("button");
+    b.id = id; b.type = "button"; b.textContent = text;
+    bar.appendChild(b);
+    return b;
+  }
+  var narrBtn = pageOwnsAudio ? null : button("vk-narration", "");
+  var stepBtn = button("vk-step-audio", "");
+  var note = document.createElement("span");
+  note.id = "vk-note";
+  note.style.cssText = "color:#94a3b8;font-size:.8rem;margin-left:8px";
+  bar.appendChild(note);
+
+  function stepFor(text) {
+    var t = norm(text);
+    for (var i = 0; i < STEPS.length; i++) {
+      var s = norm(STEPS[i]);
+      if (s && t.indexOf(s.slice(0, 60)) !== -1) return i;
+    }
+    return -1;
+  }
+  function stop() { if (current) { try { current.pause(); } catch (e) {} } current = null; label(); }
+  function play(i) {
+    if (i < 0) return;
+    var a = new Audio("audio/step-" + (i + 1) + ".m4a");
+    a.play().then(function () { note.textContent = ""; }, function (e) {
+      note.textContent = e && e.name === "NotAllowedError"
+        ? "Click Play step to hear this step."
+        : "Narration audio not found: run tools/videokit/videokit.sh animation <project>.";
+      label();
+    });
+  }
+  function label() {
+    if (narrBtn) narrBtn.textContent = (on ? "🔊 Narration: on" : "🔇 Narration: off");
+    if (narrBtn) narrBtn.setAttribute("aria-pressed", String(on));
+    var playing = current && !current.paused && !current.ended;
+    var paused = current && current.paused && !current.ended;
+    stepBtn.textContent = playing ? "⏸ Pause step" : paused ? "▶ Resume step" : "▶ Play step";
+    stepBtn.disabled = step < 0;
+  }
+
+  if (narrBtn) narrBtn.addEventListener("click", function () {
+    on = !on;
+    try { localStorage.setItem("vk-narration", on ? "on" : "off"); } catch (e) {}
+    if (on) { if (step >= 0) play(step); } else stop();
+    label();
+  });
+  stepBtn.addEventListener("click", function () {
+    if (current && !current.ended) {
+      if (current.paused) current.play(); else current.pause();
+    } else play(step);
+  });
+
+  function changed() {
+    var i = stepFor(box.textContent);
+    if (i === step) return;
+    step = i;
+    if (!pageOwnsAudio) { stop(); if (on) play(i); }
+    label();
+  }
+  new MutationObserver(changed).observe(box, { childList: true, subtree: true, characterData: true });
+  changed();
+  label();
+})();
+</script>
+<!-- /videokit:narration -->
+</body>
+</html>

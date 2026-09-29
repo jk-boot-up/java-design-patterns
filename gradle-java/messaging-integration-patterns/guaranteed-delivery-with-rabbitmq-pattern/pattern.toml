@@ -1,0 +1,491 @@
+# pattern.toml for the Guaranteed Delivery with RabbitMQ project. See tools/patternkit.
+
+[project]
+slug = "guaranteed-delivery-with-rabbitmq"
+category = "messaging-integration-patterns"
+title = "Guaranteed Delivery with RabbitMQ"
+package = "guaranteedrabbit"
+main_class = "RabbitGuaranteedDeliveryDemo"
+tagline = "Persistent, confirmed, acknowledged"
+bold = "Guarantee delivery with a real RabbitMQ broker: persistent messages on a durable queue, publisher confirms so the sender knows each message is stored, and acknowledgements so a message leaves the queue only after it has been handled."
+domain_note = ""
+thumb_lines = ["GUARANTEED DELIVERY", "WITH RABBITMQ"]
+thumb_code = "PERSISTENT + confirm + ack"
+youtube_title = "Guaranteed Delivery with RabbitMQ"
+youtube_tags = ["guaranteed delivery", "rabbitmq", "publisher confirms", "acknowledgements", "at least once", "java"]
+
+[readme]
+intro = """
+This is the real-infrastructure version of the Guaranteed Delivery pattern.
+The plain Java version, a separate project in this category, writes its own
+journal file to disk. Here a real RabbitMQ broker, started in a container by
+the demo itself, does the storing, and the demo restarts the broker to show
+what survives.
+
+Three settings together make the guarantee. The queue is durable, so the
+queue survives a restart. Each message is sent as persistent, so the message
+itself is written to disk. And the sender turns on publisher confirms, so it
+waits until the broker says the message is safely stored. On the receiving
+side, each message is acknowledged only after the email has been sent.
+"""
+analogy = """
+Think of sending an important letter by recorded delivery. The post office
+logs it when you hand it over and gives you a receipt, which is the confirm.
+The letter is signed for at the other end, which is the acknowledgement. If
+the van breaks down, the letter is still in the sorting office. And if the
+recipient signs, then drops the letter unread, a second copy may arrive: the
+service guarantees at least one delivery, not exactly one.
+"""
+scenario = """
+The online store sends a confirmation email for every order. The emails wait
+on a queue while the email provider is slow. When the broker restarted for an
+update, ten queued emails vanished, and ten customers never heard that their
+order had been received.
+"""
+test_note = """
+Every number the demo prints is asserted against a real broker. Waits are
+bounded polls on real conditions, never fixed sleeps. Without a container
+runtime, the broker test is skipped rather than failed.
+"""
+run_note = """
+This project needs a running container runtime, such as Docker Desktop: the
+demo starts a real RabbitMQ 4.3.6 broker in a container and removes it again.
+Without one, it prints a sentence saying what to start, rather than failing.
+"""
+twin = """
+The plain Java version got the idea exactly right: write every message down
+before accepting it, remove it only when acknowledged, and accept that a
+crash between sending and acknowledging means a duplicate. What it left out
+is how a real broker divides that work, and the traps in its settings. A
+durable queue alone is not enough: messages sent as not persistent vanished
+on restart although the queue survived. The sender only knows a message is
+safe once the broker confirms it. RabbitMQ 4 refuses shared queues that are
+not durable at all. And the broker marks a message it delivers again as
+redelivered, which a receiver can use to check before sending twice.
+"""
+technologies = [
+    ["RabbitMQ", "4.3.6 (container image)", "the broker: durable queue, persistence, confirms, acknowledgements"],
+    ["RabbitMQ Java client", "5.36.0", "publishing, confirms, getting and acknowledging"],
+    ["Testcontainers", "2.0.5", "starts and stops the broker container from the demo"],
+    ["Docker", "24 or later", "runs the container"],
+    ["SLF4J simple", "2.0.17", "library logging, switched off"],
+]
+costs = [
+    "**Slower sends.** Every email waits for a disk write and a confirm before checkout moves on.",
+    "**Duplicates remain.** A receiver that dies after sending but before acknowledging causes a second email.",
+    "**Another system.** The broker must be run, backed up and watched; one node is still one disk, so production uses replicated queues.",
+]
+too_much = """
+For messages that can be recreated or safely lost, such as live price
+updates, persistence and confirms only add cost. Guaranteed delivery is for
+messages whose loss someone would notice: orders, payments, confirmations.
+"""
+met_before = [
+    "RabbitMQ durable queues, persistent messages, confirms and manual acks.",
+    "Kafka's `acks=all` with replicated partitions.",
+    "Amazon SQS, which keeps a message until it is deleted by the receiver.",
+]
+where = """
+This project is in [messaging-integration-patterns](..). It is the
+real-infrastructure version of the plain Java Guaranteed Delivery project in
+the same category, which is left unchanged.
+"""
+
+[[act]]
+title = "Durable queue, transient messages"
+summary = "10 emails on a durable queue but sent as not persistent: after a broker restart the queue is there, with 0 waiting."
+detail = """
+The queue is durable, but the ten emails are sent as not persistent. Before
+the restart, ten are waiting. The demo restarts the broker: the queue is
+still there, and nothing is in it. A durable queue is not enough; each
+message must be marked persistent too.
+"""
+speech = """
+First demo: a durable queue, but messages that are not persistent. [[slnc 400]] The queue itself is written to disk. [[slnc 300]] The messages are not. [[slnc 600]]
+Ten emails are waiting. [[slnc 300]] The broker restarts. [[slnc 500]]
+The queue is still there. [[slnc 300]] It is empty. [[slnc 600]]
+A durable queue is not enough. [[slnc 300]] Each message must be marked persistent too.
+"""
+rows = { outbox = "active amber", broker = "active wrong" }
+console = [
+    ["before restart: waiting 10", "muted"],
+    ["after restart: waiting 0", "bad"],
+]
+
+[[act]]
+title = "Persistent and confirmed"
+summary = "Persistent messages with publisher confirms: each is confirmed after it is stored; after a restart, 10 are waiting."
+detail = """
+Now each email is sent as persistent, and the sender turns on publisher
+confirms: it waits for the broker to say each message is stored on disk.
+After the broker restarts, all ten emails are still waiting.
+"""
+speech = """
+Second demo: persistent messages, and publisher confirms. [[slnc 400]] Each email is now marked persistent. [[slnc 300]] And the sender waits for the broker to confirm it is stored. [[slnc 600]]
+The broker restarts. [[slnc 500]]
+All ten emails are still waiting.
+"""
+rows = { outbox = "active ok", broker = "active ok" }
+console = [
+    ["each send confirmed after storing", "ok"],
+    ["after restart: waiting 10", "ok"],
+]
+
+[[act]]
+title = "Acknowledged after sending"
+summary = "The sender acknowledges each email after sending it: 6 sent, 4 still waiting; a new sender takes the rest, 10 of 10, each once."
+detail = """
+The email sender takes messages with manual acknowledgement: it sends each
+email, then tells the broker it is done. It sends six and stops; four are
+still waiting. A new sender takes the rest: ten of ten sent, each once, and
+the queue is empty.
+"""
+speech = """
+Third demo: acknowledged after sending. [[slnc 400]] The email sender tells the broker each email is done, only after sending it. [[slnc 600]]
+It sends six, and stops. [[slnc 300]] Four are still waiting. [[slnc 500]]
+A new sender takes the rest. [[slnc 300]] Ten of ten, each sent once.
+"""
+rows = { sender = "active ok", broker = "active ok" }
+console = [
+    ["6 sent and acked; 4 waiting", "ok"],
+    ["10 of 10, each once", "ok"],
+]
+
+[[act]]
+title = "A crash before the acknowledgement"
+summary = "The sender dies after sending MAIL-11 but before acknowledging it: RabbitMQ redelivers it, marked redelivered, and the customer gets it twice."
+detail = """
+The sender takes MAIL-11, sends it, and dies before acknowledging. RabbitMQ
+sees the connection drop and puts MAIL-11 back on the queue. The next sender
+gets it again, marked as redelivered, and the customer receives it twice.
+Guaranteed delivery means at least once; the redelivered flag lets a receiver
+check before sending again.
+"""
+speech = """
+Fourth demo: a crash before the acknowledgement. [[slnc 400]] The sender sends email eleven. [[slnc 300]] Then it dies, before saying it is done. [[slnc 600]]
+The broker puts the email back on the queue. [[slnc 300]] The next sender gets it again. [[slnc 300]] Marked as redelivered. [[slnc 500]]
+The customer receives it twice. [[slnc 500]]
+Guaranteed delivery means at least once. [[slnc 300]] The redelivered mark lets a receiver check first.
+"""
+rows = { sender = "active wrong", broker = "active ok" }
+console = [
+    ["MAIL-11 redelivered", "amber"],
+    ["customer gets it 2 times", "bad"],
+]
+
+[[act]]
+title = "The bill"
+summary = "Every email waits for a disk write and a confirm; and the broker is one more system to run, back up and watch."
+detail = """
+Every email now waits for a disk write and a confirm from the broker before
+checkout moves on. And the broker is one more system to run, back up and
+watch; a single node is still a single disk, so production uses replicated
+queues across several nodes.
+"""
+speech = """
+Fifth demo: the bill. [[slnc 400]] Every email now waits for a disk write, and a confirm, before checkout moves on. [[slnc 600]]
+And the broker is one more system to run, back up, and watch. [[slnc 300]] One broker is still one disk. [[slnc 300]] Production copies queues across several brokers.
+"""
+rows = { broker = "active amber" }
+console = [
+    ["a disk write and a confirm per email", "amber"],
+    ["one more system to run", "amber"],
+]
+
+[animation]
+subtitle = "Checkout sends emails to a real RabbitMQ broker; the email sender acknowledges each after sending it."
+boxes = [
+    ["outbox", "Checkout", "persistent + confirms"],
+    ["broker", "RabbitMQ", "durable queue, on disk"],
+    ["sender", "Email sender", "ack after sending"],
+]
+
+[docs.problem]
+scenario = """
+Order confirmation emails wait on a queue while the email provider is slow.
+"""
+naive = """
+Messages the broker holds only in memory vanish when it restarts.
+"""
+deliver = [
+    "Transient messages lost on a durable queue.",
+    "Persistent messages with publisher confirms surviving a restart.",
+    "Manual acknowledgements so each email is sent once.",
+    "A crash before acknowledging, and the redelivered flag.",
+    "The cost named.",
+    "Every printed result asserted by a test, skipped without Docker.",
+]
+
+[docs.prerequisites]
+required = [
+    "Java basics: classes, exceptions.",
+    "The Guaranteed Delivery idea, ideally from the plain Java version of this pattern.",
+]
+not_required = [
+    "Earlier RabbitMQ experience. The dependencies page explains the words used.",
+]
+install = [
+    "A running container runtime such as Docker Desktop. The demo starts and removes RabbitMQ itself.",
+]
+
+[docs.dependencies]
+intro = """
+This project uses a real RabbitMQ broker, run in a container by
+Testcontainers, which the plain Java version of Guaranteed Delivery does not.
+Skipping it loses none of the pattern: the plain version teaches all of it
+with nothing installed.
+"""
+what = [
+    ["RabbitMQ", "RabbitMQ is a message broker: a separate program that holds messages between senders and receivers. A queue is a named line of messages. A durable queue is written to disk and survives a restart. A persistent message is written to disk too; a durable queue can still lose messages that were not persistent. Publisher confirms make the broker tell the sender when each message is safely stored. An acknowledgement is the receiver telling the broker it has finished with a message; until then, the broker keeps it, and gives it out again if the receiver disappears, marked as redelivered."],
+    ["Testcontainers", "Testcontainers is a Java library that starts a container, here the RabbitMQ image, from inside a program, and removes it afterwards, so nothing has to be installed or started by hand."],
+]
+why = """
+The plain version shows the idea with its own journal file. This version
+shows the settings a real broker needs for the same guarantee, and what goes
+wrong when one of them is missing.
+"""
+versions = [
+    ["Java", "21"],
+    ["Docker", "running; 24 or later"],
+    ["RabbitMQ image", "rabbitmq:4.3.6"],
+    ["RabbitMQ Java client", "5.36.0"],
+    ["Testcontainers", "2.0.5"],
+]
+costs = [
+    "A container runtime, and a first run that downloads the broker image.",
+    "A broker to operate in production, with replicated queues for real safety.",
+]
+
+[docs.session]
+objectives = [
+    "Tell a durable queue from a persistent message.",
+    "Use publisher confirms so the sender knows a message is stored.",
+    "Acknowledge only after the work is done.",
+    "Explain why guaranteed means at least once.",
+]
+walkthrough = """
+Run `./gradlew run` with Docker running. Compare act one's 0 with act two's
+10. Open `Outbox`: the difference is one property and one confirm. End on act
+four's two emails.
+"""
+exercises = [
+    "Make the sender skip a message whose redelivered flag is set and whose id it has already sent.",
+    "Declare the queue as a quorum queue and repeat act two.",
+    "Measure how much slower 1,000 confirmed sends are than unconfirmed ones.",
+]
+
+[docs.explained]
+sentence = """
+With RabbitMQ, guaranteed delivery takes a durable queue, persistent
+messages, publisher confirms and acknowledgements after the work is done.
+"""
+verdict = """
+Use all four settings for messages whose loss someone would notice. Expect
+duplicates and make receivers able to cope, and replicate queues in
+production.
+"""
+recognise = [
+    "`queueDeclare(name, true, ...)` and `MessageProperties.PERSISTENT_TEXT_PLAIN`.",
+    "`confirmSelect()` and `waitForConfirms...`.",
+    "`basicAck` after the work, and checks of `isRedeliver()`.",
+]
+
+[spec]
+purpose = """
+Teach Guaranteed Delivery with a real RabbitMQ broker: transient messages
+lost on restart, persistent confirmed messages surviving, acknowledgements
+after sending, a crash before acknowledging causing a redelivery, and the
+cost.
+"""
+nongoals = [
+    "Not a cluster or quorum queues. One broker node is used.",
+]
+problem = """
+Messages held only in a broker's memory are lost when it restarts.
+"""
+roles = [
+    ["The broker in a container", "`Broker`"],
+    ["The sender", "`Outbox`"],
+    ["The receiver", "`EmailSender`"],
+    ["Waiting for real conditions", "`Poll`"],
+    ["Entry point", "`RabbitGuaranteedDeliveryDemo`, five acts"],
+]
+requirements = [
+    "**Survives:** persistent messages are still waiting after a restart.",
+    "**Once:** acknowledged emails are never sent again.",
+    "**At least once:** an unacknowledged email is redelivered.",
+    "**No Docker, no crash:** without a runtime the demo prints advice.",
+]
+
+[[diagram]]
+name = "architecture-diagram"
+kind = "flow"
+title = "Guaranteed Delivery with RabbitMQ — the pieces"
+caption = "Confirmed on the way in, acknowledged on the way out."
+nodes = [
+    { id = "c", label = "Checkout", sub = "persistent + confirm", col = 0, row = 0, colour = "client" },
+    { id = "b", label = "RabbitMQ", sub = "durable queue, disk", col = 1, row = 0, colour = "accent" },
+    { id = "s", label = "Email sender", sub = "ack after sending", col = 2, row = 0, colour = "green" },
+]
+edges = [
+    { from = "c", to = "b", label = "publish, confirm" },
+    { from = "b", to = "s", label = "deliver, ack" },
+]
+
+[[diagram]]
+name = "class-diagram"
+kind = "class"
+title = "Guaranteed Delivery with RabbitMQ — classes"
+caption = "The guarantee lives in how things are declared."
+nodes = [
+    { id = "b", label = "Broker", sub = ["+ start() / restart()", "+ waiting(queue)", "+ connect()"], col = 0, row = 0, colour = "accent" },
+    { id = "o", label = "Outbox", sub = ["+ send(mail)", "persistent + confirms"], col = 1, row = 0, colour = "client" },
+    { id = "e", label = "EmailSender", sub = ["+ take(broker, queue, n, crash)", "+ redelivered()"], col = 1, row = 1, colour = "green" },
+    { id = "p", label = "Poll", sub = ["+ until(what, condition)"], col = 0, row = 1, colour = "client" },
+]
+edges = [
+    { from = "o", to = "b", label = "publishes to" },
+    { from = "e", to = "b", label = "takes from" },
+]
+
+[[diagram]]
+name = "data-flow-diagram"
+kind = "flow"
+title = "Guaranteed Delivery with RabbitMQ — after a restart"
+caption = "The message setting decides what survives."
+nodes = [
+    { id = "a", label = "Not persistent", sub = "", col = 0, row = 0, colour = "red" },
+    { id = "b", label = "waiting 0", sub = "", col = 2, row = 0, colour = "red" },
+    { id = "c", label = "Persistent + confirmed", sub = "", col = 0, row = 1, colour = "green" },
+    { id = "d", label = "waiting 10", sub = "", col = 2, row = 1, colour = "green" },
+]
+edges = [
+    { from = "a", to = "b", label = "restart" },
+    { from = "c", to = "d", label = "restart" },
+]
+
+[[diagram]]
+name = "sequence-diagram"
+kind = "sequence"
+title = "Guaranteed Delivery with RabbitMQ — one email"
+caption = "Stored before confirmed; removed after acked."
+participants = ["Checkout", "RabbitMQ", "Email sender"]
+steps = [
+    ["Checkout", "RabbitMQ", "MAIL-1, persistent"],
+    ["RabbitMQ", "Checkout", "confirm (on disk)", "reply"],
+    ["RabbitMQ", "Email sender", "MAIL-1"],
+    ["Email sender", "RabbitMQ", "ack (sent)"],
+]
+
+[[diagram]]
+name = "uml-diagram"
+kind = "sequence"
+title = "1. A crash before the ack"
+caption = "Redelivered, marked as such."
+participants = ["RabbitMQ", "Sender A", "Sender B"]
+steps = [
+    ["RabbitMQ", "Sender A", "MAIL-11"],
+    ["note", "Sender A", "sends, then dies"],
+    ["RabbitMQ", "Sender B", "MAIL-11, redelivered"],
+]
+
+[[diagram]]
+name = "uml-diagram-2"
+kind = "sequence"
+title = "2. A restart"
+caption = "Only persistent messages survive."
+participants = ["Checkout", "RabbitMQ"]
+steps = [
+    ["Checkout", "RabbitMQ", "10 persistent emails"],
+    ["note", "RabbitMQ", "restart"],
+    ["note", "RabbitMQ", "waiting 10"],
+]
+
+[poster]
+headline = [["GUARANTEED DELIVERY", "text"], ["WITH RABBITMQ", "text"]]
+before = { code = "messages not persistent", note = "restart: 10 emails gone", tag = "BEFORE" }
+after = { code = "PERSISTENT + confirm + ack", note = "restart: 10 still waiting", tag = "AFTER" }
+taglines = [["Persistent, confirmed, acknowledged", "gold"]]
+
+[[scene]]
+key = "01-poster"
+kind = "poster"
+title = "Guaranteed Delivery with RabbitMQ"
+narration = """
+Hello, and welcome. [[slnc 400]] This video explains the Guaranteed Delivery pattern, with a real RabbitMQ broker, in Java. [[slnc 300]]
+This video is presented by Jayasekhar Konduru. [[slnc 600]]
+First, a simple definition. [[slnc 300]] Guaranteed delivery means a message, once accepted, is never lost. [[slnc 300]] Not when the program crashes. [[slnc 300]] Not when the broker restarts. [[slnc 500]] RabbitMQ is an open-source message broker, a separate program that holds messages, and it can give that guarantee if you ask for it correctly. [[slnc 600]]
+Think of recorded delivery at the post office. [[slnc 300]] You get a receipt when you hand the letter over. [[slnc 300]] And it is signed for at the other end. [[slnc 700]]
+In this video, the domain is an online shop's order confirmation emails. [[slnc 500]]
+By the end, you will hear which RabbitMQ settings make the guarantee. [[slnc 300]] What happens when one is missing. [[slnc 300]] And why a guaranteed message can still arrive twice.
+"""
+
+[[scene]]
+key = "02-scenario"
+kind = "bullets"
+title = "The Scenario"
+body = ["Confirmation emails wait on a queue.", "", "The broker restarted.", "", "10 emails vanished."]
+narration = """
+Here is the scenario. [[slnc 400]] The shop's confirmation emails wait on a queue, while the email provider is slow. [[slnc 500]]
+The broker restarted, for an update. [[slnc 500]]
+Ten emails vanished. [[slnc 300]] Ten customers never heard that their order was received.
+"""
+
+[[scene]]
+key = "03-acts"
+kind = "acts"
+title = "acts"
+
+[[scene]]
+key = "04-pattern"
+kind = "bullets"
+title = "The Pattern, in RabbitMQ"
+body = ["A durable queue.", "Persistent messages.", "Publisher confirms.", "Acknowledge after the work."]
+narration = """
+Let's name the pattern, in RabbitMQ's words. [[slnc 400]] A durable queue, which survives a restart. [[slnc 300]] Persistent messages, written to disk. [[slnc 500]]
+Publisher confirms, so the sender knows each message is stored. [[slnc 300]] And acknowledgements, sent only after the work is done.
+"""
+
+[[scene]]
+key = "05-roles"
+kind = "bullets"
+title = "Who Does What"
+body = ["Broker: RabbitMQ in a container", "Outbox: sends, waits for confirms", "EmailSender: sends, then acks", "Poll: waits for real conditions"]
+narration = """
+Here is who does what. [[slnc 400]] The broker class starts RabbitMQ in a container, and can restart it. [[slnc 500]]
+The outbox sends each email, and waits for the confirm. [[slnc 500]]
+The email sender sends each email, and then acknowledges it. [[slnc 300]] And poll waits for real conditions, never a fixed time.
+"""
+
+[[scene]]
+key = "06-recognise"
+kind = "bullets"
+title = "Where You Have Seen It"
+body = ["RabbitMQ confirms and acks", "Kafka acks=all", "Amazon SQS delete after processing"]
+narration = """
+You have probably met this already. [[slnc 400]] RabbitMQ's confirms and acknowledgements. [[slnc 500]]
+Kafka, which waits for every copy of a message to be stored. [[slnc 500]]
+And Amazon SQS, where a message stays until the receiver deletes it.
+"""
+
+[[scene]]
+key = "07-verdict"
+kind = "bullets"
+title = "When To Use It"
+body = ["Messages someone would miss:", "orders, payments, emails.", "", "All four settings.", "Expect duplicates.", "Replicate in production."]
+narration = """
+So, when should you use it? [[slnc 400]] For messages someone would miss. [[slnc 300]] Orders, payments, confirmations. [[slnc 500]]
+Use all four settings. [[slnc 300]] Expect duplicates, and make receivers cope. [[slnc 300]] And copy queues across brokers in production.
+"""
+
+[[scene]]
+key = "08-outro"
+kind = "outro"
+title = "Thanks for Watching"
+body = ["Full source, notes, diagrams and an animated walkthrough", "are in the repository. Skip redelivered", "emails already sent."]
+narration = """
+That's Guaranteed Delivery, with RabbitMQ. [[slnc 400]] If you remember one sentence, make it this one. [[slnc 300]] Store it, confirm it, and acknowledge it only when the work is done. [[slnc 500]]
+The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. [[slnc 300]] It needs Docker running, and starts the broker for you. [[slnc 500]]
+Here is one exercise to try. [[slnc 300]] Make the sender skip a redelivered email it has already sent. [[slnc 500]]
+If this helped, a like really does help other people find it. [[slnc 300]] And subscribe, if you'd like the rest of the series. [[slnc 400]] Thanks for watching.
+"""

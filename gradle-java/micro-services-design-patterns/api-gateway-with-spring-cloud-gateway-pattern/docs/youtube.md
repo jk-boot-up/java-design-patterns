@@ -7,7 +7,7 @@ Chapter timings are generated from the video's `.srt`. Re-run `python3 docs/make
 ## Title
 
 ```
-API Gateway with Spring Cloud Gateway - Real Routes
+API Gateway Design Pattern in Java with Spring Cloud Gateway - Explained - Real Routes
 ```
 
 51 characters — under the 60 YouTube shows before truncating in search results.
@@ -39,7 +39,7 @@ SOURCE CODE, WRITTEN NOTES AND AN INTERACTIVE ANIMATION
 https://github.com/jk-boot-up/java-design-patterns/tree/main/gradle-java/micro-services-design-patterns/api-gateway-with-spring-cloud-gateway-pattern
 
 WHAT YOU NEED FIRST
-Java 21 and a working knowledge of classes and interfaces. No prior design-pattern knowledge is assumed. The full prerequisites are in docs/prerequisites.md in the repository.
+Java and a working knowledge of classes and interfaces. No prior design-pattern knowledge is assumed. The full prerequisites are in docs/prerequisites.md in the repository.
 ```
 
 ## Chapters

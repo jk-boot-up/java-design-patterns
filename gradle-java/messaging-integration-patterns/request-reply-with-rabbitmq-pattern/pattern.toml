@@ -1,0 +1,490 @@
+# pattern.toml for the Request-Reply with RabbitMQ project. See tools/patternkit.
+
+[project]
+slug = "request-reply-with-rabbitmq"
+category = "messaging-integration-patterns"
+title = "Request-Reply with RabbitMQ"
+package = "requestreplyrabbit"
+main_class = "RabbitRequestReplyDemo"
+tagline = "replyTo and correlationId, for real"
+bold = "Ask and answer over a real RabbitMQ broker: each request carries a return address and a correlation ID, the inventory service replies to that address with that ID, and an expiry on the request makes sure an abandoned request is never handled late."
+domain_note = ""
+thumb_lines = ["REQUEST-REPLY", "WITH RABBITMQ"]
+thumb_code = "replyTo + correlationId"
+youtube_title = "Request-Reply with RabbitMQ"
+youtube_tags = ["request reply", "rabbitmq", "correlation id", "reply to", "direct reply-to", "java"]
+
+[readme]
+intro = """
+This is the real-infrastructure version of the Request-Reply pattern. The
+plain Java version, a separate project in this category, builds channels in
+memory. Here a real RabbitMQ broker, started in a container by the demo
+itself, carries the requests and the replies.
+
+RabbitMQ has the pattern's two ideas built into every message: a `replyTo`
+property, the return address, and a `correlationId` property, which the
+replier copies so the requester can match the answer to its question. It also
+offers direct reply-to, a way to receive replies without declaring any reply
+queue, and per-message expiry, which the last act uses to deal honestly with
+a reply that never comes.
+"""
+analogy = """
+Think of sending several letters to a supplier, each asking about a
+different item. On each you write your address and a reference number. The
+supplier answers in whatever order suits them, but writes your reference on
+each reply, so you know which question it answers. And if you write "ignore
+after Friday", a letter that sat unopened does not get acted on the week
+after.
+"""
+scenario = """
+The online store's checkout asks the inventory service to reserve items and
+waits for the answer. The inventory service answers items it has cached
+first, so replies can come back in a different order from the requests. The
+web checkout and the phone app both ask, and each must get its own answers.
+"""
+test_note = """
+Every number the demo prints is asserted against a real broker. Waits are
+bounded polls on real conditions, never fixed sleeps. Without a container
+runtime, the broker test is skipped rather than failed.
+"""
+run_note = """
+This project needs a running container runtime, such as Docker Desktop: the
+demo starts a real RabbitMQ 4.3.6 broker in a container and removes it again.
+Without one, it prints a sentence saying what to start, rather than failing.
+"""
+twin = """
+The plain Java version got the idea right: replies can overtake each other,
+so each carries a correlation ID; each requester names its own return
+address; many requests can be in flight; and a missing reply must be timed
+out. What it left out is what a real broker adds and demands. The return
+address and ID are standard message properties. RabbitMQ's direct reply-to
+lets the phone app receive replies with no reply queue at all. Publishing does
+not wait, so a service can look before a request has even arrived, and the
+demo must wait for real conditions. And per-message expiry answers the
+question the plain version could not: whether an abandoned request would
+still be handled late.
+"""
+technologies = [
+    ["RabbitMQ", "4.3.6 (container image)", "the broker: queues, replyTo, correlationId, expiry, direct reply-to"],
+    ["RabbitMQ Java client", "5.36.0", "publishing, consuming, basicGet"],
+    ["Testcontainers", "2.0.5", "starts and stops the broker container from the demo"],
+    ["Docker", "24 or later", "runs the container"],
+    ["SLF4J simple", "2.0.17", "library logging, switched off"],
+]
+costs = [
+    "**A waiting table.** The requester must remember what it asked, time out missing replies and clean up.",
+    "**Expiry is a choice.** Without an expiry, a request abandoned by the requester may still be handled later.",
+    "**Another system.** The broker must be running for anyone to ask anything.",
+]
+too_much = """
+If a caller needs an answer at once and the service is always reachable, a
+plain HTTP call is simpler. Request-reply over a broker pays off when callers
+and services are decoupled, replies can be slow, and many requests are in
+flight.
+"""
+met_before = [
+    "RabbitMQ RPC tutorials and Spring AMQP's `RabbitTemplate.convertSendAndReceive`.",
+    "JMS `JMSReplyTo` and `JMSCorrelationID`.",
+    "Email threads, where a reply carries a reference to the original.",
+]
+where = """
+This project is in [messaging-integration-patterns](..). It is the
+real-infrastructure version of the plain Java Request-Reply project in the
+same category, which is left unchanged.
+"""
+
+[[act]]
+title = "Replies taken in arrival order"
+summary = "Two requests, no IDs: the mug is answered first from the cache and taken as the kettle's reply: KETTLE -> RESERVED 2 x MUG-1."
+detail = """
+Checkout asks for five kettles and then two mugs, without correlation IDs,
+and takes replies in the order they come back. The inventory service answers
+the mug first, from its cache. So the kettle request is paired with the mug
+reply, RESERVED 2 x MUG-1, and the mug request with the kettle refusal.
+"""
+speech = """
+First demo: replies taken in the order they come back. [[slnc 400]] Checkout asks for five kettles, then two mugs. [[slnc 600]]
+The inventory service answers the mugs first, from its cache. [[slnc 500]]
+Checkout takes the first reply as the kettle's answer. [[slnc 300]] So it believes its kettles were reserved. [[slnc 300]] They were refused.
+"""
+rows = { requester = "active wrong", inventory = "active amber" }
+console = [
+    ["KETTLE x 5 -> RESERVED 2 x MUG-1", "bad"],
+    ["MUG x 2 -> REFUSED 5 x KETTLE-1", "bad"],
+]
+
+[[act]]
+title = "Correlation IDs"
+summary = "WEB-1 and WEB-2 carry correlation IDs: each reply is matched, the kettle REFUSED and the mug RESERVED."
+detail = """
+Now each request carries a correlation ID, and the inventory service copies it
+onto the reply. The mug reply still comes first, but its ID says it answers
+WEB-2. WEB-1, the kettles, is refused; WEB-2, the mugs, is reserved.
+"""
+speech = """
+Second demo: correlation identifiers. [[slnc 400]] Each request carries a reference. [[slnc 300]] The inventory service copies it onto the reply. [[slnc 600]]
+The mug reply still comes first. [[slnc 300]] But its reference says which request it answers. [[slnc 500]]
+The kettles are refused. [[slnc 300]] The mugs are reserved. [[slnc 300]] Each answer matched to its question.
+"""
+rows = { requester = "active ok", inventory = "active ok" }
+console = [
+    ["WEB-1 KETTLE x 5 -> REFUSED", "ok"],
+    ["WEB-2 MUG x 2 -> RESERVED", "ok"],
+]
+
+[[act]]
+title = "Return addresses"
+summary = "The phone app uses RabbitMQ's direct reply-to and the web checkout its own exclusive queue; each gets its own reply."
+detail = """
+Each request names where its reply should go. The phone app uses RabbitMQ's
+direct reply-to, `amq.rabbitmq.reply-to`, which needs no reply queue declared
+at all. The web checkout uses its own exclusive, server-named queue. One
+inventory service, and each reply goes where its request said.
+"""
+speech = """
+Third demo: return addresses. [[slnc 400]] Each request names where its reply should go. [[slnc 600]]
+The phone app uses a RabbitMQ feature called direct reply-to. [[slnc 300]] It needs no reply queue at all. [[slnc 500]]
+The web checkout uses its own private queue. [[slnc 500]]
+One inventory service. [[slnc 300]] Each reply goes to the address in its request.
+"""
+rows = { requester = "active ok", inventory = "active ok" }
+console = [
+    ["APP-1 -> RESERVED 1 x TEAPOT-1 (direct reply-to)", "ok"],
+    ["WEB-3 -> RESERVED 2 x TEAPOT-1 (own queue)", "ok"],
+]
+
+[[act]]
+title = "Many in flight"
+summary = "20 requests are sent before any reply; the service handles 20, all are matched, and none is left waiting."
+detail = """
+Twenty requests are sent before any reply comes back. The inventory service
+handles all twenty, and every reply is matched by its correlation ID. None is
+left in the requester's waiting table.
+"""
+speech = """
+Fourth demo: many requests in flight at once. [[slnc 400]] Twenty requests are sent, before a single reply. [[slnc 600]]
+The service handles all twenty. [[slnc 300]] Every reply is matched by its reference. [[slnc 300]] None is left waiting.
+"""
+rows = { requester = "active ok", inventory = "active ok" }
+console = [
+    ["20 sent, 20 matched", "ok"],
+    ["still waiting: 0", "ok"],
+]
+
+[[act]]
+title = "A reply that never comes"
+summary = "WEB-24 gets no reply in 0.5 s and must be timed out; its 0.5 s expiry means RabbitMQ drops it, so the service later handles 0."
+detail = """
+The inventory service is busy. WEB-24 waits half a second, gets no reply, and
+sits in the waiting table until the requester times it out. Was the mug
+reserved? Because the request was sent with a half-second expiry, RabbitMQ
+dropped it from the queue: when the service returns, it handles nothing. The
+mug was not reserved late behind the requester's back.
+"""
+speech = """
+Fifth demo: the bill. [[slnc 400]] The inventory service is busy. [[slnc 300]] Request twenty-four waits half a second. [[slnc 300]] No reply. [[slnc 600]]
+The requester must time it out, and clean up. [[slnc 500]]
+But was the mug reserved later? [[slnc 300]] The request was sent with an expiry of half a second. [[slnc 300]] So RabbitMQ dropped it. [[slnc 500]]
+When the service comes back, there is nothing to handle. [[slnc 300]] Without the expiry, nobody could tell.
+"""
+rows = { requester = "active amber", inventory = "active amber" }
+console = [
+    ["WEB-24: no reply after 0.5 s", "amber"],
+    ["expired in the queue: service handles 0", "ok"],
+]
+
+[animation]
+subtitle = "Requests carry replyTo and correlationId through a real RabbitMQ broker; replies come back to each requester."
+boxes = [
+    ["requester", "Web checkout, phone app", "replyTo + correlationId"],
+    ["inventory", "Inventory service", "replies, cached items first"],
+]
+
+[docs.problem]
+scenario = """
+Checkout and the phone app ask the inventory service to reserve items over a
+broker, and replies can come back out of order.
+"""
+naive = """
+Taking replies in arrival order pairs answers with the wrong questions.
+"""
+deliver = [
+    "Mismatched replies without IDs.",
+    "Correlation IDs matching every reply.",
+    "Return addresses, including direct reply-to.",
+    "Twenty requests in flight.",
+    "A timed-out request expiring in the queue.",
+    "Every printed result asserted by a test, skipped without Docker.",
+]
+
+[docs.prerequisites]
+required = [
+    "Java basics: maps, lambdas.",
+    "The Request-Reply idea, ideally from the plain Java version of this pattern.",
+]
+not_required = [
+    "Earlier RabbitMQ experience. The dependencies page explains the words used.",
+]
+install = [
+    "A running container runtime such as Docker Desktop. The demo starts and removes RabbitMQ itself.",
+]
+
+[docs.dependencies]
+intro = """
+This project uses a real RabbitMQ broker, run in a container by
+Testcontainers, which the plain Java version of Request-Reply does not.
+Skipping it loses none of the pattern: the plain version teaches all of it
+with nothing installed.
+"""
+what = [
+    ["RabbitMQ", "RabbitMQ is a message broker: a separate program that holds messages. Every message can carry properties. replyTo names the queue a reply should go to. correlationId is a reference the replier copies onto its reply. expiration tells the broker to drop the message if nobody has taken it within that many milliseconds. amq.rabbitmq.reply-to is direct reply-to: a special address a client can consume from, so replies reach it without any reply queue being declared. An exclusive queue belongs to one connection and disappears with it."],
+    ["Testcontainers", "Testcontainers is a Java library that starts a container, here the RabbitMQ image, from inside a program, and removes it afterwards."],
+]
+why = """
+The plain version shows the idea. This version shows the message properties a
+real broker provides for it, and the two things a real broker forces into the
+open: that publishing does not wait, and that an abandoned request needs an
+expiry.
+"""
+versions = [
+    ["Java", "21"],
+    ["Docker", "running; 24 or later"],
+    ["RabbitMQ image", "rabbitmq:4.3.6"],
+    ["RabbitMQ Java client", "5.36.0"],
+    ["Testcontainers", "2.0.5"],
+]
+costs = [
+    "A container runtime, and a first run that downloads the broker image.",
+    "A waiting table and time-outs in every requester.",
+]
+
+[docs.session]
+objectives = [
+    "Send requests with `replyTo` and `correlationId`.",
+    "Match replies to requests by ID.",
+    "Use direct reply-to or an exclusive queue as a return address.",
+    "Use message expiry so an abandoned request is never handled late.",
+]
+walkthrough = """
+Run `./gradlew run` with Docker running. Compare act one's wrong pairs with act
+two's right ones. Open `Requester.send`: two properties. End on act five's
+expiry.
+"""
+exercises = [
+    "Remove the expiry in act five and show the mug being reserved late.",
+    "Replace the requester with Spring AMQP's `convertSendAndReceive`.",
+    "Run two inventory services and see replies still matched.",
+]
+
+[docs.explained]
+sentence = """
+With RabbitMQ, request-reply uses the `replyTo` and `correlationId` properties,
+and an expiry so a request nobody waits for is dropped.
+"""
+verdict = """
+Use request-reply over a broker when callers and services are decoupled and
+replies may be slow. Always set a correlation ID, time out in the requester,
+and give requests an expiry that matches that time-out.
+"""
+recognise = [
+    "`AMQP.BasicProperties.Builder().replyTo(...).correlationId(...)`.",
+    "`amq.rabbitmq.reply-to` or a server-named exclusive queue.",
+    "A map of waiting requests keyed by correlation ID.",
+]
+
+[spec]
+purpose = """
+Teach Request-Reply with a real RabbitMQ broker: mismatched replies without
+IDs, correlation IDs, return addresses with direct reply-to, many requests in
+flight, and an abandoned request expiring in the queue.
+"""
+nongoals = [
+    "Not Spring AMQP. The plain RabbitMQ client is used so each property is visible.",
+]
+problem = """
+Replies over a broker can come back in any order, to many requesters, or not
+at all.
+"""
+roles = [
+    ["The broker in a container", "`Broker`"],
+    ["The caller", "`Requester`"],
+    ["The replier", "`InventoryService`"],
+    ["Waiting for real conditions", "`Poll`"],
+    ["Entry point", "`RabbitRequestReplyDemo`, five acts"],
+]
+requirements = [
+    "**Matched:** every reply with an ID reaches the request with that ID.",
+    "**Addressed:** each reply goes to its request's `replyTo`.",
+    "**Expired:** an abandoned request is never handled.",
+    "**No Docker, no crash:** without a runtime the demo prints advice.",
+]
+
+[[diagram]]
+name = "architecture-diagram"
+kind = "flow"
+title = "Request-Reply with RabbitMQ — the pieces"
+caption = "Requests to one queue; replies to each return address."
+nodes = [
+    { id = "w", label = "Web checkout", sub = "own exclusive queue", col = 0, row = 0, colour = "client" },
+    { id = "a", label = "Phone app", sub = "direct reply-to", col = 0, row = 1, colour = "client" },
+    { id = "q", label = "inventory.requests", sub = "RabbitMQ", col = 1, row = 0, colour = "accent" },
+    { id = "i", label = "Inventory service", sub = "copies correlationId", col = 2, row = 0, colour = "green" },
+]
+edges = [
+    { from = "w", to = "q", label = "" },
+    { from = "a", to = "q", label = "" },
+    { from = "q", to = "i", label = "" },
+]
+
+[[diagram]]
+name = "class-diagram"
+kind = "class"
+title = "Request-Reply with RabbitMQ — classes"
+caption = "The properties do the matching."
+nodes = [
+    { id = "r", label = "Requester", sub = ["+ send(id, request, expiry)", "+ await(id, timeout)", "replyTo, waiting table"], col = 0, row = 0, colour = "client" },
+    { id = "i", label = "InventoryService", sub = ["+ handleWaiting()", "cached items first"], col = 1, row = 0, colour = "green" },
+    { id = "b", label = "Broker", sub = ["+ start() / waiting(queue)"], col = 0, row = 1, colour = "accent" },
+]
+edges = [
+    { from = "r", to = "b", label = "publishes via" },
+    { from = "i", to = "b", label = "gets via" },
+]
+
+[[diagram]]
+name = "data-flow-diagram"
+kind = "flow"
+title = "Request-Reply with RabbitMQ — with and without IDs"
+caption = "The mug reply always comes first."
+nodes = [
+    { id = "a", label = "No IDs", sub = "kettle gets the mug's reply", col = 0, row = 0, colour = "red" },
+    { id = "b", label = "Correlation IDs", sub = "each reply matched", col = 0, row = 1, colour = "green" },
+]
+edges = []
+
+[[diagram]]
+name = "sequence-diagram"
+kind = "sequence"
+title = "Request-Reply with RabbitMQ — WEB-2"
+caption = "The ID travels there and back."
+participants = ["Web checkout", "RabbitMQ", "Inventory"]
+steps = [
+    ["Web checkout", "RabbitMQ", "reserve MUG-1 x 2, id WEB-2"],
+    ["RabbitMQ", "Inventory", "request"],
+    ["Inventory", "RabbitMQ", "RESERVED, id WEB-2, to replyTo"],
+    ["RabbitMQ", "Web checkout", "reply WEB-2", "reply"],
+]
+
+[[diagram]]
+name = "uml-diagram"
+kind = "sequence"
+title = "1. An expired request"
+caption = "Dropped before anyone handles it."
+participants = ["Web checkout", "RabbitMQ", "Inventory"]
+steps = [
+    ["Web checkout", "RabbitMQ", "WEB-24, expires in 0.5 s"],
+    ["note", "RabbitMQ", "0.5 s pass: dropped"],
+    ["Inventory", "RabbitMQ", "anything waiting?"],
+    ["RabbitMQ", "Inventory", "nothing", "reply"],
+]
+
+[[diagram]]
+name = "uml-diagram-2"
+kind = "sequence"
+title = "2. Direct reply-to"
+caption = "No reply queue declared."
+participants = ["Phone app", "RabbitMQ", "Inventory"]
+steps = [
+    ["Phone app", "RabbitMQ", "APP-1, replyTo amq.rabbitmq.reply-to"],
+    ["Inventory", "RabbitMQ", "RESERVED, id APP-1"],
+    ["RabbitMQ", "Phone app", "reply", "reply"],
+]
+
+[poster]
+headline = [["REQUEST-REPLY", "text"], ["WITH RABBITMQ", "text"]]
+before = { code = "replies in arrival order", note = "kettle gets the mug's reply", tag = "BEFORE" }
+after = { code = "replyTo + correlationId", note = "every reply matched", tag = "AFTER" }
+taglines = [["Ask, answer, and match", "gold"]]
+
+[[scene]]
+key = "01-poster"
+kind = "poster"
+title = "Request-Reply with RabbitMQ"
+narration = """
+Hello, and welcome. [[slnc 400]] This video explains the Request-Reply pattern, with a real RabbitMQ broker, in Java. [[slnc 300]]
+This video is presented by Jayasekhar Konduru. [[slnc 600]]
+First, a simple definition. [[slnc 300]] Request-reply is asking a question with one message, and getting the answer in another. [[slnc 300]] Each request says where to send the answer. [[slnc 300]] And carries a reference, so the answer can be matched to it. [[slnc 500]] RabbitMQ is an open-source message broker, and it has both of these built into every message. [[slnc 600]]
+Think of letters to a supplier, each with your address and a reference number. [[slnc 300]] The answers come back in any order, but each names your reference. [[slnc 700]]
+In this video, the domain is an online shop's checkout, asking an inventory service to reserve items. [[slnc 500]]
+By the end, you will hear how replies get mixed up. [[slnc 300]] How references and return addresses fix it. [[slnc 300]] And what to do about a reply that never comes.
+"""
+
+[[scene]]
+key = "02-scenario"
+kind = "bullets"
+title = "The Scenario"
+body = ["Checkout asks inventory", "to reserve items.", "", "Cached items are answered first.", "", "Web and phone app both ask."]
+narration = """
+Here is the scenario. [[slnc 400]] Checkout asks the inventory service to reserve items, and waits for the answer. [[slnc 500]]
+The inventory service answers items in its cache first. [[slnc 300]] So replies can come back in a different order. [[slnc 500]]
+And the web checkout and the phone app both ask.
+"""
+
+[[scene]]
+key = "03-acts"
+kind = "acts"
+title = "acts"
+
+[[scene]]
+key = "04-pattern"
+kind = "bullets"
+title = "The Pattern, in RabbitMQ"
+body = ["replyTo: where to answer.", "correlationId: which question.", "", "expiration: drop it if", "nobody takes it in time."]
+narration = """
+Let's name the pattern, in RabbitMQ's words. [[slnc 400]] Reply to, says where to send the answer. [[slnc 300]] Correlation identifier, says which question it answers. [[slnc 500]]
+And expiration tells the broker to drop a request, if nobody takes it in time.
+"""
+
+[[scene]]
+key = "05-roles"
+kind = "bullets"
+title = "Who Does What"
+body = ["Requester: asks and matches", "InventoryService: answers", "Broker: RabbitMQ in a container", "Poll: waits for real conditions"]
+narration = """
+Here is who does what. [[slnc 400]] The requester sends each question, and matches each answer by its reference. [[slnc 500]]
+The inventory service answers, copying the reference. [[slnc 500]]
+The broker class runs RabbitMQ in a container. [[slnc 300]] And poll waits for real conditions.
+"""
+
+[[scene]]
+key = "06-recognise"
+kind = "bullets"
+title = "Where You Have Seen It"
+body = ["RabbitMQ RPC", "Spring AMQP convertSendAndReceive", "JMS reply-to and correlation", "Email threads"]
+narration = """
+You have probably met this already. [[slnc 400]] RabbitMQ's remote procedure call examples. [[slnc 300]] And Spring's send and receive methods. [[slnc 500]]
+Java messaging has reply-to and correlation fields too. [[slnc 500]]
+And every email reply carries a reference to the message it answers.
+"""
+
+[[scene]]
+key = "07-verdict"
+kind = "bullets"
+title = "When To Use It"
+body = ["Callers and services decoupled,", "replies may be slow.", "", "Always an ID.", "Time out in the requester.", "Expire the request too."]
+narration = """
+So, when should you use it? [[slnc 400]] When callers and services are decoupled, and replies may be slow. [[slnc 500]]
+Always set a reference. [[slnc 300]] Time out in the requester. [[slnc 300]] And give each request an expiry that matches that time-out.
+"""
+
+[[scene]]
+key = "08-outro"
+kind = "outro"
+title = "Thanks for Watching"
+body = ["Full source, notes, diagrams and an animated walkthrough", "are in the repository. Remove the", "expiry and watch."]
+narration = """
+That's Request-Reply, with RabbitMQ. [[slnc 400]] If you remember one sentence, make it this one. [[slnc 300]] Say where to answer, say which question, and say when to give up. [[slnc 500]]
+The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. [[slnc 300]] It needs Docker running, and starts the broker for you. [[slnc 500]]
+Here is one exercise to try. [[slnc 300]] Remove the expiry in the last demo, and watch the mug get reserved late. [[slnc 500]]
+If this helped, a like really does help other people find it. [[slnc 300]] And subscribe, if you'd like the rest of the series. [[slnc 400]] Thanks for watching.
+"""

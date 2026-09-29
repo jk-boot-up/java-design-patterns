@@ -1,0 +1,472 @@
+# pattern.toml for the Valet Key with Amazon S3 project. See tools/patternkit.
+
+[project]
+slug = "valet-key-with-s3"
+category = "micro-services-design-patterns"
+title = "Valet Key with Amazon S3"
+package = "valets3"
+main_class = "S3ValetKeyDemo"
+tagline = "Presigned URLs, for real"
+bold = "Let customers upload review photos straight to object storage with S3 presigned URLs, signed by the shop with the AWS SDK: one object, an exact size, a few minutes, and nothing else."
+domain_note = ""
+thumb_lines = ["VALET KEY", "WITH AMAZON S3"]
+thumb_code = "presigner.presignPutObject(...)"
+youtube_title = "Valet Key with Amazon S3 Presigned URLs"
+youtube_tags = ["valet key", "presigned url", "amazon s3", "aws sdk", "localstack", "java"]
+
+[readme]
+intro = """
+This is the real-infrastructure version of the Valet Key pattern. The plain
+Java version, a separate project in this category, signs keys with its own
+HMAC and runs its own storage server. Here the storage speaks the Amazon S3
+API, played by LocalStack in a container started by the demo, and the keys are
+real S3 presigned URLs, signed by the AWS SDK's presigner exactly as they
+would be for Amazon S3.
+
+A presigned URL carries the method, the object, the time it was signed, how
+long it lasts, and a signature made with the shop's secret key. The customer's
+browser uses it to upload straight to storage; the shop's servers carry only
+the URL. The storage checks the signature, so the URL cannot be bent to do
+anything else.
+"""
+analogy = """
+Think of a hotel valet key: it starts the car and opens the driver's door, but
+not the boot or the glove box, and the valet has it only for the evening.
+Here the key is a web address that lets a customer put one photo in one place,
+for five minutes.
+"""
+scenario = """
+The online store lets customers add photos to their reviews. Every photo was
+sent to the shop's app server, which passed it on to storage, so ten 2 MB
+photos meant forty megabytes through a server that only wanted to say where
+the photo should go.
+"""
+test_note = """
+Every result the demo prints is asserted against LocalStack's S3, with
+signature checking turned on. Without a container runtime, the test is skipped
+rather than failed.
+"""
+run_note = """
+This project needs a running container runtime, such as Docker Desktop: the
+demo starts LocalStack 4.14.0, which plays Amazon S3, in a container and
+removes it again. Without one, it prints a sentence saying what to start,
+rather than failing.
+"""
+twin = """
+The plain Java version got the idea right: sign a narrow, short-lived
+permission, let the client talk to storage directly, refuse anything the key
+does not allow, and accept that a leaked key works until it expires. What it
+left out is that this is a standard: S3 presigned URLs, signed by the AWS SDK
+with AWS Signature Version 4, and checked by the storage service, not by the
+shop. It also shows the limits of a local emulator: LocalStack checks
+signatures and expiry, but does not enforce bucket permissions, so an unsigned
+upload got through here that real S3 would refuse with 403.
+"""
+technologies = [
+    ["AWS SDK for Java", "2.55.7", "the S3 client and the S3 presigner"],
+    ["LocalStack", "4.14.0 (container image)", "plays Amazon S3 locally, with signature checking on"],
+    ["Testcontainers", "2.0.5", "starts and stops LocalStack from the demo"],
+    ["Docker", "24 or later", "runs the container"],
+]
+costs = [
+    "**A leaked key works until it expires.** A stranger with the pasted URL stored a file.",
+    "**Narrow on purpose.** The URL here pins method, object and exact size; a size range needs S3's presigned POST policies.",
+    "**An emulator is not the service.** LocalStack let an unsigned upload through that real S3 would refuse; test permissions against the real thing.",
+]
+too_much = """
+For small files, or when the server must inspect every upload before it is
+stored, passing it through the app is simpler. Valet keys pay off for large
+files and many uploads that the app never needs to see.
+"""
+met_before = [
+    "Amazon S3 presigned URLs and presigned POST policies.",
+    "Google Cloud Storage signed URLs and Azure Blob Storage SAS tokens.",
+    "Download links in emails that stop working after a day.",
+]
+where = """
+This project is in [micro-services-design-patterns](..). It is the
+real-infrastructure version of the plain Java Valet Key project in the same
+category, which is left unchanged.
+"""
+
+[[act]]
+title = "Through the app server"
+summary = "10 customers upload a 2 MB photo each through the app server, which carries 40 MB in and out."
+detail = """
+Each review photo goes to the shop's app server, which writes it to S3 with
+its own credentials. Ten 2 MB photos mean forty megabytes through the app
+server: every byte in, and every byte out again.
+"""
+speech = """
+First demo: photos carried through the shop's app server. [[slnc 400]] Ten customers each upload a two megabyte photo. [[slnc 600]]
+Every byte comes in to the app server. [[slnc 300]] And goes out again, to storage. [[slnc 500]]
+Forty megabytes through a server that only needed to say where the photo goes.
+"""
+rows = { app = "active wrong", storage = "active ok" }
+console = [
+    ["app server carried 40 MB", "bad"],
+]
+
+[[act]]
+title = "A presigned URL"
+summary = "The shop signs a PUT URL for reviews/R-11/photo.jpg, exactly 2,000,000 bytes, 5 minutes; the browser uploads straight to S3: 200."
+detail = """
+The shop's server uses the AWS SDK's presigner to sign a URL allowing one PUT
+of reviews/R-11/photo.jpg, exactly 2,000,000 bytes, for five minutes. The
+browser uploads straight to S3 and gets HTTP 200; the object is stored with
+all 2,000,000 bytes. The app server carried only the URL, under 2 KB.
+"""
+speech = """
+Second demo: a valet key, as an S3 presigned address. [[slnc 400]] The shop signs a web address. [[slnc 300]] It allows one upload, of one photo, of exactly this size, for five minutes. [[slnc 600]]
+The customer's browser uploads straight to S3. [[slnc 300]] Accepted. [[slnc 300]] Two million bytes stored. [[slnc 500]]
+The app server carried only the address.
+"""
+rows = { app = "active ok", storage = "active ok" }
+console = [
+    ["PUT via presigned URL: HTTP 200", "ok"],
+    ["app carried under 2 KB", "ok"],
+]
+
+[[act]]
+title = "That, and nothing else"
+summary = "The same URL used to read, or edited to R-3, or with a 6 MB body: all 403; an unsigned upload gets through only because LocalStack does not enforce permissions."
+detail = """
+S3 checks the signature against exactly what is asked. Reading the photo with
+the upload URL: 403. Editing the URL to point at review R-3: 403. Sending a 6
+MB file with it: 403, because the size was signed. An upload with no
+signature at all gets through here only because LocalStack does not enforce
+bucket permissions; real S3 would refuse it with 403.
+"""
+speech = """
+Third demo: the key allows that, and nothing else. [[slnc 400]] Use it to read the photo. [[slnc 300]] Refused. [[slnc 500]]
+Edit it to point at another review. [[slnc 300]] Refused. [[slnc 500]]
+Send a six megabyte file with it. [[slnc 300]] Refused, because the size was signed. [[slnc 600]]
+One honest note. [[slnc 300]] An upload with no key at all gets through here, because this local stand-in for S3 does not check permissions. [[slnc 300]] Real S3 refuses it.
+"""
+rows = { storage = "active ok" }
+console = [
+    ["read with it: 403", "ok"],
+    ["edited to R-3: 403", "ok"],
+    ["6 MB body: 403", "ok"],
+    ["unsigned: 200 on LocalStack only", "amber"],
+]
+
+[[act]]
+title = "The key runs out"
+summary = "A URL valid for 1 second, used after 2 seconds: 403."
+detail = """
+The time of signing and the lifetime are part of what is signed. A URL valid
+for one second, used after two, is refused with 403.
+"""
+speech = """
+Fourth demo: the key runs out. [[slnc 400]] A key valid for one second is used after two. [[slnc 500]]
+Refused.
+"""
+rows = { storage = "active ok" }
+console = [
+    ["1 s key after 2 s: 403", "ok"],
+]
+
+[[act]]
+title = "The bill"
+summary = "A URL pasted into a public chat is used by a stranger: 200, and the file is stored."
+detail = """
+A valid URL is pasted into a public chat, and a stranger uses it: HTTP 200,
+and ten bytes are stored. Whoever holds the key can use it until it expires.
+Keep keys short-lived and narrow, keep them out of logs, and sign with
+credentials that can be revoked if one leaks.
+"""
+speech = """
+Fifth demo: the bill. [[slnc 400]] A valid address is pasted into a public chat. [[slnc 300]] A stranger uses it. [[slnc 300]] Accepted. [[slnc 600]]
+Whoever holds the key can use it, until it expires. [[slnc 500]]
+Keep keys short-lived and narrow. [[slnc 300]] Keep them out of logs. [[slnc 300]] And sign with credentials you can revoke.
+"""
+rows = { storage = "active amber" }
+console = [
+    ["stranger with the key: 200", "bad"],
+]
+
+[animation]
+subtitle = "The shop signs S3 presigned URLs; browsers upload photos straight to storage."
+boxes = [
+    ["app", "Shop app server", "signs URLs"],
+    ["storage", "S3 (LocalStack)", "checks signatures"],
+]
+
+[docs.problem]
+scenario = """
+Customers add 2 MB photos to reviews, and the app server carries every byte.
+"""
+naive = """
+Proxying uploads through the app wastes its bandwidth and memory on data it
+never needs to see.
+"""
+deliver = [
+    "Uploads carried through the app server.",
+    "An S3 presigned PUT URL used directly by the browser.",
+    "Refusals for the wrong method, object and size.",
+    "An expired URL refused.",
+    "A leaked URL, and an emulator's limit, named honestly.",
+    "Every printed result asserted by a test, skipped without Docker.",
+]
+
+[docs.prerequisites]
+required = [
+    "Java basics: HTTP in outline.",
+    "The Valet Key idea, ideally from the plain Java version of this pattern.",
+]
+not_required = [
+    "An AWS account. LocalStack plays S3 on your machine.",
+]
+install = [
+    "A running container runtime such as Docker Desktop. The demo starts and removes LocalStack itself.",
+]
+
+[docs.dependencies]
+intro = """
+This project uses the AWS SDK and LocalStack, which the plain Java version of
+Valet Key does not. Skipping it loses none of the pattern: the plain version
+teaches all of it with nothing installed.
+"""
+what = [
+    ["Amazon S3 and presigned URLs", "Amazon S3 is object storage: files, called objects, in buckets. A presigned URL is an ordinary web address with extra query parameters: who signed it, when, for how long, which headers are included, and a signature computed with the signer's secret key using AWS Signature Version 4. Anyone holding the URL can make exactly that request until it expires; S3 recomputes the signature and refuses anything else."],
+    ["The AWS SDK presigner", "S3Presigner signs URLs locally, without contacting S3. presignPutObject signs a PUT for one bucket and key; putting a content length in the request makes the size part of the signature."],
+    ["LocalStack", "LocalStack is a local stand-in for AWS services, run in a container. Version 4.14.0 is pinned because later images need an account. Signature checking is turned on with S3_SKIP_SIGNATURE_VALIDATION=0. It does not enforce bucket permissions, which is why an unsigned upload got through."],
+]
+why = """
+The plain version shows the idea with its own signing. This version shows the
+standard form every cloud offers, signed by the official SDK.
+"""
+versions = [
+    ["Java", "21"],
+    ["Docker", "running; 24 or later"],
+    ["LocalStack image", "localstack/localstack:4.14.0"],
+    ["AWS SDK for Java (s3)", "2.55.7"],
+    ["Testcontainers", "2.0.5"],
+]
+costs = [
+    "A container runtime, and a first run that downloads the LocalStack image.",
+    "An emulator that differs from real S3 on permissions.",
+]
+
+[docs.session]
+objectives = [
+    "Sign an S3 presigned PUT URL with the AWS SDK.",
+    "Upload directly from a client with only the URL.",
+    "Explain which changes break the signature.",
+    "Keep presigned URLs short-lived and narrow.",
+]
+walkthrough = """
+Run `./gradlew run` with Docker running. Compare act one's 40 MB with act
+two's under 2 KB. Open `Storage.presignedPut`: one request, one signature.
+End on act three's refusals and the honest note about LocalStack.
+"""
+exercises = [
+    "Sign a GET URL for the uploaded photo and share it for one minute.",
+    "Add a content type to the signature and upload with the wrong one.",
+    "Run the same code against a real S3 bucket and try the unsigned upload again.",
+]
+
+[docs.explained]
+sentence = """
+With S3, a valet key is a presigned URL: a signed, expiring permission for
+one request, checked by the storage service.
+"""
+verdict = """
+Use presigned URLs for large uploads and downloads the app need not see. Sign
+the method, object and size, keep lifetimes short, keep URLs out of logs, and
+test permissions against the real service.
+"""
+recognise = [
+    "`S3Presigner.presignPutObject(...)` or `presignGetObject(...)`.",
+    "URLs with `X-Amz-Signature` and `X-Amz-Expires`.",
+    "Upload endpoints that return a URL instead of accepting the file.",
+]
+
+[spec]
+purpose = """
+Teach Valet Key with S3 presigned URLs: uploads through the app server, a
+presigned PUT used directly, refusals for method, object and size, expiry, a
+leaked URL, and the honest limits of LocalStack.
+"""
+nongoals = [
+    "Not real AWS. LocalStack plays S3 locally.",
+]
+problem = """
+Every upload passing through the app server wastes it on data it never needs.
+"""
+roles = [
+    ["The storage and signing", "`Storage`"],
+    ["The client", "`Browser`"],
+    ["Entry point", "`S3ValetKeyDemo`, five acts"],
+]
+requirements = [
+    "**Direct:** the browser uploads with only the URL.",
+    "**Narrow:** method, object and size are enforced.",
+    "**Expiring:** an expired URL is refused.",
+    "**No Docker, no crash:** without a runtime the demo prints advice.",
+]
+
+[[diagram]]
+name = "architecture-diagram"
+kind = "flow"
+title = "Valet Key with S3 — the pieces"
+caption = "The app signs; the photo goes straight to storage."
+nodes = [
+    { id = "b", label = "Browser", sub = "has only the URL", col = 0, row = 0, colour = "client" },
+    { id = "a", label = "Shop app", sub = "S3Presigner", col = 1, row = 0, colour = "accent" },
+    { id = "s", label = "S3 (LocalStack)", sub = "checks the signature", col = 1, row = 1, colour = "green" },
+]
+edges = [
+    { from = "b", to = "a", label = "ask for a URL" },
+    { from = "b", to = "s", label = "PUT photo" },
+]
+
+[[diagram]]
+name = "class-diagram"
+kind = "class"
+title = "Valet Key with S3 — classes"
+caption = "Signing is local; checking is S3's."
+nodes = [
+    { id = "s", label = "Storage", sub = ["+ presignedPut(object, bytes, valid)", "+ putAsShop(object, data)", "+ size(object)"], col = 0, row = 0, colour = "accent" },
+    { id = "b", label = "Browser", sub = ["+ put(url, data)", "+ get(url)"], col = 1, row = 0, colour = "client" },
+]
+edges = [
+    { from = "b", to = "s", label = "uses URLs from" },
+]
+
+[[diagram]]
+name = "data-flow-diagram"
+kind = "flow"
+title = "Valet Key with S3 — what the signature covers"
+caption = "Change any of these and S3 refuses."
+nodes = [
+    { id = "a", label = "Method", sub = "PUT", col = 0, row = 0, colour = "accent" },
+    { id = "b", label = "Object", sub = "reviews/R-11/photo.jpg", col = 1, row = 0, colour = "accent" },
+    { id = "c", label = "Size", sub = "2000000 bytes", col = 2, row = 0, colour = "accent" },
+    { id = "d", label = "Time", sub = "signed at, lasts 5 min", col = 3, row = 0, colour = "accent" },
+]
+edges = []
+
+[[diagram]]
+name = "sequence-diagram"
+kind = "sequence"
+title = "Valet Key with S3 — one upload"
+caption = "The app never sees the photo."
+participants = ["Browser", "Shop app", "S3"]
+steps = [
+    ["Browser", "Shop app", "I want to add a photo"],
+    ["Shop app", "Browser", "presigned PUT URL", "reply"],
+    ["Browser", "S3", "PUT photo, 2 MB"],
+    ["S3", "Browser", "200", "reply"],
+]
+
+[[diagram]]
+name = "uml-diagram"
+kind = "sequence"
+title = "1. A bent key"
+caption = "Refused."
+participants = ["Browser", "S3"]
+steps = [
+    ["Browser", "S3", "URL edited to R-3"],
+    ["S3", "Browser", "403 signature does not match", "reply"],
+]
+
+[[diagram]]
+name = "uml-diagram-2"
+kind = "sequence"
+title = "2. A leaked key"
+caption = "Works until it expires."
+participants = ["Stranger", "S3"]
+steps = [
+    ["Stranger", "S3", "PUT with pasted URL"],
+    ["S3", "Stranger", "200", "reply"],
+]
+
+[poster]
+headline = [["VALET KEY", "text"], ["WITH AMAZON S3", "text"]]
+before = { code = "photos through the app", note = "40 MB carried", tag = "BEFORE" }
+after = { code = "presignPutObject(...)", note = "browser to S3, app carries 2 KB", tag = "AFTER" }
+taglines = [["Presigned URLs, for real", "gold"]]
+
+[[scene]]
+key = "01-poster"
+kind = "poster"
+title = "Valet Key with Amazon S3"
+narration = """
+Hello, and welcome. [[slnc 400]] This video explains the Valet Key pattern, with Amazon S3 presigned addresses, in Java. [[slnc 300]]
+This video is presented by Jayasekhar Konduru. [[slnc 600]]
+First, a simple definition. [[slnc 300]] A valet key gives a client permission to do one thing, directly, for a short time. [[slnc 300]] Without the client ever holding the real credentials. [[slnc 500]] Amazon S3 is cloud object storage, and its presigned addresses are exactly such keys. [[slnc 600]]
+Think of a hotel valet key. [[slnc 300]] It starts the car, but does not open the boot. [[slnc 300]] And the valet has it only for the evening. [[slnc 700]]
+In this video, the domain is an online shop's review photos. [[slnc 500]]
+By the end, you will hear how photos stop passing through the shop's server. [[slnc 300]] What a signed address allows, and refuses. [[slnc 300]] And what happens when one leaks.
+"""
+
+[[scene]]
+key = "02-scenario"
+kind = "bullets"
+title = "The Scenario"
+body = ["Customers add photos to reviews.", "", "Every photo went through", "the shop's app server.", "", "10 photos: 40 MB carried."]
+narration = """
+Here is the scenario. [[slnc 400]] Customers add photos to their reviews. [[slnc 500]]
+Every photo went through the shop's app server, on its way to storage. [[slnc 500]]
+Ten photos meant forty megabytes carried, by a server that only needed to say where each photo goes.
+"""
+
+[[scene]]
+key = "03-acts"
+kind = "acts"
+title = "acts"
+
+[[scene]]
+key = "04-pattern"
+kind = "bullets"
+title = "The Pattern, in S3"
+body = ["The shop signs a URL:", "one method, one object,", "one size, a few minutes.", "", "The client uses it directly.", "S3 checks the signature."]
+narration = """
+Let's name the pattern, in S3's words. [[slnc 400]] The shop signs an address. [[slnc 300]] One method, one object, one size, for a few minutes. [[slnc 500]]
+The client uses it directly. [[slnc 300]] And S3 checks the signature against exactly what is asked.
+"""
+
+[[scene]]
+key = "05-roles"
+kind = "bullets"
+title = "Who Does What"
+body = ["Storage: signs URLs with the AWS SDK", "Browser: uses only the URL", "LocalStack: plays S3 locally"]
+narration = """
+Here is who does what. [[slnc 400]] The storage class signs addresses with the AWS SDK's presigner. [[slnc 500]]
+The browser uses only the address. [[slnc 500]]
+And LocalStack plays Amazon S3, on your own machine.
+"""
+
+[[scene]]
+key = "06-recognise"
+kind = "bullets"
+title = "Where You Have Seen It"
+body = ["S3 presigned URLs", "Google Cloud signed URLs", "Azure SAS tokens", "Expiring download links"]
+narration = """
+You have probably met this already. [[slnc 400]] S3 presigned addresses. [[slnc 300]] Google Cloud's signed addresses. [[slnc 300]] Azure's shared access signatures. [[slnc 500]]
+And every download link in an email that stops working after a day.
+"""
+
+[[scene]]
+key = "07-verdict"
+kind = "bullets"
+title = "When To Use It"
+body = ["Large files the app need not see.", "", "Sign method, object, size.", "Short lifetimes.", "Out of logs.", "Test on the real service."]
+narration = """
+So, when should you use it? [[slnc 400]] For large uploads and downloads the app never needs to see. [[slnc 500]]
+Sign the method, object and size. [[slnc 300]] Keep lifetimes short. [[slnc 300]] Keep addresses out of logs. [[slnc 300]] And test permissions on the real service.
+"""
+
+[[scene]]
+key = "08-outro"
+kind = "outro"
+title = "Thanks for Watching"
+body = ["Full source, notes, diagrams and an animated walkthrough", "are in the repository. Sign a", "1-minute download link."]
+narration = """
+That's the Valet Key, with Amazon S3. [[slnc 400]] If you remember one sentence, make it this one. [[slnc 300]] Sign exactly one permission, for a short time, and let the storage check it. [[slnc 500]]
+The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. [[slnc 300]] It needs Docker running, and starts LocalStack for you. [[slnc 500]]
+Here is one exercise to try. [[slnc 300]] Sign a download address for the photo, valid for one minute. [[slnc 500]]
+If this helped, a like really does help other people find it. [[slnc 300]] And subscribe, if you'd like the rest of the series. [[slnc 400]] Thanks for watching.
+"""

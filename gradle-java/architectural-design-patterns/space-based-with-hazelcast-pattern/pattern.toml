@@ -1,0 +1,483 @@
+# pattern.toml for the Space-Based Architecture with Hazelcast project. See tools/patternkit.
+
+[project]
+slug = "space-based-with-hazelcast"
+category = "architectural-design-patterns"
+title = "Space-Based Architecture with Hazelcast"
+package = "spacehazelcast"
+main_class = "HazelcastSpaceBasedDemo"
+tagline = "A real data grid, no database in the way"
+bold = "Keep the shop's stock in a real Hazelcast data grid spread across three processing units, sell with an entry processor that runs on the key's owner, write the database behind the scenes, and survive a unit crashing."
+domain_note = ""
+thumb_lines = ["SPACE-BASED", "WITH HAZELCAST"]
+thumb_code = "executeOnKey(sku, SellOne)"
+youtube_title = "Space-Based Architecture with Hazelcast"
+youtube_tags = ["space-based architecture", "hazelcast", "data grid", "write-behind", "entry processor", "java"]
+
+[readme]
+intro = """
+This is the framework version of the Space-Based Architecture pattern. The
+plain Java version, a separate project in this category, gives each
+processing unit its own copy of the data and copies sales between them. Here
+Hazelcast, a real in-memory data grid, holds the data: three Hazelcast
+members, started inside the demo with nothing else installed, form a cluster,
+and the stock is split across them with a backup copy of every entry.
+
+Three Hazelcast features answer the plain version's open problems. An entry
+processor runs "sell one" on the member that owns the item, one at a time, so
+two units can no longer both sell the last kettle. Backups mean a crashed unit
+loses nothing. And write-behind writes the database later, in the background,
+keeping only the latest value.
+"""
+analogy = """
+Think of a busy market with several stalls sharing one stock of goods.
+Instead of every stall running to the warehouse for each sale, the goods are
+spread among the stalls, each item looked after by one stall, with a partner
+stall keeping a note of it in case the first closes. A clerk updates the
+warehouse ledger at the end of each hour, not after every sale.
+"""
+scenario = """
+The online store's flash sale sends hundreds of kettle orders a second. Every
+order used to update the stock in the database, which handles one write at a
+time, so adding more app servers only made more of them queue for the same
+database.
+"""
+test_note = """
+Every result the demo prints is asserted, with three real Hazelcast members
+started inside the test. Timings are printed as thresholds, and the wait for
+the database is a bounded poll.
+"""
+run_note = """
+Nothing to install beyond a Java 21 JDK: Hazelcast runs embedded, and the demo
+starts three cluster members inside one program, joined over the local
+network.
+"""
+twin = """
+The plain Java version got the idea right: keep the data in memory in each
+processing unit, keep the database out of the request path, and write it in
+the background. It also showed the two dangers: copies that disagree for a
+moment let two units sell the last kettle, and a unit that crashes before its
+sales are copied loses them. What it left out is how a real data grid removes
+both. Hazelcast gives every key one owner, so there are no copies to
+disagree; an entry processor sells on the owner, one at a time, so only one of
+two buyers gets the last kettle; a backup copy on another member takes over
+when a unit crashes; and write-behind coalesces three hundred updates into a
+few database writes.
+"""
+technologies = [
+    ["Hazelcast", "5.7.0 (embedded)", "the data grid: partitioned map, backups, entry processors, write-behind"],
+]
+costs = [
+    "**Memory everywhere.** Every unit holds its share of the data, and a backup of another's.",
+    "**A cluster to run.** Members must find each other, be sized, upgraded and watched.",
+    "**Write-behind can lose the latest.** If the whole grid stops before write-behind runs, the last sales never reach the database.",
+]
+too_much = """
+If the database keeps up with the load, a normal app with a database is far
+simpler. Space-based designs pay off for bursts of load that a single
+database cannot absorb, such as flash sales and ticket releases.
+"""
+met_before = [
+    "Hazelcast, Apache Ignite and Oracle Coherence data grids.",
+    "Ticket-booking and trading systems that keep hot data in a grid.",
+    "Caches with write-behind to a database.",
+]
+where = """
+This project is in [architectural-design-patterns](..). It is the framework
+version of the plain Java Space-Based Architecture project in the same
+category, which is left unchanged.
+"""
+
+[[act]]
+title = "One database for everyone"
+summary = "300 kettle orders, each written to a database that takes 5 ms per write, take over 1.4 s; more app servers only queue for the same database."
+detail = """
+Every order writes the stock to the database, which handles one write at a
+time and takes five milliseconds for each. Three hundred kettle orders take
+over 1.4 seconds, and more app servers would only queue for the same
+database.
+"""
+speech = """
+First demo: one database for everyone. [[slnc 400]] Every order writes the stock to the database, one at a time. [[slnc 600]]
+Three hundred kettle orders take more than one and a half seconds. [[slnc 500]]
+More app servers would not help. [[slnc 300]] They would only queue for the same database.
+"""
+rows = { database = "active wrong" }
+console = [
+    ["300 orders: over 1.4 s", "bad"],
+]
+
+[[act]]
+title = "Stock in the grid"
+summary = "Three Hazelcast members form a cluster; 300 orders spread over them take under 1 s, with 0 database writes during the orders."
+detail = """
+Three Hazelcast members start and form a cluster. The stock lives in a
+Hazelcast map spread across them. Three hundred orders, spread over the three
+units, take under a second, and not one of them waits for the database.
+"""
+speech = """
+Second demo: the stock lives in the grid. [[slnc 400]] Three Hazelcast members start, and form a cluster. [[slnc 600]]
+The stock is held in their memory. [[slnc 500]]
+Three hundred orders, spread over the three units, take less than a second. [[slnc 300]] Not one of them waits for the database.
+"""
+rows = { grid = "active ok", database = "active ok" }
+console = [
+    ["cluster formed: 3 members", "muted"],
+    ["300 orders: under 1 s, 0 database writes", "ok"],
+]
+
+[[act]]
+title = "One grid, not three copies"
+summary = "Every unit reads 700; each key has one owner and a backup, so there are no copies to keep in step."
+detail = """
+Every unit reads the same stock, seven hundred. The grid does not keep three
+copies to be synchronised: each key has one owner, with a backup on another
+member, and every unit asks the owner.
+"""
+speech = """
+Third demo: one grid, not three copies. [[slnc 400]] Every unit reads the same stock. [[slnc 300]] Seven hundred. [[slnc 600]]
+Each item has one owner in the grid. [[slnc 300]] With a backup copy on another member. [[slnc 300]] Every unit asks the owner.
+"""
+rows = { grid = "active ok" }
+console = [
+    ["stock on each unit: 700, 700, 700", "ok"],
+]
+
+[[act]]
+title = "Write-behind"
+summary = "The database reaches 700 after at most 3 writes for 300 sales, because write-behind keeps only the latest value."
+detail = """
+Hazelcast writes the database later, in the background, with write-behind.
+It keeps only the latest value of each key, so three hundred sales reach the
+database as at most three writes, and the database stock is seven hundred. No
+customer waited for any of those writes.
+"""
+speech = """
+Fourth demo: the database catches up, in the background. [[slnc 400]] Hazelcast writes the database a little later. [[slnc 300]] And only the latest value. [[slnc 600]]
+Three hundred sales become at most three database writes. [[slnc 300]] The database now says seven hundred. [[slnc 500]]
+No customer waited for any of them.
+"""
+rows = { grid = "active ok", database = "active ok" }
+console = [
+    ["database: 700, after at most 3 writes", "ok"],
+]
+
+[[act]]
+title = "The last kettle, a crash, and the bill"
+summary = "Two customers on two units try for the last kettle: sold 1 of 2. Unit 3 crashes and KETTLE-1 is still 700 from its backup."
+detail = """
+One kettle is left, and two customers try for it on two different units at
+once. The sale runs as an entry processor on the owning member, one at a
+time: one sale succeeds, the other is refused, and stock is zero. Then unit
+three crashes; its backup copies take over and the stock is still seven
+hundred. The bill: data held in every unit's memory, a cluster to run, and
+sales lost if the whole grid stops before write-behind runs.
+"""
+speech = """
+Fifth demo: the last kettle, and a crash. [[slnc 400]] One kettle is left. [[slnc 300]] Two customers try for it, on two units, at the same moment. [[slnc 600]]
+The sale runs on the member that owns the kettle, one at a time. [[slnc 300]] One succeeds. [[slnc 300]] The other is refused. [[slnc 600]]
+Then unit three crashes. [[slnc 300]] Its backup copies take over. [[slnc 300]] Nothing is lost. [[slnc 600]]
+The bill. [[slnc 300]] Data in every unit's memory. [[slnc 300]] A cluster to run. [[slnc 300]] And if the whole grid stops before the database is written, the latest sales are gone.
+"""
+rows = { grid = "active amber" }
+console = [
+    ["last kettle: sold 1 of 2; stock 0", "ok"],
+    ["unit 3 crashes: stock still 700", "ok"],
+    ["memory, a cluster, write-behind risk", "amber"],
+]
+
+[animation]
+subtitle = "Three Hazelcast members hold the stock; sales run on the owner; the database is written behind."
+boxes = [
+    ["grid", "Hazelcast grid", "3 members, backups"],
+    ["database", "Database", "written behind"],
+]
+
+[docs.problem]
+scenario = """
+A flash sale sends hundreds of kettle orders a second to a database that
+writes one at a time.
+"""
+naive = """
+Every order waits for the database, and more app servers only queue for it.
+"""
+deliver = [
+    "A database bottleneck measured.",
+    "Three real Hazelcast members holding the stock.",
+    "One owner per key instead of copies.",
+    "Write-behind coalescing updates.",
+    "An atomic last-kettle sale and a crash survived.",
+    "Every printed result asserted by a test.",
+]
+
+[docs.prerequisites]
+required = [
+    "Java basics: maps, lambdas.",
+    "The Space-Based idea, ideally from the plain Java version of this pattern.",
+]
+not_required = [
+    "Docker or a separate Hazelcast install. Hazelcast runs embedded.",
+]
+
+[docs.dependencies]
+intro = """
+This project uses Hazelcast, which the plain Java version of Space-Based
+Architecture does not. Skipping it loses none of the pattern: the plain
+version teaches all of it with nothing installed.
+"""
+what = [
+    ["Hazelcast", "Hazelcast is an in-memory data grid: several programs, called members, join into a cluster and share data. An IMap is a map split across the members; each key has one owning member, and with a backup count of one, another member keeps a copy. An entry processor is a piece of code sent to the owning member and run on one entry, one at a time for that key, so a read-change-write cannot be interleaved. A map store connects a map to a database; with a write delay, it writes in the background, and with write coalescing, only the latest value of each key."],
+]
+why = """
+The plain version shows the idea. This version shows how a real data grid
+answers the two problems the plain version left open: the oversold last item
+and the crashed unit.
+"""
+install_note = "Only a JDK, version 21. Gradle downloads the rest, and the version is pinned:"
+versions = [
+    ["Java", "21"],
+    ["Hazelcast", "5.7.0"],
+]
+costs = [
+    "A cluster to size, run and upgrade in production.",
+    "JVM flags that Hazelcast asks for on newer Java versions, set in build.gradle.",
+]
+
+[docs.session]
+objectives = [
+    "Start an embedded Hazelcast cluster.",
+    "Sell atomically with an entry processor.",
+    "Explain owners and backups.",
+    "Configure write-behind and explain its risk.",
+]
+walkthrough = """
+Run `./gradlew run`. Compare act one's 1.4 seconds with act two's under one.
+Open `SellOne`: the whole sale. Open `Grid.config`: backups and write-behind.
+End on act five's sold 1 of 2.
+"""
+exercises = [
+    "Set the backup count to 0 and repeat the crash in act five.",
+    "Sell the last kettle with get and put instead of an entry processor, and run it many times.",
+    "Replace the slow database with PostgreSQL through JDBC in the map store.",
+]
+
+[docs.explained]
+sentence = """
+With Hazelcast, a space-based design keeps data in a partitioned in-memory
+grid with backups, runs changes on each key's owner, and writes the database
+behind.
+"""
+verdict = """
+Use a data grid for bursts of load a single database cannot absorb. Change
+data with entry processors, keep at least one backup, and accept that
+write-behind trades durability for speed.
+"""
+recognise = [
+    "`IMap` and `executeOnKey(key, processor)`.",
+    "`MapStoreConfig` with a write delay.",
+    "Clusters of application instances sharing an in-memory map.",
+]
+
+[spec]
+purpose = """
+Teach Space-Based Architecture with Hazelcast: a database bottleneck, stock in
+a three-member grid, one owner per key, write-behind, an atomic last-kettle
+sale and a survived crash.
+"""
+nongoals = [
+    "Not a separate Hazelcast cluster. Members run embedded in the demo.",
+]
+problem = """
+A single database cannot keep up with bursts of orders, however many app
+servers there are.
+"""
+roles = [
+    ["The processing units", "`Grid`"],
+    ["The atomic sale", "`SellOne`"],
+    ["The database bridge", "`StockStore`"],
+    ["The database", "`SlowDatabase`"],
+    ["Entry point", "`HazelcastSpaceBasedDemo`, five acts"],
+]
+requirements = [
+    "**Fast:** orders never wait for the database.",
+    "**Atomic:** the last kettle is sold exactly once.",
+    "**Durable in the grid:** a crashed unit loses no stock.",
+    "**Every printed result is asserted** in `DemoRunsTest`.",
+]
+
+[[diagram]]
+name = "architecture-diagram"
+kind = "flow"
+title = "Space-Based with Hazelcast — the pieces"
+caption = "Orders go to the grid; the database is written behind."
+nodes = [
+    { id = "o", label = "Orders", sub = "flash sale", col = 0, row = 1, colour = "client" },
+    { id = "u1", label = "Unit 1", sub = "Hazelcast member", col = 1, row = 0, colour = "accent" },
+    { id = "u2", label = "Unit 2", sub = "Hazelcast member", col = 1, row = 1, colour = "accent" },
+    { id = "u3", label = "Unit 3", sub = "Hazelcast member", col = 1, row = 2, colour = "accent" },
+    { id = "d", label = "Database", sub = "write-behind", col = 2, row = 1, colour = "green" },
+]
+edges = [
+    { from = "o", to = "u1", label = "" },
+    { from = "o", to = "u2", label = "" },
+    { from = "o", to = "u3", label = "" },
+    { from = "u2", to = "d", label = "later" },
+]
+
+[[diagram]]
+name = "class-diagram"
+kind = "class"
+title = "Space-Based with Hazelcast — classes"
+caption = "A grid, a sale, and a store."
+nodes = [
+    { id = "g", label = "Grid", sub = ["+ stock(unit): IMap", "+ kill(unit)", "backups, write-behind"], col = 0, row = 0, colour = "accent" },
+    { id = "s", label = "SellOne", sub = ["implements EntryProcessor", "stock > 0 ? stock - 1"], col = 1, row = 0, colour = "green" },
+    { id = "m", label = "StockStore", sub = ["implements MapStore", "+ store / storeAll"], col = 0, row = 1, colour = "client" },
+    { id = "d", label = "SlowDatabase", sub = ["5 ms per write"], col = 1, row = 1, colour = "client" },
+]
+edges = [
+    { from = "g", to = "s", label = "runs" },
+    { from = "m", to = "d", label = "writes" },
+]
+
+[[diagram]]
+name = "data-flow-diagram"
+kind = "flow"
+title = "Space-Based with Hazelcast — the last kettle"
+caption = "Run on the owner, one at a time."
+nodes = [
+    { id = "a", label = "Customer on unit 2", sub = "", col = 0, row = 0, colour = "client" },
+    { id = "b", label = "Customer on unit 3", sub = "", col = 0, row = 1, colour = "client" },
+    { id = "c", label = "Owner of KETTLE-2", sub = "SellOne, one at a time", col = 1, row = 0, colour = "accent" },
+    { id = "d", label = "sold 1 of 2", sub = "stock 0", col = 2, row = 0, colour = "green" },
+]
+edges = [
+    { from = "a", to = "c", label = "" },
+    { from = "b", to = "c", label = "" },
+    { from = "c", to = "d", label = "" },
+]
+
+[[diagram]]
+name = "sequence-diagram"
+kind = "sequence"
+title = "Space-Based with Hazelcast — one order"
+caption = "The sale runs where the data lives."
+participants = ["Unit 1", "Owner", "Backup", "Database"]
+steps = [
+    ["Unit 1", "Owner", "executeOnKey(KETTLE-1, SellOne)"],
+    ["Owner", "Backup", "copy the new stock"],
+    ["Owner", "Unit 1", "true", "reply"],
+    ["note", "Database", "written later"],
+]
+
+[[diagram]]
+name = "uml-diagram"
+kind = "sequence"
+title = "1. A crash"
+caption = "The backup takes over."
+participants = ["Unit 3", "Unit 1"]
+steps = [
+    ["note", "Unit 3", "terminated"],
+    ["note", "Unit 1", "promotes its backup: stock 700"],
+]
+
+[[diagram]]
+name = "uml-diagram-2"
+kind = "sequence"
+title = "2. Write-behind"
+caption = "Only the latest value is written."
+participants = ["Grid", "Database"]
+steps = [
+    ["note", "Grid", "300 sales in memory"],
+    ["Grid", "Database", "store(KETTLE-1, 700)"],
+]
+
+[poster]
+headline = [["SPACE-BASED", "text"], ["WITH HAZELCAST", "text"]]
+before = { code = "every order -> database", note = "300 orders: over 1.4 s", tag = "BEFORE" }
+after = { code = "executeOnKey(sku, SellOne)", note = "under 1 s, last kettle sold once", tag = "AFTER" }
+taglines = [["A real data grid", "gold"]]
+
+[[scene]]
+key = "01-poster"
+kind = "poster"
+title = "Space-Based Architecture with Hazelcast"
+narration = """
+Hello, and welcome. [[slnc 400]] This video explains Space-Based Architecture, built with Hazelcast, in Java. [[slnc 300]]
+This video is presented by Jayasekhar Konduru. [[slnc 600]]
+First, a simple definition. [[slnc 300]] In a space-based design, the data lives in the memory of the processing units themselves. [[slnc 300]] So busy moments never wait for a database. [[slnc 300]] The database is written later, in the background. [[slnc 500]] Hazelcast is an open-source in-memory data grid: several programs that share data as one. [[slnc 600]]
+Think of market stalls sharing one stock of goods. [[slnc 300]] Each item is looked after by one stall, with a partner keeping a note in case it closes. [[slnc 300]] The warehouse ledger is updated once an hour. [[slnc 700]]
+In this video, the domain is an online shop's flash sale of kettles. [[slnc 500]]
+By the end, you will hear why the database was the bottleneck. [[slnc 300]] How a real grid holds the stock. [[slnc 300]] How it sells the last kettle only once. [[slnc 300]] And what happens when a unit crashes.
+"""
+
+[[scene]]
+key = "02-scenario"
+kind = "bullets"
+title = "The Scenario"
+body = ["A flash sale: hundreds of", "kettle orders a second.", "", "Every order wrote to the database.", "", "More servers, same queue."]
+narration = """
+Here is the scenario. [[slnc 400]] A flash sale sends hundreds of kettle orders a second. [[slnc 500]]
+Every order wrote the stock to the database, one at a time. [[slnc 500]]
+More app servers only made more of them wait in the same queue.
+"""
+
+[[scene]]
+key = "03-acts"
+kind = "acts"
+title = "acts"
+
+[[scene]]
+key = "04-pattern"
+kind = "bullets"
+title = "The Pattern, in Hazelcast"
+body = ["Data in the grid's memory.", "One owner per key, one backup.", "", "Changes run on the owner.", "The database written behind."]
+narration = """
+Let's name the pattern, in Hazelcast's words. [[slnc 400]] The data lives in the grid's memory. [[slnc 300]] Each item has one owner, and one backup. [[slnc 500]]
+Changes run on the owner, one at a time. [[slnc 500]]
+And the database is written behind, in the background.
+"""
+
+[[scene]]
+key = "05-roles"
+kind = "bullets"
+title = "Who Does What"
+body = ["Grid: three Hazelcast members", "SellOne: the sale, run on the owner", "StockStore: writes the database later", "SlowDatabase: the old bottleneck"]
+narration = """
+Here is who does what. [[slnc 400]] The grid is three Hazelcast members, the processing units. [[slnc 500]]
+Sell one is the sale, run on the member that owns the item. [[slnc 500]]
+The stock store writes the database later. [[slnc 300]] And the slow database is the old bottleneck.
+"""
+
+[[scene]]
+key = "06-recognise"
+kind = "bullets"
+title = "Where You Have Seen It"
+body = ["Hazelcast, Ignite, Coherence", "Ticket and trading systems", "Caches with write-behind"]
+narration = """
+You have probably met this already. [[slnc 400]] Data grids such as Hazelcast, Apache Ignite, and Oracle Coherence. [[slnc 500]]
+Ticket booking and trading systems, which keep their busiest data in a grid. [[slnc 500]]
+And caches that write to a database behind the scenes.
+"""
+
+[[scene]]
+key = "07-verdict"
+kind = "bullets"
+title = "When To Use It"
+body = ["Bursts a database cannot absorb.", "", "Entry processors for changes.", "At least one backup.", "Write-behind trades durability."]
+narration = """
+So, when should you use it? [[slnc 400]] For bursts of load that a single database cannot absorb. [[slnc 500]]
+Change data with entry processors. [[slnc 300]] Keep at least one backup. [[slnc 300]] And remember that writing behind trades durability for speed.
+"""
+
+[[scene]]
+key = "08-outro"
+kind = "outro"
+title = "Thanks for Watching"
+body = ["Full source, notes, diagrams and an animated walkthrough", "are in the repository. Set backups", "to 0 and crash a unit."]
+narration = """
+That's Space-Based Architecture, with Hazelcast. [[slnc 400]] If you remember one sentence, make it this one. [[slnc 300]] Keep the busy data in a grid, change it where it lives, and write the database behind. [[slnc 500]]
+The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. [[slnc 300]] It runs offline, with nothing installed except a Java development kit. [[slnc 500]]
+Here is one exercise to try. [[slnc 300]] Set the backup count to zero, and crash a unit. [[slnc 500]]
+If this helped, a like really does help other people find it. [[slnc 300]] And subscribe, if you'd like the rest of the series. [[slnc 400]] Thanks for watching.
+"""

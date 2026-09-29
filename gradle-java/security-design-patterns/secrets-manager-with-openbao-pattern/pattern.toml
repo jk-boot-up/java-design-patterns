@@ -1,0 +1,469 @@
+# pattern.toml for the Secrets Manager with OpenBao project. See tools/patternkit.
+
+[project]
+slug = "secrets-manager-with-openbao"
+category = "security-design-patterns"
+title = "Secrets Manager with OpenBao"
+package = "secretsopenbao"
+main_class = "OpenBaoSecretsDemo"
+tagline = "Policies, tokens, versions, revocation"
+bold = "Keep the payment key in a real OpenBao server, the open-source fork of HashiCorp Vault: a policy decides which service may read it, each service has its own token, the key is versioned for rotation, and a leaked token is revoked at once."
+domain_note = ""
+thumb_lines = ["SECRETS MANAGER", "WITH OPENBAO"]
+thumb_code = "GET /v1/secret/data/payment-key"
+youtube_title = "Secrets Manager with OpenBao (open-source Vault)"
+youtube_tags = ["secrets manager", "openbao", "vault", "policies", "key rotation", "java"]
+
+[readme]
+intro = """
+This is the real-infrastructure version of the Secrets Manager pattern. The
+plain Java version, a separate project in this category, keeps secrets in a
+map with grants. Here a real OpenBao server holds them, started in a container
+by the demo itself, and the demo talks to it over its HTTP API.
+
+OpenBao is the open-source fork of HashiCorp Vault, run by the Linux
+Foundation. It keeps Vault's API and concepts: a key-value store with
+versions, policies written as rules over paths, and tokens that carry
+policies and can be revoked. It is used here rather than Vault because Vault
+is no longer open source: since 2023 it is published under the Business
+Source License.
+"""
+analogy = """
+Think of a bank's safe-deposit room. Keys to the boxes are not handed out
+freely: each person gets a card that opens only the boxes on their list, and
+a lost card is cancelled at the desk at once. When a box's lock is changed,
+the old combination is kept on file for a while, in case someone still needs
+it.
+"""
+scenario = """
+The online store's payment key was written in a configuration file committed
+with the code and built into three services. Everyone who could read the
+repository could read it, and changing it meant rebuilding every service.
+"""
+test_note = """
+Every result the demo prints is asserted against a real OpenBao server.
+Without a container runtime, the test is skipped rather than failed.
+"""
+run_note = """
+This project needs a running container runtime, such as Docker Desktop: the
+demo starts a real OpenBao 2.7.0 server in a container and removes it again.
+Without one, it prints a sentence saying what to start, rather than failing.
+"""
+twin = """
+The plain Java version got the idea right: secrets out of code, granted per
+service, read at run time, rotated without a rebuild, and a manager every
+service now depends on. What it left out is how a real secrets manager does
+it. Access is a policy over paths, attached to a token each service holds, and
+a service without it gets HTTP 403. Secrets are versioned, so version 1 stays
+readable during rotation. A leaked token can be revoked at once, which the
+plain version could not show. And development mode, used here, is exactly
+what production must not be: in memory, unsealed and with a root token.
+"""
+technologies = [
+    ["OpenBao", "2.7.0 (container image)", "the secrets server: KV v2, policies, tokens"],
+    ["Java HttpClient", "JDK 21", "calls OpenBao's HTTP API directly"],
+    ["Testcontainers", "2.0.5", "starts and stops OpenBao from the demo"],
+    ["Docker", "24 or later", "runs the container"],
+]
+costs = [
+    "**Secret zero.** Each service still needs a first credential to get its token; use the platform's identity, such as AppRole or Kubernetes auth.",
+    "**Critical to run.** Production needs storage, unsealing and high availability, because services cannot start without it.",
+    "**Policies to maintain.** Every service's access is a rule someone writes and reviews.",
+]
+too_much = """
+A learning project on one laptop can use environment variables. Once a secret
+guards real money or data, or is shared by several services, it belongs in a
+secrets manager.
+"""
+met_before = [
+    "HashiCorp Vault, whose API OpenBao keeps.",
+    "AWS Secrets Manager, Azure Key Vault and Google Secret Manager.",
+    "Spring Cloud Vault, which reads Vault-compatible servers into Spring configuration.",
+]
+where = """
+This project is in [security-design-patterns](..). It is the
+real-infrastructure version of the plain Java Secrets Manager project in the
+same category, which is left unchanged.
+"""
+
+[[act]]
+title = "A key in the code"
+summary = "PAYMENT_KEY = \"pay-key-v1\" is built into three services and readable by anyone with the repository."
+detail = """
+The payment key is written into the code as a constant and built into
+checkout, refunds and subscriptions. Everyone who can read the repository can
+read it, and every old copy stays in the history.
+"""
+speech = """
+First demo: the payment key is written in the code. [[slnc 400]] It is built into three services. [[slnc 600]]
+Everyone who can read the code can read the key. [[slnc 300]] And every old copy stays in the history.
+"""
+rows = { code = "active wrong" }
+console = [
+    ["PAYMENT_KEY = \"pay-key-v1\"", "bad"],
+]
+
+[[act]]
+title = "Policies and tokens"
+summary = "The key is in OpenBao; checkout's token with the payments policy reads it (200), catalog's token without it is refused (403)."
+detail = """
+The key is stored in OpenBao's key-value store. A policy called payments
+allows reading that one path. Checkout gets a token carrying the policy and
+reads the key: HTTP 200. The catalog service gets a token without it and is
+refused: HTTP 403, permission denied.
+"""
+speech = """
+Second demo: the key lives in OpenBao. [[slnc 400]] A policy called payments allows reading that one key. [[slnc 600]]
+Checkout has a token carrying that policy. [[slnc 300]] It reads the key. [[slnc 500]]
+The catalog service has a token without it. [[slnc 300]] Refused. [[slnc 300]] Permission denied.
+"""
+rows = { bao = "active ok", services = "active ok" }
+console = [
+    ["checkout: 200, pay-key-v1", "ok"],
+    ["catalog: 403, permission denied", "ok"],
+]
+
+[[act]]
+title = "Versions and rotation"
+summary = "Writing the key again makes version 2, which checkout now reads; version 1 stays readable for a grace period."
+detail = """
+Writing a new value creates version 2 of the secret, and checkout now reads
+pay-key-v2 with no rebuild. OpenBao keeps version 1, so it can still be read
+while the payment company accepts both during the change-over.
+"""
+speech = """
+Third demo: rotating the key. [[slnc 400]] Writing a new value creates version two. [[slnc 300]] Checkout now reads it, with no rebuild. [[slnc 600]]
+Version one is kept, and can still be read. [[slnc 300]] So old and new can overlap, for a grace period.
+"""
+rows = { bao = "active ok" }
+console = [
+    ["version 2: pay-key-v2", "ok"],
+    ["version 1 still readable", "muted"],
+]
+
+[[act]]
+title = "Revoke a leaked token"
+summary = "Checkout's token leaks and is revoked: the attacker gets 403; checkout gets a new token and reads the key again."
+detail = """
+Checkout's token appears in a log that leaked. It is revoked at once. The
+attacker using it gets HTTP 403. Checkout is given a new token and reads the
+key as before; the key itself can also be rotated, as in act three.
+"""
+speech = """
+Fourth demo: checkout's token leaks. [[slnc 400]] It is revoked, at once. [[slnc 600]]
+The attacker tries it. [[slnc 300]] Refused. [[slnc 500]]
+Checkout is given a new token, and reads the key as before. [[slnc 300]] And the key itself can be rotated too.
+"""
+rows = { bao = "active ok", services = "active ok" }
+console = [
+    ["leaked token: 403", "ok"],
+    ["new token: 200", "ok"],
+]
+
+[[act]]
+title = "The bill"
+summary = "Every service needs a first credential to get a token, and dev mode is in memory with a root token; production needs storage, unsealing and HA."
+detail = """
+Every service still needs one first credential to get its token; the answer
+is the platform's own identity, such as AppRole or Kubernetes auth. And this
+demo's server runs in development mode: in memory, unsealed and with a root
+token. Production needs real storage, unsealing and high availability,
+because every service now depends on it to start.
+"""
+speech = """
+Fifth demo: the bill. [[slnc 400]] Every service still needs one first credential, to get its token. [[slnc 300]] Let the platform provide that identity. [[slnc 600]]
+And this server runs in development mode. [[slnc 300]] In memory, with a master token. [[slnc 500]]
+Production needs real storage, and high availability. [[slnc 300]] Because every service now depends on it to start.
+"""
+rows = { bao = "active amber" }
+console = [
+    ["secret zero: platform identity", "amber"],
+    ["dev mode is not production", "amber"],
+]
+
+[animation]
+subtitle = "Services read the payment key from OpenBao with their own tokens; policies decide who may."
+boxes = [
+    ["code", "Source code", "no secrets"],
+    ["bao", "OpenBao", "KV v2, policies, tokens"],
+    ["services", "Checkout, catalog", "one token each"],
+]
+
+[docs.problem]
+scenario = """
+The payment key is committed in code and built into three services.
+"""
+naive = """
+Anyone with the repository can read it, and changing it means rebuilding
+every service.
+"""
+deliver = [
+    "A hard-coded key.",
+    "A policy and per-service tokens in OpenBao.",
+    "Versioned rotation.",
+    "Revoking a leaked token.",
+    "The costs of running a secrets manager.",
+    "Every printed result asserted by a test, skipped without Docker.",
+]
+
+[docs.prerequisites]
+required = [
+    "Java basics: HTTP in outline.",
+    "The Secrets Manager idea, ideally from the plain Java version of this pattern.",
+]
+not_required = [
+    "Earlier Vault or OpenBao experience. The dependencies page explains the words used.",
+]
+install = [
+    "A running container runtime such as Docker Desktop. The demo starts and removes OpenBao itself.",
+]
+
+[docs.dependencies]
+intro = """
+This project uses OpenBao, which the plain Java version of Secrets Manager
+does not. Skipping it loses none of the pattern: the plain version teaches all
+of it with nothing installed.
+"""
+what = [
+    ["OpenBao", "OpenBao is an open-source secrets manager, a fork of HashiCorp Vault run by the Linux Foundation, with the same HTTP API. The KV version 2 engine stores secrets at paths such as secret/data/payment-key, keeping every version. A policy is a set of rules over paths, such as read on that one path. A token is what a service presents with each request, in the X-Vault-Token header; it carries policies, and can be revoked. Development mode runs everything in memory, already unsealed, with a root token: for learning only."],
+    ["Why not Vault", "HashiCorp Vault changed its licence in 2023 to the Business Source License, which is not an open-source licence. OpenBao continues the open-source code, so what you learn here applies to Vault too."],
+    ["Testcontainers", "Testcontainers is a Java library that starts a container, here OpenBao, from inside a program, and removes it afterwards."],
+]
+why = """
+The plain version shows the idea. This version shows the concepts every real
+secrets manager shares: paths, policies, tokens, versions and revocation.
+"""
+versions = [
+    ["Java", "21"],
+    ["Docker", "running; 24 or later"],
+    ["OpenBao image", "openbao/openbao:2.7.0"],
+    ["Testcontainers", "2.0.5"],
+]
+costs = [
+    "A container runtime, and a first run that downloads the OpenBao image.",
+    "A highly available secrets server to run in production.",
+]
+
+[docs.session]
+objectives = [
+    "Store a secret in OpenBao's KV v2 engine.",
+    "Write a policy and issue tokens that carry it.",
+    "Rotate a secret by writing a new version.",
+    "Revoke a leaked token.",
+]
+walkthrough = """
+Run `./gradlew run` with Docker running. Compare act two's 200 and 403. Open
+`Secrets`: every method is one HTTP call. End on act four's revoked token.
+"""
+exercises = [
+    "Enable AppRole auth and log in with a role instead of a root-issued token.",
+    "Give tokens a 10-second lifetime and watch one expire.",
+    "Replace the HTTP calls with Spring Cloud Vault pointed at OpenBao.",
+]
+
+[docs.explained]
+sentence = """
+With OpenBao, secrets live at paths, policies decide who may read them, each
+service holds a revocable token, and every change is a new version.
+"""
+verdict = """
+Use a secrets manager for every real secret. Write narrow policies, give each
+service its own token from a platform identity, rotate secrets as versions,
+revoke leaks at once, and run the server for high availability.
+"""
+recognise = [
+    "`X-Vault-Token` headers and `/v1/secret/data/...` paths.",
+    "Policies written as `path \"...\" { capabilities = [\"read\"] }`.",
+    "`spring.cloud.vault` settings in configuration.",
+]
+
+[spec]
+purpose = """
+Teach Secrets Manager with a real OpenBao server: a hard-coded key, a policy
+and per-service tokens, versioned rotation, revoking a leaked token, and the
+costs of running the server.
+"""
+nongoals = [
+    "Not production OpenBao. Development mode, in memory, is used.",
+]
+problem = """
+Secrets in code are widely readable and hard to change.
+"""
+roles = [
+    ["The server in a container", "`OpenBao`"],
+    ["The shop's secret operations", "`Secrets`"],
+    ["Entry point", "`OpenBaoSecretsDemo`, five acts"],
+]
+requirements = [
+    "**Policy:** only a token with the payments policy reads the key.",
+    "**Versions:** version 1 stays readable after rotation.",
+    "**Revocable:** a revoked token is refused.",
+    "**No Docker, no crash:** without a runtime the demo prints advice.",
+]
+
+[[diagram]]
+name = "architecture-diagram"
+kind = "flow"
+title = "Secrets Manager with OpenBao — the pieces"
+caption = "Tokens carry policies; policies guard paths."
+nodes = [
+    { id = "c", label = "Checkout", sub = "token: payments", col = 0, row = 0, colour = "green" },
+    { id = "k", label = "Catalog", sub = "token: no policy", col = 0, row = 1, colour = "red" },
+    { id = "b", label = "OpenBao", sub = "secret/data/payment-key", col = 1, row = 0, colour = "accent" },
+]
+edges = [
+    { from = "c", to = "b", label = "200" },
+    { from = "k", to = "b", label = "403" },
+]
+
+[[diagram]]
+name = "class-diagram"
+kind = "class"
+title = "Secrets Manager with OpenBao — classes"
+caption = "Each method is one HTTP call."
+nodes = [
+    { id = "s", label = "Secrets", sub = ["+ storePaymentKey(value)", "+ writePaymentsPolicy()", "+ tokenFor(policy)", "+ read(token) / revoke(token)"], col = 0, row = 0, colour = "accent" },
+    { id = "o", label = "OpenBao", sub = ["+ start()", "+ call(method, path, token, json)"], col = 1, row = 0, colour = "green" },
+]
+edges = [
+    { from = "s", to = "o", label = "calls" },
+]
+
+[[diagram]]
+name = "data-flow-diagram"
+kind = "flow"
+title = "Secrets Manager with OpenBao — rotation"
+caption = "Versions overlap, then the old one retires."
+nodes = [
+    { id = "a", label = "version 1", sub = "pay-key-v1", col = 0, row = 0, colour = "client" },
+    { id = "b", label = "write again", sub = "", col = 1, row = 0, colour = "accent" },
+    { id = "c", label = "version 2", sub = "pay-key-v2, read by default", col = 2, row = 0, colour = "green" },
+]
+edges = [
+    { from = "a", to = "b", label = "" },
+    { from = "b", to = "c", label = "" },
+]
+
+[[diagram]]
+name = "sequence-diagram"
+kind = "sequence"
+title = "Secrets Manager with OpenBao — checkout reads the key"
+caption = "The token is checked against the policy."
+participants = ["Checkout", "OpenBao"]
+steps = [
+    ["Checkout", "OpenBao", "GET secret/data/payment-key, token"],
+    ["note", "OpenBao", "policy payments: read allowed"],
+    ["OpenBao", "Checkout", "pay-key-v2", "reply"],
+]
+
+[[diagram]]
+name = "uml-diagram"
+kind = "sequence"
+title = "1. Catalog is refused"
+caption = "No policy, no key."
+participants = ["Catalog", "OpenBao"]
+steps = [
+    ["Catalog", "OpenBao", "GET payment-key"],
+    ["OpenBao", "Catalog", "403 permission denied", "reply"],
+]
+
+[[diagram]]
+name = "uml-diagram-2"
+kind = "sequence"
+title = "2. A revoked token"
+caption = "Refused at once."
+participants = ["Shop", "OpenBao", "Attacker"]
+steps = [
+    ["Shop", "OpenBao", "revoke checkout's token"],
+    ["Attacker", "OpenBao", "GET payment-key, leaked token"],
+    ["OpenBao", "Attacker", "403", "reply"],
+]
+
+[poster]
+headline = [["SECRETS MANAGER", "text"], ["WITH OPENBAO", "text"]]
+before = { code = "PAYMENT_KEY = \"pay-key-v1\"", note = "readable by everyone", tag = "BEFORE" }
+after = { code = "GET /v1/secret/data/payment-key", note = "policy, token, version", tag = "AFTER" }
+taglines = [["Open-source Vault, for real", "gold"]]
+
+[[scene]]
+key = "01-poster"
+kind = "poster"
+title = "Secrets Manager with OpenBao"
+narration = """
+Hello, and welcome. [[slnc 400]] This video explains the Secrets Manager pattern, with a real OpenBao server, in Java. [[slnc 300]]
+This video is presented by Jayasekhar Konduru. [[slnc 600]]
+First, a simple definition. [[slnc 300]] A secrets manager keeps passwords and keys out of the code, in one guarded store. [[slnc 300]] Each service may read only what it is allowed, and secrets can be changed without a rebuild. [[slnc 500]] OpenBao is an open-source secrets manager, the community fork of HashiCorp Vault, with the same interface. [[slnc 600]]
+Think of a bank's safe-deposit room. [[slnc 300]] Each person's card opens only their boxes. [[slnc 300]] And a lost card is cancelled at once. [[slnc 700]]
+In this video, the domain is an online shop's key for its card-payment company. [[slnc 500]]
+By the end, you will hear how policies and tokens decide who may read it. [[slnc 300]] How the key is rotated. [[slnc 300]] And how a leaked token is cancelled.
+"""
+
+[[scene]]
+key = "02-scenario"
+kind = "bullets"
+title = "The Scenario"
+body = ["The payment key was in the code.", "", "Built into three services.", "", "Readable by anyone", "with the repository."]
+narration = """
+Here is the scenario. [[slnc 400]] The shop's payment key was written in the code. [[slnc 500]]
+It was built into three services. [[slnc 500]]
+Anyone who could read the code could read the key.
+"""
+
+[[scene]]
+key = "03-acts"
+kind = "acts"
+title = "acts"
+
+[[scene]]
+key = "04-pattern"
+kind = "bullets"
+title = "The Pattern, in OpenBao"
+body = ["Secrets at paths, with versions.", "", "Policies: who may read a path.", "Tokens: one per service,", "revocable."]
+narration = """
+Let's name the pattern, in OpenBao's words. [[slnc 400]] Secrets live at paths, and every change is a new version. [[slnc 500]]
+A policy says who may read a path. [[slnc 300]] And each service holds a token, carrying its policies, that can be revoked.
+"""
+
+[[scene]]
+key = "05-roles"
+kind = "bullets"
+title = "Who Does What"
+body = ["OpenBao: the secrets server", "Secrets: store, policy, tokens", "Checkout: reads with its token", "Catalog: has no permission"]
+narration = """
+Here is who does what. [[slnc 400]] OpenBao is the secrets server, in a container. [[slnc 500]]
+The secrets class stores the key, writes the policy, and issues tokens. [[slnc 500]]
+Checkout reads the key with its token. [[slnc 300]] And the catalog service has no permission at all.
+"""
+
+[[scene]]
+key = "06-recognise"
+kind = "bullets"
+title = "Where You Have Seen It"
+body = ["HashiCorp Vault", "AWS, Azure, Google secret stores", "Spring Cloud Vault"]
+narration = """
+You have probably met this already. [[slnc 400]] HashiCorp Vault, whose interface OpenBao keeps. [[slnc 500]]
+The secret stores of every big cloud provider. [[slnc 500]]
+And Spring Cloud Vault, which reads these servers into a Spring application.
+"""
+
+[[scene]]
+key = "07-verdict"
+kind = "bullets"
+title = "When To Use It"
+body = ["Every real secret.", "", "Narrow policies.", "A token per service.", "Rotate as versions.", "Revoke leaks at once."]
+narration = """
+So, when should you use it? [[slnc 400]] For every secret that guards real money or data. [[slnc 500]]
+Write narrow policies. [[slnc 300]] Give each service its own token. [[slnc 300]] Rotate secrets as versions. [[slnc 300]] And revoke leaks at once.
+"""
+
+[[scene]]
+key = "08-outro"
+kind = "outro"
+title = "Thanks for Watching"
+body = ["Full source, notes, diagrams and an animated walkthrough", "are in the repository. Try", "AppRole login."]
+narration = """
+That's the Secrets Manager, with OpenBao. [[slnc 400]] If you remember one sentence, make it this one. [[slnc 300]] Keep secrets in one guarded place, give each service only what it needs, and be ready to cancel any key. [[slnc 500]]
+The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. [[slnc 300]] It needs Docker running, and starts OpenBao for you. [[slnc 500]]
+Here is one exercise to try. [[slnc 300]] Log in with an app role, instead of a token issued by hand. [[slnc 500]]
+If this helped, a like really does help other people find it. [[slnc 300]] And subscribe, if you'd like the rest of the series. [[slnc 400]] Thanks for watching.
+"""

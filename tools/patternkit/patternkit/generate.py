@@ -81,13 +81,16 @@ def readme(d, pdir):
         out += ["> **Why this domain:** " + p["domain_note"].strip(), ""]
     out += ["## The idea in everyday terms", "", para(r["analogy"]),
             "## The scenario", "", para(r["scenario"]),
-            "## Run", "", "```bash", "./gradlew run", "```", "",
+            "## Run", "", *([para(r["run_note"])] if r.get("run_note") else []),
+            "```bash", "./gradlew run", "```", "",
             "The demo tells the story in %d acts, each printing exact numbers that the tests check:" % len(acts), "",
             "| Act | What it shows |", "| --- | --- |"]
     out += ["| %d. %s | %s |" % (i, a["title"], a["summary"]) for i, a in enumerate(acts, 1)]
     out += ["", "## Test", "", "```bash", "./gradlew test", "```", "",
-            "%d tests in %s. Every number the demo prints is asserted, and nothing depends on the "
-            "clock, so every run gives the same result." % (n_tests, ", ".join("`%s`" % c for c in test_classes)), "",
+            ("%d tests in %s. " % (n_tests, ", ".join("`%s`" % c for c in test_classes)))
+            + " ".join(r.get("test_note", "Every number the demo prints is asserted, and nothing depends on the "
+                                          "clock, so every run gives the same result.").split()), "",
+            *(["## What the simulation got right, and what it left out", "", para(r["twin"])] if r.get("twin") else []),
             "## Technologies and versions", "",
             "| Technology | Version | Used for |", "| --- | --- | --- |",
             "| Java | 21 | the code (toolchain set in `build.gradle`) |",
@@ -98,6 +101,8 @@ def readme(d, pdir):
     out += ["| videokit | repository tool | the narrated video and animation: %s |" % VOICE, "",
             "## Learning Material", "",
             "| Document | What it is for |", "| --- | --- |",
+            *(["| [Dependencies](docs/dependencies.md) | what the framework and infrastructure are, and why they are here |"]
+              if "dependencies" in d.get("docs", {}) else []),
             "| [Problem statement](docs/problem-statement.md) | the situation and what the project must show |",
             "| [Prerequisites](docs/prerequisites.md) | what you need to know first |",
             "| [%s, explained](docs/%s-pattern-explained.md) | the acts in prose |" % (title, slug),
@@ -136,6 +141,7 @@ def prerequisites(d):
                       "## Explicitly not required", "", ul(x["not_required"]), "",
                       "## What you will need", "",
                       "- A Java 21 JDK. The Gradle wrapper downloads everything else.",
+                      *(["- " + n for n in x.get("install", [])]),
                       "- About an hour for the session guide.", ""])
 
 
@@ -164,6 +170,21 @@ def explained(d):
     out += ["## The verdict", "", para(x["verdict"]),
             "## How to recognise this in code you did not write", "", ul(x["recognise"]), "",
             "## Where you have already met this", "", ul(d["readme"]["met_before"]), ""]
+    return "\n".join(out)
+
+
+def dependencies(d):
+    """docs/dependencies.md, for framework and infrastructure versions of a pattern."""
+    x = d["docs"]["dependencies"]
+    out = ["# Dependencies", "", para(x["intro"])]
+    for name, text in x["what"]:
+        out += ["## What %s is" % name, "", para(text)]
+    out += ["## Why this project uses them", "", para(x["why"]),
+            "## What to install", "", para(x.get("install_note", "Only a JDK, version 21, and a running Docker. "
+                                               "Gradle downloads the rest, and the versions are pinned:")),
+            "| Tool | Version |", "| --- | --- |"]
+    out += ["| %s | %s |" % tuple(v) for v in x["versions"]]
+    out += ["", "## What it costs", "", ul(x["costs"]), ""]
     return "\n".join(out)
 
 
@@ -285,6 +306,8 @@ def all_docs(pdir):
     (docs / "prerequisites.md").write_text(prerequisites(d))
     (docs / "session.md").write_text(session(d))
     (docs / ("%s-pattern-explained.md" % slug)).write_text(explained(d))
+    if "dependencies" in d.get("docs", {}):
+        (docs / "dependencies.md").write_text(dependencies(d))
     n_diag = diagram_docs(d, pdir)
     n_steps = animation(d, pdir)
     n_scenes = scenes(d, pdir) if d.get("scene") else 0

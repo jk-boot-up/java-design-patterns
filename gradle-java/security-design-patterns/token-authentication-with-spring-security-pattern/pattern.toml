@@ -1,0 +1,477 @@
+# pattern.toml for the Token Authentication with Spring Security project. See tools/patternkit.
+
+[project]
+slug = "token-authentication-with-spring-security"
+category = "security-design-patterns"
+title = "Token Authentication with Spring Security"
+package = "tokenspring"
+main_class = "SpringTokenAuthDemo"
+tagline = "JWTs checked by Spring Security"
+bold = "Issue a signed JSON Web Token when a customer signs in, and let Spring Security's resource-server support check it on every instance of the shop: signature, expiry and a revoked list, with no session store."
+domain_note = ""
+thumb_lines = ["TOKEN AUTHENTICATION", "WITH SPRING SECURITY"]
+thumb_code = "oauth2ResourceServer(jwt)"
+youtube_title = "Token Authentication (JWT) with Spring Security"
+youtube_tags = ["jwt", "spring security", "token authentication", "resource server", "spring boot", "java"]
+
+[readme]
+intro = """
+This is the framework version of the Token Authentication pattern. The plain
+Java version, a separate project in this category, builds and checks tokens
+by hand with HMAC-SHA256. Here Spring Security does it, inside two real
+Spring Boot instances of the shop's web server, called over HTTP.
+
+Signing in with a password at `/token` returns a JSON Web Token signed with
+the shop's secret, using Spring Security's `JwtEncoder`. Every other endpoint
+expects that token as a Bearer header, and Spring Security's resource-server
+support, backed by the Nimbus library, checks the signature and expiry before
+any shop code runs. Both instances hold the same secret, so either accepts a
+token issued by the other.
+"""
+analogy = """
+Think of a festival wristband. The ticket is checked once at the gate, and
+you are given a band with a hologram and a date. Any steward at any stage can
+check the band without phoning the gate; a fake band has the wrong hologram,
+and yesterday's band has the wrong date.
+"""
+scenario = """
+The online store's website runs on two servers behind a load balancer. With
+sessions kept in each server's memory, a customer who signed in on one
+server was asked to sign in again whenever a request reached the other.
+"""
+test_note = """
+Every result the demo prints is asserted, with real Spring Boot instances on
+local ports called over HTTP.
+"""
+run_note = """
+Nothing to install beyond a Java 21 JDK: the demo starts two, and at the end
+three, Spring Boot instances inside one program, on local ports, and calls
+them over HTTP.
+"""
+twin = """
+The plain Java version got the idea right: a signed token naming the customer
+and an expiry, checked by any server with the key; tampering and expiry
+refused; early sign-out needing a revoked list every server shares; a readable
+payload and a key that must be guarded. What it left out is how a framework
+does it for you. Spring Security issues standard JWTs, rejects bad ones before
+your code runs with a clear reason, and lets you add your own check, here the
+revoked list, as one validator. It also exposed a real default: Spring allows
+60 seconds of clock difference on expiry, which this demo sets to zero.
+"""
+technologies = [
+    ["Spring Boot", "4.1.1", "the web server instances"],
+    ["Spring Security", "7 (with Boot 4.1.1)", "HTTP Basic sign-in, Bearer token checks, JwtEncoder"],
+    ["Nimbus JOSE + JWT", "with Spring Security", "signing and checking the tokens"],
+]
+costs = [
+    "**Hard to take back.** A signed-out token still worked on the instance whose revoked list did not have it.",
+    "**Readable by anyone.** The payload, with sub and exp, is only encoded; never put secrets in it.",
+    "**The key is everything.** A third instance holding the stolen secret signed a token for ben, and the shop accepted it.",
+]
+too_much = """
+A single server rendering its own pages is well served by an ordinary
+session. Tokens pay off with several instances or services, or with mobile
+apps and other programs calling an API.
+"""
+met_before = [
+    "`oauth2ResourceServer().jwt()` in Spring Security configurations.",
+    "OAuth 2.0 access tokens from Keycloak, Auth0 or Okta.",
+    "`Authorization: Bearer eyJ...` headers in browser developer tools.",
+]
+where = """
+This project is in [security-design-patterns](..). It is the framework
+version of the plain Java Token Authentication project in the same category,
+which is left unchanged.
+"""
+
+[[act]]
+title = "Sessions on one server"
+summary = "ana signs in on server A with a session; A shows ana's cart, but B answers 401 please sign in."
+detail = """
+Two Spring Boot instances of the shop are running. Ana signs in on server A,
+which remembers ana in its HTTP session. With the session cookie, server A
+shows ana's cart, but server B has no such session and answers 401, please
+sign in.
+"""
+speech = """
+First demo: sessions kept in one server's memory. [[slnc 400]] Two copies of the shop's server are running, A and B. [[slnc 600]]
+Ana signs in on server A. [[slnc 300]] A remembers Ana in its own memory. [[slnc 500]]
+Server A shows Ana's cart. [[slnc 300]] Server B has never heard of Ana. [[slnc 300]] Please sign in.
+"""
+rows = { a = "active ok", b = "active wrong" }
+console = [
+    ["server A: 200 ana's cart", "ok"],
+    ["server B: 401 please sign in", "bad"],
+]
+
+[[act]]
+title = "A token from Spring Security"
+summary = "POST /token with ana's password returns a JWT; server A and server B both answer 200 ana's cart."
+detail = """
+Ana signs in once, posting a password to `/token`, and gets back a JWT
+signed by Spring Security's encoder: its payload names ana and an expiry
+fifteen minutes on. Sent as a Bearer header, it is accepted by server A and by
+server B, with no shared session store.
+"""
+speech = """
+Second demo: a signed token from Spring Security. [[slnc 400]] Ana signs in once, with a password. [[slnc 300]] Ana gets back a token, signed with the shop's secret. [[slnc 600]]
+It says who the customer is, and when it expires, in fifteen minutes. [[slnc 500]]
+Server A accepts it. [[slnc 300]] So does server B. [[slnc 300]] Nothing is shared between them but the secret.
+"""
+rows = { a = "active ok", b = "active ok" }
+console = [
+    ["POST /token: a JWT for ana", "muted"],
+    ["A: 200, B: 200", "ok"],
+]
+
+[[act]]
+title = "Forged and expired"
+summary = "Payload changed to ben: 401 Invalid signature. A token that expired 2 minutes ago: 401 Jwt expired."
+detail = """
+Someone edits the payload to say ben. Spring Security refuses it before the
+shop's code runs: 401, invalid signature. A token that expired two minutes ago
+is refused too: 401, Jwt expired. By default Spring allows sixty seconds of
+clock difference; this demo sets it to zero.
+"""
+speech = """
+Third demo: forged and expired tokens. [[slnc 400]] Someone edits the token to say Ben. [[slnc 300]] Spring Security refuses it, before any shop code runs. [[slnc 300]] Invalid signature. [[slnc 600]]
+A token that expired two minutes ago. [[slnc 300]] Refused. [[slnc 300]] Token expired.
+"""
+rows = { a = "active ok" }
+console = [
+    ["edited to ben: 401 Invalid signature", "ok"],
+    ["expired: 401 Jwt expired", "ok"],
+]
+
+[[act]]
+title = "Signing out early"
+summary = "ana signs out on A, which revokes the token: A answers 401 revoked, B still answers 200."
+detail = """
+Ana signs out on server A, which adds the token's identifier to its revoked
+list, checked by one extra validator. Server A now refuses the token: 401,
+revoked. Server B, with its own list, still accepts it. Keep tokens
+short-lived, and share any revoked list.
+"""
+speech = """
+Fourth demo: signing out early. [[slnc 400]] Ana signs out, on server A. [[slnc 300]] A adds that token to its revoked list. [[slnc 600]]
+Server A now refuses the token. [[slnc 500]]
+Server B has its own list. [[slnc 300]] It still accepts it. [[slnc 600]]
+Keep tokens short-lived. [[slnc 300]] And share any revoked list.
+"""
+rows = { a = "active ok", b = "active wrong" }
+console = [
+    ["A: 401 revoked", "ok"],
+    ["B: 200 ana's cart", "bad"],
+]
+
+[[act]]
+title = "The bill"
+summary = "Anyone can read the payload; and a third instance holding the stolen secret signs a token for ben that server A accepts."
+detail = """
+The payload is only encoded: anyone can read sub equals ana and when it
+expires. And everything rests on the secret. A third instance started with
+the stolen secret signs a token for ben, and server A answers 200, ben's cart.
+Keep the key in a secrets manager, rotate it, and prefer asymmetric keys when
+many services only need to check tokens.
+"""
+speech = """
+Fifth demo: the bill. [[slnc 400]] Anyone can read what the token says. [[slnc 300]] So never put secrets in it. [[slnc 600]]
+And everything rests on the shop's secret. [[slnc 300]] Someone who steals it signs a token for Ben. [[slnc 300]] Server A accepts it. [[slnc 600]]
+Keep the key in a secrets manager, and change it regularly.
+"""
+rows = { a = "active wrong" }
+console = [
+    ["payload readable: sub=ana", "amber"],
+    ["stolen secret: 200 ben's cart", "bad"],
+]
+
+[animation]
+subtitle = "A customer signs in once for a JWT; Spring Security on every instance checks it."
+boxes = [
+    ["a", "Server A", "Spring Security"],
+    ["b", "Server B", "Spring Security"],
+]
+
+[docs.problem]
+scenario = """
+The shop runs two server instances, and sessions live in each one's memory.
+"""
+naive = """
+A request that reaches the other instance finds no session, and the customer
+must sign in again.
+"""
+deliver = [
+    "Sessions failing across two Spring Boot instances.",
+    "A JWT issued at sign-in and accepted by both.",
+    "Forged and expired tokens refused by Spring Security.",
+    "A revoked list as a validator, per instance.",
+    "The readable payload and a stolen key.",
+    "Every printed result asserted by a test.",
+]
+
+[docs.prerequisites]
+required = [
+    "Java basics, and HTTP requests and headers in outline.",
+    "The Token Authentication idea, ideally from the plain Java version of this pattern.",
+]
+not_required = [
+    "Earlier Spring experience. The dependencies page explains the words used.",
+]
+
+[docs.dependencies]
+intro = """
+This project uses Spring Boot and Spring Security, which the plain Java
+version of Token Authentication does not. Skipping it loses none of the
+pattern: the plain version teaches all of it with nothing installed.
+"""
+what = [
+    ["Spring Boot", "Spring Boot starts a Java web server from your classes; here, several instances in one program, each on a free local port."],
+    ["Spring Security", "Spring Security is a set of filters that run before your controllers. httpBasic accepts a user name and password for signing in. oauth2ResourceServer with jwt expects a Bearer token on every request and checks it with a JwtDecoder. A JwtEncoder signs new tokens. Validators decide whether a decoded token is acceptable: JwtTimestampValidator checks expiry, and you can add your own, as the revoked list does."],
+    ["JSON Web Tokens and Nimbus", "A JWT has three parts, header, payload and signature, joined by dots. Nimbus JOSE + JWT is the library Spring Security uses to sign and check them; HS256 signs with a shared secret."],
+]
+why = """
+The plain version builds the token by hand. This version shows how most Java
+services really do it: a framework that checks every request before your code
+runs.
+"""
+install_note = "Only a JDK, version 21. Gradle downloads the rest, and the versions are pinned:"
+versions = [
+    ["Java", "21"],
+    ["Spring Boot (webmvc, security, oauth2 resource server starters)", "4.1.1"],
+]
+costs = [
+    "A framework and its configuration to learn.",
+    "Several seconds to start each Spring Boot instance.",
+]
+
+[docs.session]
+objectives = [
+    "Issue a JWT with Spring Security's JwtEncoder.",
+    "Protect endpoints with the resource-server JWT support.",
+    "Add a custom token validator.",
+    "Explain what a shared secret allows, and what stealing it allows.",
+]
+walkthrough = """
+Run `./gradlew run`. Open `ShopApp.security`: three lines of configuration.
+Open `ShopApp.jwtDecoder`: the expiry and revoked-list validators. Compare
+act four's two servers.
+"""
+exercises = [
+    "Share the revoked list between instances through a common bean or a database.",
+    "Switch to an RSA key pair so services can check tokens without being able to sign them.",
+    "Add a role claim and require it with `hasAuthority` on one endpoint.",
+]
+
+[docs.explained]
+sentence = """
+With Spring Security, token authentication is a resource-server filter that
+checks every request's JWT, and an encoder that issues them at sign-in.
+"""
+verdict = """
+Use Spring Security's JWT support whenever several instances or services must
+recognise the same customer. Keep tokens short-lived, set clock skew
+deliberately, share revocation, and guard or rotate the signing key.
+"""
+recognise = [
+    "`.oauth2ResourceServer(o -> o.jwt(...))`.",
+    "`JwtEncoder`, `JwtDecoder` and `OAuth2TokenValidator` beans.",
+    "`@AuthenticationPrincipal Jwt jwt` in controllers.",
+]
+
+[spec]
+purpose = """
+Teach Token Authentication with Spring Security: sessions failing across
+instances, a JWT issued at sign-in and accepted by all, forged and expired
+tokens refused, a per-instance revoked list, and the risks of readable
+payloads and stolen keys.
+"""
+nongoals = [
+    "Not OAuth login or an identity provider. The shop issues its own tokens.",
+]
+problem = """
+Sessions kept in one server's memory are unknown to every other server.
+"""
+roles = [
+    ["Security configuration and token issuing", "`ShopApp`"],
+    ["The endpoints", "`ShopController`"],
+    ["Entry point", "`SpringTokenAuthDemo`, five acts"],
+]
+requirements = [
+    "**Any instance:** a token from A is accepted by B.",
+    "**Refused:** edited and expired tokens get 401.",
+    "**Revocable:** a signed-out token is refused where revoked.",
+    "**Every printed result is asserted** in `DemoRunsTest`.",
+]
+
+[[diagram]]
+name = "architecture-diagram"
+kind = "flow"
+title = "Token Authentication with Spring Security — the pieces"
+caption = "Sign in once; every instance checks the token."
+nodes = [
+    { id = "c", label = "Customer", sub = "holds the JWT", col = 0, row = 1, colour = "client" },
+    { id = "t", label = "POST /token", sub = "password -> JWT", col = 1, row = 0, colour = "accent" },
+    { id = "a", label = "Server A", sub = "resource server", col = 2, row = 1, colour = "green" },
+    { id = "b", label = "Server B", sub = "resource server", col = 2, row = 2, colour = "green" },
+]
+edges = [
+    { from = "c", to = "t", label = "sign in" },
+    { from = "c", to = "a", label = "Bearer" },
+    { from = "c", to = "b", label = "Bearer" },
+]
+
+[[diagram]]
+name = "class-diagram"
+kind = "class"
+title = "Token Authentication with Spring Security — classes"
+caption = "Configuration, not hand-written checks."
+nodes = [
+    { id = "a", label = "ShopApp", sub = ["SecurityFilterChain", "JwtEncoder, JwtDecoder", "+ issue(encoder, customer, life)"], col = 0, row = 0, colour = "accent" },
+    { id = "c", label = "ShopController", sub = ["/session/login, /session/cart", "/token, /cart, /signout"], col = 1, row = 0, colour = "green" },
+]
+edges = [
+    { from = "c", to = "a", label = "uses" },
+]
+
+[[diagram]]
+name = "data-flow-diagram"
+kind = "flow"
+title = "Token Authentication with Spring Security — checking a request"
+caption = "Before any shop code runs."
+nodes = [
+    { id = "a", label = "Bearer token", sub = "", col = 0, row = 0, colour = "client" },
+    { id = "b", label = "Signature", sub = "else 401", col = 1, row = 0, colour = "accent" },
+    { id = "c", label = "Expiry, revoked", sub = "else 401", col = 2, row = 0, colour = "accent" },
+    { id = "d", label = "Controller", sub = "ana's cart", col = 3, row = 0, colour = "green" },
+]
+edges = [
+    { from = "a", to = "b", label = "" },
+    { from = "b", to = "c", label = "" },
+    { from = "c", to = "d", label = "" },
+]
+
+[[diagram]]
+name = "sequence-diagram"
+kind = "sequence"
+title = "Token Authentication with Spring Security — sign in, then B"
+caption = "No shared session."
+participants = ["Customer", "Server A", "Server B"]
+steps = [
+    ["Customer", "Server A", "POST /token, password"],
+    ["Server A", "Customer", "JWT", "reply"],
+    ["Customer", "Server B", "GET /cart, Bearer JWT"],
+    ["Server B", "Customer", "200 ana's cart", "reply"],
+]
+
+[[diagram]]
+name = "uml-diagram"
+kind = "sequence"
+title = "1. A forged token"
+caption = "Refused by the filter."
+participants = ["Attacker", "Server A"]
+steps = [
+    ["Attacker", "Server A", "JWT edited to ben"],
+    ["Server A", "Attacker", "401 Invalid signature", "reply"],
+]
+
+[[diagram]]
+name = "uml-diagram-2"
+kind = "sequence"
+title = "2. Sessions"
+caption = "Server B never heard of ana."
+participants = ["Customer", "Server A", "Server B"]
+steps = [
+    ["Customer", "Server A", "session login"],
+    ["Customer", "Server B", "cart, session cookie"],
+    ["Server B", "Customer", "401 please sign in", "reply"],
+]
+
+[poster]
+headline = [["TOKEN AUTHENTICATION", "text"], ["WITH SPRING SECURITY", "text"]]
+before = { code = "session on server A", note = "server B: please sign in", tag = "BEFORE" }
+after = { code = "oauth2ResourceServer(jwt)", note = "any instance checks the token", tag = "AFTER" }
+taglines = [["JWTs, checked for you", "gold"]]
+
+[[scene]]
+key = "01-poster"
+kind = "poster"
+title = "Token Authentication with Spring Security"
+narration = """
+Hello, and welcome. [[slnc 400]] This video explains Token Authentication, built with Spring Security, in Java. [[slnc 300]]
+This video is presented by Jayasekhar Konduru. [[slnc 600]]
+First, a simple definition. [[slnc 300]] After you sign in, you are given a signed token that says who you are, and until when. [[slnc 300]] Any server holding the key can trust it, without looking anything up. [[slnc 500]] Spring Security is the open-source security framework most Java web applications use, and it checks these tokens for you. [[slnc 600]]
+Think of a festival wristband. [[slnc 300]] Checked once at the gate. [[slnc 300]] Then any steward can glance at it, and let you in. [[slnc 700]]
+In this video, the domain is an online shop's website, running as two server instances. [[slnc 500]]
+By the end, you will hear why sessions fail across servers. [[slnc 300]] How Spring Security issues and checks tokens. [[slnc 300]] And what signing out, and a stolen key, mean.
+"""
+
+[[scene]]
+key = "02-scenario"
+kind = "bullets"
+title = "The Scenario"
+body = ["Two server instances.", "", "Sessions in each one's memory.", "", "The other server:", "please sign in."]
+narration = """
+Here is the scenario. [[slnc 400]] The shop's website runs as two server instances. [[slnc 500]]
+Each remembered signed-in customers in its own memory. [[slnc 500]]
+A request that reached the other server was asked to sign in again.
+"""
+
+[[scene]]
+key = "03-acts"
+kind = "acts"
+title = "acts"
+
+[[scene]]
+key = "04-pattern"
+kind = "bullets"
+title = "The Pattern, in Spring Security"
+body = ["Sign in once: JwtEncoder.", "", "Every request: the resource", "server checks the JWT.", "", "Add validators as needed."]
+narration = """
+Let's name the pattern, in Spring Security's words. [[slnc 400]] Sign in once, and a JWT encoder issues the token. [[slnc 500]]
+On every request, the resource server support checks it. [[slnc 500]]
+And extra rules, like a revoked list, are added as validators.
+"""
+
+[[scene]]
+key = "05-roles"
+kind = "bullets"
+title = "Who Does What"
+body = ["ShopApp: security configuration", "ShopController: token, cart, sign-out", "JwtDecoder: signature, expiry, revoked"]
+narration = """
+Here is who does what. [[slnc 400]] Shop app holds the security configuration, and issues tokens. [[slnc 500]]
+The shop controller has the sign-in, the cart, and sign-out. [[slnc 500]]
+And the decoder checks each token's signature, expiry, and the revoked list.
+"""
+
+[[scene]]
+key = "06-recognise"
+kind = "bullets"
+title = "Where You Have Seen It"
+body = ["oauth2ResourceServer in Spring", "Keycloak, Auth0, Okta tokens", "Bearer headers"]
+narration = """
+You have probably met this already. [[slnc 400]] Spring configurations with a resource server, and JWT. [[slnc 500]]
+Tokens from identity providers such as Keycloak, Auth0 and Okta. [[slnc 500]]
+And bearer tokens, in any browser's developer tools.
+"""
+
+[[scene]]
+key = "07-verdict"
+kind = "bullets"
+title = "When To Use It"
+body = ["Several instances or services.", "", "Short-lived tokens.", "Clock skew set on purpose.", "Shared revocation.", "Guard the key."]
+narration = """
+So, when should you use it? [[slnc 400]] Whenever several instances or services must recognise the same customer. [[slnc 500]]
+Keep tokens short-lived. [[slnc 300]] Set the clock allowance on purpose. [[slnc 300]] Share revocation. [[slnc 300]] And guard the signing key.
+"""
+
+[[scene]]
+key = "08-outro"
+kind = "outro"
+title = "Thanks for Watching"
+body = ["Full source, notes, diagrams and an animated walkthrough", "are in the repository. Switch to", "an RSA key pair."]
+narration = """
+That's Token Authentication, with Spring Security. [[slnc 400]] If you remember one sentence, make it this one. [[slnc 300]] Sign in once, carry signed proof, and let the framework check it on every request. [[slnc 500]]
+The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. [[slnc 300]] It runs offline, with nothing installed except a Java development kit. [[slnc 500]]
+Here is one exercise to try. [[slnc 300]] Switch to a key pair, so services can check tokens without being able to sign them. [[slnc 500]]
+If this helped, a like really does help other people find it. [[slnc 300]] And subscribe, if you'd like the rest of the series. [[slnc 400]] Thanks for watching.
+"""

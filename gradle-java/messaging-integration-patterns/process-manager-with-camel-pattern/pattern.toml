@@ -1,0 +1,485 @@
+# pattern.toml for the Process Manager with Apache Camel project. See tools/patternkit.
+
+[project]
+slug = "process-manager-with-camel"
+category = "messaging-integration-patterns"
+title = "Process Manager with Apache Camel"
+package = "processcamel"
+main_class = "CamelProcessManagerDemo"
+tagline = "A saga runs each order's journey"
+bold = "Build the process manager with Apache Camel's Saga step: one route owns each order's journey, each step names how to undo itself, and Camel runs the undo steps and a final completion or cancellation route for you."
+domain_note = ""
+thumb_lines = ["PROCESS MANAGER", "WITH CAMEL"]
+thumb_code = "saga().compensation(...)"
+youtube_title = "Process Manager with Apache Camel (Saga)"
+youtube_tags = ["process manager", "saga", "apache camel", "compensation", "enterprise integration patterns", "java"]
+
+[readme]
+intro = """
+This is the framework version of the Process Manager pattern. The plain Java
+version, a separate project in this category, writes the manager as a class
+that tracks every order and decides each next step. Here Apache Camel's Saga
+step does much of that work: one route runs each order's journey, each step
+that changes something names a compensation, the step that undoes it, and
+when a later step fails, Camel calls the compensations and then a
+cancellation route. When the journey succeeds, Camel calls a completion route.
+
+A saga is the form a process manager usually takes when a journey crosses
+several services that cannot share one database transaction.
+"""
+analogy = """
+Think of a travel agent booking a holiday: flight, then hotel, then car. The
+agent keeps a note of how to cancel each booking. If the car cannot be booked,
+the agent works back through the notes, cancelling the hotel and the flight,
+and then rings the customer. Nobody else has to remember what was booked.
+"""
+scenario = """
+The online store's orders pass through reserve stock, take payment and ship.
+Each step used to hand on to the next. When a card was declined, the kettle
+reserved for that order was never given back, and nobody could say where the
+order had got to.
+"""
+run_note = """
+Nothing to install beyond a Java 21 JDK: Camel and its in-memory saga service
+run inside the program.
+"""
+twin = """
+The plain Java version got the idea right: one place runs each order's
+journey, branches on the replies, treats the unhappy path as part of the
+process, and can say where every order is. What it left out is the
+production form: the journey as a saga, where each step declares its own
+undo, and the framework, not hand-written code, calls the undo steps in the
+right order and then the completion or cancellation route. It also left out
+the honest cost that a saga makes plain: every step needs an undo written for
+it, an undo is not the same as never having happened, and an in-memory saga
+service forgets every journey on a restart.
+"""
+technologies = [
+    ["Apache Camel", "4.22.1", "saga(), compensation and completion routes"],
+    ["Camel InMemorySagaService", "4.22.1", "tracks each saga while the program runs"],
+    ["SLF4J simple", "2.0.17", "Camel's logging, switched off"],
+]
+costs = [
+    "**An undo for every step.** Each step that changes something must name a compensation, and someone must write it.",
+    "**Undo is not rewind.** The customer may already have seen the reservation, or an email.",
+    "**Memory only.** The in-memory saga service forgets journeys on a restart; production needs a durable coordinator, such as an LRA coordinator.",
+]
+too_much = """
+If a journey has one or two steps that cannot fail halfway, a plain route is
+enough. A saga pays off when several services each change something and a
+later failure must undo the earlier changes.
+"""
+met_before = [
+    "Camel's Saga EIP, with the in-memory service or an LRA coordinator.",
+    "Axon, Temporal and other workflow engines that run long business processes.",
+    "Travel bookings, where a failed step cancels the earlier ones.",
+]
+where = """
+This project is in [messaging-integration-patterns](..). It is the framework
+version of the plain Java Process Manager project in the same category, which
+is left unchanged.
+"""
+
+[[act]]
+title = "Steps hand on to each other"
+summary = "A declined card stops ORD-3 at payments, but its kettle is never given back: kettles in stock 1 of 3, though only one was shipped."
+detail = """
+Without a manager, reserve hands on to pay, which hands on to ship. ORD-1 is
+shipped. ORD-3's card is declined and the chain stops at payments, but the
+kettle reserved for it is never given back: one kettle left of three, though
+only one was shipped. And nothing knows where ORD-3 is.
+"""
+speech = """
+First demo: each step hands on to the next. [[slnc 400]] Reserve stock, then take payment, then ship. [[slnc 600]]
+Order one is shipped. [[slnc 500]]
+Order three's card is declined. [[slnc 300]] The chain stops at payments. [[slnc 300]] But its kettle is never given back. [[slnc 600]]
+One kettle left, of three. [[slnc 300]] Though only one was shipped. [[slnc 300]] And nothing knows where order three is.
+"""
+rows = { steps = "active wrong" }
+console = [
+    ["ORD-3 declined: stopped at payments", "bad"],
+    ["kettles: 1 of 3", "bad"],
+]
+
+[[act]]
+title = "A saga"
+summary = "The saga route runs ORD-1: main RESERVED, PAID, SHIPPED, and Camel calls the completion route: DONE."
+detail = """
+Now one route runs each order's journey as a saga. ORD-1 is reserved at the
+main warehouse, paid and shipped. When the journey ends well, Camel calls the
+completion route, which marks the order DONE.
+"""
+speech = """
+Second demo: a saga runs each order's journey. [[slnc 400]] One route owns the whole journey. [[slnc 600]]
+Order one is reserved at the main warehouse. [[slnc 300]] Paid. [[slnc 300]] Shipped. [[slnc 500]]
+When the journey ends well, Camel calls the completion route. [[slnc 300]] Order one is marked done.
+"""
+rows = { saga = "active ok", steps = "active ok" }
+console = [
+    ["ORD-1: RESERVED, PAID, SHIPPED", "ok"],
+    ["-> DONE", "ok"],
+]
+
+[[act]]
+title = "A branch"
+summary = "ORD-2's teapot is out of stock at main, so the reserve step asks the partner warehouse; then paid, shipped, DONE."
+detail = """
+ORD-2 is for a teapot, which the main warehouse has run out of. The reserve
+step asks the partner warehouse instead, which has two. Then payment and
+shipping go ahead, and the saga completes: DONE.
+"""
+speech = """
+Third demo: the journey branches. [[slnc 400]] Order two is for a teapot. [[slnc 300]] The main warehouse has none. [[slnc 600]]
+So the reserve step asks the partner warehouse. [[slnc 300]] It has two. [[slnc 500]]
+Payment and shipping go ahead. [[slnc 300]] Done.
+"""
+rows = { saga = "active ok", steps = "active ok" }
+console = [
+    ["main OUT_OF_STOCK, partner RESERVED", "ok"],
+    ["-> DONE", "ok"],
+]
+
+[[act]]
+title = "Camel runs the undo steps"
+summary = "ORD-3's card is declined: Camel calls the reserve step's compensation, main RELEASED, then the cancellation route; kettles 2 of 3, an email sent."
+detail = """
+ORD-3's card is declined. The reserve step had named its compensation, a
+release route, so Camel calls it: the kettle goes back to the main warehouse.
+Then Camel calls the saga's cancellation route, which marks the order
+cancelled and emails the customer. Two kettles of three remain, as they
+should.
+"""
+speech = """
+Fourth demo: the card is declined, and Camel runs the undo steps. [[slnc 400]] When the reserve step joined the saga, it named how to undo itself. [[slnc 600]]
+The card is declined. [[slnc 300]] So Camel calls the undo step. [[slnc 300]] The kettle goes back to the warehouse. [[slnc 500]]
+Then Camel calls the cancellation route. [[slnc 300]] The order is marked cancelled. [[slnc 300]] The customer gets an email. [[slnc 500]]
+Two kettles of three remain, as they should.
+"""
+rows = { saga = "active amber", steps = "active ok" }
+console = [
+    ["DECLINED -> main RELEASED", "ok"],
+    ["CANCELLED; kettles 2 of 3", "ok"],
+    ["email: your card was declined", "ok"],
+]
+
+[[act]]
+title = "The bill"
+summary = "Every order has a status; but every step needs an undo written for it, and the in-memory saga service forgets journeys on a restart."
+detail = """
+The shop can now say where every order is: two done, one cancelled with its
+stock released. The costs: every step that changes something needs an undo
+written for it, and an undo is not the same as never having happened. And
+the in-memory saga service forgets every journey on a restart; production
+needs a durable coordinator.
+"""
+speech = """
+Fifth demo: the bill. [[slnc 400]] The shop can now say where every order is. [[slnc 600]]
+But every step that changes something needs an undo step, written by someone. [[slnc 300]] And undoing is not the same as never having happened. [[slnc 600]]
+And this saga service keeps its notes in memory. [[slnc 300]] A restart forgets every journey. [[slnc 300]] Production needs a coordinator that keeps them safe.
+"""
+rows = { saga = "active amber" }
+console = [
+    ["ORD-1 DONE, ORD-2 DONE, ORD-3 CANCELLED", "ok"],
+    ["an undo for every step", "amber"],
+    ["in memory: lost on restart", "bad"],
+]
+
+[animation]
+subtitle = "One saga route runs each order's journey; when payment fails, Camel calls the undo steps and the cancellation route."
+boxes = [
+    ["steps", "Reserve, pay, ship", "the shop's services"],
+    ["saga", "Saga route", "completion, compensation"],
+]
+
+[docs.problem]
+scenario = """
+Orders pass through reserve stock, payment and shipping, each a separate
+service.
+"""
+naive = """
+Steps handing on to each other leave reserved stock stranded when payment
+fails, and nobody knows where an order is.
+"""
+deliver = [
+    "A chain that strands stock on a declined card.",
+    "A saga route owning each journey.",
+    "A branch to a partner warehouse.",
+    "Compensation releasing stock, and a cancellation route.",
+    "A status for every order, and the costs.",
+    "Every printed result asserted by a test.",
+]
+
+[docs.prerequisites]
+required = [
+    "Java basics: records, maps.",
+    "The Process Manager idea, ideally from the plain Java version of this pattern.",
+]
+not_required = [
+    "Docker or a saga coordinator. Camel's in-memory saga service is used.",
+]
+
+[docs.dependencies]
+intro = """
+This project uses Apache Camel and its Saga step, which the plain Java
+version of Process Manager does not. Skipping it loses none of the pattern:
+the plain version teaches all of it with nothing installed.
+"""
+what = [
+    ["Apache Camel", "Camel is a library for moving messages. A route begins with from and lists steps."],
+    ["a saga in Camel", "saga starts a saga for the message. completion names the route Camel calls when the saga ends well; compensation names the route it calls to undo, when a step fails. A step route that joins the saga with propagation MANDATORY can name its own compensation. option copies a value, such as the order number, into headers that the completion and compensation routes receive. The saga service keeps track of open sagas; the in-memory one used here forgets them when the program stops."],
+]
+why = """
+The plain version shows the idea. This version shows the form a process
+manager takes in production when a journey crosses services: a saga with
+declared compensations.
+"""
+install_note = "Only a JDK, version 21. Gradle downloads the rest, and the versions are pinned:"
+versions = [
+    ["Java", "21"],
+    ["Apache Camel (core, with InMemorySagaService)", "4.22.1"],
+    ["SLF4J simple", "2.0.17"],
+]
+costs = [
+    "More than ten library files on the classpath.",
+    "Compensations run on Camel's own threads, so results must be waited for.",
+    "An in-memory saga service that does not survive a restart.",
+]
+
+[docs.session]
+objectives = [
+    "Start a saga with completion and compensation routes.",
+    "Let a step join the saga and name its own compensation.",
+    "Trace what Camel calls when a later step fails.",
+    "Explain why production needs a durable coordinator.",
+]
+walkthrough = """
+Run `./gradlew run`. Compare act one's 1 of 3 kettles with act four's 2 of 3.
+Open `ShopRoutes`: the saga is four lines, the reserve step's compensation
+two more. End on act five's costs.
+"""
+exercises = [
+    "Add a compensation to shipping that books a return label.",
+    "Make shipping fail for one order and trace every compensation called.",
+    "Replace InMemorySagaService with Camel's LRA saga service and a coordinator.",
+]
+
+[docs.explained]
+sentence = """
+With Camel, a process manager can be a saga: one route runs the journey, each
+step names its undo, and Camel calls the undo steps and a final completion or
+cancellation route.
+"""
+verdict = """
+Use a saga when a journey crosses services that each change something and a
+later failure must undo earlier changes. Write an undo for every step, design
+for undo not being rewind, and use a durable coordinator in production.
+"""
+recognise = [
+    "`.saga().completion(...).compensation(...)`.",
+    "Step routes with `propagation(SagaPropagation.MANDATORY)`.",
+    "Routes named release, refund or cancel that undo earlier steps.",
+]
+
+[spec]
+purpose = """
+Teach Process Manager with Apache Camel's Saga step: a chain stranding
+stock, a saga owning each journey, a branch to a partner warehouse,
+compensation releasing stock with a cancellation route, and the costs.
+"""
+nongoals = [
+    "Not a durable coordinator. The in-memory saga service is used.",
+]
+problem = """
+A journey across several services must end in a known state, and undo
+earlier steps when a later one fails.
+"""
+roles = [
+    ["The saga routes", "`ShopRoutes`"],
+    ["The services and their state", "`Services`"],
+    ["The message", "`Order`"],
+    ["Entry point", "`CamelProcessManagerDemo`, five acts"],
+]
+requirements = [
+    "**Owned:** every order ends DONE or CANCELLED.",
+    "**Undone:** a declined card releases the reserved kettle.",
+    "**Branched:** out of stock at main tries the partner.",
+    "**No fixed sleeps:** results are awaited with bounded polls.",
+]
+
+[[diagram]]
+name = "architecture-diagram"
+kind = "flow"
+title = "Process Manager with Camel — the saga"
+caption = "Steps forward; compensations back."
+nodes = [
+    { id = "s", label = "saga()", sub = "direct:order", col = 0, row = 0, colour = "accent" },
+    { id = "r", label = "reserve", sub = "undo: release", col = 1, row = 0, colour = "green" },
+    { id = "p", label = "pay", sub = "", col = 2, row = 0, colour = "green" },
+    { id = "h", label = "ship", sub = "", col = 3, row = 0, colour = "green" },
+    { id = "c", label = "cancelled", sub = "email the customer", col = 2, row = 1, colour = "amber" },
+]
+edges = [
+    { from = "s", to = "r", label = "" },
+    { from = "r", to = "p", label = "" },
+    { from = "p", to = "h", label = "" },
+    { from = "p", to = "c", label = "declined" },
+]
+
+[[diagram]]
+name = "class-diagram"
+kind = "class"
+title = "Process Manager with Camel — classes"
+caption = "The routes declare the journey; the services do the work."
+nodes = [
+    { id = "r", label = "ShopRoutes", sub = ["saga().completion().compensation()", "reserve: compensation(release)"], col = 0, row = 0, colour = "accent" },
+    { id = "s", label = "Services", sub = ["+ reserve / release", "+ pay / ship", "+ done / cancelled"], col = 1, row = 0, colour = "green" },
+    { id = "o", label = "«record» Order", sub = ["id, sku, card"], col = 0, row = 1, colour = "client" },
+]
+edges = [
+    { from = "r", to = "s", label = "calls" },
+]
+
+[[diagram]]
+name = "data-flow-diagram"
+kind = "flow"
+title = "Process Manager with Camel — a declined card"
+caption = "Camel walks back through the undo steps."
+nodes = [
+    { id = "a", label = "main RESERVED", sub = "", col = 0, row = 0, colour = "green" },
+    { id = "b", label = "DECLINED", sub = "", col = 1, row = 0, colour = "red" },
+    { id = "c", label = "main RELEASED", sub = "compensation", col = 2, row = 0, colour = "amber" },
+    { id = "d", label = "CANCELLED", sub = "email sent", col = 3, row = 0, colour = "amber" },
+]
+edges = [
+    { from = "a", to = "b", label = "" },
+    { from = "b", to = "c", label = "" },
+    { from = "c", to = "d", label = "" },
+]
+
+[[diagram]]
+name = "sequence-diagram"
+kind = "sequence"
+title = "Process Manager with Camel — ORD-3"
+caption = "The failure triggers the compensations."
+participants = ["Saga", "Reserve", "Pay", "Release", "Cancelled"]
+steps = [
+    ["Saga", "Reserve", "ORD-3"],
+    ["Saga", "Pay", "ORD-3"],
+    ["Pay", "Saga", "DECLINED", "reply"],
+    ["Saga", "Release", "compensate reserve"],
+    ["Saga", "Cancelled", "compensate saga"],
+]
+
+[[diagram]]
+name = "uml-diagram"
+kind = "sequence"
+title = "1. The chain"
+caption = "Nobody gives the kettle back."
+participants = ["Reserve", "Pay"]
+steps = [
+    ["Reserve", "Pay", "ORD-3"],
+    ["note", "Pay", "declined; chain stops"],
+]
+
+[[diagram]]
+name = "uml-diagram-2"
+kind = "sequence"
+title = "2. A branch"
+caption = "The partner warehouse has the teapot."
+participants = ["Reserve", "Main", "Partner"]
+steps = [
+    ["Reserve", "Main", "TEAPOT?"],
+    ["Main", "Reserve", "OUT_OF_STOCK", "reply"],
+    ["Reserve", "Partner", "TEAPOT?"],
+    ["Partner", "Reserve", "RESERVED", "reply"],
+]
+
+[poster]
+headline = [["PROCESS MANAGER", "text"], ["WITH CAMEL", "text"]]
+before = { code = "reserve -> pay -> ship", note = "declined: kettle stranded", tag = "BEFORE" }
+after = { code = "saga().compensation(...)", note = "declined: kettle released", tag = "AFTER" }
+taglines = [["A saga runs each journey", "gold"]]
+
+[[scene]]
+key = "01-poster"
+kind = "poster"
+title = "Process Manager with Apache Camel"
+narration = """
+Hello, and welcome. [[slnc 400]] This video explains the Process Manager pattern, built with Apache Camel's saga step, in Java. [[slnc 300]]
+This video is presented by Jayasekhar Konduru. [[slnc 600]]
+First, a simple definition. [[slnc 300]] A process manager runs a journey of several steps, from one place. [[slnc 300]] It decides each next step, and makes sure every journey ends in a known state. [[slnc 500]] Apache Camel is an open-source library for moving messages. [[slnc 300]] Its saga step runs such journeys, and undoes earlier steps when a later one fails. [[slnc 600]]
+Think of a travel agent booking a flight, a hotel, and a car. [[slnc 300]] The agent notes how to cancel each booking. [[slnc 300]] If the car fails, the agent cancels the hotel and the flight, and rings the customer. [[slnc 700]]
+In this video, the domain is an online shop's orders, which reserve stock, take payment, and ship. [[slnc 500]]
+By the end, you will hear how a declined card stranded stock. [[slnc 300]] How a saga owns each journey. [[slnc 300]] How Camel runs the undo steps. [[slnc 300]] And what a saga costs.
+"""
+
+[[scene]]
+key = "02-scenario"
+kind = "bullets"
+title = "The Scenario"
+body = ["Reserve stock, take payment, ship.", "", "Each step handed on to the next.", "", "A declined card left", "a kettle reserved for ever."]
+narration = """
+Here is the scenario. [[slnc 400]] Each order reserves stock, takes payment, and ships. [[slnc 500]]
+Each step simply handed on to the next. [[slnc 500]]
+When a card was declined, the kettle reserved for it was never given back.
+"""
+
+[[scene]]
+key = "03-acts"
+kind = "acts"
+title = "acts"
+
+[[scene]]
+key = "04-pattern"
+kind = "bullets"
+title = "The Pattern, in Camel"
+body = ["saga(): one route owns the journey.", "", "Each step names its undo.", "", "Camel calls the undo steps,", "then completion or cancellation."]
+narration = """
+Let's name the pattern, in Camel's words. [[slnc 400]] The saga step makes one route own the whole journey. [[slnc 500]]
+Each step that changes something names its undo step. [[slnc 500]]
+When a step fails, Camel calls the undo steps, then the cancellation route. [[slnc 300]] When all goes well, the completion route.
+"""
+
+[[scene]]
+key = "05-roles"
+kind = "bullets"
+title = "Who Does What"
+body = ["ShopRoutes: the saga and its routes", "Services: reserve, pay, ship, release", "InMemorySagaService: tracks sagas", "Order: the message"]
+narration = """
+Here is who does what. [[slnc 400]] Shop routes declares the saga, and its completion and undo routes. [[slnc 500]]
+The services do the work. [[slnc 300]] Reserve, pay, ship, and release. [[slnc 500]]
+The saga service keeps track of each journey while the program runs. [[slnc 300]] And the order is the message.
+"""
+
+[[scene]]
+key = "06-recognise"
+kind = "bullets"
+title = "Where You Have Seen It"
+body = ["Camel Saga with an LRA coordinator", "Temporal and Axon", "Travel bookings"]
+narration = """
+You have probably met this already. [[slnc 400]] Camel's saga, often with a separate coordinator service. [[slnc 500]]
+Workflow engines, such as Temporal and Axon. [[slnc 500]]
+And every travel booking, where a failed step cancels the earlier ones.
+"""
+
+[[scene]]
+key = "07-verdict"
+kind = "bullets"
+title = "When To Use It"
+body = ["A journey across services,", "each changing something.", "", "An undo for every step.", "A durable coordinator", "in production."]
+narration = """
+So, when should you use it? [[slnc 400]] When a journey crosses several services, and each one changes something. [[slnc 500]]
+Write an undo for every step. [[slnc 300]] Remember that undo is not rewind. [[slnc 300]] And use a durable coordinator in production.
+"""
+
+[[scene]]
+key = "08-outro"
+kind = "outro"
+title = "Thanks for Watching"
+body = ["Full source, notes, diagrams and an animated walkthrough", "are in the repository. Add an undo", "step for shipping."]
+narration = """
+That's the Process Manager, with Apache Camel's saga. [[slnc 400]] If you remember one sentence, make it this one. [[slnc 300]] One place owns the journey, and every step knows how to undo itself. [[slnc 500]]
+The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. [[slnc 300]] It runs offline, with nothing installed except a Java development kit. [[slnc 500]]
+Here is one exercise to try. [[slnc 300]] Add an undo step for shipping, that books a return label. [[slnc 500]]
+If this helped, a like really does help other people find it. [[slnc 300]] And subscribe, if you'd like the rest of the series. [[slnc 400]] Thanks for watching.
+"""

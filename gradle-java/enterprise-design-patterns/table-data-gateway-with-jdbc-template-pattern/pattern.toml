@@ -1,0 +1,470 @@
+# pattern.toml for the Table Data Gateway with Spring JdbcTemplate project. See tools/patternkit.
+
+[project]
+slug = "table-data-gateway-with-jdbc-template"
+category = "enterprise-design-patterns"
+title = "Table Data Gateway with JdbcTemplate"
+package = "tdgjdbc"
+main_class = "JdbcTemplateGatewayDemo"
+tagline = "One class of SQL, Spring does the plumbing"
+bold = "Keep all the product table's SQL in one gateway class built on Spring's JdbcTemplate, which borrows and returns connections, maps rows to records, and turns database errors into meaningful exceptions."
+domain_note = ""
+thumb_lines = ["TABLE DATA GATEWAY", "WITH JDBCTEMPLATE"]
+thumb_code = "jdbc.query(sql, rowMapper)"
+youtube_title = "Table Data Gateway with Spring JdbcTemplate"
+youtube_tags = ["table data gateway", "jdbctemplate", "spring jdbc", "sql", "data access", "java"]
+
+[readme]
+intro = """
+This is the framework version of the Table Data Gateway pattern. The plain
+Java version, a separate project in this category, writes JDBC by hand inside
+its gateway. Here Spring's JdbcTemplate does the plumbing, with an in-memory H2
+database and a real HikariCP connection pool, so nothing has to be installed.
+
+The gateway, a Spring `@Repository`, still owns every piece of SQL for the
+product table. JdbcTemplate borrows a connection for each call and always
+gives it back, `DataClassRowMapper` fills the `Row` record by column name, and
+Spring translates database errors into its own exception types, such as
+`BadSqlGrammarException` and `DuplicateKeyException`, whatever the database.
+"""
+analogy = """
+Think of a library's front desk. Nobody walks into the stacks: you ask the
+desk, and the desk fetches and returns books the same careful way every time.
+If the library moves a shelf, only the desk staff need to know.
+"""
+scenario = """
+The online store's product page, stock report and checkout each wrote their
+own JDBC against the product table. One page borrowed database connections
+and never gave them back, and every page broke at once when a column was
+renamed.
+"""
+test_note = """
+Every result the demo prints is asserted, with Spring's JdbcTemplate, a
+HikariCP pool and an in-memory H2 database.
+"""
+run_note = """
+Nothing to install beyond a Java 21 JDK: Spring Boot, the connection pool and
+an in-memory H2 database all run inside the program.
+"""
+twin = """
+The plain Java version got the idea right: all of one table's SQL in one
+class, callers receiving plain rows, and a schema change fixed in one place.
+What it left out is the plumbing a framework takes over, and why it matters.
+Hand-written JDBC that forgot to close drained a real pool of two
+connections, and the third page failed after 0.25 seconds; JdbcTemplate
+served four requests on the same pool without a leak. Spring also translates
+errors: a renamed column became BadSqlGrammarException, and a repeated key
+DuplicateKeyException, the same on any database.
+"""
+technologies = [
+    ["Spring Boot", "4.1.1", "starts the pool and the database"],
+    ["Spring JDBC", "with Spring Boot 4.1.1", "NamedParameterJdbcTemplate, DataClassRowMapper, exception translation"],
+    ["HikariCP", "with Spring Boot 4.1.1", "the connection pool, sized to 2"],
+    ["H2", "with Spring Boot 4.1.1", "the in-memory database"],
+]
+costs = [
+    "**Rows, not objects with rules.** A Row is data only; \"low on stock\" must be decided by each caller.",
+    "**A method per question.** The gateway grows with every question anyone asks the table.",
+    "**SQL is still text.** Mistakes appear only when the query runs, as a BadSqlGrammarException.",
+]
+too_much = """
+For one or two queries, calling JdbcTemplate directly is fine. A gateway pays
+off when several parts of the code use the same table and its SQL should
+live in one place.
+"""
+met_before = [
+    "Spring `@Repository` classes built on `JdbcTemplate`.",
+    "Spring Data JDBC and jOOQ, which generate or type the SQL.",
+    "DAO classes, the older name for the same idea.",
+]
+where = """
+This project is in [enterprise-design-patterns](..). It is the framework
+version of the plain Java Table Data Gateway project in the same category,
+which is left unchanged.
+"""
+
+[[act]]
+title = "Hand-written JDBC that leaks"
+summary = "A page that never closes its connection runs twice on a pool of 2; the third call fails after 0.25 s because the pool is empty."
+detail = """
+A product page writes its own JDBC and forgets to close the connection it
+borrowed from the pool. The pool holds two connections. The page works twice,
+and the third time it waits a quarter of a second for a connection that will
+never come back, and fails.
+"""
+speech = """
+First demo: every page writes its own database code. [[slnc 400]] One page borrows a connection from the pool, and never gives it back. [[slnc 600]]
+The pool holds two connections. [[slnc 300]] The page works twice. [[slnc 500]]
+The third time, there are none left. [[slnc 300]] After a quarter of a second, it fails.
+"""
+rows = { pages = "active wrong", pool = "active wrong" }
+console = [
+    ["page 1, page 2: served, not closed", "amber"],
+    ["page 3: FAILED, pool empty", "bad"],
+]
+
+[[act]]
+title = "A gateway on JdbcTemplate"
+summary = "The gateway serves the product page 4 times on the same pool of 2, the stock report and a cheaper-than-£10 list; no leaks."
+detail = """
+Now all the product SQL lives in one gateway built on JdbcTemplate. The
+product page is asked four times on the same pool of two, and works every
+time, because JdbcTemplate always returns the connection. The stock report
+finds one product out of stock, and the cheaper-than-£10 list is the mug and
+the tea towel, each row mapped to a Row record by column name.
+"""
+speech = """
+Second demo: a table data gateway, built on JdbcTemplate. [[slnc 400]] All the product table's SQL, in one class. [[slnc 600]]
+The product page is asked four times, on the same pool of two. [[slnc 300]] It works every time. [[slnc 300]] JdbcTemplate always gives the connection back. [[slnc 600]]
+One product is out of stock. [[slnc 300]] And under ten pounds, the mug and the tea towel.
+"""
+rows = { gateway = "active ok", pool = "active ok" }
+console = [
+    ["4 requests on a pool of 2: fine", "ok"],
+    ["under £10: mug, tea towel", "ok"],
+]
+
+[[act]]
+title = "Errors that mean something"
+summary = "A renamed column gives BadSqlGrammarException; a second MUG-1 gives DuplicateKeyException, whatever the database."
+detail = """
+The column is renamed behind the gateway's back, and the next query fails
+with Spring's BadSqlGrammarException rather than a vendor's error code. A
+second product with the key MUG-1 fails with DuplicateKeyException. The same
+exception types come back whatever database is used, so callers can react to
+them.
+"""
+speech = """
+Third demo: errors that mean something. [[slnc 400]] A column is renamed, behind the gateway's back. [[slnc 300]] The next query fails, with Spring's bad SQL error. [[slnc 600]]
+A second mug with the same code. [[slnc 300]] A duplicate key error. [[slnc 500]]
+The same kinds of error, whatever the database. [[slnc 300]] So callers can react to them.
+"""
+rows = { gateway = "active amber" }
+console = [
+    ["renamed column: BadSqlGrammarException", "amber"],
+    ["second MUG-1: DuplicateKeyException", "amber"],
+]
+
+[[act]]
+title = "Stock in one statement"
+summary = "4 customers try for 2 desk lamps: 2 are taken and stock ends at 0, with UPDATE ... WHERE quantity > 0."
+detail = """
+Four customers try for the two desk lamps. The gateway takes stock in one
+statement, UPDATE ... WHERE quantity > 0, and reports whether a row changed.
+Two are taken, stock ends at zero, and it can never go below.
+"""
+speech = """
+Fourth demo: stock taken in one statement. [[slnc 400]] Four customers try for two desk lamps. [[slnc 600]]
+The gateway takes one only if the quantity is above zero, in the same statement. [[slnc 500]]
+Two are taken. [[slnc 300]] Stock ends at zero. [[slnc 300]] It can never go below.
+"""
+rows = { gateway = "active ok" }
+console = [
+    ["4 tries, 2 lamps: 2 taken, stock 0", "ok"],
+]
+
+[[act]]
+title = "The bill"
+summary = "A Row is data only, the gateway grows a method per question, and its SQL is still text checked only when it runs."
+detail = """
+A Row is only data: whether a product is low on stock is still decided by
+each caller. The gateway grows a method for every question anyone asks the
+table. And its SQL is still text, checked only when it runs.
+"""
+speech = """
+Fifth demo: the bill. [[slnc 400]] A row is only data. [[slnc 300]] Whether a product is low on stock is still decided by each caller. [[slnc 600]]
+The gateway grows a method for every question. [[slnc 300]] And its SQL is still text, only checked when it runs.
+"""
+rows = { gateway = "active amber" }
+console = [
+    ["rows, not rules", "amber"],
+    ["SQL checked only at run time", "amber"],
+]
+
+[animation]
+subtitle = "Pages ask one gateway; JdbcTemplate borrows and returns connections from a pool of two."
+boxes = [
+    ["pages", "Pages", "product, report, checkout"],
+    ["gateway", "ProductGateway", "all the SQL"],
+    ["pool", "HikariCP pool", "2 connections"],
+]
+
+[docs.problem]
+scenario = """
+The product page, stock report and checkout each wrote their own JDBC.
+"""
+naive = """
+Hand-written JDBC leaks connections when a close is forgotten, and scatters
+SQL that breaks together on a schema change.
+"""
+deliver = [
+    "A connection leak draining a real pool.",
+    "A gateway on JdbcTemplate with row mapping.",
+    "Spring's translated exceptions.",
+    "An atomic stock update.",
+    "The cost of rows without rules.",
+    "Every printed result asserted by a test.",
+]
+
+[docs.prerequisites]
+required = [
+    "Java basics: records.",
+    "SQL basics: SELECT, INSERT, UPDATE.",
+    "The Table Data Gateway idea, ideally from the plain Java version of this pattern.",
+]
+not_required = [
+    "A database server. H2 runs in memory.",
+]
+
+[docs.dependencies]
+intro = """
+This project uses Spring's JDBC support, which the plain Java version of Table
+Data Gateway does not. Skipping it loses none of the pattern: the plain
+version teaches all of it with nothing installed.
+"""
+what = [
+    ["Spring JDBC", "JdbcTemplate runs SQL for you: it borrows a connection, runs the statement, reads the results and always returns the connection. NamedParameterJdbcTemplate lets SQL use named parameters such as :sku. A row mapper turns each result row into an object; DataClassRowMapper fills a record by matching column names. Spring translates database errors into its DataAccessException family, such as BadSqlGrammarException and DuplicateKeyException."],
+    ["HikariCP and H2", "HikariCP is the connection pool Spring Boot uses: a fixed set of open database connections that code borrows and returns. H2 is a small database, here running entirely in memory, created from schema.sql at start."],
+]
+why = """
+The plain version writes the plumbing by hand. This version shows what most
+Spring code uses, and the leaks and error codes it takes off your hands.
+"""
+install_note = "Only a JDK, version 21. Gradle downloads the rest, and the versions are pinned:"
+versions = [
+    ["Java", "21"],
+    ["Spring Boot (jdbc starter, H2)", "4.1.1"],
+]
+costs = [
+    "A framework to start, even for a few queries.",
+]
+
+[docs.session]
+objectives = [
+    "Write a table data gateway with NamedParameterJdbcTemplate.",
+    "Map rows to records with DataClassRowMapper.",
+    "Explain why JdbcTemplate cannot leak connections.",
+    "Catch Spring's translated exceptions.",
+]
+walkthrough = """
+Run `./gradlew run`. Compare act one's failed third page with act two's four
+requests. Open `ProductGateway`: every method is one call. Open
+`ScatteredJdbc`: the missing close.
+"""
+exercises = [
+    "Add a method for products low on stock, and discuss where \"low\" belongs.",
+    "Use SimpleJdbcInsert for the insert.",
+    "Point the gateway at PostgreSQL and check the same exceptions come back.",
+]
+
+[docs.explained]
+sentence = """
+With JdbcTemplate, a table data gateway keeps one table's SQL in one class
+while Spring handles connections, row mapping and error translation.
+"""
+verdict = """
+Use a JdbcTemplate gateway when several parts of the code share a table and
+you want plain SQL with safe plumbing. Map to records, catch Spring's
+exceptions, and keep business rules out of the gateway.
+"""
+recognise = [
+    "`@Repository` classes holding `JdbcTemplate` calls.",
+    "`jdbc.query(sql, params, rowMapper)`.",
+    "`catch (DuplicateKeyException e)`.",
+]
+
+[spec]
+purpose = """
+Teach Table Data Gateway with Spring JdbcTemplate: a leaking hand-written page,
+a gateway serving the same pool safely, translated exceptions, an atomic
+stock update, and the cost of rows without rules.
+"""
+nongoals = [
+    "Not an ORM. Plain SQL through JdbcTemplate.",
+]
+problem = """
+Hand-written JDBC scattered across callers leaks connections and breaks
+together.
+"""
+roles = [
+    ["The pattern", "`ProductGateway`"],
+    ["The data", "`Row`"],
+    ["The old way", "`ScatteredJdbc`"],
+    ["Entry point", "`JdbcTemplateGatewayDemo`, five acts"],
+]
+requirements = [
+    "**No leaks:** four gateway calls succeed on a pool of two.",
+    "**Translated:** a bad column gives BadSqlGrammarException.",
+    "**Atomic:** stock never goes below zero.",
+    "**Every printed result is asserted** in `DemoRunsTest`.",
+]
+
+[[diagram]]
+name = "architecture-diagram"
+kind = "flow"
+title = "Table Data Gateway with JdbcTemplate — the pieces"
+caption = "One class of SQL; Spring does the plumbing."
+nodes = [
+    { id = "p", label = "Pages", sub = "product, report, checkout", col = 0, row = 0, colour = "client" },
+    { id = "g", label = "ProductGateway", sub = "JdbcTemplate", col = 1, row = 0, colour = "accent" },
+    { id = "h", label = "HikariCP", sub = "2 connections", col = 2, row = 0, colour = "green" },
+    { id = "d", label = "H2", sub = "product table", col = 3, row = 0, colour = "green" },
+]
+edges = [
+    { from = "p", to = "g", label = "" },
+    { from = "g", to = "h", label = "borrow, return" },
+    { from = "h", to = "d", label = "" },
+]
+
+[[diagram]]
+name = "class-diagram"
+kind = "class"
+title = "Table Data Gateway with JdbcTemplate — classes"
+caption = "SQL in one place."
+nodes = [
+    { id = "g", label = "ProductGateway", sub = ["@Repository", "+ find(sku)", "+ cheaperThan(pence)", "+ takeOne(sku)"], col = 0, row = 0, colour = "accent" },
+    { id = "r", label = "«record» Row", sub = ["sku, name", "pence, quantity"], col = 1, row = 0, colour = "client" },
+    { id = "s", label = "ScatteredJdbc", sub = ["+ productPage(pool, sku)", "never closes"], col = 0, row = 1, colour = "red" },
+]
+edges = [
+    { from = "g", to = "r", label = "returns" },
+]
+
+[[diagram]]
+name = "data-flow-diagram"
+kind = "flow"
+title = "Table Data Gateway with JdbcTemplate — a pool of two"
+caption = "Leaked, or always returned."
+nodes = [
+    { id = "a", label = "Hand-written JDBC", sub = "2 leaked: third page fails", col = 0, row = 0, colour = "red" },
+    { id = "b", label = "JdbcTemplate", sub = "4 calls, pool never empties", col = 0, row = 1, colour = "green" },
+]
+edges = []
+
+[[diagram]]
+name = "sequence-diagram"
+kind = "sequence"
+title = "Table Data Gateway with JdbcTemplate — one lookup"
+caption = "Borrow, query, map, return."
+participants = ["Page", "Gateway", "Pool", "H2"]
+steps = [
+    ["Page", "Gateway", "find(KETTLE-1)"],
+    ["Gateway", "Pool", "borrow"],
+    ["Gateway", "H2", "SELECT ... WHERE sku = :sku"],
+    ["Gateway", "Pool", "return"],
+    ["Gateway", "Page", "Row(steel kettle, 4)", "reply"],
+]
+
+[[diagram]]
+name = "uml-diagram"
+kind = "sequence"
+title = "1. A leak"
+caption = "Borrowed, never returned."
+participants = ["Page", "Pool"]
+steps = [
+    ["Page", "Pool", "borrow (twice)"],
+    ["Page", "Pool", "borrow a third"],
+    ["Pool", "Page", "timeout after 0.25 s", "reply"],
+]
+
+[[diagram]]
+name = "uml-diagram-2"
+kind = "sequence"
+title = "2. A translated error"
+caption = "Spring's exception, not the vendor's."
+participants = ["Gateway", "H2"]
+steps = [
+    ["Gateway", "H2", "INSERT MUG-1 again"],
+    ["H2", "Gateway", "duplicate key", "reply"],
+    ["note", "Gateway", "DuplicateKeyException"],
+]
+
+[poster]
+headline = [["TABLE DATA GATEWAY", "text"], ["WITH JDBCTEMPLATE", "text"]]
+before = { code = "pool.getConnection() (no close)", note = "third page: pool empty", tag = "BEFORE" }
+after = { code = "jdbc.query(sql, rowMapper)", note = "every connection returned", tag = "AFTER" }
+taglines = [["One class of SQL, safe plumbing", "gold"]]
+
+[[scene]]
+key = "01-poster"
+kind = "poster"
+title = "Table Data Gateway with JdbcTemplate"
+narration = """
+Hello, and welcome. [[slnc 400]] This video explains the Table Data Gateway pattern, with Spring's JdbcTemplate, in Java. [[slnc 300]]
+This video is presented by Jayasekhar Konduru. [[slnc 600]]
+First, a simple definition. [[slnc 300]] A table data gateway is one class that holds all the SQL for one table. [[slnc 300]] Everyone else asks it, instead of writing their own. [[slnc 500]] JdbcTemplate is part of the open-source Spring framework, and it takes care of the database plumbing. [[slnc 600]]
+Think of a library's front desk. [[slnc 300]] Nobody walks into the stacks. [[slnc 300]] You ask the desk, and it fetches and returns books the same careful way every time. [[slnc 700]]
+In this video, the domain is an online shop's product table. [[slnc 500]]
+By the end, you will hear how hand-written database code leaks. [[slnc 300]] How the gateway keeps SQL in one place. [[slnc 300]] And what errors, and stock, look like with Spring.
+"""
+
+[[scene]]
+key = "02-scenario"
+kind = "bullets"
+title = "The Scenario"
+body = ["Product page, stock report,", "checkout: each wrote its own JDBC.", "", "One never closed its connections.", "", "A rename broke them all."]
+narration = """
+Here is the scenario. [[slnc 400]] The product page, the stock report, and checkout each wrote their own database code. [[slnc 500]]
+One page borrowed connections, and never gave them back. [[slnc 500]]
+And a renamed column broke them all at once.
+"""
+
+[[scene]]
+key = "03-acts"
+kind = "acts"
+title = "acts"
+
+[[scene]]
+key = "04-pattern"
+kind = "bullets"
+title = "The Pattern, with JdbcTemplate"
+body = ["One gateway per table.", "", "JdbcTemplate: borrow, run, return.", "Row mappers: rows to records.", "Spring exceptions."]
+narration = """
+Let's name the pattern, with Spring. [[slnc 400]] One gateway class for each table. [[slnc 500]]
+JdbcTemplate borrows a connection, runs the SQL, and always returns it. [[slnc 300]] A row mapper turns each row into a record. [[slnc 500]]
+And errors come back as Spring's own exceptions.
+"""
+
+[[scene]]
+key = "05-roles"
+kind = "bullets"
+title = "Who Does What"
+body = ["ProductGateway: all the SQL", "Row: one row as data", "ScatteredJdbc: the old way", "HikariCP: the pool of 2"]
+narration = """
+Here is who does what. [[slnc 400]] The product gateway holds all the SQL for the product table. [[slnc 500]]
+A row is one product's data. [[slnc 500]]
+Scattered JDBC is the old way, with its missing close. [[slnc 300]] And the pool holds just two connections, to make the leak visible.
+"""
+
+[[scene]]
+key = "06-recognise"
+kind = "bullets"
+title = "Where You Have Seen It"
+body = ["Spring @Repository classes", "Spring Data JDBC, jOOQ", "DAO classes"]
+narration = """
+You have probably met this already. [[slnc 400]] Spring repository classes, built on JdbcTemplate. [[slnc 500]]
+Spring Data JDBC and jOOQ, which generate or check the SQL for you. [[slnc 500]]
+And data access objects, the older name for the same idea.
+"""
+
+[[scene]]
+key = "07-verdict"
+kind = "bullets"
+title = "When To Use It"
+body = ["Several parts share a table.", "", "Plain SQL, safe plumbing.", "Map to records.", "Rules stay out."]
+narration = """
+So, when should you use it? [[slnc 400]] When several parts of the code share a table. [[slnc 500]]
+Keep plain SQL, and let Spring handle the plumbing. [[slnc 300]] Map rows to records. [[slnc 300]] And keep business rules out of the gateway.
+"""
+
+[[scene]]
+key = "08-outro"
+kind = "outro"
+title = "Thanks for Watching"
+body = ["Full source, notes, diagrams and an animated walkthrough", "are in the repository. Point it at", "PostgreSQL."]
+narration = """
+That's the Table Data Gateway, with JdbcTemplate. [[slnc 400]] If you remember one sentence, make it this one. [[slnc 300]] Keep a table's SQL in one class, and let the framework do the plumbing. [[slnc 500]]
+The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. [[slnc 300]] It runs offline, with nothing installed except a Java development kit. [[slnc 500]]
+Here is one exercise to try. [[slnc 300]] Point the gateway at PostgreSQL, and check the same errors come back. [[slnc 500]]
+If this helped, a like really does help other people find it. [[slnc 300]] And subscribe, if you'd like the rest of the series. [[slnc 400]] Thanks for watching.
+"""

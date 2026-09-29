@@ -1,0 +1,481 @@
+# pattern.toml for the Secure Gateway with NGINX project. See tools/patternkit.
+
+[project]
+slug = "secure-gateway-with-nginx"
+category = "security-design-patterns"
+title = "Secure Gateway with NGINX"
+package = "securenginx"
+main_class = "NginxSecureGatewayDemo"
+tagline = "The gatekeeper is a config file"
+bold = "Put a real NGINX in front of the shop's order service as the gatekeeper: an allow-list of locations, limit_except for methods, client_max_body_size for size, and proxy_set_header to strip internal headers, with no secrets on the gate."
+domain_note = ""
+thumb_lines = ["SECURE GATEWAY", "WITH NGINX"]
+thumb_code = "location ~ ^/orders/[0-9]+$"
+youtube_title = "Secure Gateway (Gatekeeper) with NGINX"
+youtube_tags = ["secure gateway", "gatekeeper", "nginx", "reverse proxy", "allow list", "security"]
+
+[readme]
+intro = """
+This is the real-infrastructure version of the Secure Gateway pattern, also
+called the Gatekeeper. The plain Java version, a separate project in this
+category, writes the gatekeeper as a class. Here the gatekeeper is a real
+NGINX, the web server and reverse proxy in front of a large share of the web,
+started in a container by the demo itself.
+
+The whole policy is NGINX's configuration file, shown in `Gatekeeper.config`.
+Two locations are allowed: GET an order by its number, and POST a new order.
+`limit_except` refuses other methods, `client_max_body_size` refuses large
+bodies, `proxy_set_header` with an empty value removes the internal admin
+header, and every other path gets 404. The NGINX container holds no
+passwords at all.
+"""
+analogy = """
+Think of a bank teller behind a counter. Customers never walk into the vault;
+the teller passes on only a few kinds of request and refuses everything else.
+The teller has no vault key, so even a robber who got past the counter would
+not find one there.
+"""
+scenario = """
+The online store's order service answered the internet directly, held the
+database password, and had features meant only for internal tools: a header
+that switched on admin mode, and an admin export page reachable with a path
+trick. From outside, anyone could export every order.
+"""
+test_note = """
+Every result the demo prints is asserted against a real NGINX container.
+Without a container runtime, the test is skipped rather than failed.
+"""
+run_note = """
+This project needs a running container runtime, such as Docker Desktop: the
+demo starts a real NGINX 1.31.6 in a container and removes it again. Without
+one, it prints a sentence saying what to start, rather than failing.
+"""
+twin = """
+The plain Java version got the idea right: only a secret-free gate faces the
+internet, it allow-lists request shapes, strips internal headers and limits
+sizes, and the service behind must still check its own inputs. What it left
+out is the real tool, where the whole policy is a short configuration file.
+NGINX normalises a path before choosing a location, so the dot-dot trick
+simply finds no allowed location. Its method limit answers 403 rather than
+405. And the check that the gate holds no secrets is a real look at the
+container's environment.
+"""
+technologies = [
+    ["NGINX", "1.31.6 (container image nginx:1.31.6-alpine)", "the gatekeeper: locations, limit_except, client_max_body_size, proxy_set_header"],
+    ["JDK HttpServer", "Java 21", "the order service behind the gate"],
+    ["Testcontainers", "2.0.5", "starts and stops NGINX from the demo"],
+    ["Docker", "24 or later", "runs the container"],
+]
+costs = [
+    "**An extra hop.** Every request passes through NGINX first.",
+    "**A list to keep in step.** A new endpoint is blocked until someone adds a location for it.",
+    "**Not the only defence.** The order service must still check its own inputs; the gate reduces risk, it does not remove it.",
+]
+too_much = """
+A service with no secrets and no private data gains little from a separate
+gatekeeper. It pays off in front of services that hold credentials or
+sensitive data.
+"""
+met_before = [
+    "NGINX or HAProxy as a reverse proxy in a DMZ.",
+    "Web application firewalls such as ModSecurity rules on NGINX.",
+    "Cloud load balancers with path-based rules.",
+]
+where = """
+This project is in [security-design-patterns](..). It is the
+real-infrastructure version of the plain Java Secure Gateway project in the
+same category, which is left unchanged.
+"""
+
+[[act]]
+title = "The service faces the internet"
+summary = "Called directly, the order service exports all 12,000 orders for a spoofed X-Internal-Admin header and for /orders/../admin/export."
+detail = """
+The order service is called directly. A normal request for order 7 works. A
+request with the internal-tools header X-Internal-Admin set to true exports
+all twelve thousand orders, and so does the path /orders/../admin/export,
+which the service tidies into /admin/export. And this machine holds the
+database password.
+"""
+speech = """
+First demo: the order service faces the internet directly. [[slnc 400]] A normal request for order seven works. [[slnc 600]]
+A request with the internal admin header exports all twelve thousand orders. [[slnc 500]]
+So does a path that goes up a level, to the admin export. [[slnc 600]]
+And this machine holds the database password.
+"""
+rows = { internet = "active wrong", orders = "active wrong" }
+console = [
+    ["admin header: export of 12000 orders", "bad"],
+    ["/orders/../admin/export: export", "bad"],
+]
+
+[[act]]
+title = "An NGINX gatekeeper"
+summary = "Through NGINX, order 7 still works, and the same spoofed header just returns order 7: proxy_set_header removed it."
+detail = """
+Now NGINX stands in front. A request for order 7 works as before. The same
+request with the admin header just returns order 7, because the
+configuration sets X-Internal-Admin to an empty value, which removes it before
+the request goes on.
+"""
+speech = """
+Second demo: an NGINX gatekeeper in front. [[slnc 400]] Only NGINX faces the internet now. [[slnc 600]]
+A request for order seven works as before. [[slnc 500]]
+The same request with the admin header just returns order seven. [[slnc 300]] NGINX removed the header on the way through.
+"""
+rows = { gate = "active ok", orders = "active ok" }
+console = [
+    ["GET /orders/7: 200", "ok"],
+    ["admin header: removed, order 7", "ok"],
+]
+
+[[act]]
+title = "An allow-list of locations"
+summary = "The dot-dot path gets 404 (NGINX normalises it first), DELETE gets 403 (limit_except), and POST /orders gets 201."
+detail = """
+NGINX normalises a path before choosing a location, so /orders/../admin/export
+becomes /admin/export, which no allowed location matches: 404. DELETE on an
+order is refused by limit_except with 403. A normal POST creates an order:
+201.
+"""
+speech = """
+Third demo: only allowed requests pass. [[slnc 400]] The path trick is tidied by NGINX first. [[slnc 300]] It becomes the admin export. [[slnc 300]] No allowed location matches. [[slnc 300]] Not found. [[slnc 600]]
+Deleting an order is refused. [[slnc 300]] Forbidden. [[slnc 500]]
+A normal new order passes, and is created.
+"""
+rows = { gate = "active ok" }
+console = [
+    ["dot-dot path: 404", "ok"],
+    ["DELETE: 403", "ok"],
+    ["POST /orders: 201", "ok"],
+]
+
+[[act]]
+title = "Size and shape"
+summary = "A 5 MB body gets 413 (client_max_body_size 1m); /orders/7 OR 1=1 gets 404, because the number must be digits."
+detail = """
+A five-megabyte order is refused by client_max_body_size with 413. A request
+for order "7 OR 1=1", an attempt to trick the database, matches no location,
+because the order number must be one to nine digits: 404.
+"""
+speech = """
+Fourth demo: size and shape limits. [[slnc 400]] A five megabyte order is refused. [[slnc 300]] Too large. [[slnc 600]]
+A request for order seven, followed by a trick aimed at the database. [[slnc 300]] Not found. [[slnc 300]] The number must be digits only.
+"""
+rows = { gate = "active ok" }
+console = [
+    ["5 MB: 413", "ok"],
+    ["/orders/7 OR 1=1: 404", "ok"],
+]
+
+[[act]]
+title = "The bill"
+summary = "The NGINX container's environment holds no credentials; but every request pays an extra hop, and new endpoints wait for the configuration."
+detail = """
+A look inside the NGINX container finds no password in its environment: a
+gatekeeper broken into gives nothing away. The costs: every request pays an
+extra hop, a new endpoint stays blocked until a location is added for it, and
+the order service must still check its own inputs.
+"""
+speech = """
+Fifth demo: the bill. [[slnc 400]] A look inside the NGINX container finds no password at all. [[slnc 300]] A gate that is broken into gives nothing away. [[slnc 600]]
+But every request pays for one extra hop. [[slnc 300]] A new endpoint stays blocked, until the configuration allows it. [[slnc 500]]
+And the service behind must still check its own inputs.
+"""
+rows = { gate = "active amber" }
+console = [
+    ["gate holds credentials: false", "ok"],
+    ["an extra hop, a config to keep", "amber"],
+]
+
+[animation]
+subtitle = "Requests meet a real NGINX gatekeeper; only allowed shapes reach the order service."
+boxes = [
+    ["internet", "Internet", "anyone"],
+    ["gate", "NGINX", "allow-list, no secrets"],
+    ["orders", "Order service", "holds the password"],
+]
+
+[docs.problem]
+scenario = """
+The order service answered the internet directly and held the database
+password.
+"""
+naive = """
+Internal-only features, a spoofable admin header and a path to the admin
+export, were reachable by anyone.
+"""
+deliver = [
+    "A directly exposed service leaking every order two ways.",
+    "NGINX removing the internal header.",
+    "An allow-list of locations and methods.",
+    "Size and shape limits.",
+    "A real check that the gate holds no secrets.",
+    "Every printed result asserted by a test, skipped without Docker.",
+]
+
+[docs.prerequisites]
+required = [
+    "HTTP methods, paths, headers and status codes.",
+    "The Secure Gateway idea, ideally from the plain Java version of this pattern.",
+]
+not_required = [
+    "Earlier NGINX experience. The dependencies page explains the directives used.",
+]
+install = [
+    "A running container runtime such as Docker Desktop. The demo starts and removes NGINX itself.",
+]
+
+[docs.dependencies]
+intro = """
+This project uses NGINX, run in a container by Testcontainers, which the plain
+Java version of Secure Gateway does not. Skipping it loses none of the
+pattern: the plain version teaches all of it with nothing installed.
+"""
+what = [
+    ["NGINX", "NGINX is a web server and reverse proxy. A location block matches request paths; = means exactly, ~ means a regular expression; the most specific match wins, and location / catches everything else. proxy_pass forwards a request to another server. proxy_set_header sets a header on the forwarded request; an empty value removes it. limit_except GET allows only GET, and HEAD, inside a location, refusing others with 403. client_max_body_size refuses larger request bodies with 413. NGINX normalises a path, resolving dot-dot, before matching locations."],
+    ["Testcontainers", "Testcontainers starts the NGINX container from inside the program, copies the configuration file into it, and lets it reach the order service running on this machine."],
+]
+why = """
+The plain version shows the idea in Java. This version shows that in
+practice the gatekeeper is usually standard infrastructure, and its policy a
+short configuration file.
+"""
+versions = [
+    ["Java", "21"],
+    ["Docker", "running; 24 or later"],
+    ["NGINX image", "nginx:1.31.6-alpine"],
+    ["Testcontainers", "2.0.5"],
+]
+costs = [
+    "A container runtime, and a first run that downloads the NGINX image.",
+    "A configuration file to review whenever an endpoint is added.",
+]
+
+[docs.session]
+objectives = [
+    "Write an NGINX allow-list with location blocks.",
+    "Strip a header with proxy_set_header.",
+    "Limit methods and body size.",
+    "Explain why path normalisation defeats the dot-dot trick.",
+]
+walkthrough = """
+Run `./gradlew run` with Docker running. Open `Gatekeeper.config`: the whole
+policy is about twenty lines. Compare act one's two exports with acts two and
+three.
+"""
+exercises = [
+    "Add a location for GET /orders/<number>/invoice.",
+    "Add limit_req to rate-limit each client address.",
+    "Make the order service reject paths containing dot-dot itself, as a second layer.",
+]
+
+[docs.explained]
+sentence = """
+With NGINX, a secure gateway is a secret-free reverse proxy whose
+configuration allow-lists locations and methods, limits size and strips
+internal headers.
+"""
+verdict = """
+Put a gatekeeper such as NGINX in front of any service holding credentials or
+sensitive data. Keep its configuration an allow-list, keep secrets off it,
+and still validate inside the services.
+"""
+recognise = [
+    "`location` blocks ending in `location / { return 404; }`.",
+    "`proxy_set_header X-Internal-... \"\";`.",
+    "`limit_except` and `client_max_body_size` directives.",
+]
+
+[spec]
+purpose = """
+Teach Secure Gateway with a real NGINX: a directly exposed service leaking
+every order, NGINX stripping the internal header, an allow-list of locations
+and methods, size and shape limits, and a check that the gate holds no
+secrets.
+"""
+nongoals = [
+    "Not TLS or a web application firewall. Plain HTTP on local ports.",
+]
+problem = """
+A service holding secrets and internal features, exposed directly, can be
+reached in ways it never intended.
+"""
+roles = [
+    ["The gatekeeper and its configuration", "`Gatekeeper`"],
+    ["The trusted service", "`OrderService`"],
+    ["Entry point", "`NginxSecureGatewayDemo`, five acts"],
+]
+requirements = [
+    "**Allow-list:** only GET /orders/<digits> and POST /orders pass.",
+    "**Strip:** X-Internal-Admin never reaches the service through NGINX.",
+    "**Limit:** bodies over 1 MB get 413.",
+    "**No Docker, no crash:** without a runtime the demo prints advice.",
+]
+
+[[diagram]]
+name = "architecture-diagram"
+kind = "flow"
+title = "Secure Gateway with NGINX — the pieces"
+caption = "Only NGINX faces the internet."
+nodes = [
+    { id = "i", label = "Internet", sub = "anyone", col = 0, row = 0, colour = "red" },
+    { id = "n", label = "NGINX", sub = "allow-list, no secrets", col = 1, row = 0, colour = "accent" },
+    { id = "o", label = "Order service", sub = "holds the password", col = 2, row = 0, colour = "green" },
+]
+edges = [
+    { from = "i", to = "n", label = "" },
+    { from = "n", to = "o", label = "allowed only" },
+]
+
+[[diagram]]
+name = "class-diagram"
+kind = "class"
+title = "Secure Gateway with NGINX — classes"
+caption = "The policy is a config string."
+nodes = [
+    { id = "g", label = "Gatekeeper", sub = ["+ config(port): nginx.conf", "+ start()", "+ holdsCredentials()"], col = 0, row = 0, colour = "accent" },
+    { id = "o", label = "OrderService", sub = ["JDK HttpServer", "admin header, admin export"], col = 1, row = 0, colour = "green" },
+]
+edges = [
+    { from = "g", to = "o", label = "proxies to" },
+]
+
+[[diagram]]
+name = "data-flow-diagram"
+kind = "flow"
+title = "Secure Gateway with NGINX — choosing a location"
+caption = "Normalise, match, or 404."
+nodes = [
+    { id = "a", label = "/orders/../admin/export", sub = "", col = 0, row = 0, colour = "red" },
+    { id = "b", label = "normalised", sub = "/admin/export", col = 1, row = 0, colour = "accent" },
+    { id = "c", label = "no allowed location", sub = "", col = 2, row = 0, colour = "accent" },
+    { id = "d", label = "404", sub = "", col = 3, row = 0, colour = "green" },
+]
+edges = [
+    { from = "a", to = "b", label = "" },
+    { from = "b", to = "c", label = "" },
+    { from = "c", to = "d", label = "" },
+]
+
+[[diagram]]
+name = "sequence-diagram"
+kind = "sequence"
+title = "Secure Gateway with NGINX — a spoofed header"
+caption = "Removed before forwarding."
+participants = ["Internet", "NGINX", "Order service"]
+steps = [
+    ["Internet", "NGINX", "GET /orders/7, X-Internal-Admin: true"],
+    ["NGINX", "Order service", "GET /orders/7 (header removed)"],
+    ["Order service", "Internet", "200 order 7", "reply"],
+]
+
+[[diagram]]
+name = "uml-diagram"
+kind = "sequence"
+title = "1. A large body"
+caption = "Refused at the gate."
+participants = ["Internet", "NGINX"]
+steps = [
+    ["Internet", "NGINX", "POST /orders, 5 MB"],
+    ["NGINX", "Internet", "413", "reply"],
+]
+
+[[diagram]]
+name = "uml-diagram-2"
+kind = "sequence"
+title = "2. A method not allowed"
+caption = "limit_except GET."
+participants = ["Internet", "NGINX"]
+steps = [
+    ["Internet", "NGINX", "DELETE /orders/7"],
+    ["NGINX", "Internet", "403", "reply"],
+]
+
+[poster]
+headline = [["SECURE GATEWAY", "text"], ["WITH NGINX", "text"]]
+before = { code = "order service on the internet", note = "12000 orders exported", tag = "BEFORE" }
+after = { code = "location ~ ^/orders/[0-9]+$", note = "404, 403, 413 at the gate", tag = "AFTER" }
+taglines = [["The gatekeeper is a config file", "gold"]]
+
+[[scene]]
+key = "01-poster"
+kind = "poster"
+title = "Secure Gateway with NGINX"
+narration = """
+Hello, and welcome. [[slnc 400]] This video explains the Secure Gateway pattern, also called the Gatekeeper, with NGINX. [[slnc 300]]
+This video is presented by Jayasekhar Konduru. [[slnc 600]]
+First, a simple definition. [[slnc 300]] The services that hold passwords and data never face the internet. [[slnc 300]] A separate gatekeeper does. [[slnc 300]] It holds no secrets, and lets through only a few allowed kinds of request. [[slnc 500]] NGINX is the open-source web server and reverse proxy in front of much of the web. [[slnc 600]]
+Think of a bank teller behind a counter, with no key to the vault. [[slnc 700]]
+In this video, the domain is an online shop's order service, which holds the database password. [[slnc 500]]
+By the end, you will hear how two tricks exported every order. [[slnc 300]] How a short NGINX configuration stops them. [[slnc 300]] And what the gate costs.
+"""
+
+[[scene]]
+key = "02-scenario"
+kind = "bullets"
+title = "The Scenario"
+body = ["The order service faced the internet.", "", "It held the database password.", "", "An admin header and an export", "page were reachable by anyone."]
+narration = """
+Here is the scenario. [[slnc 400]] The shop's order service answered the internet directly. [[slnc 500]]
+It held the database password. [[slnc 500]]
+And an internal admin header, and an admin export page, were reachable by anyone.
+"""
+
+[[scene]]
+key = "03-acts"
+kind = "acts"
+title = "acts"
+
+[[scene]]
+key = "04-pattern"
+kind = "bullets"
+title = "The Pattern, in NGINX"
+body = ["Allowed locations only.", "limit_except for methods.", "client_max_body_size.", "proxy_set_header to strip.", "No secrets on the gate."]
+narration = """
+Let's name the pattern, in NGINX's words. [[slnc 400]] Only a few allowed locations. [[slnc 300]] A limit on methods. [[slnc 300]] A limit on body size. [[slnc 500]]
+Internal headers stripped on the way through. [[slnc 300]] And no secrets on the gate.
+"""
+
+[[scene]]
+key = "05-roles"
+kind = "bullets"
+title = "Who Does What"
+body = ["Gatekeeper: NGINX and its config", "OrderService: trusted, holds the secret"]
+narration = """
+Here is who does what. [[slnc 400]] The gatekeeper is NGINX, and its whole policy is a short configuration file. [[slnc 500]]
+The order service is trusted, holds the password, and can only be reached through the gate.
+"""
+
+[[scene]]
+key = "06-recognise"
+kind = "bullets"
+title = "Where You Have Seen It"
+body = ["Reverse proxies in a DMZ", "ModSecurity on NGINX", "Cloud load balancer rules"]
+narration = """
+You have probably met this already. [[slnc 400]] Reverse proxies placed in their own network zone, in front of internal services. [[slnc 500]]
+Web application firewall rules on NGINX. [[slnc 500]]
+And path rules on cloud load balancers.
+"""
+
+[[scene]]
+key = "07-verdict"
+kind = "bullets"
+title = "When To Use It"
+body = ["Services with secrets or", "sensitive data.", "", "An allow-list config.", "No secrets on the gate.", "Still validate inside."]
+narration = """
+So, when should you use it? [[slnc 400]] In front of any service holding passwords or sensitive data. [[slnc 500]]
+Keep the configuration an allow-list. [[slnc 300]] Keep secrets off the gate. [[slnc 300]] And still validate inside the services.
+"""
+
+[[scene]]
+key = "08-outro"
+kind = "outro"
+title = "Thanks for Watching"
+body = ["Full source, notes, diagrams and an animated walkthrough", "are in the repository. Add a", "rate limit with limit_req."]
+narration = """
+That's the Secure Gateway, with NGINX. [[slnc 400]] If you remember one sentence, make it this one. [[slnc 300]] Let only a gate with nothing to steal face the internet, and write its rules as an allow-list. [[slnc 500]]
+The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. [[slnc 300]] It needs Docker running, and starts NGINX for you. [[slnc 500]]
+Here is one exercise to try. [[slnc 300]] Add a rate limit for each client, with NGINX's limit request setting. [[slnc 500]]
+If this helped, a like really does help other people find it. [[slnc 300]] And subscribe, if you'd like the rest of the series. [[slnc 400]] Thanks for watching.
+"""

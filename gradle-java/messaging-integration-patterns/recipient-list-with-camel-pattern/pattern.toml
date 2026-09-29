@@ -1,0 +1,469 @@
+# pattern.toml for the Recipient List with Apache Camel project. See tools/patternkit.
+
+[project]
+slug = "recipient-list-with-camel"
+category = "messaging-integration-patterns"
+title = "Recipient List with Apache Camel"
+package = "recipientcamel"
+main_class = "CamelRecipientListDemo"
+tagline = "recipientList(): only where it is needed"
+bold = "Build the recipient list with Apache Camel: recipientList() asks a routing table, for each order, which endpoints should get a copy, and sends one to each; the table can change while the routes run."
+domain_note = ""
+thumb_lines = ["RECIPIENT LIST", "WITH CAMEL"]
+thumb_code = "recipientList(method(table))"
+youtube_title = "Recipient List with Apache Camel"
+youtube_tags = ["recipient list", "apache camel", "enterprise integration patterns", "multicast", "routing", "java"]
+
+[readme]
+intro = """
+This is the framework version of the Recipient List pattern. The plain Java
+version, a separate project in this category, writes the list and the sending
+loop by hand. Here Apache Camel does the sending: `recipientList()` calls a
+routing table for each order, gets back a list of endpoint addresses, and
+sends a copy of the order to each one.
+
+The routing table is still plain Java, because deciding who needs an order is
+the shop's business. Camel handles the part every recipient list needs:
+sending copies, and reporting when one of the sends fails.
+"""
+analogy = """
+Think of an office that sends each letter only to the people it concerns.
+A clerk reads the letter, looks at a list of who handles what, writes the
+names on a routing slip, and the post room makes one copy per name. If one
+department is closed, the post room tells the clerk; it does not quietly
+drop that copy.
+"""
+scenario = """
+The online store's orders were sent to every warehouse: five orders to four
+warehouses made twenty deliveries, most of them for items that warehouse did
+not stock. Each order should go only to the warehouses that hold its items,
+plus fraud review for large orders and gift wrap for gifts.
+"""
+run_note = """
+Nothing to install beyond a Java 21 JDK: Camel runs inside the program on its
+in-memory `direct:` endpoints.
+"""
+twin = """
+The plain Java version got the idea right: a list computed per message, a
+copy to each name on it, rules that add recipients, and the danger of a send
+that half fails. What it left out is what Camel adds: the copying and sending
+as one step in a route, recipients named as endpoint addresses that could be
+queues, files or web services without changing the route, and a clear error
+when one recipient fails while the others still received their copy. What
+Camel does not add is the fix: retrying or undoing the half that went out is
+still the shop's job.
+"""
+technologies = [
+    ["Apache Camel", "4.22.1", "recipientList(), multicast() and direct: endpoints"],
+    ["SLF4J simple", "2.0.17", "Camel's logging, switched off"],
+]
+costs = [
+    "**Half-sent orders.** When one recipient fails, the others already have their copy; Camel reports it, but retry or undo is still the shop's job.",
+    "**Addresses in strings.** A wrong endpoint name is only found when a message is sent to it.",
+    "**More to carry.** More than ten library files instead of none.",
+]
+too_much = """
+If every message always goes to the same fixed set of receivers, a plain
+`multicast()` or a publish-subscribe channel is simpler. A recipient list pays
+off when who needs a message depends on what is in it.
+"""
+met_before = [
+    "Camel's `recipientList()` and Spring Integration's recipient list router.",
+    "Email's To and Cc lines, chosen per message.",
+    "Routing rules in order-management systems that split orders across warehouses.",
+]
+where = """
+This project is in [messaging-integration-patterns](..). It is the framework
+version of the plain Java Recipient List project in the same category, which
+is left unchanged.
+"""
+
+[[act]]
+title = "Every order to every warehouse"
+summary = "With multicast(), 5 orders to 4 warehouses make 20 deliveries."
+detail = """
+First, the old way in Camel: `multicast()` sends a copy of every order to all
+four warehouses. Five orders make twenty deliveries, and every warehouse must
+sort through orders it has nothing to do with.
+"""
+speech = """
+First demo: every order to every warehouse. [[slnc 400]] Camel's multicast sends a copy of each order to all four warehouses. [[slnc 600]]
+Five orders, four warehouses. [[slnc 300]] Twenty deliveries. [[slnc 300]] Most of them for items that warehouse does not even stock.
+"""
+rows = { orders = "active amber", warehouses = "active wrong" }
+console = [
+    ["5 orders x 4 warehouses = 20 deliveries", "bad"],
+]
+
+[[act]]
+title = "A recipient list"
+summary = "recipientList() asks the table per order: ORD-1 to north and big-items, ORD-3 to cold-store only; 10 deliveries in all."
+detail = """
+Now `recipientList()` asks the routing table, for each order, which endpoints
+should get it. ORD-1, kitchen and furniture, goes to north and big-items.
+ORD-3, chilled, goes to cold-store only. The five orders make ten deliveries,
+including the extra recipients the rules add.
+"""
+speech = """
+Second demo: a recipient list. [[slnc 400]] For each order, Camel asks the routing table who should get it. [[slnc 600]]
+O R D one holds kitchen items and furniture. [[slnc 300]] It goes to the north warehouse, and the big-items warehouse. [[slnc 500]]
+O R D three holds chilled food. [[slnc 300]] It goes to the cold store only. [[slnc 500]]
+Ten deliveries in all, instead of twenty.
+"""
+rows = { list = "active ok", warehouses = "active ok" }
+console = [
+    ["ORD-1 -> north, big-items", "ok"],
+    ["ORD-3 -> cold-store", "ok"],
+    ["deliveries: 10", "ok"],
+]
+
+[[act]]
+title = "Rules add recipients"
+summary = "ORD-4 (£650) also reaches fraud-review; ORD-2, a gift, also reaches gift-wrap."
+detail = """
+The same table adds recipients by rule. ORD-4 is worth £650, over the £500
+line, so fraud-review gets a copy too. ORD-2 is a gift, so gift-wrap gets one.
+Camel needs no change for this: the table simply returns more addresses.
+"""
+speech = """
+Third demo: rules add recipients. [[slnc 400]] O R D four is worth six hundred and fifty pounds. [[slnc 300]] Over five hundred. [[slnc 300]] So fraud review gets a copy too. [[slnc 600]]
+O R D two is a gift. [[slnc 300]] So gift wrap gets a copy. [[slnc 500]]
+Camel did not change. [[slnc 300]] The table just returned more names.
+"""
+rows = { list = "active ok" }
+console = [
+    ["ORD-4 -> big-items, cold-store, fraud-review", "ok"],
+    ["ORD-2 -> north, gift-wrap", "ok"],
+]
+
+[[act]]
+title = "The table changes while running"
+summary = "North closes for stocktake and kitchen moves to south: ORD-5 now reaches south and cold-store, with no route change."
+detail = """
+North closes for stocktake, and kitchen items are assigned to south instead.
+The table is changed while the routes keep running. ORD-5 now reaches south
+and cold-store. No route was changed or restarted.
+"""
+speech = """
+Fourth demo: the table changes while the shop runs. [[slnc 400]] The north warehouse closes for stocktake. [[slnc 300]] Kitchen items now come from south. [[slnc 600]]
+O R D five now reaches south, and the cold store. [[slnc 500]]
+No route was changed. [[slnc 300]] Nothing was restarted.
+"""
+rows = { list = "active ok", warehouses = "active ok" }
+console = [
+    ["ORD-5 -> south, cold-store", "ok"],
+    ["no route changed", "muted"],
+]
+
+[[act]]
+title = "One recipient fails"
+summary = "big-items is unreachable: Camel reports it, but ORD-1 already reached south, so half the order is out."
+detail = """
+The big-items warehouse becomes unreachable. ORD-1 is sent: south gets its
+copy, big-items fails, and Camel reports the failure to the sender. Half the
+order is out. Camel makes the failure visible; retrying the failed copy, or
+undoing the one that went out, is still the shop's job.
+"""
+speech = """
+Fifth demo: the bill. [[slnc 400]] The big-items warehouse cannot be reached. [[slnc 600]]
+O R D one is sent. [[slnc 300]] The south warehouse gets its copy. [[slnc 300]] Big items fails. [[slnc 500]]
+Camel reports the failure. [[slnc 300]] But half the order is already out. [[slnc 600]]
+Retrying, or undoing the half that went out, is still the shop's job.
+"""
+rows = { warehouses = "active wrong", list = "active amber" }
+console = [
+    ["Camel reports: big-items is unreachable", "amber"],
+    ["ORD-1 still reached [south]", "bad"],
+]
+
+[animation]
+subtitle = "Camel asks the routing table for each order's recipients and sends one copy to each."
+boxes = [
+    ["orders", "Checkout", "sends each order"],
+    ["list", "recipientList()", "asks the routing table"],
+    ["warehouses", "Warehouses and services", "north, south, big-items, cold-store, fraud, gift"],
+]
+
+[docs.problem]
+scenario = """
+Five orders must reach the warehouses holding their items, plus fraud review
+and gift wrap when rules say so.
+"""
+naive = """
+Sending every order to every warehouse made twenty deliveries, most of them
+useless.
+"""
+deliver = [
+    "Every order multicast to four warehouses.",
+    "A recipient list asking a routing table per order.",
+    "Rules adding fraud review and gift wrap.",
+    "The table changed while routes run.",
+    "A failed recipient reported, with the half-sent order shown.",
+    "Every printed result asserted by a test.",
+]
+
+[docs.prerequisites]
+required = [
+    "Java basics: records, `List`, `Map`.",
+    "The Recipient List idea, ideally from the plain Java version of this pattern.",
+]
+not_required = [
+    "Docker or a broker. Camel runs in memory.",
+]
+
+[docs.dependencies]
+intro = """
+This project uses Apache Camel, which the plain Java version of Recipient
+List does not. Skipping it loses none of the pattern: the plain version
+teaches all of it with nothing installed.
+"""
+what = [
+    ["Apache Camel", "Camel is a library for moving messages. A route begins with from and lists steps. multicast sends a copy to a fixed list of endpoints. recipientList computes the list for each message, here by calling a Java method that returns endpoint addresses separated by commas, and sends a copy to each. An endpoint address such as direct:north names a route inside the program; the same step could name a queue, a file or a web service instead."],
+]
+why = """
+The plain version shows the idea. This version shows the step every
+integration library has for it, and what that step does and does not do for
+you when one recipient fails.
+"""
+install_note = "Only a JDK, version 21. Gradle downloads the rest, and the versions are pinned:"
+versions = [
+    ["Java", "21"],
+    ["Apache Camel (core)", "4.22.1"],
+    ["SLF4J simple", "2.0.17"],
+]
+costs = [
+    "More than ten library files on the classpath.",
+    "Endpoint addresses in strings, checked only when used.",
+]
+
+[docs.session]
+objectives = [
+    "Use `recipientList()` with a method that computes recipients.",
+    "Add rule-based recipients without changing the route.",
+    "Change the routing table while routes run.",
+    "Explain what Camel does, and does not do, when a recipient fails.",
+]
+walkthrough = """
+Run `./gradlew run`. Open `ShopRoutes`: the recipient list is two lines.
+Open `RoutingTable.recipients`: plain Java. End on act five's two lines.
+"""
+exercises = [
+    "Add `stopOnException()` and see which recipients still get ORD-1.",
+    "Add `parallelProcessing()` and explain why the order of arrival changes.",
+    "Send failed copies to a retry route instead of throwing.",
+]
+
+[docs.explained]
+sentence = """
+With Camel, a recipient list is one `recipientList()` step that asks a
+routing table for each message's recipients and sends each a copy.
+"""
+verdict = """
+Use `recipientList()` when who needs a message depends on its content. Keep
+the table in plain code, and decide in advance what happens when one
+recipient fails.
+"""
+recognise = [
+    "`.recipientList(method(...))` or `.recipientList(header(\"to\"))`.",
+    "A method returning comma-separated endpoint addresses.",
+    "Options such as `stopOnException()` and `parallelProcessing()`.",
+]
+
+[spec]
+purpose = """
+Teach Recipient List with Apache Camel: multicast to everyone, a recipient
+list asking a routing table, rule-based recipients, a table changed while
+routes run, and one failing recipient.
+"""
+nongoals = [
+    "Not a real broker. Camel's direct endpoints run in memory.",
+]
+problem = """
+Sending every message to every receiver wastes work; the right receivers
+depend on each message.
+"""
+roles = [
+    ["The routes", "`ShopRoutes`"],
+    ["Who gets what", "`RoutingTable`"],
+    ["The destinations", "`Warehouses`"],
+    ["The message", "`Order`"],
+    ["Entry point", "`CamelRecipientListDemo`, five acts"],
+]
+requirements = [
+    "**Only needed:** each order reaches only the warehouses for its items.",
+    "**Rules:** over £500 adds fraud review; gifts add gift wrap.",
+    "**Visible failure:** an unreachable recipient is reported to the sender.",
+    "**Every printed result is asserted** in `DemoRunsTest`.",
+]
+
+[[diagram]]
+name = "architecture-diagram"
+kind = "flow"
+title = "Recipient List with Camel — the routes"
+caption = "The table picks; Camel copies."
+nodes = [
+    { id = "o", label = "direct:orders", sub = "", col = 0, row = 1, colour = "client" },
+    { id = "r", label = "recipientList()", sub = "asks RoutingTable", col = 1, row = 1, colour = "accent" },
+    { id = "n", label = "direct:north", sub = "", col = 2, row = 0, colour = "green" },
+    { id = "b", label = "direct:big-items", sub = "", col = 2, row = 1, colour = "green" },
+    { id = "f", label = "direct:fraud-review", sub = "", col = 2, row = 2, colour = "amber" },
+]
+edges = [
+    { from = "o", to = "r", label = "" },
+    { from = "r", to = "n", label = "" },
+    { from = "r", to = "b", label = "" },
+    { from = "r", to = "f", label = "over £500" },
+]
+
+[[diagram]]
+name = "class-diagram"
+kind = "class"
+title = "Recipient List with Camel — classes"
+caption = "The decision is plain Java; the sending is Camel."
+nodes = [
+    { id = "r", label = "ShopRoutes", sub = ["extends RouteBuilder", "recipientList(method(table))"], col = 0, row = 0, colour = "accent" },
+    { id = "t", label = "RoutingTable", sub = ["+ recipients(order): String", "+ assign(category, warehouse)"], col = 1, row = 0, colour = "green" },
+    { id = "w", label = "Warehouses", sub = ["+ deliver(name, order)", "+ reached(orderId)"], col = 0, row = 1, colour = "client" },
+    { id = "o", label = "«record» Order", sub = ["id, categories", "pence, gift"], col = 1, row = 1, colour = "client" },
+]
+edges = [
+    { from = "r", to = "t", label = "asks" },
+    { from = "r", to = "w", label = "delivers to" },
+]
+
+[[diagram]]
+name = "data-flow-diagram"
+kind = "flow"
+title = "Recipient List with Camel — deliveries"
+caption = "Everyone, or only who needs it."
+nodes = [
+    { id = "a", label = "multicast()", sub = "20 deliveries", col = 0, row = 0, colour = "red" },
+    { id = "b", label = "recipientList()", sub = "10 deliveries", col = 0, row = 1, colour = "green" },
+]
+edges = []
+
+[[diagram]]
+name = "sequence-diagram"
+kind = "sequence"
+title = "Recipient List with Camel — ORD-4"
+caption = "Three copies, one per recipient."
+participants = ["Checkout", "recipientList", "RoutingTable", "Destinations"]
+steps = [
+    ["Checkout", "recipientList", "ORD-4"],
+    ["recipientList", "RoutingTable", "recipients(ORD-4)"],
+    ["RoutingTable", "recipientList", "big-items, cold-store, fraud-review", "reply"],
+    ["recipientList", "Destinations", "3 copies"],
+]
+
+[[diagram]]
+name = "uml-diagram"
+kind = "sequence"
+title = "1. The table changes"
+caption = "No route change."
+participants = ["Shop", "RoutingTable"]
+steps = [
+    ["Shop", "RoutingTable", "assign(kitchen, south)"],
+    ["note", "RoutingTable", "ORD-5 -> south, cold-store"],
+]
+
+[[diagram]]
+name = "uml-diagram-2"
+kind = "sequence"
+title = "2. One recipient fails"
+caption = "Reported, but half is out."
+participants = ["recipientList", "south", "big-items"]
+steps = [
+    ["recipientList", "south", "ORD-1 delivered"],
+    ["recipientList", "big-items", "ORD-1"],
+    ["big-items", "recipientList", "unreachable", "reply"],
+]
+
+[poster]
+headline = [["RECIPIENT LIST", "text"], ["WITH CAMEL", "text"]]
+before = { code = "multicast() to all 4", note = "20 deliveries", tag = "BEFORE" }
+after = { code = "recipientList(method(table))", note = "only where needed: 10", tag = "AFTER" }
+taglines = [["Only where it is needed", "gold"]]
+
+[[scene]]
+key = "01-poster"
+kind = "poster"
+title = "Recipient List with Apache Camel"
+narration = """
+Hello, and welcome. [[slnc 400]] This video explains the Recipient List pattern, built with Apache Camel, in Java. [[slnc 300]]
+This video is presented by Jayasekhar Konduru. [[slnc 600]]
+First, a simple definition. [[slnc 300]] A recipient list works out, for each message, who should get it. [[slnc 300]] Then sends a copy to each of them, and to nobody else. [[slnc 500]] Apache Camel is an open-source library for moving messages, and it has this step built in. [[slnc 600]]
+Think of an office clerk who writes on each letter the names of the people it concerns. [[slnc 300]] The post room makes one copy per name. [[slnc 700]]
+In this video, the domain is an online shop, sending orders to its warehouses. [[slnc 500]]
+By the end, you will hear how Camel sends each order only where it is needed. [[slnc 300]] How rules add recipients. [[slnc 300]] And what happens when one recipient fails.
+"""
+
+[[scene]]
+key = "02-scenario"
+kind = "bullets"
+title = "The Scenario"
+body = ["Orders went to every warehouse.", "", "5 orders x 4 warehouses", "= 20 deliveries.", "", "Most were useless."]
+narration = """
+Here is the scenario. [[slnc 400]] The shop sent every order to every warehouse. [[slnc 500]]
+Five orders, four warehouses. [[slnc 300]] Twenty deliveries. [[slnc 500]]
+Most of them for items that warehouse did not even stock.
+"""
+
+[[scene]]
+key = "03-acts"
+kind = "acts"
+title = "acts"
+
+[[scene]]
+key = "04-pattern"
+kind = "bullets"
+title = "The Pattern, in Camel"
+body = ["recipientList() asks a table", "for each message.", "", "The table returns addresses.", "", "Camel sends one copy to each."]
+narration = """
+Let's name the pattern, in Camel's words. [[slnc 400]] The recipient list step asks a routing table, for each message. [[slnc 500]]
+The table returns a list of addresses. [[slnc 500]]
+And Camel sends one copy to each address.
+"""
+
+[[scene]]
+key = "05-roles"
+kind = "bullets"
+title = "Who Does What"
+body = ["ShopRoutes: the routes", "RoutingTable: who gets what", "Warehouses: the destinations", "Order: the message"]
+narration = """
+Here is who does what. [[slnc 400]] Shop routes holds the routes. [[slnc 500]]
+The routing table decides who gets each order. [[slnc 300]] That part is plain Java, because it is the shop's business. [[slnc 500]]
+The warehouses are the destinations. [[slnc 300]] And the order is the message.
+"""
+
+[[scene]]
+key = "06-recognise"
+kind = "bullets"
+title = "Where You Have Seen It"
+body = ["Camel recipientList()", "Spring Integration routers", "Email To and Cc", "Warehouse order splitting"]
+narration = """
+You have probably met this already. [[slnc 400]] Camel's recipient list, and Spring Integration's recipient list router. [[slnc 500]]
+The To and Cc lines of an email, chosen for each message. [[slnc 500]]
+And order systems that split each order across warehouses.
+"""
+
+[[scene]]
+key = "07-verdict"
+kind = "bullets"
+title = "When To Use It"
+body = ["Who needs a message depends", "on what is in it.", "", "Keep the table in plain code.", "Plan for a failed recipient."]
+narration = """
+So, when should you use it? [[slnc 400]] When who needs a message depends on what is in it. [[slnc 500]]
+Keep the routing table in plain code. [[slnc 300]] And decide in advance what happens when one recipient fails.
+"""
+
+[[scene]]
+key = "08-outro"
+kind = "outro"
+title = "Thanks for Watching"
+body = ["Full source, notes, diagrams and an animated walkthrough", "are in the repository. Send failed", "copies to a retry route."]
+narration = """
+That's the Recipient List, with Apache Camel. [[slnc 400]] If you remember one sentence, make it this one. [[slnc 300]] Work out who needs each message, and send it only to them. [[slnc 500]]
+The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. [[slnc 300]] It runs offline, with nothing installed except a Java development kit. [[slnc 500]]
+Here is one exercise to try. [[slnc 300]] Send failed copies to a retry route, instead of failing the whole order. [[slnc 500]]
+If this helped, a like really does help other people find it. [[slnc 300]] And subscribe, if you'd like the rest of the series. [[slnc 400]] Thanks for watching.
+"""

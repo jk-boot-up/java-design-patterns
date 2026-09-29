@@ -1,0 +1,472 @@
+# pattern.toml for the Page Controller with Spring MVC project. See tools/patternkit.
+
+[project]
+slug = "page-controller-with-spring-mvc"
+category = "enterprise-design-patterns"
+title = "Page Controller with Spring MVC"
+package = "pagecontrollermvc"
+main_class = "SpringPageControllerDemo"
+tagline = "A controller per page, found by Spring"
+bold = "Give each page of the shop its own Spring MVC controller, let Spring convert and check each page's input, add pages without opening the others, and keep checks every page needs in one HandlerInterceptor."
+domain_note = ""
+thumb_lines = ["PAGE CONTROLLER", "WITH SPRING MVC"]
+thumb_code = "@GetMapping(\"/product\")"
+youtube_title = "Page Controller with Spring MVC"
+youtube_tags = ["page controller", "spring mvc", "controller", "interceptor", "spring boot", "java"]
+
+[readme]
+intro = """
+This is the framework version of the Page Controller pattern. The plain Java
+version, a separate project in this category, registers a handler object per
+page on the JDK's HTTP server. Here Spring MVC does it: each page is a class
+marked `@RestController`, its address is an `@GetMapping`, and Spring finds
+every controller by its annotations. The demo runs a real Spring Boot web
+server and calls it over HTTP.
+
+Spring also takes over the chores each page used to do by hand. It converts
+request parameters to the types the method asks for and answers 400 when it
+cannot, and it turns an exception with a status into the right response.
+Checks that every page needs, such as being logged in, go in a
+`HandlerInterceptor` registered once, so no page's author can forget them.
+"""
+analogy = """
+Think of a department store with a counter for each department: shoes,
+kitchenware, toys. Each counter knows its own products and answers its own
+questions. The doors at the front, where everyone's bag is checked, are
+shared by every counter.
+"""
+scenario = """
+The online store's pages were served by one handler that grew a branch for
+every page. Quantity parsing added for the basket ran for every page, so the
+product page crashed, and each new page meant editing the one handler
+everyone shared.
+"""
+test_note = """
+Every result the demo prints is asserted, with a real Spring MVC application
+on a local port, called over HTTP.
+"""
+run_note = """
+Nothing to install beyond a Java 21 JDK: the Spring Boot web server starts
+inside the program, on a local port.
+"""
+twin = """
+The plain Java version got the idea right: one controller per page, each
+owning its input and errors, a new page as a new class, and shared checks
+repeated on every page as the cost. What it left out is how a framework
+carries it. Spring finds each controller by its annotation, converts
+parameters and answers 400 for "two" as a quantity with no code in the page,
+and turns a ResponseStatusException into a 404. And it removes the plain
+version's cost: a HandlerInterceptor registered once for the basket and
+checkout pages makes the forgotten login check impossible to forget.
+"""
+technologies = [
+    ["Spring Boot", "4.1.1", "the embedded web server"],
+    ["Spring MVC", "with Spring Boot 4.1.1", "@RestController, @GetMapping, @RequestParam conversion, HandlerInterceptor"],
+]
+costs = [
+    "**Shared checks need a home.** Without an interceptor, checkout's author forgot the login check, and anyone could see the checkout page.",
+    "**Many small classes.** A controller per page spreads the application over many files.",
+    "**Framework conventions to learn.** Annotations, mappings and error handling are Spring's, not Java's.",
+]
+too_much = """
+For a handful of pages with little logic, one small controller is fine. A
+controller per page pays off as pages grow their own input, logic and errors.
+"""
+met_before = [
+    "Spring MVC `@Controller` and `@RestController` classes.",
+    "Pages in PHP, JSP and ASP.NET Razor Pages, one file per page.",
+    "Django and Rails views and controllers per page.",
+]
+where = """
+This project is in [enterprise-design-patterns](..). It is the framework
+version of the plain Java Page Controller project in the same category,
+which is left unchanged.
+"""
+
+[[act]]
+title = "One handler for every page"
+summary = "A single handler serves every page; quantity parsing added for the basket makes the product page answer 500."
+detail = """
+One handler serves every page under /old. Quantity parsing was added at the
+top for the basket, which works, but it now runs for every page: the product
+page, which has no quantity, crashes with 500.
+"""
+speech = """
+First demo: one handler for every page. [[slnc 400]] The basket works. [[slnc 600]]
+But the code that reads the quantity was added at the top, for the basket. [[slnc 300]] It runs for every page. [[slnc 500]]
+The product page has no quantity. [[slnc 300]] It crashes, with a server error.
+"""
+rows = { old = "active wrong" }
+console = [
+    ["/old/basket: 200", "ok"],
+    ["/old/product: 500", "bad"],
+]
+
+[[act]]
+title = "A controller per page"
+summary = "ProductController and BasketController each own one page: the kettle is £30.00, the basket holds 2 mugs."
+detail = """
+Now each page has its own `@RestController` with its own `@GetMapping`. The
+product page shows the steel kettle at £30.00; the basket page adds two mugs.
+Neither knows about the other.
+"""
+speech = """
+Second demo: a controller for each page. [[slnc 400]] The product page has its own class. [[slnc 300]] So does the basket. [[slnc 600]]
+The kettle costs thirty pounds. [[slnc 300]] The basket holds two mugs. [[slnc 500]]
+Neither page knows about the other.
+"""
+rows = { product = "active ok", basket = "active ok" }
+console = [
+    ["/product: 200 steel kettle, £30.00", "ok"],
+    ["/basket: 200 basket: 2 x MUG-1", "ok"],
+]
+
+[[act]]
+title = "Input checked by Spring"
+summary = "An unknown product gets 404 from a ResponseStatusException; qty=two gets 400, because Spring could not make it an int."
+detail = """
+An unknown product, SOFA-9, gets 404: the controller throws a
+ResponseStatusException and Spring turns it into the response. A quantity of
+"two" gets 400 without any code in the basket page: Spring could not convert
+it to the int the method asks for.
+"""
+speech = """
+Third demo: each page's input, checked by Spring. [[slnc 400]] An unknown product. [[slnc 300]] Not found. [[slnc 600]]
+A quantity written as the word two. [[slnc 300]] Bad request. [[slnc 300]] Spring could not turn it into a number. [[slnc 300]] The basket page wrote no code for that.
+"""
+rows = { product = "active ok", basket = "active ok" }
+console = [
+    ["SOFA-9: 404", "ok"],
+    ["qty=two: 400", "ok"],
+]
+
+[[act]]
+title = "A new page"
+summary = "A ReviewsController is added; /reviews works, and no other controller was opened."
+detail = """
+A reviews page is added as one new class, ReviewsController. Spring finds it
+by its annotation, and /reviews shows 4.5 stars from twelve customers. No
+other controller was opened.
+"""
+speech = """
+Fourth demo: a new page. [[slnc 400]] Reviews are added as one new class. [[slnc 600]]
+Spring finds it by its annotation. [[slnc 300]] Four and a half stars, from twelve customers. [[slnc 500]]
+No other page was touched.
+"""
+rows = { reviews = "active ok" }
+console = [
+    ["/reviews: 200, 4.5 stars", "ok"],
+]
+
+[[act]]
+title = "The bill, and an interceptor"
+summary = "Checkout's author forgot the login check: 200 when logged out. One HandlerInterceptor for /basket and /checkout gives 401, then 200 when logged in."
+detail = """
+The checkout page's author forgot the login check that the basket repeats, so
+a customer who is not logged in sees the checkout page. Spring's answer is a
+HandlerInterceptor registered once for /basket and /checkout: not logged in
+gets 401, logged in gets the page. Shared checks belong in one place.
+"""
+speech = """
+Fifth demo: the bill. [[slnc 400]] Some checks every page needs. [[slnc 300]] The checkout page's author forgot the login check. [[slnc 300]] Anyone can see it. [[slnc 600]]
+Spring has a place for shared checks, called an interceptor. [[slnc 300]] It is registered once, for the basket and the checkout. [[slnc 500]]
+Not logged in. [[slnc 300]] Please log in. [[slnc 300]] Logged in. [[slnc 300]] The checkout page.
+"""
+rows = { checkout = "active amber" }
+console = [
+    ["/checkout, logged out: 200", "bad"],
+    ["with interceptor: 401", "ok"],
+]
+
+[animation]
+subtitle = "Requests reach one Spring MVC controller per page; an interceptor does the shared login check."
+boxes = [
+    ["old", "One old handler", "every page"],
+    ["product", "ProductController", "/product"],
+    ["basket", "BasketController", "/basket"],
+    ["reviews", "ReviewsController", "/reviews"],
+    ["checkout", "CheckoutController", "/checkout"],
+]
+
+[docs.problem]
+scenario = """
+The shop's pages were served by one handler that grew a branch per page.
+"""
+naive = """
+Code for one page runs for every page, and every new page edits the shared
+handler.
+"""
+deliver = [
+    "One handler crashing on a page it was not written for.",
+    "A @RestController per page.",
+    "Spring's parameter conversion and status exceptions.",
+    "A new page as a new class.",
+    "A forgotten login check, fixed by an interceptor.",
+    "Every printed result asserted by a test.",
+]
+
+[docs.prerequisites]
+required = [
+    "Java basics: classes, annotations.",
+    "HTTP requests, query parameters and status codes.",
+    "The Page Controller idea, ideally from the plain Java version of this pattern.",
+]
+not_required = [
+    "Earlier Spring experience. The dependencies page explains the annotations used.",
+]
+
+[docs.dependencies]
+intro = """
+This project uses Spring MVC through Spring Boot, which the plain Java
+version of Page Controller does not. Skipping it loses none of the pattern:
+the plain version teaches all of it with nothing installed.
+"""
+what = [
+    ["Spring MVC", "Spring MVC routes web requests to Java methods. @RestController marks a class whose methods answer requests. @GetMapping gives the path a method answers. @RequestParam reads a query parameter and converts it to the parameter's type, answering 400 if it cannot. A ResponseStatusException carries the status to answer with. A HandlerInterceptor runs before the controllers it is registered for, and can stop the request."],
+    ["Spring Boot", "Spring Boot starts an embedded web server and finds the controllers by their annotations."],
+]
+why = """
+The plain version registers handlers by hand. This version shows how most
+Java web applications are organised, and where Spring puts the checks that
+every page needs.
+"""
+install_note = "Only a JDK, version 21. Gradle downloads the rest, and the version is pinned:"
+versions = [
+    ["Java", "21"],
+    ["Spring Boot (webmvc starter)", "4.1.1"],
+]
+costs = [
+    "A framework and its conventions to learn.",
+]
+
+[docs.session]
+objectives = [
+    "Write one @RestController per page.",
+    "Let Spring convert and check request parameters.",
+    "Answer 404 with a ResponseStatusException.",
+    "Move shared checks into a HandlerInterceptor.",
+]
+walkthrough = """
+Run `./gradlew run`. Open `ProductController`: one method. Open `ShopApp`: the
+interceptor registered for two paths. Compare act five's 200 and 401.
+"""
+exercises = [
+    "Register the interceptor for every path except /product and /reviews.",
+    "Add a wishlist page as a new controller.",
+    "Return an HTML view with a template instead of plain text.",
+]
+
+[docs.explained]
+sentence = """
+With Spring MVC, a page controller is a @RestController per page, found by
+annotation, with shared checks in a HandlerInterceptor.
+"""
+verdict = """
+Give each page its own controller, let Spring handle input conversion and
+status errors, and put every check that many pages share in an interceptor or
+filter, never in each page.
+"""
+recognise = [
+    "`@RestController` classes, one per screen or resource.",
+    "`@GetMapping(\"/...\")` with `@RequestParam` parameters.",
+    "`WebMvcConfigurer.addInterceptors(...)`.",
+]
+
+[spec]
+purpose = """
+Teach Page Controller with Spring MVC: one handler crashing for every page, a
+controller per page, Spring's input conversion and status errors, a new page,
+and a forgotten login check fixed with an interceptor.
+"""
+nongoals = [
+    "Not HTML templates. Pages answer with plain text.",
+]
+problem = """
+One handler for every page mixes every page's code and breaks them together.
+"""
+roles = [
+    ["The page controllers", "`ProductController`, `BasketController`, `ReviewsController`, `CheckoutController`"],
+    ["The old way", "`OldFrontHandler`"],
+    ["The shared check", "`LoginInterceptor`"],
+    ["Entry point", "`SpringPageControllerDemo`, five acts"],
+]
+requirements = [
+    "**Per page:** each path is answered by its own controller.",
+    "**Checked input:** a non-numeric quantity gets 400.",
+    "**Shared check:** checkout needs login once the interceptor is on.",
+    "**Every printed result is asserted** in `DemoRunsTest`.",
+]
+
+[[diagram]]
+name = "architecture-diagram"
+kind = "flow"
+title = "Page Controller with Spring MVC — the pieces"
+caption = "One controller per page; one interceptor for the shared check."
+nodes = [
+    { id = "r", label = "Request", sub = "", col = 0, row = 1, colour = "client" },
+    { id = "i", label = "LoginInterceptor", sub = "/basket, /checkout", col = 1, row = 1, colour = "amber" },
+    { id = "p", label = "ProductController", sub = "/product", col = 2, row = 0, colour = "green" },
+    { id = "b", label = "BasketController", sub = "/basket", col = 2, row = 1, colour = "green" },
+    { id = "c", label = "CheckoutController", sub = "/checkout", col = 2, row = 2, colour = "green" },
+]
+edges = [
+    { from = "r", to = "p", label = "" },
+    { from = "r", to = "i", label = "" },
+    { from = "i", to = "b", label = "" },
+    { from = "i", to = "c", label = "" },
+]
+
+[[diagram]]
+name = "class-diagram"
+kind = "class"
+title = "Page Controller with Spring MVC — classes"
+caption = "Found by annotation."
+nodes = [
+    { id = "p", label = "ProductController", sub = ["@GetMapping(\"/product\")"], col = 0, row = 0, colour = "green" },
+    { id = "b", label = "BasketController", sub = ["@GetMapping(\"/basket\")", "@RequestParam int qty"], col = 1, row = 0, colour = "green" },
+    { id = "l", label = "LoginInterceptor", sub = ["+ preHandle(...)"], col = 0, row = 1, colour = "amber" },
+    { id = "s", label = "ShopApp", sub = ["+ addInterceptors(...)"], col = 1, row = 1, colour = "accent" },
+]
+edges = [
+    { from = "s", to = "l", label = "registers" },
+]
+
+[[diagram]]
+name = "data-flow-diagram"
+kind = "flow"
+title = "Page Controller with Spring MVC — qty=two"
+caption = "Refused before the page's code runs."
+nodes = [
+    { id = "a", label = "GET /basket?qty=two", sub = "", col = 0, row = 0, colour = "client" },
+    { id = "b", label = "Spring converts qty", sub = "\"two\" is not an int", col = 1, row = 0, colour = "accent" },
+    { id = "c", label = "400", sub = "basket method never runs", col = 2, row = 0, colour = "amber" },
+]
+edges = [
+    { from = "a", to = "b", label = "" },
+    { from = "b", to = "c", label = "" },
+]
+
+[[diagram]]
+name = "sequence-diagram"
+kind = "sequence"
+title = "Page Controller with Spring MVC — the product page"
+caption = "Spring picks the controller by path."
+participants = ["Browser", "Spring MVC", "ProductController"]
+steps = [
+    ["Browser", "Spring MVC", "GET /product?sku=KETTLE-1"],
+    ["Spring MVC", "ProductController", "product(\"KETTLE-1\")"],
+    ["ProductController", "Browser", "steel kettle, £30.00", "reply"],
+]
+
+[[diagram]]
+name = "uml-diagram"
+kind = "sequence"
+title = "1. The interceptor"
+caption = "The shared check runs first."
+participants = ["Browser", "LoginInterceptor", "CheckoutController"]
+steps = [
+    ["Browser", "LoginInterceptor", "GET /checkout, not logged in"],
+    ["LoginInterceptor", "Browser", "401 please log in", "reply"],
+]
+
+[[diagram]]
+name = "uml-diagram-2"
+kind = "sequence"
+title = "2. One handler for everything"
+caption = "Basket code runs for the product page."
+participants = ["Browser", "OldFrontHandler"]
+steps = [
+    ["Browser", "OldFrontHandler", "GET /old/product"],
+    ["note", "OldFrontHandler", "parse qty: null"],
+    ["OldFrontHandler", "Browser", "500", "reply"],
+]
+
+[poster]
+headline = [["PAGE CONTROLLER", "text"], ["WITH SPRING MVC", "text"]]
+before = { code = "one handler, every page", note = "product page: 500", tag = "BEFORE" }
+after = { code = "@GetMapping(\"/product\")", note = "one controller per page", tag = "AFTER" }
+taglines = [["A controller per page", "gold"]]
+
+[[scene]]
+key = "01-poster"
+kind = "poster"
+title = "Page Controller with Spring MVC"
+narration = """
+Hello, and welcome. [[slnc 400]] This video explains the Page Controller pattern, with Spring MVC, in Java. [[slnc 300]]
+This video is presented by Jayasekhar Konduru. [[slnc 600]]
+First, a simple definition. [[slnc 300]] A page controller gives each page of a web application its own controller. [[slnc 300]] It reads that page's input, does that page's work, and handles that page's errors. [[slnc 500]] Spring MVC is the open-source web framework most Java applications use. [[slnc 600]]
+Think of a department store, with a counter for each department. [[slnc 300]] Each counter answers its own questions. [[slnc 300]] The front doors, where bags are checked, are shared. [[slnc 700]]
+In this video, the domain is an online shop's pages: product, basket, reviews and checkout. [[slnc 500]]
+By the end, you will hear why one handler for every page breaks. [[slnc 300]] How Spring finds a controller for each page. [[slnc 300]] And where checks every page needs should live.
+"""
+
+[[scene]]
+key = "02-scenario"
+kind = "bullets"
+title = "The Scenario"
+body = ["One handler served every page.", "", "Basket code ran for every page.", "", "Each new page edited", "the shared handler."]
+narration = """
+Here is the scenario. [[slnc 400]] One handler served every page of the shop. [[slnc 500]]
+Code added for the basket ran for every page, and the product page crashed. [[slnc 500]]
+And each new page meant editing the one handler everyone shared.
+"""
+
+[[scene]]
+key = "03-acts"
+kind = "acts"
+title = "acts"
+
+[[scene]]
+key = "04-pattern"
+kind = "bullets"
+title = "The Pattern, in Spring MVC"
+body = ["@RestController per page.", "@GetMapping for its path.", "", "Spring converts the input.", "", "An interceptor for shared checks."]
+narration = """
+Let's name the pattern, in Spring's words. [[slnc 400]] A rest controller for each page, with a get mapping for its path. [[slnc 500]]
+Spring converts each page's input, and answers bad request when it cannot. [[slnc 500]]
+And an interceptor holds the checks many pages share.
+"""
+
+[[scene]]
+key = "05-roles"
+kind = "bullets"
+title = "Who Does What"
+body = ["ProductController, BasketController", "ReviewsController, CheckoutController", "LoginInterceptor: the shared check", "OldFrontHandler: the old way"]
+narration = """
+Here is who does what. [[slnc 400]] Product, basket, reviews and checkout each have their own controller. [[slnc 500]]
+The login interceptor checks login, before the pages that need it. [[slnc 500]]
+And the old front handler is the old way, one handler for everything.
+"""
+
+[[scene]]
+key = "06-recognise"
+kind = "bullets"
+title = "Where You Have Seen It"
+body = ["Spring @Controller classes", "PHP, JSP, Razor Pages", "Django and Rails controllers"]
+narration = """
+You have probably met this already. [[slnc 400]] Spring controller classes. [[slnc 500]]
+PHP files, Java server pages, and Razor pages, one file per page. [[slnc 500]]
+And the controllers of Django and Rails.
+"""
+
+[[scene]]
+key = "07-verdict"
+kind = "bullets"
+title = "When To Use It"
+body = ["Pages with their own input,", "logic and errors.", "", "Let Spring check input.", "Shared checks in one place."]
+narration = """
+So, when should you use it? [[slnc 400]] When pages grow their own input, logic and errors. [[slnc 500]]
+Let Spring check the input. [[slnc 300]] And put every shared check in one place, never in each page.
+"""
+
+[[scene]]
+key = "08-outro"
+kind = "outro"
+title = "Thanks for Watching"
+body = ["Full source, notes, diagrams and an animated walkthrough", "are in the repository. Add a", "wishlist page."]
+narration = """
+That's the Page Controller, with Spring MVC. [[slnc 400]] If you remember one sentence, make it this one. [[slnc 300]] Each page its own controller, and every shared check in one place. [[slnc 500]]
+The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. [[slnc 300]] It runs offline, with nothing installed except a Java development kit. [[slnc 500]]
+Here is one exercise to try. [[slnc 300]] Add a wishlist page, as a new controller. [[slnc 500]]
+If this helped, a like really does help other people find it. [[slnc 300]] And subscribe, if you'd like the rest of the series. [[slnc 400]] Thanks for watching.
+"""

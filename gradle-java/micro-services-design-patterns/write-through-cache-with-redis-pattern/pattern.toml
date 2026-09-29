@@ -1,0 +1,491 @@
+# pattern.toml for the Write-Through Cache with Redis project. See tools/patternkit.
+
+[project]
+slug = "write-through-cache-with-redis"
+category = "micro-services-design-patterns"
+title = "Write-Through Cache with Redis"
+package = "writethroughredis"
+main_class = "RedisWriteThroughDemo"
+tagline = "Database, then Redis, on every write"
+bold = "Write every price to PostgreSQL and then to a real, shared Redis cache before the write returns, read pages from Redis, and see the one thing the plain version could not: two systems that no transaction spans."
+domain_note = ""
+thumb_lines = ["WRITE-THROUGH CACHE", "WITH REDIS"]
+thumb_code = "db.write(); redis.set()"
+youtube_title = "Write-Through Cache with Redis and PostgreSQL"
+youtube_tags = ["write-through cache", "redis", "postgresql", "caching", "consistency", "java"]
+
+[readme]
+intro = """
+This is the real-infrastructure version of the Write-Through Cache pattern.
+The plain Java version, a separate project in this category, keeps the
+database and the cache as maps in one program. Here the database is a real
+PostgreSQL and the cache a real Redis, each started in a container by the
+demo itself.
+
+Every price write goes through one store: PostgreSQL first, then Redis, before
+the write returns, so product pages, which read Redis, never show a price the
+database does not have. Because Redis is a separate server, every instance of
+the shop sees the same cache. But because they are two separate systems, no
+transaction covers both, and the last acts show what that costs.
+"""
+analogy = """
+Think of a shop with a price list in the back office and price tags on the
+shelves. The rule is that whoever changes a price updates the back-office list
+first and then walks out and changes the tag, before doing anything else. The
+tags are what customers read. But if the shop floor is locked when someone
+tries to change a tag, the list and the tag disagree until someone notices.
+"""
+scenario = """
+The online store shows prices on product pages from a cache and charges at
+checkout from the database. A nightly job wrote new prices straight into the
+database and forgot the cache, so customers saw one price and paid another.
+"""
+test_note = """
+Every number the demo prints is asserted against real Redis and PostgreSQL.
+Without a container runtime, the test is skipped rather than failed.
+"""
+run_note = """
+This project needs a running container runtime, such as Docker Desktop: the
+demo starts real Redis 8.10.2 and PostgreSQL 18.6 containers and removes them
+again. Without one, it prints a sentence saying what to start, rather than
+failing.
+"""
+twin = """
+The plain Java version got the idea right: every write goes through the
+cache, the database first, so a refused database write leaves both unchanged,
+and reads come from the cache. What it left out is what changes when the
+cache is a real server. Two app instances now share one cache, and Redis
+counts its own hits. And the two stores are separate systems: when Redis was
+unreachable during a write, PostgreSQL kept the new price and Redis the old
+one, because no transaction spans both. A time-to-live on each cached price
+bounds how long they can disagree.
+"""
+technologies = [
+    ["Redis", "8.10.2 (container image)", "the shared cache"],
+    ["PostgreSQL", "18.6 (container image)", "the record of truth"],
+    ["Jedis", "8.0.1", "the Redis client"],
+    ["PostgreSQL JDBC driver", "42.7.13", "talking to PostgreSQL"],
+    ["Testcontainers", "2.0.5", "starts, pauses and stops the containers"],
+    ["Docker", "24 or later", "runs the containers"],
+]
+costs = [
+    "**No shared transaction.** With Redis unreachable mid-write, the database said £25.00 and the cache £27.00.",
+    "**Every write waits twice.** A thousand price updates meant a thousand PostgreSQL writes and a thousand Redis writes.",
+    "**The cache fills.** All thousand prices sat in Redis, though most will never be viewed; set a time-to-live.",
+]
+too_much = """
+If prices are read rarely, reading the database directly is simpler. A
+write-through cache pays off for data read far more often than written, where
+showing a stale value is costly.
+"""
+met_before = [
+    "Application-level write-through with Redis or Memcached in front of a database.",
+    "Hazelcast and Apache Ignite, whose map stores can write through for you.",
+    "CPU caches with a write-through policy.",
+]
+where = """
+This project is in [micro-services-design-patterns](..). It is the
+real-infrastructure version of the plain Java Write-Through Cache project in
+the same category, which is left unchanged.
+"""
+
+[[act]]
+title = "Round the cache"
+summary = "The nightly job writes £27.00 straight into PostgreSQL: the page, from Redis, says £30.00 and checkout, from PostgreSQL, charges £27.00."
+detail = """
+The kettle is £30.00, cached in Redis. The nightly job writes the new price,
+£27.00, straight into PostgreSQL and forgets Redis. The product page, reading
+Redis, shows £30.00; checkout, reading PostgreSQL, charges £27.00.
+"""
+speech = """
+First demo: a price change goes round the cache. [[slnc 400]] The kettle costs thirty pounds, and that price is in Redis. [[slnc 600]]
+The nightly job writes twenty-seven pounds, straight into the database. [[slnc 300]] It forgets Redis. [[slnc 600]]
+The product page still says thirty. [[slnc 300]] Checkout charges twenty-seven.
+"""
+rows = { job = "active wrong", redis = "active wrong", postgres = "active ok" }
+console = [
+    ["page (Redis): £30.00", "bad"],
+    ["checkout (PostgreSQL): £27.00", "muted"],
+]
+
+[[act]]
+title = "Write through"
+summary = "PriceStore writes PostgreSQL, then Redis, before returning: page, checkout and a second app instance all show £27.00."
+detail = """
+Now every write goes through `PriceStore.put`: PostgreSQL first, then Redis,
+before it returns. The page and checkout both say £27.00, and so does a second
+instance of the shop reading the same Redis, because the cache is a shared
+server.
+"""
+speech = """
+Second demo: write-through. [[slnc 400]] Every price write now goes through one store. [[slnc 300]] The database first, then Redis, before it returns. [[slnc 600]]
+The page says twenty-seven. [[slnc 300]] Checkout says twenty-seven. [[slnc 500]]
+And a second copy of the shop, reading the same Redis, says twenty-seven too.
+"""
+rows = { store = "active ok", redis = "active ok", postgres = "active ok" }
+console = [
+    ["page £27.00, checkout £27.00", "ok"],
+    ["second instance: £27.00", "ok"],
+]
+
+[[act]]
+title = "Reads from Redis"
+summary = "100 page views: 0 database reads, and Redis's own counter shows 100 cache hits."
+detail = """
+A hundred product-page views read the price from Redis. PostgreSQL is not read
+at all, and Redis's own statistics count exactly a hundred cache hits.
+"""
+speech = """
+Third demo: reads come from Redis. [[slnc 400]] A hundred people view the product page. [[slnc 600]]
+The database is not read at all. [[slnc 300]] Redis's own counter shows a hundred cache hits.
+"""
+rows = { redis = "active ok" }
+console = [
+    ["100 views: 0 database reads", "ok"],
+    ["Redis: 100 cache hits", "ok"],
+]
+
+[[act]]
+title = "When one of the two refuses"
+summary = "A refused PostgreSQL write leaves both at £27.00; but with Redis unreachable, PostgreSQL saves £25.00 while Redis keeps £27.00."
+detail = """
+With PostgreSQL read-only for maintenance, the write fails first and Redis is
+never touched: both still say £27.00. The other way round is the problem. The
+demo freezes Redis during a write: PostgreSQL saves £25.00, Redis cannot be
+written, and when it returns the page shows £27.00 against the database's
+£25.00. They are two systems, and no transaction spans both; a time-to-live
+on each cached price bounds how long they can disagree.
+"""
+speech = """
+Fourth demo: when one of the two refuses. [[slnc 400]] The database is read-only, for maintenance. [[slnc 300]] The write fails first, and Redis is never touched. [[slnc 300]] They still agree. [[slnc 600]]
+Now the other way round. [[slnc 300]] Redis cannot be reached, during a write. [[slnc 500]]
+The database saves twenty-five pounds. [[slnc 300]] Redis keeps twenty-seven. [[slnc 500]]
+Two systems. [[slnc 300]] No transaction covers both. [[slnc 300]] An expiry time on each cached price limits how long they can disagree.
+"""
+rows = { redis = "active wrong", postgres = "active ok" }
+console = [
+    ["database refused: both £27.00", "ok"],
+    ["Redis unreachable: page £27.00, db £25.00", "bad"],
+]
+
+[[act]]
+title = "The bill"
+summary = "1,000 price updates mean 1,000 PostgreSQL writes and 1,000 Redis writes, and 1,000 more prices sit in Redis though most are never viewed."
+detail = """
+The nightly job updates a thousand prices: a thousand PostgreSQL writes and a
+thousand Redis writes, every write waiting for both. And Redis now holds a
+thousand more prices, though most will never be viewed.
+"""
+speech = """
+Fifth demo: the bill. [[slnc 400]] The nightly job updates a thousand prices. [[slnc 300]] A thousand database writes, and a thousand Redis writes. [[slnc 600]]
+And Redis now holds a thousand more prices. [[slnc 300]] Most will never be viewed.
+"""
+rows = { redis = "active amber", postgres = "active amber" }
+console = [
+    ["1000 + 1000 writes", "amber"],
+    ["1000 more prices in Redis", "amber"],
+]
+
+[animation]
+subtitle = "Every price write goes to PostgreSQL, then Redis; product pages read Redis."
+boxes = [
+    ["job", "Nightly price job", "writes prices"],
+    ["store", "PriceStore", "database, then cache"],
+    ["postgres", "PostgreSQL", "record of truth"],
+    ["redis", "Redis", "shared cache"],
+]
+
+[docs.problem]
+scenario = """
+Product pages read prices from a cache; checkout reads the database.
+"""
+naive = """
+Writing prices straight into the database leaves the cache showing old prices.
+"""
+deliver = [
+    "A write around the cache, and two prices.",
+    "Write-through to PostgreSQL and a shared Redis.",
+    "Reads counted by Redis's own statistics.",
+    "A refused database write, and an unreachable Redis.",
+    "The cost of every write.",
+    "Every printed result asserted by a test, skipped without Docker.",
+]
+
+[docs.prerequisites]
+required = [
+    "Java basics: exceptions, JDBC in outline.",
+    "The Write-Through Cache idea, ideally from the plain Java version of this pattern.",
+]
+not_required = [
+    "Earlier Redis or PostgreSQL experience. The dependencies page explains what is used.",
+]
+install = [
+    "A running container runtime such as Docker Desktop. The demo starts and removes Redis and PostgreSQL itself.",
+]
+
+[docs.dependencies]
+intro = """
+This project uses a real Redis and a real PostgreSQL, run in containers by
+Testcontainers, which the plain Java version of Write-Through Cache does not.
+Skipping it loses none of the pattern: the plain version teaches all of it
+with nothing installed.
+"""
+what = [
+    ["Redis", "Redis is an in-memory data store run as its own server, often used as a cache shared by many application instances. SET stores a value under a key, optionally with an expiry in seconds; GET reads it. INFO stats reports counters such as keyspace_hits, the number of reads that found their key."],
+    ["PostgreSQL", "PostgreSQL is a relational database. Here it holds one table, prices, the record of truth. A session can be made read-only, which is how the demo simulates maintenance."],
+    ["Testcontainers", "Testcontainers is a Java library that starts containers from inside a program and removes them afterwards. The demo also pauses the Redis container, to make it unreachable for a moment."],
+]
+why = """
+The plain version shows the idea. This version shows a shared cache server,
+and the consistency gap between two real systems that the plain version, with
+both stores in one program, could not have.
+"""
+versions = [
+    ["Java", "21"],
+    ["Docker", "running; 24 or later"],
+    ["Redis image", "redis:8.10.2-alpine"],
+    ["PostgreSQL image", "postgres:18.6-alpine"],
+    ["Jedis", "8.0.1"],
+    ["PostgreSQL JDBC driver", "42.7.13"],
+    ["Testcontainers", "2.0.5"],
+]
+costs = [
+    "A container runtime, and a first run that downloads two images.",
+    "Two servers to run in production, and a plan for when they disagree.",
+]
+
+[docs.session]
+objectives = [
+    "Write through to a database and a shared cache.",
+    "Read from the cache and confirm it with Redis statistics.",
+    "Explain why a write can leave the two disagreeing.",
+    "Bound disagreement with a time-to-live.",
+]
+walkthrough = """
+Run `./gradlew run` with Docker running. Compare act one's two prices with act
+two's one. Open `PriceStore.put`: database, then cache. End on act four's
+£27.00 against £25.00.
+"""
+exercises = [
+    "Set the time-to-live to 2 seconds and show the page correcting itself after act four.",
+    "When Redis cannot be written, delete the key on the next successful call.",
+    "Only cache prices on their first read, and compare Redis's size after act five.",
+]
+
+[docs.explained]
+sentence = """
+With Redis and PostgreSQL, a write-through cache writes every change to the
+database and then the shared cache before returning, and reads from the cache.
+"""
+verdict = """
+Use write-through for data read far more than written, where a stale value is
+costly. Write the database first, give cached values a time-to-live, and plan
+for the moments when the cache cannot be written.
+"""
+recognise = [
+    "A store whose `put` writes the database and then Redis.",
+    "`SET key value EX seconds` after a database update.",
+    "Product pages reading only from Redis.",
+]
+
+[spec]
+purpose = """
+Teach Write-Through Cache with real Redis and PostgreSQL: a write around the
+cache, write-through with a shared cache, reads counted by Redis, refused
+writes on either side, and the cost of every write.
+"""
+nongoals = [
+    "Not a Redis cluster or replication. One Redis and one PostgreSQL are used.",
+]
+problem = """
+Writes that bypass the cache leave pages showing prices the database no
+longer has.
+"""
+roles = [
+    ["The pattern", "`PriceStore`"],
+    ["The record of truth", "`PriceDb`"],
+    ["The containers", "`Infra`"],
+    ["Entry point", "`RedisWriteThroughDemo`, five acts"],
+]
+requirements = [
+    "**Through:** every write updates PostgreSQL, then Redis.",
+    "**Database first:** a refused database write leaves Redis alone.",
+    "**Shared:** a second instance reads the same cached price.",
+    "**No Docker, no crash:** without a runtime the demo prints advice.",
+]
+
+[[diagram]]
+name = "architecture-diagram"
+kind = "flow"
+title = "Write-Through Cache with Redis — the pieces"
+caption = "Writes go through; reads come from Redis."
+nodes = [
+    { id = "j", label = "Price job", sub = "", col = 0, row = 0, colour = "client" },
+    { id = "s", label = "PriceStore", sub = "database, then cache", col = 1, row = 0, colour = "accent" },
+    { id = "p", label = "PostgreSQL", sub = "record of truth", col = 2, row = 0, colour = "green" },
+    { id = "r", label = "Redis", sub = "shared cache", col = 2, row = 1, colour = "green" },
+    { id = "w", label = "Product pages", sub = "two app instances", col = 3, row = 1, colour = "client" },
+]
+edges = [
+    { from = "j", to = "s", label = "put" },
+    { from = "s", to = "p", label = "1" },
+    { from = "s", to = "r", label = "2" },
+    { from = "w", to = "r", label = "GET" },
+]
+
+[[diagram]]
+name = "class-diagram"
+kind = "class"
+title = "Write-Through Cache with Redis — classes"
+caption = "One store in front of two servers."
+nodes = [
+    { id = "s", label = "PriceStore", sub = ["+ put(sku, pence)", "+ get(sku)"], col = 0, row = 0, colour = "accent" },
+    { id = "d", label = "PriceDb", sub = ["+ write(sku, pence)", "+ read(sku)"], col = 1, row = 0, colour = "green" },
+    { id = "i", label = "Infra", sub = ["+ redis() / database()", "+ pauseRedis()"], col = 0, row = 1, colour = "client" },
+]
+edges = [
+    { from = "s", to = "d", label = "writes first" },
+    { from = "s", to = "i", label = "Redis via" },
+]
+
+[[diagram]]
+name = "data-flow-diagram"
+kind = "flow"
+title = "Write-Through Cache with Redis — two failures"
+caption = "Only one of them is safe."
+nodes = [
+    { id = "a", label = "PostgreSQL refuses", sub = "Redis untouched", col = 0, row = 0, colour = "green" },
+    { id = "b", label = "both £27.00", sub = "", col = 2, row = 0, colour = "green" },
+    { id = "c", label = "Redis unreachable", sub = "PostgreSQL saved", col = 0, row = 1, colour = "red" },
+    { id = "d", label = "£27.00 vs £25.00", sub = "until the TTL", col = 2, row = 1, colour = "red" },
+]
+edges = [
+    { from = "a", to = "b", label = "" },
+    { from = "c", to = "d", label = "" },
+]
+
+[[diagram]]
+name = "sequence-diagram"
+kind = "sequence"
+title = "Write-Through Cache with Redis — a price change"
+caption = "Both written before the call returns."
+participants = ["Price job", "PriceStore", "PostgreSQL", "Redis"]
+steps = [
+    ["Price job", "PriceStore", "put(KETTLE-1, £27.00)"],
+    ["PriceStore", "PostgreSQL", "UPDATE"],
+    ["PriceStore", "Redis", "SET price:KETTLE-1 EX 3600"],
+    ["PriceStore", "Price job", "done", "reply"],
+]
+
+[[diagram]]
+name = "uml-diagram"
+kind = "sequence"
+title = "1. A page view"
+caption = "Redis only."
+participants = ["Product page", "Redis"]
+steps = [
+    ["Product page", "Redis", "GET price:KETTLE-1"],
+    ["Redis", "Product page", "2700", "reply"],
+]
+
+[[diagram]]
+name = "uml-diagram-2"
+kind = "sequence"
+title = "2. Redis unreachable"
+caption = "No transaction spans both."
+participants = ["PriceStore", "PostgreSQL", "Redis"]
+steps = [
+    ["PriceStore", "PostgreSQL", "UPDATE £25.00: ok"],
+    ["PriceStore", "Redis", "SET: timeout"],
+    ["note", "Redis", "still £27.00"],
+]
+
+[poster]
+headline = [["WRITE-THROUGH CACHE", "text"], ["WITH REDIS", "text"]]
+before = { code = "UPDATE prices ... (only)", note = "page £30, checkout £27", tag = "BEFORE" }
+after = { code = "db.write(); redis.set()", note = "one price everywhere", tag = "AFTER" }
+taglines = [["Database, then Redis, every write", "gold"]]
+
+[[scene]]
+key = "01-poster"
+kind = "poster"
+title = "Write-Through Cache with Redis"
+narration = """
+Hello, and welcome. [[slnc 400]] This video explains the Write-Through Cache pattern, with a real Redis and a real PostgreSQL database, in Java. [[slnc 300]]
+This video is presented by Jayasekhar Konduru. [[slnc 600]]
+First, a simple definition. [[slnc 300]] In a write-through cache, every write goes to the database, and then to the cache, before it is finished. [[slnc 300]] So the cache never shows something the database does not have. [[slnc 500]] Redis is an open-source in-memory store, often used as a cache shared by many servers. [[slnc 600]]
+Think of a shop's price list in the back office, and the price tags on the shelves. [[slnc 300]] Whoever changes a price updates the list, then the tag, before doing anything else. [[slnc 700]]
+In this video, the domain is an online shop's prices, shown on product pages and charged at checkout. [[slnc 500]]
+By the end, you will hear how a forgotten cache shows the wrong price. [[slnc 300]] How write-through fixes it. [[slnc 300]] And why two real systems can still disagree.
+"""
+
+[[scene]]
+key = "02-scenario"
+kind = "bullets"
+title = "The Scenario"
+body = ["Pages read prices from Redis.", "Checkout reads PostgreSQL.", "", "The nightly job wrote", "only to PostgreSQL."]
+narration = """
+Here is the scenario. [[slnc 400]] Product pages read prices from Redis. [[slnc 300]] Checkout reads the database. [[slnc 500]]
+The nightly price job wrote new prices only to the database. [[slnc 500]]
+Customers saw one price, and paid another.
+"""
+
+[[scene]]
+key = "03-acts"
+kind = "acts"
+title = "acts"
+
+[[scene]]
+key = "04-pattern"
+kind = "bullets"
+title = "The Pattern"
+body = ["Every write: database, then Redis.", "", "Every read: Redis.", "", "Give cached values an expiry."]
+narration = """
+Let's name the pattern. [[slnc 400]] Every write goes to the database, then to Redis. [[slnc 500]]
+Every read comes from Redis. [[slnc 500]]
+And cached values get an expiry time, to limit how long they can be wrong.
+"""
+
+[[scene]]
+key = "05-roles"
+kind = "bullets"
+title = "Who Does What"
+body = ["PriceStore: writes through", "PriceDb: PostgreSQL, the truth", "Redis: the shared cache", "Infra: the containers"]
+narration = """
+Here is who does what. [[slnc 400]] The price store writes through, and reads from the cache. [[slnc 500]]
+The price database is PostgreSQL, the record of truth. [[slnc 300]] Redis is the shared cache. [[slnc 500]]
+And the infra class starts both in containers.
+"""
+
+[[scene]]
+key = "06-recognise"
+kind = "bullets"
+title = "Where You Have Seen It"
+body = ["Redis in front of a database", "Hazelcast and Ignite map stores", "CPU write-through caches"]
+narration = """
+You have probably met this already. [[slnc 400]] Redis, in front of a database, in many web shops. [[slnc 500]]
+Hazelcast and Apache Ignite, which can write through for you. [[slnc 500]]
+And the caches inside a processor.
+"""
+
+[[scene]]
+key = "07-verdict"
+kind = "bullets"
+title = "When To Use It"
+body = ["Read far more than written.", "Stale values are costly.", "", "Database first.", "Give an expiry.", "Plan for disagreement."]
+narration = """
+So, when should you use it? [[slnc 400]] For data read far more often than it is written, where a stale value is costly. [[slnc 500]]
+Write the database first. [[slnc 300]] Give cached values an expiry. [[slnc 300]] And plan for the moment the cache cannot be written.
+"""
+
+[[scene]]
+key = "08-outro"
+kind = "outro"
+title = "Thanks for Watching"
+body = ["Full source, notes, diagrams and an animated walkthrough", "are in the repository. Try a", "2-second expiry."]
+narration = """
+That's the Write-Through Cache, with Redis. [[slnc 400]] If you remember one sentence, make it this one. [[slnc 300]] Write the truth, then the cache, and put a limit on how long they can disagree. [[slnc 500]]
+The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. [[slnc 300]] It needs Docker running, and starts Redis and PostgreSQL for you. [[slnc 500]]
+Here is one exercise to try. [[slnc 300]] Set a two-second expiry, and watch the page correct itself. [[slnc 500]]
+If this helped, a like really does help other people find it. [[slnc 300]] And subscribe, if you'd like the rest of the series. [[slnc 400]] Thanks for watching.
+"""

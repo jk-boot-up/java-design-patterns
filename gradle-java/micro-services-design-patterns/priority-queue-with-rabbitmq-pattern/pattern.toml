@@ -1,0 +1,479 @@
+# pattern.toml for the Priority Queue with RabbitMQ project. See tools/patternkit.
+
+[project]
+slug = "priority-queue-with-rabbitmq"
+category = "micro-services-design-patterns"
+title = "Priority Queue with RabbitMQ"
+package = "priorityrabbit"
+main_class = "RabbitPriorityQueueDemo"
+tagline = "x-max-priority, and its limits"
+bold = "Let same-day orders overtake standard ones on a real RabbitMQ priority queue, and see its two limits: priority only reorders messages still waiting on the queue, and it keeps no share for routine work."
+domain_note = ""
+thumb_lines = ["PRIORITY QUEUE", "WITH RABBITMQ"]
+thumb_code = "x-max-priority: 10"
+youtube_title = "Priority Queue with RabbitMQ"
+youtube_tags = ["priority queue", "rabbitmq", "x-max-priority", "prefetch", "starvation", "java"]
+
+[readme]
+intro = """
+This is the real-infrastructure version of the Priority Queue pattern. The
+plain Java version, a separate project in this category, sorts orders with a
+comparator. Here a real RabbitMQ broker, started in a container by the demo
+itself, does the ordering: a queue declared with `x-max-priority` hands out
+higher-priority messages first, and each order is sent with a priority.
+
+Two limits of the real thing are shown. RabbitMQ can only reorder messages
+that are still waiting on the queue; ones it has already pushed to a consumer
+stay in the order they were sent. And it has no built-in share for routine
+work, so a steady stream of urgent orders starves the rest unless the shop
+builds the share itself.
+"""
+analogy = """
+Think of the fast-track lane at airport security. Passengers with a tight
+connection skip the long queue. But anyone who has already been waved into
+the scanner area cannot be overtaken any more. And unless the airport keeps
+an officer on the ordinary lane, those passengers miss their flights too.
+"""
+scenario = """
+The online store's warehouse pickers take orders ten a minute from a queue.
+Same-day orders must be picked before the courier's van leaves at 9:05. On a
+busy morning, a hundred standard orders came in first, then five same-day
+orders, and with a first-in-first-out queue the van left without them.
+"""
+test_note = """
+Every number the demo prints is asserted against a real broker. Minutes are
+counted, not waited for, and waits are bounded polls on real conditions.
+Without a container runtime, the broker test is skipped rather than failed.
+"""
+run_note = """
+This project needs a running container runtime, such as Docker Desktop: the
+demo starts a real RabbitMQ 4.3.6 broker in a container and removes it again.
+Without one, it prints a sentence saying what to start, rather than failing.
+"""
+twin = """
+The plain Java version got the idea right: urgent work overtakes routine work
+however long the backlog, and strict priority starves routine work unless a
+share is kept for it. What it left out is what happens with a real broker.
+Priority is declared on the queue and set on each message. It only applies to
+messages still waiting: a picker's handheld with no prefetch limit already
+had all a hundred standard orders pushed to it, and the same-day orders
+joined the back. A prefetch of one fixes that. And RabbitMQ has no reserved
+share, so the shop keeps one with two queues.
+"""
+technologies = [
+    ["RabbitMQ", "4.3.6 (container image)", "priority queues and prefetch"],
+    ["RabbitMQ Java client", "5.36.0", "publishing with priority, basicGet, basicConsume"],
+    ["Testcontainers", "2.0.5", "starts and stops the broker container from the demo"],
+    ["Docker", "24 or later", "runs the container"],
+    ["SLF4J simple", "2.0.17", "library logging, switched off"],
+]
+costs = [
+    "**Only while waiting.** Messages already pushed to a consumer are not reordered; keep prefetch small.",
+    "**Starvation.** Twelve same-day orders a minute against ten picks meant 0 of 20 standard orders picked; RabbitMQ keeps no share for them.",
+    "**Declared up front.** A queue's `x-max-priority` is fixed when it is created; changing it means a new queue.",
+]
+too_much = """
+When all work has the same deadline, a plain queue is simpler and fairer.
+Priority queues pay off when some work has a real, earlier deadline.
+"""
+met_before = [
+    "RabbitMQ `x-max-priority` queues and message priority.",
+    "Separate high and low priority queues in Amazon SQS.",
+    "Hospital triage and airport fast-track lanes.",
+]
+where = """
+This project is in [micro-services-design-patterns](..). It is the
+real-infrastructure version of the plain Java Priority Queue project in the
+same category, which is left unchanged.
+"""
+
+[[act]]
+title = "First in, first out"
+summary = "100 standard then 5 same-day orders on an ordinary queue: at 10 a minute from 9:00, the last same-day order is picked at 9:11, after the van left."
+detail = """
+An ordinary RabbitMQ queue hands out orders in the order they arrived. A
+hundred standard orders came first, then five same-day orders. Picking ten a
+minute from nine o'clock, the last same-day order is picked at 9:11. The van
+left at 9:05.
+"""
+speech = """
+First demo: an ordinary queue, first in, first out. [[slnc 400]] A hundred standard orders arrive, then five same-day orders. [[slnc 600]]
+The pickers take ten a minute, from nine o'clock. [[slnc 500]]
+The last same-day order is picked at eleven minutes past. [[slnc 300]] The van left at five past.
+"""
+rows = { queue = "active wrong", pickers = "active amber" }
+console = [
+    ["last same-day picked at 9:11", "bad"],
+    ["van left at 9:05", "bad"],
+]
+
+[[act]]
+title = "A priority queue"
+summary = "The queue is declared with x-max-priority 10 and same-day orders sent with priority 9: all 5 are picked by 9:01."
+detail = """
+Now the queue is declared with `x-max-priority` set to ten, and same-day
+orders are sent with priority nine, standard ones with priority one. RabbitMQ
+hands out the highest priority first. All five same-day orders are picked in
+the first minute, by 9:01.
+"""
+speech = """
+Second demo: a RabbitMQ priority queue. [[slnc 400]] The queue is declared with priorities from zero to ten. [[slnc 300]] Same-day orders are sent with priority nine. [[slnc 600]]
+RabbitMQ hands out the highest priority first. [[slnc 500]]
+All five same-day orders are picked by one minute past nine.
+"""
+rows = { queue = "active ok", pickers = "active ok" }
+console = [
+    ["all 5 same-day by 9:01", "ok"],
+]
+
+[[act]]
+title = "A flood"
+summary = "With 1,000 standard orders queued ahead, same-day orders are still picked by 9:01."
+detail = """
+A thousand standard orders are queued first. It makes no difference: the
+five same-day orders overtake them all and are still picked by 9:01.
+"""
+speech = """
+Third demo: a flood of standard orders. [[slnc 400]] A thousand standard orders are waiting first. [[slnc 600]]
+The same-day orders overtake them all. [[slnc 300]] Still picked by one minute past nine.
+"""
+rows = { queue = "active ok" }
+console = [
+    ["1000 ahead: same-day by 9:01", "ok"],
+]
+
+[[act]]
+title = "Only what is still waiting"
+summary = "A handheld with no prefetch limit already holds 100 standard orders; same-day ones land at positions 101 to 105. With prefetch 1, SAME-1 is next."
+detail = """
+A picker's handheld subscribes with no prefetch limit, and RabbitMQ pushes all
+a hundred standard orders to it at once. When the same-day orders arrive, they
+join the back of the handheld, at positions 101 to 105: priority only
+reorders what is still waiting on the queue. With a prefetch of one, only one
+order sits in the handheld, and the next one the queue hands out is SAME-1.
+"""
+speech = """
+Fourth demo: priority only reorders what is still waiting. [[slnc 400]] A picker's handheld subscribes with no limit. [[slnc 300]] RabbitMQ pushes all hundred standard orders to it, at once. [[slnc 600]]
+Then the same-day orders arrive. [[slnc 300]] They join the back of the handheld. [[slnc 300]] Positions one hundred and one, to one hundred and five. [[slnc 600]]
+With a prefetch of one, only one order sits in the handheld. [[slnc 300]] And the next one handed out is same-day.
+"""
+rows = { queue = "active amber", pickers = "active wrong" }
+console = [
+    ["no limit: same-day at 101 to 105", "bad"],
+    ["prefetch 1: next is SAME-1", "ok"],
+]
+
+[[act]]
+title = "The bill: starvation"
+summary = "12 same-day orders a minute against 10 picks: 0 of 20 standard orders picked; with two queues and 2 picks a minute kept for standard, 20 of 20."
+detail = """
+In a rush, twelve same-day orders arrive every minute, more than the ten
+picks. With strict priority, none of the twenty standard orders is picked in
+ten minutes. RabbitMQ has no reserved share, so the shop builds one: standard
+orders on their own queue, with two picks a minute kept for it. All twenty
+are picked.
+"""
+speech = """
+Fifth demo: the bill. [[slnc 400]] Twelve same-day orders arrive every minute. [[slnc 300]] The pickers can do ten. [[slnc 600]]
+With strict priority, standard orders are never picked. [[slnc 300]] Zero of twenty, in ten minutes. [[slnc 600]]
+RabbitMQ keeps no share for routine work. [[slnc 300]] So the shop builds one. [[slnc 300]] Standard orders on their own queue, with two picks a minute kept for them. [[slnc 300]] All twenty are picked.
+"""
+rows = { queue = "active amber", pickers = "active amber" }
+console = [
+    ["strict priority: 0 of 20 standard", "bad"],
+    ["own queue, 2 a minute: 20 of 20", "ok"],
+]
+
+[animation]
+subtitle = "Orders wait on a real RabbitMQ priority queue; pickers take ten a minute, same-day first."
+boxes = [
+    ["queue", "RabbitMQ priority queue", "x-max-priority 10"],
+    ["pickers", "Pickers", "10 a minute"],
+]
+
+[docs.problem]
+scenario = """
+Pickers take ten orders a minute; same-day orders must reach the van by 9:05.
+"""
+naive = """
+A first-in-first-out queue makes same-day orders wait behind every standard
+order.
+"""
+deliver = [
+    "Same-day orders missing the van on an ordinary queue.",
+    "A RabbitMQ priority queue picking them first.",
+    "The same with a thousand orders ahead.",
+    "The prefetch trap, and prefetch 1.",
+    "Starvation, and a reserved share built with two queues.",
+    "Every printed result asserted by a test, skipped without Docker.",
+]
+
+[docs.prerequisites]
+required = [
+    "Java basics: loops, lists.",
+    "The Priority Queue idea, ideally from the plain Java version of this pattern.",
+]
+not_required = [
+    "Earlier RabbitMQ experience. The dependencies page explains the words used.",
+]
+install = [
+    "A running container runtime such as Docker Desktop. The demo starts and removes RabbitMQ itself.",
+]
+
+[docs.dependencies]
+intro = """
+This project uses a real RabbitMQ broker, run in a container by
+Testcontainers, which the plain Java version of Priority Queue does not.
+Skipping it loses none of the pattern: the plain version teaches all of it
+with nothing installed.
+"""
+what = [
+    ["RabbitMQ", "RabbitMQ is a message broker: a separate program that holds messages on queues. A queue declared with the argument x-max-priority becomes a priority queue; each message then carries a priority property, and higher priorities are handed out first. basicGet takes one message now. basicConsume asks the broker to push messages, and basicQos sets the prefetch: how many unacknowledged messages it may push to that consumer. Messages already pushed are no longer on the queue, so priority cannot reorder them."],
+    ["Testcontainers", "Testcontainers is a Java library that starts a container, here the RabbitMQ image, from inside a program, and removes it afterwards."],
+]
+why = """
+The plain version shows the idea. This version shows what a real broker's
+priority queue does, and the two limits the plain version could not show.
+"""
+versions = [
+    ["Java", "21"],
+    ["Docker", "running; 24 or later"],
+    ["RabbitMQ image", "rabbitmq:4.3.6"],
+    ["RabbitMQ Java client", "5.36.0"],
+    ["Testcontainers", "2.0.5"],
+]
+costs = [
+    "A container runtime, and a first run that downloads the broker image.",
+    "Prefetch and queue layout to design for priority to work.",
+]
+
+[docs.session]
+objectives = [
+    "Declare a RabbitMQ priority queue and send prioritised messages.",
+    "Explain why prefetch defeats priority.",
+    "Show starvation under strict priority.",
+    "Build a reserved share with two queues.",
+]
+walkthrough = """
+Run `./gradlew run` with Docker running. Compare act one's 9:11 with act two's
+9:01. Open `Warehouse.declare` and `place`: one argument and one property. End
+on act four's positions 101 to 105.
+"""
+exercises = [
+    "Try prefetch 10 in act four and find where the same-day orders land.",
+    "Add a third priority, express, above same-day.",
+    "Use a single consumer that takes 8 from the priority queue and 2 from the standard queue each minute.",
+]
+
+[docs.explained]
+sentence = """
+With RabbitMQ, a queue declared with `x-max-priority` hands out higher-priority
+messages first, but only among those still waiting on the queue.
+"""
+verdict = """
+Use a RabbitMQ priority queue for work with genuinely earlier deadlines. Keep
+consumer prefetch small, use few priority levels, and build a reserved share
+for routine work yourself.
+"""
+recognise = [
+    "`queueDeclare(..., Map.of(\"x-max-priority\", n))`.",
+    "`BasicProperties.Builder().priority(p)`.",
+    "Separate high and low queues with weighted consumers.",
+]
+
+[spec]
+purpose = """
+Teach Priority Queue with a real RabbitMQ broker: same-day orders missing the
+van on a FIFO queue, a priority queue picking them first even behind a
+thousand orders, the prefetch trap, and starvation with a reserved share built
+from two queues.
+"""
+nongoals = [
+    "Not real time. Minutes are counted, each minute taking ten orders.",
+]
+problem = """
+A first-come queue makes urgent work wait behind routine work.
+"""
+roles = [
+    ["The broker in a container", "`Broker`"],
+    ["Queues and pickers", "`Warehouse`"],
+    ["Waiting for real conditions", "`Poll`"],
+    ["Entry point", "`RabbitPriorityQueueDemo`, five acts"],
+]
+requirements = [
+    "**Urgent first:** same-day orders are handed out before standard ones.",
+    "**Only waiting messages:** pushed messages keep their order.",
+    "**No starvation:** a separate queue with reserved picks serves standard orders.",
+    "**No Docker, no crash:** without a runtime the demo prints advice.",
+]
+
+[[diagram]]
+name = "architecture-diagram"
+kind = "flow"
+title = "Priority Queue with RabbitMQ — the pieces"
+caption = "Priority on the queue, set on each message."
+nodes = [
+    { id = "s", label = "Same-day orders", sub = "priority 9", col = 0, row = 0, colour = "amber" },
+    { id = "t", label = "Standard orders", sub = "priority 1", col = 0, row = 1, colour = "client" },
+    { id = "q", label = "RabbitMQ", sub = "x-max-priority 10", col = 1, row = 0, colour = "accent" },
+    { id = "p", label = "Pickers", sub = "10 a minute, prefetch 1", col = 2, row = 0, colour = "green" },
+]
+edges = [
+    { from = "s", to = "q", label = "" },
+    { from = "t", to = "q", label = "" },
+    { from = "q", to = "p", label = "highest first" },
+]
+
+[[diagram]]
+name = "class-diagram"
+kind = "class"
+title = "Priority Queue with RabbitMQ — classes"
+caption = "One argument and one property."
+nodes = [
+    { id = "w", label = "Warehouse", sub = ["+ declare(queue, priority)", "+ place(queue, prefix, n, p)", "+ pickMinute(queue, n)", "+ subscribe(queue, prefetch)"], col = 0, row = 0, colour = "accent" },
+    { id = "b", label = "Broker", sub = ["+ start() / waiting(queue)"], col = 1, row = 0, colour = "client" },
+]
+edges = [
+    { from = "w", to = "b", label = "uses" },
+]
+
+[[diagram]]
+name = "data-flow-diagram"
+kind = "flow"
+title = "Priority Queue with RabbitMQ — the prefetch trap"
+caption = "Pushed messages cannot be overtaken."
+nodes = [
+    { id = "a", label = "No prefetch limit", sub = "100 already pushed", col = 0, row = 0, colour = "red" },
+    { id = "b", label = "same-day at 101 to 105", sub = "", col = 2, row = 0, colour = "red" },
+    { id = "c", label = "Prefetch 1", sub = "1 in hand", col = 0, row = 1, colour = "green" },
+    { id = "d", label = "next: SAME-1", sub = "", col = 2, row = 1, colour = "green" },
+]
+edges = [
+    { from = "a", to = "b", label = "" },
+    { from = "c", to = "d", label = "" },
+]
+
+[[diagram]]
+name = "sequence-diagram"
+kind = "sequence"
+title = "Priority Queue with RabbitMQ — 9:01"
+caption = "Same-day handed out first."
+participants = ["Checkout", "RabbitMQ", "Pickers"]
+steps = [
+    ["Checkout", "RabbitMQ", "100 standard, priority 1"],
+    ["Checkout", "RabbitMQ", "5 same-day, priority 9"],
+    ["Pickers", "RabbitMQ", "next 10"],
+    ["RabbitMQ", "Pickers", "SAME-1 ... SAME-5, STD-1 ...", "reply"],
+]
+
+[[diagram]]
+name = "uml-diagram"
+kind = "sequence"
+title = "1. Starvation"
+caption = "Urgent work never stops coming."
+participants = ["Same-day", "RabbitMQ", "Standard"]
+steps = [
+    ["Same-day", "RabbitMQ", "12 a minute"],
+    ["note", "RabbitMQ", "10 picks, all same-day"],
+    ["note", "Standard", "never picked"],
+]
+
+[[diagram]]
+name = "uml-diagram-2"
+kind = "sequence"
+title = "2. A reserved share"
+caption = "Two queues, two picks a minute for standard."
+participants = ["Pickers", "standard queue", "priority queue"]
+steps = [
+    ["Pickers", "standard queue", "2 a minute"],
+    ["Pickers", "priority queue", "8 a minute"],
+]
+
+[poster]
+headline = [["PRIORITY QUEUE", "text"], ["WITH RABBITMQ", "text"]]
+before = { code = "first in, first out", note = "same-day at 9:11: van gone", tag = "BEFORE" }
+after = { code = "x-max-priority: 10", note = "same-day by 9:01", tag = "AFTER" }
+taglines = [["Urgent first, and its limits", "gold"]]
+
+[[scene]]
+key = "01-poster"
+kind = "poster"
+title = "Priority Queue with RabbitMQ"
+narration = """
+Hello, and welcome. [[slnc 400]] This video explains the Priority Queue pattern, with a real RabbitMQ broker, in Java. [[slnc 300]]
+This video is presented by Jayasekhar Konduru. [[slnc 600]]
+First, a simple definition. [[slnc 300]] In a priority queue, urgent messages overtake routine ones. [[slnc 300]] However long the routine ones have been waiting. [[slnc 500]] RabbitMQ is an open-source message broker, and it can make a queue a priority queue. [[slnc 600]]
+Think of the fast-track lane at airport security. [[slnc 300]] Passengers with a tight connection skip the queue. [[slnc 300]] But nobody can overtake someone already in the scanner. [[slnc 700]]
+In this video, the domain is an online shop's warehouse, where same-day orders must catch the courier's van. [[slnc 500]]
+By the end, you will hear how RabbitMQ puts same-day orders first. [[slnc 300]] Why a setting called prefetch can undo it. [[slnc 300]] And why routine orders need a share kept for them.
+"""
+
+[[scene]]
+key = "02-scenario"
+kind = "bullets"
+title = "The Scenario"
+body = ["Pickers take 10 orders a minute.", "", "Same-day orders must reach", "the van by 9:05.", "", "100 standard came first."]
+narration = """
+Here is the scenario. [[slnc 400]] The warehouse pickers take ten orders a minute, from a queue. [[slnc 500]]
+Same-day orders must be picked before the van leaves, at five past nine. [[slnc 500]]
+On a busy morning, a hundred standard orders came first.
+"""
+
+[[scene]]
+key = "03-acts"
+kind = "acts"
+title = "acts"
+
+[[scene]]
+key = "04-pattern"
+kind = "bullets"
+title = "The Pattern, in RabbitMQ"
+body = ["Declare the queue with", "x-max-priority.", "", "Send each message with", "a priority.", "", "Keep prefetch small."]
+narration = """
+Let's name the pattern, in RabbitMQ's words. [[slnc 400]] Declare the queue with a maximum priority. [[slnc 500]]
+Send each message with its priority. [[slnc 500]]
+And keep the prefetch small, so messages stay on the queue, where priority can reorder them.
+"""
+
+[[scene]]
+key = "05-roles"
+kind = "bullets"
+title = "Who Does What"
+body = ["Warehouse: queues and pickers", "Broker: RabbitMQ in a container", "Poll: waits for real conditions"]
+narration = """
+Here is who does what. [[slnc 400]] The warehouse class declares the queues, places orders, and picks ten a minute. [[slnc 500]]
+The broker class runs RabbitMQ in a container. [[slnc 300]] And poll waits for real conditions.
+"""
+
+[[scene]]
+key = "06-recognise"
+kind = "bullets"
+title = "Where You Have Seen It"
+body = ["RabbitMQ priority queues", "High and low SQS queues", "Triage, fast-track lanes"]
+narration = """
+You have probably met this already. [[slnc 400]] RabbitMQ's priority queues. [[slnc 500]]
+Separate high and low priority queues, on cloud services. [[slnc 500]]
+And hospital triage, and airport fast-track lanes.
+"""
+
+[[scene]]
+key = "07-verdict"
+kind = "bullets"
+title = "When To Use It"
+body = ["Some work has a real,", "earlier deadline.", "", "Small prefetch.", "Few priority levels.", "Build a reserved share."]
+narration = """
+So, when should you use it? [[slnc 400]] When some work has a real, earlier deadline. [[slnc 500]]
+Keep prefetch small. [[slnc 300]] Use few priority levels. [[slnc 300]] And build a reserved share for routine work yourself.
+"""
+
+[[scene]]
+key = "08-outro"
+kind = "outro"
+title = "Thanks for Watching"
+body = ["Full source, notes, diagrams and an animated walkthrough", "are in the repository. Try", "prefetch 10."]
+narration = """
+That's the Priority Queue, with RabbitMQ. [[slnc 400]] If you remember one sentence, make it this one. [[slnc 300]] Urgent first, but only for what is still waiting, and never at the cost of everything else. [[slnc 500]]
+The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. [[slnc 300]] It needs Docker running, and starts the broker for you. [[slnc 500]]
+Here is one exercise to try. [[slnc 300]] Try a prefetch of ten, and find where the same-day orders land. [[slnc 500]]
+If this helped, a like really does help other people find it. [[slnc 300]] And subscribe, if you'd like the rest of the series. [[slnc 400]] Thanks for watching.
+"""

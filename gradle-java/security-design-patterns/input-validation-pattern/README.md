@@ -17,7 +17,7 @@ src/main/java/com/jk/explore/inputvalidation/
 **Check everything that comes from outside at the boundary, turn it into types that cannot hold bad values, report every problem at once, and still encode text on its way out.**
 
 Input Validation is the first rule of secure code: nothing that arrives from
-outside can be trusted. A browser form, a request to an A P I, a file upload:
+outside can be trusted. A browser form, a request to an API, a file upload:
 every field is just text, and it may be empty, too long, the wrong kind, or
 written by an attacker. Input validation checks each field at the boundary,
 against rules for what is allowed, before the rest of the program uses it.

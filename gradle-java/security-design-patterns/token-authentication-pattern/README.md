@@ -118,7 +118,7 @@ No shared session store.
 
 A single server rendering its own pages is well served by an ordinary
 session. Tokens pay off with several servers or services, or with mobile
-apps and other programs calling an A P I.
+apps and other programs calling an API.
 
 ## Where you have already met this
 

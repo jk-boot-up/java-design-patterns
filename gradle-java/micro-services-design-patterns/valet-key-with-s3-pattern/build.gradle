@@ -1,0 +1,43 @@
+plugins {
+    id 'java'
+    id 'application'
+}
+
+group = 'com.jk.explore'
+version = '1.0-SNAPSHOT'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // The AWS SDK for Java 2.55.7, the newest release: the S3 client, and the S3 presigner that signs
+    // valet-key URLs exactly as it would for real Amazon S3.
+    implementation platform('software.amazon.awssdk:bom:2.55.7')
+    implementation 'software.amazon.awssdk:s3'
+
+    // Testcontainers 2.0.5 starts and stops LocalStack, which plays Amazon S3, for the demo itself.
+    implementation 'org.testcontainers:testcontainers-localstack:2.0.5'
+
+    // The libraries log through SLF4J; the simple binding is switched off.
+    runtimeOnly 'org.slf4j:slf4j-simple:2.0.17'
+
+    testImplementation platform('org.junit:junit-bom:5.10.2')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testImplementation 'org.junit.jupiter:junit-jupiter-params'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+application {
+    mainClass = 'com.jk.explore.valets3.S3ValetKeyDemo'
+}
+
+test {
+    useJUnitPlatform()
+}

@@ -1,0 +1,476 @@
+# pattern.toml for the Message Filter with Apache Camel project. See tools/patternkit.
+
+[project]
+slug = "message-filter-with-camel"
+category = "messaging-integration-patterns"
+title = "Message Filter with Apache Camel"
+package = "filtercamel"
+main_class = "CamelFilterDemo"
+tagline = "filter() in front of each service"
+bold = "Build the message filter with Apache Camel: a filter() step, written in Camel's Simple expression language, in front of each service, with rules that read their settings as each message passes and a discard channel so nothing vanishes unseen."
+domain_note = ""
+thumb_lines = ["MESSAGE FILTER", "WITH CAMEL"]
+thumb_code = "filter(simple(\"${body.gift}\"))"
+youtube_title = "Message Filter with Apache Camel"
+youtube_tags = ["message filter", "apache camel", "enterprise integration patterns", "simple language", "routing", "java"]
+
+[readme]
+intro = """
+This is the framework version of the Message Filter pattern. The plain Java
+version, a separate project in this category, writes the filter as a small
+class. Here Apache Camel provides it: a `filter()` step in a route, with the
+rule written in Camel's Simple expression language, such as
+`${body.gift}`. Checkout sends every order to one endpoint; each service's
+route lets through only the orders that service wants.
+
+The Camel version also shows two things the framework makes easy: rules that
+read a setting as each message passes, so a threshold can change while the
+routes run, and a discard channel, so rejected messages can be counted
+instead of disappearing.
+"""
+analogy = """
+Think of a company post room that delivers to many departments. Instead of
+every department opening every letter to see if it is for them, each
+department gives the post room a rule, such as "only letters marked gift
+wrap". The post room applies the rules. And a good post room keeps a tray of
+letters nobody wanted, rather than throwing them away.
+"""
+scenario = """
+The online store's checkout announces every order. The gift-wrap service only
+cares about gift orders, and the loyalty service only about registered
+customers spending over £50. Without filters, every service was handed all
+ten orders and had to check each one itself.
+"""
+run_note = """
+Nothing to install beyond a Java 21 JDK: Camel runs inside the program on its
+in-memory `direct:` endpoints.
+"""
+twin = """
+The plain Java version got the idea right: a filter is a yes-or-no rule in
+front of a receiver, the sender never knows it exists, and a dropped message
+is gone. What it left out is what a routing library adds: rules written as
+expressions next to the route rather than in a class, rules that read a
+setting as each message passes so they can change without a restart, and a
+discard channel that is one line to add. It also left out the cost: a new
+expression language and a dozen library files.
+"""
+technologies = [
+    ["Apache Camel", "4.22.1", "routes, filter(), choice() and the Simple language"],
+    ["SLF4J simple", "2.0.17", "Camel's logging, switched off"],
+]
+costs = [
+    "**Rules in strings.** `${body.pence} > ${header.threshold}` is checked when it runs, not when it compiles; a typo shows up as a runtime error.",
+    "**Still easy to drop silently.** `filter()` on its own discards rejects; the discard channel must be added on purpose.",
+    "**More to carry.** More than ten library files instead of none.",
+]
+too_much = """
+For one or two receivers with simple rules, the plain Java filter is clearer.
+Camel's filter pays off when many services subscribe to the same messages
+and the rules change over time.
+"""
+met_before = [
+    "Camel's `filter()` and Spring Integration's `@Filter`.",
+    "Message selectors in JMS, and subscription filters in cloud queues.",
+    "Email rules that sort or discard incoming mail.",
+]
+where = """
+This project is in [messaging-integration-patterns](..). It is the framework
+version of the plain Java Message Filter project in the same category, which
+is left unchanged.
+"""
+
+[[act]]
+title = "Every service gets every order"
+summary = "Without filters, the gift-wrap service is handed all 10 orders and must check each one itself."
+detail = """
+Checkout sends every order to one endpoint, and Camel multicasts each order to
+every service. With no filter, the gift-wrap service is handed all ten orders
+and must open each one to see whether it is a gift.
+"""
+speech = """
+First demo: every service is handed every order. [[slnc 400]] Checkout sends each order to one place. [[slnc 300]] Camel copies it to every service. [[slnc 600]]
+The gift-wrap service is handed all ten orders. [[slnc 300]] It must open each one, to see if it is a gift.
+"""
+rows = { orders = "active amber", giftwrap = "active wrong" }
+console = [
+    ["gift-wrap handed 10 orders", "bad"],
+]
+
+[[act]]
+title = "A filter in front"
+summary = "filter(simple(\"${body.gift}\")) lets only ORD-2 and ORD-4 through and drops 8; checkout is unchanged."
+detail = """
+A `filter()` step goes in front of the gift-wrap service, with the rule
+`${body.gift}` in Camel's Simple language. Only ORD-2 and ORD-4, the gift
+orders, get through; eight are dropped. Checkout still sends every order to
+the same endpoint and does not know the filter exists.
+"""
+speech = """
+Second demo: a filter in front of the gift-wrap service. [[slnc 400]] The rule is one short expression. [[slnc 300]] Is this order a gift? [[slnc 600]]
+Only two orders get through. [[slnc 300]] O R D two, and O R D four. [[slnc 300]] Eight are dropped. [[slnc 500]]
+Checkout was not changed. [[slnc 300]] It does not know the filter exists.
+"""
+rows = { filter = "active ok", giftwrap = "active ok" }
+console = [
+    ["gift-wrap receives [ORD-2, ORD-4]", "ok"],
+    ["dropped 8", "muted"],
+]
+
+[[act]]
+title = "Two conditions"
+summary = "Registered and over £50: the loyalty service receives ORD-1, ORD-4 and ORD-6."
+detail = """
+The loyalty service's rule has two conditions: the customer is registered,
+and the order is over the threshold of £50. Written as one Simple expression
+in a `choice()`, it lets through ORD-1, ORD-4 and ORD-6.
+"""
+speech = """
+Third demo: a rule with two conditions. [[slnc 400]] The customer must be registered. [[slnc 300]] And the order must be over fifty pounds. [[slnc 600]]
+The loyalty service receives three orders. [[slnc 300]] O R D one, four, and six.
+"""
+rows = { filter = "active ok", loyalty = "active ok" }
+console = [
+    ["loyalty receives [ORD-1, ORD-4, ORD-6]", "ok"],
+]
+
+[[act]]
+title = "Change the rule while running"
+summary = "The threshold rises to £60 while routes run: the loyalty service now receives ORD-1 and ORD-4, with no restart."
+detail = """
+The threshold is not written into the route. The route reads it from a
+settings object as each order passes. Raising it to £60 while the routes keep
+running changes the result at once: ORD-1 and ORD-4. No route was changed or
+restarted.
+"""
+speech = """
+Fourth demo: change the rule while everything keeps running. [[slnc 400]] The threshold is read from the settings, as each order passes. [[slnc 600]]
+It is raised to sixty pounds. [[slnc 300]] Now only O R D one and four get through. [[slnc 500]]
+No route was changed. [[slnc 300]] Nothing was restarted.
+"""
+rows = { filter = "active ok", loyalty = "active ok" }
+console = [
+    ["threshold £60: [ORD-1, ORD-4]", "ok"],
+    ["no restart", "muted"],
+]
+
+[[act]]
+title = "The bill, and a discard channel"
+summary = "The 8 orders the loyalty rule rejected are kept on direct:discard; the costs are a string-based rule language and more than 10 library files."
+detail = """
+A filter drops messages, and a wrong rule drops them silently. Camel makes
+the safer shape one line: `otherwise().to("direct:discard")`. The eight orders
+the loyalty rule rejected are kept there and can be counted. The costs: rules
+written in strings that are only checked when they run, and more than ten
+library files instead of none.
+"""
+speech = """
+Fifth demo: the bill. [[slnc 400]] A filter drops messages. [[slnc 300]] And a wrong rule drops them silently. [[slnc 600]]
+So rejected orders are sent to a discard channel instead. [[slnc 300]] Eight orders are kept there, and can be counted. [[slnc 600]]
+The costs. [[slnc 300]] Rules written in text, only checked when they run. [[slnc 300]] And more than ten library files, instead of none.
+"""
+rows = { discard = "active ok", filter = "active amber" }
+console = [
+    ["discard channel: 8 orders kept", "ok"],
+    ["rules checked only at run time", "amber"],
+]
+
+[animation]
+subtitle = "Checkout sends every order to one endpoint; Camel filters in front of each service, and rejects go to a discard channel."
+boxes = [
+    ["orders", "direct:orders", "multicast"],
+    ["filter", "filter() / choice()", "Simple expressions"],
+    ["giftwrap", "Gift-wrap service", "gift orders only"],
+    ["loyalty", "Loyalty service", "registered, over £50"],
+    ["discard", "direct:discard", "what was rejected"],
+]
+
+[docs.problem]
+scenario = """
+Checkout announces ten orders; the gift-wrap and loyalty services each want
+only some of them.
+"""
+naive = """
+Handing every order to every service makes each one check and ignore most
+messages itself.
+"""
+deliver = [
+    "Every order multicast to every service.",
+    "A `filter()` with a Simple expression.",
+    "A two-condition rule in `choice()`.",
+    "A threshold changed while routes run.",
+    "A discard channel counting rejects.",
+    "Every printed result asserted by a test.",
+]
+
+[docs.prerequisites]
+required = [
+    "Java basics: classes with getters, `List`.",
+    "The Message Filter idea, ideally from the plain Java version of this pattern.",
+]
+not_required = [
+    "Docker or a broker. Camel runs in memory.",
+]
+
+[docs.dependencies]
+intro = """
+This project uses Apache Camel, which the plain Java version of Message
+Filter does not. Skipping it loses none of the pattern: the plain version
+teaches all of it with nothing installed.
+"""
+what = [
+    ["Apache Camel", "Camel is a library for moving messages. A route begins with from, names an endpoint, and lists steps. filter lets a message continue only if a rule says yes. choice, when and otherwise are Camel's if, else-if and else. multicast sends a copy of one message to several endpoints."],
+    ["the Simple language", "Simple is Camel's small expression language, written inside strings. ${body.gift} calls isGift() on the message body; ${header.threshold} reads a header set earlier in the route. Expressions are evaluated when each message passes, which is why a threshold can change while the routes run."],
+]
+why = """
+The plain version shows the idea. This version shows how an integration
+library expresses it: as a step in a route, with rules next to the routing,
+and with a discard channel that is easy to add.
+"""
+install_note = "Only a JDK, version 21. Gradle downloads the rest, and the versions are pinned:"
+versions = [
+    ["Java", "21"],
+    ["Apache Camel (core)", "4.22.1"],
+    ["SLF4J simple", "2.0.17"],
+]
+costs = [
+    "More than ten library files on the classpath.",
+    "Rules in strings are checked at run time, not by the compiler.",
+]
+
+[docs.session]
+objectives = [
+    "Put a `filter()` in front of a Camel endpoint.",
+    "Write rules in Camel's Simple language.",
+    "Read a changing setting inside a rule.",
+    "Add a discard channel with `otherwise()`.",
+]
+walkthrough = """
+Run `./gradlew run`. Open `ShopRoutes.configure`: the gift-wrap filter is
+three lines. Compare acts three and four: same route, new threshold. End on
+act five's discard channel.
+"""
+exercises = [
+    "Add a discard channel to the gift-wrap filter too, and count its rejects.",
+    "Write the gift rule as a Java predicate instead of a Simple expression, and compare.",
+    "Make a typo in a Simple expression and read the error Camel gives.",
+]
+
+[docs.explained]
+sentence = """
+With Camel, a message filter is a `filter()` step with a Simple rule in front
+of each receiver, and rejects can be sent to a discard channel.
+"""
+verdict = """
+Use Camel's filter when many services subscribe to the same messages and
+rules change. Keep rules short, read changing settings at run time, and add a
+discard channel so nothing is lost without a trace.
+"""
+recognise = [
+    "`.filter(simple(\"...\"))` in a route.",
+    "`choice().when(...).otherwise().to(\"...discard\")`.",
+    "`${body.x}` and `${header.y}` expressions.",
+]
+
+[spec]
+purpose = """
+Teach Message Filter with Apache Camel: every order multicast to every
+service, a filter() with a Simple rule, a two-condition rule, a threshold
+changed while routes run, and a discard channel for rejects.
+"""
+nongoals = [
+    "Not a real broker. Camel's direct endpoints run in memory.",
+]
+problem = """
+Services receiving every message must check and ignore most of them.
+"""
+roles = [
+    ["The routes and filters", "`ShopRoutes`"],
+    ["A changing setting", "`Rules`"],
+    ["The message", "`OrderEvent`"],
+    ["What each service got", "`Received`"],
+    ["Entry point", "`CamelFilterDemo`, five acts"],
+]
+requirements = [
+    "**Only gifts:** the gift-wrap service receives gift orders only.",
+    "**Both conditions:** loyalty needs registered and over the threshold.",
+    "**Kept:** every loyalty reject reaches the discard channel.",
+    "**Every printed result is asserted** in `DemoRunsTest`.",
+]
+
+[[diagram]]
+name = "architecture-diagram"
+kind = "flow"
+title = "Message Filter with Camel — the routes"
+caption = "One endpoint for checkout; a filter in front of each service."
+nodes = [
+    { id = "o", label = "direct:orders", sub = "multicast", col = 0, row = 1, colour = "client" },
+    { id = "f", label = "filter(${body.gift})", sub = "", col = 1, row = 0, colour = "accent" },
+    { id = "c", label = "choice(): registered", sub = "and over threshold", col = 1, row = 2, colour = "accent" },
+    { id = "g", label = "Gift-wrap", sub = "ORD-2, ORD-4", col = 2, row = 0, colour = "green" },
+    { id = "l", label = "Loyalty", sub = "ORD-1, ORD-4, ORD-6", col = 2, row = 2, colour = "green" },
+    { id = "d", label = "direct:discard", sub = "rejects kept", col = 2, row = 1, colour = "amber" },
+]
+edges = [
+    { from = "o", to = "f", label = "" },
+    { from = "o", to = "c", label = "" },
+    { from = "f", to = "g", label = "yes" },
+    { from = "c", to = "l", label = "yes" },
+    { from = "c", to = "d", label = "otherwise" },
+]
+
+[[diagram]]
+name = "class-diagram"
+kind = "class"
+title = "Message Filter with Camel — classes"
+caption = "Rules live in the route."
+nodes = [
+    { id = "r", label = "ShopRoutes", sub = ["extends RouteBuilder", "+ configure()"], col = 0, row = 0, colour = "accent" },
+    { id = "u", label = "Rules", sub = ["bonusThresholdPence", "read as each order passes"], col = 1, row = 0, colour = "client" },
+    { id = "o", label = "OrderEvent", sub = ["orderId, registered", "pence, gift"], col = 0, row = 1, colour = "client" },
+    { id = "v", label = "Received", sub = ["+ take(order)"], col = 1, row = 1, colour = "green" },
+]
+edges = [
+    { from = "r", to = "u", label = "reads" },
+    { from = "r", to = "v", label = "delivers to" },
+]
+
+[[diagram]]
+name = "data-flow-diagram"
+kind = "flow"
+title = "Message Filter with Camel — ten orders"
+caption = "Kept, delivered, or discarded."
+nodes = [
+    { id = "a", label = "10 orders", sub = "", col = 0, row = 0, colour = "client" },
+    { id = "b", label = "gift filter", sub = "2 pass, 8 dropped", col = 1, row = 0, colour = "accent" },
+    { id = "c", label = "loyalty rule", sub = "3 pass", col = 1, row = 1, colour = "accent" },
+    { id = "d", label = "discard", sub = "rejects counted", col = 2, row = 1, colour = "amber" },
+]
+edges = [
+    { from = "a", to = "b", label = "" },
+    { from = "a", to = "c", label = "" },
+    { from = "c", to = "d", label = "" },
+]
+
+[[diagram]]
+name = "sequence-diagram"
+kind = "sequence"
+title = "Message Filter with Camel — one gift order"
+caption = "Through the filter to the service."
+participants = ["Checkout", "direct:orders", "gift filter", "Gift-wrap"]
+steps = [
+    ["Checkout", "direct:orders", "ORD-4"],
+    ["direct:orders", "gift filter", "copy"],
+    ["note", "gift filter", "${body.gift} is true"],
+    ["gift filter", "Gift-wrap", "ORD-4"],
+]
+
+[[diagram]]
+name = "uml-diagram"
+kind = "sequence"
+title = "1. A rejected order"
+caption = "Kept on the discard channel."
+participants = ["loyalty rule", "direct:discard"]
+steps = [
+    ["loyalty rule", "direct:discard", "ORD-3 (under threshold)"],
+]
+
+[[diagram]]
+name = "uml-diagram-2"
+kind = "sequence"
+title = "2. The threshold changes"
+caption = "Read as each order passes."
+participants = ["Rules", "loyalty rule"]
+steps = [
+    ["Rules", "loyalty rule", "threshold = 6000"],
+    ["note", "loyalty rule", "ORD-6 (5500) now rejected"],
+]
+
+[poster]
+headline = [["MESSAGE FILTER", "text"], ["WITH CAMEL", "text"]]
+before = { code = "every service gets 10 orders", note = "each checks for itself", tag = "BEFORE" }
+after = { code = "filter(simple(\"${body.gift}\"))", note = "gift-wrap gets 2", tag = "AFTER" }
+taglines = [["A filter in front of each service", "gold"]]
+
+[[scene]]
+key = "01-poster"
+kind = "poster"
+title = "Message Filter with Apache Camel"
+narration = """
+Hello, and welcome. [[slnc 400]] This video explains the Message Filter pattern, built with Apache Camel, in Java. [[slnc 300]]
+This video is presented by Jayasekhar Konduru. [[slnc 600]]
+First, a simple definition. [[slnc 300]] A message filter sits in front of a receiver. [[slnc 300]] It lets through only the messages that receiver wants, and drops the rest. [[slnc 500]] Apache Camel is an open-source library for moving messages, and it has a filter step built in. [[slnc 600]]
+Think of a company post room. [[slnc 300]] Each department gives it a rule, such as, only letters marked gift wrap. [[slnc 300]] The post room applies the rules. [[slnc 300]] And a good one keeps a tray of letters nobody wanted. [[slnc 700]]
+In this video, the domain is an online shop, whose checkout announces every order to its services. [[slnc 500]]
+By the end, you will hear how a filter step works in Camel. [[slnc 300]] How to change a rule while everything runs. [[slnc 300]] And why a discard channel matters.
+"""
+
+[[scene]]
+key = "02-scenario"
+kind = "bullets"
+title = "The Scenario"
+body = ["Checkout announces 10 orders.", "", "Gift-wrap wants gift orders.", "Loyalty wants registered", "customers over £50."]
+narration = """
+Here is the scenario. [[slnc 400]] Checkout announces ten orders. [[slnc 500]]
+The gift-wrap service only wants gift orders. [[slnc 300]] The loyalty service only wants registered customers, spending over fifty pounds. [[slnc 500]]
+Without filters, each service was handed all ten.
+"""
+
+[[scene]]
+key = "03-acts"
+kind = "acts"
+title = "acts"
+
+[[scene]]
+key = "04-pattern"
+kind = "bullets"
+title = "The Pattern, in Camel"
+body = ["filter(rule) in front", "of each receiver.", "", "Rules in the Simple language.", "", "Rejects to a discard channel."]
+narration = """
+Let's name the pattern, in Camel's words. [[slnc 400]] A filter step, with a rule, in front of each receiver. [[slnc 500]]
+The rule is written in Camel's Simple language. [[slnc 500]]
+And rejected messages go to a discard channel, where they can be counted.
+"""
+
+[[scene]]
+key = "05-roles"
+kind = "bullets"
+title = "Who Does What"
+body = ["ShopRoutes: the routes and rules", "Rules: the changing threshold", "OrderEvent: the message", "Received: what each service got"]
+narration = """
+Here is who does what. [[slnc 400]] Shop routes holds every route, and every rule. [[slnc 500]]
+Rules holds the threshold, which can change while the routes run. [[slnc 500]]
+Order event is the message. [[slnc 300]] And received records what each service was given.
+"""
+
+[[scene]]
+key = "06-recognise"
+kind = "bullets"
+title = "Where You Have Seen It"
+body = ["Camel filter()", "Spring Integration @Filter", "JMS message selectors", "Email rules"]
+narration = """
+You have probably met this already. [[slnc 400]] Camel's filter step, and Spring Integration's filter. [[slnc 500]]
+Message selectors in Java messaging. [[slnc 500]]
+And the rules in your email, that sort or discard incoming mail.
+"""
+
+[[scene]]
+key = "07-verdict"
+kind = "bullets"
+title = "When To Use It"
+body = ["Many services, same messages.", "Rules that change.", "", "Keep rules short.", "Add a discard channel."]
+narration = """
+So, when should you use Camel for this? [[slnc 400]] When many services subscribe to the same messages, and the rules change. [[slnc 500]]
+Keep each rule short. [[slnc 300]] And add a discard channel, so nothing is lost without a trace.
+"""
+
+[[scene]]
+key = "08-outro"
+kind = "outro"
+title = "Thanks for Watching"
+body = ["Full source, notes, diagrams and an animated walkthrough", "are in the repository. Add a discard", "channel to the gift filter."]
+narration = """
+That's the Message Filter, with Apache Camel. [[slnc 400]] If you remember one sentence, make it this one. [[slnc 300]] Put a rule in front of each receiver, and keep what it rejects. [[slnc 500]]
+The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. [[slnc 300]] It runs offline, with nothing installed except a Java development kit. [[slnc 500]]
+Here is one exercise to try. [[slnc 300]] Add a discard channel to the gift-wrap filter too. [[slnc 500]]
+If this helped, a like really does help other people find it. [[slnc 300]] And subscribe, if you'd like the rest of the series. [[slnc 400]] Thanks for watching.
+"""

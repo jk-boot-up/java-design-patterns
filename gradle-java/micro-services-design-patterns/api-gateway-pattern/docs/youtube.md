@@ -7,7 +7,7 @@ Chapter timings are generated from the video's `.srt`. Re-run `python3 docs/make
 ## Title
 
 ```
-API Gateway in Java - One Front Door for the Store
+API Gateway Design Pattern in Java - Explained - One Front Door for the Store
 ```
 
 50 characters — under the 60 YouTube shows before truncating in search results.
@@ -17,7 +17,7 @@ API Gateway in Java - One Front Door for the Store
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
-Learn the API Gateway pattern in Java 21, starting from a mobile app that makes four calls to build one product page and checks the same token four times. We price what that costs on a phone on a train rather than in a data centre, watch one optional service go down and take the whole page with it, then put a single address in front of the four and move the joining behind it. The gateway is one method with one catch block, and that catch block is the pattern: it decides that recommendations may be missing and that the catalog may not. Because both versions render the same page, the tests assert round trips, token checks and elapsed time instead of the output. We finish with the honest costs — one more hop, one more thing to deploy, and a new single point of failure — and with the line between a gateway and a facade.
+Learn the API Gateway pattern in Java, starting from a mobile app that makes four calls to build one product page and checks the same token four times. We price what that costs on a phone on a train rather than in a data centre, watch one optional service go down and take the whole page with it, then put a single address in front of the four and move the joining behind it. The gateway is one method with one catch block, and that catch block is the pattern: it decides that recommendations may be missing and that the catalog may not. Because both versions render the same page, the tests assert round trips, token checks and elapsed time instead of the output. We finish with the honest costs — one more hop, one more thing to deploy, and a new single point of failure — and with the line between a gateway and a facade.
 
 CHAPTERS
 00:00 Introduction
@@ -40,7 +40,7 @@ SOURCE CODE, WRITTEN NOTES AND AN INTERACTIVE ANIMATION
 https://github.com/jk-boot-up/java-design-patterns/tree/main/gradle-java/micro-services-design-patterns/api-gateway-pattern
 
 WHAT YOU NEED FIRST
-Java 21 and a working knowledge of classes and interfaces. No prior design-pattern knowledge is assumed. The full prerequisites are in docs/prerequisites.md in the repository.
+Java and a working knowledge of classes and interfaces. No prior design-pattern knowledge is assumed. The full prerequisites are in docs/prerequisites.md in the repository.
 ```
 
 ## Chapters

@@ -1,0 +1,486 @@
+# pattern.toml for the Page Object with Selenium project. See tools/patternkit.
+
+[project]
+slug = "page-object-with-selenium"
+category = "testing-design-patterns"
+title = "Page Object with Selenium"
+package = "pageobjectselenium"
+main_class = "SeleniumPageObjectDemo"
+tagline = "Real browser, tests in shop terms"
+bold = "Drive the shop's real checkout page in a real Chromium browser with Selenium WebDriver, and wrap each page in a page object that knows its selectors and waits for the page, so tests speak in shop terms."
+domain_note = ""
+thumb_lines = ["PAGE OBJECT", "WITH SELENIUM"]
+thumb_code = "checkout.applyCoupon(\"SAVE10\")"
+youtube_title = "Page Object with Selenium WebDriver"
+youtube_tags = ["page object", "selenium", "webdriver", "ui testing", "end to end tests", "java"]
+
+[readme]
+intro = """
+This is the real-browser version of the Page Object pattern. The plain Java
+version, a separate project in this category, drives a pretend browser in
+memory. Here Selenium WebDriver drives a real Chromium browser, started in a
+container by the demo itself, against the shop's checkout page, which the
+demo serves over HTTP. Applying a coupon updates the total from JavaScript a
+moment later, exactly the kind of timing that trips up browser tests.
+
+`CheckoutPage` is the page object: the only class that knows the page's
+selectors, and the only place that waits, with Selenium's `WebDriverWait`,
+until the page has answered. Tests call `applyCoupon("SAVE10")` and `total()`,
+and `placeOrder()` returns the next page's object, `ConfirmationPage`.
+"""
+analogy = """
+Think of a hotel guest who asks the concierge for a taxi. The guest does not
+need the taxi firm's number, or to know that the line is always busy at six;
+the concierge handles both. If the number changes, only the concierge needs to
+know.
+"""
+scenario = """
+The online store has automated browser tests for its checkout page. Each test
+found the coupon box and the apply button itself and read the total straight
+away, sometimes before the page had updated. When the designers renamed the
+apply button, every coupon test failed at once.
+"""
+test_note = """
+Every result the demo prints is asserted in a real Chromium browser in a
+container. Waits are Selenium waits for real conditions. Without a container
+runtime, the browser test is skipped rather than failed.
+"""
+run_note = """
+This project needs a running container runtime, such as Docker Desktop: the
+demo starts a real Chromium 152 browser with its WebDriver server in a
+container, and removes it again. Without one, it prints a sentence saying what
+to start, rather than failing. The first run downloads a large image.
+"""
+twin = """
+The plain Java version got the idea right: selectors and timing in one class
+per page, tests in shop terms, a rename fixed in one place, and navigation
+returning the next page object. What it left out is a real browser. Here the
+stale read is real: JavaScript updated the total 300 milliseconds after the
+click, and the raw test read 50.00. The renamed button raises Selenium's
+NoSuchElementException. And the page object waits with WebDriverWait on a real
+condition, the status text, rather than a fixed pause.
+"""
+technologies = [
+    ["Selenium WebDriver", "4.49.0", "driving the browser: findElement, click, WebDriverWait"],
+    ["Chromium with Selenium server", "152.0 (container image selenium/standalone-chromium)", "the real browser"],
+    ["Testcontainers", "2.0.5", "starts and stops the browser container"],
+    ["Docker", "24 or later", "runs the container"],
+    ["JDK HttpServer", "Java 21", "serves the shop's checkout and confirmation pages"],
+]
+costs = [
+    "**Slow and heavy.** A real browser in a container, and a real page load for every test.",
+    "**Another layer.** Every page needs its object, kept in step with the real page.",
+    "**Report, don't assert.** Page objects report what the page shows; tests decide whether it is right.",
+]
+too_much = """
+For one or two checks of a page, the extra class is not worth it, and many
+checks are better done without a browser at all. Page objects pay off once
+several browser tests share a page that keeps changing.
+"""
+met_before = [
+    "Selenium's own documentation, which recommends page objects.",
+    "Playwright and Cypress projects organised into page classes.",
+    "The Screenplay pattern, a later refinement.",
+]
+where = """
+This project is in [testing-design-patterns](..). It is the real-browser
+version of the plain Java Page Object project in the same category, which is
+left unchanged.
+"""
+
+[[act]]
+title = "Selectors in the test"
+summary = "In a real browser, a test types the coupon, clicks #apply-btn and reads #total at once: 50.00, before JavaScript updated it."
+detail = """
+A test drives the real checkout page by its selectors: it types SAVE10, clicks
+#apply-btn and reads #total straight away. It sees 50.00. The coupon was
+accepted, but the page's JavaScript updates the total 300 milliseconds later,
+and the test read it too soon.
+"""
+speech = """
+First demo: a test that finds the page's elements itself, in a real browser. [[slnc 400]] It types the coupon code. [[slnc 300]] Clicks apply. [[slnc 300]] Reads the total, straight away. [[slnc 600]]
+Fifty pounds. [[slnc 300]] The old price. [[slnc 500]]
+The page updates a moment later, from its own script. [[slnc 300]] The test looked too soon.
+"""
+rows = { test = "active wrong", page = "active amber" }
+console = [
+    ["read #total at once: 50.00", "bad"],
+]
+
+[[act]]
+title = "A button is renamed"
+summary = "The designers rename the button to #apply-coupon: 0 of 5 raw tests pass, each failing with NoSuchElementException."
+detail = """
+The designers rename the button from #apply-btn to #apply-coupon. Five coupon
+tests each named the old selector. In the real browser, each fails with
+Selenium's NoSuchElementException: zero of five pass.
+"""
+speech = """
+Second demo: the designers rename the apply button. [[slnc 400]] Five coupon tests each used the old name. [[slnc 600]]
+The browser cannot find the button. [[slnc 300]] Zero of five pass.
+"""
+rows = { test = "active wrong", page = "active amber" }
+console = [
+    ["0 of 5 pass", "bad"],
+    ["NoSuchElementException", "muted"],
+]
+
+[[act]]
+title = "A Page Object"
+summary = "CheckoutPage holds the selectors and waits with WebDriverWait: one selector changed, 5 of 5 pass, and the total is 45.00."
+detail = """
+Now CheckoutPage is the only class that knows the page. Its applyCoupon types
+the code, clicks the button, and waits with WebDriverWait until the status
+text appears. After the rename, one selector was changed in that class, and
+all five tests pass, each reading a total of 45.00.
+"""
+speech = """
+Third demo: a page object. [[slnc 400]] One class, checkout page, knows the page's elements, and waits for the page. [[slnc 600]]
+Its apply coupon method clicks, then waits until the page has answered. [[slnc 500]]
+After the rename, one line in that class changed. [[slnc 300]] All five tests pass. [[slnc 300]] The total, forty-five.
+"""
+rows = { test = "active ok", pageobject = "active ok", page = "active ok" }
+console = [
+    ["5 of 5 pass", "ok"],
+    ["applyCoupon(SAVE10).total(): 45.00", "ok"],
+]
+
+[[act]]
+title = "Return the next page"
+summary = "checkout.placeOrder() returns a ConfirmationPage, which shows ORD-1042 and \"Thank you for your order\"."
+detail = """
+Placing the order moves the real browser to the confirmation page, and
+placeOrder returns its page object, ConfirmationPage, which waits for it and
+shows order ORD-1042 with the thank-you message.
+"""
+speech = """
+Fourth demo: an action that moves to a new page returns that page. [[slnc 400]] Place order returns the confirmation page. [[slnc 600]]
+It shows the order number, O R D ten forty-two. [[slnc 300]] And, thank you for your order.
+"""
+rows = { pageobject = "active ok", confirmation = "active ok" }
+console = [
+    ["placeOrder() -> ConfirmationPage", "ok"],
+    ["ORD-1042", "ok"],
+]
+
+[[act]]
+title = "The bill"
+summary = "Every page needs its object; checks stay in the tests; and browser tests are slow, with a real browser and page loads."
+detail = """
+Every page needs its object, kept in step with the real page, and the checks
+stay in the tests: page objects report, tests decide. And real browser tests
+are slow: this demo started a browser in a container, and every page load was
+real.
+"""
+speech = """
+Fifth demo: the bill. [[slnc 400]] Every page needs its own class, kept in step with the real page. [[slnc 600]]
+Page objects report. [[slnc 300]] Tests decide. [[slnc 500]]
+And real browser tests are slow. [[slnc 300]] A browser has to start, and every page really loads.
+"""
+rows = { pageobject = "active amber" }
+console = [
+    ["one class per page", "amber"],
+    ["real browsers are slow", "amber"],
+]
+
+[animation]
+subtitle = "Tests call page objects, which drive a real Chromium browser on the shop's checkout page."
+boxes = [
+    ["test", "Checkout test", "speaks shop"],
+    ["pageobject", "CheckoutPage", "selectors, waits"],
+    ["page", "Chromium", "the real page"],
+    ["confirmation", "ConfirmationPage", "order number"],
+]
+
+[docs.problem]
+scenario = """
+Browser tests for the shop's checkout type a coupon, click apply and read the
+total, in a real browser.
+"""
+naive = """
+Tests that find elements themselves read too soon and all break when a button
+is renamed.
+"""
+deliver = [
+    "A raw test reading a stale total in a real browser.",
+    "A renamed button breaking every raw test.",
+    "A page object with selectors and WebDriverWait in one place.",
+    "Navigation returning the next page object.",
+    "The costs, including real browser speed.",
+    "Every printed result asserted by a test, skipped without Docker.",
+]
+
+[docs.prerequisites]
+required = [
+    "Java basics.",
+    "HTML elements and ids.",
+    "The Page Object idea, ideally from the plain Java version of this pattern.",
+]
+not_required = [
+    "A browser installed locally. It runs in a container.",
+]
+install = [
+    "A running container runtime such as Docker Desktop. The demo starts and removes the browser itself.",
+]
+
+[docs.dependencies]
+intro = """
+This project uses Selenium and a real Chromium browser in a container, which
+the plain Java version of Page Object does not. Skipping it loses none of the
+pattern: the plain version teaches all of it with nothing installed.
+"""
+what = [
+    ["Selenium WebDriver", "Selenium drives a real browser from code. A WebDriver is one browser session; RemoteWebDriver talks to a browser in another process, here in a container. findElement with By.id finds an element and throws NoSuchElementException if it is missing. click and sendKeys act on it. WebDriverWait waits, up to a limit, for a condition such as some text appearing."],
+    ["The browser container", "The selenium/standalone-chromium image runs Chromium with a WebDriver server on port 4444. Testcontainers starts it and lets it reach the shop's pages running on this machine."],
+]
+why = """
+The plain version uses a pretend browser. This version shows the real thing,
+where timing and missing elements are real, and why page objects are the
+standard answer.
+"""
+versions = [
+    ["Java", "21"],
+    ["Docker", "running; 24 or later"],
+    ["Browser image", "selenium/standalone-chromium:152.0"],
+    ["Selenium", "4.49.0"],
+    ["Testcontainers", "2.0.5"],
+]
+costs = [
+    "A large browser image to download, and slow test runs.",
+    "Page objects to maintain as the pages change.",
+]
+
+[docs.session]
+objectives = [
+    "Drive a real browser with Selenium WebDriver.",
+    "Write a page object with selectors and waits.",
+    "Wait for a real condition instead of a fixed pause.",
+    "Return the next page object from navigation.",
+]
+walkthrough = """
+Run `./gradlew run` with Docker running. Compare act one's 50.00 with act
+three's 45.00. Open `CheckoutPage`: the APPLY constant and the WebDriverWait.
+End on act two's 0 of 5 against act three's 5 of 5.
+"""
+exercises = [
+    "Add a removeCoupon method and a test for it.",
+    "Take a screenshot when a test fails.",
+    "Run the same page objects against Firefox with the standalone-firefox image.",
+]
+
+[docs.explained]
+sentence = """
+With Selenium, a page object wraps a real page's selectors and waits in one
+class, so browser tests speak in shop terms.
+"""
+verdict = """
+Use page objects for every browser test suite that shares pages. Keep
+selectors and waits inside them, wait for real conditions, return the next
+page from navigation, and keep the checks in the tests.
+"""
+recognise = [
+    "Classes named ...Page holding By selectors.",
+    "WebDriverWait inside page methods, not in tests.",
+    "Methods that return another page object after a click.",
+]
+
+[spec]
+purpose = """
+Teach Page Object with Selenium: a raw test reading a stale total in a real
+browser, a renamed button breaking raw tests, a page object with waits, and
+navigation returning the next page.
+"""
+nongoals = [
+    "Not a test framework or grid. One browser session, driven by the demo.",
+]
+problem = """
+Browser tests that find elements and handle timing themselves are fragile and
+break together.
+"""
+roles = [
+    ["The page objects", "`CheckoutPage`, `ConfirmationPage`"],
+    ["The browser in a container", "`Browser`"],
+    ["The shop's pages", "`ShopSite`"],
+    ["Entry point", "`SeleniumPageObjectDemo`, five acts"],
+]
+requirements = [
+    "**One place:** only CheckoutPage names checkout selectors.",
+    "**Waits:** applyCoupon returns after the page answers.",
+    "**Navigation:** placeOrder returns ConfirmationPage.",
+    "**No Docker, no crash:** without a runtime the demo prints advice.",
+]
+
+[[diagram]]
+name = "architecture-diagram"
+kind = "flow"
+title = "Page Object with Selenium — the pieces"
+caption = "Tests never touch selectors."
+nodes = [
+    { id = "t", label = "Checkout test", sub = "applyCoupon, total", col = 0, row = 0, colour = "client" },
+    { id = "p", label = "CheckoutPage", sub = "selectors, WebDriverWait", col = 1, row = 0, colour = "accent" },
+    { id = "b", label = "Chromium", sub = "in a container", col = 2, row = 0, colour = "green" },
+    { id = "s", label = "Shop pages", sub = "checkout, confirmation", col = 3, row = 0, colour = "client" },
+]
+edges = [
+    { from = "t", to = "p", label = "" },
+    { from = "p", to = "b", label = "WebDriver" },
+    { from = "b", to = "s", label = "HTTP" },
+]
+
+[[diagram]]
+name = "class-diagram"
+kind = "class"
+title = "Page Object with Selenium — classes"
+caption = "One class per page."
+nodes = [
+    { id = "c", label = "CheckoutPage", sub = ["+ open(driver, url)", "+ applyCoupon(code)", "+ total()", "+ placeOrder()"], col = 0, row = 0, colour = "accent" },
+    { id = "f", label = "ConfirmationPage", sub = ["+ orderNumber()", "+ message()"], col = 1, row = 0, colour = "accent" },
+    { id = "b", label = "Browser", sub = ["+ start()", "+ newSession(): WebDriver"], col = 0, row = 1, colour = "green" },
+]
+edges = [
+    { from = "c", to = "f", label = "returns" },
+]
+
+[[diagram]]
+name = "data-flow-diagram"
+kind = "flow"
+title = "Page Object with Selenium — a renamed button"
+caption = "Five edits, or one."
+nodes = [
+    { id = "a", label = "Selectors in tests", sub = "", col = 0, row = 0, colour = "red" },
+    { id = "b", label = "0 of 5 pass", sub = "", col = 2, row = 0, colour = "red" },
+    { id = "c", label = "Selectors in CheckoutPage", sub = "one line", col = 0, row = 1, colour = "green" },
+    { id = "d", label = "5 of 5 pass", sub = "", col = 2, row = 1, colour = "green" },
+]
+edges = [
+    { from = "a", to = "b", label = "" },
+    { from = "c", to = "d", label = "" },
+]
+
+[[diagram]]
+name = "sequence-diagram"
+kind = "sequence"
+title = "Page Object with Selenium — applying a coupon"
+caption = "The page object waits so the test does not."
+participants = ["Test", "CheckoutPage", "Chromium"]
+steps = [
+    ["Test", "CheckoutPage", "applyCoupon(SAVE10)"],
+    ["CheckoutPage", "Chromium", "type, click #apply-coupon"],
+    ["note", "CheckoutPage", "WebDriverWait: status shown"],
+    ["Test", "CheckoutPage", "total()"],
+    ["CheckoutPage", "Test", "45.00", "reply"],
+]
+
+[[diagram]]
+name = "uml-diagram"
+kind = "sequence"
+title = "1. A raw test"
+caption = "Reads too soon."
+participants = ["Test", "Chromium"]
+steps = [
+    ["Test", "Chromium", "click #apply-btn"],
+    ["Test", "Chromium", "read #total"],
+    ["Chromium", "Test", "50.00 (not updated yet)", "reply"],
+]
+
+[[diagram]]
+name = "uml-diagram-2"
+kind = "sequence"
+title = "2. Placing the order"
+caption = "The next page comes back."
+participants = ["Test", "CheckoutPage", "ConfirmationPage"]
+steps = [
+    ["Test", "CheckoutPage", "placeOrder()"],
+    ["CheckoutPage", "Test", "ConfirmationPage", "reply"],
+    ["Test", "ConfirmationPage", "orderNumber()"],
+]
+
+[poster]
+headline = [["PAGE OBJECT", "text"], ["WITH SELENIUM", "text"]]
+before = { code = "driver.findElement(By.id(\"apply-btn\"))", note = "rename: 0 of 5 pass", tag = "BEFORE" }
+after = { code = "checkout.applyCoupon(\"SAVE10\")", note = "one change, 5 of 5 pass", tag = "AFTER" }
+taglines = [["A real browser, tests in shop terms", "gold"]]
+
+[[scene]]
+key = "01-poster"
+kind = "poster"
+title = "Page Object with Selenium"
+narration = """
+Hello, and welcome. [[slnc 400]] This video explains the Page Object pattern, with Selenium, in a real browser. [[slnc 300]]
+This video is presented by Jayasekhar Konduru. [[slnc 600]]
+First, a simple definition. [[slnc 300]] A page object is a class for one page of a web application. [[slnc 300]] It knows how to find the page's boxes and buttons, and how long the page takes to answer. [[slnc 300]] So tests only say what a shopper does. [[slnc 500]] Selenium is the open-source tool that drives a real web browser from code. [[slnc 600]]
+Think of a hotel guest asking the concierge for a taxi. [[slnc 300]] The concierge knows the number, and when the line is busy. [[slnc 700]]
+In this video, the domain is an online shop's checkout page, tested in a real Chromium browser. [[slnc 500]]
+By the end, you will hear why tests that find buttons themselves are fragile. [[slnc 300]] How one class fixes a renamed button for every test. [[slnc 300]] And how it waits for the page.
+"""
+
+[[scene]]
+key = "02-scenario"
+kind = "bullets"
+title = "The Scenario"
+body = ["Browser tests for checkout.", "", "Each test found the elements", "itself and read the total", "straight away.", "", "Then a button was renamed."]
+narration = """
+Here is the scenario. [[slnc 400]] The shop has browser tests for its checkout page. [[slnc 500]]
+Each test found the coupon box and the apply button itself. [[slnc 300]] And read the total straight away. [[slnc 500]]
+Then the designers renamed the button.
+"""
+
+[[scene]]
+key = "03-acts"
+kind = "acts"
+title = "acts"
+
+[[scene]]
+key = "04-pattern"
+kind = "bullets"
+title = "The Pattern, with Selenium"
+body = ["One class per page.", "", "It holds the selectors,", "and waits with WebDriverWait.", "", "Tests speak in shop terms."]
+narration = """
+Let's name the pattern, with Selenium. [[slnc 400]] One class for each page. [[slnc 500]]
+It holds the page's selectors, and waits for the page with Selenium's wait. [[slnc 500]]
+And tests call its methods, in the shop's own words.
+"""
+
+[[scene]]
+key = "05-roles"
+kind = "bullets"
+title = "Who Does What"
+body = ["CheckoutPage: apply coupon, total", "ConfirmationPage: the order number", "Browser: Chromium in a container", "ShopSite: the real pages"]
+narration = """
+Here is who does what. [[slnc 400]] Checkout page applies coupons, reads the total, and places the order. [[slnc 500]]
+Confirmation page shows the order number. [[slnc 500]]
+The browser class runs Chromium in a container. [[slnc 300]] And the shop site serves the real pages.
+"""
+
+[[scene]]
+key = "06-recognise"
+kind = "bullets"
+title = "Where You Have Seen It"
+body = ["Selenium page objects", "Playwright and Cypress page classes", "The Screenplay pattern"]
+narration = """
+You have probably met this already. [[slnc 400]] Selenium's own guides recommend page objects. [[slnc 500]]
+Playwright and Cypress projects use page classes too. [[slnc 500]]
+And the Screenplay pattern is a later refinement of the same idea.
+"""
+
+[[scene]]
+key = "07-verdict"
+kind = "bullets"
+title = "When To Use It"
+body = ["Several browser tests share a page.", "", "Selectors and waits inside.", "Real conditions, not pauses.", "Checks stay in tests."]
+narration = """
+So, when should you use it? [[slnc 400]] Whenever several browser tests share a page. [[slnc 500]]
+Keep selectors and waits inside the page object. [[slnc 300]] Wait for real conditions, never fixed pauses. [[slnc 300]] And keep the checks in the tests.
+"""
+
+[[scene]]
+key = "08-outro"
+kind = "outro"
+title = "Thanks for Watching"
+body = ["Full source, notes, diagrams and an animated walkthrough", "are in the repository. Try it", "in Firefox."]
+narration = """
+That's the Page Object, with Selenium. [[slnc 400]] If you remember one sentence, make it this one. [[slnc 300]] Tests say what the shopper does, and one class knows how, and when. [[slnc 500]]
+The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. [[slnc 300]] It needs Docker running, and starts the browser for you. [[slnc 500]]
+Here is one exercise to try. [[slnc 300]] Run the same page objects in Firefox. [[slnc 500]]
+If this helped, a like really does help other people find it. [[slnc 300]] And subscribe, if you'd like the rest of the series. [[slnc 400]] Thanks for watching.
+"""

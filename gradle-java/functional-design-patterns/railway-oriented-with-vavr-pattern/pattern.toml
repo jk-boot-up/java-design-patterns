@@ -1,0 +1,459 @@
+# pattern.toml for the Railway-Oriented Programming with Vavr project. See tools/patternkit.
+
+[project]
+slug = "railway-oriented-with-vavr"
+category = "functional-design-patterns"
+title = "Railway-Oriented Programming with Vavr"
+package = "railwayvavr"
+main_class = "VavrRailwayDemo"
+tagline = "Either, Try and Validation"
+bold = "Build the checkout railway with Vavr: Either for the two tracks, Try to move a throwing library onto them, and Validation to collect every problem in a form instead of stopping at the first."
+domain_note = ""
+thumb_lines = ["RAILWAY-ORIENTED", "WITH VAVR"]
+thumb_code = "Either<Failure, Cart>"
+youtube_title = "Railway-Oriented Programming with Vavr"
+youtube_tags = ["railway oriented programming", "vavr", "either", "validation", "functional java", "java"]
+
+[readme]
+intro = """
+This is the library version of Railway-Oriented Programming. The plain Java
+version, a separate project in this category, writes its own sealed Result
+type. Here Vavr, the best-known functional library for Java, provides the
+types. `Either<Failure, Cart>` is the railway: Left is the failure track,
+Right the success track, and `flatMap` runs the next step only on the success
+track.
+
+Vavr adds two things the plain version did not have. `Try` wraps code that
+throws, such as a payment company's client library, and `toEither()` puts its
+exception onto the failure track. And `Validation` checks several fields
+independently and collects every problem, which the plain version named as
+the railway's limit.
+"""
+analogy = """
+Think of an airport baggage belt with inspection points: a rejected bag is
+pushed onto a side belt that runs to the end. That is Either. Try is a
+station that catches a bag falling off the belt and puts it on the side belt
+instead of on the floor. Validation is a customs desk that checks every item
+in a bag and lists all the problems at once.
+"""
+scenario = """
+The online store's checkout has four steps: check the cart, reserve stock,
+charge the card, email the confirmation. The payment company's client library
+reports a declined card by throwing an exception, and a controller that forgot
+to catch it showed customers an internal server error.
+"""
+run_note = """
+Nothing to install beyond a Java 21 JDK: Vavr is a library, downloaded by
+Gradle.
+"""
+twin = """
+The plain Java version got the idea right: steps return success or failure,
+flatMap skips the rest after the first failure, map lifts plain steps, and
+there is a way back; and it named the limit, that a chain reports only the
+first problem. What it left out is a standard library for it. Vavr's Either
+is the railway, used across many codebases. Try brings code that throws onto
+the railway. And Validation removes the limit the plain version admitted: an
+empty cart with no card now reports both problems at once.
+"""
+technologies = [
+    ["Vavr", "1.0.1", "Either, Try and Validation"],
+]
+costs = [
+    "**A library to learn and carry.** Either, Try and Validation each have their own methods.",
+    "**Left and Right.** Which side is failure is a convention, easy to mix up at first.",
+    "**Two tools for two jobs.** Either stops at the first failure; Validation collects them all; choose on purpose.",
+]
+too_much = """
+For one or two steps, an if statement is clearer than a library. Vavr pays off
+in code with many steps that can fail for business reasons, or many fields to
+check.
+"""
+met_before = [
+    "Vavr's `Either`, `Try` and `Validation` in Java codebases.",
+    "Kotlin's `Result` and Arrow's `Either`.",
+    "Scala's `Either` and `Try`, which Vavr is modelled on.",
+]
+where = """
+This project is in [functional-design-patterns](..). It is the library
+version of the plain Java Railway-Oriented Programming project in the same
+category, which is left unchanged.
+"""
+
+[[act]]
+title = "A throwing library"
+summary = "The payment library throws \"card declined\"; nothing makes the caller handle it."
+detail = """
+The payment company's client library reports a declined card by throwing an
+exception. Nothing in Java makes the caller handle it, and a controller that
+forgot to catch it answers 500, an internal server error.
+"""
+speech = """
+First demo: a library that throws. [[slnc 400]] The payment company's library reports a declined card by throwing an exception. [[slnc 600]]
+Nothing forces the caller to handle it. [[slnc 300]] A controller that forgot, shows the customer an internal error.
+"""
+rows = { charge = "active wrong" }
+console = [
+    ["threw \"card declined\"", "bad"],
+]
+
+[[act]]
+title = "Either"
+summary = "Each step returns Either<Failure, Cart>, chained with flatMap: 2 mugs and a good card are confirmed, and all four steps ran."
+detail = """
+Each step returns Vavr's `Either<Failure, Cart>`, and the checkout is one
+chain of `flatMap` calls. Two mugs with a good card stay on the success track
+through all four steps, and the order is confirmed.
+"""
+speech = """
+Second demo: Vavr's either type. [[slnc 400]] Each step returns either a failure, on the left, or a cart, on the right. [[slnc 600]]
+The steps are chained with flat map. [[slnc 500]]
+Two mugs, a good card. [[slnc 300]] All four steps run. [[slnc 300]] Order confirmed.
+"""
+rows = { validate = "active ok", reserve = "active ok", charge = "active ok", email = "active ok" }
+console = [
+    ["200 order ORD-1 confirmed", "ok"],
+]
+
+[[act]]
+title = "Skipping, and Try"
+summary = "An empty cart fails at validate and skips the rest; a declined card fails at charge, because Try.of(...).toEither() caught the library's exception."
+detail = """
+An empty cart fails at validate, on the Left, and the other three steps are
+skipped. A declined card fails at charge: the step wraps the library call in
+`Try.of`, and `toEither()` turns its exception into a Left, so the failure
+travels the railway like any other.
+"""
+speech = """
+Third demo: the failure track. [[slnc 400]] An empty cart fails at the first step. [[slnc 300]] The other three are skipped. [[slnc 600]]
+A declined card fails at charge. [[slnc 300]] The library threw an exception. [[slnc 300]] Vavr's try caught it, and put it on the failure track. [[slnc 500]]
+So it is handled like any other failure.
+"""
+rows = { validate = "active ok", charge = "active wrong", email = "active amber" }
+console = [
+    ["empty cart: 422 (at validate)", "amber"],
+    ["declined: 422 (at charge), via Try", "amber"],
+]
+
+[[act]]
+title = "map and orElse"
+summary = "20% tax with map gives 23.98 for 2 mugs; an out-of-stock lamp becomes a back-order with orElse."
+detail = """
+A step that cannot fail, adding 20% tax, rides along with `map`: two mugs come
+to 23.98. And `orElse` offers a way back: when the lamp is out of stock, the
+checkout's failure is replaced by a back-order.
+"""
+speech = """
+Fourth demo: plain steps, and a way back. [[slnc 400]] Adding tax cannot fail, so it rides along with map. [[slnc 300]] Twenty-three ninety-eight. [[slnc 600]]
+The lamp is out of stock. [[slnc 300]] Or else turns the failure into a back-order.
+"""
+rows = { reserve = "active amber", email = "active ok" }
+console = [
+    ["with tax: 23.98", "ok"],
+    ["lamp: back-order", "ok"],
+]
+
+[[act]]
+title = "Validation"
+summary = "An empty cart with no card: the Either chain reports only the empty cart; Validation.combine reports both problems."
+detail = """
+A cart that is empty and has no card. The Either chain stops at the first
+failure and reports only the empty cart. Vavr's `Validation` checks each
+field on its own and `combine` collects the results: "the cart is empty and
+no card given", both at once, so the customer can fix everything together.
+"""
+speech = """
+Fifth demo: collecting every problem. [[slnc 400]] A cart that is empty, and has no card. [[slnc 600]]
+The either chain stops at the first failure. [[slnc 300]] It reports only the empty cart. [[slnc 600]]
+Vavr's validation checks every field, and combines the results. [[slnc 300]] The cart is empty, and no card given. [[slnc 300]] Both at once.
+"""
+rows = { validate = "active ok" }
+console = [
+    ["Either: 1 problem", "amber"],
+    ["Validation: both problems", "ok"],
+]
+
+[animation]
+subtitle = "Four checkout steps on Vavr's Either; Try brings a throwing library onto the railway."
+boxes = [
+    ["validate", "Validate", "Either"],
+    ["reserve", "Reserve", "Either"],
+    ["charge", "Charge", "Try -> Either"],
+    ["email", "Email", "Either"],
+]
+
+[docs.problem]
+scenario = """
+Checkout has four steps; the payment library throws on a declined card.
+"""
+naive = """
+Exceptions that nothing forces the caller to handle become error pages.
+"""
+deliver = [
+    "A throwing library.",
+    "An Either chain with flatMap.",
+    "Try moving an exception onto the failure track.",
+    "map for a plain step and orElse for recovery.",
+    "Validation collecting every problem.",
+    "Every printed result asserted by a test.",
+]
+
+[docs.prerequisites]
+required = [
+    "Java basics: lambdas, method references, records.",
+    "The Railway-Oriented idea, ideally from the plain Java version of this pattern.",
+]
+not_required = [
+    "Earlier Vavr experience. The dependencies page explains the types used.",
+]
+
+[docs.dependencies]
+intro = """
+This project uses Vavr, which the plain Java version of Railway-Oriented
+Programming does not. Skipping it loses none of the pattern: the plain
+version teaches all of it with nothing installed.
+"""
+what = [
+    ["Vavr", "Vavr is a functional library for Java. Either holds a Left or a Right; by convention Left is the failure and Right the success, and flatMap and map work on the Right, passing a Left straight through. fold turns either side into one answer. orElse supplies another Either when the first is a Left. Try.of runs code that may throw and holds the result or the exception; toEither turns it into an Either. Validation holds a valid value or errors; combine checks several Validations and collects all their errors."],
+]
+why = """
+The plain version builds the idea. This version shows the library Java
+developers most often use for it, and the Validation type that removes the
+railway's one-error limit.
+"""
+install_note = "Only a JDK, version 21. Gradle downloads the rest, and the version is pinned:"
+versions = [
+    ["Java", "21"],
+    ["Vavr", "1.0.1"],
+]
+costs = [
+    "A library and its conventions to learn.",
+]
+
+[docs.session]
+objectives = [
+    "Chain steps with Vavr's Either and flatMap.",
+    "Wrap throwing code with Try and toEither.",
+    "Recover with orElse.",
+    "Collect all errors with Validation.combine.",
+]
+walkthrough = """
+Run `./gradlew run`. Open `CheckoutSteps.checkout`: four flatMaps. Open
+`charge`: Try around the library. End on act five's two answers for the same
+form.
+"""
+exercises = [
+    "Add a coupon step that can fail, returning Either.",
+    "Recover only from out-of-stock failures, and let others through.",
+    "Add a postcode check to the Validation.",
+]
+
+[docs.explained]
+sentence = """
+With Vavr, the railway is Either: steps chained with flatMap, exceptions
+brought on with Try, and every problem collected with Validation when needed.
+"""
+verdict = """
+Use Either for chains of steps that can fail, Try at the edge where code
+throws, and Validation for forms where every problem should be reported.
+"""
+recognise = [
+    "Methods returning `Either<Failure, T>`.",
+    "`Try.of(...).toEither()` around library calls.",
+    "`Validation.combine(...).ap(...)` for form checks.",
+]
+
+[spec]
+purpose = """
+Teach Railway-Oriented Programming with Vavr: a throwing library, an Either
+chain, Try moving exceptions onto the failure track, map and orElse, and
+Validation collecting every problem.
+"""
+nongoals = [
+    "Not a tour of Vavr's collections.",
+]
+problem = """
+A chain of steps whose failures are exceptions the caller can forget.
+"""
+roles = [
+    ["The steps", "`CheckoutSteps`"],
+    ["The throwing library", "`LegacyPayments`"],
+    ["The failure", "`Failure`"],
+    ["Entry point", "`VavrRailwayDemo`, five acts"],
+]
+requirements = [
+    "**Skip:** after a Left, no later step runs.",
+    "**Caught:** a declined card becomes a Left at charge.",
+    "**All problems:** Validation reports both form errors.",
+    "**Every printed result is asserted** in `DemoRunsTest`.",
+]
+
+[[diagram]]
+name = "architecture-diagram"
+kind = "flow"
+title = "Railway-Oriented with Vavr — the tracks"
+caption = "Right carries on; Left runs to the end."
+nodes = [
+    { id = "a", label = "validate", sub = "Either", col = 0, row = 0, colour = "green" },
+    { id = "b", label = "reserve", sub = "Either", col = 1, row = 0, colour = "green" },
+    { id = "c", label = "charge", sub = "Try -> Either", col = 2, row = 0, colour = "green" },
+    { id = "d", label = "email", sub = "Right: confirmed", col = 3, row = 0, colour = "green" },
+    { id = "f", label = "Left", sub = "Failure(step, reason)", col = 3, row = 1, colour = "red" },
+]
+edges = [
+    { from = "a", to = "b", label = "" },
+    { from = "b", to = "c", label = "" },
+    { from = "c", to = "d", label = "" },
+    { from = "c", to = "f", label = "declined" },
+]
+
+[[diagram]]
+name = "class-diagram"
+kind = "class"
+title = "Railway-Oriented with Vavr — classes"
+caption = "Vavr supplies the tracks."
+nodes = [
+    { id = "s", label = "CheckoutSteps", sub = ["validate, reserve, charge, email", "+ checkout(cart)", "+ checkForm(cart): Validation"], col = 0, row = 0, colour = "accent" },
+    { id = "e", label = "Vavr", sub = ["Either, Try, Validation"], col = 1, row = 0, colour = "green" },
+    { id = "l", label = "LegacyPayments", sub = ["+ charge(card, amount)", "throws when declined"], col = 0, row = 1, colour = "client" },
+]
+edges = [
+    { from = "s", to = "e", label = "returns" },
+    { from = "s", to = "l", label = "wraps with Try" },
+]
+
+[[diagram]]
+name = "data-flow-diagram"
+kind = "flow"
+title = "Railway-Oriented with Vavr — one problem or all"
+caption = "Either stops; Validation collects."
+nodes = [
+    { id = "a", label = "Either chain", sub = "the cart is empty", col = 0, row = 0, colour = "amber" },
+    { id = "b", label = "Validation.combine", sub = "empty and no card", col = 0, row = 1, colour = "green" },
+]
+edges = []
+
+[[diagram]]
+name = "sequence-diagram"
+kind = "sequence"
+title = "Railway-Oriented with Vavr — a declined card"
+caption = "The exception becomes a Left."
+participants = ["Chain", "charge", "LegacyPayments"]
+steps = [
+    ["Chain", "charge", "Right(cart)"],
+    ["charge", "LegacyPayments", "Try.of(charge)"],
+    ["LegacyPayments", "charge", "throws card declined", "reply"],
+    ["charge", "Chain", "Left(declined at charge)", "reply"],
+]
+
+[[diagram]]
+name = "uml-diagram"
+kind = "sequence"
+title = "1. Validation"
+caption = "Both fields checked."
+participants = ["Form", "Validation"]
+steps = [
+    ["Form", "Validation", "items, card"],
+    ["Validation", "Form", "empty cart; no card", "reply"],
+]
+
+[[diagram]]
+name = "uml-diagram-2"
+kind = "sequence"
+title = "2. orElse"
+caption = "A way back."
+participants = ["Chain", "orElse"]
+steps = [
+    ["Chain", "orElse", "Left(LAMP out of stock)"],
+    ["orElse", "Chain", "Right(back-order)", "reply"],
+]
+
+[poster]
+headline = [["RAILWAY-ORIENTED", "text"], ["WITH VAVR", "text"]]
+before = { code = "throw new IllegalStateException", note = "a forgotten catch: 500", tag = "BEFORE" }
+after = { code = "Either<Failure, Cart>", note = "422 at charge; both form errors", tag = "AFTER" }
+taglines = [["Either, Try and Validation", "gold"]]
+
+[[scene]]
+key = "01-poster"
+kind = "poster"
+title = "Railway-Oriented Programming with Vavr"
+narration = """
+Hello, and welcome. [[slnc 400]] This video explains Railway-Oriented Programming, with the Vavr library, in Java. [[slnc 300]]
+This video is presented by Jayasekhar Konduru. [[slnc 600]]
+First, a simple definition. [[slnc 300]] Picture two railway tracks, one for success, one for failure. [[slnc 300]] Each step runs on the success track. [[slnc 300]] A failure switches to the other track, and every later step is skipped. [[slnc 500]] Vavr is an open-source functional library for Java that provides these tracks. [[slnc 600]]
+Think of an airport baggage belt. [[slnc 300]] A rejected bag goes onto a side belt that runs to the end. [[slnc 700]]
+In this video, the domain is an online shop's checkout. [[slnc 500]]
+By the end, you will hear how Vavr's either type chains the steps. [[slnc 300]] How try catches a library's exception. [[slnc 300]] And how validation reports every problem at once.
+"""
+
+[[scene]]
+key = "02-scenario"
+kind = "bullets"
+title = "The Scenario"
+body = ["Validate, reserve, charge, email.", "", "The payment library throws", "on a declined card.", "", "A forgotten catch: error page."]
+narration = """
+Here is the scenario. [[slnc 400]] The checkout has four steps. [[slnc 300]] Validate, reserve, charge, and email. [[slnc 500]]
+The payment company's library throws an exception when a card is declined. [[slnc 500]]
+A controller that forgot to catch it showed customers an error page.
+"""
+
+[[scene]]
+key = "03-acts"
+kind = "acts"
+title = "acts"
+
+[[scene]]
+key = "04-pattern"
+kind = "bullets"
+title = "The Pattern, in Vavr"
+body = ["Either: Left failure, Right success.", "", "Try: exceptions onto the track.", "", "Validation: every problem."]
+narration = """
+Let's name the pattern, in Vavr's words. [[slnc 400]] Either holds a failure on the left, or a success on the right. [[slnc 500]]
+Try moves exceptions onto the railway. [[slnc 500]]
+And validation collects every problem, instead of stopping at the first.
+"""
+
+[[scene]]
+key = "05-roles"
+kind = "bullets"
+title = "Who Does What"
+body = ["CheckoutSteps: the steps", "LegacyPayments: throws", "Failure: step and reason", "Vavr: Either, Try, Validation"]
+narration = """
+Here is who does what. [[slnc 400]] Checkout steps holds the four steps, and the form check. [[slnc 500]]
+Legacy payments is the library that throws. [[slnc 500]]
+A failure records the step and the reason. [[slnc 300]] And Vavr supplies the types.
+"""
+
+[[scene]]
+key = "06-recognise"
+kind = "bullets"
+title = "Where You Have Seen It"
+body = ["Vavr in Java codebases", "Kotlin Result and Arrow", "Scala Either and Try"]
+narration = """
+You have probably met this already. [[slnc 400]] Vavr's either and try, in many Java codebases. [[slnc 500]]
+Kotlin's result type, and the Arrow library. [[slnc 500]]
+And Scala's either and try, which Vavr is modelled on.
+"""
+
+[[scene]]
+key = "07-verdict"
+kind = "bullets"
+title = "When To Use It"
+body = ["Chains of steps: Either.", "Code that throws: Try.", "Forms: Validation."]
+narration = """
+So, when should you use it? [[slnc 400]] Use either for chains of steps that can fail. [[slnc 500]]
+Use try at the edge, where code throws. [[slnc 500]]
+And use validation for forms, where every problem should be reported.
+"""
+
+[[scene]]
+key = "08-outro"
+kind = "outro"
+title = "Thanks for Watching"
+body = ["Full source, notes, diagrams and an animated walkthrough", "are in the repository. Add a", "postcode to the Validation."]
+narration = """
+That's Railway-Oriented Programming, with Vavr. [[slnc 400]] If you remember one sentence, make it this one. [[slnc 300]] Keep failures on their own track, and when checking a form, collect them all. [[slnc 500]]
+The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. [[slnc 300]] It runs offline, with nothing installed except a Java development kit. [[slnc 500]]
+Here is one exercise to try. [[slnc 300]] Add a postcode check to the validation. [[slnc 500]]
+If this helped, a like really does help other people find it. [[slnc 300]] And subscribe, if you'd like the rest of the series. [[slnc 400]] Thanks for watching.
+"""

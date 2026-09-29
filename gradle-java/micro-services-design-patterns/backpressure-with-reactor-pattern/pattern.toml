@@ -1,0 +1,457 @@
+# pattern.toml for the Backpressure with Project Reactor project. See tools/patternkit.
+
+[project]
+slug = "backpressure-with-reactor"
+category = "micro-services-design-patterns"
+title = "Backpressure with Project Reactor"
+package = "backpressurereactor"
+main_class = "ReactorBackpressureDemo"
+tagline = "Demand is part of every stream"
+bold = "Handle a fast supplier feed and a slow search indexer with Project Reactor, where every subscriber states its demand: Reactor refuses a source that ignores it, limitRate() asks in batches, and onBackpressureLatest() keeps only the newest stock level."
+domain_note = ""
+thumb_lines = ["BACKPRESSURE", "WITH REACTOR"]
+thumb_code = ".limitRate(10)"
+youtube_title = "Backpressure with Project Reactor"
+youtube_tags = ["backpressure", "project reactor", "reactive streams", "flux", "limitrate", "java"]
+
+[readme]
+intro = """
+This is the framework version of the Backpressure pattern. The plain Java
+version, a separate project in this category, writes a bounded buffer and a
+`Flow` publisher by hand. Here Project Reactor, the reactive library behind
+Spring WebFlux, does the work. In Reactor, every stream, a `Flux`, carries
+demand: a subscriber says how many items it wants, and the source may send
+no more.
+
+The demo shows what Reactor does with a source that ignores demand, how a
+subscriber asks for items in batches, how `limitRate` does the asking for you,
+and how `onBackpressureLatest` handles updates where only the newest one
+matters.
+"""
+analogy = """
+Think of a kitchen and its waiters. In a well-run kitchen, the chef calls out
+"two more tickets" when ready, and the waiter hands over exactly two. A waiter
+who ignores the chef and keeps shoving tickets through the hatch is stopped by
+the head chef before the rail overflows. And for the daily-special board,
+only the latest chalk counts; nobody reads the old ones.
+"""
+scenario = """
+The online store's search indexer reads a supplier's product feed. The
+supplier sends ten thousand products as fast as it can; the indexer takes a
+millisecond for each. Stock-level updates for popular items arrive by the
+thousand, though the shop only ever needs the current level.
+"""
+twin = """
+The plain Java version got the idea right: a producer faster than its consumer
+must be slowed, bounded or pruned, and the JDK's own `Flow` interfaces let a
+consumer request items in batches. What it left out is a library where demand
+runs through every stage. Reactor refused a source that ignored demand with
+an OverflowException instead of letting a buffer grow. `limitRate` asks for
+ten and then tops up by eight when three-quarters are used, so the pipe never
+runs dry. And `onBackpressureLatest` turned a thousand updates into the two
+the shop actually asked for.
+"""
+technologies = [
+    ["Project Reactor", "3.8.7", "Flux, demand, limitRate, onBackpressureLatest"],
+]
+costs = [
+    "**Every source must choose.** A source that cannot wait must buffer, drop or keep the latest, and each loses something.",
+    "**Unbounded buffers hide the problem.** `onBackpressureBuffer()` with no limit just moves the pile somewhere harder to see.",
+    "**A new way of writing code.** Streams, operators and schedulers take time to learn and to debug.",
+]
+too_much = """
+If the consumer always keeps up, a plain loop or a blocking queue is simpler.
+Reactor pays off in services that stream data between fast and slow parts,
+especially over the network.
+"""
+met_before = [
+    "Spring WebFlux, built on Reactor.",
+    "RxJava, Akka Streams and Kotlin Flow, with the same ideas.",
+    "The Reactive Streams interfaces, also in the JDK as `java.util.concurrent.Flow`.",
+]
+where = """
+This project is in [micro-services-design-patterns](..). It is the framework
+version of the plain Java Backpressure project in the same category, which is
+left unchanged.
+"""
+
+[[act]]
+title = "A source that ignores demand"
+summary = "A feed pushes 10,000 products regardless of demand into an indexer whose queue holds 256: Reactor stops the stream with an OverflowException."
+detail = """
+The supplier's feed pushes all ten thousand products at once, ignoring how many
+the indexer asked for. The indexer's queue holds 256. Reactor does not let the
+pile grow: it stops the stream with an OverflowException, and only part of
+the feed is indexed. The rest is refused, not quietly piled up in memory.
+"""
+speech = """
+First demo: a source that ignores demand. [[slnc 400]] The supplier's feed pushes ten thousand products, as fast as it can. [[slnc 300]] It ignores how many the indexer asked for. [[slnc 600]]
+The indexer's queue holds two hundred and fifty-six. [[slnc 500]]
+Reactor does not let the pile grow. [[slnc 300]] It stops the stream, with an overflow error. [[slnc 500]]
+Only part of the feed is indexed. [[slnc 300]] The rest is refused, not quietly piled up.
+"""
+rows = { feed = "active wrong", indexer = "active amber" }
+console = [
+    ["queue holds 256", "muted"],
+    ["OverflowException: stream stopped", "bad"],
+]
+
+[[act]]
+title = "Produce only what is asked"
+summary = "The indexer requests 10 at a time from a feed that waits: all 10,000 indexed, never more than 10 asked for and undelivered."
+detail = """
+A feed that can wait, here `Flux.range`, produces only what is requested. The
+indexer asks for ten, indexes them, then asks for ten more. All ten thousand
+are indexed, and never more than ten were asked for and not yet delivered.
+"""
+speech = """
+Second demo: a feed that produces only what is asked for. [[slnc 400]] The indexer asks for ten products. [[slnc 300]] It indexes them. [[slnc 300]] Then it asks for ten more. [[slnc 600]]
+All ten thousand are indexed. [[slnc 300]] And never more than ten were waiting to be delivered.
+"""
+rows = { feed = "active ok", indexer = "active ok" }
+console = [
+    ["indexed 10000", "ok"],
+    ["never more than 10 outstanding", "ok"],
+]
+
+[[act]]
+title = "limitRate"
+summary = "limitRate(10) makes the feed see requests of 10, then 8, 8, 8: it tops up when three-quarters are used."
+detail = """
+`limitRate(10)` does the asking for you. The feed sees a request for ten, then
+requests for eight each time three-quarters of the batch has been used, so
+the next batch is on its way before the last one runs out.
+"""
+speech = """
+Third demo: let Reactor do the asking. [[slnc 400]] The limit rate operator asks for ten. [[slnc 600]]
+Then, each time three-quarters have been used, it asks for eight more. [[slnc 500]]
+So the next batch is already on its way, and the indexer never waits.
+"""
+rows = { feed = "active ok", indexer = "active ok" }
+console = [
+    ["requests: [10, 8, 8, 8] ...", "ok"],
+]
+
+[[act]]
+title = "Only the latest"
+summary = "1,000 stock-level updates; the shop asks twice and gets [1000, 1]: onBackpressureLatest keeps only the newest."
+detail = """
+A thousand stock-level updates for one mug arrive while the shop asks for just
+one. `onBackpressureLatest` keeps only the newest one waiting. The shop asks
+twice and gets two values: the first update, a thousand, and the latest, one.
+The 998 in between were dropped, because only the current level matters.
+"""
+speech = """
+Fourth demo: only the latest matters. [[slnc 400]] A thousand stock-level updates arrive, for one mug. [[slnc 600]]
+The shop asks for one, and later for one more. [[slnc 500]]
+It gets the first, a thousand. [[slnc 300]] And the latest, one. [[slnc 500]]
+Everything in between was dropped. [[slnc 300]] Only the current level matters.
+"""
+rows = { feed = "active ok", indexer = "active ok" }
+console = [
+    ["1000 updates, asked twice: [1000, 1]", "ok"],
+]
+
+[[act]]
+title = "The bill"
+summary = "A source that can wait is simplest; one that cannot must buffer, drop or keep the latest, and an unbounded buffer just hides the pile."
+detail = """
+Every source must choose. One that can wait, such as a range, a generator or a
+database cursor, is simplest. One that cannot must buffer, costing memory, or
+drop or keep the latest, losing data; Reactor makes you say which. And an
+unbounded `onBackpressureBuffer()` just moves the pile somewhere harder to see.
+"""
+speech = """
+Fifth demo: the bill. [[slnc 400]] Every source must choose. [[slnc 600]]
+A source that can wait, like a database cursor, is simplest. [[slnc 500]]
+A source that cannot wait must buffer, which costs memory. [[slnc 300]] Or drop, or keep only the latest, which loses data. [[slnc 500]]
+Reactor makes you say which. [[slnc 300]] And a buffer with no limit just hides the pile.
+"""
+rows = { feed = "active amber" }
+console = [
+    ["buffer, drop or latest: choose", "amber"],
+]
+
+[animation]
+subtitle = "A supplier feed and a slow indexer, with demand flowing back through Reactor."
+boxes = [
+    ["feed", "Supplier feed", "Flux"],
+    ["indexer", "Search indexer", "requests in batches"],
+]
+
+[docs.problem]
+scenario = """
+A supplier feed sends products far faster than the search indexer can index
+them.
+"""
+naive = """
+Pushing regardless of demand piles products up in memory until something
+breaks.
+"""
+deliver = [
+    "A source ignoring demand, stopped by Reactor.",
+    "A subscriber requesting ten at a time.",
+    "`limitRate` and its top-up requests.",
+    "`onBackpressureLatest` for stock levels.",
+    "The choice every source must make.",
+    "Every printed result asserted by a test.",
+]
+
+[docs.prerequisites]
+required = [
+    "Java basics: lambdas.",
+    "The Backpressure idea, ideally from the plain Java version of this pattern.",
+]
+not_required = [
+    "Spring WebFlux. Only reactor-core is used.",
+]
+
+[docs.dependencies]
+intro = """
+This project uses Project Reactor, which the plain Java version of
+Backpressure does not. Skipping it loses none of the pattern: the plain
+version teaches all of it with nothing installed.
+"""
+what = [
+    ["Project Reactor", "Reactor is a library for streams of data. A Flux is a stream of zero or more items. Nothing flows until someone subscribes, and a subscriber requests how many items it wants; the source may not send more. limitRate asks for items in batches. publishOn moves work to another thread with a fixed-size queue. onBackpressureLatest, onBackpressureDrop and onBackpressureBuffer say what to do with items a source produces while nobody has asked for them."],
+]
+why = """
+The plain version shows the idea with the JDK's Flow interfaces. This version
+shows a library where demand runs through every operator, which is how most
+Java services meet backpressure in practice.
+"""
+install_note = "Only a JDK, version 21. Gradle downloads the rest, and the version is pinned:"
+versions = [
+    ["Java", "21"],
+    ["Project Reactor (reactor-core)", "3.8.7"],
+]
+costs = [
+    "A reactive style of code to learn and debug.",
+    "An explicit choice for every source that cannot wait.",
+]
+
+[docs.session]
+objectives = [
+    "Explain demand in Reactive Streams.",
+    "Request items in batches with a BaseSubscriber.",
+    "Use `limitRate` and read its request pattern.",
+    "Choose between buffer, drop and latest.",
+]
+walkthrough = """
+Run `./gradlew run`. Compare act one's OverflowException with act two's
+steady ten at a time. Read act three's requests. End on act four's two values.
+"""
+exercises = [
+    "Replace IGNORE in act one with BUFFER and watch memory instead of an error.",
+    "Use `onBackpressureDrop` in act four and print what is dropped.",
+    "Build the feed with `Flux.generate` so it only produces on demand.",
+]
+
+[docs.explained]
+sentence = """
+With Reactor, backpressure is built in: subscribers state their demand, and
+sources that cannot honour it must buffer, drop or keep the latest.
+"""
+verdict = """
+Prefer sources that can wait. Let operators such as `limitRate` manage demand,
+and for sources that cannot wait, choose a bounded buffer, a drop or the latest
+on purpose.
+"""
+recognise = [
+    "`Flux.create(..., OverflowStrategy.X)`.",
+    "`.limitRate(n)`, `.onBackpressureLatest()`, `.onBackpressureBuffer(n)`.",
+    "`BaseSubscriber` with `request(n)`.",
+]
+
+[spec]
+purpose = """
+Teach Backpressure with Project Reactor: a source ignoring demand stopped by
+an OverflowException, a subscriber requesting ten at a time, limitRate's
+top-ups, onBackpressureLatest for stock levels, and the choice every source
+must make.
+"""
+nongoals = [
+    "Not Spring WebFlux or a network. Streams run in one program.",
+]
+problem = """
+A fast producer overwhelms a slow consumer unless demand flows back.
+"""
+roles = [
+    ["All five acts", "`ReactorBackpressureDemo`"],
+]
+requirements = [
+    "**Refused:** a source ignoring demand ends in OverflowException.",
+    "**Bounded:** requests of ten keep at most ten outstanding.",
+    "**Latest:** two requests over a thousand updates deliver two values.",
+    "**Every printed result is asserted** in `DemoRunsTest`.",
+]
+
+[[diagram]]
+name = "architecture-diagram"
+kind = "flow"
+title = "Backpressure with Reactor — demand flows back"
+caption = "Items one way, requests the other."
+nodes = [
+    { id = "f", label = "Supplier feed", sub = "Flux", col = 0, row = 0, colour = "client" },
+    { id = "l", label = "limitRate(10)", sub = "asks 10, then 8", col = 1, row = 0, colour = "accent" },
+    { id = "i", label = "Search indexer", sub = "slow", col = 2, row = 0, colour = "green" },
+]
+edges = [
+    { from = "f", to = "l", label = "items" },
+    { from = "l", to = "i", label = "items" },
+]
+
+[[diagram]]
+name = "class-diagram"
+kind = "class"
+title = "Backpressure with Reactor — the operators"
+caption = "What to do when nobody is asking."
+nodes = [
+    { id = "a", label = "onBackpressureBuffer(n)", sub = ["keep up to n: memory"], col = 0, row = 0, colour = "client" },
+    { id = "b", label = "onBackpressureDrop()", sub = ["discard: data lost"], col = 1, row = 0, colour = "client" },
+    { id = "c", label = "onBackpressureLatest()", sub = ["keep the newest"], col = 0, row = 1, colour = "green" },
+    { id = "d", label = "limitRate(n)", sub = ["ask in batches"], col = 1, row = 1, colour = "accent" },
+]
+edges = []
+
+[[diagram]]
+name = "data-flow-diagram"
+kind = "flow"
+title = "Backpressure with Reactor — stock levels"
+caption = "A thousand updates, two asked for."
+nodes = [
+    { id = "a", label = "1000 updates", sub = "", col = 0, row = 0, colour = "client" },
+    { id = "b", label = "onBackpressureLatest", sub = "keeps the newest", col = 1, row = 0, colour = "accent" },
+    { id = "c", label = "Shop", sub = "gets 1000, then 1", col = 2, row = 0, colour = "green" },
+]
+edges = [
+    { from = "a", to = "b", label = "" },
+    { from = "b", to = "c", label = "" },
+]
+
+[[diagram]]
+name = "sequence-diagram"
+kind = "sequence"
+title = "Backpressure with Reactor — asking in batches"
+caption = "Ten, then top-ups of eight."
+participants = ["Feed", "limitRate", "Indexer"]
+steps = [
+    ["limitRate", "Feed", "request(10)"],
+    ["Feed", "limitRate", "10 products", "reply"],
+    ["limitRate", "Feed", "request(8)"],
+]
+
+[[diagram]]
+name = "uml-diagram"
+kind = "sequence"
+title = "1. Ignoring demand"
+caption = "Stopped, not piled up."
+participants = ["Feed", "Queue of 256"]
+steps = [
+    ["Feed", "Queue of 256", "10000 products"],
+    ["note", "Queue of 256", "full: OverflowException"],
+]
+
+[[diagram]]
+name = "uml-diagram-2"
+kind = "sequence"
+title = "2. Only the latest"
+caption = "What waits is overwritten."
+participants = ["Feed", "Latest", "Shop"]
+steps = [
+    ["Shop", "Latest", "request(1)"],
+    ["Latest", "Shop", "1000", "reply"],
+    ["Feed", "Latest", "999 more updates"],
+    ["Shop", "Latest", "request(1)"],
+    ["Latest", "Shop", "1", "reply"],
+]
+
+[poster]
+headline = [["BACKPRESSURE", "text"], ["WITH REACTOR", "text"]]
+before = { code = "push 10000, ignore demand", note = "OverflowException", tag = "BEFORE" }
+after = { code = ".limitRate(10)", note = "asked for 10, then 8", tag = "AFTER" }
+taglines = [["Demand is part of every stream", "gold"]]
+
+[[scene]]
+key = "01-poster"
+kind = "poster"
+title = "Backpressure with Project Reactor"
+narration = """
+Hello, and welcome. [[slnc 400]] This video explains the Backpressure pattern, built with Project Reactor, in Java. [[slnc 300]]
+This video is presented by Jayasekhar Konduru. [[slnc 600]]
+First, a simple definition. [[slnc 300]] Backpressure lets a slow consumer tell a fast producer how much it can take. [[slnc 300]] So work does not pile up in between. [[slnc 500]] Project Reactor is an open-source library for streams of data, and every stream in it carries this demand. [[slnc 600]]
+Think of a kitchen where the chef calls, two more tickets, and the waiter hands over exactly two. [[slnc 300]] A waiter who ignores the chef is stopped before the rail overflows. [[slnc 700]]
+In this video, the domain is an online shop's search indexer, reading a supplier's product feed. [[slnc 500]]
+By the end, you will hear what Reactor does with a source that ignores demand. [[slnc 300]] How to ask in batches. [[slnc 300]] And how to keep only the latest update.
+"""
+
+[[scene]]
+key = "02-scenario"
+kind = "bullets"
+title = "The Scenario"
+body = ["A supplier feed: 10,000 products,", "as fast as it can.", "", "The indexer: 1 ms each.", "", "Stock levels by the thousand."]
+narration = """
+Here is the scenario. [[slnc 400]] A supplier's feed sends ten thousand products, as fast as it can. [[slnc 500]]
+The search indexer takes a millisecond for each. [[slnc 500]]
+And stock-level updates arrive by the thousand, though only the current one matters.
+"""
+
+[[scene]]
+key = "03-acts"
+kind = "acts"
+title = "acts"
+
+[[scene]]
+key = "04-pattern"
+kind = "bullets"
+title = "The Pattern, in Reactor"
+body = ["Subscribers request items.", "Sources send no more.", "", "limitRate: ask in batches.", "onBackpressure...: what to do", "when nobody is asking."]
+narration = """
+Let's name the pattern, in Reactor's words. [[slnc 400]] Subscribers request items. [[slnc 300]] Sources send no more than requested. [[slnc 500]]
+Limit rate asks in batches, for you. [[slnc 500]]
+And the on backpressure operators say what to do with items produced while nobody is asking.
+"""
+
+[[scene]]
+key = "05-roles"
+kind = "bullets"
+title = "Who Does What"
+body = ["Flux: the feed", "BaseSubscriber: the indexer, asking", "limitRate: asking in batches", "onBackpressureLatest: newest only"]
+narration = """
+Here is who does what. [[slnc 400]] A flux is the feed, a stream of products. [[slnc 500]]
+A base subscriber is the indexer, asking for ten at a time. [[slnc 500]]
+Limit rate asks in batches for you. [[slnc 300]] And on backpressure latest keeps only the newest stock level.
+"""
+
+[[scene]]
+key = "06-recognise"
+kind = "bullets"
+title = "Where You Have Seen It"
+body = ["Spring WebFlux", "RxJava, Akka Streams, Kotlin Flow", "java.util.concurrent.Flow"]
+narration = """
+You have probably met this already. [[slnc 400]] Spring WebFlux is built on Reactor. [[slnc 500]]
+RxJava, Akka Streams, and Kotlin Flow share the same ideas. [[slnc 500]]
+And the JDK has the same interfaces, in its Flow class.
+"""
+
+[[scene]]
+key = "07-verdict"
+kind = "bullets"
+title = "When To Use It"
+body = ["Streams between fast and", "slow parts.", "", "Prefer sources that can wait.", "Bound or drop on purpose."]
+narration = """
+So, when should you use it? [[slnc 400]] Whenever data streams between fast and slow parts of a system. [[slnc 500]]
+Prefer sources that can wait. [[slnc 300]] And when one cannot, bound it, drop, or keep the latest, on purpose.
+"""
+
+[[scene]]
+key = "08-outro"
+kind = "outro"
+title = "Thanks for Watching"
+body = ["Full source, notes, diagrams and an animated walkthrough", "are in the repository. Try", "onBackpressureDrop."]
+narration = """
+That's Backpressure, with Project Reactor. [[slnc 400]] If you remember one sentence, make it this one. [[slnc 300]] Let the consumer set the pace, and decide on purpose what happens when a source cannot wait. [[slnc 500]]
+The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. [[slnc 300]] It runs offline, with nothing installed except a Java development kit. [[slnc 500]]
+Here is one exercise to try. [[slnc 300]] Use on backpressure drop in the stock demo, and print what is dropped. [[slnc 500]]
+If this helped, a like really does help other people find it. [[slnc 300]] And subscribe, if you'd like the rest of the series. [[slnc 400]] Thanks for watching.
+"""

@@ -279,3 +279,50 @@ For those patterns there is no tool or framework that embodies them better than 
 already does, and pairing them for the sake of symmetry would add a project without adding a
 lesson. If a pairing for one of them is proposed later, it is a change to this document first,
 not a build.
+
+---
+
+## 9. Batch 3 — versions for the phase-2 patterns (added 2026-09-29)
+
+Added at the owner's request after the sixty phase-2 catalogue patterns were built in plain
+Java: every one of them that a real framework or piece of infrastructure genuinely teaches
+something more about gets a sibling `<base>-with-<tool>-pattern` project. The plain-Java
+projects are unchanged. Status is kept, generated from disk, in `docs/new-patterns-plan.md`
+(Phase 3); the list itself is `FRAMEWORK` in `tools/patternkit/patternkit/__main__.py`.
+
+| # | New project | Real tool | Needs Docker | What the real version adds |
+| --- | --- | --- | :---: | --- |
+| 1–7 | message-translator, message-filter, recipient-list, wire-tap, resequencer, routing-slip, process-manager `-with-camel` | Apache Camel 4.22.1 | no | Each EIP as Camel's own step; wireTap's shared-object trap, resequencer's first-message delay, dynamicRouter, and the Saga EIP with compensations |
+| 8–11 | guaranteed-delivery, request-reply, polling-consumer, priority-queue `-with-rabbitmq` | RabbitMQ 4.3.6 | yes | Persistence vs durability, confirms, redelivery; replyTo, direct reply-to and expiry; basicGet vs prefetch; priority only for waiting messages |
+| 12 | event-carried-state-transfer-with-kafka | Apache Kafka 4.3.1 | yes | Compacted keyed topic as the copy's history, order per partition, tombstones |
+| 13 | write-through-cache-with-redis | Redis 8.10.2, PostgreSQL 18.6 | yes | A shared cache, Redis's own hit counter, and two systems no transaction spans |
+| 14 | space-based-with-hazelcast | Hazelcast 5.7.0 (embedded) | no | One owner per key, entry processors, backups surviving a crash, write-behind |
+| 15 | sharding-with-postgresql | PostgreSQL 18.6 ×3 | yes | Per-shard UNIQUE constraints, merged queries, modulo vs jump consistent hashing |
+| 16 | backpressure-with-reactor | Project Reactor 3.8.7 | no | OverflowException, limitRate's top-ups, onBackpressureLatest |
+| 17 | reactor-with-netty | Netty 4.2.18 | no | Event loops, a framing pipeline, multi-reactor, executor groups |
+| 18 | hedged-requests-with-grpc | gRPC Java 1.84.0 | no | Hedging as a service-config policy, server-side cancellation |
+| 19 | valet-key-with-s3 | AWS SDK 2.55.7, LocalStack 4.14.0 | yes | Real S3 presigned URLs signed with SigV4 |
+| 20 | secrets-manager-with-openbao | OpenBao 2.7.0 | yes | Policies, per-service tokens, versioned secrets, revocation |
+| 21–22 | token-authentication, authorization-policy `-with-spring-security` | Spring Boot 4.1.1 / Spring Security 7 | no | JWT resource server and custom validators; URL and @PreAuthorize rules, denyAll, authorization events |
+| 23 | gateway-offloading-with-spring-cloud-gateway | Spring Cloud 2025.1.3 | no | A GlobalFilter doing the chores, compression by configuration |
+| 24 | secure-gateway-with-nginx | NGINX 1.31.6 | yes | The whole policy as an nginx.conf allow-list |
+| 25 | contract-stub-with-wiremock | WireMock 3.13.2 | no | A real stub server built from a shared contract file |
+| 26 | page-object-with-selenium | Selenium 4.49.0, Chromium 152 | yes | A real browser, real timing, WebDriverWait |
+| 27 | single-table-inheritance-with-jpa | Hibernate via Spring Boot 4.1.1, H2 | no | The SQL behind @Inheritance, and a NOT NULL the table cannot keep |
+| 28 | table-data-gateway-with-jdbc-template | Spring JDBC, HikariCP, H2 | no | No leaked connections, translated exceptions |
+| 29–30 | page-controller, remote-facade `-with-spring-mvc` | Spring Boot 4.1.1 | no | Controllers found by annotation, interceptors; JSON records and ProblemDetail |
+| 31 | railway-oriented-with-vavr | Vavr 1.0.1 | no | Either, Try, and Validation collecting every error |
+
+Three tools differ from the first plan, each for a stated reason:
+
+- **OpenBao instead of HashiCorp Vault.** Vault moved to the Business Source License in 2023,
+  which is not an open-source licence. OpenBao is the Linux Foundation's open-source fork with
+  the same API, so everything taught applies to Vault too.
+- **LocalStack's S3 instead of MinIO.** MinIO no longer publishes community container images on
+  Docker Hub or quay.io, so a beginner cannot pull it. The project uses the AWS SDK's own presigner
+  against LocalStack 4.14.0, already pinned in this repository, with signature checking switched
+  on; the README says honestly that LocalStack does not enforce bucket permissions.
+- **WireMock instead of Spring Cloud Contract.** Spring Cloud Contract generates stubs and
+  provider tests at build time, which a runnable demo cannot show step by step. The project uses
+  WireMock, the stub server Spring Cloud Contract generates for, built from a shared contract
+  file, and names Spring Cloud Contract as the tool that automates the same flow.

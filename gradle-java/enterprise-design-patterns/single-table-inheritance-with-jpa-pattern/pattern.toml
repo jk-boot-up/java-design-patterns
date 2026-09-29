@@ -1,0 +1,473 @@
+# pattern.toml for the Single Table Inheritance with JPA project. See tools/patternkit.
+
+[project]
+slug = "single-table-inheritance-with-jpa"
+category = "enterprise-design-patterns"
+title = "Single Table Inheritance with JPA"
+package = "stijpa"
+main_class = "JpaSingleTableDemo"
+tagline = "@Inheritance(SINGLE_TABLE), and the SQL behind it"
+bold = "Map the shop's product classes to one table with JPA's @Inheritance(SINGLE_TABLE), let Hibernate write the SQL and pick each row's class from a type column, and compare the SQL with a table per class."
+domain_note = ""
+thumb_lines = ["SINGLE TABLE INHERITANCE", "WITH JPA"]
+thumb_code = "@Inheritance(SINGLE_TABLE)"
+youtube_title = "Single Table Inheritance with JPA and Hibernate"
+youtube_tags = ["single table inheritance", "jpa", "hibernate", "inheritance mapping", "spring data jpa", "java"]
+
+[readme]
+intro = """
+This is the framework version of the Single Table Inheritance pattern. The
+plain Java version, a separate project in this category, writes the SQL and
+the type column by hand. Here JPA, the Java standard for mapping classes to
+tables, does it with one annotation, and Hibernate, the JPA implementation
+Spring Boot uses, writes the SQL. The database is an in-memory H2, so nothing
+has to be installed.
+
+`@Inheritance(strategy = SINGLE_TABLE)` puts every product class in one table,
+with a `type` column that Hibernate fills in on save and reads on load to
+build the right class. The demo captures the SQL Hibernate actually sends,
+to compare it with JPA's table-per-class strategy.
+"""
+analogy = """
+Think of a shop's single stock book with a column for each kind of detail:
+ISBN for books, warranty for electronics, best-before date for food. Every
+item gets one line, with a word at the start saying what kind it is, and the
+columns that do not apply are left blank.
+"""
+scenario = """
+The online store sells books, electronics and food, each with its own
+details. With a table for each kind, the question "everything under £10" had
+to search every table, and each new kind of product made every such question
+bigger.
+"""
+test_note = """
+Every result the demo prints is asserted, with Hibernate and an in-memory H2
+database.
+"""
+run_note = """
+Nothing to install beyond a Java 21 JDK: Spring Boot, Hibernate and an
+in-memory H2 database all run inside the program.
+"""
+twin = """
+The plain Java version got the idea right: one table, a type column, one query
+for questions about every product, each row read back as its own class, a new
+type costing one class and one column, and the price of empty cells and rules
+the database cannot keep. What it left out is that JPA makes this one
+annotation, and hides the SQL. Capturing Hibernate's statements shows the
+real difference: table-per-class became a UNION over three tables, single
+table one plain select. And the framework has a sharp edge the plain version
+could not show: putting @Column(nullable = false) on a subclass field made the
+shared column NOT NULL, and no kettle or tea could be saved at all.
+"""
+technologies = [
+    ["Spring Boot", "4.1.1", "starts Hibernate and the database"],
+    ["Hibernate ORM", "with Spring Boot 4.1.1", "the JPA implementation that writes the SQL"],
+    ["Jakarta Persistence (JPA)", "with Spring Boot 4.1.1", "@Entity, @Inheritance, @DiscriminatorColumn"],
+    ["H2", "with Spring Boot 4.1.1", "the in-memory database"],
+]
+costs = [
+    "**Empty cells.** 15 of 20 type-specific cells were NULL.",
+    "**Rules the database cannot keep.** isbn could not be made NOT NULL; the rule must live in Java, with Bean Validation.",
+    "**Annotations with side effects.** @Column(nullable = false) on a subclass field broke saving every other type.",
+]
+too_much = """
+If the types share almost nothing, or have many columns each, JPA's JOINED
+strategy, a table per class joined to a shared one, keeps the data tidier.
+Single table pays off when types share most columns and queries span them all.
+"""
+met_before = [
+    "`@Inheritance(strategy = InheritanceType.SINGLE_TABLE)` in JPA entities.",
+    "Ruby on Rails' single table inheritance with a type column.",
+    "Hibernate's default inheritance mapping, which is single table.",
+]
+where = """
+This project is in [enterprise-design-patterns](..). It is the framework
+version of the plain Java Single Table Inheritance project in the same
+category, which is left unchanged.
+"""
+
+[[act]]
+title = "A table per class"
+summary = "With @Inheritance(TABLE_PER_CLASS), everything under £10 comes from one query that UNIONs 3 tables."
+detail = """
+First, JPA's table-per-class strategy: books, electronics and food each get a
+table. Asking for everything under £10 returns breakfast tea and the desk
+lamp, but Hibernate's SQL is a single query that unions three tables
+together, and a fourth product class makes the union bigger.
+"""
+speech = """
+First demo: a table for every class. [[slnc 400]] Books, electronics and food each have their own table. [[slnc 600]]
+The shop asks for everything under ten pounds. [[slnc 300]] Breakfast tea, and the desk lamp. [[slnc 500]]
+Hibernate's query joins three tables together, one after another. [[slnc 300]] A fourth kind of product makes it bigger again.
+"""
+rows = { perclass = "active wrong" }
+console = [
+    ["under £10: tea, desk lamp", "muted"],
+    ["SQL: a UNION over 3 tables", "amber"],
+]
+
+[[act]]
+title = "One table"
+summary = "With @Inheritance(SINGLE_TABLE), the same question is one plain select from the product table."
+detail = """
+Now the products use `@Inheritance(SINGLE_TABLE)`. The same question returns
+the same two products, and Hibernate's SQL is one plain select from the
+product table.
+"""
+speech = """
+Second demo: one table. [[slnc 400]] The products now share a single table, with a type column. [[slnc 600]]
+The same question. [[slnc 300]] The same answer. [[slnc 500]]
+And Hibernate's query is one plain select, from one table.
+"""
+rows = { single = "active ok" }
+console = [
+    ["SQL: one plain select", "ok"],
+]
+
+[[act]]
+title = "Each row as its own class"
+summary = "Rows load as Book, Electronics and Food, each with its own detail; the type column holds BOOK, ELECTRONICS and FOOD."
+detail = """
+Loading every product gives back a Book, two Electronics and a Food, each
+with its own detail: the ISBN, the warranty card, the best-before date.
+Hibernate chose each class from the type column, which holds BOOK,
+ELECTRONICS and FOOD.
+"""
+speech = """
+Third demo: each row comes back as its own class. [[slnc 400]] The cook book comes back as a book, with its ISBN. [[slnc 300]] The kettle, as electronics, with its warranty card. [[slnc 300]] The tea, as food, with its best-before date. [[slnc 600]]
+Hibernate chose each class from the type column.
+"""
+rows = { single = "active ok" }
+console = [
+    ["KETTLE-1 -> Electronics: 2-year warranty", "ok"],
+    ["type column: BOOK, ELECTRONICS, FOOD", "muted"],
+]
+
+[[act]]
+title = "A new type"
+summary = "A GiftCard subclass adds one class and one column, value_pence; GIFT-1 loads as a GiftCard."
+detail = """
+A gift card is a new kind of product: one class, GiftCard, with one field.
+The product table gains one column, value_pence, and GIFT-1 loads back as a
+GiftCard, ready to be activated for £50 on dispatch.
+"""
+speech = """
+Fourth demo: a new kind of product. [[slnc 400]] A gift card. [[slnc 300]] One new class, and one new column in the same table. [[slnc 600]]
+It loads back as a gift card, to be activated for fifty pounds on dispatch.
+"""
+rows = { single = "active ok" }
+console = [
+    ["GIFT-1 -> GiftCard", "ok"],
+    ["one new column: value_pence", "muted"],
+]
+
+[[act]]
+title = "The bill"
+summary = "15 of 20 type-specific cells are NULL; isbn cannot be made NOT NULL, so a book with no ISBN is saved."
+detail = """
+Fifteen of the twenty type-specific cells are empty. The shop wants every
+book to have an ISBN, but the database refuses to make isbn NOT NULL,
+because the kettle, lamp, tea and gift card rows have none. So a book with no
+ISBN is saved. Putting `@Column(nullable = false)` on the field is worse: it
+stopped every kettle and tea from being saved at all. The rule must live in
+Java, for example with Bean Validation.
+"""
+speech = """
+Fifth demo: the bill. [[slnc 400]] Fifteen of the twenty type-specific cells are empty. [[slnc 600]]
+Every book should have an ISBN. [[slnc 300]] But the database refuses to require it. [[slnc 300]] The kettle, lamp, tea and gift card have none. [[slnc 500]]
+So a book with no ISBN is saved. [[slnc 600]]
+The rule has to live in Java instead.
+"""
+rows = { single = "active amber" }
+console = [
+    ["15 of 20 cells NULL", "amber"],
+    ["isbn NOT NULL: refused", "bad"],
+    ["book with no ISBN: saved", "bad"],
+]
+
+[animation]
+subtitle = "Product classes mapped by JPA, first to a table each, then to one table with a type column."
+boxes = [
+    ["perclass", "TABLE_PER_CLASS", "a table each"],
+    ["single", "SINGLE_TABLE", "one table, a type column"],
+]
+
+[docs.problem]
+scenario = """
+The shop sells books, electronics and food, each with its own details.
+"""
+naive = """
+A table per kind of product makes every question about all products search
+every table.
+"""
+deliver = [
+    "Table-per-class and its UNION, captured from Hibernate.",
+    "Single table and its plain select.",
+    "Rows loaded as their own classes.",
+    "A new type as one class and one column.",
+    "Empty cells, and NOT NULL refused.",
+    "Every printed result asserted by a test.",
+]
+
+[docs.prerequisites]
+required = [
+    "Java basics: classes, inheritance, annotations.",
+    "SQL basics: tables, columns, NULL.",
+    "The Single Table Inheritance idea, ideally from the plain Java version of this pattern.",
+]
+not_required = [
+    "A database server. H2 runs in memory.",
+]
+
+[docs.dependencies]
+intro = """
+This project uses JPA with Hibernate through Spring Boot, which the plain Java
+version of Single Table Inheritance does not. Skipping it loses none of the
+pattern: the plain version teaches all of it with nothing installed.
+"""
+what = [
+    ["JPA and Hibernate", "JPA, Jakarta Persistence, is the Java standard for storing objects in tables with annotations. @Entity marks a class as stored. @Inheritance chooses how a class hierarchy maps to tables: SINGLE_TABLE, JOINED or TABLE_PER_CLASS. @DiscriminatorColumn names the type column, and @DiscriminatorValue gives each class its value. Hibernate is the JPA implementation that creates the tables and writes the SQL; a statement inspector sees every statement before it is sent."],
+    ["Spring Boot and H2", "Spring Boot starts Hibernate and a database from a few properties. H2 is a small database that can run entirely in memory."],
+]
+why = """
+The plain version writes the SQL by hand. This version shows how most Java
+code gets single table inheritance, from one annotation, and what the SQL
+behind it looks like.
+"""
+install_note = "Only a JDK, version 21. Gradle downloads the rest, and the versions are pinned:"
+versions = [
+    ["Java", "21"],
+    ["Spring Boot (data-jpa starter, H2)", "4.1.1"],
+]
+costs = [
+    "Annotations whose effect on the schema must be checked.",
+    "SQL that is written for you, and must be looked at to understand.",
+]
+
+[docs.session]
+objectives = [
+    "Map a class hierarchy with @Inheritance(SINGLE_TABLE).",
+    "Read the SQL Hibernate writes for polymorphic queries.",
+    "Compare single table with table per class.",
+    "Explain why subclass columns cannot be NOT NULL.",
+]
+walkthrough = """
+Run `./gradlew run`. Open `single/Product`: three annotations. Compare act one's
+UNION with act two's plain select. End on act five's refused NOT NULL.
+"""
+exercises = [
+    "Switch the products to JOINED and read the SQL for act two.",
+    "Add Bean Validation's @NotNull to Book.isbn and save a book without one.",
+    "Add a Clothing subclass with a size column.",
+]
+
+[docs.explained]
+sentence = """
+With JPA, single table inheritance is @Inheritance(SINGLE_TABLE): one table, a
+type column, and Hibernate building the right class for each row.
+"""
+verdict = """
+Use SINGLE_TABLE when types share most columns and queries span all of them.
+Check the SQL Hibernate writes, keep subclass rules in Java, and move to
+JOINED when empty cells start to dominate.
+"""
+recognise = [
+    "`@Inheritance(strategy = InheritanceType.SINGLE_TABLE)`.",
+    "`@DiscriminatorColumn` and `@DiscriminatorValue`.",
+    "A table with a `dtype` or `type` column and many nullable columns.",
+]
+
+[spec]
+purpose = """
+Teach Single Table Inheritance with JPA and Hibernate: table per class and its
+UNION, single table and its plain select, rows loaded as their own class, a
+new type, and the NULL and NOT NULL costs.
+"""
+nongoals = [
+    "Not a real database server. H2 runs in memory.",
+]
+problem = """
+Several product types, with different details, must be stored and queried
+together.
+"""
+roles = [
+    ["The pattern", "`single/Product` and its subclasses"],
+    ["The comparison", "`perclass/CatalogItem` and its subclasses"],
+    ["Captures the SQL", "`SqlLog`"],
+    ["Entry point", "`JpaSingleTableDemo`, five acts"],
+]
+requirements = [
+    "**One query:** single table answers with one plain select.",
+    "**Own class:** each row loads as its subclass.",
+    "**Honest limit:** NOT NULL on a subclass column is refused.",
+    "**Every printed result is asserted** in `DemoRunsTest`.",
+]
+
+[[diagram]]
+name = "architecture-diagram"
+kind = "flow"
+title = "Single Table Inheritance with JPA — the mapping"
+caption = "Four classes, one table."
+nodes = [
+    { id = "p", label = "Product", sub = "@Inheritance(SINGLE_TABLE)", col = 0, row = 1, colour = "accent" },
+    { id = "b", label = "Book", sub = "isbn", col = 1, row = 0, colour = "client" },
+    { id = "e", label = "Electronics", sub = "warranty_years", col = 1, row = 1, colour = "client" },
+    { id = "f", label = "Food", sub = "best_before", col = 1, row = 2, colour = "client" },
+    { id = "t", label = "product table", sub = "type column", col = 2, row = 1, colour = "green" },
+]
+edges = [
+    { from = "b", to = "t", label = "BOOK" },
+    { from = "e", to = "t", label = "ELECTRONICS" },
+    { from = "f", to = "t", label = "FOOD" },
+]
+
+[[diagram]]
+name = "class-diagram"
+kind = "class"
+title = "Single Table Inheritance with JPA — classes"
+caption = "Annotations decide the tables."
+nodes = [
+    { id = "p", label = "«abstract» Product", sub = ["@Entity @Table(product)", "@Inheritance(SINGLE_TABLE)", "@DiscriminatorColumn(type)"], col = 0, row = 0, colour = "accent" },
+    { id = "b", label = "Book", sub = ["@DiscriminatorValue(BOOK)", "isbn"], col = 1, row = 0, colour = "client" },
+    { id = "g", label = "GiftCard", sub = ["@DiscriminatorValue(GIFT_CARD)", "valuePence"], col = 1, row = 1, colour = "client" },
+]
+edges = [
+    { from = "b", to = "p", label = "extends" },
+    { from = "g", to = "p", label = "extends" },
+]
+
+[[diagram]]
+name = "data-flow-diagram"
+kind = "flow"
+title = "Single Table Inheritance with JPA — the SQL"
+caption = "Same question, two strategies."
+nodes = [
+    { id = "a", label = "TABLE_PER_CLASS", sub = "UNION over 3 tables", col = 0, row = 0, colour = "amber" },
+    { id = "b", label = "SINGLE_TABLE", sub = "one plain select", col = 0, row = 1, colour = "green" },
+]
+edges = []
+
+[[diagram]]
+name = "sequence-diagram"
+kind = "sequence"
+title = "Single Table Inheritance with JPA — loading KETTLE-1"
+caption = "The type column picks the class."
+participants = ["Shop", "Hibernate", "product table"]
+steps = [
+    ["Shop", "Hibernate", "find Product KETTLE-1"],
+    ["Hibernate", "product table", "select ... where sku = ?"],
+    ["product table", "Hibernate", "type = ELECTRONICS", "reply"],
+    ["Hibernate", "Shop", "an Electronics object", "reply"],
+]
+
+[[diagram]]
+name = "uml-diagram"
+kind = "sequence"
+title = "1. NOT NULL refused"
+caption = "Other types have no ISBN."
+participants = ["Shop", "Database"]
+steps = [
+    ["Shop", "Database", "alter column isbn set not null"],
+    ["Database", "Shop", "refused: NULLs exist", "reply"],
+]
+
+[[diagram]]
+name = "uml-diagram-2"
+kind = "sequence"
+title = "2. A new type"
+caption = "One class, one column."
+participants = ["Shop", "Hibernate"]
+steps = [
+    ["Shop", "Hibernate", "persist GiftCard GIFT-1"],
+    ["note", "Hibernate", "type = GIFT_CARD, value_pence = 5000"],
+]
+
+[poster]
+headline = [["SINGLE TABLE", "text"], ["INHERITANCE WITH JPA", "text"]]
+before = { code = "@Inheritance(TABLE_PER_CLASS)", note = "a UNION over 3 tables", tag = "BEFORE" }
+after = { code = "@Inheritance(SINGLE_TABLE)", note = "one plain select", tag = "AFTER" }
+taglines = [["One annotation, and the SQL behind it", "gold"]]
+
+[[scene]]
+key = "01-poster"
+kind = "poster"
+title = "Single Table Inheritance with JPA"
+narration = """
+Hello, and welcome. [[slnc 400]] This video explains Single Table Inheritance, with JPA and Hibernate, in Java. [[slnc 300]]
+This video is presented by Jayasekhar Konduru. [[slnc 600]]
+First, a simple definition. [[slnc 300]] Single table inheritance stores several related classes in one database table. [[slnc 300]] A type column says which class each row is. [[slnc 500]] JPA is the Java standard for storing objects in tables, and Hibernate is the open-source library that does the work. [[slnc 600]]
+Think of a single stock book, with a column for each kind of detail, and a word at the start of each line saying what kind of item it is. [[slnc 700]]
+In this video, the domain is an online shop's products: books, electronics, and food. [[slnc 500]]
+By the end, you will hear the SQL Hibernate writes for two strategies. [[slnc 300]] How each row comes back as its own class. [[slnc 300]] And a rule the database can no longer keep.
+"""
+
+[[scene]]
+key = "02-scenario"
+kind = "bullets"
+title = "The Scenario"
+body = ["Books, electronics, food.", "", "A table for each kind.", "", "\"Everything under £10\"", "searched every table."]
+narration = """
+Here is the scenario. [[slnc 400]] The shop sells books, electronics, and food, each with its own details. [[slnc 500]]
+With a table for each kind, a question about all products had to search every table. [[slnc 500]]
+And every new kind made those questions bigger.
+"""
+
+[[scene]]
+key = "03-acts"
+kind = "acts"
+title = "acts"
+
+[[scene]]
+key = "04-pattern"
+kind = "bullets"
+title = "The Pattern, in JPA"
+body = ["@Inheritance(SINGLE_TABLE).", "", "@DiscriminatorColumn: the type.", "@DiscriminatorValue: per class.", "", "Hibernate writes the SQL."]
+narration = """
+Let's name the pattern, in JPA's words. [[slnc 400]] The inheritance annotation, set to single table. [[slnc 500]]
+A discriminator column holds the type. [[slnc 300]] Each class has its own discriminator value. [[slnc 500]]
+And Hibernate writes all the SQL.
+"""
+
+[[scene]]
+key = "05-roles"
+kind = "bullets"
+title = "Who Does What"
+body = ["Product: the one table", "Book, Electronics, Food, GiftCard", "CatalogItem: table per class", "SqlLog: sees every statement"]
+narration = """
+Here is who does what. [[slnc 400]] Product is mapped to the one table. [[slnc 300]] Book, electronics, food and gift card are its subclasses. [[slnc 500]]
+Catalog item is the comparison, with a table for each class. [[slnc 500]]
+And the SQL log sees every statement Hibernate sends.
+"""
+
+[[scene]]
+key = "06-recognise"
+kind = "bullets"
+title = "Where You Have Seen It"
+body = ["JPA @Inheritance", "Rails single table inheritance", "Tables with a dtype column"]
+narration = """
+You have probably met this already. [[slnc 400]] The inheritance annotation, in JPA entities. [[slnc 500]]
+Ruby on Rails, which does the same with a type column. [[slnc 500]]
+And database tables with a column called D type, and many empty cells.
+"""
+
+[[scene]]
+key = "07-verdict"
+kind = "bullets"
+title = "When To Use It"
+body = ["Types share most columns.", "Queries span them all.", "", "Read Hibernate's SQL.", "Rules in Java.", "JOINED when cells run empty."]
+narration = """
+So, when should you use it? [[slnc 400]] When the types share most columns, and questions span all of them. [[slnc 500]]
+Read the SQL Hibernate writes. [[slnc 300]] Keep subclass rules in Java. [[slnc 300]] And move to the joined strategy when empty cells start to dominate.
+"""
+
+[[scene]]
+key = "08-outro"
+kind = "outro"
+title = "Thanks for Watching"
+body = ["Full source, notes, diagrams and an animated walkthrough", "are in the repository. Try the", "JOINED strategy."]
+narration = """
+That's Single Table Inheritance, with JPA. [[slnc 400]] If you remember one sentence, make it this one. [[slnc 300]] One table and a type column, and always look at the SQL. [[slnc 500]]
+The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. [[slnc 300]] It runs offline, with nothing installed except a Java development kit. [[slnc 500]]
+Here is one exercise to try. [[slnc 300]] Switch to the joined strategy, and read the SQL it writes. [[slnc 500]]
+If this helped, a like really does help other people find it. [[slnc 300]] And subscribe, if you'd like the rest of the series. [[slnc 400]] Thanks for watching.
+"""

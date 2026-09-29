@@ -1,0 +1,482 @@
+# pattern.toml for the Gateway Offloading with Spring Cloud Gateway project. See tools/patternkit.
+
+[project]
+slug = "gateway-offloading-with-spring-cloud-gateway"
+category = "micro-services-design-patterns"
+title = "Gateway Offloading with Spring Cloud Gateway"
+package = "offloadgateway"
+main_class = "GatewayOffloadingSpringDemo"
+tagline = "The chores, done once, at a real gateway"
+bold = "Put a real Spring Cloud Gateway in front of the shop's catalog, cart and orders services, and move the shared chores into it: the sign-in check, a per-customer rate limit, response compression, and stripping a caller's claim to be someone else."
+domain_note = ""
+thumb_lines = ["GATEWAY OFFLOADING", "WITH SPRING CLOUD"]
+thumb_code = "GlobalFilter + routes"
+youtube_title = "Gateway Offloading with Spring Cloud Gateway"
+youtube_tags = ["gateway offloading", "spring cloud gateway", "api gateway", "rate limiting", "spring boot", "java"]
+
+[readme]
+intro = """
+This is the framework version of the Gateway Offloading pattern. The plain
+Java version, a separate project in this category, writes a gateway as a
+class. Here a real Spring Cloud Gateway runs on a local port in front of three
+real back-end services, and every request in the demo is a real HTTP call.
+
+The gateway has one route per service. A global filter, which runs before any
+route, does the chores every service needs: it checks the sign-in token,
+limits each customer's requests, removes any X-Customer header the caller
+sent, and adds the checked customer instead. Reactor Netty, the server
+underneath, compresses responses when a property says so. The services
+behind hold no sign-in code at all.
+"""
+analogy = """
+Think of an office building with a reception desk. Visitors sign in once at
+the front door; the teams upstairs trust that anyone in the corridor has
+been checked. Reception also turns away anyone who keeps coming back too
+often. That only works if there is no side door.
+"""
+scenario = """
+The online store has three services: catalog, cart and orders. Each checked
+the customer's sign-in token itself, with its own copy of the code, and the
+orders team's copy forgot to check expiry.
+"""
+test_note = """
+Every result the demo prints is asserted, with real back-end services and a
+real Spring Cloud Gateway on local ports, called over HTTP.
+"""
+run_note = """
+Nothing to install beyond a Java 21 JDK: the three services and the gateway
+all start inside the program, on local ports.
+"""
+twin = """
+The plain Java version got the idea right: one check at the door, the same
+for every service, rate limits and compression in one place, and the side
+door and single point of failure as the costs. What it left out is a real
+gateway. Here the check is a Spring Cloud Gateway global filter that runs
+before any route; compression is a server property, not code; a spoofed
+X-Customer header is stripped before the request goes on; and the routes are
+real HTTP forwarding to real services. It also names what a single gateway
+cannot do alone: its in-memory rate limit counts only on that one instance,
+which is why production uses the built-in limiter with Redis.
+"""
+technologies = [
+    ["Spring Cloud Gateway", "release train 2025.1.3 (server-webflux)", "routes and the global filter"],
+    ["Spring Boot", "4.1.1", "the gateway application"],
+    ["Reactor Netty", "with Spring Boot 4.1.1", "the gateway's server, with response compression"],
+    ["JDK HttpServer", "Java 21", "the three back-end services"],
+]
+costs = [
+    "**No side doors.** A call straight to the orders service, claiming to be ben, was answered 200.",
+    "**One more hop, one more thing to run.** Every request passes the gateway, and a gateway outage stops every page.",
+    "**Shared counts need shared storage.** The in-memory rate limit counts per gateway instance; production uses RequestRateLimiter with Redis.",
+]
+too_much = """
+With one or two services, a shared library does the job without a gateway.
+Offloading pays off when many services, often from different teams, need
+exactly the same chores.
+"""
+met_before = [
+    "Spring Cloud Gateway global filters and route filters.",
+    "Kong, NGINX, Envoy and cloud API gateways with auth and rate-limit plugins.",
+    "`server.compression.enabled` on Spring Boot servers.",
+]
+where = """
+This project is in [micro-services-design-patterns](..). It is the framework
+version of the plain Java Gateway Offloading project in the same category,
+which is left unchanged.
+"""
+
+[[act]]
+title = "Every service checks for itself"
+summary = "Called directly, catalog and cart refuse an expired token with 401, but orders answers 200, because its copy of the check forgot expiry."
+detail = """
+Three real services each check the sign-in token themselves. An expired token
+is refused by catalog and by cart with 401, token expired. The orders
+service answers 200, orders for ana, because its copy of the check never looks
+at the expiry.
+"""
+speech = """
+First demo: every service checks the sign-in token itself. [[slnc 400]] The customer's token expired a minute ago. [[slnc 600]]
+The catalog service refuses it. [[slnc 300]] The cart service refuses it. [[slnc 300]] The orders service lets the customer in. [[slnc 600]]
+Its copy of the check forgot about expiry.
+"""
+rows = { catalog = "active ok", cart = "active ok", orders = "active wrong" }
+console = [
+    ["catalog, cart: 401 token expired", "ok"],
+    ["orders: 200 orders for ana", "bad"],
+]
+
+[[act]]
+title = "One check at the gateway"
+summary = "Through Spring Cloud Gateway, the expired token gets 401 for all three services; a valid one reaches orders: 200 orders for ana."
+detail = """
+Now every request goes through a Spring Cloud Gateway. Its global filter
+checks the token before any route: the expired token is refused with 401 for
+catalog, cart and orders alike. A valid token reaches the orders service,
+with the customer passed on in the X-Customer header. The services hold no
+sign-in code at all.
+"""
+speech = """
+Second demo: Spring Cloud Gateway checks the token, once. [[slnc 400]] A filter runs before any route. [[slnc 600]]
+The expired token is refused for all three services. [[slnc 500]]
+A valid token gets through. [[slnc 300]] The gateway tells the orders service who the customer is. [[slnc 500]]
+The services hold no sign-in code at all.
+"""
+rows = { gateway = "active ok", catalog = "active ok", cart = "active ok", orders = "active ok" }
+console = [
+    ["expired -> all three: 401", "ok"],
+    ["valid -> orders: 200", "ok"],
+]
+
+[[act]]
+title = "Rate limiting"
+summary = "The gateway allows 5 requests a minute per customer: 8 in a row give 5 passed and 3 refused with 429."
+detail = """
+The same filter keeps a token bucket for each customer: five requests, refilled
+at five a minute. Eight requests in a row: five pass and three are refused
+with 429, too many requests. No service had to write a limiter.
+"""
+speech = """
+Third demo: rate limiting at the gateway. [[slnc 400]] Each customer may make five requests a minute. [[slnc 600]]
+Eight requests in a row. [[slnc 300]] Five pass. [[slnc 300]] Three are refused, with too many requests. [[slnc 500]]
+No service had to write a limiter.
+"""
+rows = { gateway = "active ok" }
+console = [
+    ["8 requests: 5 passed, 3 refused (429)", "ok"],
+]
+
+[[act]]
+title = "Compression"
+summary = "The 10,093-byte catalog page comes back gzipped at the gateway, under a fifth of the size; the catalog service knows nothing about it."
+detail = """
+Reactor Netty, the gateway's server, is told by three properties to compress
+JSON responses. The catalog page, 10,093 bytes plain, comes back with
+Content-Encoding gzip at under a fifth of the size. The catalog service knows
+nothing about compression.
+"""
+speech = """
+Fourth demo: compression at the gateway. [[slnc 400]] The catalog page is about ten thousand bytes. [[slnc 600]]
+Three settings on the gateway's server switch compression on. [[slnc 500]]
+The page arrives compressed, at under a fifth of its size. [[slnc 300]] The catalog service knows nothing about it.
+"""
+rows = { gateway = "active ok", catalog = "active ok" }
+console = [
+    ["catalog: 10093 bytes plain", "muted"],
+    ["gzip: under a fifth", "ok"],
+]
+
+[[act]]
+title = "The bill"
+summary = "Through the gateway, a spoofed X-Customer: ben is replaced with ana; straight to orders, the same header gets 200 orders for ben."
+detail = """
+Through the gateway, a caller with ana's token who adds X-Customer: ben still
+gets ana's orders, because the gateway removes the header and sets its own.
+But straight to the orders service, the same header is believed: 200, orders
+for ben. The services must be reachable only through the gateway, and every
+request now passes one more hop.
+"""
+speech = """
+Fifth demo: the bill. [[slnc 400]] Through the gateway, a caller claims to be Ben. [[slnc 300]] The gateway removes the claim, and says Ana. [[slnc 600]]
+But straight to the orders service, the same claim is believed. [[slnc 300]] Ben's orders. [[slnc 600]]
+The services must be reachable only through the gateway. [[slnc 300]] And every request passes one more hop.
+"""
+rows = { gateway = "active ok", orders = "active wrong" }
+console = [
+    ["via gateway, spoofed ben: ana's orders", "ok"],
+    ["straight to orders as ben: 200", "bad"],
+]
+
+[animation]
+subtitle = "Requests pass a real Spring Cloud Gateway, whose filter checks, limits and passes on the customer."
+boxes = [
+    ["gateway", "Spring Cloud Gateway", "filter: sign-in, limit"],
+    ["catalog", "Catalog", "service"],
+    ["cart", "Cart", "service"],
+    ["orders", "Orders", "service"],
+]
+
+[docs.problem]
+scenario = """
+Catalog, cart and orders each checked sign-in tokens with their own code.
+"""
+naive = """
+Three copies drift apart; the orders copy forgot expiry.
+"""
+deliver = [
+    "Three real services checking tokens themselves, one wrongly.",
+    "A Spring Cloud Gateway global filter checking once.",
+    "A per-customer rate limit at the gateway.",
+    "Response compression by server properties.",
+    "A stripped spoof, and the side door.",
+    "Every printed result asserted by a test.",
+]
+
+[docs.prerequisites]
+required = [
+    "Java basics, and HTTP headers and status codes.",
+    "The Gateway Offloading idea, ideally from the plain Java version of this pattern.",
+]
+not_required = [
+    "Earlier Spring experience. The dependencies page explains the words used.",
+]
+
+[docs.dependencies]
+intro = """
+This project uses Spring Cloud Gateway, which the plain Java version of
+Gateway Offloading does not. Skipping it loses none of the pattern: the plain
+version teaches all of it with nothing installed.
+"""
+what = [
+    ["Spring Cloud Gateway", "Spring Cloud Gateway is a gateway built on Spring Boot and the reactive web stack. A route matches requests, here by path, and forwards them to a service's address. A global filter runs for every route, before forwarding; it can refuse a request, or change it, for example by adding or removing headers."],
+    ["Reactor Netty", "Reactor Netty is the server underneath the gateway. The Spring Boot properties server.compression.enabled, mime-types and min-response-size make it gzip responses for clients that ask."],
+    ["Release trains", "Spring Cloud versions come in release trains that match a Spring Boot line: train 2025.1.3 goes with Spring Boot 4.1.1."],
+]
+why = """
+The plain version shows the idea. This version shows the gateway most Spring
+teams actually run, and where each chore lives in it.
+"""
+install_note = "Only a JDK, version 21. Gradle downloads the rest, and the versions are pinned:"
+versions = [
+    ["Java", "21"],
+    ["Spring Boot", "4.1.1"],
+    ["Spring Cloud release train", "2025.1.3"],
+]
+costs = [
+    "A reactive framework to learn for filters.",
+    "A gateway to run with high availability.",
+]
+
+[docs.session]
+objectives = [
+    "Define gateway routes to real services.",
+    "Write a global filter that checks, limits and passes on the customer.",
+    "Switch on response compression by configuration.",
+    "Explain why services must not be reachable around the gateway.",
+]
+walkthrough = """
+Run `./gradlew run`. Open `SignInFilter.filter`: check, limit, strip, add.
+Open `GatewayApp.routes`: three lines. End on act five's side door.
+"""
+exercises = [
+    "Replace the in-memory limiter with RequestRateLimiter and Redis.",
+    "Add a route filter that adds a request identifier header for tracing.",
+    "Make the services refuse calls without a secret header only the gateway adds.",
+]
+
+[docs.explained]
+sentence = """
+With Spring Cloud Gateway, offloading puts the shared chores in a global
+filter and server settings, so every service behind gets them for free.
+"""
+verdict = """
+Offload generic chores to the gateway when many services need them. Strip
+headers the services will trust, share rate-limit state across gateway
+instances, block every side door, and run the gateway as the critical piece
+it is.
+"""
+recognise = [
+    "`GlobalFilter` beans with an order.",
+    "`RouteLocatorBuilder` routes, or `spring.cloud.gateway` route properties.",
+    "Services that read the caller from a header set by the gateway.",
+]
+
+[spec]
+purpose = """
+Teach Gateway Offloading with Spring Cloud Gateway: services checking tokens
+themselves, one gateway filter checking once, rate limiting, response
+compression, and the stripped spoof and side door.
+"""
+nongoals = [
+    "Not JWTs or Redis. Tokens are simple strings; the limiter is in memory.",
+]
+problem = """
+Every service re-implements the same chores, and the copies drift apart.
+"""
+roles = [
+    ["The chores", "`SignInFilter`"],
+    ["The routes", "`GatewayApp`"],
+    ["The services", "`ShopService`"],
+    ["The tokens", "`Tokens`"],
+    ["Entry point", "`GatewayOffloadingSpringDemo`, five acts"],
+]
+requirements = [
+    "**One check:** expired tokens get 401 for every route.",
+    "**Limited:** five requests per customer per minute.",
+    "**No spoofing:** a caller's X-Customer is replaced.",
+    "**Every printed result is asserted** in `DemoRunsTest`.",
+]
+
+[[diagram]]
+name = "architecture-diagram"
+kind = "flow"
+title = "Gateway Offloading with Spring Cloud Gateway — the pieces"
+caption = "Chores in the gateway; business in the services."
+nodes = [
+    { id = "c", label = "Customer", sub = "", col = 0, row = 1, colour = "client" },
+    { id = "g", label = "Spring Cloud Gateway", sub = "SignInFilter, gzip", col = 1, row = 1, colour = "accent" },
+    { id = "a", label = "Catalog", sub = "", col = 2, row = 0, colour = "green" },
+    { id = "b", label = "Cart", sub = "", col = 2, row = 1, colour = "green" },
+    { id = "o", label = "Orders", sub = "", col = 2, row = 2, colour = "green" },
+]
+edges = [
+    { from = "c", to = "g", label = "token" },
+    { from = "g", to = "a", label = "X-Customer" },
+    { from = "g", to = "b", label = "" },
+    { from = "g", to = "o", label = "" },
+]
+
+[[diagram]]
+name = "class-diagram"
+kind = "class"
+title = "Gateway Offloading with Spring Cloud Gateway — classes"
+caption = "A filter and three routes."
+nodes = [
+    { id = "f", label = "SignInFilter", sub = ["implements GlobalFilter", "check, limit, strip, add"], col = 0, row = 0, colour = "accent" },
+    { id = "g", label = "GatewayApp", sub = ["routes: /catalog, /cart, /orders"], col = 1, row = 0, colour = "accent" },
+    { id = "s", label = "ShopService", sub = ["JDK HttpServer", "trusts X-Customer"], col = 1, row = 1, colour = "green" },
+]
+edges = [
+    { from = "g", to = "s", label = "forwards to" },
+]
+
+[[diagram]]
+name = "data-flow-diagram"
+kind = "flow"
+title = "Gateway Offloading with Spring Cloud Gateway — inside the filter"
+caption = "In order, before any route."
+nodes = [
+    { id = "a", label = "Token", sub = "401 if missing or expired", col = 0, row = 0, colour = "accent" },
+    { id = "b", label = "Rate limit", sub = "429 over 5 a minute", col = 1, row = 0, colour = "accent" },
+    { id = "c", label = "Strip X-Customer", sub = "then set the real one", col = 2, row = 0, colour = "accent" },
+    { id = "d", label = "Route", sub = "forward", col = 3, row = 0, colour = "green" },
+]
+edges = [
+    { from = "a", to = "b", label = "" },
+    { from = "b", to = "c", label = "" },
+    { from = "c", to = "d", label = "" },
+]
+
+[[diagram]]
+name = "sequence-diagram"
+kind = "sequence"
+title = "Gateway Offloading with Spring Cloud Gateway — a valid request"
+caption = "The service only does its own job."
+participants = ["Customer", "Gateway", "Orders"]
+steps = [
+    ["Customer", "Gateway", "GET /orders, token"],
+    ["note", "Gateway", "token ok, 1 of 5"],
+    ["Gateway", "Orders", "X-Customer: ana"],
+    ["Orders", "Customer", "orders for ana", "reply"],
+]
+
+[[diagram]]
+name = "uml-diagram"
+kind = "sequence"
+title = "1. A spoofed header"
+caption = "Replaced at the gateway."
+participants = ["Caller", "Gateway", "Orders"]
+steps = [
+    ["Caller", "Gateway", "ana's token, X-Customer: ben"],
+    ["Gateway", "Orders", "X-Customer: ana"],
+]
+
+[[diagram]]
+name = "uml-diagram-2"
+kind = "sequence"
+title = "2. The side door"
+caption = "Why services must not be reachable directly."
+participants = ["Caller", "Orders"]
+steps = [
+    ["Caller", "Orders", "X-Customer: ben"],
+    ["Orders", "Caller", "orders for ben", "reply"],
+]
+
+[poster]
+headline = [["GATEWAY OFFLOADING", "text"], ["WITH SPRING CLOUD", "text"]]
+before = { code = "3 services, 3 token checks", note = "orders forgot expiry", tag = "BEFORE" }
+after = { code = "GlobalFilter at the gateway", note = "401 for all three", tag = "AFTER" }
+taglines = [["The chores, done once", "gold"]]
+
+[[scene]]
+key = "01-poster"
+kind = "poster"
+title = "Gateway Offloading with Spring Cloud Gateway"
+narration = """
+Hello, and welcome. [[slnc 400]] This video explains the Gateway Offloading pattern, with Spring Cloud Gateway, in Java. [[slnc 300]]
+This video is presented by Jayasekhar Konduru. [[slnc 600]]
+First, a simple definition. [[slnc 300]] Many services need the same chores on every request. [[slnc 300]] Checking who the caller is, limiting how often they call, compressing the answer. [[slnc 300]] Gateway offloading moves those chores into the gateway in front of them. [[slnc 500]] Spring Cloud Gateway is an open-source gateway, built on Spring. [[slnc 600]]
+Think of an office reception desk. [[slnc 300]] Visitors sign in once at the front door. [[slnc 300]] The teams upstairs trust that anyone in the corridor was checked. [[slnc 700]]
+In this video, the domain is an online shop, with catalog, cart and orders services. [[slnc 500]]
+By the end, you will hear how three copies of a check drifted apart. [[slnc 300]] How one gateway filter replaces them. [[slnc 300]] And why there must be no side door.
+"""
+
+[[scene]]
+key = "02-scenario"
+kind = "bullets"
+title = "The Scenario"
+body = ["Catalog, cart and orders.", "", "Each checked the token itself.", "", "Orders forgot expiry."]
+narration = """
+Here is the scenario. [[slnc 400]] The shop has three services. [[slnc 300]] Catalog, cart and orders. [[slnc 500]]
+Each one checked the customer's sign-in token itself. [[slnc 500]]
+The orders service forgot to check whether the token had expired.
+"""
+
+[[scene]]
+key = "03-acts"
+kind = "acts"
+title = "acts"
+
+[[scene]]
+key = "04-pattern"
+kind = "bullets"
+title = "The Pattern, in Spring Cloud Gateway"
+body = ["Routes: one per service.", "", "A global filter: sign-in,", "limit, pass on the customer.", "", "Server settings: compression."]
+narration = """
+Let's name the pattern, in Spring Cloud Gateway's words. [[slnc 400]] One route for each service. [[slnc 500]]
+A global filter, run before every route, checks sign-in, limits requests, and passes on who the customer is. [[slnc 500]]
+And server settings switch on compression.
+"""
+
+[[scene]]
+key = "05-roles"
+kind = "bullets"
+title = "Who Does What"
+body = ["SignInFilter: the chores", "GatewayApp: the routes", "ShopService: the business", "Tokens: the sign-in"]
+narration = """
+Here is who does what. [[slnc 400]] The sign-in filter does the chores, for every route. [[slnc 500]]
+The gateway app holds the routes. [[slnc 500]]
+And each shop service just does its own business, trusting the gateway.
+"""
+
+[[scene]]
+key = "06-recognise"
+kind = "bullets"
+title = "Where You Have Seen It"
+body = ["Spring Cloud Gateway filters", "Kong, NGINX, Envoy plugins", "Cloud API gateways"]
+narration = """
+You have probably met this already. [[slnc 400]] Filters in Spring Cloud Gateway. [[slnc 500]]
+Authentication and rate-limit plugins in Kong, NGINX and Envoy. [[slnc 500]]
+And the gateways every cloud provider offers.
+"""
+
+[[scene]]
+key = "07-verdict"
+kind = "bullets"
+title = "When To Use It"
+body = ["Many services, same chores.", "", "Strip trusted headers.", "Share limiter state.", "No side doors."]
+narration = """
+So, when should you use it? [[slnc 400]] When many services need exactly the same chores. [[slnc 500]]
+Strip any header the services will trust. [[slnc 300]] Share rate-limit counts across gateways. [[slnc 300]] And leave no side doors.
+"""
+
+[[scene]]
+key = "08-outro"
+kind = "outro"
+title = "Thanks for Watching"
+body = ["Full source, notes, diagrams and an animated walkthrough", "are in the repository. Use the", "Redis rate limiter."]
+narration = """
+That's Gateway Offloading, with Spring Cloud Gateway. [[slnc 400]] If you remember one sentence, make it this one. [[slnc 300]] Do the shared chores once, at the door, and lock every other door. [[slnc 500]]
+The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. [[slnc 300]] It runs offline, with nothing installed except a Java development kit. [[slnc 500]]
+Here is one exercise to try. [[slnc 300]] Replace the in-memory limit with the gateway's own rate limiter, backed by Redis. [[slnc 500]]
+If this helped, a like really does help other people find it. [[slnc 300]] And subscribe, if you'd like the rest of the series. [[slnc 400]] Thanks for watching.
+"""

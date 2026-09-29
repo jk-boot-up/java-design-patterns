@@ -7,7 +7,7 @@ Chapter timings are generated from the video's `.srt`. Re-run `python3 docs/make
 ## Title
 
 ```
-API Composition in Java - The Order Details Page
+API Composition Design Pattern in Java - Explained - The Order Details Page
 ```
 
 48 characters — under the 60 YouTube shows before truncating in search results.

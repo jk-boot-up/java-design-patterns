@@ -1,0 +1,474 @@
+# pattern.toml for the Wire Tap with Apache Camel project. See tools/patternkit.
+
+[project]
+slug = "wire-tap-with-camel"
+category = "messaging-integration-patterns"
+title = "Wire Tap with Apache Camel"
+package = "wiretapcamel"
+main_class = "CamelWireTapDemo"
+tagline = "wireTap(): a copy on the side"
+bold = "Build the wire tap with Apache Camel: wireTap() sends a copy of every payment to an audit route on its own thread, and onPrepare() makes sure the copy is truly a copy."
+domain_note = ""
+thumb_lines = ["WIRE TAP", "WITH CAMEL"]
+thumb_code = "wireTap(\"direct:audit\")"
+youtube_title = "Wire Tap with Apache Camel"
+youtube_tags = ["wire tap", "apache camel", "enterprise integration patterns", "auditing", "onprepare", "java"]
+
+[readme]
+intro = """
+This is the framework version of the Wire Tap pattern. The plain Java
+version, a separate project in this category, builds the tap by hand. Here
+Apache Camel provides it: one `wireTap("direct:audit")` step in the payments
+route sends a copy of every message to an audit route, while the payment
+service carries on as if nothing were listening.
+
+Camel's tap runs on its own thread, so a slow audit does not slow payments.
+It also has a trap the plain version did not: by default the tap is handed the
+same message object, so a tap that changes it changes the real message.
+`onPrepare()` fixes that by giving the tap its own copy.
+"""
+analogy = """
+Think of a shop's CCTV camera over the till. It watches every sale without
+the cashier doing anything differently, and the recording goes to a separate
+room. But if the camera room could reach through and change the receipt in
+the customer's hand, that would be a problem; the camera must only ever see
+a copy.
+"""
+scenario = """
+The online store's payment service handled charges and refunds. Logging had
+been typed into it by hand, it missed the refund path, and it wrote full card
+numbers. Auditors want a masked copy of every payment message, without
+changing checkout or the payment service.
+"""
+run_note = """
+Nothing to install beyond a Java 21 JDK: Camel runs inside the program on its
+in-memory `direct:` endpoints.
+"""
+twin = """
+The plain Java version got the idea right: a copy of every message goes to a
+side channel, the sender and receiver are unchanged, taps can be attached and
+detached, and a slow tap on the same thread slows everything. What it left out
+is what Camel does differently: its tap runs on a thread pool, so a slow audit
+no longer slows payments but lags behind instead, with copies waiting in
+memory; it hands the tap the same object unless you ask for a copy; and a
+failing tap never breaks the main route. The plain version could not show
+the shared-object trap, because it copied by design.
+"""
+technologies = [
+    ["Apache Camel", "4.22.1", "wireTap(), onPrepare() and route control"],
+    ["SLF4J simple", "2.0.17", "Camel's logging, switched off"],
+]
+costs = [
+    "**Shared object by default.** Without `onPrepare()`, the audit's masking changed the real payment instruction.",
+    "**Copies in memory.** A slow tap lags behind; copies still waiting are lost if the program stops. A real audit should tap to a durable queue.",
+    "**Silent failures.** A failing tap never reaches the sender, so its errors must be watched separately.",
+]
+too_much = """
+If one service needs a log line, logging inside it is simpler. The wire tap
+pays off when a copy of traffic is needed on the side, by auditors or a
+dashboard, without touching sender or receiver.
+"""
+met_before = [
+    "Camel's `wireTap()` and Spring Integration's `wire-tap` interceptor.",
+    "Port mirroring on network switches.",
+    "Kafka consumers that read a topic purely for auditing or analytics.",
+]
+where = """
+This project is in [messaging-integration-patterns](..). It is the framework
+version of the plain Java Wire Tap project in the same category, which is left
+unchanged.
+"""
+
+[[act]]
+title = "A tap on the route"
+summary = "wireTap(\"direct:audit\") copies all 4 payments, the refund included, with cards masked; payment handles all 4, unchanged."
+detail = """
+One step, `wireTap("direct:audit")`, goes into the payments route. Every
+message, the refund included, is copied to the audit route, which masks the
+card number and records a line: four of four. The payment service handles all
+four payments as before, and neither checkout nor the payment service changed.
+"""
+speech = """
+First demo: a wire tap on the payments route. [[slnc 400]] One step is added to the route. [[slnc 300]] It sends a copy of every message to the audit. [[slnc 600]]
+All four payments are copied. [[slnc 300]] The refund too. [[slnc 300]] Card numbers are masked in the audit. [[slnc 500]]
+The payment service handles all four, as before. [[slnc 300]] It was not changed.
+"""
+rows = { tap = "active ok", audit = "active ok", payment = "active ok" }
+console = [
+    ["audit: 4 of 4, cards masked", "ok"],
+    ["payment handled 4", "ok"],
+]
+
+[[act]]
+title = "Not a copy after all"
+summary = "The tap was handed the same object: checkout's own ORD-1 message now reads card **** 1234."
+detail = """
+Camel's tap is handed the same message object as the main route, not a copy.
+The audit's masking therefore changed the real payment instruction: checkout's
+own ORD-1 message now reads card **** 1234. In a real payment system, that is
+a charge that fails.
+"""
+speech = """
+Second demo: the tap was not handed a copy. [[slnc 400]] Camel gave the audit the very same message object. [[slnc 600]]
+So when the audit masked the card number, it masked the real one. [[slnc 500]]
+Checkout's own payment message now shows only the last four digits. [[slnc 300]] A real charge would fail.
+"""
+rows = { tap = "active wrong", payment = "active wrong" }
+console = [
+    ["ORD-1 now: card **** 1234", "bad"],
+]
+
+[[act]]
+title = "onPrepare: a real copy"
+summary = "With onPrepare(copy), the audit still gets 4 lines and checkout's ORD-1 keeps its full card number."
+detail = """
+`onPrepare()` runs on the tap's message before it is sent. Replacing the body
+there with a fresh copy gives the audit its own object. The audit still gets
+four masked lines, and checkout's ORD-1 message keeps its full card number.
+"""
+speech = """
+Third demo: give the tap its own copy. [[slnc 400]] Camel has a step for this, called on prepare. [[slnc 300]] It runs just before the copy is sent. [[slnc 600]]
+There, the message is copied. [[slnc 500]]
+The audit still gets four masked lines. [[slnc 300]] And checkout's message keeps its full card number.
+"""
+rows = { tap = "active ok", audit = "active ok", payment = "active ok" }
+console = [
+    ["audit lines: 4", "ok"],
+    ["ORD-1 card unchanged", "ok"],
+]
+
+[[act]]
+title = "The audit stops"
+summary = "With the audit route stopped, ORD-4 is still charged; the failed copy never reaches checkout or payment."
+detail = """
+The audit route is stopped, as it might be for maintenance. ORD-4 is sent:
+the tap's copy fails, but that failure stays on the tap's side. ORD-4 is
+charged, and neither checkout nor the payment service ever hears about it.
+"""
+speech = """
+Fourth demo: the audit stops. [[slnc 400]] The audit route is switched off, for maintenance. [[slnc 600]]
+Another order is paid. [[slnc 300]] The copy to the audit fails. [[slnc 500]]
+But the order is still charged. [[slnc 300]] Checkout and the payment service never hear about it.
+"""
+rows = { audit = "active wrong", payment = "active ok" }
+console = [
+    ["audit stopped", "muted"],
+    ["ORD-4 still charged", "ok"],
+]
+
+[[act]]
+title = "The bill"
+summary = "An audit taking 100 ms per copy: 4 payments take under 0.3 s, but the audit lags behind and catches up later; waiting copies live only in memory."
+detail = """
+The audit is made slow: 100 milliseconds per copy. Four payments still take
+under 0.3 seconds, not the 0.4 seconds four slow copies add up to, because the
+tap runs on its own thread. The price is lag: the audit catches up only later,
+and copies waiting in memory are lost if the program stops. A real audit
+should tap to a durable queue.
+"""
+speech = """
+Fifth demo: the bill. [[slnc 400]] The audit is made slow. [[slnc 300]] A tenth of a second, for every copy. [[slnc 600]]
+Four payments still finish quickly. [[slnc 300]] The tap runs on its own thread. [[slnc 500]]
+But the audit falls behind, and only catches up later. [[slnc 300]] And copies still waiting are only in memory. [[slnc 300]] If the program stops, they are lost. [[slnc 600]]
+For a real audit, tap to a durable queue.
+"""
+rows = { audit = "active amber", payment = "active ok" }
+console = [
+    ["4 payments: under 0.3 s", "ok"],
+    ["audit lags, catches up later", "amber"],
+]
+
+[animation]
+subtitle = "Checkout sends payments through a route; the wire tap copies each one to the audit on its own thread."
+boxes = [
+    ["tap", "wireTap()", "copy on the side"],
+    ["payment", "Payment service", "charges and refunds"],
+    ["audit", "Audit route", "masks cards, records"],
+]
+
+[docs.problem]
+scenario = """
+Auditors need a masked copy of every payment message, without changes to
+checkout or the payment service.
+"""
+naive = """
+Logging typed into the payment service missed the refund path and wrote full
+card numbers.
+"""
+deliver = [
+    "A wire tap copying every payment.",
+    "The shared-object trap, shown.",
+    "`onPrepare()` giving the tap its own copy.",
+    "A stopped audit not affecting payments.",
+    "A slow audit lagging instead of slowing payments.",
+    "Every printed result asserted by a test.",
+]
+
+[docs.prerequisites]
+required = [
+    "Java basics: classes, lists, threads in outline.",
+    "The Wire Tap idea, ideally from the plain Java version of this pattern.",
+]
+not_required = [
+    "Docker or a broker. Camel runs in memory.",
+]
+
+[docs.dependencies]
+intro = """
+This project uses Apache Camel, which the plain Java version of Wire Tap does
+not. Skipping it loses none of the pattern: the plain version teaches all of
+it with nothing installed.
+"""
+what = [
+    ["Apache Camel", "Camel is a library for moving messages. A route begins with from and lists steps. wireTap sends a copy of the current message to another endpoint on a separate thread and carries on at once. onPrepare runs a piece of code on that copy just before it is sent; it is where the copy is made independent. The route controller can stop and start a route while the program runs."],
+]
+why = """
+The plain version shows the idea. This version shows what a real integration
+library does differently: a tap on its own thread, and a shared-object trap
+that must be closed on purpose.
+"""
+install_note = "Only a JDK, version 21. Gradle downloads the rest, and the versions are pinned:"
+versions = [
+    ["Java", "21"],
+    ["Apache Camel (core)", "4.22.1"],
+    ["SLF4J simple", "2.0.17"],
+]
+costs = [
+    "More than ten library files on the classpath.",
+    "A thread pool whose waiting copies are lost if the program stops.",
+]
+
+[docs.session]
+objectives = [
+    "Add a `wireTap()` to a Camel route.",
+    "Explain why the tap shares the message object, and fix it with `onPrepare()`.",
+    "Show that a failing tap does not affect the main route.",
+    "Explain the lag of an asynchronous tap.",
+]
+walkthrough = """
+Run `./gradlew run`. Compare act two's masked ORD-1 with act three's full card
+number. Open `ShopRoutes`: the only difference is the `onPrepare` line. End
+on act five's lag.
+"""
+exercises = [
+    "Make `PaymentMessage` immutable and remove `onPrepare`; explain why the trap disappears.",
+    "Tap to a SEDA queue with a size limit, and see what happens when it fills.",
+    "Add a second tap for a sales dashboard that sums net takings.",
+]
+
+[docs.explained]
+sentence = """
+With Camel, a wire tap is one `wireTap()` step that copies each message to a
+side route on its own thread; `onPrepare()` makes the copy independent.
+"""
+verdict = """
+Use `wireTap()` for auditing and monitoring without touching sender or
+receiver. Always make the copy independent, watch the tap's errors
+separately, and tap to a durable queue when no copy may be lost.
+"""
+recognise = [
+    "`.wireTap(\"...\")` in a route.",
+    "`.onPrepare(...)` after a wire tap.",
+    "An audit or metrics route fed from a tap.",
+]
+
+[spec]
+purpose = """
+Teach Wire Tap with Apache Camel: a tap copying every payment, the shared
+object trap, onPrepare giving an independent copy, a stopped audit not
+affecting payments, and a slow audit lagging behind.
+"""
+nongoals = [
+    "Not a real broker or durable audit store. Everything runs in memory.",
+]
+problem = """
+A copy of every message is needed on the side without changing the sender or
+the receiver.
+"""
+roles = [
+    ["The routes and the tap", "`ShopRoutes`"],
+    ["The side channel", "`Audit`"],
+    ["The receiver", "`PaymentService`"],
+    ["The message", "`PaymentMessage`"],
+    ["Entry point", "`CamelWireTapDemo`, five acts"],
+]
+requirements = [
+    "**Every message:** charges and refunds are all copied.",
+    "**Independent:** with `onPrepare`, the original is never changed.",
+    "**Isolated:** a stopped audit never fails a payment.",
+    "**Every printed result is asserted** in `DemoRunsTest`.",
+]
+
+[[diagram]]
+name = "architecture-diagram"
+kind = "flow"
+title = "Wire Tap with Camel — the routes"
+caption = "The main route carries on; the copy goes to the side."
+nodes = [
+    { id = "c", label = "Checkout", sub = "", col = 0, row = 0, colour = "client" },
+    { id = "t", label = "wireTap()", sub = "onPrepare: copy", col = 1, row = 0, colour = "accent" },
+    { id = "p", label = "Payment service", sub = "", col = 2, row = 0, colour = "green" },
+    { id = "a", label = "direct:audit", sub = "own thread, masks cards", col = 2, row = 1, colour = "amber" },
+]
+edges = [
+    { from = "c", to = "t", label = "direct:payments" },
+    { from = "t", to = "p", label = "original" },
+    { from = "t", to = "a", label = "copy" },
+]
+
+[[diagram]]
+name = "class-diagram"
+kind = "class"
+title = "Wire Tap with Camel — classes"
+caption = "The tap is one route step."
+nodes = [
+    { id = "r", label = "ShopRoutes", sub = ["wireTap(\"direct:audit\")", "  .onPrepare(copy)"], col = 0, row = 0, colour = "accent" },
+    { id = "a", label = "Audit", sub = ["+ record(message)", "+ awaitLines(n, timeout)"], col = 1, row = 0, colour = "amber" },
+    { id = "p", label = "PaymentService", sub = ["+ handle(message)"], col = 0, row = 1, colour = "green" },
+    { id = "m", label = "PaymentMessage", sub = ["kind, orderId, pence", "card (mutable)", "+ copy()"], col = 1, row = 1, colour = "client" },
+]
+edges = [
+    { from = "r", to = "a", label = "copies to" },
+    { from = "r", to = "p", label = "delivers to" },
+]
+
+[[diagram]]
+name = "data-flow-diagram"
+kind = "flow"
+title = "Wire Tap with Camel — shared or copied"
+caption = "Without onPrepare, the audit's change reaches the real message."
+nodes = [
+    { id = "a", label = "No onPrepare", sub = "same object", col = 0, row = 0, colour = "red" },
+    { id = "b", label = "ORD-1 card **** 1234", sub = "real message changed", col = 2, row = 0, colour = "red" },
+    { id = "c", label = "onPrepare(copy)", sub = "own object", col = 0, row = 1, colour = "green" },
+    { id = "d", label = "ORD-1 card intact", sub = "", col = 2, row = 1, colour = "green" },
+]
+edges = [
+    { from = "a", to = "b", label = "" },
+    { from = "c", to = "d", label = "" },
+]
+
+[[diagram]]
+name = "sequence-diagram"
+kind = "sequence"
+title = "Wire Tap with Camel — one payment"
+caption = "The payment goes on at once; the copy follows."
+participants = ["Checkout", "payments route", "Payment", "Audit"]
+steps = [
+    ["Checkout", "payments route", "CHARGE ORD-1"],
+    ["payments route", "Audit", "copy, own thread"],
+    ["payments route", "Payment", "CHARGE ORD-1"],
+    ["note", "Audit", "masks and records"],
+]
+
+[[diagram]]
+name = "uml-diagram"
+kind = "sequence"
+title = "1. The audit is stopped"
+caption = "The payment is not affected."
+participants = ["payments route", "Audit", "Payment"]
+steps = [
+    ["payments route", "Audit", "copy fails"],
+    ["payments route", "Payment", "ORD-4 charged"],
+]
+
+[[diagram]]
+name = "uml-diagram-2"
+kind = "sequence"
+title = "2. A slow audit"
+caption = "It lags; payments do not wait."
+participants = ["payments route", "Audit"]
+steps = [
+    ["payments route", "Audit", "4 copies"],
+    ["note", "Audit", "100 ms each, catches up later"],
+]
+
+[poster]
+headline = [["WIRE TAP", "text"], ["WITH CAMEL", "text"]]
+before = { code = "logging typed by hand", note = "refunds missed, cards shown", tag = "BEFORE" }
+after = { code = "wireTap(\"direct:audit\")", note = "every payment, masked", tag = "AFTER" }
+taglines = [["A copy on the side", "gold"]]
+
+[[scene]]
+key = "01-poster"
+kind = "poster"
+title = "Wire Tap with Apache Camel"
+narration = """
+Hello, and welcome. [[slnc 400]] This video explains the Wire Tap pattern, built with Apache Camel, in Java. [[slnc 300]]
+This video is presented by Jayasekhar Konduru. [[slnc 600]]
+First, a simple definition. [[slnc 300]] A wire tap sends a copy of every message to a side channel. [[slnc 300]] The sender and the receiver carry on as if nothing were listening. [[slnc 500]] Apache Camel is an open-source library for moving messages, and it has a wire tap built in. [[slnc 600]]
+Think of a security camera over a shop till. [[slnc 300]] It records every sale, and the cashier does nothing differently. [[slnc 300]] But the camera must only ever see a copy of the receipt, never change the real one. [[slnc 700]]
+In this video, the domain is an online shop's payments, and the auditors who want a copy of each one. [[slnc 500]]
+By the end, you will hear how one step taps every payment. [[slnc 300]] A trap where the tap changes the real message. [[slnc 300]] How to fix it. [[slnc 300]] And what a tap on its own thread costs.
+"""
+
+[[scene]]
+key = "02-scenario"
+kind = "bullets"
+title = "The Scenario"
+body = ["Logging typed into payments", "by hand.", "", "It missed refunds.", "It showed full card numbers.", "", "Auditors want a masked copy."]
+narration = """
+Here is the scenario. [[slnc 400]] Logging had been typed into the payment service by hand. [[slnc 500]]
+It missed the refunds. [[slnc 300]] And it wrote out full card numbers. [[slnc 500]]
+Auditors want a masked copy of every payment, without changing checkout, or the payment service.
+"""
+
+[[scene]]
+key = "03-acts"
+kind = "acts"
+title = "acts"
+
+[[scene]]
+key = "04-pattern"
+kind = "bullets"
+title = "The Pattern, in Camel"
+body = ["wireTap(endpoint): a copy,", "on its own thread.", "", "onPrepare: make it a real copy.", "", "The main route carries on."]
+narration = """
+Let's name the pattern, in Camel's words. [[slnc 400]] The wire tap step sends a copy to another route, on its own thread. [[slnc 500]]
+On prepare makes sure it really is a copy. [[slnc 500]]
+And the main route carries on, without waiting.
+"""
+
+[[scene]]
+key = "05-roles"
+kind = "bullets"
+title = "Who Does What"
+body = ["ShopRoutes: the routes and tap", "Audit: masks and records", "PaymentService: the real work", "PaymentMessage: the message"]
+narration = """
+Here is who does what. [[slnc 400]] Shop routes holds the payments route, with its tap. [[slnc 500]]
+The audit masks each card number, and records a line. [[slnc 500]]
+The payment service does the real work. [[slnc 300]] And the payment message is what flows through.
+"""
+
+[[scene]]
+key = "06-recognise"
+kind = "bullets"
+title = "Where You Have Seen It"
+body = ["Camel wireTap()", "Spring Integration wire-tap", "Switch port mirroring", "Audit consumers on Kafka"]
+narration = """
+You have probably met this already. [[slnc 400]] Camel's wire tap, and Spring Integration's. [[slnc 500]]
+Network switches that mirror a port, so traffic can be watched. [[slnc 500]]
+And services that read a Kafka topic, only to audit it.
+"""
+
+[[scene]]
+key = "07-verdict"
+kind = "bullets"
+title = "When To Use It"
+body = ["A copy on the side, for audit", "or monitoring.", "", "Always copy the message.", "Watch the tap's errors.", "Durable queue if none may be lost."]
+narration = """
+So, when should you use it? [[slnc 400]] When auditors or a dashboard need a copy of traffic, without touching the sender or receiver. [[slnc 500]]
+Always make the copy independent. [[slnc 300]] Watch the tap's errors separately. [[slnc 300]] And tap to a durable queue, when no copy may be lost.
+"""
+
+[[scene]]
+key = "08-outro"
+kind = "outro"
+title = "Thanks for Watching"
+body = ["Full source, notes, diagrams and an animated walkthrough", "are in the repository. Make the", "message immutable."]
+narration = """
+That's the Wire Tap, with Apache Camel. [[slnc 400]] If you remember one sentence, make it this one. [[slnc 300]] Copy every message to the side, and make sure it really is a copy. [[slnc 500]]
+The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. [[slnc 300]] It runs offline, with nothing installed except a Java development kit. [[slnc 500]]
+Here is one exercise to try. [[slnc 300]] Make the payment message immutable, and see why the trap disappears. [[slnc 500]]
+If this helped, a like really does help other people find it. [[slnc 300]] And subscribe, if you'd like the rest of the series. [[slnc 400]] Thanks for watching.
+"""

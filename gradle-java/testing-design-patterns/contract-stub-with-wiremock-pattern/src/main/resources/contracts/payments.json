@@ -1,0 +1,17 @@
+[
+  {
+    "description": "a normal charge is approved",
+    "request": {"method": "POST", "url": "/charges", "body": "{\"amount\":\"20.00\",\"card\":\"4000000000000001\",\"currency\":\"GBP\"}"},
+    "response": {"status": 200, "body": "{\"result\":\"APPROVED\",\"reason\":\"\"}"}
+  },
+  {
+    "description": "a card with no funds is declined",
+    "request": {"method": "POST", "url": "/charges", "body": "{\"amount\":\"20.00\",\"card\":\"4000000000000002\",\"currency\":\"GBP\"}"},
+    "response": {"status": 200, "body": "{\"result\":\"DECLINED\",\"reason\":\"insufficient funds\"}"}
+  },
+  {
+    "description": "a zero amount is rejected",
+    "request": {"method": "POST", "url": "/charges", "body": "{\"amount\":\"0.00\",\"card\":\"4000000000000001\",\"currency\":\"GBP\"}"},
+    "response": {"status": 200, "body": "{\"result\":\"REJECTED\",\"reason\":\"amount must be positive\"}"}
+  }
+]

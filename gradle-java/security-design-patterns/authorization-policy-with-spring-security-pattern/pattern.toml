@@ -1,0 +1,477 @@
+# pattern.toml for the Authorization Policy with Spring Security project. See tools/patternkit.
+
+[project]
+slug = "authorization-policy-with-spring-security"
+category = "security-design-patterns"
+title = "Authorization Policy with Spring Security"
+package = "authzspring"
+main_class = "SpringAuthorizationDemo"
+tagline = "Rules beside the code, denied by default"
+bold = "Let Spring Security make every access decision in the shop: URL rules first, @PreAuthorize rules beside each endpoint for ownership and refund limits, denyAll() for anything nobody wrote a rule for, and an event for every refusal."
+domain_note = ""
+thumb_lines = ["AUTHORIZATION POLICY", "WITH SPRING SECURITY"]
+thumb_code = "@PreAuthorize(\"@orderPolicy.owns(...)\")"
+youtube_title = "Authorization Policy with Spring Security"
+youtube_tags = ["authorization", "spring security", "preauthorize", "rbac", "abac", "java"]
+
+[readme]
+intro = """
+This is the framework version of the Authorization Policy pattern. The plain
+Java version, a separate project in this category, writes a policy class with
+rules and an audit log. Here Spring Security does the deciding, in a real
+Spring Boot web server called over HTTP by four users: two customers, a
+support agent and an admin.
+
+The policy has three layers. URL rules in the security configuration decide
+broad access, ending with `denyAll()` so anything unlisted is refused.
+`@PreAuthorize` rules, written beside each endpoint in Spring's expression
+language, decide the details: a customer may view only their own orders, and
+support may refund up to 100. And a small policy bean supplies facts from the
+shop's data, such as who owns an order. Every refusal is published as an
+`AuthorizationDeniedEvent`.
+"""
+analogy = """
+Think of a hotel key-card system. The front door lets any guest in; each room
+door opens only for its own guest; staff cards open more doors, managers' the
+most. A door added to the building opens for nobody until someone programs
+it. And the system logs every card that was refused.
+"""
+scenario = """
+The online store's endpoints each checked access in their own code, or
+forgot to. Any signed-in customer could read anyone's order by changing the
+order number, and support staff could refund any amount, though the rule was
+a limit of 100.
+"""
+test_note = """
+Every result the demo prints is asserted, with a real Spring Boot server on a
+local port, called over HTTP as four different users.
+"""
+run_note = """
+Nothing to install beyond a Java 21 JDK: the demo starts a Spring Boot server
+inside the program, on a local port, and calls it over HTTP.
+"""
+twin = """
+The plain Java version got the idea right: one policy, rules over roles and
+attributes, deny by default, and a reason logged for every decision. What it
+left out is how a framework spreads the policy sensibly: broad URL rules in
+one place, detailed rules beside each endpoint, and a named bean for facts
+only the shop knows. It also found two real traps. Refusals are only
+announced as events if you ask for them. And a refused request is forwarded to
+Spring's error page, which `denyAll()` refused again, so every refusal was
+counted twice until error dispatches were permitted.
+"""
+technologies = [
+    ["Spring Boot", "4.1.1", "the web server"],
+    ["Spring Security", "7 (with Boot 4.1.1)", "URL rules, @PreAuthorize method security, authorization events"],
+]
+costs = [
+    "**Rules in strings.** SpEL expressions are checked only when they run; a typo fails at the first request, not at build time.",
+    "**Two places to look.** URL rules and method rules together make the policy; both must be read to know who may do what.",
+    "**Framework details matter.** Without permitting error dispatches, every refusal was denied and counted twice.",
+]
+too_much = """
+A small internal tool with one kind of user needs only a sign-in. A policy
+pays off as soon as different users may see or change different things.
+"""
+met_before = [
+    "`@PreAuthorize` and `hasRole` in Spring applications.",
+    "`authorizeHttpRequests` blocks in `SecurityFilterChain` beans.",
+    "Policy engines such as Open Policy Agent, for rules kept outside the code.",
+]
+where = """
+This project is in [security-design-patterns](..). It is the framework
+version of the plain Java Authorization Policy project in the same category,
+which is left unchanged.
+"""
+
+[[act]]
+title = "Signed in is enough"
+summary = "The old view endpoint only requires sign-in: ana views ben's order ORD-7 and gets 200."
+detail = """
+The old view endpoint only asks that the user is signed in; it was meant to
+check the owner itself and forgot. Ana, a customer, asks for ben's order
+ORD-7 and gets it: HTTP 200.
+"""
+speech = """
+First demo: signed in is enough. [[slnc 400]] The old endpoint for viewing an order only asks that you are signed in. [[slnc 600]]
+Ana is a customer. [[slnc 300]] Ana asks for Ben's order. [[slnc 300]] And gets it.
+"""
+rows = { endpoints = "active wrong" }
+console = [
+    ["ana views ben's ORD-7: 200", "bad"],
+]
+
+[[act]]
+title = "Roles only"
+summary = "hasRole(CUSTOMER) on the URL: ana still views ben's order, 200; a role cannot say \"their own\"."
+detail = """
+A URL rule requires the customer role for viewing orders. Ana has it, so ana
+still sees ben's order: HTTP 200. A role can say "customers may view orders",
+but not "their own orders".
+"""
+speech = """
+Second demo: roles only. [[slnc 400]] A rule on the address says, customers may view orders. [[slnc 600]]
+Ana is a customer. [[slnc 300]] Ana still sees Ben's order. [[slnc 500]]
+A role cannot say, their own orders.
+"""
+rows = { url = "active amber", endpoints = "active wrong" }
+console = [
+    ["hasRole(CUSTOMER): 200", "bad"],
+]
+
+[[act]]
+title = "Rules beside each endpoint"
+summary = "@PreAuthorize: ana on ben's order 403, ben on it 200; sam refunds 80 (200) but not 250 (403); alex refunds 250 (200)."
+detail = """
+Now each endpoint carries its own rule. Viewing requires the owner, checked by
+the order policy bean, or support, or admin: ana gets 403 on ben's order, ben
+gets 200. Refunds require admin, or support with an amount up to 100: sam
+refunds 80 but not 250, and alex, an admin, refunds 250.
+"""
+speech = """
+Third demo: rules beside each endpoint. [[slnc 400]] Viewing an order needs its owner, or support staff, or an admin. [[slnc 600]]
+Ana asks for Ben's order. [[slnc 300]] Refused. [[slnc 300]] Ben asks for the same order. [[slnc 300]] Allowed. [[slnc 600]]
+Refunds need an admin, or support staff up to a hundred. [[slnc 500]]
+Sam from support refunds eighty. [[slnc 300]] Allowed. [[slnc 300]] Two hundred and fifty. [[slnc 300]] Refused. [[slnc 500]]
+Alex, an admin, refunds two hundred and fifty. [[slnc 300]] Allowed.
+"""
+rows = { method = "active ok", endpoints = "active ok" }
+console = [
+    ["ana -> ben's order: 403", "ok"],
+    ["ben -> own order: 200", "ok"],
+    ["sam 80: 200; 250: 403", "ok"],
+    ["alex 250: 200", "ok"],
+]
+
+[[act]]
+title = "Deny by default"
+summary = "The export endpoint has no rule, so anyRequest().denyAll() refuses even alex the admin: 403."
+detail = """
+A developer added an export endpoint and wrote no rule for it. The URL rules
+end with `anyRequest().denyAll()`, so even alex, an admin, is refused: HTTP
+403. A new endpoint starts closed until someone decides who may use it.
+"""
+speech = """
+Fourth demo: deny by default. [[slnc 400]] A developer added an export endpoint, and wrote no rule for it. [[slnc 600]]
+The last rule says, deny anything else. [[slnc 500]]
+So even Alex, the admin, is refused. [[slnc 300]] A new endpoint starts closed.
+"""
+rows = { url = "active ok" }
+console = [
+    ["alex exports: 403", "ok"],
+]
+
+[[act]]
+title = "The bill"
+summary = "3 refusals announced as AuthorizationDeniedEvents; rules are SpEL strings checked only at run time; each method rule protects only its method."
+detail = """
+Spring Security announced the three refusals as events, once a publisher was
+configured; before error dispatches were permitted, each refusal was counted
+twice. The rules are strings in Spring's expression language, checked only
+when they run, so a typo fails at the first request, not at build time. And a
+rule on one method protects only that method, which is why `denyAll()` must
+close everything else.
+"""
+speech = """
+Fifth demo: the bill. [[slnc 400]] Spring Security announced each of the three refusals as an event. [[slnc 300]] But only because the shop asked it to. [[slnc 600]]
+The rules are written as text, and only checked when they run. [[slnc 300]] A typo shows up at the first request, not when the code is built. [[slnc 600]]
+And a rule on one method protects only that method. [[slnc 300]] Deny everything else by default.
+"""
+rows = { method = "active amber", url = "active amber" }
+console = [
+    ["refusals announced: 3", "muted"],
+    ["rules checked only at run time", "amber"],
+]
+
+[animation]
+subtitle = "Four users call the shop's Spring Boot server; URL rules and @PreAuthorize rules decide each request."
+boxes = [
+    ["url", "URL rules", "SecurityFilterChain, denyAll"],
+    ["method", "@PreAuthorize", "owner, role, amount"],
+    ["endpoints", "Order endpoints", "view, refund, export"],
+]
+
+[docs.problem]
+scenario = """
+The shop's view, refund and export endpoints must allow different things to
+customers, support and admins.
+"""
+naive = """
+Checks written separately in each endpoint drift, and one forgotten check
+exposes other customers' orders.
+"""
+deliver = [
+    "An endpoint that forgot the owner check.",
+    "A role-only URL rule, and its limit.",
+    "@PreAuthorize rules for ownership and refund limits.",
+    "Deny by default with denyAll().",
+    "Authorization events, and two framework traps.",
+    "Every printed result asserted by a test.",
+]
+
+[docs.prerequisites]
+required = [
+    "Java basics, and HTTP requests in outline.",
+    "The Authorization Policy idea, ideally from the plain Java version of this pattern.",
+]
+not_required = [
+    "Earlier Spring experience. The dependencies page explains the words used.",
+]
+
+[docs.dependencies]
+intro = """
+This project uses Spring Boot and Spring Security, which the plain Java
+version of Authorization Policy does not. Skipping it loses none of the
+pattern: the plain version teaches all of it with nothing installed.
+"""
+what = [
+    ["Spring Boot", "Spring Boot starts a Java web server from your classes, here on a free local port."],
+    ["Spring Security", "Spring Security checks every request before your code runs. authorizeHttpRequests lists URL rules, first match wins; denyAll refuses everything else. With method security switched on, @PreAuthorize puts a rule on a single method, written in the Spring Expression Language: hasRole checks a role, #amount reads a parameter, and @orderPolicy calls a bean. A refused request gets HTTP 403. With an AuthorizationEventPublisher, each refusal is published as an AuthorizationDeniedEvent."],
+]
+why = """
+The plain version shows the idea in one class. This version shows how most
+Java web applications actually express a policy, and the details that trip
+people up.
+"""
+install_note = "Only a JDK, version 21. Gradle downloads the rest, and the versions are pinned:"
+versions = [
+    ["Java", "21"],
+    ["Spring Boot (webmvc, security starters)", "4.1.1"],
+]
+costs = [
+    "A framework and its expression language to learn.",
+    "Rules in two places, URL and method, to keep in step.",
+]
+
+[docs.session]
+objectives = [
+    "Write URL rules ending in denyAll().",
+    "Write @PreAuthorize rules over ownership and amounts.",
+    "Call a policy bean from a rule.",
+    "Publish and count authorization events.",
+]
+walkthrough = """
+Run `./gradlew run`. Open `ShopApp.security`: the URL rules. Open
+`OrderController`: each rule beside its endpoint. Compare act two's 200 with
+act three's 403.
+"""
+exercises = [
+    "Stop support staff refunding orders they placed themselves.",
+    "Allow export for admins only, and see act four change.",
+    "Remove the error-dispatch rule and count the refusal events again.",
+]
+
+[docs.explained]
+sentence = """
+With Spring Security, an authorization policy is URL rules that deny by
+default plus @PreAuthorize rules beside each endpoint, with refusals
+published as events.
+"""
+verdict = """
+Use URL rules for broad access and end them with denyAll(); put detailed rules
+beside each endpoint; keep shop facts in a named policy bean; publish
+refusals; and test every rule, because they are checked only at run time.
+"""
+recognise = [
+    "`authorizeHttpRequests(...).anyRequest().denyAll()`.",
+    "`@PreAuthorize(\"hasRole('ADMIN') or ...\")`.",
+    "`@EnableMethodSecurity` on a configuration class.",
+]
+
+[spec]
+purpose = """
+Teach Authorization Policy with Spring Security: a forgotten owner check, a
+role-only rule, @PreAuthorize rules for ownership and refund limits, deny by
+default, and authorization events with their traps.
+"""
+nongoals = [
+    "Not OAuth or tokens. Users sign in with HTTP Basic.",
+]
+problem = """
+Access checks scattered across endpoints drift and leave holes.
+"""
+roles = [
+    ["URL rules and events", "`ShopApp`"],
+    ["Method rules", "`OrderController`"],
+    ["Shop facts for rules", "`OrderPolicy`"],
+    ["Entry point", "`SpringAuthorizationDemo`, five acts"],
+]
+requirements = [
+    "**Ownership:** customers view only their own orders.",
+    "**Limits:** support refunds up to 100; admins any amount.",
+    "**Deny by default:** unlisted endpoints get 403.",
+    "**Every printed result is asserted** in `DemoRunsTest`.",
+]
+
+[[diagram]]
+name = "architecture-diagram"
+kind = "flow"
+title = "Authorization Policy with Spring Security — the layers"
+caption = "URL rules, then method rules, then the endpoint."
+nodes = [
+    { id = "u", label = "Request", sub = "ana, ben, sam, alex", col = 0, row = 0, colour = "client" },
+    { id = "f", label = "URL rules", sub = "denyAll() last", col = 1, row = 0, colour = "accent" },
+    { id = "m", label = "@PreAuthorize", sub = "owner, role, amount", col = 2, row = 0, colour = "accent" },
+    { id = "e", label = "Endpoint", sub = "view, refund", col = 3, row = 0, colour = "green" },
+]
+edges = [
+    { from = "u", to = "f", label = "" },
+    { from = "f", to = "m", label = "" },
+    { from = "m", to = "e", label = "" },
+]
+
+[[diagram]]
+name = "class-diagram"
+kind = "class"
+title = "Authorization Policy with Spring Security — classes"
+caption = "Rules where they belong."
+nodes = [
+    { id = "a", label = "ShopApp", sub = ["SecurityFilterChain", "users, event publisher", "+ onDenied(event)"], col = 0, row = 0, colour = "accent" },
+    { id = "c", label = "OrderController", sub = ["view: @PreAuthorize owner or staff", "refund: admin or support <= 100", "export: no rule"], col = 1, row = 0, colour = "green" },
+    { id = "p", label = "OrderPolicy", sub = ["+ owns(user, orderId)"], col = 1, row = 1, colour = "client" },
+]
+edges = [
+    { from = "c", to = "p", label = "rules call" },
+]
+
+[[diagram]]
+name = "data-flow-diagram"
+kind = "flow"
+title = "Authorization Policy with Spring Security — a refund of 250"
+caption = "The rule reads the role and the amount."
+nodes = [
+    { id = "a", label = "sam, refund 250", sub = "", col = 0, row = 0, colour = "client" },
+    { id = "b", label = "hasRole(ADMIN)?", sub = "no", col = 1, row = 0, colour = "accent" },
+    { id = "c", label = "SUPPORT and <= 100?", sub = "no", col = 2, row = 0, colour = "accent" },
+    { id = "d", label = "403", sub = "event published", col = 3, row = 0, colour = "red" },
+]
+edges = [
+    { from = "a", to = "b", label = "" },
+    { from = "b", to = "c", label = "" },
+    { from = "c", to = "d", label = "" },
+]
+
+[[diagram]]
+name = "sequence-diagram"
+kind = "sequence"
+title = "Authorization Policy with Spring Security — ana asks for ORD-7"
+caption = "Refused before the controller runs."
+participants = ["ana", "Spring Security", "OrderPolicy", "Controller"]
+steps = [
+    ["ana", "Spring Security", "GET /orders/ORD-7"],
+    ["Spring Security", "OrderPolicy", "owns(ana, ORD-7)?"],
+    ["OrderPolicy", "Spring Security", "false", "reply"],
+    ["Spring Security", "ana", "403", "reply"],
+]
+
+[[diagram]]
+name = "uml-diagram"
+kind = "sequence"
+title = "1. An unlisted endpoint"
+caption = "denyAll() closes it."
+participants = ["alex", "Spring Security"]
+steps = [
+    ["alex", "Spring Security", "GET /orders/ORD-7/export"],
+    ["Spring Security", "alex", "403", "reply"],
+]
+
+[[diagram]]
+name = "uml-diagram-2"
+kind = "sequence"
+title = "2. The error page trap"
+caption = "Permit error dispatches, or each refusal counts twice."
+participants = ["Spring Security", "/error"]
+steps = [
+    ["Spring Security", "/error", "forward after 403"],
+    ["note", "/error", "denyAll would refuse again"],
+]
+
+[poster]
+headline = [["AUTHORIZATION POLICY", "text"], ["WITH SPRING SECURITY", "text"]]
+before = { code = "signed in is enough", note = "ana reads ben's order", tag = "BEFORE" }
+after = { code = "@PreAuthorize(owns or staff)", note = "403, denied by default", tag = "AFTER" }
+taglines = [["Rules beside the code", "gold"]]
+
+[[scene]]
+key = "01-poster"
+kind = "poster"
+title = "Authorization Policy with Spring Security"
+narration = """
+Hello, and welcome. [[slnc 400]] This video explains the Authorization Policy pattern, built with Spring Security, in Java. [[slnc 300]]
+This video is presented by Jayasekhar Konduru. [[slnc 600]]
+First, a simple definition. [[slnc 300]] Signing in proves who you are. [[slnc 300]] Authorization decides what you may do. [[slnc 300]] A policy makes those decisions by rules, and refuses anything no rule allows. [[slnc 500]] Spring Security is the open-source security framework most Java web applications use. [[slnc 600]]
+Think of a hotel key-card system. [[slnc 300]] Guests open their own room. [[slnc 300]] Staff open more. [[slnc 300]] A new door opens for nobody, until someone programs it. [[slnc 700]]
+In this video, the domain is an online shop, with customers, support staff and an admin. [[slnc 500]]
+By the end, you will hear how roles fall short. [[slnc 300]] How rules beside each endpoint fix it. [[slnc 300]] Why denying by default matters. [[slnc 300]] And two traps in the framework.
+"""
+
+[[scene]]
+key = "02-scenario"
+kind = "bullets"
+title = "The Scenario"
+body = ["View, refund and export endpoints.", "", "Any customer could read any order.", "", "Support could refund any amount."]
+narration = """
+Here is the scenario. [[slnc 400]] The shop has endpoints to view orders, refund them, and export them. [[slnc 500]]
+Any signed-in customer could read any order. [[slnc 500]]
+And support staff could refund any amount, though the rule was a hundred.
+"""
+
+[[scene]]
+key = "03-acts"
+kind = "acts"
+title = "acts"
+
+[[scene]]
+key = "04-pattern"
+kind = "bullets"
+title = "The Pattern, in Spring Security"
+body = ["URL rules, ending in denyAll().", "", "@PreAuthorize beside each endpoint.", "", "A policy bean for shop facts.", "Refusals as events."]
+narration = """
+Let's name the pattern, in Spring Security's words. [[slnc 400]] Rules on addresses, ending with, deny anything else. [[slnc 500]]
+Pre-authorize rules, written beside each endpoint. [[slnc 500]]
+A policy bean for facts only the shop knows. [[slnc 300]] And every refusal published as an event.
+"""
+
+[[scene]]
+key = "05-roles"
+kind = "bullets"
+title = "Who Does What"
+body = ["ShopApp: URL rules, users, events", "OrderController: rules per endpoint", "OrderPolicy: who owns which order"]
+narration = """
+Here is who does what. [[slnc 400]] Shop app holds the address rules, the users, and the event listener. [[slnc 500]]
+The order controller carries a rule on each endpoint. [[slnc 500]]
+And the order policy knows who owns which order.
+"""
+
+[[scene]]
+key = "06-recognise"
+kind = "bullets"
+title = "Where You Have Seen It"
+body = ["@PreAuthorize and hasRole", "SecurityFilterChain rules", "Open Policy Agent"]
+narration = """
+You have probably met this already. [[slnc 400]] Pre-authorize annotations, and has role, in Spring applications. [[slnc 500]]
+Security filter chains, listing which addresses need what. [[slnc 500]]
+And policy engines such as Open Policy Agent, for rules kept outside the code.
+"""
+
+[[scene]]
+key = "07-verdict"
+kind = "bullets"
+title = "When To Use It"
+body = ["Different users, different rights.", "", "Broad URL rules, denyAll last.", "Detail beside endpoints.", "Publish refusals.", "Test every rule."]
+narration = """
+So, when should you use it? [[slnc 400]] As soon as different users may do different things. [[slnc 500]]
+Broad rules on addresses, ending with deny. [[slnc 300]] Detailed rules beside each endpoint. [[slnc 300]] Publish every refusal. [[slnc 300]] And test every rule.
+"""
+
+[[scene]]
+key = "08-outro"
+kind = "outro"
+title = "Thanks for Watching"
+body = ["Full source, notes, diagrams and an animated walkthrough", "are in the repository. Stop support", "refunding their own orders."]
+narration = """
+That's the Authorization Policy, with Spring Security. [[slnc 400]] If you remember one sentence, make it this one. [[slnc 300]] Put each rule where it is read, and let everything else be refused. [[slnc 500]]
+The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. [[slnc 300]] It runs offline, with nothing installed except a Java development kit. [[slnc 500]]
+Here is one exercise to try. [[slnc 300]] Stop support staff refunding orders they placed themselves. [[slnc 500]]
+If this helped, a like really does help other people find it. [[slnc 300]] And subscribe, if you'd like the rest of the series. [[slnc 400]] Thanks for watching.
+"""

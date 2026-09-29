@@ -1,0 +1,496 @@
+# pattern.toml for the Message Translator with Apache Camel project. See tools/patternkit.
+
+[project]
+slug = "message-translator-with-camel"
+category = "messaging-integration-patterns"
+title = "Message Translator with Apache Camel"
+package = "translatorcamel"
+main_class = "CamelTranslatorDemo"
+tagline = "Translators as routes, formats as data formats"
+bold = "Build the message translator with Apache Camel: one route per incoming format, Camel's own data formats to read CSV, JSON and XML, and a normalizer route that recognises the format and hands over to the right translator."
+domain_note = ""
+thumb_lines = ["MESSAGE TRANSLATOR", "WITH CAMEL"]
+thumb_code = "unmarshal().json(Jackson)"
+youtube_title = "Message Translator with Apache Camel"
+youtube_tags = ["message translator", "apache camel", "enterprise integration patterns", "normalizer", "data formats", "java"]
+
+[readme]
+intro = """
+This is the framework version of the Message Translator pattern. The plain
+Java version of this pattern, a separate project in this category, writes
+every translator by hand. Here, Apache Camel does the plumbing: each
+incoming format has its own Camel route, Camel's data formats read CSV, JSON
+and XML, and a normalizer route recognises the format and sends each order
+to the right translator. The warehouse at the end only ever receives the one
+canonical order.
+
+Camel is the best-known open-source library for the enterprise integration
+patterns. The pattern names in the book, translator, normalizer, router, are
+words in Camel's own route language, which is why it is worth seeing the
+pattern in it.
+"""
+analogy = """
+Think of an international post room with a sorting desk and a row of
+translators. The desk looks at each letter and sees which language it is in,
+then passes it to that language's translator. Every translator writes the
+same standard form for the office upstairs. Adding a new language means
+hiring one more translator; the desk and the office upstairs do not change.
+"""
+scenario = """
+The online store takes orders from its own web form and from marketplaces.
+The web form sends key-value text, marketplace A sends CSV, marketplace B
+sends JSON with its own field names, and later marketplace C arrives with
+XML. The warehouse must only ever see one canonical order.
+"""
+run_note = """
+Nothing to install beyond a Java 21 JDK: Camel runs inside the program, using
+its in-memory `direct:` endpoints, so no broker or container is needed.
+"""
+twin = """
+The plain Java version got the idea exactly right: one translator per format,
+one canonical order, and a normalizer that picks the translator, in a few
+dozen lines anyone can read. What it left out is everything a real
+integration library does for you: ready-made readers for CSV, JSON and XML,
+a type check that refuses anything that is not the canonical order before it
+reaches the warehouse, dynamic routing by format name, and the ability to add
+a translator as a new route while the others keep running. It also left out
+the cost: more than twenty library files, and a route language to learn.
+"""
+technologies = [
+    ["Apache Camel", "4.22.1", "routes, the normalizer, type conversion"],
+    ["camel-csv, camel-jackson, camel-xpath", "4.22.1", "reading CSV, JSON and XML"],
+    ["SLF4J simple", "2.0.17", "Camel's logging, switched off"],
+]
+costs = [
+    "**More to carry.** The program now needs more than twenty library files, against none for the plain version.",
+    "**A language to learn.** Routes, endpoints, data formats and `toD` are Camel's vocabulary, not Java's.",
+    "**The same loss.** Marketplace B's gift note still does not survive: a canonical model only keeps what it names.",
+]
+too_much = """
+For two or three formats that rarely change, the plain Java version is
+simpler and easier to debug. Camel pays off when there are many sources and
+formats, transports such as queues and files as well, and translators that
+are added over time.
+"""
+met_before = [
+    "Apache Camel routes in Spring Boot or Quarkus applications.",
+    "Spring Integration's transformers and MuleSoft's DataWeave, the same idea in other tools.",
+    "The book Enterprise Integration Patterns, whose names Camel uses directly.",
+]
+where = """
+This project is in [messaging-integration-patterns](..). It is the framework
+version of the plain Java Message Translator project in the same category,
+which is left unchanged.
+"""
+
+[[act]]
+title = "Straight to the warehouse"
+summary = "Sending raw JSON to the warehouse route fails: Camel has no type converter from String to OrderMessage."
+detail = """
+The warehouse route begins by converting its message to the canonical
+`OrderMessage`. When a marketplace's raw JSON is sent straight to it, Camel
+refuses: there is no type converter from a String to an OrderMessage. The
+framework stops a foreign format at the door, instead of letting the
+warehouse guess.
+"""
+speech = """
+First demo: send a marketplace's order straight to the warehouse. [[slnc 400]] In Camel, a route is a written description of where messages go. [[slnc 600]]
+The warehouse route starts by converting each message into the shop's standard order. [[slnc 500]]
+A raw JSON order cannot be converted. [[slnc 300]] So Camel refuses it, before the warehouse ever sees it.
+"""
+rows = { warehouse = "active wrong" }
+console = [
+    ["JSON straight to warehouse", "muted"],
+    ["no type converter to OrderMessage", "bad"],
+]
+
+[[act]]
+title = "A translator route per format"
+summary = "Three translator routes: web form, CSV via unmarshal().csv(), JSON via unmarshal().json(Jackson), each ending as a canonical pick."
+detail = """
+Each format gets its own translator route. The web form is split into
+key-value pairs. The CSV route uses Camel's CSV data format, and the JSON
+route uses Camel's Jackson data format. Each ends by building the canonical
+order: two mugs for A-77, one teapot for B-9, one kettle for W-1.
+"""
+speech = """
+Second demo: one translator route per format. [[slnc 400]] Camel has ready-made readers, called data formats. [[slnc 600]]
+The CSV route uses Camel's CSV reader. [[slnc 300]] Two mugs, for order A seventy-seven. [[slnc 500]]
+The JSON route uses Camel's JSON reader. [[slnc 300]] One teapot, for order B nine. [[slnc 500]]
+The web form route splits the text itself. [[slnc 300]] One kettle, for order W one.
+"""
+rows = { translators = "active ok", warehouse = "active ok" }
+console = [
+    ["CSV -> 2 x MUG-1 for A-77", "ok"],
+    ["JSON -> 1 x TEAPOT-1 for B-9", "ok"],
+    ["web -> 1 x KETTLE-1 for W-1", "ok"],
+]
+
+[[act]]
+title = "The normalizer"
+summary = "One inbox route recognises each format and uses toD to reach its translator; 5 routes run: normalizer, 3 translators, warehouse."
+detail = """
+Now every order goes to one inbox. The normalizer route looks at the first
+character of the text, sets a format header, and uses Camel's `toD`, a
+dynamic "send to", to reach `direct:translate-` plus that format. CSV, JSON
+and web-form orders all come out as canonical picks. Five routes are running:
+the normalizer, three translators and the warehouse.
+"""
+speech = """
+Third demo: the normalizer. [[slnc 400]] Every order now arrives at one inbox. [[slnc 600]]
+The normalizer looks at the text, and decides the format. [[slnc 300]] Curly bracket means JSON. [[slnc 300]] Angle bracket means XML. [[slnc 300]] An equals sign means the web form. [[slnc 300]] Anything else is CSV. [[slnc 600]]
+It then sends the order to the translator route with that name. [[slnc 500]]
+All three orders come out as standard picks. [[slnc 300]] Five routes are running.
+"""
+rows = { inbox = "active ok", translators = "active ok", warehouse = "active ok" }
+console = [
+    ["inbox -> CSV, JSON, web: 3 picks", "ok"],
+    ["routes running: 5", "muted"],
+]
+
+[[act]]
+title = "A new format, a new route"
+summary = "XML first fails with no consumers on direct://translate-xml; after adding one route it is picked as 1 x KETTLE-1 for C-5."
+detail = """
+Marketplace C sends XML. The normalizer recognises it and sends it to
+`direct:translate-xml`, but no route listens there yet, and Camel says so:
+no consumers available. Adding one route, which reads the XML with XPath,
+while the others keep running, makes it work: one kettle for C-5. The
+normalizer and the warehouse routes were not changed.
+"""
+speech = """
+Fourth demo: a new marketplace sends XML. [[slnc 400]] The normalizer recognises it, and sends it on. [[slnc 300]] But no translator route exists yet. [[slnc 600]]
+Camel says so. [[slnc 300]] No consumers available. [[slnc 600]]
+One new route is added, while the others keep running. [[slnc 300]] It reads the XML. [[slnc 500]]
+Now the order is picked. [[slnc 300]] One kettle, for order C five. [[slnc 300]] The normalizer and the warehouse did not change.
+"""
+rows = { inbox = "active ok", translators = "active ok" }
+console = [
+    ["before: no consumers on translate-xml", "bad"],
+    ["after one route: 1 x KETTLE-1 for C-5", "ok"],
+]
+
+[[act]]
+title = "The bill"
+summary = "The gift note is still lost, and the program carries more than 20 library files against none for the plain version."
+detail = """
+Camel did not solve the canonical model's weakness: marketplace B's gift
+note still does not survive, because the canonical order has no room for it.
+And the program now carries more than twenty library files, against none for
+the plain version, plus Camel's route language to learn.
+"""
+speech = """
+Fifth demo: the bill. [[slnc 400]] The gift note from marketplace B is still lost. [[slnc 300]] The standard order has no room for it. [[slnc 600]]
+And the program now carries more than twenty library files. [[slnc 300]] The plain version needs none. [[slnc 500]]
+Plus a new route language, to learn.
+"""
+rows = { warehouse = "active amber" }
+console = [
+    ["gift note lost", "amber"],
+    ["more than 20 library files", "amber"],
+]
+
+[animation]
+subtitle = "Orders arrive at one inbox; Camel routes each format to its translator, and the warehouse receives only the canonical order."
+boxes = [
+    ["inbox", "Normalizer route", "recognise, toD"],
+    ["translators", "Translator routes", "web, CSV, JSON, XML"],
+    ["warehouse", "Warehouse route", "OrderMessage only"],
+]
+
+[docs.problem]
+scenario = """
+Orders arrive as key-value text, CSV, JSON and, later, XML; the warehouse
+needs one canonical order.
+"""
+naive = """
+Parsing every format inside the warehouse ties it to every marketplace, and
+hand-written parsers must be written and tested for each.
+"""
+deliver = [
+    "A type check that refuses raw formats at the warehouse route.",
+    "Translator routes using Camel's CSV and JSON data formats.",
+    "A normalizer route using `toD` to pick the translator.",
+    "A new XML translator added as one route.",
+    "The costs named honestly.",
+    "Every printed result asserted by a test.",
+]
+
+[docs.prerequisites]
+required = [
+    "Java basics: records, `Map`, `List`.",
+    "The Message Translator idea, ideally from the plain Java version of this pattern.",
+]
+not_required = [
+    "Docker or a message broker. Camel runs in memory.",
+    "Earlier Camel experience. The dependencies page explains the words used.",
+]
+
+[docs.dependencies]
+intro = """
+This project uses Apache Camel, which the plain Java version of Message
+Translator does not. This page says what Camel is, why it is here, and what it
+costs. Skipping this project loses none of the pattern: the plain version
+teaches all of it with nothing installed.
+"""
+what = [
+    ["Apache Camel", "Camel is a library for moving and transforming messages. You write a route: a short description of where messages come from, what happens to them, and where they go. A route begins with from, and each step after it is one method call. An endpoint is one end of a route, written as text such as direct:inbox; direct endpoints live inside the program, so nothing else needs to run. A data format is a ready-made reader and writer for text such as CSV, JSON or XML; unmarshal reads text into Java objects. A type converter turns one Java type into another; when none exists, Camel refuses the message rather than guessing."],
+]
+why = """
+The plain version answers "what is a message translator". This version
+answers "what does a real integration library give you for it, and what does
+it make you learn": ready-made format readers, a type check at the door,
+routing by name, and adding a translator while the rest keeps running.
+"""
+install_note = "Only a JDK, version 21. Gradle downloads the rest, and the versions are pinned:"
+versions = [
+    ["Java", "21"],
+    ["Apache Camel (core, csv, jackson, xpath)", "4.22.1"],
+    ["SLF4J simple", "2.0.17"],
+]
+costs = [
+    "More than twenty library files on the classpath.",
+    "Camel's route language and its error messages to learn.",
+    "Stack traces that pass through Camel's engine, which are longer to read.",
+]
+
+[docs.session]
+objectives = [
+    "Write a translator as a Camel route.",
+    "Use Camel data formats to read CSV and JSON.",
+    "Build a normalizer with a header and `toD`.",
+    "Add a route to a running Camel context.",
+]
+walkthrough = """
+Run `./gradlew run`. Open `ShopRoutes.configure`: the normalizer is three
+lines, each translator three or four. Compare act four's two lines: the
+error before the XML route exists, and the pick after.
+"""
+exercises = [
+    "Use camel-jacksonxml instead of XPath for the XML translator.",
+    "Send orders with no recognisable format to a dead-letter route.",
+    "Carry the gift note by adding a field to OrderMessage and every translator.",
+]
+
+[docs.explained]
+sentence = """
+With Camel, each translator is a route, each format is read by a data format,
+and a normalizer route sends each message to the right translator by name.
+"""
+verdict = """
+Use Camel for translation when there are many formats and transports and
+translators arrive over time. For a handful of stable formats, the plain Java
+version is simpler.
+"""
+recognise = [
+    "`from(...).unmarshal().json(...)` and `.unmarshal().csv()`.",
+    "`toD(\"direct:translate-${header.format}\")`.",
+    "`convertBodyTo(SomeCanonical.class)` at the start of a route.",
+]
+
+[spec]
+purpose = """
+Teach Message Translator with Apache Camel: a type check refusing raw JSON,
+translator routes with Camel's data formats, a normalizer route using toD, a
+new XML translator added at run time, and the costs.
+"""
+nongoals = [
+    "Not a real broker or container. Camel's direct endpoints run in memory.",
+]
+problem = """
+Many incoming formats must become one canonical order before the warehouse
+sees them.
+"""
+roles = [
+    ["The routes", "`ShopRoutes`"],
+    ["The field mapping", "`Translators`"],
+    ["The canonical order", "`OrderMessage`"],
+    ["The receiver", "`Warehouse`"],
+    ["Entry point", "`CamelTranslatorDemo`, five acts"],
+]
+requirements = [
+    "**Canonical only:** the warehouse route refuses bodies that are not orders.",
+    "**By name:** the normalizer routes with `toD` by format.",
+    "**Additive:** a new format is one new route.",
+    "**Every printed result is asserted** in `DemoRunsTest`.",
+]
+
+[[diagram]]
+name = "architecture-diagram"
+kind = "flow"
+title = "Message Translator with Camel — the routes"
+caption = "One inbox, a translator route per format, one warehouse route."
+nodes = [
+    { id = "i", label = "direct:inbox", sub = "normalizer", col = 0, row = 1, colour = "accent" },
+    { id = "w", label = "translate-web", sub = "key=value", col = 1, row = 0, colour = "green" },
+    { id = "c", label = "translate-csv", sub = "unmarshal().csv()", col = 1, row = 1, colour = "green" },
+    { id = "j", label = "translate-json", sub = "unmarshal().json()", col = 1, row = 2, colour = "green" },
+    { id = "h", label = "direct:warehouse", sub = "OrderMessage only", col = 2, row = 1, colour = "client" },
+]
+edges = [
+    { from = "i", to = "w", label = "" },
+    { from = "i", to = "c", label = "toD" },
+    { from = "i", to = "j", label = "" },
+    { from = "w", to = "h", label = "" },
+    { from = "c", to = "h", label = "" },
+    { from = "j", to = "h", label = "" },
+]
+
+[[diagram]]
+name = "class-diagram"
+kind = "class"
+title = "Message Translator with Camel — classes"
+caption = "Routes in one RouteBuilder; mapping in plain methods."
+nodes = [
+    { id = "r", label = "ShopRoutes", sub = ["extends RouteBuilder", "+ configure()", "+ xmlTranslator()", "+ formatOf(body)"], col = 0, row = 0, colour = "accent" },
+    { id = "t", label = "Translators", sub = ["+ fromWebForm(map)", "+ fromCsv(rows)", "+ fromJson(map)"], col = 1, row = 0, colour = "green" },
+    { id = "o", label = "«record» OrderMessage", sub = ["orderId, sku", "quantity, price"], col = 1, row = 1, colour = "client" },
+    { id = "w", label = "Warehouse", sub = ["+ pick(order)"], col = 0, row = 1, colour = "client" },
+]
+edges = [
+    { from = "r", to = "t", label = "calls" },
+    { from = "t", to = "o", label = "builds" },
+    { from = "r", to = "w", label = "ends at" },
+]
+
+[[diagram]]
+name = "data-flow-diagram"
+kind = "flow"
+title = "Message Translator with Camel — one JSON order"
+caption = "Text in, canonical order out."
+nodes = [
+    { id = "a", label = "JSON text", sub = "ref, item, count, total", col = 0, row = 0, colour = "client" },
+    { id = "b", label = "unmarshal().json()", sub = "a Map", col = 1, row = 0, colour = "accent" },
+    { id = "c", label = "Translators.fromJson", sub = "OrderMessage", col = 2, row = 0, colour = "accent" },
+    { id = "d", label = "Warehouse", sub = "1 x TEAPOT-1 for B-9", col = 3, row = 0, colour = "green" },
+]
+edges = [
+    { from = "a", to = "b", label = "" },
+    { from = "b", to = "c", label = "" },
+    { from = "c", to = "d", label = "" },
+]
+
+[[diagram]]
+name = "sequence-diagram"
+kind = "sequence"
+title = "Message Translator with Camel — the inbox"
+caption = "The normalizer picks the translator by name."
+participants = ["Marketplace", "Normalizer", "translate-csv", "Warehouse"]
+steps = [
+    ["Marketplace", "Normalizer", "A-77,MUG-1,2,1600"],
+    ["note", "Normalizer", "format = csv"],
+    ["Normalizer", "translate-csv", "toD direct:translate-csv"],
+    ["translate-csv", "Warehouse", "OrderMessage A-77"],
+]
+
+[[diagram]]
+name = "uml-diagram"
+kind = "sequence"
+title = "1. Raw JSON at the warehouse"
+caption = "Refused by type conversion."
+participants = ["Sender", "Warehouse route"]
+steps = [
+    ["Sender", "Warehouse route", "raw JSON"],
+    ["Warehouse route", "Sender", "no type converter to OrderMessage", "reply"],
+]
+
+[[diagram]]
+name = "uml-diagram-2"
+kind = "sequence"
+title = "2. XML before and after"
+caption = "One route added at run time."
+participants = ["Normalizer", "translate-xml"]
+steps = [
+    ["Normalizer", "translate-xml", "toD: no consumers available"],
+    ["note", "translate-xml", "route added"],
+    ["Normalizer", "translate-xml", "C-5 picked"],
+]
+
+[poster]
+headline = [["MESSAGE TRANSLATOR", "text"], ["WITH CAMEL", "text"]]
+before = { code = "raw JSON -> warehouse", note = "refused: no type converter", tag = "BEFORE" }
+after = { code = "unmarshal().json(Jackson)", note = "one route per format", tag = "AFTER" }
+taglines = [["Translators as routes", "gold"]]
+
+[[scene]]
+key = "01-poster"
+kind = "poster"
+title = "Message Translator with Apache Camel"
+narration = """
+Hello, and welcome. [[slnc 400]] This video explains the Message Translator pattern, built with Apache Camel, in Java. [[slnc 300]]
+This video is presented by Jayasekhar Konduru. [[slnc 600]]
+First, a simple definition. [[slnc 300]] A message translator turns a message from one format into another. [[slnc 300]] So a receiver only ever sees the one format it understands. [[slnc 500]] Apache Camel is an open-source library for moving messages, and it has translators built in. [[slnc 600]]
+Think of an international post room. [[slnc 300]] A desk sees which language each letter is in, and passes it to that language's translator. [[slnc 300]] Every translator writes the same standard form, for the office upstairs. [[slnc 700]]
+In this video, the domain is an online shop's warehouse, taking orders from its web form and from marketplaces. [[slnc 500]]
+By the end, you will hear how Camel refuses a foreign format. [[slnc 300]] How each format becomes a route. [[slnc 300]] How a normalizer picks the right one. [[slnc 300]] And what the framework costs.
+"""
+
+[[scene]]
+key = "02-scenario"
+kind = "bullets"
+title = "The Scenario"
+body = ["Web form: key=value.", "Marketplace A: CSV.", "Marketplace B: JSON.", "Later, marketplace C: XML.", "", "The warehouse needs one format."]
+narration = """
+Here is the scenario. [[slnc 400]] The shop's web form sends key and value text. [[slnc 300]] Marketplace A sends CSV. [[slnc 300]] Marketplace B sends JSON. [[slnc 300]] And later, marketplace C sends XML. [[slnc 600]]
+The warehouse must only ever see one standard order.
+"""
+
+[[scene]]
+key = "03-acts"
+kind = "acts"
+title = "acts"
+
+[[scene]]
+key = "04-pattern"
+kind = "bullets"
+title = "The Pattern, in Camel"
+body = ["A translator is a route.", "", "A data format reads the text.", "", "A normalizer route sends each", "message on by format name."]
+narration = """
+Let's name the pattern, in Camel's words. [[slnc 400]] Each translator is a route. [[slnc 500]]
+A data format reads the text into Java objects. [[slnc 500]]
+And a normalizer route sends each message to the translator whose name matches its format.
+"""
+
+[[scene]]
+key = "05-roles"
+kind = "bullets"
+title = "Who Does What"
+body = ["ShopRoutes: every route", "Translators: field mapping", "OrderMessage: the standard order", "Warehouse: receives only that"]
+narration = """
+Here is who does what. [[slnc 400]] Shop routes holds every route, the normalizer, the translators, and the warehouse. [[slnc 500]]
+The translators class maps each format's fields to the standard names. [[slnc 500]]
+Order message is the standard order. [[slnc 300]] And the warehouse receives nothing else.
+"""
+
+[[scene]]
+key = "06-recognise"
+kind = "bullets"
+title = "Where You Have Seen It"
+body = ["Camel in Spring Boot and Quarkus", "Spring Integration transformers", "MuleSoft DataWeave"]
+narration = """
+You have probably met this already. [[slnc 400]] Camel routes run inside many Spring Boot and Quarkus services. [[slnc 500]]
+Spring Integration calls translators, transformers. [[slnc 500]]
+And MuleSoft's DataWeave is the same idea, in another tool.
+"""
+
+[[scene]]
+key = "07-verdict"
+kind = "bullets"
+title = "When To Use It"
+body = ["Many formats and transports.", "Translators added over time.", "", "A few stable formats?", "The plain version is simpler."]
+narration = """
+So, when should you use Camel for this? [[slnc 400]] When there are many formats and transports, and translators arrive over time. [[slnc 500]]
+For a few formats that rarely change, the plain Java version is simpler, and easier to debug.
+"""
+
+[[scene]]
+key = "08-outro"
+kind = "outro"
+title = "Thanks for Watching"
+body = ["Full source, notes, diagrams and an animated walkthrough", "are in the repository. Send unknown", "formats to a dead-letter route."]
+narration = """
+That's the Message Translator, with Apache Camel. [[slnc 400]] If you remember one sentence, make it this one. [[slnc 300]] Each format gets its own route, and the receiver only ever sees one shape. [[slnc 500]]
+The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. [[slnc 300]] It runs offline, with nothing installed except a Java development kit. [[slnc 500]]
+Here is one exercise to try. [[slnc 300]] Send orders in an unknown format to a dead-letter route. [[slnc 500]]
+If this helped, a like really does help other people find it. [[slnc 300]] And subscribe, if you'd like the rest of the series. [[slnc 400]] Thanks for watching.
+"""
