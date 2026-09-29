@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Money Pattern — Animated Walkthrough</title>
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 24px;
+    background: #0f172a; color: #e2e8f0;
+    font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
+    padding-top: calc(24px + env(safe-area-inset-top, 0px));
+    padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+  }
+  h1 { font-size: 1.4rem; margin: 0 0 4px; }
+  p.sub { color: #94a3b8; margin: 0 0 20px; max-width: 70ch; }
+  .wrap { max-width: 1100px; margin: 0 auto; }
+  .stage { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+  @media (max-width: 760px) { .stage { grid-template-columns: 1fr; } }
+  .boxes { display: flex; flex-direction: column; gap: 10px; }
+  .row { border: 2px solid #334155; border-radius: 10px; padding: 12px 16px;
+         background: #1e293b; transition: all .25s ease; opacity: .55; }
+  .row .name { font-weight: 700; font-size: 1rem; }
+  .row .job { color: #94a3b8; font-size: .82rem; margin-top: 2px; }
+  .row.active { opacity: 1; box-shadow: 0 0 0 2px currentColor inset; }
+  .row.wrong { border-color: #f87171; color: #f87171; }
+  .row.wrong.active { background: #3f1d24; }
+  .row.ok { border-color: #34d399; color: #34d399; }
+  .row.ok.active { background: #10261f; }
+  .row.amber { border-color: #fbbf24; color: #fbbf24; }
+  .row.amber.active { background: #2a2110; }
+  .row.dim { opacity: .22; }
+  .console { background: #020617; border: 1px solid #334155; border-radius: 10px; padding: 16px;
+             font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: .86rem;
+             line-height: 1.55; overflow-y: auto; min-height: 320px; white-space: pre-wrap; }
+  #console-lines span.ok { color: #34d399; }
+  #console-lines span.bad { color: #f87171; }
+  #console-lines span.amber { color: #fbbf24; }
+  #console-lines span.muted { color: #94a3b8; }
+  .narration { background: #1e293b; border: 1px solid #334155; border-radius: 10px;
+               padding: 14px 18px; margin-bottom: 16px; min-height: 3.2em; }
+  .controls { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  button { background: #334155; color: #e2e8f0; border: 1px solid #475569; border-radius: 8px;
+           padding: 10px 18px; font-size: .92rem; cursor: pointer; }
+  button:hover { background: #475569; }
+  button:disabled { opacity: .45; cursor: default; }
+  button#play { background: #7c3aed; border-color: #7c3aed; }
+  button#play:hover { background: #8b5cf6; }
+  #progress { color: #94a3b8; font-size: .85rem; margin-left: auto; }
+  .step-label { font-size: .78rem; text-transform: uppercase; letter-spacing: .04em;
+                color: #a78bfa; font-weight: 700; margin-bottom: 4px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Money — Step by Step</h1>
+  <p class="sub">Six acts, the same ones the demo prints. Red is the double going wrong; green is Money getting it right.</p>
+
+  <div class="narration">
+    <div class="step-label" id="step-label">Ready</div>
+    <div id="narration">Press Step or Play to begin.</div>
+  </div>
+
+  <div class="stage">
+    <div class="boxes" id="boxes">
+      <div class="row" id="row-naive">
+        <div class="name">NaiveCart</div>
+        <div class="job">prices as doubles, no currency</div>
+      </div>
+      <div class="row" id="row-cart">
+        <div class="name">Cart</div>
+        <div class="job">lines in Money, one currency</div>
+      </div>
+      <div class="row" id="row-money">
+        <div class="name">Money</div>
+        <div class="job">whole pence + currency, exact</div>
+      </div>
+      <div class="row" id="row-currency">
+        <div class="name">Currency</div>
+        <div class="job">GBP 2 digits, USD 2, JPY 0</div>
+      </div>
+      <div class="row" id="row-allocation">
+        <div class="name">allocate()</div>
+        <div class="job">splits without losing a penny</div>
+      </div>
+    </div>
+    <div class="console"><div id="console-lines"></div></div>
+  </div>
+
+  <div class="controls">
+    <button id="step">Step ▸</button>
+    <button id="play">Play ▶</button>
+    <button id="reset">Reset ↺</button>
+    <span id="progress">0 / 0</span>
+  </div>
+</div>
+
+<script>
+const STEPS = [
+ {
+  "label": "Act 1 — Prices as doubles",
+  "narration": "The naive cart keeps prices as doubles. Ten pence plus twenty pence comes out as zero point three, then fifteen zeros and a four. A thousand items at ten pence becomes nine thousand nine hundred and ninety-nine pence. And ten dollars plus ten pounds is just twenty.",
+  "rows": {
+   "naive": "active wrong"
+  },
+  "console": [
+   [
+    "a 10p sticker and a 20p sticker: total 0.30000000000000004",
+    "bad"
+   ],
+   [
+    "is it 0.30? false",
+    "bad"
+   ],
+   [
+    "1000 items at 10p, added one by one: 99.9999999999986",
+    "bad"
+   ],
+   [
+    "turned into pence by cutting off the fraction: 9999 pence, not 10000",
+    "bad"
+   ],
+   [
+    "10 dollars + 10 pounds = 20.0, with nobody asking which is which",
+    "amber"
+   ]
+  ]
+ },
+ {
+  "label": "Act 2 — Prices as Money",
+  "narration": "Money keeps a whole number of pence and a currency. Ten pence plus twenty pence is exactly thirty pence. A thousand ten-pences are exactly one hundred pounds. The cart comes to sixty-three pounds forty-four.",
+  "rows": {
+   "money": "active ok",
+   "cart": "active ok"
+  },
+  "console": [
+   [
+    "10p + 20p = £0.30, equal to 30p: true",
+    "ok"
+   ],
+   [
+    "1000 items at 10p: £100.00, stored as 10000 pence",
+    "ok"
+   ],
+   [
+    "3 mugs at £9.49, a teapot at £24.99, 2 coasters at £4.99: £63.44",
+    "ok"
+   ]
+  ]
+ },
+ {
+  "label": "Act 3 — Currencies travel with the amount",
+  "narration": "Each amount carries its currency. Ten pounds plus ten dollars is refused. Yen have no pennies, so fifteen hundred yen prints as fifteen hundred. And nine pounds 999 is refused, because pounds have only two digits.",
+  "rows": {
+   "money": "active amber",
+   "currency": "active ok"
+  },
+  "console": [
+   [
+    "£10.00 + $10.00: refused, cannot combine GBP with USD",
+    "amber"
+   ],
+   [
+    "a Japanese price has no pennies: ¥1500",
+    "ok"
+   ],
+   [
+    "£9.999: refused, 9.999 has more digits than GBP allows",
+    "amber"
+   ]
+  ]
+ },
+ {
+  "label": "Act 4 — Rounding is a choice, made once",
+  "narration": "Twenty percent VAT on 99 pence is 19.8 pence, so something must round. Rounded on each of ten lines, the VAT is two pounds. Rounded once on the total, it is one pound ninety-eight. Money makes you choose, and shows the choice.",
+  "rows": {
+   "money": "active amber",
+   "cart": "active ok"
+  },
+  "console": [
+   [
+    "VAT at 20% on 10 items at 99p, rounded on each line: £2.00",
+    "amber"
+   ],
+   [
+    "the same VAT, rounded once on the total:            £1.98",
+    "amber"
+   ],
+   [
+    "difference: £0.02, and Money made the rounding visible",
+    "ok"
+   ]
+  ]
+ },
+ {
+  "label": "Act 5 — Splitting without losing a penny",
+  "narration": "Ten pounds divided by three is 3.33 each, and three of those is 9.99: a penny lost. Allocate hands out the leftover penny: 3.34, 3.33 and 3.33, exactly ten pounds. A five pound discount spreads over the cart as 2.25, 1.97 and 78 pence.",
+  "rows": {
+   "money": "active ok",
+   "allocation": "active ok",
+   "cart": "active ok"
+  },
+  "console": [
+   [
+    "£10 shared by 3 friends, each paying a third: £3.33 x 3 = £9.99, a penny short",
+    "bad"
+   ],
+   [
+    "allocate(1, 1, 1): £3.34, £3.33, £3.33 = £10.00",
+    "ok"
+   ],
+   [
+    "a £5.00 basket discount spread over the cart's lines by value: £2.25, £1.97, £0.78 = £5.00",
+    "ok"
+   ]
+  ]
+ },
+ {
+  "label": "Act 6 — The bill",
+  "narration": "The bill: a price is now a class, so every database, message and screen must convert it. Nineteen ninety-nine is stored as 1999 and GBP. And converting pounds to dollars still needs a rate and a date.",
+  "rows": {
+   "money": "active amber"
+  },
+  "console": [
+   [
+    "a price is now a class, not a number: every place that stores,",
+    "muted"
+   ],
+   [
+    "sends or shows one must convert, e.g. £19.99 is stored as 1999 and GBP",
+    "muted"
+   ],
+   [
+    "converting pounds to dollars needs a rate and a date: Money does not do it",
+    "amber"
+   ]
+  ]
+ }
+];
+const rowIds = ["naive", "cart", "money", "currency", "allocation"];
+const stepLabel = document.getElementById("step-label");
+const narrationEl = document.getElementById("narration");
+const consoleEl = document.getElementById("console-lines");
+const progressEl = document.getElementById("progress");
+const playBtn = document.getElementById("play");
+let i = -1, timer = null;
+
+function esc(t) { return t.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+
+function render() {
+  for (const id of rowIds) document.getElementById("row-" + id).className = "row";
+  if (i < 0) {
+    stepLabel.textContent = "Ready";
+    narrationEl.textContent = "Press Step or Play to begin.";
+    consoleEl.innerHTML = "";
+    progressEl.textContent = "0 / " + STEPS.length;
+    return;
+  }
+  const s = STEPS[i];
+  stepLabel.textContent = s.label;
+  narrationEl.textContent = s.narration;
+  for (const id of rowIds) {
+    const cls = s.rows[id];
+    document.getElementById("row-" + id).className = "row " + (cls ? cls : "dim");
+  }
+  consoleEl.innerHTML = s.console.map(([t, c]) => '<span class="' + c + '">' + esc(t) + "</span>").join("\n");
+  progressEl.textContent = (i + 1) + " / " + STEPS.length;
+}
+function step() { if (i >= STEPS.length - 1) { stopPlay(); return; } i += 1; render(); }
+function reset() { stopPlay(); i = -1; render(); }
+// While a step's narration is playing, Play waits for it to finish.
+function speaking() { return typeof window.vkSpeaking === "function" && window.vkSpeaking(); }
+function startPlay() {
+  if (timer) return;
+  playBtn.textContent = "Pause ❚❚";
+  let quiet = 0;
+  timer = setInterval(() => {
+    if (speaking()) { quiet = 0; return; }
+    if (++quiet < 6) return;                     // 6 × 500 ms of reading time
+    quiet = 0;
+    if (i >= STEPS.length - 1) { stopPlay(); return; }
+    step();
+  }, 500);
+  if (i < 0) step();
+}
+function stopPlay() { if (timer) clearInterval(timer); timer = null; playBtn.textContent = "Play ▶"; }
+
+document.getElementById("step").addEventListener("click", () => { stopPlay(); step(); });
+document.getElementById("reset").addEventListener("click", reset);
+playBtn.addEventListener("click", () => { if (timer) stopPlay(); else startPlay(); });
+render();
+</script>
+</body>
+</html>

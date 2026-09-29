@@ -1,0 +1,490 @@
+# pattern.toml for the Health Endpoint Monitoring project. See tools/patternkit.
+
+[project]
+slug = "health-endpoint-monitoring"
+category = "micro-services-design-patterns"
+title = "Health Endpoint Monitoring"
+package = "healthcheck"
+main_class = "HealthEndpointDemo"
+tagline = "Alive is not the same as ready"
+bold = "Let each instance answer two questions for the platform: am I working at all (restart me if not), and can I take work right now (stop sending it if not)."
+domain_note = ""
+thumb_lines = ["HEALTH", "ENDPOINTS"]
+thumb_code = "GET /health/ready"
+youtube_title = "Health Endpoint Monitoring"
+youtube_tags = ["health check", "liveness", "readiness", "kubernetes probes", "microservices", "load balancer", "java"]
+
+[readme]
+intro = """
+Health Endpoint Monitoring is a microservices pattern. Each running copy of a
+service, called an instance, answers a small web address that says how it is.
+The load balancer uses the answer to decide where to send work, and the
+platform uses it to decide when to restart an instance.
+
+The important idea is that there are two different questions. Liveness asks
+"is this process working at all?", and restarting it may help if not.
+Readiness asks "can it take work right now?", and if not, the answer is to stop
+sending it work, not to restart it.
+"""
+analogy = """
+Think of the host at a busy restaurant, who decides which waiter gets the next
+table. A waiter who has fainted needs to be sent home and replaced: that is
+liveness. A waiter who is fine, but whose section of the kitchen has run out of
+gas, should not be given tables for now, and sending them home would not fix
+the gas: that is readiness. And a waiter whose dessert trolley is empty can
+still serve, just without dessert: that is degraded.
+"""
+scenario = """
+The online store runs three instances of its checkout service, A, B and C,
+behind a load balancer. Each has its own database connection, and all three
+use the same payment provider and the same product recommendations service.
+The load balancer only checked that each instance's network port was open.
+"""
+costs = [
+    "**Checks cost calls.** Readiness every ten seconds on three instances makes 54 dependency calls a minute, before any customer orders anything.",
+    "**Two endpoints to get right.** Putting a shared dependency into liveness turns one outage into a restart of every instance.",
+    "**They say too much.** \"database down\" is useful to the platform and to an attacker, so the detail must not be public.",
+    "**A green check is not proof.** An endpoint only tests what it was written to test.",
+]
+too_much = """
+A single program on one server, watched by a person, does not need separate
+liveness and readiness. And a readiness check does not need to test every
+dependency: only those without which the instance truly cannot do its job.
+"""
+met_before = [
+    "Kubernetes liveness, readiness and startup probes.",
+    "Spring Boot Actuator's `/actuator/health`, with its `liveness` and `readiness` groups.",
+    "Load balancer target health checks in AWS, Azure and Google Cloud.",
+    "Status pages that show a service as operational, degraded or down.",
+]
+where = """
+This project is in [micro-services-design-patterns](..), next to
+[Circuit Breaker](../circuit-breaker-pattern), which is the caller's side of the
+same problem: noticing that something it depends on is down, and not waiting
+for it.
+"""
+
+[[act]]
+title = "An open port"
+summary = "Instance B is stuck but its port is open; the load balancer keeps sending it work: 3 of 9 orders fail."
+detail = """
+Instance B is stuck: the process is running and its network port accepts
+connections, but it cannot take an order. The load balancer only checks the
+port, so B stays in rotation with A and C. Nine orders are shared in turn, and
+the three that go to B fail.
+"""
+speech = """
+First demo: an open port. [[slnc 400]] Instance B is stuck. [[slnc 300]] It is running, and its network port answers, but it cannot take an order. [[slnc 500]]
+The load balancer only checks the port. [[slnc 300]] So it keeps sending B its share of the work. [[slnc 500]]
+Nine orders go out, shared between A, B and C. [[slnc 300]] The three that land on B fail.
+"""
+rows = { lb = "active wrong", b = "active wrong", a = "active ok", c = "active ok" }
+console = [
+    ["B is stuck, but its port is open", "amber"],
+    ["in rotation: A, B, C", "bad"],
+    ["9 orders sent: 3 failed", "bad"],
+]
+
+[[act]]
+title = "Liveness"
+summary = "B answers 503 DOWN on /health/live; the load balancer drops it (0 of 9 fail); after 3 failed checks it is restarted and returns."
+detail = """
+Each instance now answers `/health/live`. A and C answer `200 UP`; B answers
+`503 DOWN, not responding`. The load balancer takes B out of rotation and all
+nine orders succeed on A and C. The platform's `Restarter` checks liveness every
+ten seconds. After three failures in a row it restarts B, which comes back
+`200 UP` and rejoins the rotation.
+"""
+speech = """
+Second demo: a liveness endpoint. [[slnc 400]] Each instance now answers a small web address: health, live. [[slnc 300]] It asks one question. [[slnc 300]] Is this process working at all? [[slnc 500]]
+A and C answer two hundred, up. [[slnc 300]] B answers five oh three, down, not responding. [[slnc 500]]
+The load balancer takes B out of rotation. [[slnc 300]] Nine orders go to A and C, and none fail. [[slnc 600]]
+The platform also watches liveness. [[slnc 300]] After three failed checks in a row, it restarts B. [[slnc 300]] B comes back up, and rejoins the rotation.
+"""
+rows = { a = "active ok", b = "active wrong", c = "active ok", restarter = "active amber" }
+console = [
+    ["A: 200 UP   B: 503 DOWN   C: 200 UP", "amber"],
+    ["in rotation [A, C]; 0 of 9 failed", "ok"],
+    ["3 failed checks: B restarted, 200 UP", "ok"],
+]
+
+[[act]]
+title = "Readiness"
+summary = "C's database is down: ready says 503, live says 200, so C is taken out but not restarted; recommendations down makes A and B DEGRADED but still serving."
+detail = """
+Now C loses its database, and the shared recommendations service goes down.
+`/health/ready` checks the dependencies. A and B answer `200 DEGRADED
+(recommendations down)`: recommendations are not critical, so they keep
+taking orders, just without suggestions. C answers `503 DOWN (database down)`.
+But C's liveness is still `200 UP`, so it is not restarted, which would not
+bring its database back. Nine orders go to A and B and none fail.
+"""
+speech = """
+Third demo: a readiness endpoint. [[slnc 400]] This one asks a different question. [[slnc 300]] Can this instance take an order right now? [[slnc 500]]
+To answer, it checks what the instance depends on. [[slnc 300]] Instance C has lost its database. [[slnc 300]] And the product recommendations service is down for everyone. [[slnc 600]]
+A and B answer two hundred, degraded. [[slnc 300]] Recommendations are nice to have, not essential. [[slnc 300]] So they keep taking orders, without suggestions. [[slnc 500]]
+C answers five oh three, down, database down. [[slnc 300]] The load balancer stops sending it orders. [[slnc 500]]
+But C's liveness still says up. [[slnc 300]] So nobody restarts it. [[slnc 300]] A restart would not bring its database back.
+"""
+rows = { a = "active amber", b = "active amber", c = "active wrong", lb = "active ok" }
+console = [
+    ["A, B ready: 200 DEGRADED (recs down)", "amber"],
+    ["C ready: 503 DOWN (database down)", "bad"],
+    ["C live: 200 UP, so not restarted", "ok"],
+    ["in rotation [A, B]; 0 of 9 failed", "ok"],
+]
+
+[[act]]
+title = "A liveness check that is too deep"
+summary = "The shared payment provider is down: a liveness check that includes it restarts all 3 instances; a shallow one restarts 0."
+detail = """
+The payment provider, which all three instances share, is down for thirty
+seconds. If liveness also checks payments (`deepLive`), every instance fails it,
+and after three checks the platform restarts all three at once: no checkout at
+all while they start up, and the provider is still down. With a shallow liveness
+check, no instance is restarted. Restarting checkout cannot fix someone else's
+outage.
+"""
+speech = """
+Fourth demo: a liveness check that is too deep. [[slnc 400]] The payment provider goes down for thirty seconds. [[slnc 300]] All three instances share it. [[slnc 600]]
+Suppose liveness also checked payments. [[slnc 300]] Every instance would fail. [[slnc 300]] After three checks, the platform restarts all three at once. [[slnc 300]] Three of three. [[slnc 300]] While they start up, there is no checkout at all. [[slnc 600]]
+With liveness that checks only the process itself, nothing is restarted. [[slnc 500]]
+Restarting checkout cannot fix the payment provider. [[slnc 300]] So keep shared dependencies out of liveness.
+"""
+rows = { payments = "active wrong", restarter = "active wrong" }
+console = [
+    ["liveness checks payments too:", "muted"],
+    ["  3 of 3 instances restarted", "bad"],
+    ["liveness checks only the process:", "muted"],
+    ["  0 restarted", "ok"],
+]
+
+[[act]]
+title = "The bill"
+summary = "Readiness every 10 s on 3 instances is 54 dependency calls a minute; details like \"database down\" must not be public."
+detail = """
+Each readiness check calls three dependencies. Every ten seconds on three
+instances, that is 54 dependency calls a minute before any customer orders
+anything. And a detailed answer such as "database down" is exactly what an
+attacker wants to know, so the detail belongs on an internal address and the
+public one should say only up or down.
+"""
+speech = """
+Fifth demo: the bill. [[slnc 400]] Each readiness check calls three dependencies. [[slnc 300]] Every ten seconds, on three instances, that is fifty-four calls a minute. [[slnc 300]] Before a single customer orders anything. [[slnc 600]]
+And the details can say too much. [[slnc 300]] Database down is useful to the platform. [[slnc 300]] It is also useful to an attacker. [[slnc 300]] Keep the details on an internal address, and let the public one say only up, or down.
+"""
+rows = { lb = "active amber", db = "active amber", payments = "active amber", recs = "active amber" }
+console = [
+    ["54 dependency calls a minute", "amber"],
+    ["\"database down\": keep it private", "amber"],
+]
+
+[animation]
+subtitle = "Three checkout instances answer live and ready; the load balancer sends work only to ready ones, and the platform restarts only dead ones."
+boxes = [
+    ["lb", "Load balancer", "sends orders to ready instances"],
+    ["restarter", "Platform", "restarts after 3 failed live checks"],
+    ["a", "Instance A", "checkout"],
+    ["b", "Instance B", "checkout"],
+    ["c", "Instance C", "checkout"],
+    ["db", "Database", "one per instance, critical"],
+    ["payments", "Payment provider", "shared, critical"],
+    ["recs", "Recommendations", "shared, nice to have"],
+]
+
+[docs.problem]
+scenario = """
+Three checkout instances sit behind a load balancer. Each has its own database
+and shares the payment provider and recommendations service.
+"""
+naive = """
+The load balancer checks only that each instance's port is open. A stuck
+instance keeps its port open, keeps receiving a third of the orders, and fails
+every one of them.
+"""
+deliver = [
+    "The open-port check shown losing 3 of 9 orders to a stuck instance.",
+    "A liveness endpoint that takes the stuck instance out and gets it restarted.",
+    "A readiness endpoint that separates DOWN (critical dependency) from DEGRADED (non-critical).",
+    "The restart storm shown when liveness includes a shared dependency: 3 of 3 against 0.",
+    "The costs shown: 54 dependency calls a minute, and details that must stay private.",
+    "Every printed number asserted by a test.",
+]
+
+[docs.prerequisites]
+required = [
+    "Java basics: classes, records, lists, lambdas.",
+    "HTTP status codes 200 and 503.",
+    "The idea of running several copies of a service behind a load balancer.",
+]
+not_required = [
+    "Kubernetes or Spring Boot. Probes and Actuator are named, not used.",
+    "A web server. Endpoints are static methods.",
+]
+
+[docs.session]
+objectives = [
+    "Explain why an open port does not mean a healthy service.",
+    "Tell liveness from readiness, and say who acts on each.",
+    "Decide which dependencies make an instance DOWN and which make it DEGRADED.",
+    "Explain why shared dependencies must stay out of liveness.",
+]
+walkthrough = """
+Run `./gradlew run` and read act one: three lost orders to an instance whose
+port was open. Then open `HealthEndpoint.java` and compare `live` and `ready`
+line by line. Spend the most time on act four, the restart storm: it is the
+mistake teams make in production, and the reason the two checks exist.
+"""
+exercises = [
+    "Add a startup check that answers DOWN for the first 20 seconds after a restart. Who should use it?",
+    "Cache the readiness answer for 5 seconds. How many dependency calls a minute now?",
+    "Make the public endpoint answer only UP or DOWN, and move the detail to an internal one.",
+    "Add a fourth dependency, the email service. Should it be critical?",
+]
+
+[docs.explained]
+sentence = """
+Health Endpoint Monitoring gives each instance two addresses: liveness, which
+says whether the process works and gets it restarted if not, and readiness,
+which says whether it can take work now and takes it out of rotation if not.
+"""
+verdict = """
+Give every service both. Keep liveness shallow: only the process itself.
+Put critical dependencies in readiness, report non-critical ones as degraded,
+cache the result for a few seconds, and keep the detailed answer off the public
+internet.
+"""
+recognise = [
+    "`/health`, `/healthz`, `/ready`, `/live`, `/actuator/health` endpoints.",
+    "`livenessProbe` and `readinessProbe` in Kubernetes files.",
+    "Status values `UP`, `DOWN`, `DEGRADED`, `OUT_OF_SERVICE`.",
+    "Load balancer settings for health check path, interval and threshold.",
+]
+
+[spec]
+purpose = """
+Teach Health Endpoint Monitoring with an online store: a stuck instance kept in
+rotation by an open-port check (3 of 9 orders fail), a liveness endpoint that
+removes and restarts it, a readiness endpoint that separates DOWN from DEGRADED
+and avoids a useless restart, the restart storm of a too-deep liveness check
+(3 of 3 against 0), and the costs.
+"""
+nongoals = [
+    "Not Kubernetes or Spring Boot Actuator. Named, not used.",
+    "Not a web server or real time. Checks are method calls in rounds.",
+    "Not alerting. Who gets told is a separate concern.",
+]
+problem = """
+A check that only asks whether a port is open keeps broken instances in
+rotation, and a check that asks too much restarts healthy ones.
+"""
+roles = [
+    ["The pattern", "`HealthEndpoint` (`live`, `ready`)"],
+    ["Who acts on it", "`LoadBalancer` (readiness), `Restarter` (liveness)"],
+    ["What is checked", "`Instance`, `Dependency`"],
+    ["The answer", "`Health`"],
+    ["Entry point", "`HealthEndpointDemo`, five acts"],
+]
+requirements = [
+    "**Liveness is shallow:** it never checks shared dependencies.",
+    "**Readiness separates:** a critical dependency down gives 503 DOWN; a non-critical one gives 200 DEGRADED.",
+    "**Restart after three:** the restarter waits for three failures in a row.",
+    "**Counted outcomes:** 3 of 9 failed by port, 0 by readiness; 3 of 3 restarts against 0; 54 calls a minute.",
+    "**Every printed number is asserted** in `DemoRunsTest`.",
+]
+
+[[diagram]]
+name = "architecture-diagram"
+kind = "flow"
+title = "Health Endpoint Monitoring — the pieces"
+caption = "Two checkers, two questions: the load balancer asks ready, the platform asks live."
+nodes = [
+    { id = "lb", label = "LoadBalancer", sub = "asks /health/ready", col = 0, row = 0, colour = "client" },
+    { id = "rs", label = "Restarter", sub = "asks /health/live", col = 0, row = 1, colour = "client" },
+    { id = "i", label = "Instance A, B, C", sub = "checkout", col = 1, row = 0, colour = "accent" },
+    { id = "h", label = "HealthEndpoint", sub = "live and ready", col = 1, row = 1, colour = "accent" },
+    { id = "db", label = "Database", sub = "own, critical", col = 2, row = 0, colour = "amber" },
+    { id = "pay", label = "Payments", sub = "shared, critical", col = 2, row = 1, colour = "amber" },
+    { id = "rec", label = "Recommendations", sub = "shared, nice to have", col = 2, row = 2, colour = "green" },
+]
+edges = [
+    { from = "lb", to = "i", label = "orders" },
+    { from = "lb", to = "h", label = "ready?" },
+    { from = "rs", to = "h", label = "live?" },
+    { from = "h", to = "db", label = "check" },
+    { from = "h", to = "pay", label = "check" },
+    { from = "h", to = "rec", label = "check" },
+]
+
+[[diagram]]
+name = "class-diagram"
+kind = "class"
+title = "Health Endpoint Monitoring — classes"
+caption = "Two static checks, and two users of them."
+nodes = [
+    { id = "h", label = "HealthEndpoint", sub = ["+ live(Instance): Health", "+ ready(Instance): Health", "+ deepLive (the mistake)"], col = 1, row = 0, colour = "accent" },
+    { id = "i", label = "Instance", sub = ["name, stuck, restarts", "+ placeOrder()", "+ restart()"], col = 1, row = 1, colour = "client" },
+    { id = "d", label = "Dependency", sub = ["name, critical, up", "+ check()"], col = 2, row = 1, colour = "amber" },
+    { id = "hr", label = "«record» Health", sub = ["code, status, detail"], col = 2, row = 0, colour = "green" },
+    { id = "lb", label = "LoadBalancer", sub = ["+ send(n): failed", "+ inRotation()"], col = 0, row = 0, colour = "client" },
+    { id = "rs", label = "Restarter", sub = ["+ checkAll(instances)", "3 failures -> restart"], col = 0, row = 1, colour = "client" },
+]
+edges = [
+    { from = "lb", to = "h", label = "ready" },
+    { from = "rs", to = "h", label = "live" },
+    { from = "h", to = "hr", label = "returns" },
+    { from = "i", to = "d", label = "has" },
+]
+
+[[diagram]]
+name = "data-flow-diagram"
+kind = "flow"
+title = "Health Endpoint Monitoring — which answer, which action"
+caption = "Each answer leads to a different action; only a failed liveness check leads to a restart."
+nodes = [
+    { id = "up", label = "200 UP", sub = "send orders", col = 0, row = 0, colour = "green" },
+    { id = "deg", label = "200 DEGRADED", sub = "send orders, less shown", col = 1, row = 0, colour = "amber" },
+    { id = "nr", label = "ready 503", sub = "stop sending orders", col = 2, row = 0, colour = "red" },
+    { id = "nl", label = "live 503 x 3", sub = "restart the instance", col = 2, row = 1, colour = "red" },
+]
+edges = [
+    { from = "up", to = "deg", label = "non-critical down" },
+    { from = "deg", to = "nr", label = "critical down" },
+    { from = "nr", to = "nl", label = "process stuck" },
+]
+
+[[diagram]]
+name = "sequence-diagram"
+kind = "sequence"
+title = "Health Endpoint Monitoring — C loses its database"
+caption = "Taken out of rotation, but not restarted."
+participants = ["LoadBalancer", "Restarter", "C", "Database"]
+steps = [
+    ["LoadBalancer", "C", "GET /health/ready"],
+    ["C", "Database", "check"],
+    ["Database", "C", "down", "reply"],
+    ["C", "LoadBalancer", "503 DOWN (database down)", "reply"],
+    ["Restarter", "C", "GET /health/live"],
+    ["C", "Restarter", "200 UP", "reply"],
+    ["note", "C", "no orders, no restart"],
+]
+
+[[diagram]]
+name = "uml-diagram"
+kind = "sequence"
+title = "1. A stuck instance"
+caption = "Removed at once; restarted after three failures."
+participants = ["LoadBalancer", "Restarter", "B"]
+steps = [
+    ["LoadBalancer", "B", "ready?"],
+    ["B", "LoadBalancer", "503 not responding", "reply"],
+    ["Restarter", "B", "live? (x3)"],
+    ["B", "Restarter", "503 (x3)", "reply"],
+    ["Restarter", "B", "restart()"],
+]
+
+[[diagram]]
+name = "uml-diagram-2"
+kind = "sequence"
+title = "2. Liveness that is too deep"
+caption = "A shared outage restarts every instance."
+participants = ["Restarter", "A, B, C", "Payments"]
+steps = [
+    ["Restarter", "A, B, C", "deep live? (x3)"],
+    ["A, B, C", "Payments", "check"],
+    ["Payments", "A, B, C", "down", "reply"],
+    ["Restarter", "A, B, C", "restart all 3"],
+    ["note", "A, B, C", "no checkout while starting"],
+]
+
+[poster]
+headline = [["HEALTH", "text"], ["ENDPOINTS", "text"]]
+before = { code = "port 8080 open?", note = "stuck, still sent orders", tag = "BEFORE" }
+after = { code = "GET /health/ready", note = "503: out of rotation", tag = "AFTER" }
+taglines = [["Alive is not the same as ready", "gold"]]
+
+[[scene]]
+key = "01-poster"
+kind = "poster"
+title = "Health Endpoint Monitoring"
+narration = """
+Hello, and welcome. [[slnc 400]] This video explains the Health Endpoint Monitoring pattern, in Java. [[slnc 300]]
+This video is presented by Jayasekhar Konduru. [[slnc 600]]
+First, a simple definition. [[slnc 300]] Each running copy of a service answers a small web address that says how it is. [[slnc 300]] It answers two questions. [[slnc 300]] Am I working at all? If not, restart me. [[slnc 300]] And can I take work right now? If not, stop sending it. [[slnc 600]]
+Think of the host at a busy restaurant, who decides which waiter gets the next table. [[slnc 300]] A waiter who has fainted is sent home and replaced. [[slnc 300]] A waiter whose kitchen has run out of gas is fine, but should not get tables for now. [[slnc 300]] Sending them home would not fix the gas. [[slnc 700]]
+In this video, the domain is an online shop. [[slnc 300]] Its checkout service runs as three copies, called A, B and C. [[slnc 300]] A load balancer shares the orders between them. [[slnc 500]]
+By the end, you will hear why an open port is not a healthy service. [[slnc 300]] The difference between liveness and readiness. [[slnc 300]] Why a check that asks too much restarts everything. [[slnc 300]] And what these checks cost.
+"""
+
+[[scene]]
+key = "02-scenario"
+kind = "bullets"
+title = "The Scenario"
+body = ["Checkout runs as 3 instances:", "A, B and C.", "", "Each has its own database.", "All share payments and", "recommendations.", "", "A load balancer shares the orders."]
+narration = """
+Here is the scenario. [[slnc 400]] The shop's checkout service runs as three instances. [[slnc 300]] An instance is one running copy of the same program. [[slnc 500]]
+Each instance has its own database connection. [[slnc 300]] All three share the same payment provider. [[slnc 300]] And the same product recommendations service. [[slnc 600]]
+In front of them sits a load balancer. [[slnc 300]] It shares the orders between A, B and C, in turn. [[slnc 500]]
+How does it know which instances are fit for work?
+"""
+
+[[scene]]
+key = "03-acts"
+kind = "acts"
+title = "acts"
+
+[[scene]]
+key = "04-pattern"
+kind = "bullets"
+title = "The Pattern"
+body = ["/health/live: is the process working?", "  No: the platform restarts it.", "", "/health/ready: can it take work now?", "  No: the load balancer skips it.", "  Degraded: work, with less."]
+narration = """
+Let's name the pattern. [[slnc 400]] Every instance answers two addresses. [[slnc 500]]
+Health, live, asks: is the process working at all? [[slnc 300]] If the answer is no, three times in a row, the platform restarts it. [[slnc 500]]
+Health, ready, asks: can it take work right now? [[slnc 300]] If a critical dependency is down, the answer is no, and the load balancer skips it. [[slnc 300]] If only something optional is down, the answer is degraded. [[slnc 300]] It keeps working, with less.
+"""
+
+[[scene]]
+key = "05-roles"
+kind = "bullets"
+title = "Who Does What"
+body = ["HealthEndpoint: live and ready", "LoadBalancer: acts on ready", "Restarter: acts on live", "Dependency: critical or not"]
+narration = """
+Here is who does what. [[slnc 400]] The health endpoint has two checks, live and ready. [[slnc 500]]
+The load balancer uses ready, to decide where to send orders. [[slnc 300]] The restarter stands in for the platform. [[slnc 300]] It uses live, to decide what to restart. [[slnc 500]]
+And each dependency is marked critical, or not. [[slnc 300]] That mark decides between down, and degraded.
+"""
+
+[[scene]]
+key = "06-recognise"
+kind = "bullets"
+title = "Where You Have Seen It"
+body = ["Kubernetes liveness and", "readiness probes", "Spring Boot Actuator /health", "Cloud load balancer health checks", "Status pages: operational, degraded"]
+narration = """
+You have probably met this pattern already. [[slnc 400]] Kubernetes has liveness probes and readiness probes. [[slnc 300]] They are exactly these two questions. [[slnc 500]]
+Spring Boot Actuator gives every application a health address. [[slnc 500]]
+Cloud load balancers have health check settings. [[slnc 300]] And public status pages show operational, degraded, or down.
+"""
+
+[[scene]]
+key = "07-verdict"
+kind = "bullets"
+title = "When To Use It"
+body = ["Give every service both checks.", "", "Keep liveness shallow.", "Critical dependencies: readiness.", "Optional ones: degraded.", "", "Keep the details private."]
+narration = """
+So, when should you use it? [[slnc 400]] Give every service that runs as several instances both checks. [[slnc 500]]
+Keep liveness shallow: only the process itself. [[slnc 300]] Put critical dependencies in readiness. [[slnc 300]] Report optional ones as degraded. [[slnc 500]]
+Cache the answer for a few seconds, so checks do not flood your dependencies. [[slnc 300]] And keep the detailed answer off the public internet.
+"""
+
+[[scene]]
+key = "08-outro"
+kind = "outro"
+title = "Thanks for Watching"
+body = ["Full source, notes, diagrams and an animated walkthrough", "are in the repository. Cache the readiness answer", "and count the calls."]
+narration = """
+That's the Health Endpoint Monitoring pattern. [[slnc 400]] If you remember one sentence, make it this one. [[slnc 300]] Alive is not the same as ready. [[slnc 300]] Restart what is dead, and stop sending work to what is not ready. [[slnc 500]]
+The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. [[slnc 300]] It runs offline, with nothing installed except a Java development kit. [[slnc 500]]
+Here is one exercise to try. [[slnc 300]] Cache the readiness answer for five seconds. [[slnc 300]] Then count the dependency calls a minute. [[slnc 500]]
+If this helped, a like really does help other people find it. [[slnc 300]] And subscribe, if you'd like the rest of the series. [[slnc 400]] Thanks for watching.
+"""

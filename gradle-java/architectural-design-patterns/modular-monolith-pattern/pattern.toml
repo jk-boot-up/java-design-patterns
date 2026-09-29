@@ -1,0 +1,485 @@
+# pattern.toml for the Modular Monolith project. See tools/patternkit.
+
+[project]
+slug = "modular-monolith"
+category = "architectural-design-patterns"
+title = "Modular Monolith"
+package = "modularmonolith"
+main_class = "ModularMonolithDemo"
+tagline = "One program, walls inside"
+bold = "Build one program, but split it into modules that own their data and talk only through front doors, and check those walls on every build."
+domain_note = ""
+thumb_lines = ["MODULAR", "MONOLITH"]
+thumb_code = "CatalogApi.reserve()"
+youtube_title = "Modular Monolith"
+youtube_tags = ["modular monolith", "software architecture", "modules", "microservices", "boundaries", "java"]
+
+[readme]
+intro = """
+A monolith is a program that is built and deployed as one piece. A modular
+monolith is still one piece, but inside it is divided into modules, such as
+catalogue, orders and payments. Each module owns its own data and its own
+rules, and offers a small public front door, an API. Other modules may only
+use that front door, never the module's insides.
+
+It gives you most of the tidiness of microservices without the network, the
+separate deployments and the distributed failures. And because every module is
+already behind a front door, one of them can later be moved into its own
+service without rewriting the others.
+"""
+analogy = """
+Think of a department store. It is one building, with one front entrance and
+one set of opening hours. But the shoe department has its own staff and its own
+stockroom, and the kitchenware department does not wander into it to take
+boxes off the shelves. They ask at the counter.
+
+If the shoe department ever grows big enough to need its own shop across the
+road, it can move, and the kitchenware staff still just ask at a counter.
+"""
+scenario = """
+The online store is one Java program. Checkout, the catalogue and payments all
+lived in the same code with every table open to every class. Checkout changed
+the stock table directly, skipping the catalogue's rule that stock never goes
+below zero, and the shop sold one kettle to two customers.
+"""
+costs = [
+    "**Still one deployment.** A fix to payments redeploys the catalogue and orders too.",
+    "**Still one process.** A crash or a memory leak in one module stops all of them, and they scale together.",
+    "**Walls need checking.** Java lets any public class be used from anywhere; without a check on every build, the walls quietly disappear.",
+    "**Front doors take design.** Deciding what each module offers, and what it keeps inside, is real work.",
+]
+too_much = """
+A small program with one team and one kind of data does not need modules
+beyond ordinary packages. And when parts genuinely need separate deployment,
+separate scaling or separate teams releasing on their own schedule, that is the
+point at which a module becomes a microservice.
+"""
+met_before = [
+    "Java's own module system (`module-info.java`), with `exports` naming the public packages.",
+    "ArchUnit tests that fail the build when one package uses another it should not.",
+    "Spring Modulith, which checks module boundaries in Spring Boot applications.",
+    "Shopify's and GitHub's large monoliths, split into internal components.",
+]
+where = """
+This project is in [architectural-design-patterns](..), next to
+[Layered Architecture](../layered-architecture-pattern), which slices a program
+into layers across it, and [Hexagonal Architecture](../hexagonal-architecture-pattern),
+which puts front doors (ports) around a single core. A modular monolith slices
+by business area instead.
+"""
+
+[[act]]
+title = "Every table open"
+summary = "Checkout writes the stock table itself; one kettle in stock is sold twice and stock becomes -1."
+detail = """
+In the `mud` package, every table is a public static map. `MudCheckout` takes
+stock by writing to `Tables.STOCK` itself. The catalogue has a rule that stock
+never goes below zero, but checkout never asks the catalogue. There is one
+kettle; two orders each take one, stock becomes -1, and two customers have paid
+for one kettle.
+"""
+speech = """
+First demo: one program, with every table open to everyone. [[slnc 400]] There is one kettle in stock. [[slnc 500]]
+The catalogue has a rule. [[slnc 300]] Stock never goes below zero. [[slnc 500]]
+But checkout does not ask the catalogue. [[slnc 300]] It writes to the stock table itself. [[slnc 300]] Two customers order the kettle. [[slnc 300]] Checkout takes one from stock, twice. [[slnc 600]]
+Stock is now minus one. [[slnc 300]] Two customers have paid, for one kettle.
+"""
+rows = { mud = "active wrong", stock = "active wrong" }
+console = [
+    ["1 kettle; checkout writes stock itself", "amber"],
+    ["kettle stock is now -1", "bad"],
+    ["two customers paid for one kettle", "bad"],
+]
+
+[[act]]
+title = "Modules with front doors"
+summary = "Orders reserves through CatalogApi: ORD-1 placed, ORD-2 refused with only 0 left; stock stays at 0."
+detail = """
+Now the shop is three modules. Catalogue owns stock, payments owns its ledger,
+and orders is handed only their front doors, `CatalogApi` and `PaymentsApi`.
+Orders must ask the catalogue to reserve a kettle. The first order is placed and
+charged; the second is refused, "only 0 kettle left", and never charged. The
+catalogue's rule holds because it is the only code that can change stock.
+"""
+speech = """
+Second demo: modules, each with a front door. [[slnc 400]] The shop is now three modules. [[slnc 300]] Catalogue, orders, and payments. [[slnc 500]]
+Each module owns its own data. [[slnc 300]] And each offers a small front door, called an API: a short list of things other modules may ask for. [[slnc 600]]
+Orders cannot touch the stock table. [[slnc 300]] It must ask the catalogue to reserve a kettle. [[slnc 500]]
+Order one: placed, and paid. [[slnc 300]] Order two: refused, only zero kettles left. [[slnc 300]] And it is never charged. [[slnc 500]]
+Stock stays at zero. [[slnc 300]] The rule holds, because only the catalogue can change stock.
+"""
+rows = { orders = "active ok", catalog = "active ok", payments = "active ok", stock = "active ok" }
+console = [
+    ["ORD-1 placed, pay-1", "ok"],
+    ["ORD-2 refused: only 0 kettle left", "ok"],
+    ["kettle stock: 0", "ok"],
+]
+
+[[act]]
+title = "Boundaries checked"
+summary = "Scanning the source finds 0 modules reaching inside another; an added import of payments.internal into orders is caught."
+detail = """
+Java cannot stop orders importing `payments.internal.PaymentsModule`: the class
+is public, because payments' own front door needs to create it. So
+`BoundaryCheck` reads every source file's imports. The real project has zero
+violations. When someone adds that import to `OrdersModule`, the check reports
+"OrdersModule.java imports payments.internal", and a test fails the build.
+"""
+speech = """
+Third demo: the boundaries are checked, not hoped for. [[slnc 400]] Java cannot stop one module using another module's insides. [[slnc 300]] So a small check reads every source file, and looks at what it imports. [[slnc 600]]
+This project's source: zero modules reaching inside another. [[slnc 500]]
+Now someone takes a shortcut. [[slnc 300]] Inside orders, they import the payments module's internal class. [[slnc 500]]
+The check reports it: orders module imports payments internal. [[slnc 300]] And the build fails, before the shortcut can be merged.
+"""
+rows = { check = "active ok", orders = "active amber" }
+console = [
+    ["scan: 0 modules reaching inside another", "ok"],
+    ["someone imports payments.internal", "amber"],
+    ["check: OrdersModule imports payments.internal", "bad"],
+]
+
+[[act]]
+title = "Moving a module out"
+summary = "RemotePayments replaces the in-process module: ORD-3 placed with 1 network call, and 0 lines changed in orders."
+detail = """
+Payments grows, and the team wants to deploy it on its own. Because orders only
+ever used `PaymentsApi`, a `RemotePayments` class that answers the same front
+door over the network can be plugged in instead. Order three is placed with one
+network call to payments, and not a single line of the orders module changes.
+"""
+speech = """
+Fourth demo: moving payments out, into its own service. [[slnc 400]] Payments has grown, and its team wants to deploy it separately. [[slnc 500]]
+Orders has only ever used the payments front door. [[slnc 300]] So a new class, remote payments, offers the same front door, but answers over the network. [[slnc 600]]
+Plug it in. [[slnc 300]] Order three is placed, with one network call to payments. [[slnc 500]]
+Lines changed in the orders module: zero.
+"""
+rows = { orders = "active ok", payments = "active amber", remote = "active ok" }
+console = [
+    ["ORD-3 placed, pay-1", "ok"],
+    ["payments over the network: 1 call", "amber"],
+    ["lines changed in orders: 0", "ok"],
+]
+
+[[act]]
+title = "The bill"
+summary = "3 modules, 1 build, 1 deployment; one process that crashes and scales as a whole; walls that last only while checked."
+detail = """
+It is still one program. Three modules share one build and one deployment, so a
+payments fix redeploys the catalogue too. They share one process, so a crash in
+any module stops all three, and they can only be scaled together. And the
+boundaries last only as long as the check runs on every build.
+"""
+speech = """
+Fifth demo: the bill. [[slnc 400]] It is still one program. [[slnc 500]]
+Three modules, one build, one deployment. [[slnc 300]] A fix to payments redeploys the catalogue too. [[slnc 500]]
+One process. [[slnc 300]] A crash in any module stops them all. [[slnc 300]] And they can only be scaled together. [[slnc 500]]
+And the walls last only as long as the check runs, on every build.
+"""
+rows = { orders = "active amber", catalog = "active amber", payments = "active amber" }
+console = [
+    ["3 modules, 1 build, 1 deployment", "amber"],
+    ["one crash stops them all", "amber"],
+    ["walls last while the check runs", "amber"],
+]
+
+[animation]
+subtitle = "One program, three modules: each owns its data, others use only its front door, and a check keeps the walls up."
+boxes = [
+    ["mud", "Big ball of mud", "every table open"],
+    ["orders", "Orders module", "uses front doors only"],
+    ["catalog", "Catalogue module", "owns stock and its rule"],
+    ["payments", "Payments module", "owns its ledger"],
+    ["stock", "Stock table", "kettle: 1"],
+    ["check", "Boundary check", "fails the build on a shortcut"],
+    ["remote", "Remote payments", "same front door, over the network"],
+]
+
+[docs.problem]
+scenario = """
+The online store is one Java program in which checkout, the catalogue and
+payments share every table.
+"""
+naive = """
+`MudCheckout` writes the stock and payment tables directly. The catalogue's
+rule that stock never goes below zero is skipped, and one kettle is sold twice.
+"""
+deliver = [
+    "The shared-table failure shown: stock -1 after two orders for one kettle.",
+    "Three modules with front doors, where the catalogue's rule holds and a refused order is not charged.",
+    "A boundary check over the real source: 0 violations, and a planted import caught.",
+    "Payments swapped for a remote version with 0 lines changed in orders.",
+    "The costs named: one build, one deployment, one process.",
+    "Every printed result asserted by a test.",
+]
+
+[docs.prerequisites]
+required = [
+    "Java basics: classes, interfaces, packages, `import`.",
+    "The idea of an interface as a promise of what a class can do.",
+]
+not_required = [
+    "Java's module system, ArchUnit or Spring Modulith. Named, not used.",
+    "Microservices. The last act shows the step towards one, without a network.",
+]
+
+[docs.session]
+objectives = [
+    "Say what a monolith is, and what makes one modular.",
+    "Put a module's data and rules behind a front door.",
+    "Check module boundaries automatically.",
+    "Explain how a modular monolith prepares a module to become a service.",
+]
+walkthrough = """
+Run `./gradlew run` and start with act one: stock at -1. Then look at the
+package tree: `catalog`, `orders`, `payments`, each with a public interface and
+an `internal` package. Open `OrdersModule` and show that it only ever sees two
+interfaces. Finish with `BoundaryCheck` and the test that runs it over the real
+source.
+"""
+exercises = [
+    "Add a `shipping` module with its own front door. Which module should call it?",
+    "Make the boundary check also refuse imports of `mud` from any module.",
+    "Give payments an event, \"payment taken\", that orders listens to, instead of a direct call.",
+    "Write `module-info.java` files that make Java itself enforce the walls.",
+]
+
+[docs.explained]
+sentence = """
+A modular monolith is one program split into modules that each own their data
+and rules and are reached only through small front doors, with the walls
+between them checked on every build.
+"""
+verdict = """
+Start most new systems as a modular monolith. Split by business area, give
+each module a front door, keep its data private, and fail the build on any
+shortcut. Move a module out into its own service only when it truly needs its
+own deployment, scaling or team.
+"""
+recognise = [
+    "Top-level packages named after business areas, each with `api` and `internal` parts.",
+    "`module-info.java`, ArchUnit or Spring Modulith tests.",
+    "A rule that each module has its own tables or schema.",
+    "Architecture documents describing \"components\" inside one deployable.",
+]
+
+[spec]
+purpose = """
+Teach Modular Monolith with an online store: shared tables letting checkout
+sell one kettle twice (stock -1), then catalogue, orders and payments modules
+with front doors (second order refused, not charged), a boundary check over the
+real source (0 violations, a planted import caught), payments swapped for a
+remote version with 0 lines changed in orders, and the costs of one deployable.
+"""
+nongoals = [
+    "Not Java's module system or ArchUnit. A small import scanner shows the idea.",
+    "Not a real network. The remote payments module counts calls.",
+    "Not databases. Each module's data is a map it owns.",
+]
+problem = """
+Code in one program that can use any other part's data skips that part's rules,
+and cannot later be split without untangling it.
+"""
+roles = [
+    ["The modules", "`catalog`, `orders`, `payments`"],
+    ["Front doors", "`CatalogApi`, `OrdersApi`, `PaymentsApi`"],
+    ["The walls", "`BoundaryCheck`"],
+    ["Moved out", "`RemotePayments`"],
+    ["The naive version", "`mud.Tables`, `mud.MudCheckout`"],
+    ["Entry point", "`ModularMonolithDemo`, five acts"],
+]
+requirements = [
+    "**Own the data:** only the catalogue module changes stock; its rule cannot be skipped.",
+    "**Front doors only:** orders is given interfaces, never internal classes.",
+    "**Checked walls:** a test scans the real source and fails on any cross-module internal import.",
+    "**Swappable:** a remote payments module replaces the local one with no change to orders.",
+    "**Every printed result is asserted** in `DemoRunsTest`.",
+]
+
+[[diagram]]
+name = "architecture-diagram"
+kind = "flow"
+title = "Modular Monolith — the pieces"
+caption = "One program; three modules; every arrow goes through a front door."
+nodes = [
+    { id = "or", label = "orders", sub = "OrdersApi", col = 0, row = 0, colour = "client" },
+    { id = "ca", label = "catalog", sub = "CatalogApi, owns stock", col = 1, row = 0, colour = "accent" },
+    { id = "pa", label = "payments", sub = "PaymentsApi, owns ledger", col = 1, row = 1, colour = "accent" },
+    { id = "st", label = "stock", sub = "catalog.internal", col = 2, row = 0, colour = "amber" },
+    { id = "le", label = "ledger", sub = "payments.internal", col = 2, row = 1, colour = "amber" },
+    { id = "bc", label = "BoundaryCheck", sub = "runs on every build", col = 0, row = 1, colour = "green" },
+]
+edges = [
+    { from = "or", to = "ca", label = "reserve()" },
+    { from = "or", to = "pa", label = "charge()" },
+    { from = "ca", to = "st", label = "owns" },
+    { from = "pa", to = "le", label = "owns" },
+]
+
+[[diagram]]
+name = "class-diagram"
+kind = "class"
+title = "Modular Monolith — classes"
+caption = "Public interfaces in each module's top package; implementations in internal."
+nodes = [
+    { id = "oa", label = "«interface» OrdersApi", sub = ["+ placeOrder(...)", "+ create(catalog, payments)"], col = 0, row = 0, colour = "client" },
+    { id = "om", label = "orders.internal.OrdersModule", sub = ["- CatalogApi", "- PaymentsApi"], col = 0, row = 1, colour = "client" },
+    { id = "ca", label = "«interface» CatalogApi", sub = ["+ reserve(sku, qty)", "+ stock(sku)"], col = 1, row = 0, colour = "accent" },
+    { id = "pa", label = "«interface» PaymentsApi", sub = ["+ charge(order, pence)", "+ takenFor(order)"], col = 2, row = 0, colour = "accent" },
+    { id = "cm", label = "catalog.internal.CatalogModule", sub = ["- stock map", "never below zero"], col = 1, row = 1, colour = "amber" },
+    { id = "rp", label = "RemotePayments", sub = ["same front door", "+ networkCalls()"], col = 2, row = 1, colour = "green" },
+]
+edges = [
+    { from = "om", to = "oa", label = "implements" },
+    { from = "om", to = "ca", label = "uses" },
+    { from = "cm", to = "ca", label = "implements" },
+    { from = "rp", to = "pa", label = "implements" },
+]
+
+[[diagram]]
+name = "data-flow-diagram"
+kind = "flow"
+title = "Modular Monolith — placing an order"
+caption = "Stock is reserved before any money is taken; a refusal stops the order."
+nodes = [
+    { id = "a", label = "placeOrder(ORD-2, kettle)", sub = "orders", col = 0, row = 0, colour = "client" },
+    { id = "b", label = "reserve(kettle, 1)", sub = "catalog: 0 left", col = 1, row = 0, colour = "accent" },
+    { id = "c", label = "refused", sub = "only 0 kettle left", col = 2, row = 0, colour = "red" },
+    { id = "d", label = "charge()", sub = "payments: not called", col = 1, row = 1, colour = "amber" },
+]
+edges = [
+    { from = "a", to = "b", label = "ask" },
+    { from = "b", to = "c", label = "false" },
+    { from = "a", to = "d", label = "only if reserved", dashed = true },
+]
+
+[[diagram]]
+name = "sequence-diagram"
+kind = "sequence"
+title = "Modular Monolith — one order through front doors"
+caption = "Orders never sees stock or the ledger, only the answers."
+participants = ["Orders", "CatalogApi", "PaymentsApi"]
+steps = [
+    ["Orders", "CatalogApi", "reserve(kettle, 1)"],
+    ["CatalogApi", "Orders", "true", "reply"],
+    ["Orders", "PaymentsApi", "charge(ORD-1, 3000)"],
+    ["PaymentsApi", "Orders", "pay-1", "reply"],
+]
+
+[[diagram]]
+name = "uml-diagram"
+kind = "sequence"
+title = "1. The boundary check"
+caption = "An import of another module's insides fails the build."
+participants = ["Build", "BoundaryCheck", "OrdersModule.java"]
+steps = [
+    ["Build", "BoundaryCheck", "scan(sources)"],
+    ["BoundaryCheck", "OrdersModule.java", "read imports"],
+    ["note", "BoundaryCheck", "payments.internal found"],
+    ["BoundaryCheck", "Build", "1 violation: fail", "reply"],
+]
+
+[[diagram]]
+name = "uml-diagram-2"
+kind = "sequence"
+title = "2. Payments moved out"
+caption = "The same front door, answered over the network."
+participants = ["Orders", "RemotePayments", "Payments service"]
+steps = [
+    ["Orders", "RemotePayments", "charge(ORD-3, 2000)"],
+    ["RemotePayments", "Payments service", "network call"],
+    ["Payments service", "RemotePayments", "pay-1", "reply"],
+    ["RemotePayments", "Orders", "pay-1", "reply"],
+]
+
+[poster]
+headline = [["MODULAR", "text"], ["MONOLITH", "text"]]
+before = { code = "Tables.STOCK.put(...)", note = "anyone changes anything", tag = "BEFORE" }
+after = { code = "catalog.reserve(sku, 1)", note = "only through the front door", tag = "AFTER" }
+taglines = [["One program, walls inside", "gold"]]
+
+[[scene]]
+key = "01-poster"
+kind = "poster"
+title = "Modular Monolith"
+narration = """
+Hello, and welcome. [[slnc 400]] This video explains the Modular Monolith pattern, in Java. [[slnc 300]]
+This video is presented by Jayasekhar Konduru. [[slnc 600]]
+First, a simple definition. [[slnc 300]] A monolith is a program that is built and deployed as one piece. [[slnc 300]] A modular monolith is still one piece. [[slnc 300]] But inside, it is split into modules. [[slnc 300]] Each module owns its own data, and the others may only use its front door. [[slnc 600]]
+Think of a department store. [[slnc 300]] One building, one entrance. [[slnc 300]] But the shoe department has its own staff and its own stockroom. [[slnc 300]] Other departments do not walk in and take boxes. [[slnc 300]] They ask at the counter. [[slnc 700]]
+In this video, the domain is an online shop. [[slnc 300]] It is one Java program, with a catalogue that holds the stock, orders, and payments. [[slnc 500]]
+By the end, you will hear how open tables let a shop sell one kettle twice. [[slnc 300]] How modules with front doors stop it. [[slnc 300]] How to check the walls automatically. [[slnc 300]] And how a module can later become its own service.
+"""
+
+[[scene]]
+key = "02-scenario"
+kind = "bullets"
+title = "The Scenario"
+body = ["One Java program:", "checkout, catalogue, payments.", "", "Every table open to every class.", "", "The catalogue's rule:", "stock never goes below zero."]
+narration = """
+Here is the scenario. [[slnc 400]] The shop is one Java program. [[slnc 300]] Inside it: checkout, the catalogue, and payments. [[slnc 600]]
+Every table is open to every class. [[slnc 300]] A table here is just a map of data, such as how many kettles are in stock. [[slnc 500]]
+The catalogue has a rule. [[slnc 300]] Stock never goes below zero. [[slnc 300]] But does everyone follow it?
+"""
+
+[[scene]]
+key = "03-acts"
+kind = "acts"
+title = "acts"
+
+[[scene]]
+key = "04-pattern"
+kind = "bullets"
+title = "The Pattern"
+body = ["Split by business area:", "catalogue, orders, payments.", "", "Each owns its data and rules.", "Others use only its front door.", "", "Check the walls on every build."]
+narration = """
+Let's name the pattern. [[slnc 400]] Split the program by business area. [[slnc 300]] Catalogue, orders, payments. [[slnc 500]]
+Each module owns its own data, and its own rules. [[slnc 300]] Each offers a small front door. [[slnc 300]] Other modules may use that front door, and nothing else. [[slnc 500]]
+Check those walls automatically, on every build. [[slnc 500]]
+It is still one program. [[slnc 300]] But inside, it has walls.
+"""
+
+[[scene]]
+key = "05-roles"
+kind = "bullets"
+title = "Who Does What"
+body = ["CatalogApi, OrdersApi, PaymentsApi:", "the front doors", "internal packages: the insides", "BoundaryCheck: the walls", "RemotePayments: moved out"]
+narration = """
+Here is who does what. [[slnc 400]] Catalog A P I, orders A P I, and payments A P I are the front doors. [[slnc 300]] Each is a short Java interface. [[slnc 500]]
+Each module keeps its real classes in a package called internal. [[slnc 300]] Nobody outside may use them. [[slnc 500]]
+The boundary check reads the source, and fails the build if anyone does. [[slnc 500]]
+And remote payments is the payments front door, answered over the network, for the day payments moves out.
+"""
+
+[[scene]]
+key = "06-recognise"
+kind = "bullets"
+title = "Where You Have Seen It"
+body = ["module-info.java: exports", "ArchUnit tests", "Spring Modulith", "Large monoliths at Shopify, GitHub"]
+narration = """
+You have probably met this pattern already. [[slnc 400]] Java's own module system lets each module say which packages it exports. [[slnc 500]]
+Arch Unit is a test library that fails the build when one package uses another it should not. [[slnc 300]] Spring Modulith does the same for Spring Boot. [[slnc 500]]
+And some of the largest web applications, such as Shopify and GitHub, are monoliths split into modules like this.
+"""
+
+[[scene]]
+key = "07-verdict"
+kind = "bullets"
+title = "When To Use It"
+body = ["Start most new systems here.", "", "Split by business area.", "Private data, public front doors.", "", "Move a module out only when", "it needs its own deployment."]
+narration = """
+So, when should you use it? [[slnc 400]] Start most new systems as a modular monolith. [[slnc 500]]
+Split by business area. [[slnc 300]] Keep each module's data private, and give it a front door. [[slnc 300]] Fail the build on any shortcut. [[slnc 500]]
+And move a module out into its own service only when it truly needs its own deployment, its own scaling, or its own team.
+"""
+
+[[scene]]
+key = "08-outro"
+kind = "outro"
+title = "Thanks for Watching"
+body = ["Full source, notes, diagrams and an animated walkthrough", "are in the repository. Add a shipping module", "with its own front door."]
+narration = """
+That's the Modular Monolith pattern. [[slnc 400]] If you remember one sentence, make it this one. [[slnc 300]] One program, with walls inside, and a check that keeps them up. [[slnc 500]]
+The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. [[slnc 300]] It runs offline, with nothing installed except a Java development kit. [[slnc 500]]
+Here is one exercise to try. [[slnc 300]] Add a shipping module, with its own front door. [[slnc 300]] Then decide which module should call it. [[slnc 500]]
+If this helped, a like really does help other people find it. [[slnc 300]] And subscribe, if you'd like the rest of the series. [[slnc 400]] Thanks for watching.
+"""

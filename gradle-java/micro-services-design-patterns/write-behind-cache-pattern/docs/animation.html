@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Write-Behind Cache Pattern — Animated Walkthrough</title>
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 24px;
+    background: #0f172a; color: #e2e8f0;
+    font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
+    padding-top: calc(24px + env(safe-area-inset-top, 0px));
+    padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+  }
+  h1 { font-size: 1.4rem; margin: 0 0 4px; }
+  p.sub { color: #94a3b8; margin: 0 0 20px; max-width: 70ch; }
+  .wrap { max-width: 1100px; margin: 0 auto; }
+  .stage { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+  @media (max-width: 760px) { .stage { grid-template-columns: 1fr; } }
+  .boxes { display: flex; flex-direction: column; gap: 10px; }
+  .row { border: 2px solid #334155; border-radius: 10px; padding: 12px 16px;
+         background: #1e293b; transition: all .25s ease; opacity: .55; }
+  .row .name { font-weight: 700; font-size: 1rem; }
+  .row .job { color: #94a3b8; font-size: .82rem; margin-top: 2px; }
+  .row.active { opacity: 1; box-shadow: 0 0 0 2px currentColor inset; }
+  .row.wrong { border-color: #f87171; color: #f87171; }
+  .row.wrong.active { background: #3f1d24; }
+  .row.ok { border-color: #34d399; color: #34d399; }
+  .row.ok.active { background: #10261f; }
+  .row.amber { border-color: #fbbf24; color: #fbbf24; }
+  .row.amber.active { background: #2a2110; }
+  .row.dim { opacity: .22; }
+  .console { background: #020617; border: 1px solid #334155; border-radius: 10px; padding: 16px;
+             font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: .86rem;
+             line-height: 1.55; overflow-y: auto; min-height: 320px; white-space: pre-wrap; }
+  #console-lines span.ok { color: #34d399; }
+  #console-lines span.bad { color: #f87171; }
+  #console-lines span.amber { color: #fbbf24; }
+  #console-lines span.muted { color: #94a3b8; }
+  .narration { background: #1e293b; border: 1px solid #334155; border-radius: 10px;
+               padding: 14px 18px; margin-bottom: 16px; min-height: 3.2em; }
+  .controls { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  button { background: #334155; color: #e2e8f0; border: 1px solid #475569; border-radius: 8px;
+           padding: 10px 18px; font-size: .92rem; cursor: pointer; }
+  button:hover { background: #475569; }
+  button:disabled { opacity: .45; cursor: default; }
+  button#play { background: #7c3aed; border-color: #7c3aed; }
+  button#play:hover { background: #8b5cf6; }
+  #progress { color: #94a3b8; font-size: .85rem; margin-left: auto; }
+  .step-label { font-size: .78rem; text-transform: uppercase; letter-spacing: .04em;
+                color: #a78bfa; font-weight: 700; margin-bottom: 4px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Write-Behind Cache — Step by Step</h1>
+  <p class="sub">Cart changes go to memory at once; a flush saves each changed cart once, a few seconds later.</p>
+
+  <div class="narration">
+    <div class="step-label" id="step-label">Ready</div>
+    <div id="narration">Press Step or Play to begin.</div>
+  </div>
+
+  <div class="stage">
+    <div class="boxes" id="boxes">
+      <div class="row" id="row-customer">
+        <div class="name">Customer</div>
+        <div class="job">changes the cart</div>
+      </div>
+      <div class="row" id="row-cache">
+        <div class="name">Cart cache</div>
+        <div class="job">in memory, answers at once</div>
+      </div>
+      <div class="row" id="row-flush">
+        <div class="name">Flush</div>
+        <div class="job">every 5 s, one write per cart</div>
+      </div>
+      <div class="row" id="row-db">
+        <div class="name">Database</div>
+        <div class="job">slow, safe, 20 ms a write</div>
+      </div>
+      <div class="row" id="row-report">
+        <div class="name">Stock report</div>
+        <div class="job">reads the database</div>
+      </div>
+    </div>
+    <div class="console"><div id="console-lines"></div></div>
+  </div>
+
+  <div class="controls">
+    <button id="step">Step ▸</button>
+    <button id="play">Play ▶</button>
+    <button id="reset">Reset ↺</button>
+    <span id="progress">0 / 0</span>
+  </div>
+</div>
+
+<script>
+const STEPS = [
+ {
+  "label": "Act 1 — Write every change",
+  "narration": "First demo: write every change straight to the database. Three customers each change their cart ten times. Add a mug. Make it two. Remove the tea. Every change is saved to the database before the page answers. That is thirty database writes. Each one takes twenty milliseconds. Six hundred milliseconds of waiting, in total. And most of those writes are replaced a moment later, by the next change to the same cart.",
+  "rows": {
+   "customer": "active amber",
+   "db": "active wrong"
+  },
+  "console": [
+   [
+    "30 changes: 30 database writes",
+    "bad"
+   ],
+   [
+    "20 ms on every click, 600 ms total",
+    "bad"
+   ]
+  ]
+ },
+ {
+  "label": "Act 2 — Write behind",
+  "narration": "Second demo: write to memory now, and to the database later. The same thirty changes go into memory. Each changed cart is marked as dirty, which just means: not saved yet. The customers wait zero milliseconds. After five seconds, a flush runs. Flush means: save everything that is dirty. Each cart is saved once, with its latest contents. Three writes, instead of thirty. Priya's cart reaches the database as ten mugs and nine teas. Her final choice.",
+  "rows": {
+   "customer": "active ok",
+   "cache": "active ok",
+   "flush": "active ok",
+   "db": "active ok"
+  },
+  "console": [
+   [
+    "30 changes: customers waited 0 ms",
+    "ok"
+   ],
+   [
+    "3 carts waiting",
+    "amber"
+   ],
+   [
+    "flush: 3 database writes",
+    "ok"
+   ],
+   [
+    "priya: {mug=10, tea=9}",
+    "ok"
+   ]
+  ]
+ },
+ {
+  "label": "Act 3 — The database goes down",
+  "narration": "Third demo: the database goes down. Two customers change their carts. They wait zero milliseconds, and keep shopping. The flush tries to save, and fails. The two carts stay dirty, waiting. The database comes back. The next flush saves both carts. The customers never noticed.",
+  "rows": {
+   "customer": "active ok",
+   "cache": "active amber",
+   "db": "active wrong"
+  },
+  "console": [
+   [
+    "2 changes; customers kept shopping",
+    "ok"
+   ],
+   [
+    "flush failed: 2 carts still waiting",
+    "amber"
+   ],
+   [
+    "database back: 2 writes",
+    "ok"
+   ]
+  ]
+ },
+ {
+  "label": "Act 4 — A crash before the flush",
+  "narration": "Fourth demo: the server crashes before a flush. Priya adds a teapot, and raises her mugs to twelve. Ana changes her tea. The next flush is five seconds away. Then the server crashes. Memory is wiped. All three changes are lost. The teapot is not in the database. The database still holds the carts from the last flush. That is the price of this pattern.",
+  "rows": {
+   "cache": "active wrong",
+   "flush": "active amber"
+  },
+  "console": [
+   [
+    "3 changes made, flush due in 5 s",
+    "amber"
+   ],
+   [
+    "crash: 3 changes lost",
+    "bad"
+   ],
+   [
+    "the teapot is not in the database",
+    "bad"
+   ]
+  ]
+ },
+ {
+  "label": "Act 5 — The bill",
+  "narration": "Fifth demo: the bill. Priya changes her kettles from one to three. Checkout reads memory, and sees three. A stock report reads the database, and still sees one. The database is always a little behind. So never write behind an order, a payment, or stock. Use it only for data you can afford to lose.",
+  "rows": {
+   "cache": "active ok",
+   "db": "active amber",
+   "report": "active wrong"
+  },
+  "console": [
+   [
+    "checkout sees 3 kettles",
+    "ok"
+   ],
+   [
+    "the stock report sees 1",
+    "bad"
+   ],
+   [
+    "never for orders, payments, stock",
+    "amber"
+   ]
+  ]
+ }
+];
+const rowIds = ["customer", "cache", "flush", "db", "report"];
+const stepLabel = document.getElementById("step-label");
+const narrationEl = document.getElementById("narration");
+const consoleEl = document.getElementById("console-lines");
+const progressEl = document.getElementById("progress");
+const playBtn = document.getElementById("play");
+let i = -1, timer = null;
+
+function esc(t) { return t.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+
+function render() {
+  for (const id of rowIds) document.getElementById("row-" + id).className = "row";
+  if (i < 0) {
+    stepLabel.textContent = "Ready";
+    narrationEl.textContent = "Press Step or Play to begin.";
+    consoleEl.innerHTML = "";
+    progressEl.textContent = "0 / " + STEPS.length;
+    return;
+  }
+  const s = STEPS[i];
+  stepLabel.textContent = s.label;
+  narrationEl.textContent = s.narration;
+  for (const id of rowIds) {
+    const cls = s.rows[id];
+    document.getElementById("row-" + id).className = "row " + (cls ? cls : "dim");
+  }
+  consoleEl.innerHTML = s.console.map(([t, c]) => '<span class="' + c + '">' + esc(t) + "</span>").join("\n");
+  progressEl.textContent = (i + 1) + " / " + STEPS.length;
+}
+function step() { if (i >= STEPS.length - 1) { stopPlay(); return; } i += 1; render(); }
+function reset() { stopPlay(); i = -1; render(); }
+// While a step's narration is playing, Play waits for it to finish.
+function speaking() { return typeof window.vkSpeaking === "function" && window.vkSpeaking(); }
+function startPlay() {
+  if (timer) return;
+  playBtn.textContent = "Pause ❚❚";
+  let quiet = 0;
+  timer = setInterval(() => {
+    if (speaking()) { quiet = 0; return; }
+    if (++quiet < 6) return;                     // 6 × 500 ms of reading time
+    quiet = 0;
+    if (i >= STEPS.length - 1) { stopPlay(); return; }
+    step();
+  }, 500);
+  if (i < 0) step();
+}
+function stopPlay() { if (timer) clearInterval(timer); timer = null; playBtn.textContent = "Play ▶"; }
+
+document.getElementById("step").addEventListener("click", () => { stopPlay(); step(); });
+document.getElementById("reset").addEventListener("click", reset);
+playBtn.addEventListener("click", () => { if (timer) stopPlay(); else startPlay(); });
+render();
+</script>
+<!-- videokit:narration -->
+<script>
+/* videokit narration player: a Narration on/off switch and a play/pause
+   button for the current step. It watches the page's own narration text,
+   works out which step is showing, and plays audio/step-N.m4a beside the
+   page (rendered by tools/videokit; not embedded, so the page stays small).
+   If the page already plays its own clips, only the pause button is added. */
+(function () {
+  "use strict";
+  var STEPS = ["First demo: write every change straight to the database. Three customers each change their cart ten times. Add a mug. Make it two. Remove the tea. Every change is saved to the database before the page answers. That is thirty database writes. Each one takes twenty milliseconds. Six hundred milliseconds of waiting, in total. And most of those writes are replaced a moment later, by the next change to the same cart.", "Second demo: write to memory now, and to the database later. The same thirty changes go into memory. Each changed cart is marked as dirty, which just means: not saved yet. The customers wait zero milliseconds. After five seconds, a flush runs. Flush means: save everything that is dirty. Each cart is saved once, with its latest contents. Three writes, instead of thirty. Priya's cart reaches the database as ten mugs and nine teas. Her final choice.", "Third demo: the database goes down. Two customers change their carts. They wait zero milliseconds, and keep shopping. The flush tries to save, and fails. The two carts stay dirty, waiting. The database comes back. The next flush saves both carts. The customers never noticed.", "Fourth demo: the server crashes before a flush. Priya adds a teapot, and raises her mugs to twelve. Ana changes her tea. The next flush is five seconds away. Then the server crashes. Memory is wiped. All three changes are lost. The teapot is not in the database. The database still holds the carts from the last flush. That is the price of this pattern.", "Fifth demo: the bill. Priya changes her kettles from one to three. Checkout reads memory, and sees three. A stock report reads the database, and still sees one. The database is always a little behind. So never write behind an order, a payment, or stock. Use it only for data you can afford to lose."];
+  var norm = function (s) { return String(s || "").replace(/\s+/g, " ").trim(); };
+  var box = document.getElementById("narration") || document.querySelector(".narration");
+  if (!box || !STEPS.length) return;
+
+  var pageOwnsAudio = !!document.getElementById("audio");
+  var current = null, step = -1, on = false;
+  try { on = localStorage.getItem("vk-narration") === "on"; } catch (e) {}
+
+  // Remember whichever clip the page (or this script) last started.
+  var realPlay = HTMLMediaElement.prototype.play;
+  HTMLMediaElement.prototype.play = function () {
+    if (current && current !== this) { try { current.pause(); } catch (e) {} }
+    current = this;
+    this.addEventListener("play", label);
+    this.addEventListener("pause", label);
+    this.addEventListener("ended", label);
+    var p = realPlay.apply(this, arguments);
+    label();
+    return p;
+  };
+
+  // Lets a page's Play button wait for the step's narration to finish.
+  window.vkSpeaking = function () { return !!(current && !current.paused && !current.ended); };
+
+  var bar = document.querySelector(".controls") || box.parentNode;
+  function button(id, text) {
+    var b = document.createElement("button");
+    b.id = id; b.type = "button"; b.textContent = text;
+    bar.appendChild(b);
+    return b;
+  }
+  var narrBtn = pageOwnsAudio ? null : button("vk-narration", "");
+  var stepBtn = button("vk-step-audio", "");
+  var note = document.createElement("span");
+  note.id = "vk-note";
+  note.style.cssText = "color:#94a3b8;font-size:.8rem;margin-left:8px";
+  bar.appendChild(note);
+
+  function stepFor(text) {
+    var t = norm(text);
+    for (var i = 0; i < STEPS.length; i++) {
+      var s = norm(STEPS[i]);
+      if (s && t.indexOf(s.slice(0, 60)) !== -1) return i;
+    }
+    return -1;
+  }
+  function stop() { if (current) { try { current.pause(); } catch (e) {} } current = null; label(); }
+  function play(i) {
+    if (i < 0) return;
+    var a = new Audio("audio/step-" + (i + 1) + ".m4a");
+    a.play().then(function () { note.textContent = ""; }, function (e) {
+      note.textContent = e && e.name === "NotAllowedError"
+        ? "Click Play step to hear this step."
+        : "Narration audio not found: run tools/videokit/videokit.sh animation <project>.";
+      label();
+    });
+  }
+  function label() {
+    if (narrBtn) narrBtn.textContent = (on ? "🔊 Narration: on" : "🔇 Narration: off");
+    if (narrBtn) narrBtn.setAttribute("aria-pressed", String(on));
+    var playing = current && !current.paused && !current.ended;
+    var paused = current && current.paused && !current.ended;
+    stepBtn.textContent = playing ? "⏸ Pause step" : paused ? "▶ Resume step" : "▶ Play step";
+    stepBtn.disabled = step < 0;
+  }
+
+  if (narrBtn) narrBtn.addEventListener("click", function () {
+    on = !on;
+    try { localStorage.setItem("vk-narration", on ? "on" : "off"); } catch (e) {}
+    if (on) { if (step >= 0) play(step); } else stop();
+    label();
+  });
+  stepBtn.addEventListener("click", function () {
+    if (current && !current.ended) {
+      if (current.paused) current.play(); else current.pause();
+    } else play(step);
+  });
+
+  function changed() {
+    var i = stepFor(box.textContent);
+    if (i === step) return;
+    step = i;
+    if (!pageOwnsAudio) { stop(); if (on) play(i); }
+    label();
+  }
+  new MutationObserver(changed).observe(box, { childList: true, subtree: true, characterData: true });
+  changed();
+  label();
+})();
+</script>
+<!-- /videokit:narration -->
+</body>
+</html>

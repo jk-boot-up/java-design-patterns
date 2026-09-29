@@ -898,6 +898,11 @@ COMMON_TAGS = [
 ]
 
 
+# Projects made with tools/patternkit describe themselves in pattern.toml.
+import pattern_meta  # noqa: E402
+pattern_meta.register_youtube(ORDER, META)
+
+
 def load_scenes(video_dir):
     """Import a project's scenes.py without letting the 14 shadow each other."""
     path = os.path.join(video_dir, "scenes.py")
@@ -910,6 +915,11 @@ def load_scenes(video_dir):
 def load_subtitle_splitter(video_dir):
     """Reuse the project's own cue splitter, so the counts match its SRT."""
     path = os.path.join(video_dir, "make_subtitles.py")
+    if not os.path.exists(path):
+        # Projects made with patternkit use videokit's own splitter for their SRT.
+        sys.path.insert(0, os.path.join(os.path.dirname(ROOT), "tools", "videokit"))
+        from videokit.script import split_cues
+        return split_cues
     src = open(path).read()
     ns = {"__name__": "not_main"}
     sys.path.insert(0, video_dir)
@@ -971,7 +981,10 @@ def chapters(video_dir, slug):
 
 def suggested_description(video_dir):
     """Lift the blockquote the project's video/README.md already carries."""
-    readme = open(os.path.join(video_dir, "README.md")).read()
+    path = os.path.join(video_dir, "README.md")
+    if not os.path.exists(path):
+        return None
+    readme = open(path).read()
     m = re.search(r"Suggested description:\n\n((?:> .*\n)+)", readme)
     if not m:
         return None

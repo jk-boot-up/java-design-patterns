@@ -782,6 +782,11 @@ GROUP.update({slug: "architectural-design-patterns" for slug in (
     )})
 
 
+# Projects made with tools/patternkit describe themselves in pattern.toml.
+import pattern_meta  # noqa: E402
+pattern_meta.register_thumbnails(META, GROUP)
+
+
 def f(path, size):
     return ImageFont.truetype(path, size)
 

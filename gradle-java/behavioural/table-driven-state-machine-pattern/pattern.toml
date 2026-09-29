@@ -1,0 +1,465 @@
+# pattern.toml for the Table-Driven State Machine project. See tools/patternkit.
+
+[project]
+slug = "table-driven-state-machine"
+category = "behavioural"
+title = "Table-Driven State Machine"
+package = "statetable"
+main_class = "StateTableDemo"
+tagline = "Every allowed move, in one table"
+bold = "Write down every allowed move as a row in one table, from this status on this action to that status, and refuse anything that is not in it."
+domain_note = ""
+thumb_lines = ["STATE", "TABLE"]
+thumb_code = "PAID + SHIP -> SHIPPED"
+youtube_title = "Table-Driven State Machine"
+youtube_tags = ["state machine", "finite state machine", "transition table", "order status", "behavioural patterns", "java"]
+
+[readme]
+intro = """
+A state machine is anything that is always in exactly one of a few statuses,
+and moves between them when something happens. An order is one: placed, paid,
+shipped, delivered. A table-driven state machine keeps every allowed move in
+one table: from this status, on this action, go to that status. The code that
+changes the status just looks the move up. If it is not in the table, it is
+refused.
+
+The rules stop being scattered across `if` statements in many methods, where a
+forgotten check is invisible. They sit in one place, where they can be read,
+printed, tested and changed.
+"""
+analogy = """
+Think of an airport. You go from check-in to security, from security to the
+gate, from the gate onto the plane. Imagine if every desk kept its own idea of
+what may come next, and one of them forgot to check you had been through
+security. Instead, the airport has one chart of allowed steps, and every desk
+checks it. A step that is not on the chart does not happen, however politely
+you ask.
+"""
+scenario = """
+Orders in the online store move through placed, paid, shipped and delivered,
+and can be cancelled or refunded. Each method (`pay`, `ship`, `cancel`,
+`refund`) checked the status in its own way. Two checks were forgotten: a
+delivered order could be cancelled, and an order could be refunded twice.
+"""
+costs = [
+    "**Where, not what.** The table says which moves are allowed. Paying the refund and sending the email are still code, attached to the moves.",
+    "**Big tables are hard to read.** Seven statuses and six actions make 42 cells; draw it as a diagram once it grows.",
+    "**Conditions need more.** A rule such as \"refund only within 30 days\" is not a plain cell; it needs a check attached to the move.",
+]
+too_much = """
+An object with two statuses, such as on and off, needs a boolean, not a table.
+And when each status has a lot of its own behaviour, not just different next
+statuses, the classic State pattern, one class per status, may fit better.
+"""
+met_before = [
+    "Spring State Machine and similar libraries configure transitions as a table.",
+    "Workflow and ticket systems such as Jira, where an admin edits the allowed transitions.",
+    "Order, payment and shipment statuses in almost every shop.",
+    "Parsers and network protocols, which are built on state tables.",
+]
+where = """
+This project is in [behavioural](..), next to the [State](../state-pattern)
+pattern, which gives each status its own class. The table is the simpler
+choice when statuses differ mainly in where they can go next.
+"""
+
+[[act]]
+title = "Rules in if statements"
+summary = "Each method checks the status its own way: a delivered order can be cancelled, and an order is refunded twice, £63.44 each time."
+detail = """
+`IfElseOrder` has one method per action, each with its own check. `cancel` only
+refuses a shipped order, so a delivered order is cancelled without complaint.
+`refund` only refuses an order that was never paid, so the same order is
+refunded twice and £63.44 is paid out twice. Each method looks fine on its
+own; the missing checks are invisible.
+"""
+speech = """
+First demo: the rules, scattered across if statements. [[slnc 400]] Each method checks the status in its own way. [[slnc 500]]
+An order is paid, shipped, and delivered. [[slnc 300]] So far, so good. [[slnc 500]]
+Now someone cancels it. [[slnc 300]] The cancel method only refuses shipped orders. [[slnc 300]] Nobody thought of delivered. [[slnc 300]] So a delivered order is now cancelled. [[slnc 600]]
+Another order is refunded. [[slnc 300]] Then refunded again. [[slnc 300]] The refund method only checks that it was paid. [[slnc 300]] Two refunds, of sixty-three pounds forty-four, are paid out.
+"""
+rows = { ifs = "active wrong" }
+console = [
+    ["cancel a delivered order: allowed", "bad"],
+    ["refund twice: 2 refunds of £63.44", "bad"],
+]
+
+[[act]]
+title = "The table"
+summary = "Five rows say every allowed move; ORD-1 goes PLACED, PAID, SHIPPED, DELIVERED by looking each one up."
+detail = """
+`TransitionTable.orders()` holds every allowed move: from PLACED, pay goes to
+PAID and cancel to CANCELLED; from PAID, ship goes to SHIPPED and refund to
+REFUNDED; from SHIPPED, deliver goes to DELIVERED. `Order.apply` looks the move
+up and nothing else. `ORD-1` is paid, shipped and delivered.
+"""
+speech = """
+Second demo: the rules, in one table. [[slnc 400]] Each row says: from this status, on this action, go to that status. [[slnc 600]]
+From placed: pay goes to paid, and cancel goes to cancelled. [[slnc 300]] From paid: ship goes to shipped, and refund goes to refunded. [[slnc 300]] From shipped: deliver goes to delivered. [[slnc 600]]
+That is all of them. [[slnc 300]] Anything not written here is not allowed. [[slnc 500]]
+Order one is paid, shipped and delivered, by looking each move up in the table.
+"""
+rows = { table = "active ok", order = "active ok" }
+console = [
+    ["PLACED: PAY -> PAID, CANCEL -> CANCELLED", "ok"],
+    ["PAID: SHIP -> SHIPPED, REFUND -> REFUNDED", "ok"],
+    ["SHIPPED: DELIVER -> DELIVERED", "ok"],
+    ["ORD-1: PLACED, PAID, SHIPPED, DELIVERED", "ok"],
+]
+
+[[act]]
+title = "Wrong moves refused"
+summary = "Cancelling a DELIVERED order and refunding a REFUNDED one are refused by name; a PAID order's buttons are SHIP and REFUND."
+detail = """
+The same two mistakes are tried again. Cancel on a delivered order is not in
+the table, so it is refused: "cannot cancel a DELIVERED order". A second refund
+is refused: "cannot refund a REFUNDED order". And because the table knows the
+allowed moves, it can tell a page which buttons to show: for a paid order,
+ship and refund.
+"""
+speech = """
+Third demo: a move that is not in the table is refused. [[slnc 400]] Try to cancel the delivered order. [[slnc 300]] Refused: cannot cancel a delivered order. [[slnc 500]]
+Try to refund an order a second time. [[slnc 300]] Refused: cannot refund a refunded order. [[slnc 600]]
+The table can also answer a useful question. [[slnc 300]] Which buttons should the page show? [[slnc 300]] For a paid order: ship, and refund. [[slnc 300]] Nothing else.
+"""
+rows = { table = "active ok", order = "active wrong" }
+console = [
+    ["cancel ORD-1: cannot cancel a DELIVERED order", "ok"],
+    ["refund again: cannot refund a REFUNDED order", "ok"],
+    ["buttons for PAID: [SHIP, REFUND]", "ok"],
+]
+
+[[act]]
+title = "A new rule"
+summary = "Returns are added with 2 rows; a delivered order's buttons become RETURN, and ORD-1 is returned and refunded."
+detail = """
+The shop starts accepting returns. Two rows are added: from DELIVERED, return
+goes to RETURNED; from RETURNED, refund goes to REFUNDED. No method changes.
+A delivered order now shows one button, return, and `ORD-1` is returned and
+refunded.
+"""
+speech = """
+Fourth demo: a new rule. [[slnc 400]] The shop starts accepting returns. [[slnc 500]]
+Two rows are added to the table. [[slnc 300]] From delivered, return goes to returned. [[slnc 300]] From returned, refund goes to refunded. [[slnc 300]] No method changes. [[slnc 600]]
+A delivered order now shows one button: return. [[slnc 300]] And order one is returned, and refunded.
+"""
+rows = { table = "active amber", order = "active ok" }
+console = [
+    ["2 rows added; nothing else changed", "ok"],
+    ["buttons for DELIVERED: [RETURN]", "ok"],
+    ["ORD-1: ... DELIVERED, RETURNED, REFUNDED", "ok"],
+]
+
+[[act]]
+title = "The bill"
+summary = "7 statuses x 6 actions is 42 cells, 7 of them allowed moves; paying refunds and sending emails are still code."
+detail = """
+Seven statuses and six actions make 42 cells, of which only seven are allowed
+moves: a bigger shop's table can be hard to read, so draw it as a diagram. And
+the table only says where an order may go. Paying the refund, restocking the
+item and emailing the customer are still code, attached to each move.
+"""
+speech = """
+Fifth demo: the bill. [[slnc 400]] Seven statuses times six actions is forty-two cells. [[slnc 300]] Only seven of them are allowed moves. [[slnc 300]] As the table grows, it gets hard to read, so draw it as a diagram. [[slnc 600]]
+And the table only says where an order may go. [[slnc 300]] Paying the refund, and emailing the customer, are still code. [[slnc 300]] You attach them to each move.
+"""
+rows = { table = "active amber" }
+console = [
+    ["7 x 6 = 42 cells; 7 allowed moves", "amber"],
+    ["refunds and emails are still code", "amber"],
+]
+
+[animation]
+subtitle = "An order's status only changes by looking the move up in one table; anything not in the table is refused."
+boxes = [
+    ["ifs", "If statements", "rules spread across methods"],
+    ["table", "Transition table", "from + action -> to"],
+    ["order", "Order", "asks the table for each move"],
+    ["page", "Order page", "shows allowed buttons"],
+]
+
+[docs.problem]
+scenario = """
+Orders move through placed, paid, shipped and delivered, and can be cancelled,
+refunded and, later, returned.
+"""
+naive = """
+`IfElseOrder` checks the status inside each method, differently each time. A
+delivered order can be cancelled and a refund can be paid twice, and nothing in
+the code looks wrong.
+"""
+deliver = [
+    "The two scattered-if bugs shown with printed results.",
+    "A transition table that prints its own rows.",
+    "Moves not in the table refused with a message naming the move and the status.",
+    "The allowed actions for a status, for showing buttons.",
+    "A new rule (returns) added with two rows and no other change.",
+    "Every printed result asserted by a test.",
+]
+
+[docs.prerequisites]
+required = [
+    "Java basics: classes, enums, maps.",
+    "`Optional` at the level of `orElseThrow`.",
+]
+not_required = [
+    "Any state machine library. The table is one small class.",
+    "The State pattern. It is compared, not required.",
+]
+
+[docs.session]
+objectives = [
+    "Say what a state machine is, using an order.",
+    "Write the allowed moves as a table.",
+    "Refuse any move not in the table, with a clear message.",
+    "Add a rule by adding a row.",
+]
+walkthrough = """
+Run `./gradlew run` and read act one: two bugs that nobody would spot in a
+review. Then open `TransitionTable.orders()`: five lines that are the whole
+rule book. Ask learners to draw it as boxes and arrows on paper before showing
+the diagram.
+"""
+exercises = [
+    "Allow cancelling a PAID order, which should refund it. Is that one row, or a row and some code?",
+    "Add a `LOST` status for parcels that never arrive. Which actions lead in and out?",
+    "Attach an action to a move: print \"email sent\" whenever an order becomes SHIPPED.",
+    "Write a test that no status can reach PLACED again.",
+]
+
+[docs.explained]
+sentence = """
+A table-driven state machine keeps every allowed move, from a status on an
+action to a new status, in one table, and refuses every move that is not in it.
+"""
+verdict = """
+Use a table whenever something has a handful of statuses and rules about which
+can follow which: orders, payments, tickets, bookings. Keep the table in one
+place, generate a diagram from it, attach side effects to moves, and let the
+table tell the page which buttons to show.
+"""
+recognise = [
+    "An enum of statuses and a map from (status, action) to status.",
+    "Errors like \"cannot ship a PLACED order\".",
+    "A `transitions` or `workflow` configuration file.",
+    "A diagram of boxes and arrows in the documentation for an entity's status.",
+]
+
+[spec]
+purpose = """
+Teach Table-Driven State Machine with an online store's order statuses: two
+bugs from scattered if statements (a delivered order cancelled, a double
+refund of £63.44), then a five-row table, wrong moves refused by name, allowed
+buttons, returns added with two rows, and the 42-cell cost.
+"""
+nongoals = [
+    "Not a state machine library. Spring State Machine is named, not used.",
+    "Not guards with conditions such as dates. Named in the costs only.",
+    "Not persistence. Orders live in memory.",
+]
+problem = """
+Status rules written as if statements in many methods hide forgotten checks,
+which let orders make moves that should be impossible.
+"""
+roles = [
+    ["The pattern", "`TransitionTable`"],
+    ["Using it", "`Order`"],
+    ["Statuses and actions", "`Status`, `Action`"],
+    ["The naive version", "`IfElseOrder`"],
+    ["Entry point", "`StateTableDemo`, five acts"],
+]
+requirements = [
+    "**One place:** every allowed move is a row in `TransitionTable`.",
+    "**Refuse the rest:** any other move throws with the action and the status.",
+    "**Buttons:** `allowed(status)` lists the actions a page may offer.",
+    "**Every action from DELIVERED** is refused before returns are added, tested for all six.",
+    "**Every printed result is asserted** in `DemoRunsTest`.",
+]
+
+[[diagram]]
+name = "architecture-diagram"
+kind = "flow"
+title = "Table-Driven State Machine — the pieces"
+caption = "The order and the page both ask the table; the rules live nowhere else."
+nodes = [
+    { id = "pg", label = "Order page", sub = "which buttons?", col = 0, row = 0, colour = "client" },
+    { id = "or", label = "Order", sub = "apply(action)", col = 0, row = 1, colour = "client" },
+    { id = "tb", label = "TransitionTable", sub = "from + action -> to", col = 1, row = 0, colour = "accent" },
+    { id = "ifs", label = "IfElseOrder", sub = "the old way", col = 1, row = 1, colour = "red" },
+]
+edges = [
+    { from = "pg", to = "tb", label = "allowed(status)" },
+    { from = "or", to = "tb", label = "next(status, action)" },
+]
+
+[[diagram]]
+name = "class-diagram"
+kind = "class"
+title = "Table-Driven State Machine — classes"
+caption = "Two enums and one map hold the rules."
+nodes = [
+    { id = "t", label = "TransitionTable", sub = ["- Map<Status, Map<Action, Status>>", "+ allow(from, action, to)", "+ next(from, action)", "+ allowed(from)"], col = 1, row = 0, colour = "accent" },
+    { id = "o", label = "Order", sub = ["- status, history", "+ apply(Action)"], col = 0, row = 0, colour = "client" },
+    { id = "s", label = "«enum» Status", sub = ["PLACED, PAID, SHIPPED", "DELIVERED, CANCELLED", "REFUNDED, RETURNED"], col = 2, row = 0, colour = "amber" },
+    { id = "a", label = "«enum» Action", sub = ["PAY, SHIP, DELIVER", "CANCEL, REFUND, RETURN"], col = 2, row = 1, colour = "amber" },
+    { id = "i", label = "IfElseOrder", sub = ["+ pay(), ship(), cancel()", "+ refund() (two bugs)"], col = 0, row = 1, colour = "red" },
+]
+edges = [
+    { from = "o", to = "t", label = "asks" },
+    { from = "t", to = "s", label = "uses" },
+    { from = "t", to = "a", label = "uses" },
+]
+
+[[diagram]]
+name = "data-flow-diagram"
+kind = "flow"
+title = "Table-Driven State Machine — the order's life"
+caption = "Each arrow is one row of the table, labelled with its action."
+nodes = [
+    { id = "pl", label = "PLACED", sub = "", col = 0, row = 0, colour = "client" },
+    { id = "pd", label = "PAID", sub = "", col = 1, row = 0, colour = "accent" },
+    { id = "sh", label = "SHIPPED", sub = "", col = 2, row = 0, colour = "accent" },
+    { id = "dl", label = "DELIVERED", sub = "", col = 2, row = 1, colour = "green" },
+    { id = "rt", label = "RETURNED", sub = "added in act four", col = 2, row = 2, colour = "amber" },
+    { id = "rf", label = "REFUNDED", sub = "", col = 1, row = 2, colour = "amber" },
+    { id = "cn", label = "CANCELLED", sub = "", col = 0, row = 1, colour = "red" },
+]
+edges = [
+    { from = "pl", to = "pd", label = "PAY" },
+    { from = "pl", to = "cn", label = "CANCEL" },
+    { from = "pd", to = "sh", label = "SHIP" },
+    { from = "pd", to = "rf", label = "REFUND" },
+    { from = "sh", to = "dl", label = "DELIVER" },
+    { from = "dl", to = "rt", label = "RETURN" },
+    { from = "rt", to = "rf", label = "REFUND" },
+]
+
+[[diagram]]
+name = "sequence-diagram"
+kind = "sequence"
+title = "Table-Driven State Machine — one move"
+caption = "The order asks the table; the table answers with the next status or nothing."
+participants = ["Caller", "Order", "TransitionTable"]
+steps = [
+    ["Caller", "Order", "apply(SHIP)"],
+    ["Order", "TransitionTable", "next(PAID, SHIP)"],
+    ["TransitionTable", "Order", "SHIPPED", "reply"],
+    ["note", "Order", "status = SHIPPED"],
+]
+
+[[diagram]]
+name = "uml-diagram"
+kind = "sequence"
+title = "1. A move that is not in the table"
+caption = "Nothing to look up, so the move is refused."
+participants = ["Caller", "Order", "TransitionTable"]
+steps = [
+    ["Caller", "Order", "apply(CANCEL)"],
+    ["Order", "TransitionTable", "next(DELIVERED, CANCEL)"],
+    ["TransitionTable", "Order", "empty", "reply"],
+    ["Order", "Caller", "cannot cancel a DELIVERED order", "reply"],
+]
+
+[[diagram]]
+name = "uml-diagram-2"
+kind = "sequence"
+title = "2. Showing the buttons"
+caption = "The page asks what is allowed, instead of repeating the rules."
+participants = ["Order page", "TransitionTable"]
+steps = [
+    ["Order page", "TransitionTable", "allowed(PAID)"],
+    ["TransitionTable", "Order page", "[SHIP, REFUND]", "reply"],
+]
+
+[poster]
+headline = [["STATE", "text"], ["TABLE", "text"]]
+before = { code = "if (status != SHIPPED)", note = "delivered orders cancelled", tag = "BEFORE" }
+after = { code = "PAID + SHIP -> SHIPPED", note = "not in the table: refused", tag = "AFTER" }
+taglines = [["Every allowed move, in one table", "gold"]]
+
+[[scene]]
+key = "01-poster"
+kind = "poster"
+title = "Table-Driven State Machine"
+narration = """
+Hello, and welcome. [[slnc 400]] This video explains the Table-Driven State Machine pattern, in Java. [[slnc 300]]
+This video is presented by Jayasekhar Konduru. [[slnc 600]]
+First, a simple definition. [[slnc 300]] A state machine is anything that is always in one of a few statuses, and moves between them when something happens. [[slnc 300]] In a table-driven state machine, every allowed move is one row in a table. [[slnc 300]] From this status, on this action, go to that status. [[slnc 300]] Anything not in the table is refused. [[slnc 600]]
+Think of an airport. [[slnc 300]] Check-in, then security, then the gate, then the plane. [[slnc 300]] There is one chart of allowed steps, and every desk checks it. [[slnc 300]] A step that is not on the chart does not happen. [[slnc 700]]
+In this video, the domain is an online shop. [[slnc 300]] Its orders move from placed, to paid, to shipped, to delivered. [[slnc 300]] And they can be cancelled, or refunded. [[slnc 500]]
+By the end, you will hear how scattered if statements hide missing rules. [[slnc 300]] How one table fixes it. [[slnc 300]] How to add a rule with two lines. [[slnc 300]] And what the table does not do for you.
+"""
+
+[[scene]]
+key = "02-scenario"
+kind = "bullets"
+title = "The Scenario"
+body = ["An order: placed, paid, shipped,", "delivered. Or cancelled, or refunded.", "", "Each method checked the status", "in its own way."]
+narration = """
+Here is the scenario. [[slnc 400]] An order is placed. [[slnc 300]] Then paid. [[slnc 300]] Then shipped. [[slnc 300]] Then delivered. [[slnc 300]] Along the way, it might be cancelled, or refunded. [[slnc 600]]
+Each of those is a status. [[slnc 300]] At any moment, an order has exactly one. [[slnc 500]]
+The shop had one method per action: pay, ship, cancel, refund. [[slnc 300]] And each method checked the status in its own way.
+"""
+
+[[scene]]
+key = "03-acts"
+kind = "acts"
+title = "acts"
+
+[[scene]]
+key = "04-pattern"
+kind = "bullets"
+title = "The Pattern"
+body = ["One table of allowed moves:", "from + action -> to.", "", "Look every move up.", "Not in the table? Refused.", "", "New rule? New row."]
+narration = """
+Let's name the pattern. [[slnc 400]] Write every allowed move as one row, in one table. [[slnc 300]] From this status, on this action, go to that status. [[slnc 500]]
+To change an order's status, look the move up. [[slnc 300]] If it is not in the table, refuse it, and say why. [[slnc 500]]
+And when the rules change, change the table. [[slnc 300]] A new rule is a new row.
+"""
+
+[[scene]]
+key = "05-roles"
+kind = "bullets"
+title = "Who Does What"
+body = ["Status, Action: two enums", "TransitionTable: the rule book", "Order: looks each move up", "IfElseOrder: the old way"]
+narration = """
+Here is who does what. [[slnc 400]] Status and Action are two enums, fixed lists of names. [[slnc 500]]
+The transition table is the whole rule book. [[slnc 300]] It can say what comes next, and which actions are allowed from any status. [[slnc 500]]
+The order holds its status, and asks the table before every move. [[slnc 500]]
+And the if else order is the old way, kept for comparison.
+"""
+
+[[scene]]
+key = "06-recognise"
+kind = "bullets"
+title = "Where You Have Seen It"
+body = ["Spring State Machine", "Jira workflows", "Order and payment statuses", "Parsers and network protocols"]
+narration = """
+You have probably met this pattern already. [[slnc 400]] Spring State Machine is configured as a table of transitions. [[slnc 500]]
+Ticket systems such as Jira let an admin edit the allowed moves between statuses. [[slnc 500]]
+Almost every shop has order and payment statuses. [[slnc 300]] And parsers and network protocols are built on state tables, too.
+"""
+
+[[scene]]
+key = "07-verdict"
+kind = "bullets"
+title = "When To Use It"
+body = ["A few statuses, rules about", "which can follow which:", "use a table.", "", "Draw it as a diagram.", "Attach side effects to moves."]
+narration = """
+So, when should you use it? [[slnc 400]] Whenever something has a handful of statuses, and rules about which can follow which. [[slnc 300]] Orders, payments, tickets, bookings. [[slnc 500]]
+Keep the table in one place. [[slnc 300]] Draw it as a diagram. [[slnc 300]] Attach side effects, such as emails, to the moves. [[slnc 500]]
+And when each status needs a lot of its own behaviour, look at the State pattern instead.
+"""
+
+[[scene]]
+key = "08-outro"
+kind = "outro"
+title = "Thanks for Watching"
+body = ["Full source, notes, diagrams and an animated walkthrough", "are in the repository. Add a LOST status", "and its rows."]
+narration = """
+That's the Table-Driven State Machine pattern. [[slnc 400]] If you remember one sentence, make it this one. [[slnc 300]] Write every allowed move in one table, and refuse everything else. [[slnc 500]]
+The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. [[slnc 300]] It runs offline, with nothing installed except a Java development kit. [[slnc 500]]
+Here is one exercise to try. [[slnc 300]] Add a lost status, for parcels that never arrive. [[slnc 300]] Which actions lead into it, and out of it? [[slnc 500]]
+If this helped, a like really does help other people find it. [[slnc 300]] And subscribe, if you'd like the rest of the series. [[slnc 400]] Thanks for watching.
+"""

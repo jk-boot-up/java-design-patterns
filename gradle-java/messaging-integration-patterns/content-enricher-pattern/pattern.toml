@@ -1,0 +1,484 @@
+# pattern.toml for the Content Enricher project. See tools/patternkit.
+
+[project]
+slug = "content-enricher"
+category = "messaging-integration-patterns"
+title = "Content Enricher"
+package = "contentenricher"
+main_class = "ContentEnricherDemo"
+tagline = "Fill in the message once, on the way"
+bold = "When a message is too thin for its receivers, add the missing details once, in the middle, instead of making every receiver look them up."
+domain_note = ""
+thumb_lines = ["CONTENT", "ENRICHER"]
+thumb_code = "enrich(order)"
+youtube_title = "Content Enricher"
+youtube_tags = ["content enricher", "enterprise integration patterns", "messaging", "java", "event driven"]
+
+[readme]
+intro = """
+Content Enricher is one of the Enterprise Integration Patterns, the catalogue of
+messaging patterns by Gregor Hohpe and Bobby Woolf. A message arrives with only
+part of what its receivers need, often just an identifier. The enricher sits
+between the sender and the receivers. It looks the missing details up once,
+adds them to the message, and passes the fuller message on.
+
+The receivers then have everything in the message itself. They make no calls
+of their own, and they keep working when the service that holds the details is
+down.
+"""
+analogy = """
+Think of a post office sorting room. A letter arrives addressed only to "the
+Shah family, Mill Lane". A clerk looks up the house number and the postcode in
+the directory, writes them on the envelope, and sends it on. The postman who
+delivers it does not need the directory at all.
+
+Without the clerk, every postman on every round would carry a directory and
+look up every letter themselves.
+"""
+scenario = """
+When a customer pays, checkout sends an "order placed" message that holds the
+order number, the items and a customer identifier, and nothing else. The
+warehouse needs the delivery address. The email service needs the customer's
+name. Each of them was calling the customer service for every order, and when
+that service went down, parcels stopped being packed.
+"""
+costs = [
+    "**Bigger messages.** Every receiver gets the added details, whether it needs them or not.",
+    "**A copy, not the truth.** The details are taken at one moment. If the customer moves house a minute later, the message still carries the old address.",
+    "**One more step that can fail.** The enricher depends on the customer service, so it needs a plan for customers it cannot find.",
+    "**Personal data travels further.** Names and addresses now sit in every copy of the message, which matters for privacy rules.",
+]
+too_much = """
+When only one receiver needs the extra details, let that receiver look them up.
+And when the details change often and must be current, such as stock levels or
+prices, a receiver should ask the owning service at the moment it acts,
+instead of trusting a copy made earlier.
+"""
+met_before = [
+    "Apache Camel's `enrich` and `pollEnrich`, and Spring Integration's `<int:enricher>`.",
+    "Kafka Streams joining a stream of orders with a table of customers.",
+    "An API gateway adding a user's details to a request after checking their login token.",
+    "Log shippers that add the host name and region to every log line.",
+]
+where = """
+This project is in [messaging-integration-patterns](..), next to
+[Content-Based Router](../content-based-router-pattern), which decides where a
+message goes, and [Splitter and Aggregator](../splitter-aggregator-pattern),
+which change how many messages there are. The enricher changes what one message
+carries.
+"""
+
+[[act]]
+title = "The thin message"
+summary = "Checkout sends ORD-1 with customer C-17 and a kettle: no name, no address, no loyalty tier."
+detail = """
+Checkout only knows the customer by an identifier, so the `OrderPlaced` message
+is thin: `ORD-1`, customer `C-17`, one kettle. It is 59 characters long. The
+warehouse cannot pack it and the email service cannot greet anyone with it.
+"""
+speech = """
+First demo: the thin message. [[slnc 400]] Checkout sends a message saying order one was placed, by customer C 17, for a kettle. [[slnc 500]]
+That is all it says. [[slnc 300]] No name. [[slnc 300]] No address. [[slnc 300]] No loyalty tier. [[slnc 500]]
+The warehouse cannot pack a parcel without an address. [[slnc 300]] And the email service cannot say hello without a name.
+"""
+rows = { checkout = "active amber" }
+console = [
+    ["ORD-1, customer C-17, kettle", "amber"],
+    ["no name, no address, no tier", "bad"],
+]
+
+[[act]]
+title = "Every receiver looks it up"
+summary = "3 orders and 2 receivers make 6 calls to the customer service; when it goes down, packing stops."
+detail = """
+Without an enricher, the warehouse and the email service each call the customer
+service for every order. Three orders make six calls. Worse, both receivers now
+depend on that service: switch it off and the warehouse stops packing with
+"customer service unavailable", even though the order itself was fine.
+"""
+speech = """
+Second demo: every receiver looks the customer up. [[slnc 400]] There are three orders, and two receivers. [[slnc 300]] The warehouse, and the email service. [[slnc 500]]
+Each one calls the customer service for each order. [[slnc 300]] That is six calls, for three orders. [[slnc 600]]
+Now the customer service goes down. [[slnc 300]] The warehouse stops packing. [[slnc 300]] The order was fine. [[slnc 300]] But the warehouse could not find out where to send it.
+"""
+rows = { warehouse = "active wrong", email = "active wrong", directory = "active amber" }
+console = [
+    ["3 orders, 2 receivers: 6 calls", "bad"],
+    ["customer service down:", "muted"],
+    ["the warehouse stops packing", "bad"],
+]
+
+[[act]]
+title = "The enricher"
+summary = "One enricher adds name, address and tier; with a cache, 3 orders need 2 calls; receivers work while the service is down."
+detail = """
+`ContentEnricher` sits between checkout and the receivers. For each order it
+finds the customer, and builds an `EnrichedOrder` with the name
+`Priya Shah`, the address `4 Mill Lane, Leeds` and the tier `GOLD`. The message
+grows from 59 to 117 characters. With a small cache, the three orders need only
+two lookups, because two orders are from the same customer. Then the customer
+service is switched off, and the warehouse and the email service still work:
+everything they need is in the message.
+"""
+speech = """
+Third demo: the content enricher. [[slnc 400]] It sits in the middle, between checkout and the receivers. [[slnc 500]]
+For each order, it finds the customer once. [[slnc 300]] It adds the name, Priya Shah. [[slnc 300]] The address, four Mill Lane, Leeds. [[slnc 300]] And the loyalty tier, gold. [[slnc 500]]
+The message grows from fifty-nine characters to one hundred and seventeen. [[slnc 500]]
+The enricher also remembers customers it has already found. [[slnc 300]] Two of the three orders are from Priya, so there are only two calls in total. [[slnc 600]]
+Now switch the customer service off again. [[slnc 300]] The warehouse still packs. [[slnc 300]] The email still goes out. [[slnc 300]] Everything they need is already in the message.
+"""
+rows = { enricher = "active ok", directory = "active ok", warehouse = "active ok", email = "active ok" }
+console = [
+    ["+ Priya Shah, 4 Mill Lane, GOLD", "ok"],
+    ["message: 59 -> 117 characters", "amber"],
+    ["3 orders, with a cache: 2 calls", "ok"],
+    ["service down: still packs, emails", "ok"],
+]
+
+[[act]]
+title = "A customer who cannot be found"
+summary = "ORD-4 names customer C-99, who does not exist; it goes to the problem list instead of travelling on half-filled."
+detail = """
+Order `ORD-4` names customer `C-99`, who is not in the customer service. The
+enricher does not pass on a half-filled message with an empty address, which
+the warehouse would only discover later. It puts the order on a problem list
+with the reason, `ORD-4: no customer C-99`, where a person or a retry can deal
+with it.
+"""
+speech = """
+Fourth demo: a customer who cannot be found. [[slnc 400]] Order four names customer C 99. [[slnc 300]] There is no such customer. [[slnc 500]]
+The enricher does not send the order on with an empty address. [[slnc 300]] The warehouse would only find out later, with a parcel and nowhere to send it. [[slnc 500]]
+Instead, the order goes on a problem list, with the reason: no customer C 99. [[slnc 300]] A person, or a retry, can deal with it there.
+"""
+rows = { enricher = "active amber", problems = "active wrong" }
+console = [
+    ["ORD-4 for C-99 enriched: false", "bad"],
+    ["problem list: no customer C-99", "amber"],
+]
+
+[[act]]
+title = "The bill"
+summary = "Priya moves house after her order was enriched; the message still says 4 Mill Lane. Every message is bigger for every receiver."
+detail = """
+The added details are a copy, taken at one moment. After order one is enriched,
+Priya moves to York. The enriched message still says `4 Mill Lane, Leeds`.
+Sometimes that is exactly right (the parcel goes where she asked when she
+ordered), and sometimes it is a stale copy. And every enriched message is bigger,
+for every receiver, whether it needs the details or not.
+"""
+speech = """
+Fifth demo: the bill. [[slnc 400]] The details the enricher adds are a copy, taken at one moment. [[slnc 500]]
+After order one is enriched, Priya moves house, to York. [[slnc 300]] The message still says four Mill Lane, Leeds. [[slnc 500]]
+Sometimes that is right. [[slnc 300]] The parcel goes where she asked when she ordered. [[slnc 300]] Sometimes it is simply out of date. [[slnc 600]]
+And every enriched message is bigger, for every receiver, whether that receiver needs the details or not.
+"""
+rows = { enricher = "active amber", warehouse = "active amber" }
+console = [
+    ["Priya moves house, to York", "muted"],
+    ["message still says: 4 Mill Lane", "amber"],
+    ["every message is bigger", "amber"],
+]
+
+[animation]
+subtitle = "Checkout sends a thin order; the enricher adds the customer's details once, so the warehouse and the email service never have to ask."
+boxes = [
+    ["checkout", "Checkout", "sends order + customer ID"],
+    ["enricher", "Content Enricher", "adds name, address, tier"],
+    ["directory", "Customer service", "knows every customer"],
+    ["warehouse", "Warehouse", "packs, needs the address"],
+    ["email", "Email service", "confirms, needs the name"],
+    ["problems", "Problem list", "orders that could not be filled in"],
+]
+
+[docs.problem]
+scenario = """
+Checkout sends an "order placed" message with an order number, the items and a
+customer identifier. The warehouse needs an address and the email service needs
+a name, so each of them calls the customer service for every order.
+"""
+naive = """
+Each receiver looks the customer up itself (`Receivers.packThin`,
+`Receivers.emailThin`). It is simple, but the lookups multiply with every new
+receiver, and every receiver stops working when the customer service is down.
+"""
+deliver = [
+    "The thin message printed, showing what it lacks.",
+    "The lookup count without an enricher (6 for 3 orders and 2 receivers) and with one (2, with a cache).",
+    "Receivers that keep working while the customer service is down, because the message carries the details.",
+    "A problem list for orders whose customer cannot be found.",
+    "The costs shown: a stale copy after the customer moves, and bigger messages.",
+    "Every printed number asserted by a test.",
+]
+
+[docs.prerequisites]
+required = [
+    "Java basics: classes, records, methods.",
+    "What a message is: a small piece of data one part of a system sends to another.",
+]
+not_required = [
+    "A message broker such as Kafka or RabbitMQ. The messages here are plain Java objects.",
+    "Any integration framework. Camel and Spring Integration are named, not used.",
+]
+
+[docs.session]
+objectives = [
+    "Say what a thin message is and why receivers struggle with it.",
+    "Place an enricher between a sender and its receivers.",
+    "Decide what to do with a message that cannot be enriched.",
+    "Name the two costs: stale copies and bigger messages.",
+]
+walkthrough = """
+Run `./gradlew run` and read act two first: six calls for three orders, and a
+warehouse that stops when the customer service stops. Then open
+`ContentEnricher.java`: one method, `enrich`, that finds the customer, copies
+three fields, and either returns the fuller message or records a problem. End on
+act five and ask when a stale address is right and when it is wrong.
+"""
+exercises = [
+    "Add a third receiver, a loyalty service that needs the tier. How many lookups does it add with and without the enricher?",
+    "Make the enricher add only the fields a receiver asks for. What does that cost?",
+    "Give the cache an expiry time, and write a test that a moved customer is seen after it expires.",
+    "When the customer service is down, should the enricher wait and retry, or send the order to the problem list? Try both.",
+]
+
+[docs.explained]
+sentence = """
+A Content Enricher takes a message that is too thin for its receivers, looks the
+missing details up once, and passes on a fuller message, so no receiver has to
+ask.
+"""
+verdict = """
+Use an enricher when several receivers need the same details that the sender
+does not have, and when a copy taken at the moment of sending is acceptable.
+Send the messages it cannot fill in to a problem list. Leave details that must
+be current, such as stock, for the receiver to ask for at the moment it acts.
+"""
+recognise = [
+    "A step between a sender and receivers that takes an identifier and adds fields.",
+    "Classes named `...Enricher`, or Camel routes using `enrich`.",
+    "Stream joins between an event stream and a table of reference data.",
+    "Receivers with no client for the service that owns the data they read.",
+]
+
+[spec]
+purpose = """
+Teach Content Enricher with an online store: a thin order message with only a
+customer identifier; receivers that each look the customer up (6 calls for 3
+orders) and stop when the customer service is down; an enricher that adds name,
+address and tier once (2 calls with a cache) so receivers keep working; a
+problem list for an unknown customer; and the costs of stale copies and bigger
+messages.
+"""
+nongoals = [
+    "Not a message broker. Messages are Java objects passed in memory.",
+    "Not an integration framework. Camel and Spring Integration are named, not used.",
+    "Not cache design. The cache is a map, to show the lookup count.",
+]
+problem = """
+Receivers of a thin message each look up the same details, multiplying calls
+and depending on the service that owns them.
+"""
+roles = [
+    ["The pattern", "`ContentEnricher`"],
+    ["Messages", "`OrderPlaced`, `EnrichedOrder`"],
+    ["Source of the details", "`CustomerDirectory`, `Customer`"],
+    ["Receivers", "`Receivers`"],
+    ["Entry point", "`ContentEnricherDemo`, five acts"],
+]
+requirements = [
+    "**Enrich once:** the enricher adds name, address and tier to each order.",
+    "**Counted lookups:** 6 without an enricher, 2 with the cached enricher, asserted.",
+    "**Independence:** enriched receivers work with the customer service switched off.",
+    "**No half-filled messages:** an unknown customer goes to the problem list with its reason.",
+    "**Every printed number is asserted** in `DemoRunsTest`.",
+]
+
+[[diagram]]
+name = "architecture-diagram"
+kind = "flow"
+title = "Content Enricher — the pieces"
+caption = "The enricher is the only part that talks to the customer service. The receivers read the message."
+nodes = [
+    { id = "co", label = "Checkout", sub = "sends OrderPlaced", col = 0, row = 0, colour = "client" },
+    { id = "en", label = "ContentEnricher", sub = "adds the customer details", col = 1, row = 0, colour = "accent" },
+    { id = "dir", label = "CustomerDirectory", sub = "the customer service", col = 1, row = 1, colour = "amber" },
+    { id = "wh", label = "Warehouse", sub = "reads the address", col = 2, row = 0, colour = "green" },
+    { id = "em", label = "Email service", sub = "reads the name", col = 2, row = 1, colour = "green" },
+    { id = "pr", label = "Problem list", sub = "orders it could not fill", col = 0, row = 1, colour = "red" },
+]
+edges = [
+    { from = "co", to = "en", label = "thin order" },
+    { from = "en", to = "dir", label = "find(customerId)" },
+    { from = "en", to = "wh", label = "EnrichedOrder" },
+    { from = "en", to = "em", label = "EnrichedOrder" },
+    { from = "en", to = "pr", label = "not found", dashed = true },
+]
+
+[[diagram]]
+name = "class-diagram"
+kind = "class"
+title = "Content Enricher — classes"
+caption = "Two records for the two messages, one class that turns the first into the second."
+nodes = [
+    { id = "op", label = "«record» OrderPlaced", sub = ["orderId", "customerId", "items"], col = 0, row = 0, colour = "client" },
+    { id = "en", label = "ContentEnricher", sub = ["- CustomerDirectory directory", "- Map cache", "+ enrich(OrderPlaced)", "+ problems()"], col = 1, row = 0, colour = "accent" },
+    { id = "eo", label = "«record» EnrichedOrder", sub = ["orderId, customerId, items", "name, address, tier"], col = 2, row = 0, colour = "green" },
+    { id = "dir", label = "CustomerDirectory", sub = ["+ find(id): Optional", "+ lookups()"], col = 1, row = 1, colour = "amber" },
+    { id = "cu", label = "«record» Customer", sub = ["id, name, address, tier"], col = 2, row = 1, colour = "amber" },
+]
+edges = [
+    { from = "en", to = "op", label = "reads" },
+    { from = "en", to = "eo", label = "creates" },
+    { from = "en", to = "dir", label = "asks" },
+    { from = "dir", to = "cu", label = "holds" },
+]
+
+[[diagram]]
+name = "data-flow-diagram"
+kind = "flow"
+title = "Content Enricher — what the message carries"
+caption = "The message starts with an identifier and leaves with the details the receivers need."
+nodes = [
+    { id = "a", label = "ORD-1, C-17, kettle", sub = "from checkout", col = 0, row = 0, colour = "client" },
+    { id = "b", label = "Priya Shah, Leeds, GOLD", sub = "from the customer service", col = 1, row = 1, colour = "amber" },
+    { id = "c", label = "ORD-1 + all details", sub = "117 characters", col = 1, row = 0, colour = "green" },
+    { id = "d", label = "pack for 4 Mill Lane", sub = "warehouse", col = 2, row = 0, colour = "accent" },
+    { id = "e", label = "email Priya Shah", sub = "email service", col = 2, row = 1, colour = "accent" },
+]
+edges = [
+    { from = "a", to = "c", label = "enrich" },
+    { from = "b", to = "c", label = "copied in" },
+    { from = "c", to = "d", label = "address" },
+    { from = "c", to = "e", label = "name" },
+]
+
+[[diagram]]
+name = "sequence-diagram"
+kind = "sequence"
+title = "Content Enricher — one order"
+caption = "One lookup, in the middle; the receivers only read."
+participants = ["Checkout", "Enricher", "Customer service", "Warehouse"]
+steps = [
+    ["Checkout", "Enricher", "OrderPlaced(ORD-1, C-17)"],
+    ["Enricher", "Customer service", "find(C-17)"],
+    ["Customer service", "Enricher", "Priya Shah, Leeds, GOLD", "reply"],
+    ["Enricher", "Warehouse", "EnrichedOrder(ORD-1, ...)"],
+    ["note", "Warehouse", "no lookup needed"],
+]
+
+[[diagram]]
+name = "uml-diagram"
+kind = "sequence"
+title = "1. Without an enricher"
+caption = "Every receiver asks, for every order."
+participants = ["Checkout", "Warehouse", "Email", "Customer service"]
+steps = [
+    ["Checkout", "Warehouse", "OrderPlaced(C-17)"],
+    ["Warehouse", "Customer service", "find(C-17)"],
+    ["Checkout", "Email", "OrderPlaced(C-17)"],
+    ["Email", "Customer service", "find(C-17)"],
+    ["note", "Customer service", "2 calls per order"],
+]
+
+[[diagram]]
+name = "uml-diagram-2"
+kind = "sequence"
+title = "2. A customer who cannot be found"
+caption = "The order is parked with a reason instead of travelling on half-filled."
+participants = ["Enricher", "Customer service", "Problem list"]
+steps = [
+    ["Enricher", "Customer service", "find(C-99)"],
+    ["Customer service", "Enricher", "not found", "reply"],
+    ["Enricher", "Problem list", "ORD-4: no customer C-99"],
+]
+
+[poster]
+headline = [["CONTENT", "text"], ["ENRICHER", "text"]]
+before = { code = "find(order.customerId())", note = "in every receiver", tag = "BEFORE" }
+after = { code = "enricher.enrich(order)", note = "once, in the middle", tag = "AFTER" }
+taglines = [["Fill in the message once, on the way", "gold"]]
+
+[[scene]]
+key = "01-poster"
+kind = "poster"
+title = "Content Enricher"
+narration = """
+Hello, and welcome. [[slnc 400]] This video explains the Content Enricher pattern, in Java. [[slnc 300]]
+This video is presented by Jayasekhar Konduru. [[slnc 600]]
+First, a simple definition. [[slnc 300]] A content enricher takes a message that is missing some details. [[slnc 300]] It looks those details up once, adds them to the message, and passes the fuller message on. [[slnc 300]] So the receivers never have to look anything up themselves. [[slnc 600]]
+Think of a post office sorting room. [[slnc 300]] A letter arrives with only a family name and a street. [[slnc 300]] A clerk finds the house number and the postcode in the directory, writes them on the envelope, and sends it on. [[slnc 300]] The postman who delivers it never needs the directory. [[slnc 700]]
+In this video, the domain is an online shop. [[slnc 300]] When a customer pays, checkout sends a message saying an order was placed. [[slnc 300]] A warehouse packs the parcel, and an email service sends a confirmation. [[slnc 500]]
+By the end, you will hear why a thin message makes every receiver do extra work. [[slnc 300]] How one enricher in the middle fixes it. [[slnc 300]] What to do with an order that cannot be filled in. [[slnc 300]] And what the pattern costs.
+"""
+
+[[scene]]
+key = "02-scenario"
+kind = "bullets"
+title = "The Scenario"
+body = ["Checkout sends: order, items,", "and a customer ID. Nothing else.", "", "The warehouse needs an address.", "The email service needs a name.", "", "Who fills in the gaps?"]
+narration = """
+Here is the scenario. [[slnc 400]] When a customer pays, checkout sends a short message. [[slnc 300]] It holds the order number, the items, and a customer ID. [[slnc 300]] An ID is just a short code that points to a customer, like C 17. [[slnc 600]]
+Two services receive the message. [[slnc 300]] The warehouse needs the delivery address. [[slnc 300]] The email service needs the customer's name. [[slnc 500]]
+Neither is in the message. [[slnc 300]] So who fills in the gaps?
+"""
+
+[[scene]]
+key = "03-acts"
+kind = "acts"
+title = "acts"
+
+[[scene]]
+key = "04-pattern"
+kind = "bullets"
+title = "The Pattern"
+body = ["Put one step between the sender", "and the receivers.", "", "It looks the details up once,", "adds them to the message,", "and passes it on."]
+narration = """
+Let's name the pattern. [[slnc 400]] Put one step in the middle, between the sender and the receivers. [[slnc 500]]
+That step takes the thin message. [[slnc 300]] It looks up the missing details, once. [[slnc 300]] It adds them to the message. [[slnc 300]] And it passes the fuller message on. [[slnc 500]]
+That step is the content enricher. [[slnc 300]] The receivers only read.
+"""
+
+[[scene]]
+key = "05-roles"
+kind = "bullets"
+title = "Who Does What"
+body = ["OrderPlaced: the thin message", "CustomerDirectory: the customer service", "ContentEnricher: adds the details", "EnrichedOrder: the full message", "Warehouse, Email: only read"]
+narration = """
+Here is who does what. [[slnc 400]] Order placed is the thin message from checkout. [[slnc 300]] The customer directory stands in for the customer service. [[slnc 300]] It knows every customer's name, address and loyalty tier. [[slnc 500]]
+The content enricher asks the directory, and builds an enriched order. [[slnc 300]] That is the same order, with the customer's details added. [[slnc 500]]
+The warehouse and the email service only read the enriched order. [[slnc 300]] They never call the customer service at all.
+"""
+
+[[scene]]
+key = "06-recognise"
+kind = "bullets"
+title = "Where You Have Seen It"
+body = ["Apache Camel: enrich()", "Spring Integration: enricher", "Kafka Streams: join orders", "with a customer table", "API gateways adding user details"]
+narration = """
+You have probably met this pattern already. [[slnc 400]] Apache Camel has a step called enrich. [[slnc 300]] Spring Integration has an enricher. [[slnc 500]]
+In Kafka Streams, joining a stream of orders with a table of customers is the same idea. [[slnc 500]]
+And an API gateway that adds a user's details to each request, after checking their login, is enriching the request.
+"""
+
+[[scene]]
+key = "07-verdict"
+kind = "bullets"
+title = "When To Use It"
+body = ["Use it when several receivers", "need the same missing details.", "", "Park what cannot be filled in.", "", "Let receivers ask for things", "that must be current, like stock."]
+narration = """
+So, when should you use it? [[slnc 400]] Use a content enricher when several receivers need the same details, and the sender does not have them. [[slnc 500]]
+Send any message it cannot fill in to a problem list, with the reason. [[slnc 500]]
+And skip it for details that must be current at the moment of acting, such as stock levels or prices. [[slnc 300]] For those, the receiver should ask the owning service when it acts.
+"""
+
+[[scene]]
+key = "08-outro"
+kind = "outro"
+title = "Thanks for Watching"
+body = ["Full source, notes, diagrams and an animated walkthrough", "are in the repository. Add a loyalty service", "and count the lookups."]
+narration = """
+That's the Content Enricher pattern. [[slnc 400]] If you remember one sentence, make it this one. [[slnc 300]] When a message is too thin for its receivers, fill it in once, in the middle. [[slnc 500]]
+The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. [[slnc 300]] It runs offline, with nothing installed except a Java development kit. [[slnc 500]]
+Here is one exercise to try. [[slnc 300]] Add a third receiver, a loyalty service that needs the tier. [[slnc 300]] Then count the lookups, with and without the enricher. [[slnc 500]]
+If this helped, a like really does help other people find it. [[slnc 300]] And subscribe, if you'd like the rest of the series. [[slnc 400]] Thanks for watching.
+"""

@@ -1,0 +1,486 @@
+# pattern.toml for the Asynchronous Request-Reply project. See tools/patternkit.
+
+[project]
+slug = "async-request-reply"
+category = "micro-services-design-patterns"
+title = "Asynchronous Request-Reply"
+package = "asyncreply"
+main_class = "AsyncRequestReplyDemo"
+tagline = "Take a ticket, come back later"
+bold = "When work takes longer than a caller can wait, accept the request at once, hand back a link to check, and let the caller come back for the result."
+domain_note = ""
+thumb_lines = ["ASYNC", "REQUEST-REPLY"]
+thumb_code = "202 Accepted"
+youtube_title = "Asynchronous Request-Reply"
+youtube_tags = ["asynchronous request reply", "202 accepted", "polling", "microservices", "rest api", "java"]
+
+[readme]
+intro = """
+Asynchronous Request-Reply is a pattern for slow work behind an HTTP API. A
+normal request waits for its answer, and everything in between (the browser,
+the load balancer, the gateway) gives up after a few seconds. For work that
+takes longer, the server answers straight away with `202 Accepted` and a
+status link. The caller checks that link from time to time, and when the work
+is done, it is sent on to the result.
+
+Nobody waits on an open connection, nothing times out, and the work is done
+once, even if the caller asks twice.
+"""
+analogy = """
+Think of a dry cleaner. You do not stand at the counter while your coat is
+cleaned. You hand it over, you get a ticket with a number, and you are told to
+come back on Thursday. On Thursday you show the ticket and collect the coat.
+
+If you come back on Tuesday, they just tell you "not yet, try Thursday". And if
+you hand in the same coat twice by mistake, a good cleaner notices it is the
+same order.
+"""
+scenario = """
+Sellers in the online store can ask for a sales report for the month. Building
+it adds up every order and takes about six seconds. The gateway in front of the
+store gives up on any request after three seconds, so the seller always saw
+"504 Gateway Timeout", clicked again, and the store built the same report again,
+for nobody.
+"""
+costs = [
+    "**More requests.** One report now takes a submit, a few status checks and a fetch: five requests instead of one.",
+    "**A smarter client.** The caller must remember the link, wait between checks, and follow the redirect.",
+    "**State on the server.** Every job's progress and result must be stored until it is collected, and cleaned up after.",
+    "**Impatient clients.** A client that ignores the retry hint and checks every tenth of a second sends sixty requests for one report.",
+]
+too_much = """
+When the work reliably finishes in well under a second, a normal request is
+simpler and better. And when the client can receive a message back, such as a
+webhook or a web socket, the server can tell it when the work is done instead
+of being asked again and again.
+"""
+met_before = [
+    "HTTP `202 Accepted` with a `Location` header, and `Retry-After`.",
+    "Cloud APIs for long jobs: starting a virtual machine, transcoding a video, or an Azure long-running operation.",
+    "\"Your export is being prepared; we will show it here when it is ready\" in many web apps.",
+    "Payment providers that return `pending` and let you check the payment's status later.",
+]
+where = """
+This project is in [micro-services-design-patterns](..). It pairs well with
+[Idempotent Consumer](../idempotent-consumer-pattern), which uses the same idea
+as the request key: asking twice must not do the work twice.
+"""
+
+[[act]]
+title = "Waiting for a slow report"
+summary = "The report takes 6 s, the gateway gives up at 3 s: 504 twice, built 2 times, received 0 times."
+detail = """
+`SyncReportApi` builds the report while the request waits. The report takes six
+seconds; the gateway in front gives up after three and answers
+`504 Gateway Timeout`. The seller clicks again and gets another 504. The server
+never knew the seller had gone, so it built the report both times: two builds,
+and the seller received nothing.
+"""
+speech = """
+First demo: waiting for a slow report. [[slnc 400]] A seller asks for this month's sales report. [[slnc 300]] Building it takes six seconds. [[slnc 500]]
+But the gateway in front of the store gives up after three seconds. [[slnc 300]] It answers five oh four, which means gateway timeout. [[slnc 500]]
+The seller clicks again. [[slnc 300]] Another five oh four. [[slnc 600]]
+Meanwhile, the server never knew the seller had gone. [[slnc 300]] It built the report both times. [[slnc 300]] Built twice. [[slnc 300]] Received, zero times.
+"""
+rows = { seller = "active wrong", gateway = "active wrong", builder = "active amber" }
+console = [
+    ["first try: 504, Gateway Timeout", "bad"],
+    ["second try: 504, Gateway Timeout", "bad"],
+    ["built 2 times, received 0 times", "bad"],
+]
+
+[[act]]
+title = "Accepted at once"
+summary = "POST /reports answers 202 Accepted at once, with a status link and a hint to retry after 2 s."
+detail = """
+`AsyncReportApi.submit` starts the job and answers immediately with
+`202 Accepted`. The answer carries two things: a status link,
+`/reports/status/R-1`, and a hint to check again after two seconds. The
+connection closes straight away, so no gateway ever times out.
+"""
+speech = """
+Second demo: accepted at once. [[slnc 400]] Now the seller's request gets an answer straight away. [[slnc 300]] Two oh two, accepted. [[slnc 500]]
+The answer means: I have your request, and I am working on it. [[slnc 500]]
+It carries two things. [[slnc 300]] A status link, like a ticket number. [[slnc 300]] And a hint: check again in two seconds. [[slnc 500]]
+The report is built in the background. [[slnc 300]] Nothing is left waiting, so nothing times out.
+"""
+rows = { seller = "active ok", api = "active ok", jobs = "active amber" }
+console = [
+    ["POST /reports: 202 Accepted", "ok"],
+    ["-> /reports/status/R-1", "ok"],
+    ["retry after 2 s", "amber"],
+]
+
+[[act]]
+title = "Check back, then fetch"
+summary = "At 2 s and 4 s the status says running, 33% then 66%; at 6 s it answers 303 See Other; the fetch returns 412 orders, £18240.50."
+detail = """
+`PollingClient` waits the two seconds it was told, then checks the status link:
+running, 33 percent. Two seconds later: running, 66 percent. At six seconds the
+status link answers `303 See Other`, pointing at `/reports/R-1`. The client
+follows it and gets the report: 412 orders, £18,240.50.
+"""
+speech = """
+Third demo: check back, then fetch. [[slnc 400]] The seller's page waits two seconds, as it was told. [[slnc 300]] Then it checks the status link. [[slnc 300]] Running, thirty-three percent. [[slnc 500]]
+Two seconds later: running, sixty-six percent. [[slnc 500]]
+At six seconds, the status link answers three oh three, see other. [[slnc 300]] That means: it is done, and the result is over here. [[slnc 500]]
+The page follows the link, and gets the report. [[slnc 300]] Four hundred and twelve orders, eighteen thousand, two hundred and forty pounds fifty.
+"""
+rows = { seller = "active ok", status = "active ok", report = "active ok" }
+console = [
+    ["2 s: running, 33%", "amber"],
+    ["4 s: running, 66%", "amber"],
+    ["6 s: 303 See Other -> /reports/R-1", "ok"],
+    ["fetch: 412 orders, £18240.50", "ok"],
+]
+
+[[act]]
+title = "Asking twice"
+summary = "A second POST with the same request key returns the same job, R-1; the report is built once."
+detail = """
+Every submit carries a request key, here `seller-7-september`. The server keeps
+a map from key to job, so a second submit with the same key returns the same
+status link, `R-1`, and does not start the work again. The report is built
+exactly once.
+"""
+speech = """
+Fourth demo: the seller clicks twice. [[slnc 400]] Each request carries a key, a short name for what is being asked. [[slnc 300]] Here, seller seven, September. [[slnc 500]]
+The server remembers which job each key started. [[slnc 300]] So the second click gets the same status link, R 1. [[slnc 500]]
+No second job is started. [[slnc 300]] The report is built exactly once.
+"""
+rows = { api = "active ok", jobs = "active ok" }
+console = [
+    ["same key again: -> /reports/status/R-1", "ok"],
+    ["the report was built 1 time", "ok"],
+]
+
+[[act]]
+title = "The bill"
+summary = "One report takes 5 requests instead of 1; an impatient client checking every 0.1 s sends 62; the server stores every job."
+detail = """
+One report now costs five requests: submit, three status checks and a fetch.
+A client that ignores the retry hint and checks every tenth of a second sends
+62 requests for the same report. And the server must keep each job's state
+until its result is collected, then clean it up.
+"""
+speech = """
+Fifth demo: the bill. [[slnc 400]] One report now takes five requests, instead of one. [[slnc 300]] A submit, three status checks, and a fetch. [[slnc 600]]
+And the client must behave. [[slnc 300]] An impatient client that checks every tenth of a second sends sixty-two requests, for the same report. [[slnc 600]]
+The server also has to remember every job, and its result, until someone collects it.
+"""
+rows = { seller = "active amber", status = "active amber", jobs = "active amber" }
+console = [
+    ["as told: 5 requests instead of 1", "amber"],
+    ["every 0.1 s: 62 requests", "bad"],
+    ["the server keeps every job", "amber"],
+]
+
+[animation]
+subtitle = "The seller's request is accepted at once with a status link; the page checks back when told, then fetches the finished report."
+boxes = [
+    ["seller", "Seller's page", "asks for the report"],
+    ["gateway", "Gateway", "gives up after 3 s"],
+    ["api", "POST /reports", "202 + status link"],
+    ["status", "Status link", "running %, then 303"],
+    ["jobs", "Jobs", "one per request key"],
+    ["builder", "Report builder", "6 s of work"],
+    ["report", "Report link", "the finished result"],
+]
+
+[docs.problem]
+scenario = """
+Sellers ask for a monthly sales report that takes six seconds to build. The
+gateway in front of the store gives up on any request after three seconds.
+"""
+naive = """
+`SyncReportApi` builds the report while the request waits. The gateway answers
+504 after three seconds, the seller clicks again, and the server builds the
+report again for nobody.
+"""
+deliver = [
+    "The timeout shown: two 504s, two builds, nothing received.",
+    "A submit that answers 202 Accepted at once with a status link and a retry hint.",
+    "Status checks showing progress, then 303 See Other to the result.",
+    "A repeated submit with the same key returning the same job, built once.",
+    "The costs shown: 5 requests instead of 1, and 62 for an impatient client.",
+    "Every printed number asserted by a test.",
+]
+
+[docs.prerequisites]
+required = [
+    "Java basics: classes, records, maps.",
+    "HTTP basics: a request, a response, and a status code such as 200 or 404.",
+]
+not_required = [
+    "A web server. The three endpoints are plain Java methods.",
+    "Threads. A pretend clock stands in for time passing.",
+]
+
+[docs.session]
+objectives = [
+    "Explain why slow work behind a normal request fails, even when the work succeeds.",
+    "Name the three addresses: submit, status and result.",
+    "Say what 202, 303 and Retry-After mean.",
+    "Make a repeated submit safe with a request key.",
+]
+walkthrough = """
+Run `./gradlew run` and start with act one: built twice, received never. Then
+open `AsyncReportApi.java` and read its three methods side by side: `submit`,
+`status`, `fetch`. Finish with `PollingClient`, which is the half every
+learner forgets: the caller must wait as told and follow the redirect.
+"""
+exercises = [
+    "Add a FAILED state: if the report cannot be built, the status link should say why.",
+    "Make the retry hint grow: 1 s, then 2 s, then 4 s. How many requests does one report take now?",
+    "Delete a finished job one minute after its report is fetched. What should a late status check answer?",
+    "Replace polling with a callback: the client gives a URL, and the server calls it when done.",
+]
+
+[docs.explained]
+sentence = """
+Asynchronous Request-Reply accepts slow work at once with 202 and a status
+link, lets the caller check back when told, and sends it on to the result when
+the work is done.
+"""
+verdict = """
+Use it for any work that can take longer than a few seconds behind HTTP:
+reports, exports, video processing, provisioning. Give each request a key so
+a repeat does not start the work again, send a Retry-After hint, and clean up
+finished jobs. When the client can receive a callback, prefer that to polling.
+"""
+recognise = [
+    "An endpoint answering `202 Accepted` with a `Location` header.",
+    "URLs like `/operations/{id}`, `/jobs/{id}` or `/status/{id}`.",
+    "A `Retry-After` header on a status response.",
+    "Client code that loops, sleeps, and checks a status field until it says done.",
+]
+
+[spec]
+purpose = """
+Teach Asynchronous Request-Reply with an online store: a 6 second sales report
+behind a gateway that gives up at 3 seconds (504 twice, built twice, received
+never), then 202 Accepted with a status link, status checks showing progress
+and 303 See Other, a repeated submit returning the same job, and the costs in
+requests and stored state.
+"""
+nongoals = [
+    "Not a web server or threads. Endpoints are methods; a pretend clock stands in for time.",
+    "Not callbacks or web sockets. They are named as the alternative.",
+    "Not job storage. Jobs live in a map.",
+]
+problem = """
+Work that takes longer than the gateway's timeout fails for the caller even
+when it succeeds on the server, and retries repeat it.
+"""
+roles = [
+    ["The pattern", "`AsyncReportApi` (submit, status, fetch)"],
+    ["The caller", "`PollingClient`"],
+    ["The slow work", "`ReportBuilder`"],
+    ["The naive version", "`SyncReportApi`"],
+    ["Entry point", "`AsyncRequestReplyDemo`, five acts"],
+]
+requirements = [
+    "**Accepted at once:** submit answers 202 with a status link and a 2 second retry hint.",
+    "**Progress then redirect:** status answers running with a percentage, then 303 to the result.",
+    "**Once per key:** the same request key never starts a second job.",
+    "**Counted requests:** 5 when the hint is followed, 62 when checking every 0.1 s.",
+    "**Every printed number is asserted** in `DemoRunsTest`.",
+]
+
+[[diagram]]
+name = "architecture-diagram"
+kind = "flow"
+title = "Asynchronous Request-Reply — the pieces"
+caption = "Three addresses on the server: one to submit, one to check, one to collect."
+nodes = [
+    { id = "c", label = "PollingClient", sub = "the seller's page", col = 0, row = 1, colour = "client" },
+    { id = "s", label = "POST /reports", sub = "202 + status link", col = 1, row = 0, colour = "accent" },
+    { id = "st", label = "GET /reports/status/R-1", sub = "running %, then 303", col = 1, row = 1, colour = "accent" },
+    { id = "r", label = "GET /reports/R-1", sub = "the finished report", col = 1, row = 2, colour = "green" },
+    { id = "j", label = "Jobs", sub = "one per request key", col = 2, row = 1, colour = "amber" },
+    { id = "b", label = "ReportBuilder", sub = "6 s of work", col = 2, row = 0, colour = "amber" },
+]
+edges = [
+    { from = "c", to = "s", label = "1. submit" },
+    { from = "c", to = "st", label = "2. check" },
+    { from = "c", to = "r", label = "3. fetch" },
+    { from = "s", to = "b", label = "start" },
+    { from = "st", to = "j", label = "read" },
+]
+
+[[diagram]]
+name = "class-diagram"
+kind = "class"
+title = "Asynchronous Request-Reply — classes"
+caption = "The API has three methods; the client loops over the middle one."
+nodes = [
+    { id = "api", label = "AsyncReportApi", sub = ["+ submit(key): Response", "+ status(link): Response", "+ fetch(link): Response", "- jobs, jobOfKey"], col = 1, row = 0, colour = "accent" },
+    { id = "cl", label = "PollingClient", sub = ["+ getReport(key, everyMs)", "+ trace()"], col = 0, row = 0, colour = "client" },
+    { id = "resp", label = "«record» Response", sub = ["code, location", "retryAfterMs, body"], col = 1, row = 1, colour = "green" },
+    { id = "b", label = "ReportBuilder", sub = ["WORK_MS = 6000", "+ build()"], col = 2, row = 0, colour = "amber" },
+    { id = "sync", label = "SyncReportApi", sub = ["+ getReport(): 504"], col = 0, row = 1, colour = "red" },
+    { id = "clk", label = "Clock", sub = ["pretend milliseconds"], col = 2, row = 1, colour = "client" },
+]
+edges = [
+    { from = "cl", to = "api", label = "calls" },
+    { from = "api", to = "resp", label = "returns" },
+    { from = "api", to = "b", label = "uses" },
+    { from = "sync", to = "b", label = "uses", dashed = true },
+]
+
+[[diagram]]
+name = "data-flow-diagram"
+kind = "flow"
+title = "Asynchronous Request-Reply — the answers, in order"
+caption = "Each answer tells the caller what to do next."
+nodes = [
+    { id = "a", label = "202 Accepted", sub = "status link, retry after 2 s", col = 0, row = 0, colour = "accent" },
+    { id = "b", label = "200 running, 33%", sub = "at 2 s", col = 1, row = 0, colour = "amber" },
+    { id = "c", label = "200 running, 66%", sub = "at 4 s", col = 2, row = 0, colour = "amber" },
+    { id = "d", label = "303 See Other", sub = "at 6 s, -> /reports/R-1", col = 2, row = 1, colour = "green" },
+    { id = "e", label = "200 the report", sub = "412 orders, £18240.50", col = 1, row = 1, colour = "green" },
+]
+edges = [
+    { from = "a", to = "b", label = "wait 2 s" },
+    { from = "b", to = "c", label = "wait 2 s" },
+    { from = "c", to = "d", label = "wait 2 s" },
+    { from = "d", to = "e", label = "follow" },
+]
+
+[[diagram]]
+name = "sequence-diagram"
+kind = "sequence"
+title = "Asynchronous Request-Reply — one report"
+caption = "The connection is never held open while the work runs."
+participants = ["Client", "API", "ReportBuilder"]
+steps = [
+    ["Client", "API", "POST /reports"],
+    ["API", "ReportBuilder", "start job R-1"],
+    ["API", "Client", "202, /reports/status/R-1", "reply"],
+    ["Client", "API", "status (at 2 s, 4 s)"],
+    ["API", "Client", "running 33%, 66%", "reply"],
+    ["Client", "API", "status (at 6 s)"],
+    ["API", "Client", "303 -> /reports/R-1", "reply"],
+    ["Client", "API", "GET /reports/R-1"],
+    ["API", "Client", "412 orders, £18240.50", "reply"],
+]
+
+[[diagram]]
+name = "uml-diagram"
+kind = "sequence"
+title = "1. Waiting on one request"
+caption = "The gateway gives up; the server carries on for nobody."
+participants = ["Client", "Gateway", "SyncReportApi"]
+steps = [
+    ["Client", "Gateway", "GET report"],
+    ["Gateway", "SyncReportApi", "GET report"],
+    ["note", "SyncReportApi", "building, 6 s"],
+    ["Gateway", "Client", "504 at 3 s", "reply"],
+    ["note", "SyncReportApi", "finishes anyway"],
+]
+
+[[diagram]]
+name = "uml-diagram-2"
+kind = "sequence"
+title = "2. Asking twice"
+caption = "The request key finds the existing job."
+participants = ["Client", "API", "Jobs"]
+steps = [
+    ["Client", "API", "POST key seller-7-september"],
+    ["API", "Jobs", "key known?"],
+    ["Jobs", "API", "yes: R-1", "reply"],
+    ["API", "Client", "202, /reports/status/R-1", "reply"],
+]
+
+[poster]
+headline = [["ASYNC", "text"], ["REQUEST-REPLY", "text"]]
+before = { code = "GET /report", note = "504 after 3 s", tag = "BEFORE" }
+after = { code = "202 Accepted", note = "come back in 2 s", tag = "AFTER" }
+taglines = [["Take a ticket, come back later", "gold"]]
+
+[[scene]]
+key = "01-poster"
+kind = "poster"
+title = "Asynchronous Request-Reply"
+narration = """
+Hello, and welcome. [[slnc 400]] This video explains the Asynchronous Request Reply pattern, in Java. [[slnc 300]]
+This video is presented by Jayasekhar Konduru. [[slnc 600]]
+First, a simple definition. [[slnc 300]] When a job takes longer than a caller can wait, the server accepts the request straight away. [[slnc 300]] It hands back a link where the caller can check on the job. [[slnc 300]] And when the job is done, that link leads to the result. [[slnc 600]]
+Think of a dry cleaner. [[slnc 300]] You do not stand at the counter while your coat is cleaned. [[slnc 300]] You get a ticket, and you are told to come back on Thursday. [[slnc 300]] On Thursday, you show the ticket, and collect the coat. [[slnc 700]]
+In this video, the domain is an online shop. [[slnc 300]] Sellers in the shop can ask for a monthly sales report. [[slnc 300]] Building it takes about six seconds. [[slnc 500]]
+By the end, you will hear why a slow job fails behind a normal request, even when it succeeds. [[slnc 300]] What the answers two oh two and three oh three mean. [[slnc 300]] How to stop a double click doing the work twice. [[slnc 300]] And what the pattern costs.
+"""
+
+[[scene]]
+key = "02-scenario"
+kind = "bullets"
+title = "The Scenario"
+body = ["A seller asks for this month's", "sales report: 6 seconds of work.", "", "The gateway in front gives up", "on any request after 3 seconds."]
+narration = """
+Here is the scenario. [[slnc 400]] A seller asks for this month's sales report. [[slnc 300]] The shop adds up every order, which takes about six seconds. [[slnc 600]]
+In front of the shop sits a gateway. [[slnc 300]] A gateway is the front door that every request passes through. [[slnc 300]] To protect the shop, it gives up on any request that takes longer than three seconds. [[slnc 500]]
+Six seconds of work, and three seconds of patience. [[slnc 300]] What happens?
+"""
+
+[[scene]]
+key = "03-acts"
+kind = "acts"
+title = "acts"
+
+[[scene]]
+key = "04-pattern"
+kind = "bullets"
+title = "The Pattern"
+body = ["1. Submit: 202 Accepted + status link", "2. Status: running... then 303", "3. Result: the finished report", "", "Plus a key, so asking twice", "does the work once."]
+narration = """
+Let's name the pattern. [[slnc 400]] The server has three addresses. [[slnc 500]]
+One: submit. [[slnc 300]] It answers two oh two, accepted, with a status link, straight away. [[slnc 500]]
+Two: the status link. [[slnc 300]] It answers running, with how far along the job is, and when to check again. [[slnc 300]] When the job is done, it answers three oh three, see other, pointing at the result. [[slnc 500]]
+Three: the result itself. [[slnc 500]]
+And every request carries a key, so asking twice does the work only once.
+"""
+
+[[scene]]
+key = "05-roles"
+kind = "bullets"
+title = "Who Does What"
+body = ["AsyncReportApi: submit, status, fetch", "PollingClient: waits, checks, follows", "ReportBuilder: the slow work", "SyncReportApi: the old way"]
+narration = """
+Here is who does what. [[slnc 400]] The async report API has the three methods: submit, status, and fetch. [[slnc 300]] It keeps a list of jobs, and which key started each one. [[slnc 500]]
+The polling client is the caller's side. [[slnc 300]] It submits, waits as long as it was told, checks the status, and follows the link to the result. [[slnc 500]]
+The report builder is the slow work. [[slnc 300]] And the sync report API is the old way, kept for comparison.
+"""
+
+[[scene]]
+key = "06-recognise"
+kind = "bullets"
+title = "Where You Have Seen It"
+body = ["202 Accepted + Location header", "Retry-After", "Cloud APIs: /operations/{id}", "\"Your export is being prepared\""]
+narration = """
+You have probably met this pattern already. [[slnc 400]] Any API that answers two oh two accepted, with a location header, is using it. [[slnc 300]] A retry after header is the hint for when to check again. [[slnc 500]]
+Cloud providers use it for slow jobs, such as starting a virtual machine. [[slnc 500]]
+And whenever a website says your export is being prepared, and shows it later, that is this pattern.
+"""
+
+[[scene]]
+key = "07-verdict"
+kind = "bullets"
+title = "When To Use It"
+body = ["Use it for work that can take", "longer than a few seconds.", "", "Give each request a key.", "Send a retry hint.", "", "Can you call the client back?", "Do that instead."]
+narration = """
+So, when should you use it? [[slnc 400]] Use it for any work behind an API that can take longer than a few seconds. [[slnc 300]] Reports, exports, video processing. [[slnc 500]]
+Give each request a key, so a repeat does not start the work again. [[slnc 300]] Send a retry hint, so clients check at a sensible pace. [[slnc 500]]
+And when the server can call the client back, for example with a webhook, do that instead of polling.
+"""
+
+[[scene]]
+key = "08-outro"
+kind = "outro"
+title = "Thanks for Watching"
+body = ["Full source, notes, diagrams and an animated walkthrough", "are in the repository. Add a FAILED state", "that says why."]
+narration = """
+That's the Asynchronous Request Reply pattern. [[slnc 400]] If you remember one sentence, make it this one. [[slnc 300]] For slow work, give the caller a ticket, and let them come back for the result. [[slnc 500]]
+The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. [[slnc 300]] It runs offline, with nothing installed except a Java development kit. [[slnc 500]]
+Here is one exercise to try. [[slnc 300]] Add a failed state, so the status link can say why a report could not be built. [[slnc 500]]
+If this helped, a like really does help other people find it. [[slnc 300]] And subscribe, if you'd like the rest of the series. [[slnc 400]] Thanks for watching.
+"""

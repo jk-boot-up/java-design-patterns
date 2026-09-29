@@ -1,0 +1,489 @@
+# pattern.toml for the Materialized View project. See tools/patternkit.
+
+[project]
+slug = "materialized-view"
+category = "micro-services-design-patterns"
+title = "Materialized View"
+package = "materializedview"
+main_class = "MaterializedViewDemo"
+tagline = "Prepare the answer before anyone asks"
+bold = "When a page needs data from several services, keep a ready-made copy shaped exactly for that page, and update it from events, instead of asking every service on every visit."
+domain_note = ""
+thumb_lines = ["MATERIALIZED", "VIEW"]
+thumb_code = "view.myOrders(id)"
+youtube_title = "Materialized View"
+youtube_tags = ["materialized view", "microservices", "cqrs", "read model", "event driven", "java"]
+
+[readme]
+intro = """
+Materialized View is a microservices pattern for reading data that lives in
+several services. Instead of asking each service every time a page is opened,
+you keep a separate, ready-made table shaped exactly for that page. The
+services publish events when their data changes, and the view listens and
+updates itself.
+
+Reading the page is then a single lookup. It is fast, and it keeps working when
+one of the services is down. The price is that the view is a copy: it can be a
+moment behind, and it has to be kept in step.
+"""
+analogy = """
+Think of the departures board at a railway station. Nobody phones each train
+company when a passenger wants to know which platform to go to. The board is
+prepared in advance, and each company sends an update when a train is delayed
+or changes platform. Passengers just read the board.
+
+For a few seconds after a change, the board can be behind. That is the deal:
+instant answers for everyone, in return for a short delay in updates.
+"""
+scenario = """
+The online store's "my orders" page shows each order, the product's name, the
+quantity and whether it has shipped. That data lives in three services: orders,
+shipping and the catalogue. The page asked all three on every visit: seven
+calls for a customer with three orders, and a broken page whenever the
+catalogue was down.
+"""
+costs = [
+    "**The view can be behind.** Between an event happening and the view hearing about it, the page shows the old state.",
+    "**A copy to keep in step.** Rows are stored twice, and a single change, such as renaming a product, can rewrite many rows.",
+    "**Events are required.** The services must publish every change, and the view must never miss one.",
+    "**More moving parts.** Something has to run the view, store it, and rebuild it when its shape changes.",
+]
+too_much = """
+When one service already holds everything the page needs, just ask it. And
+when the page must be exactly current, such as a bank balance before a
+payment, read from the owning service instead of a copy that may be behind.
+"""
+met_before = [
+    "Database materialized views, such as `CREATE MATERIALIZED VIEW` in PostgreSQL.",
+    "The read side of CQRS, where commands and queries use different models.",
+    "Search indexes such as Elasticsearch, filled from events or change data capture.",
+    "Dashboards and reports built from a nightly or streaming copy of the data.",
+]
+where = """
+This project is in [micro-services-design-patterns](..), next to
+[API Composition](../api-composition-pattern), which answers the same question
+by asking every service at the moment of reading. Materialized View answers it
+in advance.
+"""
+
+[[act]]
+title = "Asking three services"
+summary = "One page with 3 orders makes 7 service calls, about 280 ms of waiting; with the catalogue down, the page fails."
+detail = """
+`QueryOnRead` builds the "my orders" page on every visit. It asks the orders
+service for the customer's orders, then, for each order, asks shipping whether
+it has shipped and the catalogue for the product's name. Three orders make one
+plus two times three: seven calls, about 280 milliseconds at 40 each. When the
+catalogue is switched off, the whole page fails with "catalogue service
+unavailable".
+"""
+speech = """
+First demo: build the page by asking three services. [[slnc 400]] Priya opens her orders page. [[slnc 300]] She has three orders. [[slnc 500]]
+The page asks the orders service for her orders. [[slnc 300]] Then, for each order, it asks shipping whether it has shipped. [[slnc 300]] And it asks the catalogue for the product's name. [[slnc 500]]
+That is seven calls, for one page. [[slnc 300]] At forty milliseconds each, about two hundred and eighty milliseconds of waiting. [[slnc 600]]
+Now the catalogue goes down. [[slnc 300]] The whole page fails. [[slnc 300]] Even though orders and shipping were fine.
+"""
+rows = { page = "active wrong", orders = "active amber", shipping = "active amber", catalogue = "active wrong" }
+console = [
+    ["ORD-1 1 x kettle (shipped)", "muted"],
+    ["one page: 7 calls, about 280 ms", "bad"],
+    ["catalogue down: the page fails", "bad"],
+]
+
+[[act]]
+title = "A ready-made view"
+summary = "The view hears 7 events and writes 3 rows; the page is served with 0 service calls, catalogue still down."
+detail = """
+`OrderHistoryView` listens to the events the services publish: order placed,
+order shipped, product renamed. From seven events it writes three rows, one per
+order, with the product's name and the shipping status already filled in.
+Opening the page is now one lookup in that table: zero service calls, and it
+works while the catalogue is still down. The rows are exactly the same as the
+page built by asking.
+"""
+speech = """
+Second demo: a ready-made view. [[slnc 400]] Each service publishes an event when something changes. [[slnc 300]] An order was placed. [[slnc 300]] An order was shipped. [[slnc 300]] A product got a name. [[slnc 500]]
+The view listens. [[slnc 300]] From seven events, it writes three rows, one for each of Priya's orders. [[slnc 300]] Each row already holds the product name and the shipping status. [[slnc 600]]
+Now the page reads the view. [[slnc 300]] One lookup. [[slnc 300]] Zero service calls. [[slnc 300]] And the catalogue is still down, but the page works. [[slnc 500]]
+The rows are exactly the same as before.
+"""
+rows = { events = "active ok", view = "active ok", page = "active ok" }
+console = [
+    ["heard 7 events, wrote 3 rows", "ok"],
+    ["page: 0 service calls", "ok"],
+    ["catalogue still down: page works", "ok"],
+    ["same page as before: true", "ok"],
+]
+
+[[act]]
+title = "A moment behind"
+summary = "ORD-3 ships; until the event is delivered the page says placed, a moment later shipped."
+detail = """
+Order three ships. The shipping service knows at once, and publishes an event.
+Until that event reaches the view, the page still says `placed`. A moment
+later, after delivery, it says `shipped`. This delay is called eventual
+consistency: the view is not wrong forever, it catches up.
+"""
+speech = """
+Third demo: the view is a moment behind. [[slnc 400]] Order three ships. [[slnc 300]] The shipping service knows straight away, and sends an event. [[slnc 500]]
+But the event is still on its way. [[slnc 300]] If Priya opens her page right now, order three still says placed. [[slnc 500]]
+A moment later, the event arrives. [[slnc 300]] Now the page says shipped. [[slnc 600]]
+This is called eventual consistency. [[slnc 300]] The view is not wrong for ever. [[slnc 300]] It catches up.
+"""
+rows = { shipping = "active ok", events = "active amber", view = "active amber" }
+console = [
+    ["ORD-3 ships; 1 event waiting", "amber"],
+    ["page right now: ORD-3 (placed)", "amber"],
+    ["a moment later: ORD-3 (shipped)", "ok"],
+]
+
+[[act]]
+title = "Rebuild from the events"
+summary = "Replaying all 8 events into an empty view gives exactly the same page."
+detail = """
+The view is only a copy, so it can be thrown away. `EventLog` keeps every event
+in order. Replaying all eight of them into an empty `OrderHistoryView` builds
+exactly the same rows. This is how a view is repaired after a bug, or given a
+new column: change the code, and rebuild it from the start.
+"""
+speech = """
+Fourth demo: throw the view away, and rebuild it. [[slnc 400]] The view is only a copy. [[slnc 300]] The real data still lives in the services, and every event is kept in a log. [[slnc 500]]
+Start with an empty view. [[slnc 300]] Replay all eight events, in order. [[slnc 500]]
+The rebuilt page is exactly the same as the old one. [[slnc 600]]
+That is how you fix a view after a bug, or add a new column. [[slnc 300]] Change the code, and rebuild from the start.
+"""
+rows = { events = "active ok", view = "active ok" }
+console = [
+    ["replayed 8 events into an empty view", "ok"],
+    ["rebuilt page equals the old one: true", "ok"],
+]
+
+[[act]]
+title = "The bill"
+summary = "Renaming the kettle changes 1 name in the catalogue but rewrites 2 rows in the view; 3 rows are stored twice."
+detail = """
+The kettle is renamed "steel kettle". The catalogue changes one name. The view
+has copied that name into every order row that bought it, so it rewrites two
+rows. All three rows are data the services already hold, stored a second time.
+And any page the view serves may be a moment out of date.
+"""
+speech = """
+Fifth demo: the bill. [[slnc 400]] The kettle gets a new name: steel kettle. [[slnc 300]] The catalogue changes one name. [[slnc 500]]
+But the view copied that name into every order that bought a kettle. [[slnc 300]] So it has to rewrite two rows. [[slnc 600]]
+Every row in the view is data that the services already hold. [[slnc 300]] It is stored twice. [[slnc 500]]
+And every page it serves may be a moment out of date.
+"""
+rows = { catalogue = "active amber", view = "active amber" }
+console = [
+    ["renamed: 1 name, 2 rows rewritten", "amber"],
+    ["3 rows stored twice", "amber"],
+    ["pages may be a moment out of date", "amber"],
+]
+
+[animation]
+subtitle = "Three services publish events; a ready-made view listens, so the orders page is one lookup instead of seven calls."
+boxes = [
+    ["orders", "Orders service", "which orders a customer placed"],
+    ["shipping", "Shipping service", "which orders have shipped"],
+    ["catalogue", "Catalogue service", "product names"],
+    ["events", "Event log", "every change, in order"],
+    ["view", "Order history view", "ready-made rows per customer"],
+    ["page", "My orders page", "what the customer sees"],
+]
+
+[docs.problem]
+scenario = """
+The "my orders" page shows each order's product, quantity and shipping status.
+Orders, shipping and product names live in three separate services.
+"""
+naive = """
+`QueryOnRead` asks all three services on every visit: one call for the orders,
+then two per order. Seven calls for three orders, and the page fails if any
+service is down.
+"""
+deliver = [
+    "The call count and waiting time for the page built on every visit (7 calls, about 280 ms).",
+    "The same page served from a view with 0 service calls, while the catalogue is down.",
+    "The lag shown: a shipped order still reading placed until its event arrives.",
+    "A view rebuilt from the event log that matches the original.",
+    "The costs shown: a rename rewriting 2 rows, and every row stored twice.",
+    "Every printed number asserted by a test.",
+]
+
+[docs.prerequisites]
+required = [
+    "Java basics: classes, records, maps, lists.",
+    "What an event is: a short message saying something happened.",
+    "The idea of a microservice owning its own data.",
+]
+not_required = [
+    "A database or a message broker. Everything runs in memory.",
+    "CQRS or event sourcing. Both are related, and neither is needed here.",
+]
+
+[docs.session]
+objectives = [
+    "Explain why asking several services on every read is slow and fragile.",
+    "Build a view that updates itself from events.",
+    "Explain eventual consistency with the shipped order that still reads placed.",
+    "Rebuild a view from the event log.",
+]
+walkthrough = """
+Run `./gradlew run` and start with act one: seven calls and a failed page.
+Then open `OrderHistoryView.java` and read its one method, `on`, one event at a
+time: placed adds a row, shipped changes a status, renamed rewrites names. Act
+three is the one to pause on, because the lag is the price every learner must
+be able to explain.
+"""
+exercises = [
+    "Add a `total spent` figure per customer to the view. Which events must change it?",
+    "Add an `OrderCancelled` event. Update the view, and rebuild it from the log.",
+    "Count how many rows a rename rewrites for a customer with 100 kettle orders. Is that a problem?",
+    "Deliver the events in a different order. Which orders break the view, and how would you guard against it?",
+]
+
+[docs.explained]
+sentence = """
+A materialized view is a ready-made copy of data from several services, shaped
+for one page and kept up to date from events, so reading it is one fast lookup
+that works even when those services are down.
+"""
+verdict = """
+Use it for pages that are read far more often than the data changes and that
+need data from several services, when a short delay is acceptable. Keep the
+events, so the view can always be rebuilt. For answers that must be exactly
+current, ask the owning service instead.
+"""
+recognise = [
+    "A table or index named for a screen: `order_history`, `product_search`, `dashboard_stats`.",
+    "Event handlers that only update a read table.",
+    "A `rebuild` or `replay` job for a read model.",
+    "Documentation that says data on a page \"may take a few seconds to update\".",
+]
+
+[spec]
+purpose = """
+Teach Materialized View with an online store: the "my orders" page built by
+asking three services (7 calls, about 280 ms, failing when the catalogue is
+down), then from a view updated by events (0 calls, still working), the lag
+between shipping and the page, a rebuild from the event log, and the costs of
+rewritten rows and stored copies.
+"""
+nongoals = [
+    "Not a database or broker. Events and the view live in memory.",
+    "Not event sourcing. The services keep their own state; the log is for delivery and replay.",
+    "Not ordering guarantees. Events are delivered in the order they were published.",
+]
+problem = """
+A page that needs data from several services asks all of them on every visit,
+which is slow and fails when any of them is down.
+"""
+roles = [
+    ["The pattern", "`OrderHistoryView`"],
+    ["Events", "`Event` (`OrderPlaced`, `OrderShipped`, `ProductRenamed`), `EventLog`"],
+    ["The owning services", "`Services`"],
+    ["The naive version", "`QueryOnRead`"],
+    ["Entry point", "`MaterializedViewDemo`, five acts"],
+]
+requirements = [
+    "**Same answer:** the view's page equals the page built by asking the services.",
+    "**No calls on read:** reading the view makes 0 service calls, asserted.",
+    "**Lag is visible:** an undelivered event leaves the old status on the page.",
+    "**Rebuildable:** replaying the log into an empty view gives the same page.",
+    "**Every printed number is asserted** in `DemoRunsTest`.",
+]
+
+[[diagram]]
+name = "architecture-diagram"
+kind = "flow"
+title = "Materialized View — the pieces"
+caption = "The services publish events; the view listens; the page reads only the view."
+nodes = [
+    { id = "or", label = "Orders service", sub = "orders placed", col = 0, row = 0, colour = "client" },
+    { id = "sh", label = "Shipping service", sub = "orders shipped", col = 0, row = 1, colour = "client" },
+    { id = "ca", label = "Catalogue service", sub = "product names", col = 0, row = 2, colour = "client" },
+    { id = "log", label = "EventLog", sub = "every change, in order", col = 1, row = 1, colour = "amber" },
+    { id = "view", label = "OrderHistoryView", sub = "rows per customer", col = 2, row = 1, colour = "accent" },
+    { id = "page", label = "My orders page", sub = "one lookup", col = 2, row = 0, colour = "green" },
+]
+edges = [
+    { from = "or", to = "log", label = "OrderPlaced" },
+    { from = "sh", to = "log", label = "OrderShipped" },
+    { from = "ca", to = "log", label = "ProductRenamed" },
+    { from = "log", to = "view", label = "deliver" },
+    { from = "page", to = "view", label = "myOrders(C-17)" },
+]
+
+[[diagram]]
+name = "class-diagram"
+kind = "class"
+title = "Materialized View — classes"
+caption = "One sealed event type, one log, and one view with a single method that reacts to each kind of event."
+nodes = [
+    { id = "ev", label = "«sealed» Event", sub = ["OrderPlaced", "OrderShipped", "ProductRenamed"], col = 0, row = 0, colour = "amber" },
+    { id = "log", label = "EventLog", sub = ["+ publish(Event)", "+ deliver(subscriber)", "+ history()"], col = 1, row = 0, colour = "amber" },
+    { id = "view", label = "OrderHistoryView", sub = ["- rows per customer", "+ on(Event)", "+ myOrders(customerId)"], col = 2, row = 0, colour = "accent" },
+    { id = "row", label = "«record» HistoryRow", sub = ["orderId, product", "quantity, status"], col = 2, row = 1, colour = "green" },
+    { id = "q", label = "QueryOnRead", sub = ["+ myOrders(customerId)", "asks Services every time"], col = 0, row = 1, colour = "red" },
+    { id = "svc", label = "Services", sub = ["+ ordersOf, isShipped", "+ productName", "+ calls()"], col = 1, row = 1, colour = "client" },
+]
+edges = [
+    { from = "log", to = "ev", label = "holds" },
+    { from = "log", to = "view", label = "delivers to" },
+    { from = "view", to = "row", label = "stores" },
+    { from = "q", to = "svc", label = "calls", dashed = true },
+]
+
+[[diagram]]
+name = "data-flow-diagram"
+kind = "flow"
+title = "Materialized View — from events to rows"
+caption = "Each event changes a row; the page reads the rows as they are."
+nodes = [
+    { id = "a", label = "OrderPlaced ORD-3", sub = "adds a row: placed", col = 0, row = 0, colour = "client" },
+    { id = "b", label = "OrderShipped ORD-3", sub = "status becomes shipped", col = 0, row = 1, colour = "client" },
+    { id = "c", label = "ProductRenamed P-1", sub = "rewrites 2 rows", col = 0, row = 2, colour = "amber" },
+    { id = "v", label = "Priya's rows", sub = "ORD-1, ORD-2, ORD-3", col = 1, row = 1, colour = "accent" },
+    { id = "p", label = "My orders page", sub = "0 service calls", col = 2, row = 1, colour = "green" },
+]
+edges = [
+    { from = "a", to = "v", label = "add" },
+    { from = "b", to = "v", label = "update" },
+    { from = "c", to = "v", label = "rewrite" },
+    { from = "v", to = "p", label = "read" },
+]
+
+[[diagram]]
+name = "sequence-diagram"
+kind = "sequence"
+title = "Materialized View — a shipment reaches the page"
+caption = "The change is published once; every later read is served from the view."
+participants = ["Shipping", "EventLog", "View", "Page"]
+steps = [
+    ["Shipping", "EventLog", "OrderShipped(ORD-3)"],
+    ["Page", "View", "myOrders(C-17)"],
+    ["View", "Page", "ORD-3 placed", "reply"],
+    ["note", "View", "a moment behind"],
+    ["EventLog", "View", "deliver OrderShipped"],
+    ["Page", "View", "myOrders(C-17)"],
+    ["View", "Page", "ORD-3 shipped", "reply"],
+]
+
+[[diagram]]
+name = "uml-diagram"
+kind = "sequence"
+title = "1. Asking on every visit"
+caption = "One call for the orders, then two per order."
+participants = ["Page", "Orders", "Shipping", "Catalogue"]
+steps = [
+    ["Page", "Orders", "ordersOf(C-17)"],
+    ["Orders", "Page", "3 orders", "reply"],
+    ["Page", "Shipping", "isShipped(ORD-n)"],
+    ["Page", "Catalogue", "productName(P-n)"],
+    ["note", "Page", "repeat for each order: 7 calls"],
+]
+
+[[diagram]]
+name = "uml-diagram-2"
+kind = "sequence"
+title = "2. Rebuilding the view"
+caption = "An empty view plus every event, in order, gives the same rows."
+participants = ["EventLog", "New view"]
+steps = [
+    ["EventLog", "New view", "on(event 1) ... on(event 8)"],
+    ["note", "New view", "3 rows, equal to the old view"],
+]
+
+[poster]
+headline = [["MATERIALIZED", "text"], ["VIEW", "text"]]
+before = { code = "7 calls per page", note = "and down with any service", tag = "BEFORE" }
+after = { code = "view.myOrders(id)", note = "one lookup, 0 calls", tag = "AFTER" }
+taglines = [["Prepare the answer before anyone asks", "gold"]]
+
+[[scene]]
+key = "01-poster"
+kind = "poster"
+title = "Materialized View"
+narration = """
+Hello, and welcome. [[slnc 400]] This video explains the Materialized View pattern, in Java. [[slnc 300]]
+This video is presented by Jayasekhar Konduru. [[slnc 600]]
+First, a simple definition. [[slnc 300]] A materialized view is a ready-made copy of data, shaped for one page. [[slnc 300]] The data comes from several services. [[slnc 300]] The copy is kept up to date by listening to events, so reading it is one quick lookup. [[slnc 600]]
+Think of the departures board at a railway station. [[slnc 300]] Nobody phones each train company to find a platform. [[slnc 300]] The board is prepared in advance, and each company sends an update when something changes. [[slnc 300]] Passengers just read the board. [[slnc 700]]
+In this video, the domain is an online shop. [[slnc 300]] Its "my orders" page shows each order, the product name, and whether it has shipped. [[slnc 300]] That data lives in three separate services: orders, shipping, and the catalogue. [[slnc 500]]
+By the end, you will hear why asking every service on every visit is slow and fragile. [[slnc 300]] How a view built from events fixes it. [[slnc 300]] Why the view can be a moment behind. [[slnc 300]] And how to rebuild it from nothing.
+"""
+
+[[scene]]
+key = "02-scenario"
+kind = "bullets"
+title = "The Scenario"
+body = ["The \"my orders\" page shows:", "product, quantity, shipped or not.", "", "Orders service: the orders", "Shipping service: shipped?", "Catalogue service: the names"]
+narration = """
+Here is the scenario. [[slnc 400]] Priya opens her "my orders" page. [[slnc 300]] For each order, it shows the product, the quantity, and whether it has shipped. [[slnc 600]]
+That data lives in three services. [[slnc 300]] A service is a small, separate program that owns one kind of data. [[slnc 500]]
+The orders service knows her orders. [[slnc 300]] The shipping service knows what has shipped. [[slnc 300]] And the catalogue service knows the product names. [[slnc 500]]
+So how does the page get all three?
+"""
+
+[[scene]]
+key = "03-acts"
+kind = "acts"
+title = "acts"
+
+[[scene]]
+key = "04-pattern"
+kind = "bullets"
+title = "The Pattern"
+body = ["Services publish an event", "for every change.", "", "The view listens and keeps", "rows shaped for the page.", "", "The page reads only the view."]
+narration = """
+Let's name the pattern. [[slnc 400]] Every service publishes an event whenever its data changes. [[slnc 500]]
+A separate view listens to those events. [[slnc 300]] It keeps rows shaped exactly for one page. [[slnc 500]]
+The page reads only the view. [[slnc 300]] It never asks the services. [[slnc 500]]
+That view is the materialized view. [[slnc 300]] Materialized just means it is actually stored, not worked out each time.
+"""
+
+[[scene]]
+key = "05-roles"
+kind = "bullets"
+title = "Who Does What"
+body = ["Services: own the real data", "Event log: every change, in order", "OrderHistoryView: the ready rows", "QueryOnRead: the old way, for contrast"]
+narration = """
+Here is who does what. [[slnc 400]] The services own the real data. [[slnc 300]] They publish an event for every change. [[slnc 500]]
+The event log keeps every event, in order, and delivers them. [[slnc 500]]
+The order history view has one method. [[slnc 300]] It takes an event and updates its rows. [[slnc 300]] Placed adds a row. [[slnc 300]] Shipped changes a status. [[slnc 300]] Renamed rewrites a name. [[slnc 500]]
+And query on read is the old way, kept for comparison.
+"""
+
+[[scene]]
+key = "06-recognise"
+kind = "bullets"
+title = "Where You Have Seen It"
+body = ["CREATE MATERIALIZED VIEW", "The read side of CQRS", "Search indexes filled from events", "Dashboards built from a copy"]
+narration = """
+You have probably met this pattern already. [[slnc 400]] Databases such as Postgres have materialized views built in. [[slnc 500]]
+The read side of CQRS is the same idea. [[slnc 300]] CQRS means keeping one model for changing data, and another for reading it. [[slnc 500]]
+A search index, filled from events, is a materialized view. [[slnc 300]] And so is a dashboard built from a copy of the data.
+"""
+
+[[scene]]
+key = "07-verdict"
+kind = "bullets"
+title = "When To Use It"
+body = ["Use it when a page is read often", "and needs several services.", "", "Keep the events to rebuild.", "", "Must be exact right now?", "Ask the owning service."]
+narration = """
+So, when should you use it? [[slnc 400]] Use a materialized view when a page is read far more often than its data changes, and it needs data from several services. [[slnc 500]]
+Keep the events, so the view can always be rebuilt. [[slnc 500]]
+And when an answer must be exactly right at this moment, such as a bank balance before a payment, ask the service that owns it.
+"""
+
+[[scene]]
+key = "08-outro"
+kind = "outro"
+title = "Thanks for Watching"
+body = ["Full source, notes, diagrams and an animated walkthrough", "are in the repository. Add a cancelled event", "and rebuild the view."]
+narration = """
+That's the Materialized View pattern. [[slnc 400]] If you remember one sentence, make it this one. [[slnc 300]] Prepare the answer before anyone asks, and keep it up to date from events. [[slnc 500]]
+The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. [[slnc 300]] It runs offline, with nothing installed except a Java development kit. [[slnc 500]]
+Here is one exercise to try. [[slnc 300]] Add an order cancelled event. [[slnc 300]] Update the view, and rebuild it from the log. [[slnc 500]]
+If this helped, a like really does help other people find it. [[slnc 300]] And subscribe, if you'd like the rest of the series. [[slnc 400]] Thanks for watching.
+"""

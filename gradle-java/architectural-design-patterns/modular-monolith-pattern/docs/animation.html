@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Modular Monolith Pattern — Animated Walkthrough</title>
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 24px;
+    background: #0f172a; color: #e2e8f0;
+    font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
+    padding-top: calc(24px + env(safe-area-inset-top, 0px));
+    padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+  }
+  h1 { font-size: 1.4rem; margin: 0 0 4px; }
+  p.sub { color: #94a3b8; margin: 0 0 20px; max-width: 70ch; }
+  .wrap { max-width: 1100px; margin: 0 auto; }
+  .stage { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+  @media (max-width: 760px) { .stage { grid-template-columns: 1fr; } }
+  .boxes { display: flex; flex-direction: column; gap: 10px; }
+  .row { border: 2px solid #334155; border-radius: 10px; padding: 12px 16px;
+         background: #1e293b; transition: all .25s ease; opacity: .55; }
+  .row .name { font-weight: 700; font-size: 1rem; }
+  .row .job { color: #94a3b8; font-size: .82rem; margin-top: 2px; }
+  .row.active { opacity: 1; box-shadow: 0 0 0 2px currentColor inset; }
+  .row.wrong { border-color: #f87171; color: #f87171; }
+  .row.wrong.active { background: #3f1d24; }
+  .row.ok { border-color: #34d399; color: #34d399; }
+  .row.ok.active { background: #10261f; }
+  .row.amber { border-color: #fbbf24; color: #fbbf24; }
+  .row.amber.active { background: #2a2110; }
+  .row.dim { opacity: .22; }
+  .console { background: #020617; border: 1px solid #334155; border-radius: 10px; padding: 16px;
+             font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: .86rem;
+             line-height: 1.55; overflow-y: auto; min-height: 320px; white-space: pre-wrap; }
+  #console-lines span.ok { color: #34d399; }
+  #console-lines span.bad { color: #f87171; }
+  #console-lines span.amber { color: #fbbf24; }
+  #console-lines span.muted { color: #94a3b8; }
+  .narration { background: #1e293b; border: 1px solid #334155; border-radius: 10px;
+               padding: 14px 18px; margin-bottom: 16px; min-height: 3.2em; }
+  .controls { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  button { background: #334155; color: #e2e8f0; border: 1px solid #475569; border-radius: 8px;
+           padding: 10px 18px; font-size: .92rem; cursor: pointer; }
+  button:hover { background: #475569; }
+  button:disabled { opacity: .45; cursor: default; }
+  button#play { background: #7c3aed; border-color: #7c3aed; }
+  button#play:hover { background: #8b5cf6; }
+  #progress { color: #94a3b8; font-size: .85rem; margin-left: auto; }
+  .step-label { font-size: .78rem; text-transform: uppercase; letter-spacing: .04em;
+                color: #a78bfa; font-weight: 700; margin-bottom: 4px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Modular Monolith — Step by Step</h1>
+  <p class="sub">One program, three modules: each owns its data, others use only its front door, and a check keeps the walls up.</p>
+
+  <div class="narration">
+    <div class="step-label" id="step-label">Ready</div>
+    <div id="narration">Press Step or Play to begin.</div>
+  </div>
+
+  <div class="stage">
+    <div class="boxes" id="boxes">
+      <div class="row" id="row-mud">
+        <div class="name">Big ball of mud</div>
+        <div class="job">every table open</div>
+      </div>
+      <div class="row" id="row-orders">
+        <div class="name">Orders module</div>
+        <div class="job">uses front doors only</div>
+      </div>
+      <div class="row" id="row-catalog">
+        <div class="name">Catalogue module</div>
+        <div class="job">owns stock and its rule</div>
+      </div>
+      <div class="row" id="row-payments">
+        <div class="name">Payments module</div>
+        <div class="job">owns its ledger</div>
+      </div>
+      <div class="row" id="row-stock">
+        <div class="name">Stock table</div>
+        <div class="job">kettle: 1</div>
+      </div>
+      <div class="row" id="row-check">
+        <div class="name">Boundary check</div>
+        <div class="job">fails the build on a shortcut</div>
+      </div>
+      <div class="row" id="row-remote">
+        <div class="name">Remote payments</div>
+        <div class="job">same front door, over the network</div>
+      </div>
+    </div>
+    <div class="console"><div id="console-lines"></div></div>
+  </div>
+
+  <div class="controls">
+    <button id="step">Step ▸</button>
+    <button id="play">Play ▶</button>
+    <button id="reset">Reset ↺</button>
+    <span id="progress">0 / 0</span>
+  </div>
+</div>
+
+<script>
+const STEPS = [
+ {
+  "label": "Act 1 — Every table open",
+  "narration": "First demo: one program, with every table open to everyone. There is one kettle in stock. The catalogue has a rule. Stock never goes below zero. But checkout does not ask the catalogue. It writes to the stock table itself. Two customers order the kettle. Checkout takes one from stock, twice. Stock is now minus one. Two customers have paid, for one kettle.",
+  "rows": {
+   "mud": "active wrong",
+   "stock": "active wrong"
+  },
+  "console": [
+   [
+    "1 kettle; checkout writes stock itself",
+    "amber"
+   ],
+   [
+    "kettle stock is now -1",
+    "bad"
+   ],
+   [
+    "two customers paid for one kettle",
+    "bad"
+   ]
+  ]
+ },
+ {
+  "label": "Act 2 — Modules with front doors",
+  "narration": "Second demo: modules, each with a front door. The shop is now three modules. Catalogue, orders, and payments. Each module owns its own data. And each offers a small front door, called an API: a short list of things other modules may ask for. Orders cannot touch the stock table. It must ask the catalogue to reserve a kettle. Order one: placed, and paid. Order two: refused, only zero kettles left. And it is never charged. Stock stays at zero. The rule holds, because only the catalogue can change stock.",
+  "rows": {
+   "orders": "active ok",
+   "catalog": "active ok",
+   "payments": "active ok",
+   "stock": "active ok"
+  },
+  "console": [
+   [
+    "ORD-1 placed, pay-1",
+    "ok"
+   ],
+   [
+    "ORD-2 refused: only 0 kettle left",
+    "ok"
+   ],
+   [
+    "kettle stock: 0",
+    "ok"
+   ]
+  ]
+ },
+ {
+  "label": "Act 3 — Boundaries checked",
+  "narration": "Third demo: the boundaries are checked, not hoped for. Java cannot stop one module using another module's insides. So a small check reads every source file, and looks at what it imports. This project's source: zero modules reaching inside another. Now someone takes a shortcut. Inside orders, they import the payments module's internal class. The check reports it: orders module imports payments internal. And the build fails, before the shortcut can be merged.",
+  "rows": {
+   "check": "active ok",
+   "orders": "active amber"
+  },
+  "console": [
+   [
+    "scan: 0 modules reaching inside another",
+    "ok"
+   ],
+   [
+    "someone imports payments.internal",
+    "amber"
+   ],
+   [
+    "check: OrdersModule imports payments.internal",
+    "bad"
+   ]
+  ]
+ },
+ {
+  "label": "Act 4 — Moving a module out",
+  "narration": "Fourth demo: moving payments out, into its own service. Payments has grown, and its team wants to deploy it separately. Orders has only ever used the payments front door. So a new class, remote payments, offers the same front door, but answers over the network. Plug it in. Order three is placed, with one network call to payments. Lines changed in the orders module: zero.",
+  "rows": {
+   "orders": "active ok",
+   "payments": "active amber",
+   "remote": "active ok"
+  },
+  "console": [
+   [
+    "ORD-3 placed, pay-1",
+    "ok"
+   ],
+   [
+    "payments over the network: 1 call",
+    "amber"
+   ],
+   [
+    "lines changed in orders: 0",
+    "ok"
+   ]
+  ]
+ },
+ {
+  "label": "Act 5 — The bill",
+  "narration": "Fifth demo: the bill. It is still one program. Three modules, one build, one deployment. A fix to payments redeploys the catalogue too. One process. A crash in any module stops them all. And they can only be scaled together. And the walls last only as long as the check runs, on every build.",
+  "rows": {
+   "orders": "active amber",
+   "catalog": "active amber",
+   "payments": "active amber"
+  },
+  "console": [
+   [
+    "3 modules, 1 build, 1 deployment",
+    "amber"
+   ],
+   [
+    "one crash stops them all",
+    "amber"
+   ],
+   [
+    "walls last while the check runs",
+    "amber"
+   ]
+  ]
+ }
+];
+const rowIds = ["mud", "orders", "catalog", "payments", "stock", "check", "remote"];
+const stepLabel = document.getElementById("step-label");
+const narrationEl = document.getElementById("narration");
+const consoleEl = document.getElementById("console-lines");
+const progressEl = document.getElementById("progress");
+const playBtn = document.getElementById("play");
+let i = -1, timer = null;
+
+function esc(t) { return t.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+
+function render() {
+  for (const id of rowIds) document.getElementById("row-" + id).className = "row";
+  if (i < 0) {
+    stepLabel.textContent = "Ready";
+    narrationEl.textContent = "Press Step or Play to begin.";
+    consoleEl.innerHTML = "";
+    progressEl.textContent = "0 / " + STEPS.length;
+    return;
+  }
+  const s = STEPS[i];
+  stepLabel.textContent = s.label;
+  narrationEl.textContent = s.narration;
+  for (const id of rowIds) {
+    const cls = s.rows[id];
+    document.getElementById("row-" + id).className = "row " + (cls ? cls : "dim");
+  }
+  consoleEl.innerHTML = s.console.map(([t, c]) => '<span class="' + c + '">' + esc(t) + "</span>").join("\n");
+  progressEl.textContent = (i + 1) + " / " + STEPS.length;
+}
+function step() { if (i >= STEPS.length - 1) { stopPlay(); return; } i += 1; render(); }
+function reset() { stopPlay(); i = -1; render(); }
+// While a step's narration is playing, Play waits for it to finish.
+function speaking() { return typeof window.vkSpeaking === "function" && window.vkSpeaking(); }
+function startPlay() {
+  if (timer) return;
+  playBtn.textContent = "Pause ❚❚";
+  let quiet = 0;
+  timer = setInterval(() => {
+    if (speaking()) { quiet = 0; return; }
+    if (++quiet < 6) return;                     // 6 × 500 ms of reading time
+    quiet = 0;
+    if (i >= STEPS.length - 1) { stopPlay(); return; }
+    step();
+  }, 500);
+  if (i < 0) step();
+}
+function stopPlay() { if (timer) clearInterval(timer); timer = null; playBtn.textContent = "Play ▶"; }
+
+document.getElementById("step").addEventListener("click", () => { stopPlay(); step(); });
+document.getElementById("reset").addEventListener("click", reset);
+playBtn.addEventListener("click", () => { if (timer) stopPlay(); else startPlay(); });
+render();
+</script>
+<!-- videokit:narration -->
+<script>
+/* videokit narration player: a Narration on/off switch and a play/pause
+   button for the current step. It watches the page's own narration text,
+   works out which step is showing, and plays audio/step-N.m4a beside the
+   page (rendered by tools/videokit; not embedded, so the page stays small).
+   If the page already plays its own clips, only the pause button is added. */
+(function () {
+  "use strict";
+  var STEPS = ["First demo: one program, with every table open to everyone. There is one kettle in stock. The catalogue has a rule. Stock never goes below zero. But checkout does not ask the catalogue. It writes to the stock table itself. Two customers order the kettle. Checkout takes one from stock, twice. Stock is now minus one. Two customers have paid, for one kettle.", "Second demo: modules, each with a front door. The shop is now three modules. Catalogue, orders, and payments. Each module owns its own data. And each offers a small front door, called an API: a short list of things other modules may ask for. Orders cannot touch the stock table. It must ask the catalogue to reserve a kettle. Order one: placed, and paid. Order two: refused, only zero kettles left. And it is never charged. Stock stays at zero. The rule holds, because only the catalogue can change stock.", "Third demo: the boundaries are checked, not hoped for. Java cannot stop one module using another module's insides. So a small check reads every source file, and looks at what it imports. This project's source: zero modules reaching inside another. Now someone takes a shortcut. Inside orders, they import the payments module's internal class. The check reports it: orders module imports payments internal. And the build fails, before the shortcut can be merged.", "Fourth demo: moving payments out, into its own service. Payments has grown, and its team wants to deploy it separately. Orders has only ever used the payments front door. So a new class, remote payments, offers the same front door, but answers over the network. Plug it in. Order three is placed, with one network call to payments. Lines changed in the orders module: zero.", "Fifth demo: the bill. It is still one program. Three modules, one build, one deployment. A fix to payments redeploys the catalogue too. One process. A crash in any module stops them all. And they can only be scaled together. And the walls last only as long as the check runs, on every build."];
+  var norm = function (s) { return String(s || "").replace(/\s+/g, " ").trim(); };
+  var box = document.getElementById("narration") || document.querySelector(".narration");
+  if (!box || !STEPS.length) return;
+
+  var pageOwnsAudio = !!document.getElementById("audio");
+  var current = null, step = -1, on = false;
+  try { on = localStorage.getItem("vk-narration") === "on"; } catch (e) {}
+
+  // Remember whichever clip the page (or this script) last started.
+  var realPlay = HTMLMediaElement.prototype.play;
+  HTMLMediaElement.prototype.play = function () {
+    if (current && current !== this) { try { current.pause(); } catch (e) {} }
+    current = this;
+    this.addEventListener("play", label);
+    this.addEventListener("pause", label);
+    this.addEventListener("ended", label);
+    var p = realPlay.apply(this, arguments);
+    label();
+    return p;
+  };
+
+  // Lets a page's Play button wait for the step's narration to finish.
+  window.vkSpeaking = function () { return !!(current && !current.paused && !current.ended); };
+
+  var bar = document.querySelector(".controls") || box.parentNode;
+  function button(id, text) {
+    var b = document.createElement("button");
+    b.id = id; b.type = "button"; b.textContent = text;
+    bar.appendChild(b);
+    return b;
+  }
+  var narrBtn = pageOwnsAudio ? null : button("vk-narration", "");
+  var stepBtn = button("vk-step-audio", "");
+  var note = document.createElement("span");
+  note.id = "vk-note";
+  note.style.cssText = "color:#94a3b8;font-size:.8rem;margin-left:8px";
+  bar.appendChild(note);
+
+  function stepFor(text) {
+    var t = norm(text);
+    for (var i = 0; i < STEPS.length; i++) {
+      var s = norm(STEPS[i]);
+      if (s && t.indexOf(s.slice(0, 60)) !== -1) return i;
+    }
+    return -1;
+  }
+  function stop() { if (current) { try { current.pause(); } catch (e) {} } current = null; label(); }
+  function play(i) {
+    if (i < 0) return;
+    var a = new Audio("audio/step-" + (i + 1) + ".m4a");
+    a.play().then(function () { note.textContent = ""; }, function (e) {
+      note.textContent = e && e.name === "NotAllowedError"
+        ? "Click Play step to hear this step."
+        : "Narration audio not found: run tools/videokit/videokit.sh animation <project>.";
+      label();
+    });
+  }
+  function label() {
+    if (narrBtn) narrBtn.textContent = (on ? "🔊 Narration: on" : "🔇 Narration: off");
+    if (narrBtn) narrBtn.setAttribute("aria-pressed", String(on));
+    var playing = current && !current.paused && !current.ended;
+    var paused = current && current.paused && !current.ended;
+    stepBtn.textContent = playing ? "⏸ Pause step" : paused ? "▶ Resume step" : "▶ Play step";
+    stepBtn.disabled = step < 0;
+  }
+
+  if (narrBtn) narrBtn.addEventListener("click", function () {
+    on = !on;
+    try { localStorage.setItem("vk-narration", on ? "on" : "off"); } catch (e) {}
+    if (on) { if (step >= 0) play(step); } else stop();
+    label();
+  });
+  stepBtn.addEventListener("click", function () {
+    if (current && !current.ended) {
+      if (current.paused) current.play(); else current.pause();
+    } else play(step);
+  });
+
+  function changed() {
+    var i = stepFor(box.textContent);
+    if (i === step) return;
+    step = i;
+    if (!pageOwnsAudio) { stop(); if (on) play(i); }
+    label();
+  }
+  new MutationObserver(changed).observe(box, { childList: true, subtree: true, characterData: true });
+  changed();
+  label();
+})();
+</script>
+<!-- /videokit:narration -->
+</body>
+</html>

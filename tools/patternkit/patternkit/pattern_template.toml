@@ -1,0 +1,91 @@
+# pattern.toml: everything about this project that is not Java code.
+# tools/patternkit turns it into the README, docs, diagrams, animation and video
+# scenes. Write for a beginner: plain words, short sentences, every term
+# explained the first time. Use the numbers the demo actually prints.
+
+[project]
+slug = "__SLUG__"
+category = "__CATEGORY__"
+title = "TODO Title"                 # "Money", no "Pattern"
+package = "__PACKAGE__"
+main_class = "__MAIN__"
+tagline = "TODO five-word idea"      # index and thumbnail
+bold = "TODO the lesson in one bold sentence."
+domain_note = ""                     # only if the code does not use the online store: why
+thumb_lines = ["TODO"]               # thumbnail headline, upper case, 1-2 lines
+thumb_code = "TODO()"                # a short code fragment for the thumbnail
+youtube_title = "TODO Title"
+youtube_tags = ["TODO pattern"]
+
+[readme]
+intro = """TODO what it is and where it sits."""
+analogy = """TODO the everyday analogy."""
+scenario = """TODO the situation in the online store (or the chosen domain)."""
+costs = ["TODO"]
+too_much = """TODO when not to use it."""
+met_before = ["TODO where the reader has already seen it"]
+technologies = []                    # extra rows: ["Name", "version", "used for"]
+
+# One [[act]] per act the demo prints, in order.
+[[act]]
+title = "TODO"
+summary = "TODO one line for the README table"
+detail = """TODO a paragraph for the explained document"""
+speech = """TODO the video narration for this act, with [[slnc N]] pauses.
+It is also the animation's narration (pauses removed), and the act's console
+slide is built from `console` below, so each act is written once."""
+rows = {}                            # animation box id -> "active ok" | "active wrong" | "active amber"
+console = [["TODO a line the demo printed", "ok"]]   # class: ok | bad | amber | muted
+
+[animation]
+subtitle = "TODO one sentence under the heading"
+boxes = [["id", "Name", "what it does"]]
+
+[docs.problem]
+scenario = """TODO"""
+naive = """TODO"""
+deliver = ["TODO"]
+
+[docs.prerequisites]
+required = ["Java basics: classes, interfaces, methods"]
+not_required = ["TODO"]
+
+[docs.session]
+objectives = ["TODO"]
+walkthrough = """TODO"""
+exercises = ["TODO"]
+
+[docs.explained]
+sentence = """TODO"""
+verdict = """TODO"""
+recognise = ["TODO"]
+
+[spec]
+purpose = """TODO"""
+nongoals = ["TODO"]
+problem = """TODO"""
+roles = [["The pattern", "`TODO`"], ["Entry point", "`__MAIN__`"]]
+requirements = ["TODO"]
+
+# Diagrams: architecture-diagram, class-diagram, data-flow-diagram,
+# sequence-diagram, and uml-diagram, uml-diagram-2 ... (see diagrams.py).
+[[diagram]]
+name = "architecture-diagram"
+kind = "flow"
+title = "TODO"
+caption = "TODO"
+nodes = [{ id = "a", label = "TODO", sub = "TODO", col = 0, row = 0, colour = "client" }]
+edges = []
+
+[poster]
+headline = [["TODO", "text"]]
+taglines = [["TODO", "gold"]]
+
+# One [[scene]] per slide, about 14. A scene with kind = "acts" is replaced by
+# one console slide per [[act]] (from its console lines and speech). kinds: poster, bullets (body = list),
+# console / code (body = string), quote (body = list), outro (body = list).
+[[scene]]
+key = "01-poster"
+kind = "poster"
+title = "TODO"
+narration = """Hello, and welcome. [[slnc 400]] This video explains the TODO pattern, in Java. [[slnc 300]] This video is presented by Jayasekhar Konduru. [[slnc 600]] First, a simple definition. [[slnc 300]] TODO"""

@@ -1,0 +1,480 @@
+# pattern.toml for the Immutable Object project. See tools/patternkit.
+
+[project]
+slug = "immutable-object"
+category = "foundational-design-patterns"
+title = "Immutable Object"
+package = "immutable"
+main_class = "ImmutableObjectDemo"
+tagline = "Never change it, make a new one"
+bold = "An object that can never change after it is made can be shared with anyone, read at any moment, and used as a key, because nobody can alter it behind your back."
+domain_note = ""
+thumb_lines = ["IMMUTABLE", "OBJECT"]
+thumb_code = "record Address(...)"
+youtube_title = "Immutable Object"
+youtube_tags = ["immutable object", "java records", "immutability", "thread safety", "value object", "java"]
+
+[readme]
+intro = """
+An immutable object is one whose state cannot change after it is created. It
+has no setters, all its fields are final, and anything it holds that could
+change, such as a list or a map, is copied in and handed out read-only. To
+"change" it, you make a new object with the difference, and the old one stays
+exactly as it was.
+
+That one rule removes a whole family of bugs: objects changed through another
+reference, objects seen half-changed, and objects lost inside a hash set. In
+Java, a `record` gives you most of it for free.
+"""
+analogy = """
+Think of a printed till receipt, and compare it with the whiteboard behind a
+café counter. Anyone with a cloth can rub out a price on the whiteboard, and a
+customer reading it at that moment might see half the old menu and half the
+new. A receipt never changes. If something about your purchase changes, the
+shop prints a new receipt, and the old one still says exactly what it said.
+"""
+scenario = """
+The online store passes addresses and price lists around everywhere: an order
+keeps the address it ships to, checkout reads the price list, and a set records
+addresses with failed deliveries. All of them were ordinary objects with
+setters, shared by reference.
+"""
+costs = [
+    "**Every change is a copy.** Changing one price in a 1000-item list makes a new list of 1000 entries.",
+    "**More methods.** Each field you might change needs a `with...` method that builds the new object.",
+    "**Deep care.** A final field that points at a mutable list is not immutable; the list must be copied in and handed out read-only.",
+    "**Some things must change.** A shopping cart or a counter changes all the time; forcing it to be immutable can make code harder, not easier.",
+]
+too_much = """
+Objects that exist to be changed, such as a builder, a cart being filled or an
+entity tracked by a database library, are usually clearer as mutable objects
+with one owner. Make values immutable: addresses, prices, dates, identifiers,
+settings, messages.
+"""
+met_before = [
+    "`String`, `Integer`, `LocalDate` and `BigDecimal` are all immutable.",
+    "Java `record`s, and `List.of`, `Map.of`, `List.copyOf`.",
+    "The Value Object pattern in domain-driven design.",
+    "Immutable state in React and Redux, and in functional languages.",
+]
+where = """
+This project is in [foundational-design-patterns](..). It is the building block
+behind [Value Object](../../domain-driven-design-patterns/value-object-pattern)
+and [Money](../../enterprise-design-patterns/money-pattern).
+"""
+
+[[act]]
+title = "Shared, then changed"
+summary = "ORD-1 holds Priya's profile address object; she updates her profile, and the placed order now ships to York."
+detail = """
+Order `ORD-1` is placed and keeps a reference to Priya's profile address,
+`4 Mill Lane, Leeds`. Later she moves and updates her profile for future
+orders, calling `setStreet` and `setCity`. There was only ever one address
+object, so `ORD-1` now says `12 High Street, York`, for a parcel she ordered
+before moving.
+"""
+speech = """
+First demo: one address, shared, then changed. [[slnc 400]] Priya places order one. [[slnc 300]] The order keeps her profile address: four Mill Lane, Leeds. [[slnc 500]]
+But it does not keep a copy. [[slnc 300]] It keeps the same object that her profile uses. [[slnc 600]]
+Later, Priya moves house. [[slnc 300]] She updates her profile, for future orders. [[slnc 500]]
+Order one now ships to twelve High Street, York. [[slnc 300]] An order she placed before she moved.
+"""
+rows = { profile = "active amber", order = "active wrong" }
+console = [
+    ["ORD-1 ships to: 4 Mill Lane, Leeds", "muted"],
+    ["Priya updates her profile", "amber"],
+    ["ORD-1 now ships to: 12 High Street, York", "bad"],
+]
+
+[[act]]
+title = "Changed while being read"
+summary = "A 10% sale is applied one price at a time; a checkout reading in between totals £62.00, neither £65.00 nor £58.50."
+detail = """
+The shared `MutablePriceList` holds a kettle at £30, a mug at £10 and a teapot
+at £25: £65.00 for the basket. A ten percent sale is applied one price at a
+time. A checkout that reads after the first change sees the new kettle and the
+old mug and teapot: £62.00. After the sale the basket is £58.50. The customer
+paid a price that never existed.
+"""
+speech = """
+Second demo: a price list changed while someone reads it. [[slnc 400]] A kettle, a mug and a teapot come to sixty-five pounds. [[slnc 500]]
+A ten percent sale is applied, one price at a time. [[slnc 300]] First the kettle. [[slnc 300]] Then the mug. [[slnc 300]] Then the teapot. [[slnc 600]]
+A checkout reads the list just after the kettle changed. [[slnc 300]] It sees the new kettle, and the old mug and teapot. [[slnc 300]] Sixty-two pounds. [[slnc 500]]
+That is neither the old price, nor the sale price. [[slnc 300]] The customer paid a price that never existed.
+"""
+rows = { prices = "active wrong", checkout = "active wrong" }
+console = [
+    ["before the sale: £65.00", "muted"],
+    ["read mid-change: £62.00", "bad"],
+    ["after the sale: £58.50", "muted"],
+]
+
+[[act]]
+title = "Lost in a set"
+summary = "An address in a HashSet has its spelling tidied; the set no longer finds it, though its size is 1."
+detail = """
+Tom's address goes into a `HashSet` of failed deliveries. A hash set files each
+object under a number worked out from its contents. Then someone tidies the
+spelling, `Road` to `Rd`. The object's number changes, but it is still filed
+under the old one, so `contains` answers false, while the set's size is still
+one.
+"""
+speech = """
+Third demo: a changed object is lost in a set. [[slnc 400]] Tom's address goes into a set of failed deliveries. [[slnc 500]]
+A hash set files each object under a number, worked out from what the object contains. [[slnc 300]] Like a filing cabinet, sorted by the first letter of a name. [[slnc 600]]
+Then someone tidies the spelling. [[slnc 300]] Road becomes R D. [[slnc 500]]
+Now the set cannot find it. [[slnc 300]] Contains says false. [[slnc 300]] But the set's size is still one. [[slnc 300]] It is filed in the wrong drawer.
+"""
+rows = { set = "active wrong" }
+console = [
+    ["added, then spelling tidied", "amber"],
+    ["contains it: false", "bad"],
+    ["size: 1", "bad"],
+]
+
+[[act]]
+title = "Immutable objects"
+summary = "A new address leaves ORD-2 alone; a sale list is built on the side and swapped in whole (£65.00 then £58.50); copied input and set lookups hold."
+detail = """
+`Address` is a record with no setters. `withStreet` and `withCity` return a
+new address, so Priya's profile moves to York and `ORD-2` still ships to
+Leeds. `PriceList` is immutable too: `withSale(10)` builds a whole new list on
+the side while checkout keeps reading £65.00, then `Shop.publish` swaps it in
+with one step, and checkout reads £58.50. There is no moment in between. The
+constructor copies the map it is given, so changing that map later has no
+effect, and an immutable address in a set is always found.
+"""
+speech = """
+Fourth demo: immutable objects. [[slnc 400]] Now the address has no setters. [[slnc 300]] A change makes a new address, and leaves the old one alone. [[slnc 500]]
+Priya's profile moves to York. [[slnc 300]] Order two still ships to Leeds. [[slnc 600]]
+The price list is immutable too. [[slnc 300]] The sale builds a whole new list, on the side. [[slnc 300]] Checkout keeps reading sixty-five pounds. [[slnc 500]]
+Then the shop swaps in the new list, in one single step. [[slnc 300]] Checkout reads fifty-eight fifty. [[slnc 300]] There is no moment in between. [[slnc 600]]
+The list also copies whatever it was built from. [[slnc 300]] So changing that later does nothing. [[slnc 300]] And an address that cannot change is never lost in a set.
+"""
+rows = { profile = "active ok", order = "active ok", prices = "active ok", shop = "active ok", checkout = "active ok", set = "active ok" }
+console = [
+    ["ORD-2 still ships to 4 Mill Lane, Leeds", "ok"],
+    ["sale built on the side: still £65.00", "ok"],
+    ["one swap: £58.50, never a mix", "ok"],
+    ["set contains 9 Park Road: true", "ok"],
+]
+
+[[act]]
+title = "The bill"
+summary = "Changing 1 price in a 1000-item list makes a new list of 1000 entries; each changeable field needs a with method."
+detail = """
+Every change is a copy. Changing one price in a catalogue of a thousand items
+makes a new list of a thousand entries. And every field you might want to
+change needs its own `with...` method. For values that are small or change
+rarely, this is cheap; for something that changes constantly, it may not be.
+"""
+speech = """
+Fifth demo: the bill. [[slnc 400]] Every change is a copy. [[slnc 300]] Change one price, in a list of a thousand items. [[slnc 300]] You get a new list, of a thousand entries. [[slnc 600]]
+And every field that might change needs its own with method, to build the new object. [[slnc 500]]
+For small values that change rarely, that is cheap. [[slnc 300]] For something that changes all the time, think twice.
+"""
+rows = { prices = "active amber" }
+console = [
+    ["1 price changed: 1000 entries copied", "amber"],
+    ["a with...() method per field", "amber"],
+]
+
+[animation]
+subtitle = "Addresses and price lists that can never change: a change makes a new object, and a new price list is swapped in whole."
+boxes = [
+    ["profile", "Priya's profile", "her current address"],
+    ["order", "Placed order", "where this parcel goes"],
+    ["prices", "Price list", "kettle, mug, teapot"],
+    ["shop", "Shop", "holds the current list"],
+    ["checkout", "Checkout", "reads prices, totals the basket"],
+    ["set", "Failed deliveries", "a hash set of addresses"],
+]
+
+[docs.problem]
+scenario = """
+Orders keep shipping addresses, checkout reads a shared price list, and a set
+records addresses with failed deliveries. All are ordinary objects with
+setters, passed around by reference.
+"""
+naive = """
+`MutableAddress` and `MutablePriceList` can be changed by anyone holding them.
+An order's address moves when the profile changes, a sale is seen half-applied,
+and a tidied address vanishes from a hash set.
+"""
+deliver = [
+    "The three failures shown: a placed order's address changing, a £62.00 basket mid-sale, and a set that cannot find its only member.",
+    "An immutable `Address` record with `with` methods.",
+    "An immutable `PriceList` that copies its input, hands out a read-only view, and is replaced whole.",
+    "The cost shown: 1000 entries copied to change one price.",
+    "Every printed number asserted by a test.",
+]
+
+[docs.prerequisites]
+required = [
+    "Java basics: classes, fields, constructors, `final`.",
+    "What a reference is: two variables can point at the same object.",
+    "`HashSet` and `HashMap` at the level of putting things in and finding them.",
+]
+not_required = [
+    "Threads. The half-applied sale is shown step by step, without threads.",
+    "Any library. Records and `Map.copyOf` are part of Java.",
+]
+
+[docs.session]
+objectives = [
+    "Explain how a change through one reference is seen through another.",
+    "Write an immutable class: no setters, final fields, copied collections.",
+    "Replace an object whole instead of changing it in place.",
+    "Say when immutability costs more than it saves.",
+]
+walkthrough = """
+Run `./gradlew run` and read acts one to three before any code: each is a bug
+learners have met without knowing its name. Then open `Address.java` (a
+record, four lines) and `PriceList.java`, and point out the two lines that make
+it safe: `Map.copyOf` in the constructor, and `with...` returning a new list.
+"""
+exercises = [
+    "Add a postcode to `Address`, with a `withPostcode` method.",
+    "Make `PriceList.withPrice` refuse a negative price. Where should the check go?",
+    "Add a list of tags to `Address` and make sure the record stays immutable.",
+    "Find a class in another project in this course that could be a record. Convert it.",
+]
+
+[docs.explained]
+sentence = """
+An immutable object never changes after it is made; to change something, you
+make a new object, so every holder of the old one keeps seeing exactly what
+it saw.
+"""
+verdict = """
+Make every value immutable by default: addresses, prices, dates, identifiers,
+messages, settings. Use records, copy collections in with `List.copyOf` and
+`Map.copyOf`, and replace whole objects instead of editing them. Keep mutation
+for the few objects that exist to change, and give each of those one owner.
+"""
+recognise = [
+    "`record` declarations and classes with only `final` fields.",
+    "`with...` methods that return a new object.",
+    "`List.copyOf`, `Map.copyOf`, `Collections.unmodifiableList` in constructors or getters.",
+    "An `AtomicReference` or `volatile` field swapped to a new object instead of edited.",
+]
+
+[spec]
+purpose = """
+Teach Immutable Object with an online store: a shared address that changes a
+placed order, a price list read mid-sale at £62.00, and an address lost in a
+hash set; then an immutable Address record, an immutable PriceList replaced
+whole (£65.00 then £58.50, never a mix), copied input, and the cost of copying
+1000 entries to change one.
+"""
+nongoals = [
+    "Not threads. The half-applied change is shown in steps; the swap uses AtomicReference so it is safe with threads too.",
+    "Not persistent collections. Libraries that share structure between copies are named only.",
+]
+problem = """
+Objects that can be changed through any reference are changed behind their
+holders' backs, seen half-changed, and lost in hash-based collections.
+"""
+roles = [
+    ["The pattern", "`Address`, `PriceList`"],
+    ["Replacing whole", "`Shop`"],
+    ["The naive versions", "`MutableAddress`, `MutablePriceList`"],
+    ["Holders", "`Orders.OldOrder`, `Orders.Order`"],
+    ["Entry point", "`ImmutableObjectDemo`, five acts"],
+]
+requirements = [
+    "**No setters:** `Address` and `PriceList` have none; `with` methods return new objects.",
+    "**Copied in, read-only out:** the price list copies its input and rejects changes to `prices()`.",
+    "**Replaced whole:** `Shop.publish` swaps the list in one step.",
+    "**The failures are real:** £62.00 mid-sale and a set that cannot find its member, asserted.",
+    "**Every printed number is asserted** in `DemoRunsTest`.",
+]
+
+[[diagram]]
+name = "architecture-diagram"
+kind = "flow"
+title = "Immutable Object — the pieces"
+caption = "Holders share immutable objects freely; a change produces a new object, and the shop swaps the price list whole."
+nodes = [
+    { id = "pr", label = "Priya's profile", sub = "Address (York)", col = 0, row = 0, colour = "client" },
+    { id = "or", label = "ORD-2", sub = "Address (Leeds)", col = 1, row = 0, colour = "green" },
+    { id = "ad", label = "Address", sub = "record, with...()", col = 2, row = 0, colour = "accent" },
+    { id = "sh", label = "Shop", sub = "current PriceList", col = 0, row = 1, colour = "amber" },
+    { id = "pl", label = "PriceList", sub = "copied map, read-only", col = 1, row = 1, colour = "accent" },
+    { id = "co", label = "Checkout", sub = "reads one whole list", col = 2, row = 1, colour = "green" },
+]
+edges = [
+    { from = "pr", to = "ad", label = "withCity()" },
+    { from = "or", to = "ad", label = "keeps its own" },
+    { from = "sh", to = "pl", label = "publish(swap)" },
+    { from = "co", to = "pl", label = "total()" },
+]
+
+[[diagram]]
+name = "class-diagram"
+kind = "class"
+title = "Immutable Object — classes"
+caption = "The immutable classes have no setters; every change method returns a new object."
+nodes = [
+    { id = "a", label = "«record» Address", sub = ["street, city", "+ withStreet(s): Address", "+ withCity(c): Address"], col = 0, row = 0, colour = "accent" },
+    { id = "p", label = "PriceList", sub = ["- final Map pence (copied)", "+ withSale(%): PriceList", "+ withPrice(item, p): PriceList", "+ total(basket)"], col = 1, row = 0, colour = "accent" },
+    { id = "s", label = "Shop", sub = ["- AtomicReference<PriceList>", "+ prices()", "+ publish(PriceList)"], col = 2, row = 0, colour = "amber" },
+    { id = "ma", label = "MutableAddress", sub = ["+ setStreet, setCity"], col = 0, row = 1, colour = "red" },
+    { id = "mp", label = "MutablePriceList", sub = ["+ set(item, price)"], col = 1, row = 1, colour = "red" },
+]
+edges = [
+    { from = "s", to = "p", label = "holds" },
+    { from = "ma", to = "a", label = "replaced by", dashed = true },
+    { from = "mp", to = "p", label = "replaced by", dashed = true },
+]
+
+[[diagram]]
+name = "data-flow-diagram"
+kind = "flow"
+title = "Immutable Object — a sale, published whole"
+caption = "Readers see the old list or the new list; there is no list in between."
+nodes = [
+    { id = "a", label = "List v1", sub = "£65.00 basket", col = 0, row = 0, colour = "client" },
+    { id = "b", label = "List v2", sub = "built on the side, £58.50", col = 1, row = 1, colour = "amber" },
+    { id = "c", label = "Shop", sub = "points at v1, then v2", col = 1, row = 0, colour = "accent" },
+    { id = "d", label = "Checkout", sub = "£65.00 or £58.50", col = 2, row = 0, colour = "green" },
+]
+edges = [
+    { from = "a", to = "b", label = "withSale(10)" },
+    { from = "b", to = "c", label = "publish" },
+    { from = "c", to = "d", label = "prices()" },
+]
+
+[[diagram]]
+name = "sequence-diagram"
+kind = "sequence"
+title = "Immutable Object — Priya moves"
+caption = "The profile gets a new address; the order keeps the old one."
+participants = ["Profile", "Address (Leeds)", "Address (York)", "ORD-2"]
+steps = [
+    ["ORD-2", "Address (Leeds)", "keeps a reference"],
+    ["Profile", "Address (Leeds)", "withCity(York)"],
+    ["Address (Leeds)", "Address (York)", "new Address(...)"],
+    ["Address (York)", "Profile", "the new address", "reply"],
+    ["note", "ORD-2", "still Leeds"],
+]
+
+[[diagram]]
+name = "uml-diagram"
+kind = "sequence"
+title = "1. A sale seen half-applied"
+caption = "Changing a shared list in place lets a reader catch it in between."
+participants = ["Sale", "MutablePriceList", "Checkout"]
+steps = [
+    ["Sale", "MutablePriceList", "set(kettle, 2700)"],
+    ["Checkout", "MutablePriceList", "total(basket)"],
+    ["MutablePriceList", "Checkout", "£62.00", "reply"],
+    ["Sale", "MutablePriceList", "set(mug), set(teapot)"],
+]
+
+[[diagram]]
+name = "uml-diagram-2"
+kind = "sequence"
+title = "2. Lost in a hash set"
+caption = "The object moved; its drawer did not."
+participants = ["Code", "HashSet", "MutableAddress"]
+steps = [
+    ["Code", "HashSet", "add(address)"],
+    ["note", "HashSet", "filed under hash of 9 Park Road"],
+    ["Code", "MutableAddress", "setStreet(9 Park Rd)"],
+    ["Code", "HashSet", "contains(address)"],
+    ["HashSet", "Code", "false", "reply"],
+]
+
+[poster]
+headline = [["IMMUTABLE", "text"], ["OBJECT", "text"]]
+before = { code = "address.setCity(\"York\")", note = "a placed order moves too", tag = "BEFORE" }
+after = { code = "address.withCity(\"York\")", note = "a new address; the old one stays", tag = "AFTER" }
+taglines = [["Never change it, make a new one", "gold"]]
+
+[[scene]]
+key = "01-poster"
+kind = "poster"
+title = "Immutable Object"
+narration = """
+Hello, and welcome. [[slnc 400]] This video explains the Immutable Object pattern, in Java. [[slnc 300]]
+This video is presented by Jayasekhar Konduru. [[slnc 600]]
+First, a simple definition. [[slnc 300]] An immutable object is one that can never change after it is made. [[slnc 300]] To change something, you make a new object with the difference. [[slnc 300]] The old one stays exactly as it was, for everyone still holding it. [[slnc 600]]
+Think of a whiteboard menu behind a café counter, and a printed till receipt. [[slnc 300]] Anyone with a cloth can change the whiteboard, even while you are reading it. [[slnc 300]] A receipt never changes. [[slnc 300]] If something changes, the shop prints a new one. [[slnc 700]]
+In this video, the domain is an online shop. [[slnc 300]] It passes addresses and price lists around everywhere. [[slnc 300]] Orders keep a shipping address, and checkout reads the price list. [[slnc 500]]
+By the end, you will hear three bugs that changeable objects cause. [[slnc 300]] How to write an object that cannot change. [[slnc 300]] How to replace a price list in one step. [[slnc 300]] And what immutability costs.
+"""
+
+[[scene]]
+key = "02-scenario"
+kind = "bullets"
+title = "The Scenario"
+body = ["Orders keep a shipping address.", "Checkout reads the price list.", "A set holds failed deliveries.", "", "All ordinary objects with setters,", "shared by reference."]
+narration = """
+Here is the scenario. [[slnc 400]] Each order keeps the address it ships to. [[slnc 300]] Checkout reads the shop's price list. [[slnc 300]] And a set records addresses where a delivery failed. [[slnc 600]]
+All of these are ordinary objects with setters. [[slnc 300]] A setter is a method that changes a field, such as set city. [[slnc 500]]
+And they are shared by reference. [[slnc 300]] That means two parts of the program can hold the very same object. [[slnc 300]] Not two copies. [[slnc 300]] One object.
+"""
+
+[[scene]]
+key = "03-acts"
+kind = "acts"
+title = "acts"
+
+[[scene]]
+key = "04-pattern"
+kind = "bullets"
+title = "The Pattern"
+body = ["No setters. Final fields.", "", "Copy lists and maps in;", "hand them out read-only.", "", "To change: make a new object.", "To publish: swap it in whole."]
+narration = """
+Let's name the pattern. [[slnc 400]] No setters, and every field is final. [[slnc 500]]
+If the object holds a list or a map, copy it in when the object is made. [[slnc 300]] And hand it out read-only. [[slnc 500]]
+To change something, make a new object with the difference. [[slnc 500]]
+And when many readers share the current version, such as the shop's price list, swap in the new object in one step.
+"""
+
+[[scene]]
+key = "05-roles"
+kind = "bullets"
+title = "Who Does What"
+body = ["Address: a record, with...() methods", "PriceList: copied map, read-only", "Shop: swaps the current list", "MutableAddress, MutablePriceList:", "the old way"]
+narration = """
+Here is who does what. [[slnc 400]] Address is a Java record. [[slnc 300]] Its with street and with city methods return a new address. [[slnc 500]]
+Price list copies the prices it is given, and hands them out read-only. [[slnc 300]] A sale returns a whole new price list. [[slnc 500]]
+Shop holds the current price list, and swaps in a new one in one step. [[slnc 500]]
+And the mutable address and mutable price list are the old way, kept for comparison.
+"""
+
+[[scene]]
+key = "06-recognise"
+kind = "bullets"
+title = "Where You Have Seen It"
+body = ["String, Integer, LocalDate", "Java records", "List.of, Map.copyOf", "Value Object and Money", "React and Redux state"]
+narration = """
+You have used immutable objects since your first Java program. [[slnc 400]] String is immutable. [[slnc 300]] So are Integer, Local Date, and Big Decimal. [[slnc 500]]
+Java records make writing your own easy. [[slnc 300]] And List dot of, and Map dot copy of, give you lists and maps that cannot change. [[slnc 500]]
+The Value Object and Money patterns in this course are built on this idea. [[slnc 300]] And so is state in React and Redux.
+"""
+
+[[scene]]
+key = "07-verdict"
+kind = "bullets"
+title = "When To Use It"
+body = ["Make values immutable by default:", "addresses, prices, dates, IDs.", "", "Replace whole; never edit shared.", "", "Keep mutation for things that", "exist to change, with one owner."]
+narration = """
+So, when should you use it? [[slnc 400]] Make every value immutable by default. [[slnc 300]] Addresses, prices, dates, IDs, messages, settings. [[slnc 500]]
+Replace objects whole, instead of editing something that is shared. [[slnc 500]]
+And keep mutation for the few objects that exist to change, such as a cart being filled. [[slnc 300]] Give each of those exactly one owner.
+"""
+
+[[scene]]
+key = "08-outro"
+kind = "outro"
+title = "Thanks for Watching"
+body = ["Full source, notes, diagrams and an animated walkthrough", "are in the repository. Add delivery notes", "and keep Address immutable."]
+narration = """
+That's the Immutable Object pattern. [[slnc 400]] If you remember one sentence, make it this one. [[slnc 300]] Never change a shared object. [[slnc 300]] Make a new one. [[slnc 500]]
+The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. [[slnc 300]] It runs offline, with nothing installed except a Java development kit. [[slnc 500]]
+Here is one exercise to try. [[slnc 300]] Add a list of delivery notes to the address. [[slnc 300]] And make sure it stays immutable. [[slnc 500]]
+If this helped, a like really does help other people find it. [[slnc 300]] And subscribe, if you'd like the rest of the series. [[slnc 400]] Thanks for watching.
+"""

@@ -27,6 +27,9 @@
     return p;
   };
 
+  // Lets a page's Play button wait for the step's narration to finish.
+  window.vkSpeaking = function () { return !!(current && !current.paused && !current.ended); };
+
   var bar = document.querySelector(".controls") || box.parentNode;
   function button(id, text) {
     var b = document.createElement("button");

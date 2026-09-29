@@ -1,0 +1,470 @@
+# pattern.toml for the Write-Behind Cache project. See tools/patternkit.
+
+[project]
+slug = "write-behind-cache"
+category = "micro-services-design-patterns"
+title = "Write-Behind Cache"
+package = "writebehind"
+main_class = "WriteBehindDemo"
+tagline = "Answer now, save in a moment"
+bold = "Keep changes in memory and answer at once, then save them to the database in batches, and only for data you can afford to lose if the server dies in between."
+domain_note = ""
+thumb_lines = ["WRITE-BEHIND", "CACHE"]
+thumb_code = "cache.flush()"
+youtube_title = "Write-Behind Cache"
+youtube_tags = ["write behind cache", "write back cache", "caching", "microservices", "performance", "java"]
+
+[readme]
+intro = """
+Write-Behind, also called write-back, is a caching pattern. A cache is a copy
+of data kept in fast memory. With write-behind, a change is made in the cache
+and the caller gets an answer straight away. The change is saved to the
+database later, by a background step that runs every few seconds and writes
+each changed record once, however many times it changed.
+
+It makes frequent writes fast and cheap. The price is a window of time in which
+the change exists only in memory: if the server dies in that window, the change
+is lost.
+"""
+analogy = """
+Think of writing a long document on a computer. Every letter you type appears
+at once; the computer does not save the file to disk after every key press. It
+saves every few minutes, and saving a page you changed a hundred times is still
+one save.
+
+And everyone has lost a paragraph to a power cut just before the save. That is
+the deal: fast typing, in return for a few minutes you could lose.
+"""
+scenario = """
+Customers in the online store change their shopping carts constantly: add a
+mug, make it two, remove the tea, add it back. Every change was written to the
+database before the page answered, taking 20 milliseconds each time, and the
+database spent most of its day saving carts that would change again a second
+later.
+"""
+costs = [
+    "**Changes can be lost.** Anything changed since the last flush is gone if the server crashes: three changes in the demo.",
+    "**The database is behind.** Anything that reads the database directly, such as a report, sees old data.",
+    "**More machinery.** A timer, a list of changed records, retries when the database is down, and a flush on a clean shutdown.",
+    "**Not for money.** Orders, payments and stock must never sit only in memory.",
+]
+too_much = """
+When writes are rare, or every write must be safe the moment the customer is
+told it worked, write straight to the database. Write-behind is for data that
+changes often and can be rebuilt or shrugged off if lost: carts, view counts,
+"last seen" times, draft text.
+"""
+met_before = [
+    "Operating systems keep file writes in memory and flush them to disk a little later.",
+    "Redis, Hazelcast and Ehcache offer write-behind to a backing database.",
+    "Autosave in editors and web forms.",
+    "Counters such as page views, collected in memory and saved in batches.",
+]
+where = """
+This project is in [micro-services-design-patterns](..), next to
+[Cache-Aside](../cache-aside-pattern), which is about reading through a cache.
+Write-behind is about writing through one, later.
+"""
+
+[[act]]
+title = "Write every change"
+summary = "3 customers change their carts 10 times each: 30 database writes, 20 ms on every click, 600 ms in total."
+detail = """
+`WriteThroughStore` saves every change to the database before answering. Three
+customers each change their cart ten times: thirty database writes, and each
+customer waits twenty milliseconds on every click, six hundred in total. Most
+of those writes are overwritten a moment later by the next change to the same
+cart.
+"""
+speech = """
+First demo: write every change straight to the database. [[slnc 400]] Three customers each change their cart ten times. [[slnc 300]] Add a mug. [[slnc 300]] Make it two. [[slnc 300]] Remove the tea. [[slnc 500]]
+Every change is saved to the database before the page answers. [[slnc 300]] That is thirty database writes. [[slnc 300]] Each one takes twenty milliseconds. [[slnc 300]] Six hundred milliseconds of waiting, in total. [[slnc 600]]
+And most of those writes are replaced a moment later, by the next change to the same cart.
+"""
+rows = { customer = "active amber", db = "active wrong" }
+console = [
+    ["30 changes: 30 database writes", "bad"],
+    ["20 ms on every click, 600 ms total", "bad"],
+]
+
+[[act]]
+title = "Write behind"
+summary = "The same 30 changes: customers wait 0 ms; one flush makes 3 writes, one per cart, with the latest contents."
+detail = """
+`WriteBehindStore` changes the cart in memory and marks it as changed, or
+dirty. The customer gets an answer at once. After five seconds, `flush` writes
+each dirty cart once: three writes instead of thirty, each holding the latest
+contents. Priya's cart arrives in the database as ten mugs and nine teas, her
+final choice.
+"""
+speech = """
+Second demo: write to memory now, and to the database later. [[slnc 400]] The same thirty changes go into memory. [[slnc 300]] Each changed cart is marked as dirty, which just means: not saved yet. [[slnc 500]]
+The customers wait zero milliseconds. [[slnc 600]]
+After five seconds, a flush runs. [[slnc 300]] Flush means: save everything that is dirty. [[slnc 300]] Each cart is saved once, with its latest contents. [[slnc 300]] Three writes, instead of thirty. [[slnc 500]]
+Priya's cart reaches the database as ten mugs and nine teas. [[slnc 300]] Her final choice.
+"""
+rows = { customer = "active ok", cache = "active ok", flush = "active ok", db = "active ok" }
+console = [
+    ["30 changes: customers waited 0 ms", "ok"],
+    ["3 carts waiting", "amber"],
+    ["flush: 3 database writes", "ok"],
+    ["priya: {mug=10, tea=9}", "ok"],
+]
+
+[[act]]
+title = "The database goes down"
+summary = "Customers keep shopping; the flush fails and 2 carts stay waiting; when the database returns, the next flush writes them."
+detail = """
+The database goes down. Customers keep changing their carts, because changes
+only touch memory. The flush fails, and the two changed carts stay dirty. When
+the database comes back, the next flush writes both. The customers never
+noticed.
+"""
+speech = """
+Third demo: the database goes down. [[slnc 400]] Two customers change their carts. [[slnc 300]] They wait zero milliseconds, and keep shopping. [[slnc 500]]
+The flush tries to save, and fails. [[slnc 300]] The two carts stay dirty, waiting. [[slnc 600]]
+The database comes back. [[slnc 300]] The next flush saves both carts. [[slnc 300]] The customers never noticed.
+"""
+rows = { customer = "active ok", cache = "active amber", db = "active wrong" }
+console = [
+    ["2 changes; customers kept shopping", "ok"],
+    ["flush failed: 2 carts still waiting", "amber"],
+    ["database back: 2 writes", "ok"],
+]
+
+[[act]]
+title = "A crash before the flush"
+summary = "3 changes are made, then the server crashes before the flush: all 3 are lost."
+detail = """
+Priya adds a teapot and raises her mugs to twelve; Ana changes her tea. The
+flush is five seconds away when the server crashes. Memory is gone, and so are
+all three changes: the database still holds the carts from the last flush.
+This is the price of write-behind, and why it is only for data you can afford
+to lose.
+"""
+speech = """
+Fourth demo: the server crashes before a flush. [[slnc 400]] Priya adds a teapot, and raises her mugs to twelve. [[slnc 300]] Ana changes her tea. [[slnc 300]] The next flush is five seconds away. [[slnc 600]]
+Then the server crashes. [[slnc 300]] Memory is wiped. [[slnc 500]]
+All three changes are lost. [[slnc 300]] The teapot is not in the database. [[slnc 300]] The database still holds the carts from the last flush. [[slnc 600]]
+That is the price of this pattern.
+"""
+rows = { cache = "active wrong", flush = "active amber" }
+console = [
+    ["3 changes made, flush due in 5 s", "amber"],
+    ["crash: 3 changes lost", "bad"],
+    ["the teapot is not in the database", "bad"],
+]
+
+[[act]]
+title = "The bill"
+summary = "Checkout sees 3 kettles; a stock report reading the database sees 1. Never write behind orders, payments or stock."
+detail = """
+Priya's kettle count goes from one to three in memory. Checkout, reading the
+cache, sees three. A stock report that reads the database directly still sees
+one, until the next flush. So everything that must be right, and everything
+another system reads from the database, stays out of write-behind: orders,
+payments and stock.
+"""
+speech = """
+Fifth demo: the bill. [[slnc 400]] Priya changes her kettles from one to three. [[slnc 300]] Checkout reads memory, and sees three. [[slnc 300]] A stock report reads the database, and still sees one. [[slnc 600]]
+The database is always a little behind. [[slnc 500]]
+So never write behind an order, a payment, or stock. [[slnc 300]] Use it only for data you can afford to lose.
+"""
+rows = { cache = "active ok", db = "active amber", report = "active wrong" }
+console = [
+    ["checkout sees 3 kettles", "ok"],
+    ["the stock report sees 1", "bad"],
+    ["never for orders, payments, stock", "amber"],
+]
+
+[animation]
+subtitle = "Cart changes go to memory at once; a flush saves each changed cart once, a few seconds later."
+boxes = [
+    ["customer", "Customer", "changes the cart"],
+    ["cache", "Cart cache", "in memory, answers at once"],
+    ["flush", "Flush", "every 5 s, one write per cart"],
+    ["db", "Database", "slow, safe, 20 ms a write"],
+    ["report", "Stock report", "reads the database"],
+]
+
+[docs.problem]
+scenario = """
+Customers change their carts many times a minute, and every change was saved
+to the database before the page answered.
+"""
+naive = """
+`WriteThroughStore` writes every change at once: thirty writes for thirty
+clicks, twenty milliseconds of waiting on each, and most of the writes
+overwritten a moment later.
+"""
+deliver = [
+    "The cost of writing every change: 30 writes, 600 ms of waiting.",
+    "Write-behind with a flush that writes each changed cart once: 0 ms waiting, 3 writes.",
+    "A database outage survived, with carts kept dirty and written when it returns.",
+    "The crash window shown: 3 changes lost.",
+    "The database shown behind the cache, and the rule for what never to write behind.",
+    "Every printed number asserted by a test.",
+]
+
+[docs.prerequisites]
+required = [
+    "Java basics: classes, interfaces, maps and sets.",
+    "What a cache is: a fast copy of data kept in memory.",
+]
+not_required = [
+    "Redis or any cache product. The cache is a map.",
+    "Threads or timers. `flush` is called by the demo where a timer would call it.",
+]
+
+[docs.session]
+objectives = [
+    "Explain write-through and write-behind in one sentence each.",
+    "Show why write-behind turns many writes into few.",
+    "Name the crash window and what is lost in it.",
+    "Decide which data may be written behind, and which never.",
+]
+walkthrough = """
+Run `./gradlew run` and compare acts one and two: thirty writes against three.
+Then open `WriteBehindStore.java` and follow a change through `set`, the dirty
+set, and `flush`. Spend the most time on act four: every learner should be able
+to say exactly what was lost and why.
+"""
+exercises = [
+    "Flush automatically when 100 carts are dirty, as well as every five seconds.",
+    "Add a `shutdown()` that flushes before the process stops. Which crashes does it not help with?",
+    "Count how many changes were lost across a day if the server crashes once, with flushes every 1 s and every 60 s.",
+    "Make order placement write straight through, while cart changes stay behind.",
+]
+
+[docs.explained]
+sentence = """
+A write-behind cache answers every change from memory at once and saves the
+changed records to the database later, in batches, one write per record.
+"""
+verdict = """
+Use it for data that changes often, is read mostly through the same service,
+and can be lost without harm: carts, counters, drafts, last-seen times. Flush
+often, flush on shutdown, retry when the database is down. Never use it for
+orders, payments, stock, or anything another system reads from the database.
+"""
+recognise = [
+    "A `dirty` set or flag next to a cache.",
+    "A scheduled `flush`, `persist` or `sync` job.",
+    "Cache settings named `write-behind`, `write-back` or `write-delay`.",
+    "Batch updates that write the latest value of many records at once.",
+]
+
+[spec]
+purpose = """
+Teach Write-Behind Cache with an online store: 30 cart changes written through
+(30 writes, 600 ms of waiting) against written behind (0 ms, 3 writes), a
+database outage survived, 3 changes lost in a crash, and a report reading the
+database seeing 1 kettle while checkout sees 3.
+"""
+nongoals = [
+    "Not a cache product. The cache is a map.",
+    "Not timers or threads. Flush is called explicitly.",
+    "Not durability tricks such as a write-ahead log. Named in the exercises only.",
+]
+problem = """
+Writing every change to the database makes customers wait and wastes writes on
+values that change again a moment later.
+"""
+roles = [
+    ["The pattern", "`WriteBehindStore` (`set`, `flush`, `crash`)"],
+    ["The contract", "`CartStore`"],
+    ["The slow store", "`Database`"],
+    ["The naive version", "`WriteThroughStore`"],
+    ["Entry point", "`WriteBehindDemo`, five acts"],
+]
+requirements = [
+    "**Answer at once:** a change is readable immediately, with no database write.",
+    "**One write per record:** flush writes each dirty cart once, with its latest contents.",
+    "**Survive an outage:** a failed flush keeps carts dirty for the next one.",
+    "**Honest about loss:** a crash reports how many changes were lost.",
+    "**Every printed number is asserted** in `DemoRunsTest`.",
+]
+
+[[diagram]]
+name = "architecture-diagram"
+kind = "flow"
+title = "Write-Behind Cache — the pieces"
+caption = "Customers only talk to memory; the flush is the only thing that talks to the database."
+nodes = [
+    { id = "cu", label = "Customer", sub = "changes the cart", col = 0, row = 0, colour = "client" },
+    { id = "ca", label = "WriteBehindStore", sub = "cache + dirty set", col = 1, row = 0, colour = "accent" },
+    { id = "fl", label = "flush()", sub = "every 5 s", col = 1, row = 1, colour = "amber" },
+    { id = "db", label = "Database", sub = "20 ms a write", col = 2, row = 1, colour = "green" },
+    { id = "rp", label = "Stock report", sub = "reads the database", col = 2, row = 0, colour = "red" },
+]
+edges = [
+    { from = "cu", to = "ca", label = "set (0 ms)" },
+    { from = "ca", to = "fl", label = "dirty carts" },
+    { from = "fl", to = "db", label = "1 write per cart" },
+    { from = "rp", to = "db", label = "reads, a bit behind", dashed = true },
+]
+
+[[diagram]]
+name = "class-diagram"
+kind = "class"
+title = "Write-Behind Cache — classes"
+caption = "Two stores behind one interface; only one of them waits for the database."
+nodes = [
+    { id = "i", label = "«interface» CartStore", sub = ["+ set(cart, item, qty): ms", "+ get(cart)"], col = 1, row = 0, colour = "client" },
+    { id = "wb", label = "WriteBehindStore", sub = ["- cache, dirty", "+ flush(): writes", "+ crash(): lost"], col = 2, row = 1, colour = "accent" },
+    { id = "wt", label = "WriteThroughStore", sub = ["- cache", "saves on every set"], col = 0, row = 1, colour = "red" },
+    { id = "db", label = "Database", sub = ["+ save(cart, items)", "+ load(cart)", "+ writes()"], col = 1, row = 1, colour = "green" },
+]
+edges = [
+    { from = "wb", to = "i", label = "implements" },
+    { from = "wt", to = "i", label = "implements" },
+    { from = "wb", to = "db", label = "flush" },
+    { from = "wt", to = "db", label = "every set", dashed = true },
+]
+
+[[diagram]]
+name = "data-flow-diagram"
+kind = "flow"
+title = "Write-Behind Cache — ten changes, one write"
+caption = "Many changes to one cart become one write of its final state."
+nodes = [
+    { id = "a", label = "10 changes", sub = "tea 1, mug 2, tea 3 ...", col = 0, row = 0, colour = "client" },
+    { id = "b", label = "priya: dirty", sub = "latest: mug 10, tea 9", col = 1, row = 0, colour = "amber" },
+    { id = "c", label = "1 database write", sub = "{mug=10, tea=9}", col = 2, row = 0, colour = "green" },
+    { id = "d", label = "crash before flush", sub = "dirty changes lost", col = 1, row = 1, colour = "red" },
+]
+edges = [
+    { from = "a", to = "b", label = "set" },
+    { from = "b", to = "c", label = "flush" },
+    { from = "b", to = "d", label = "if the server dies", dashed = true },
+]
+
+[[diagram]]
+name = "sequence-diagram"
+kind = "sequence"
+title = "Write-Behind Cache — a change, then a flush"
+caption = "The customer's answer does not wait for the database."
+participants = ["Customer", "WriteBehindStore", "Database"]
+steps = [
+    ["Customer", "WriteBehindStore", "set(priya, mug, 10)"],
+    ["WriteBehindStore", "Customer", "done (0 ms)", "reply"],
+    ["note", "WriteBehindStore", "priya is dirty"],
+    ["WriteBehindStore", "WriteBehindStore", "flush() after 5 s"],
+    ["WriteBehindStore", "Database", "save(priya, {mug=10, tea=9})"],
+]
+
+[[diagram]]
+name = "uml-diagram"
+kind = "sequence"
+title = "1. The database is down"
+caption = "The flush fails; the cart stays dirty and is written next time."
+participants = ["WriteBehindStore", "Database"]
+steps = [
+    ["WriteBehindStore", "Database", "save(priya)"],
+    ["Database", "WriteBehindStore", "unavailable", "reply"],
+    ["note", "WriteBehindStore", "priya stays dirty"],
+    ["WriteBehindStore", "Database", "save(priya), next flush"],
+]
+
+[[diagram]]
+name = "uml-diagram-2"
+kind = "sequence"
+title = "2. A crash before the flush"
+caption = "Whatever is only in memory is gone."
+participants = ["Customer", "WriteBehindStore", "Database"]
+steps = [
+    ["Customer", "WriteBehindStore", "set(priya, teapot, 1)"],
+    ["note", "WriteBehindStore", "crash"],
+    ["note", "Database", "no teapot"],
+]
+
+[poster]
+headline = [["WRITE-BEHIND", "text"], ["CACHE", "text"]]
+before = { code = "db.save() on every click", note = "30 writes, 20 ms each", tag = "BEFORE" }
+after = { code = "cache.flush()", note = "3 writes, 0 ms waiting", tag = "AFTER" }
+taglines = [["Answer now, save in a moment", "gold"]]
+
+[[scene]]
+key = "01-poster"
+kind = "poster"
+title = "Write-Behind Cache"
+narration = """
+Hello, and welcome. [[slnc 400]] This video explains the Write-Behind Cache pattern, in Java. [[slnc 300]]
+This video is presented by Jayasekhar Konduru. [[slnc 600]]
+First, a simple definition. [[slnc 300]] A write-behind cache keeps each change in fast memory, and answers straight away. [[slnc 300]] A few seconds later, it saves the changes to the database, in one batch. [[slnc 300]] A record that changed ten times is saved only once. [[slnc 600]]
+Think of typing a long document on a computer. [[slnc 300]] Every letter appears at once. [[slnc 300]] But the file is saved only every few minutes. [[slnc 300]] And everyone has lost a paragraph to a power cut, just before the save. [[slnc 700]]
+In this video, the domain is an online shop. [[slnc 300]] Customers change their shopping carts all the time. [[slnc 300]] Add a mug, make it two, remove the tea, add it back. [[slnc 500]]
+By the end, you will hear what it costs to save every change at once. [[slnc 300]] How write-behind turns thirty writes into three. [[slnc 300]] What happens when the database is down. [[slnc 300]] And exactly what is lost in a crash.
+"""
+
+[[scene]]
+key = "02-scenario"
+kind = "bullets"
+title = "The Scenario"
+body = ["Customers change their carts", "again and again.", "", "Every change was saved to the", "database before the page answered:", "20 milliseconds, every click."]
+narration = """
+Here is the scenario. [[slnc 400]] Customers change their carts again and again. [[slnc 500]]
+Every change was saved to the database before the page answered. [[slnc 300]] A database is the safe, permanent store, but writing to it is slow. [[slnc 300]] Here, twenty milliseconds, on every click. [[slnc 500]]
+And most of those saves were replaced a second later, by the next change.
+"""
+
+[[scene]]
+key = "03-acts"
+kind = "acts"
+title = "acts"
+
+[[scene]]
+key = "04-pattern"
+kind = "bullets"
+title = "The Pattern"
+body = ["Change memory; answer at once.", "Mark the record dirty.", "", "Every few seconds, flush:", "save each dirty record once.", "", "Crash before the flush? Lost."]
+narration = """
+Let's name the pattern. [[slnc 400]] Make the change in memory, and answer at once. [[slnc 300]] Mark the record as dirty. [[slnc 500]]
+Every few seconds, flush. [[slnc 300]] Save each dirty record once, with its latest contents. [[slnc 300]] If the database is down, keep it dirty, and try again next time. [[slnc 500]]
+And accept one thing. [[slnc 300]] A change made after the last flush is lost if the server crashes.
+"""
+
+[[scene]]
+key = "05-roles"
+kind = "bullets"
+title = "Who Does What"
+body = ["CartStore: set and get a cart", "WriteBehindStore: memory + dirty set", "flush(): one write per dirty cart", "Database: slow and safe", "WriteThroughStore: the old way"]
+narration = """
+Here is who does what. [[slnc 400]] Cart store is the interface: set a quantity, and get a cart. [[slnc 500]]
+The write-behind store keeps carts in memory, and a set of dirty carts. [[slnc 300]] Its flush method saves each dirty cart once. [[slnc 500]]
+The database is slow and safe. [[slnc 300]] And the write-through store is the old way, kept for comparison.
+"""
+
+[[scene]]
+key = "06-recognise"
+kind = "bullets"
+title = "Where You Have Seen It"
+body = ["Your operating system's disk writes", "Redis and Hazelcast write-behind", "Autosave in editors", "Page-view counters saved in batches"]
+narration = """
+You have probably met this pattern already. [[slnc 400]] Your operating system keeps file writes in memory, and saves them to disk a moment later. [[slnc 500]]
+Caches such as Hazelcast offer write-behind as a setting. [[slnc 500]]
+Autosave in an editor is the same idea. [[slnc 300]] And so are page view counters, collected in memory, and saved in batches.
+"""
+
+[[scene]]
+key = "07-verdict"
+kind = "bullets"
+title = "When To Use It"
+body = ["Use it for data that changes often", "and can be lost: carts, counters,", "drafts.", "", "Flush often, and on shutdown.", "", "Never for orders, payments, stock."]
+narration = """
+So, when should you use it? [[slnc 400]] Use write-behind for data that changes often, and can be lost without real harm. [[slnc 300]] Carts, counters, drafts. [[slnc 500]]
+Flush often. [[slnc 300]] Flush when the server shuts down cleanly. [[slnc 300]] And retry when the database is down. [[slnc 500]]
+Never use it for orders, payments, or stock. [[slnc 300]] Those must be safe the moment the customer is told they worked.
+"""
+
+[[scene]]
+key = "08-outro"
+kind = "outro"
+title = "Thanks for Watching"
+body = ["Full source, notes, diagrams and an animated walkthrough", "are in the repository. Add a flush", "on shutdown."]
+narration = """
+That's the Write-Behind Cache pattern. [[slnc 400]] If you remember one sentence, make it this one. [[slnc 300]] Answer now, save in a moment, and only for what you can afford to lose. [[slnc 500]]
+The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. [[slnc 300]] It runs offline, with nothing installed except a Java development kit. [[slnc 500]]
+Here is one exercise to try. [[slnc 300]] Add a shutdown method that flushes before the server stops. [[slnc 300]] Then ask which crashes it cannot help with. [[slnc 500]]
+If this helped, a like really does help other people find it. [[slnc 300]] And subscribe, if you'd like the rest of the series. [[slnc 400]] Thanks for watching.
+"""

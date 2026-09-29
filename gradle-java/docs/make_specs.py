@@ -7433,6 +7433,11 @@ def sh(cmd):
     return subprocess.run(cmd, capture_output=True, text=True).stdout.strip()
 
 
+# Projects made with tools/patternkit describe themselves in pattern.toml.
+import pattern_meta  # noqa: E402
+pattern_meta.register_specs(ORDER, NAMES, META)
+
+
 def facts(group, slug, measure=True):
     p = os.path.join(ROOT, group, slug + "-pattern")
     v, d = os.path.join(p, "video"), os.path.join(p, "docs")

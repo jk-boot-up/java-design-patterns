@@ -1,0 +1,596 @@
+# pattern.toml for the Money project. See tools/patternkit.
+
+[project]
+slug = "money"
+category = "enterprise-design-patterns"
+title = "Money"
+package = "money"
+main_class = "MoneyDemo"
+tagline = "Never keep a price in a double"
+bold = "A price is not a number. It is an amount of the smallest coin, plus a currency, and it should never round without being asked."
+domain_note = ""
+thumb_lines = ["MONEY"]
+thumb_code = "Money.of(\"19.99\", GBP)"
+youtube_title = "Money"
+youtube_tags = ["money pattern", "java money", "floating point", "rounding", "enterprise patterns"]
+
+[readme]
+intro = """
+Money is one of Martin Fowler's enterprise application patterns. Instead of
+keeping a price in a `double`, you keep it in a small class that holds a whole
+number of the smallest coin (pence, cents) together with its currency. The
+class adds, multiplies and splits amounts exactly, refuses to mix currencies,
+and makes every rounding decision visible.
+
+It is one of the simplest patterns in this course, and one of the most useful:
+almost every business system handles money, and most of them have a bug that
+this class would have prevented.
+"""
+analogy = """
+Think of a cash drawer in a shop. The drawer never holds "nineteen point nine
+nine" of anything. It holds coins and notes: one thousand nine hundred and
+ninety-nine pence, all of them pounds. You can count them exactly, you can
+share them out exactly, and nobody puts a dollar in the pound drawer by
+accident.
+
+A `double` is more like a measuring jug. It is good for flour or water, where
+"about 300 millilitres" is fine. It is the wrong tool for pennies, where
+"about" is a bug.
+"""
+scenario = """
+The online store adds up baskets, charges VAT, splits basket discounts across
+the lines, and sells in pounds, dollars and yen. The first version kept every
+price in a `double`. It worked in every test anybody wrote, and then a report
+showed ten thousand pence of stickers as nine thousand nine hundred and ninety-nine.
+"""
+costs = [
+    "**A price is a class, not a number.** Every place that stores, sends or shows one must convert it: to a whole number and a currency code for the database, and to text for the screen.",
+    "**Rounding must be decided.** Money refuses to round silently, so someone has to choose where rounding happens (each line, or once on the total) and how.",
+    "**Currency conversion is still yours.** Turning pounds into dollars needs a rate and a date. That is a separate job, deliberately left out of Money.",
+    "**A little more code.** A few dozen lines for the class and its tests.",
+]
+too_much = """
+Very rarely. If a program only ever shows a price that someone else already
+worked out, a string may be enough. As soon as the program adds, multiplies,
+splits or compares prices, use Money, or an existing library such as
+JSR 354 (Moneta) or Joda-Money.
+"""
+met_before = [
+    "`java.math.BigDecimal`, the usual building block for money in Java.",
+    "JSR 354, the Java Money and Currency API, and its reference implementation Moneta.",
+    "Payment APIs such as Stripe, which take amounts as whole numbers of the smallest unit (`amount: 1999`, `currency: \"gbp\"`).",
+    "Database columns like `price_pence INTEGER` next to a `currency CHAR(3)` column.",
+]
+where = """
+This project is in [enterprise-design-patterns](..), next to
+[Value Object](../../domain-driven-design-patterns/value-object-pattern), which
+Money is the best-known example of.
+"""
+
+[[act]]
+title = "Prices as doubles"
+summary = "10p + 20p is 0.30000000000000004; 1000 × 10p becomes 9999 pence; pounds and dollars add without complaint."
+detail = """
+The naive cart keeps every price in a `double`. A 10p sticker and a 20p sticker
+come to `0.30000000000000004`, which is not equal to `0.30`. A double stores
+numbers in binary, and one tenth has no exact binary form, just as one third
+has no exact decimal form. Adding ten pence a thousand times gives
+`99.9999999999986`, and a careless conversion to pence, cutting off the
+fraction, gives 9999 pence instead of 10000. Nothing crashed, and every small
+test passed. And ten dollars plus ten pounds is simply `20.0`: a double has no
+idea which currency it holds.
+"""
+narration = "The naive cart keeps prices as doubles. Ten pence plus twenty pence comes out as zero point three, then fifteen zeros and a four. A thousand items at ten pence becomes nine thousand nine hundred and ninety-nine pence. And ten dollars plus ten pounds is just twenty."
+rows = { naive = "active wrong" }
+console = [
+    ["a 10p sticker and a 20p sticker: total 0.30000000000000004", "bad"],
+    ["is it 0.30? false", "bad"],
+    ["1000 items at 10p, added one by one: 99.9999999999986", "bad"],
+    ["turned into pence by cutting off the fraction: 9999 pence, not 10000", "bad"],
+    ["10 dollars + 10 pounds = 20.0, with nobody asking which is which", "amber"],
+]
+
+[[act]]
+title = "Prices as Money"
+summary = "10p + 20p is exactly £0.30; 1000 × 10p is £100.00, stored as 10000 pence; a real cart totals £63.44."
+detail = """
+`Money` stores a whole number of the smallest unit and a currency: £19.99 is
+1999 and GBP. Whole numbers add and multiply exactly, so 10p plus 20p is
+exactly £0.30, and a thousand ten-pences are exactly £100.00, stored as 10000
+pence. A cart of three mugs at £9.49, a teapot at £24.99 and two coasters at
+£4.99 comes to £63.44, with no rounding anywhere.
+"""
+narration = "Money keeps a whole number of pence and a currency. Ten pence plus twenty pence is exactly thirty pence. A thousand ten-pences are exactly one hundred pounds. The cart comes to sixty-three pounds forty-four."
+rows = { money = "active ok", cart = "active ok" }
+console = [
+    ["10p + 20p = £0.30, equal to 30p: true", "ok"],
+    ["1000 items at 10p: £100.00, stored as 10000 pence", "ok"],
+    ["3 mugs at £9.49, a teapot at £24.99, 2 coasters at £4.99: £63.44", "ok"],
+]
+
+[[act]]
+title = "Currencies travel with the amount"
+summary = "£10 + $10 is refused; yen have no pennies; £9.999 is refused."
+detail = """
+Because each Money carries its currency, adding pounds to dollars is refused
+with a clear message instead of producing a meaningless number. The currency
+also knows its digits: pounds have two after the point, yen have none, so
+¥1500 prints as ¥1500. And an amount with more digits than the currency allows,
+such as £9.999, is refused at the door instead of being quietly rounded.
+"""
+narration = "Each amount carries its currency. Ten pounds plus ten dollars is refused. Yen have no pennies, so fifteen hundred yen prints as fifteen hundred. And nine pounds 999 is refused, because pounds have only two digits."
+rows = { money = "active amber", currency = "active ok" }
+console = [
+    ["£10.00 + $10.00: refused, cannot combine GBP with USD", "amber"],
+    ["a Japanese price has no pennies: ¥1500", "ok"],
+    ["£9.999: refused, 9.999 has more digits than GBP allows", "amber"],
+]
+
+[[act]]
+title = "Rounding is a choice, made once"
+summary = "20% VAT on ten 99p items: £2.00 rounded per line, £1.98 rounded once on the total."
+detail = """
+Some sums do fall between two pennies: 20% of 99p is 19.8p. Money will not
+round that by itself; the caller must say how. And *where* you round matters.
+Rounding the VAT on each of ten lines gives 20p ten times, £2.00. Rounding once,
+on the £9.90 total, gives £1.98. Neither is wrong, but they differ by two
+pence, and a shop must pick one rule and use it everywhere. Money makes that
+choice visible in the code instead of leaving it to whatever a double does.
+"""
+narration = "Twenty percent VAT on 99 pence is 19.8 pence, so something must round. Rounded on each of ten lines, the VAT is two pounds. Rounded once on the total, it is one pound ninety-eight. Money makes you choose, and shows the choice."
+rows = { money = "active amber", cart = "active ok" }
+console = [
+    ["VAT at 20% on 10 items at 99p, rounded on each line: £2.00", "amber"],
+    ["the same VAT, rounded once on the total:            £1.98", "amber"],
+    ["difference: £0.02, and Money made the rounding visible", "ok"],
+]
+
+[[act]]
+title = "Splitting without losing a penny"
+summary = "£10 ÷ 3 is £3.33 × 3 = £9.99; allocate gives £3.34, £3.33, £3.33 = £10.00; a £5 discount spreads as £2.25, £1.97, £0.78."
+detail = """
+Dividing £10 by three gives £3.33 each, and £3.33 three times is £9.99: a penny
+disappears. `allocate` splits by ratio instead. Each share is rounded down, and
+the pennies left over are handed out one at a time, so £10 becomes £3.34, £3.33
+and £3.33, which add back to exactly £10.00. The cart uses the same method to
+spread a £5.00 basket discount across its lines in proportion to their value:
+£2.25, £1.97 and £0.78, exactly £5.00. Refunds, tax lines and split payments
+all need this.
+"""
+narration = "Ten pounds divided by three is 3.33 each, and three of those is 9.99: a penny lost. Allocate hands out the leftover penny: 3.34, 3.33 and 3.33, exactly ten pounds. A five pound discount spreads over the cart as 2.25, 1.97 and 78 pence."
+rows = { money = "active ok", allocation = "active ok", cart = "active ok" }
+console = [
+    ["£10 shared by 3 friends, each paying a third: £3.33 x 3 = £9.99, a penny short", "bad"],
+    ["allocate(1, 1, 1): £3.34, £3.33, £3.33 = £10.00", "ok"],
+    ["a £5.00 basket discount spread over the cart's lines by value: £2.25, £1.97, £0.78 = £5.00", "ok"],
+]
+
+[[act]]
+title = "The bill"
+summary = "A price is now a class that must be converted at every edge, and currency conversion is still a separate job."
+detail = """
+Money is not free. A price is now a class, so every database table, message
+and screen must convert it: £19.99 is stored as 1999 and GBP. And Money says
+nothing about exchange rates: converting pounds to dollars needs a rate and a
+date, which is a different concern, deliberately left out. Both costs are
+small compared with a shop whose totals are off by a penny.
+"""
+narration = "The bill: a price is now a class, so every database, message and screen must convert it. Nineteen ninety-nine is stored as 1999 and GBP. And converting pounds to dollars still needs a rate and a date."
+rows = { money = "active amber" }
+console = [
+    ["a price is now a class, not a number: every place that stores,", "muted"],
+    ["sends or shows one must convert, e.g. £19.99 is stored as 1999 and GBP", "muted"],
+    ["converting pounds to dollars needs a rate and a date: Money does not do it", "amber"],
+]
+
+[animation]
+subtitle = "Six acts, the same ones the demo prints. Red is the double going wrong; green is Money getting it right."
+boxes = [
+    ["naive", "NaiveCart", "prices as doubles, no currency"],
+    ["cart", "Cart", "lines in Money, one currency"],
+    ["money", "Money", "whole pence + currency, exact"],
+    ["currency", "Currency", "GBP 2 digits, USD 2, JPY 0"],
+    ["allocation", "allocate()", "splits without losing a penny"],
+]
+
+[docs.problem]
+scenario = """
+The online store adds baskets, charges VAT, spreads discounts across lines and
+sells in three currencies. Prices were kept as `double`s, and a report showed
+one thousand 10p stickers as £99.99.
+"""
+naive = """
+`NaiveCart` stores each price as a `double` and adds them up. It is short and
+reads naturally, and small tests pass. It is wrong in three ways: binary
+doubles cannot hold most decimal prices exactly, a double has no currency, and
+it rounds silently wherever the arithmetic lands.
+"""
+deliver = [
+    "The double failures shown with exact printed values: 0.30000000000000004, 99.9999999999986 and 9999 pence.",
+    "A `Money` class holding whole minor units and a currency, adding, multiplying and comparing exactly.",
+    "Mixing currencies refused; amounts with too many digits refused.",
+    "Rounding only when asked, with the per-line versus once-on-the-total difference shown.",
+    "`allocate` splitting by ratio with shares that always add back to the whole, checked over a range.",
+    "Every printed number asserted by a test.",
+]
+
+[docs.prerequisites]
+required = [
+    "Java basics: classes, methods, `long` and `double`.",
+    "What `equals` and `hashCode` are for.",
+]
+not_required = [
+    "Any money library. The class is written from scratch so every line can be read.",
+    "Accounting knowledge beyond what VAT and a discount are.",
+]
+
+[docs.session]
+objectives = [
+    "Explain why a `double` cannot hold 0.1 exactly, in one sentence.",
+    "Store a price as whole minor units and a currency.",
+    "Say where rounding should happen, and why it must be a decision.",
+    "Split an amount by ratio without losing a penny.",
+]
+walkthrough = """
+Run `./gradlew run` and read act one aloud before looking at any code: the
+learners should see 0.30000000000000004 before they are told why. Then open
+`Money.java`: two fields, a handful of methods, every one short. Spend the most
+time on `allocate`, because it is the part people get wrong, and on the two
+VAT totals in act four, because they start the useful argument about where
+rounding belongs.
+"""
+exercises = [
+    "Add `negate()` and use it to represent a refund. What should `allocate` do with a negative amount?",
+    "Add EUR. Which lines of `Money` did you have to change?",
+    "Change act four to use `RoundingMode.HALF_EVEN`. Does either total change? Why might a bank prefer it?",
+    "Write a test that a £0.01 amount allocated to three shares gives 1p, 0p, 0p.",
+]
+
+[docs.explained]
+sentence = """
+Money keeps a price as a whole number of the smallest coin plus its currency,
+so arithmetic is exact, currencies cannot be mixed, and rounding only happens
+when someone decides it should.
+"""
+verdict = """
+Use Money for every price, cost, fee and balance. Store whole minor units and a
+currency code, round only at a decided point with a named rule, and split with
+`allocate`. Reach for a library (Moneta, Joda-Money) in production; write one
+yourself once, to understand it.
+"""
+recognise = [
+    "A class or record named `Money`, `Amount` or `Price` with an amount and a currency.",
+    "Fields like `amountMinor`, `priceInPence` or `cents` stored as `long`.",
+    "`BigDecimal` with an explicit `RoundingMode`, never `double`, near prices.",
+    "A method that splits an amount and hands out the remainder.",
+]
+
+[spec]
+purpose = """
+Teach Money with an online store: prices as doubles giving 0.30000000000000004,
+99.9999999999986 and 9999 pence, then a Money class of whole pence and a
+currency that adds exactly, refuses to mix currencies and too many digits,
+rounds only when asked (showing £2.00 against £1.98 of VAT), and splits £10
+three ways and a £5 discount across a cart without losing a penny.
+"""
+nongoals = [
+    "Not currency conversion. Rates and dates are a separate concern.",
+    "Not a money library. Moneta and Joda-Money are named, not used.",
+    "Not persistence. Storing Money is described, not built.",
+]
+problem = """
+Prices kept as doubles are inexact, have no currency, and round silently.
+
+**What this project must deliver:** the double failures with exact printed values, a Money class of whole minor units and a currency, currency and digit checks, explicit rounding with the per-line difference, and allocation that never loses a penny.
+"""
+roles = [
+    ["The pattern", "`Money`, `Currency`"],
+    ["Using it", "`Cart`"],
+    ["The naive version", "`NaiveCart`"],
+    ["Entry point", "`MoneyDemo`, six acts"],
+]
+requirements = [
+    "**Exact:** whole minor units in a `long`; no `double` anywhere in `Money`.",
+    "**Currencies never mix:** combining two is refused with a clear message.",
+    "**No silent rounding:** multiplying by a rate requires a `RoundingMode`.",
+    "**Allocation is complete:** shares add back to the whole, asserted over 286 amounts and 4 ratio sets.",
+    "**Every printed number is asserted** in `DemoRunsTest`.",
+]
+
+[[diagram]]
+name = "architecture-diagram"
+kind = "flow"
+title = "Money — the pieces"
+caption = "The demo drives two carts. The naive one holds doubles; the other holds Money, which knows its currency and how to split itself."
+nodes = [
+    { id = "demo", label = "MoneyDemo", sub = "runs the six acts", col = 0, row = 0, colour = "client" },
+    { id = "naive", label = "NaiveCart", sub = "prices as doubles, no currency", col = 1, row = 1, colour = "red" },
+    { id = "cart", label = "Cart", sub = "lines priced in Money", col = 1, row = 0, colour = "accent" },
+    { id = "money", label = "Money", sub = "whole pence + currency", col = 2, row = 0, colour = "green" },
+    { id = "cur", label = "Currency", sub = "GBP, USD, JPY and their digits", col = 2, row = 1, colour = "amber" },
+]
+edges = [
+    { from = "demo", to = "cart", label = "total(), discountShares()" },
+    { from = "demo", to = "naive", label = "total()", dashed = true },
+    { from = "cart", to = "money", label = "plus, times, allocate" },
+    { from = "money", to = "cur", label = "has a" },
+]
+prose = """
+The naive cart is kept in the project on purpose, so the difference can be run
+and read side by side. Nothing depends on it.
+"""
+
+[[diagram]]
+name = "class-diagram"
+kind = "class"
+title = "Money — classes"
+caption = "Money is small: two fields, and methods that each return a new Money."
+nodes = [
+    { id = "money", label = "Money", sub = ["- long minor", "- Currency currency", "+ of(String, Currency)", "+ plus(Money) / minus(Money)", "+ times(int)", "+ times(rate, RoundingMode)", "+ allocate(long... ratios)"], col = 0, row = 0, colour = "green" },
+    { id = "cur", label = "«enum» Currency", sub = ["GBP(£, 2)", "USD($, 2)", "JPY(¥, 0)", "+ digits()"], col = 1, row = 0, colour = "amber" },
+    { id = "cart", label = "Cart", sub = ["+ add(item, Money, qty)", "+ total(): Money", "+ discountShares(Money)"], col = 0, row = 1, colour = "accent" },
+    { id = "line", label = "«record» Cart.Line", sub = ["item, unitPrice, quantity", "+ total(): Money"], col = 1, row = 1, colour = "client" },
+]
+edges = [
+    { from = "money", to = "cur", label = "has a" },
+    { from = "cart", to = "line", label = "holds" },
+    { from = "line", to = "money", label = "priced in", dashed = true },
+]
+
+[[diagram]]
+name = "data-flow-diagram"
+kind = "flow"
+title = "Money — from text to pence and back"
+caption = "Text becomes whole pence once, on the way in, and text again once, on the way out. In between, only whole numbers move."
+nodes = [
+    { id = "in", label = "\"9.49\" + GBP", sub = "a price as typed", col = 0, row = 0, colour = "client" },
+    { id = "m", label = "949 pence, GBP", sub = "Money.of checks the digits", col = 1, row = 0, colour = "green" },
+    { id = "sum", label = "6344 pence", sub = "lines added exactly", col = 2, row = 0, colour = "green" },
+    { id = "out", label = "\"£63.44\"", sub = "toString, once, for the screen", col = 2, row = 1, colour = "accent" },
+    { id = "db", label = "6344 + \"GBP\"", sub = "two columns in the database", col = 1, row = 1, colour = "amber" },
+]
+edges = [
+    { from = "in", to = "m", label = "of()" },
+    { from = "m", to = "sum", label = "times, plus" },
+    { from = "sum", to = "out", label = "toString()" },
+    { from = "sum", to = "db", label = "minor(), currency()" },
+]
+
+[[diagram]]
+name = "sequence-diagram"
+kind = "sequence"
+title = "Money — spreading a £5 discount"
+caption = "The cart weighs each line by its value and asks Money to allocate; Money hands out the leftover pennies."
+participants = ["MoneyDemo", "Cart", "Money"]
+steps = [
+    ["MoneyDemo", "Cart", "discountShares(£5.00)"],
+    ["Cart", "Cart", "weights 2847, 2499, 998"],
+    ["Cart", "Money", "allocate(2847, 2499, 998)"],
+    ["note", "Money", "rounded down: 224, 196, 78 = 498"],
+    ["note", "Money", "2 pence left: to the first two"],
+    ["Money", "Cart", "£2.25, £1.97, £0.78", "reply"],
+    ["Cart", "MoneyDemo", "shares = £5.00", "reply"],
+]
+
+[[diagram]]
+name = "uml-diagram"
+kind = "sequence"
+title = "1. Adding a cart"
+caption = "Each line multiplies exactly, and the cart adds the line totals."
+participants = ["MoneyDemo", "Cart", "Line", "Money"]
+steps = [
+    ["MoneyDemo", "Cart", "total()"],
+    ["Cart", "Line", "total()"],
+    ["Line", "Money", "times(3)"],
+    ["Money", "Line", "£28.47", "reply"],
+    ["Cart", "Money", "plus(...) for each line"],
+    ["Cart", "MoneyDemo", "£63.44", "reply"],
+]
+
+[[diagram]]
+name = "uml-diagram-2"
+kind = "sequence"
+title = "2. Mixing currencies"
+caption = "The currency check happens inside Money, so no caller can forget it."
+participants = ["MoneyDemo", "Money (£10)", "Money ($10)"]
+steps = [
+    ["MoneyDemo", "Money (£10)", "plus($10.00)"],
+    ["Money (£10)", "Money (£10)", "same currency?"],
+    ["note", "Money (£10)", "GBP is not USD"],
+    ["Money (£10)", "MoneyDemo", "refused: cannot combine GBP with USD", "reply"],
+]
+
+[poster]
+headline = [["MONEY", "text"]]
+before = { code = "double total = 0.1 + 0.2;", note = "0.30000000000000004", tag = "BEFORE" }
+after = { code = "Money.of(\"0.10\", GBP)", note = "exactly £0.30", tag = "AFTER" }
+taglines = [["Never keep a price in a double", "gold"]]
+
+[highlight]
+console_amber = ["  £10.00 + $10.00", "  £9.999", "  VAT", "  the same VAT", "  converting"]
+console_rose = ["  a 10p sticker", "  is it 0.30?", "  1000 items at 10p, added", "  turned into pence", "  £10 shared"]
+
+[[scene]]
+key = "01-poster"
+kind = "poster"
+title = "Money"
+narration = """
+Hello, and welcome. [[slnc 400]] This video explains the Money pattern, in Java. [[slnc 300]]
+This video is presented by Jayasekhar Konduru. [[slnc 600]]
+First, a simple definition. [[slnc 300]] The Money pattern keeps a price as a whole number of the smallest coin, such as pence, together with its currency. [[slnc 300]]
+Never as a number with a decimal point. [[slnc 300]] So every sum is exact, pounds are never added to dollars, and nothing is rounded unless you ask. [[slnc 600]]
+Think of the cash drawer in a shop. [[slnc 300]] It does not hold nineteen point nine nine of anything. [[slnc 300]] It holds coins: one thousand nine hundred and ninety-nine pence, all of them pounds. [[slnc 300]] You can count coins exactly, and share them out exactly. [[slnc 700]]
+In this video, the domain is an online shop. [[slnc 300]] It adds up baskets, charges VAT, gives discounts, and sells in pounds, dollars and yen. [[slnc 500]]
+By the end, you will hear why ten pence plus twenty pence is not thirty pence in a double. [[slnc 300]] How the Money class fixes it. [[slnc 300]] Why rounding is a decision. [[slnc 300]] And how to split ten pounds three ways without losing a penny.
+"""
+
+[[scene]]
+key = "02-scenario"
+kind = "bullets"
+title = "The Scenario"
+body = ["The shop adds baskets, charges VAT,", "splits discounts across lines,", "and sells in £, $ and ¥.", "", "Every price was a double.", "", "What could go wrong?"]
+narration = """
+Here is the scenario. [[slnc 400]] The online shop adds up baskets. [[slnc 300]] It charges VAT, which is a tax added to the price. [[slnc 300]] It spreads a basket discount across the lines. [[slnc 300]] And it sells in pounds, dollars and yen. [[slnc 600]]
+The first version kept every price in a double. [[slnc 300]] A double is Java's ordinary number type for values with a decimal point. [[slnc 500]]
+Every test passed. [[slnc 300]] So what could go wrong?
+"""
+
+[[scene]]
+key = "03-doubles"
+kind = "console"
+title = "Act One — Prices as Doubles"
+body = """ONE. Prices as doubles.
+  10p + 20p = 0.30000000000000004
+  is it 0.30? false
+  1000 items at 10p: 99.9999999999986
+  cut off to pence: 9999, not 10000
+  $10 + £10 = 20.0"""
+narration = """
+First demo: prices as doubles. [[slnc 400]] A ten pence sticker plus a twenty pence sticker. [[slnc 300]] The total prints as zero point three, followed by fifteen zeros and a four. [[slnc 300]] Is it equal to zero point three? [[slnc 300]] No. [[slnc 600]]
+Next, a thousand items at ten pence, added one by one. [[slnc 300]] The total is ninety-nine point nine nine nine, and some more nines. [[slnc 300]] Turn that into pence by cutting off the fraction, as a lot of code does, and you get nine thousand nine hundred and ninety-nine pence. [[slnc 300]] A penny short. [[slnc 600]]
+And ten dollars plus ten pounds is simply twenty. [[slnc 300]] Nobody asked which currency.
+"""
+
+[[scene]]
+key = "04-why"
+kind = "quote"
+title = "Why A Double Gets It Wrong"
+body = ["A double stores numbers in binary.", "", "One tenth has no exact binary form,", "just as one third has no exact", "decimal form: 0.3333...", "", "So 0.1 is stored as very nearly 0.1."]
+narration = """
+Why does this happen? [[slnc 400]] A double stores numbers in binary: ones and zeros. [[slnc 500]]
+Some fractions cannot be written exactly in binary. [[slnc 300]] One tenth is one of them. [[slnc 500]]
+You already know this problem from ordinary numbers. [[slnc 300]] One third, written as a decimal, is zero point three three three, going on forever. [[slnc 300]] You have to stop somewhere, so it is never quite exact. [[slnc 500]]
+In the same way, a double stores ten pence as very, very nearly ten pence. [[slnc 300]] Add enough of them, and the tiny errors add up to a missing penny.
+"""
+
+[[scene]]
+key = "05-pattern"
+kind = "bullets"
+title = "The Pattern"
+body = ["Store the smallest coin as a", "whole number: £19.99 is 1999.", "", "Keep the currency with it.", "", "Round only when told how."]
+narration = """
+Now, the pattern. [[slnc 400]] Store the amount as a whole number of the smallest coin. [[slnc 300]] Nineteen pounds ninety-nine becomes one thousand nine hundred and ninety-nine pence. [[slnc 300]] Whole numbers add and multiply exactly. [[slnc 600]]
+Keep the currency with the amount, in the same object. [[slnc 600]]
+And only round when someone says how. [[slnc 500]]
+That object is called Money.
+"""
+
+[[scene]]
+key = "06-money"
+kind = "console"
+title = "Act Two — Prices as Money"
+body = """TWO. Prices as Money.
+  10p + 20p = £0.30, equal: true
+  1000 items at 10p: £100.00
+    stored as 10000 pence
+  3 mugs at £9.49, a teapot at £24.99,
+  2 coasters at £4.99: £63.44"""
+narration = """
+Second demo: prices as Money. [[slnc 400]] Ten pence plus twenty pence is exactly thirty pence. [[slnc 300]] Equal to thirty pence? [[slnc 300]] Yes. [[slnc 600]]
+A thousand items at ten pence is exactly one hundred pounds, stored as ten thousand pence. [[slnc 600]]
+And a real basket. [[slnc 300]] Three mugs at nine pounds forty-nine. [[slnc 300]] A teapot at twenty-four ninety-nine. [[slnc 300]] Two coasters at four ninety-nine. [[slnc 300]] The total is sixty-three pounds forty-four, with no rounding anywhere.
+"""
+
+[[scene]]
+key = "07-currency"
+kind = "console"
+title = "Act Three — Currencies"
+body = """THREE. Currencies travel with the amount.
+  £10.00 + $10.00: refused,
+    cannot combine GBP with USD
+  a Japanese price: ¥1500
+  £9.999: refused, too many digits"""
+narration = """
+Third demo: currencies. [[slnc 400]] Every Money carries its currency. [[slnc 300]] So ten pounds plus ten dollars is refused, with a clear message: cannot combine pounds with dollars. [[slnc 600]]
+The currency also knows how many digits it has after the point. [[slnc 300]] Pounds have two. [[slnc 300]] Japanese yen have none. [[slnc 300]] So fifteen hundred yen prints as fifteen hundred, with no pennies. [[slnc 600]]
+And a price like nine pounds nine hundred and ninety-nine thousandths is refused at the door. [[slnc 300]] Instead of being quietly rounded somewhere later.
+"""
+
+[[scene]]
+key = "08-rounding"
+kind = "console"
+title = "Act Four — Rounding Is A Choice"
+body = """FOUR. Rounding is a choice, made once.
+  VAT at 20% on 10 items at 99p
+    rounded on each line: £2.00
+    rounded once on the total: £1.98
+  difference: £0.02"""
+narration = """
+Fourth demo: rounding. [[slnc 400]] Some sums really do fall between two pennies. [[slnc 300]] Twenty percent VAT on ninety-nine pence is nineteen point eight pence. [[slnc 500]]
+Money will not round that by itself. [[slnc 300]] The code must say how. [[slnc 600]]
+And where you round matters. [[slnc 300]] Ten items at ninety-nine pence. [[slnc 300]] Round the VAT on each line, and it comes to two pounds. [[slnc 300]] Round once, on the total, and it comes to one pound ninety-eight. [[slnc 600]]
+Neither is wrong. [[slnc 300]] But they differ by two pence. [[slnc 300]] A shop must choose one rule, and use it everywhere. [[slnc 300]] Money makes that choice visible.
+"""
+
+[[scene]]
+key = "09-split"
+kind = "console"
+title = "Act Five — Splitting"
+body = """FIVE. Splitting without losing a penny.
+  £10 ÷ 3: £3.33 x 3 = £9.99
+  allocate(1, 1, 1):
+    £3.34, £3.33, £3.33 = £10.00
+  a £5.00 discount over the cart:
+    £2.25, £1.97, £0.78 = £5.00"""
+narration = """
+Fifth demo: splitting. [[slnc 400]] Three friends share a ten pound bill. [[slnc 300]] Divide by three, and each pays three pounds thirty-three. [[slnc 300]] But three of those is nine pounds ninety-nine. [[slnc 300]] A penny has vanished. [[slnc 600]]
+Money has a method called allocate. [[slnc 300]] It rounds each share down, then hands out the leftover pennies one at a time. [[slnc 300]] So the shares are three thirty-four, three thirty-three and three thirty-three. [[slnc 300]] Exactly ten pounds. [[slnc 600]]
+The cart uses the same method to spread a five pound discount across its lines, by value. [[slnc 300]] Two twenty-five, one ninety-seven, and seventy-eight pence. [[slnc 300]] Exactly five pounds.
+"""
+
+[[scene]]
+key = "10-roles"
+kind = "bullets"
+title = "The Pieces"
+body = ["Money: whole pence + currency.", "Currency: £, $ or ¥, and its digits.", "Cart: lines priced in Money.", "NaiveCart: the doubles, kept to compare.", "", "Money never changes:", "every sum returns a new Money."]
+narration = """
+Let's name the pieces. [[slnc 400]] Money holds two things: a whole number of the smallest coin, and a currency. [[slnc 300]] Currency knows its symbol, and how many digits it has. [[slnc 300]] Cart holds lines, each priced in Money. [[slnc 300]] And the naive cart, with its doubles, is kept only so you can compare. [[slnc 600]]
+One more detail. [[slnc 300]] A Money never changes. [[slnc 300]] Adding two amounts gives you a new Money, and leaves both originals alone. [[slnc 300]] So a price can be shared safely, anywhere.
+"""
+
+[[scene]]
+key = "11-bill"
+kind = "console"
+title = "Act Six — The Bill"
+body = """SIX. The bill.
+  a price is now a class:
+    £19.99 is stored as 1999 and GBP
+  pounds to dollars needs a rate
+    and a date: not Money's job"""
+narration = """
+Finally, the bill. [[slnc 400]] A price is now a class, not a plain number. [[slnc 300]] So every database, message and screen has to convert it. [[slnc 300]] Nineteen ninety-nine is stored as one thousand nine hundred and ninety-nine, plus the letters G B P. [[slnc 600]]
+And Money does not convert currencies. [[slnc 300]] Turning pounds into dollars needs an exchange rate, and a date. [[slnc 300]] That is a separate job. [[slnc 500]]
+Both costs are small, compared with a shop whose totals are a penny out.
+"""
+
+[[scene]]
+key = "12-recognise"
+kind = "bullets"
+title = "How To Recognise It"
+body = ["A class named Money, Amount or Price", "with an amount and a currency.", "", "priceInPence, amountMinor, cents.", "", "BigDecimal with a RoundingMode,", "never a double, near a price."]
+narration = """
+How can you spot this pattern in code someone else wrote? [[slnc 400]] Look for a class named Money, Amount or Price, holding an amount and a currency. [[slnc 300]] Look for fields like price in pence, or amount in cents, stored as whole numbers. [[slnc 300]] Or Java's big decimal type with a rounding rule, and never a double, anywhere near a price. [[slnc 500]]
+Payment services like Stripe work the same way. [[slnc 300]] They take nineteen ninety-nine as one thousand nine hundred and ninety-nine, plus a currency.
+"""
+
+[[scene]]
+key = "13-verdict"
+kind = "bullets"
+title = "The Verdict"
+body = ["Use Money for every price, fee", "and balance.", "", "Store whole units + currency.", "Round once, by a named rule.", "Split with allocate.", "In production, use a library."]
+narration = """
+So, here is the verdict. [[slnc 400]] Use Money for every price, fee and balance. [[slnc 500]] Store whole units, plus a currency. [[slnc 300]] Round only at a decided point, with a named rule. [[slnc 300]] And split amounts with allocate, so no penny is ever lost. [[slnc 500]]
+In a real system, use a tested library, such as Moneta, from the Java Money standard. [[slnc 300]] But write your own once, like this, to understand it.
+"""
+
+[[scene]]
+key = "14-outro"
+kind = "outro"
+title = "Thanks for Watching"
+body = ["Full source, notes, diagrams and an animated walkthrough", "are in the repository. Add EUR and see", "which lines change."]
+narration = """
+That's the Money pattern. [[slnc 400]] If you remember one sentence, make it this one. [[slnc 300]] A price is a whole number of the smallest coin, plus its currency, and it only rounds when you decide. [[slnc 500]]
+The full source code, written notes, diagrams, and an animated walkthrough are all in the repository. [[slnc 300]] It runs offline, with nothing installed except a Java development kit. [[slnc 500]]
+Here is one exercise to try. [[slnc 300]] Add euros as a fourth currency. [[slnc 300]] And notice how few lines have to change. [[slnc 500]]
+If this helped, a like really does help other people find it. [[slnc 300]] And subscribe, if you'd like the rest of the series. [[slnc 400]] Thanks for watching.
+"""
