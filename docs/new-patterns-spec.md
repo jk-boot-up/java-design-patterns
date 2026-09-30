@@ -38,7 +38,7 @@ The same deliverables as the existing projects:
   no wall clock; timing is simulated, so every run is identical.
 - **`README.md`:** what it is, the analogy, the scenario, how to run and test,
   technologies and versions, the diagrams embedded, the costs, when it is too
-  much, where you have met it. Plus a generated, self-contained `README.html`.
+  much, where you have met it. Plus a generated `README.html` with inlined styles and linked (not embedded) images.
 - **`docs/`:** `problem-statement.md`, `prerequisites.md`, `session.md` (a
   one-hour session guide with exercises), `<name>-explained.md`,
   `architecture-diagram.md`, `class-diagram.md`, `data-flow-diagram.md`,
@@ -111,7 +111,7 @@ A single command builds a whole project:
 ## 7. Acceptance for each project
 
 1. `./gradlew test` passes, and `./gradlew run` prints the acts.
-2. Every file in section 3 exists; the HTML pages are self-contained; no Mermaid.
+2. Every file in section 3 exists; the HTML pages inline their styles and link their images (no base64 `data:` images); no Mermaid.
 3. The video and animation are rendered in the approved voice with no errors.
 4. The project appears in `index.md` and `index.html` and in its category README.
 5. Nothing rendered (mp4, m4a, srt, wav, audio clips, build folders) is committed.

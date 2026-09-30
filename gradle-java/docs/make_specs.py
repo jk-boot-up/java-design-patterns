@@ -25,7 +25,6 @@ Usage:
     python3 docs/make_specs.py --no-measure     # skip the ffmpeg loudness pass
 """
 
-import base64
 import html
 import os
 import re
@@ -8012,33 +8011,16 @@ def href(target):
     return (twin if ok else path) + ("#" + frag if frag else "")
 
 
-#: File types that may be embedded in a page, and the media type to announce.
-EMBEDDABLE = {".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg",
-              ".gif": "image/gif", ".svg": "image/svg+xml"}
-
-
 def embed(src):
-    """Turn an image path into a `data:` URI so the page stands on its own.
+    """Return an image reference for the page: always the relative link.
 
-    Every HTML page this repository generates has to be self-contained: one
-    file that can be mailed, copied to another machine or opened from a
-    download folder and still be the whole document. The stylesheet is already
-    inlined; an image referenced as `docs/images/thing.png` would be the one
-    thing left that breaks the moment the page is moved away from its siblings.
-
-    Base64 costs about a third in size on top of each PNG, which is the price
-    of the guarantee. Anything remote, or missing, or not an image is left as
-    written rather than guessed at.
+    Images are linked, never inlined as base64 `data:` URIs. Embedding made
+    every page carry its own copy of each diagram, so one regeneration of the
+    HTML twins pushed hundreds of megabytes of repeated PNGs to git. The page
+    still inlines its stylesheet and theme switcher; only images are linked,
+    to the files that sit beside the Markdown and are committed with it.
     """
-    if LINK_BASE is None or "://" in src or src.startswith("data:"):
-        return src
-    kind = EMBEDDABLE.get(os.path.splitext(src)[1].lower())
-    path = os.path.normpath(os.path.join(LINK_BASE, src))
-    if kind is None or not os.path.exists(path):
-        return src
-    with open(path, "rb") as f:
-        return "data:%s;base64,%s" % (
-            kind, base64.b64encode(f.read()).decode("ascii"))
+    return src
 
 
 def inline(s):

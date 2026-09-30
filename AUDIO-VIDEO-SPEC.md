@@ -103,8 +103,14 @@ The audience must be able to follow with **no screen at all**.
   own Step / Play / Reset buttons still drive the steps.
 - Narration audio is **never embedded** in the HTML: it sits beside the page in `docs/audio/`,
   so the committed pages stay small. Without the clips the page still works, silently.
-- Every other HTML file is **self-contained**: styles, scripts and images are embedded,
-  with nothing linked from outside the file.
+- Every Markdown file has an HTML twin beside it, with light, dim and dark themes. Styles
+  and scripts are inlined in the page, but **images are linked, never embedded**: an image
+  is an ordinary relative link to the committed PNG or SVG file (for example
+  `docs/images/class-diagram.png`), never a base64 `data:` URI. Embedding repeated every
+  diagram in every page that showed it and made one regeneration push over 600 MB.
+- **Never commit or push** video, audio, build output or any other rendered media; the
+  repository holds source, documentation and the small image files the pages link to.
+  Before a large push, check what is making it large.
 - Diagrams are SVG or PNG files in `docs/images/`. Mermaid is not used; the old Mermaid
   source blocks are removed by `gradle-java/docs/strip_mermaid.py`.
 
