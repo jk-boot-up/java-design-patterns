@@ -70,11 +70,11 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Data Transfer Object pattern, DTO, in Java, explained with an online store
-> customer web service. A DTO is a small object built only for crossing a
-> boundary, carrying just what the other side needs so your business objects
-> never leave, like sending a postcard instead of your whole diary. We
-> return the real domain object and watch a private field rename break a
-> client, then introduce a DTO. We price it honestly: the mapping code, DTOs
-> that multiply, and a mapping that decides what gets loaded. A DTO is a
-> promise to the outside world, and the mapping code is what you pay for it.
+> Data Transfer Object pattern, DTO, in Java: a DTO is a small object built
+> only for crossing a boundary, carrying just what the other side needs so
+> your business objects never leave, like sending a postcard instead of your
+> whole diary. Explained with an online store customer web service. We return
+> the real domain object and watch a private field rename break a client, then
+> introduce a DTO. We price it honestly: the mapping code, DTOs that multiply,
+> and a mapping that decides what gets loaded. A DTO is a promise to the
+> outside world, and the mapping code is what you pay for it.

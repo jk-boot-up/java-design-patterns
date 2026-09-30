@@ -69,12 +69,11 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Type Object pattern in Java, explained with an online store where books,
-> laptops and groceries differ in only a few numbers yet each has its own
-> class. A type object turns the kind of a thing into data: one class, with
-> each object pointing to a type that holds whatever differs, like shelf
-> labels that set the loan period for every book on a shelf. We replace the
+> Type Object pattern in Java: a type object turns the kind of a thing into
+> data: one class, with each object pointing to a type that holds whatever
+> differs, like shelf labels that set the loan period for every book on a
+> shelf. Explained with an online store where books, laptops and groceries
+> differ in only a few numbers yet each has its own class. We replace the
 > subclasses with one class and some data, add a new kind while the program
-> runs, change a rule in one place for every product, and let one type
-> inherit from another. The price is late errors, and behaviour that data
-> cannot hold.
+> runs, change a rule in one place for every product, and let one type inherit
+> from another. The price is late errors, and behaviour that data cannot hold.

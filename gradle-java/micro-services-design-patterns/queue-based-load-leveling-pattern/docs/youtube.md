@@ -17,7 +17,7 @@ Queue-Based Load Leveling
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
-Queue-Based Load Leveling pattern in Java, explained with an online store sale where a hundred orders arrive at once. A queue sits between the bursty source of work and the service that does it, so the service keeps its own steady pace and the burst waits its turn. We watch a burst refused when it goes straight to the worker, then spread by a queue with nothing lost. We price the waiting, compare a queue with no end to one with a limit, and size the worker for the average. The bill is that an in-memory queue forgets.
+Queue-Based Load Leveling pattern in Java: a queue sits between the bursty source of work and the service that does it, so the service keeps its own steady pace and the burst waits its turn. Explained with an online store sale where a hundred orders arrive at once. We watch a burst refused when it goes straight to the worker, then spread by a queue with nothing lost. We price the waiting, compare a queue with no end to one with a limit, and size the worker for the average. The bill is that an in-memory queue forgets.
 
 CHAPTERS
 00:00 Introduction

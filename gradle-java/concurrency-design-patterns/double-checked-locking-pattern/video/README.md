@@ -69,12 +69,11 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Double-Checked Locking pattern in Java, explained with an online store
-> price list that is expensive to build. The object is created only when
+> Double-Checked Locking pattern in Java: the object is created only when
 > first needed: check without a lock, and only if it looks missing, take the
-> lock and check again, like glancing at the office lights before walking
-> back to check properly. We watch two threads build it twice, try locking
-> every time, then check twice, hear why the field must be volatile, and
-> finish with the simplest correct way to do it. The pattern saves the lock
-> after the object exists, and costs a rule you can break without ever
-> seeing it fail.
+> lock and check again, like glancing at the office lights before walking back
+> to check properly. Explained with an online store price list that is
+> expensive to build. We watch two threads build it twice, try locking every
+> time, then check twice, hear why the field must be volatile, and finish with
+> the simplest correct way to do it. The pattern saves the lock after the
+> object exists, and costs a rule you can break without ever seeing it fail.

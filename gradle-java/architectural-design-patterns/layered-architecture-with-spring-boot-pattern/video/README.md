@@ -71,12 +71,13 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Layered Architecture pattern in Java, explained with Spring Boot, using
-> the same online store with controllers, services and repositories. We send
-> one real web request through four layers inside a real transaction, and
-> see failures turned into HTTP statuses in one place. Then we take a
-> shortcut from a controller straight to a repository: Spring runs it
-> without complaint, and it leaks data it should not. Spring gives every
-> class a name badge, but the badges do not stop anyone walking into the
-> store room. The container names the layers; only a test can say which
-> dependencies are forbidden.
+> Layered Architecture pattern in Java: the program is split into layers such
+> as web, service and data, and each layer may only call the one directly
+> beneath it. Explained with Spring Boot, using the same online store with
+> controllers, services and repositories. We send one real web request through
+> four layers inside a real transaction, and see failures turned into HTTP
+> statuses in one place. Then we take a shortcut from a controller straight to
+> a repository: Spring runs it without complaint, and it leaks data it should
+> not. Spring gives every class a name badge, but the badges do not stop
+> anyone walking into the store room. The container names the layers; only a
+> test can say which dependencies are forbidden.

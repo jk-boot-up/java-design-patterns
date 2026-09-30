@@ -69,12 +69,12 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Active Object pattern in Java, explained through an online shop's stock.
-> An active object has its own thread: every call becomes a message in its
-> mailbox and returns at once with a promise of the answer, and because only
-> one thread touches the data, no lock is needed, like waiters clipping
-> orders to a chef's rail. We compare it with a monitor where the caller
-> waits, build it from four familiar concurrency ideas, and then price it
-> honestly: a mailbox that can back up, errors that arrive later, and a
-> ceiling on what one worker can do. An active object trades a lock for a
-> queue, and that queue has to be watched.
+> Active Object pattern in Java: an active object has its own thread: every
+> call becomes a message in its mailbox and returns at once with a promise of
+> the answer, and because only one thread touches the data, no lock is needed,
+> like waiters clipping orders to a chef's rail. Explained through an online
+> shop's stock. We compare it with a monitor where the caller waits, build it
+> from four familiar concurrency ideas, and then price it honestly: a mailbox
+> that can back up, errors that arrive later, and a ceiling on what one worker
+> can do. An active object trades a lock for a queue, and that queue has to be
+> watched.

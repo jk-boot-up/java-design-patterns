@@ -71,11 +71,10 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Service Mesh pattern in Java, explained with Envoy, a real proxy. The
-> proxy in front of a service applies the retry, identity and counting
-> policy from its configuration, and the service carries none of that code.
-> With an online store's payment service, we watch three callers retry three
-> different ways, then let one real proxy retry for a caller that has no
-> retry code, change the policy in one file, refuse an unknown caller before
-> it reaches payments, and read the proxy's own counters. We finish with the
-> bill.
+> Service Mesh pattern in Java: the proxy in front of a service applies the
+> retry, identity and counting policy from its configuration, and the service
+> carries none of that code. Explained with Envoy, a real proxy. With an
+> online store's payment service, we watch three callers retry three different
+> ways, then let one real proxy retry for a caller that has no retry code,
+> change the policy in one file, refuse an unknown caller before it reaches
+> payments, and read the proxy's own counters. We finish with the bill.

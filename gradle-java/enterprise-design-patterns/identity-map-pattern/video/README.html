@@ -119,7 +119,7 @@ try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
 <h2>Publishing Notes</h2>
 <p>Upload <code>identity-map-pattern-explained.mp4</code>, with <code>../docs/thumbnail.png</code> as the thumbnail and the <code>.srt</code> as the captions. Title, description, chapters and tags live in <a href="../docs/youtube.html"><code>../docs/youtube.md</code></a>.</p>
 <p>Suggested description:</p>
-<blockquote><p>Identity Map pattern in Java, explained with an online store customer loaded twice in one session. An identity map keeps, for one session, one object for each ID, so asking for the same thing twice hands back the very same object, like a library desk that will not print you a second copy of a book you already have. We watch two copies of one customer silently lose a change, show why overriding equals does not fix it, and let the map fix it. Then the costs: the map is a cache, it holds everything it has seen, and its scope is a decision. One row should be one object, per session.</p></blockquote>
+<blockquote><p>Identity Map pattern in Java: an identity map keeps, for one session, one object for each ID, so asking for the same thing twice hands back the very same object, like a library desk that will not print you a second copy of a book you already have. Explained with an online store customer loaded twice in one session. We watch two copies of one customer silently lose a change, show why overriding equals does not fix it, and let the map fix it. Then the costs: the map is a cache, it holds everything it has seen, and its scope is a decision. One row should be one object, per session.</p></blockquote>
 </main>
 <footer>
 Generated from <code>README.md</code> by <code>docs/make_readme_html.py</code> &mdash;

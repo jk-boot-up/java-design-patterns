@@ -71,11 +71,11 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Hexagonal Architecture in Java, explained with Spring Boot, using the same
-> online store. The core stays a plain Java class that declares its ports,
-> and the adapters become Spring beans chosen by configuration, like
-> controllers plugged into the same games console. We run one core on two
-> storage adapters, through two different entry points, and with no
-> framework at all. Then we watch a use case reach for Spring, and a port
-> that has no adapter, and see what each costs. Spring wires the hexagon
-> together, but only a rule keeps the core free of Spring.
+> Hexagonal Architecture in Java: the core stays a plain Java class that
+> declares its ports, and the adapters become Spring beans chosen by
+> configuration, like controllers plugged into the same games console.
+> Explained with Spring Boot, using the same online store. We run one core on
+> two storage adapters, through two different entry points, and with no
+> framework at all. Then we watch a use case reach for Spring, and a port that
+> has no adapter, and see what each costs. Spring wires the hexagon together,
+> but only a rule keeps the core free of Spring.

@@ -119,7 +119,7 @@ try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
 <h2>Publishing Notes</h2>
 <p>Upload <code>identity-map-with-jpa-pattern-explained.mp4</code>, with <code>../docs/thumbnail.png</code> as the thumbnail and the <code>.srt</code> as the captions. Title, description, chapters and tags live in <a href="../docs/youtube.html"><code>../docs/youtube.md</code></a>.</p>
 <p>Suggested description:</p>
-<blockquote><p>Identity Map pattern in Java, explained with JPA, Java&#x27;s standard for storing objects in databases, using the same customer and order. JPA&#x27;s persistence context keeps one object per database row for as long as one session lasts, like a hotel key desk that always hands you the same room key. We load the same customer twice and get one object, keep both changes, then meet the failures of its own: two contexts give two objects, and a change made after the context has closed is never saved. The persistence context is an identity map, and it belongs to one entity manager.</p></blockquote>
+<blockquote><p>Identity Map pattern in Java: JPA&#x27;s persistence context keeps one object per database row for as long as one session lasts, like a hotel key desk that always hands you the same room key. Explained with JPA, Java&#x27;s standard for storing objects in databases, using the same customer and order. We load the same customer twice and get one object, keep both changes, then meet the failures of its own: two contexts give two objects, and a change made after the context has closed is never saved. The persistence context is an identity map, and it belongs to one entity manager.</p></blockquote>
 </main>
 <footer>
 Generated from <code>README.md</code> by <code>docs/make_readme_html.py</code> &mdash;

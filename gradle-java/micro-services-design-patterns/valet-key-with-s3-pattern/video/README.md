@@ -13,11 +13,11 @@ A narrated, slide-based video built by `./build_video.sh` with the shared videok
 
 Suggested description:
 
-> Valet Key pattern in Java with Amazon S3 presigned URLs, running on
-> LocalStack, using an online store's review photos. A valet key gives a
-> client permission to do one thing directly for a short time without ever
-> holding the real credentials, like a hotel valet key that starts the car
-> but not the boot. We move photos off the shop's server with a presigned
-> URL, show that a signed address allows that and nothing else, and watch
-> the key run out. We finish with the bill, and an honest note on what
-> LocalStack's free edition does not enforce.
+> Valet Key pattern in Java: a valet key gives a client permission to do one
+> thing directly for a short time without ever holding the real credentials,
+> like a hotel valet key that starts the car but not the boot. Explained with
+> Amazon S3 presigned URLs, running on LocalStack, using an online store's
+> review photos. We move photos off the shop's server with a presigned URL,
+> show that a signed address allows that and nothing else, and watch the key
+> run out. We finish with the bill, and an honest note on what LocalStack's
+> free edition does not enforce.

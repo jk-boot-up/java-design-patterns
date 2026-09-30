@@ -17,7 +17,7 @@ Pipe-and-Filter Architecture
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
-Pipe and Filter Architecture pattern in Java, explained with an online store where orders arrive faster than they can be processed. The work is split into stages that run at the same time, joined by waiting lines called pipes, like the soap, scrub and dry stations of a car wash. We find the slowest stage, show that it sets the pace for everything, widen only that stage, and put a limit on each waiting line. We finish with the cost: the lines between the stages, and the orders lost if a stage crashes.
+Pipe and Filter Architecture pattern in Java: the work is split into stages that run at the same time, joined by waiting lines called pipes, like the soap, scrub and dry stations of a car wash. Explained with an online store where orders arrive faster than they can be processed. We find the slowest stage, show that it sets the pace for everything, widen only that stage, and put a limit on each waiting line. We finish with the cost: the lines between the stages, and the orders lost if a stage crashes.
 
 CHAPTERS
 00:00 Introduction

@@ -17,7 +17,7 @@ Multiton
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
-Multiton pattern in Java, explained with an online store that has one warehouse per region, where every part of the shop must agree which warehouse is which. A multiton is a singleton with a key: exactly one instance per key, handed back every time, like a hotel key cabinet with one hook per room. We watch two copies of one warehouse disagree, then keep one per region so everyone agrees. We refuse unknown regions with a fixed set of keys, and hear a race between two threads. The price is global state that outlives every test.
+Multiton pattern in Java: a multiton is a singleton with a key: exactly one instance per key, handed back every time, like a hotel key cabinet with one hook per room. Explained with an online store that has one warehouse per region, where every part of the shop must agree which warehouse is which. We watch two copies of one warehouse disagree, then keep one per region so everyone agrees. We refuse unknown regions with a fixed set of keys, and hear a race between two threads. The price is global state that outlives every test.
 
 CHAPTERS
 00:00 Introduction

@@ -13,10 +13,10 @@ A narrated, slide-based video built by `./build_video.sh` with the shared videok
 
 Suggested description:
 
-> Page Object pattern in Java, explained with an online store checkout page
-> and the automated browser tests that check it. A page object is a class
-> for one page that knows how to find its boxes and buttons and how long it
-> takes to update, so the tests only say what a shopper does, like a hotel
-> concierge who knows the taxi firm's number. We watch tests full of
-> selectors break when one button is renamed, move them into a page object,
-> and return the next page from each action. We finish with the bill.
+> Page Object pattern in Java: a page object is a class for one page that
+> knows how to find its boxes and buttons and how long it takes to update, so
+> the tests only say what a shopper does, like a hotel concierge who knows the
+> taxi firm's number. Explained with an online store checkout page and the
+> automated browser tests that check it. We watch tests full of selectors
+> break when one button is renamed, move them into a page object, and return
+> the next page from each action. We finish with the bill.

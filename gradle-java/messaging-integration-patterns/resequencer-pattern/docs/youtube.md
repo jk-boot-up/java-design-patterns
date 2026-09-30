@@ -17,7 +17,7 @@ Resequencer
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
-Resequencer pattern in Java, explained with an online store order page that shows status updates: placed, paid, packed, shipped and delivered. When numbered messages arrive out of order, a resequencer holds the early ones, releases each sequence strictly in order, and has a limit so a lost message cannot block everything forever, like reading a letter sent in five muddled envelopes. We watch updates applied as they arrive go wrong, hold and release them in order, and keep one sequence per order. We finish with the bill.
+Resequencer pattern in Java: when numbered messages arrive out of order, a resequencer holds the early ones, releases each sequence strictly in order, and has a limit so a lost message cannot block everything forever, like reading a letter sent in five muddled envelopes. Explained with an online store order page that shows status updates: placed, paid, packed, shipped and delivered. We watch updates applied as they arrive go wrong, hold and release them in order, and keep one sequence per order. We finish with the bill.
 
 CHAPTERS
 00:00 Introduction

@@ -69,12 +69,12 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Cache-Aside pattern in Java, explained with an online store product page
-> that is asked for again and again. The application looks in a fast cache
-> first, and on a miss reads the real source itself and stores the answer
-> for next time, like a shop assistant who keeps popular leaflets on the
-> counter. We hear a thousand page views cost a thousand database reads,
-> then only ten. We handle a price change, limit staleness with an expiry,
-> and watch fifty requests stampede one missing entry. Cache-aside trades
+> Cache-Aside pattern in Java: the application looks in a fast cache first,
+> and on a miss reads the real source itself and stores the answer for next
+> time, like a shop assistant who keeps popular leaflets on the counter.
+> Explained with an online store product page that is asked for again and
+> again. We hear a thousand page views cost a thousand database reads, then
+> only ten. We handle a price change, limit staleness with an expiry, and
+> watch fifty requests stampede one missing entry. Cache-aside trades
 > exactness for speed, paid in out-of-date reads, stampedes, and a second
 > thing to keep correct.

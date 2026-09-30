@@ -69,11 +69,11 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Transaction Script pattern in Java, explained by placing an order in an
-> online store. Business logic is organised as one procedure per request,
-> run as one transaction, with no business objects behind it; the steps are
-> the design, like a recipe card read top to bottom. We place and undo an
-> order as one transaction, watch two scripts drift apart when they copy a
-> rule, share a procedure, and hear how scripts grow in the middle. We also
-> hear where a transaction script is exactly right. It is the simplest
-> design that works, and its cost is measured in how it grows.
+> Transaction Script pattern in Java: business logic is organised as one
+> procedure per request, run as one transaction, with no business objects
+> behind it; the steps are the design, like a recipe card read top to bottom.
+> Explained by placing an order in an online store. We place and undo an order
+> as one transaction, watch two scripts drift apart when they copy a rule,
+> share a procedure, and hear how scripts grow in the middle. We also hear
+> where a transaction script is exactly right. It is the simplest design that
+> works, and its cost is measured in how it grows.

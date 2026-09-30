@@ -71,10 +71,12 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Serverless pattern in Java, explained with AWS Lambda running on
-> LocalStack, using the same online store. We upload a real function once,
-> send five orders at the same time and watch five real containers start,
-> then watch them disappear when the platform goes quiet, like taxis pulling
-> in for a crowd and driving away afterwards. We hear a real cold start, a
-> function that forgets what it knew between calls, and a job stopped at its
-> time limit. We finish with the honest price of all three.
+> Serverless pattern in Java: your code runs as small functions that the cloud
+> platform starts on demand, scales for you, and throws away when idle.
+> Explained with AWS Lambda running on LocalStack, using the same online
+> store. We upload a real function once, send five orders at the same time and
+> watch five real containers start, then watch them disappear when the
+> platform goes quiet, like taxis pulling in for a crowd and driving away
+> afterwards. We hear a real cold start, a function that forgets what it knew
+> between calls, and a job stopped at its time limit. We finish with the
+> honest price of all three.

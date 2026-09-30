@@ -17,7 +17,7 @@ Secure Gateway (Gatekeeper) with NGINX
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
-Secure Gateway pattern in Java with NGINX as the gatekeeper, using an online store order service that holds the database password. The services with secrets never face the internet; NGINX does, holding no secrets and letting through only a few allowed kinds of request, like a bank teller with no vault key. We watch two tricks export every order, put an NGINX gatekeeper in front with a short configuration, allow-list its locations, and enforce size and shape limits. We finish with the bill: write the gate's rules as an allow-list.
+Secure Gateway pattern in Java: the services with secrets never face the internet; NGINX does, holding no secrets and letting through only a few allowed kinds of request, like a bank teller with no vault key. Explained with NGINX as the gatekeeper, using an online store order service that holds the database password. We watch two tricks export every order, put an NGINX gatekeeper in front with a short configuration, allow-list its locations, and enforce size and shape limits. We finish with the bill: write the gate's rules as an allow-list.
 
 CHAPTERS
 00:00 Introduction

@@ -70,12 +70,12 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Read-Write Lock pattern in Java, explained with an online store where many
-> shoppers read a product's price and a merchandiser sometimes changes it. A
-> read-write lock lets many readers in together but a writer only alone,
-> because reads never conflict with each other, like visitors viewing a
-> painting until the restorer closes the room. We hear a torn read with no
-> lock, a queue behind one plain lock, and then the two-lock version. Then
-> the costs: a waiting writer overtaken by readers, an upgrade from read to
-> write that deadlocks, and the surprise that the read-write lock can be
-> slower than a plain one when reads are cheap.
+> Read-Write Lock pattern in Java: a read-write lock lets many readers in
+> together but a writer only alone, because reads never conflict with each
+> other, like visitors viewing a painting until the restorer closes the room.
+> Explained with an online store where many shoppers read a product's price
+> and a merchandiser sometimes changes it. We hear a torn read with no lock, a
+> queue behind one plain lock, and then the two-lock version. Then the costs:
+> a waiting writer overtaken by readers, an upgrade from read to write that
+> deadlocks, and the surprise that the read-write lock can be slower than a
+> plain one when reads are cheap.

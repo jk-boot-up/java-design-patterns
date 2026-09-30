@@ -17,7 +17,7 @@ Proactor
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
-Proactor pattern in Java, explained with an online store warehouse that asks five suppliers for today's kettle price, each taking a fifth of a second to answer. You start slow operations without waiting, hand each a completion handler for success and failure, and the system does the waiting and calls you back, like buzzers at a food court. We watch asking one after another add up, start everything at once, handle results in completion handlers, and treat a failure as just another completion. We finish with the bill.
+Proactor pattern in Java: you start slow operations without waiting, hand each a completion handler for success and failure, and the system does the waiting and calls you back, like buzzers at a food court. Explained with an online store warehouse that asks five suppliers for today's kettle price, each taking a fifth of a second to answer. We watch asking one after another add up, start everything at once, handle results in completion handlers, and treat a failure as just another completion. We finish with the bill.
 
 CHAPTERS
 00:00 Introduction

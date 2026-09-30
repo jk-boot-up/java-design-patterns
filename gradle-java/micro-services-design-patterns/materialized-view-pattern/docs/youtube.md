@@ -17,7 +17,7 @@ Materialized View
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
-Materialized View pattern in Java, explained with an online store's my-orders page, which shows each order, the product name and whether it has shipped, from three separate services. A materialized view is a ready-made copy of data shaped for one page and kept up to date by listening to events, so reading it is one quick lookup, like a railway departures board. We watch the page ask three services on every visit, build a ready-made view, see it run a moment behind, and rebuild it from the events. We finish with the bill.
+Materialized View pattern in Java: a materialized view is a ready-made copy of data shaped for one page and kept up to date by listening to events, so reading it is one quick lookup, like a railway departures board. Explained with an online store's my-orders page, which shows each order, the product name and whether it has shipped, from three separate services. We watch the page ask three services on every visit, build a ready-made view, see it run a moment behind, and rebuild it from the events. We finish with the bill.
 
 CHAPTERS
 00:00 Introduction

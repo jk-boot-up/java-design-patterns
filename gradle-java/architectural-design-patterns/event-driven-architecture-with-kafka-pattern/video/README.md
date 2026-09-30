@@ -71,11 +71,11 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Event-Driven Architecture pattern in Java, explained with Apache Kafka,
-> using a real Kafka broker behind the same online store. Services stop
-> calling each other and write events to a topic instead, and the broker
-> remembers how far each reader has got, like a library that keeps a
-> bookmark for every reader. We lose an order the old way, send events to
-> Kafka, watch a service catch up after an outage, add a new reader that
-> replays history, and then price it honestly: a broker to run, and readers
-> that may see the same event twice.
+> Event-Driven Architecture pattern in Java: services stop calling each other
+> and write events to a topic instead, and the broker remembers how far each
+> reader has got, like a library that keeps a bookmark for every reader.
+> Explained with Apache Kafka, using a real Kafka broker behind the same
+> online store. We lose an order the old way, send events to Kafka, watch a
+> service catch up after an outage, add a new reader that replays history, and
+> then price it honestly: a broker to run, and readers that may see the same
+> event twice.

@@ -70,11 +70,11 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Object Pool pattern in Java, explained with an online store's connections
-> to a payment gateway. A pool keeps a few objects that are expensive to
-> create, lends them out and takes them back, so creation is paid for once,
-> like a city bike rental scheme. It is one of the most over-used ideas in
-> Java, so we show it working and then four ways it goes wrong, with
-> measurements: pooling a small object is slower, a dirty return, a leak,
-> and sizing that is only a guess. You will learn the one kind of object
-> worth pooling: pool what is expensive outside Java, and nothing else.
+> Object Pool pattern in Java: a pool keeps a few objects that are expensive
+> to create, lends them out and takes them back, so creation is paid for once,
+> like a city bike rental scheme. Explained with an online store's connections
+> to a payment gateway. It is one of the most over-used ideas in Java, so we
+> show it working and then four ways it goes wrong, with measurements: pooling
+> a small object is slower, a dirty return, a leak, and sizing that is only a
+> guess. You will learn the one kind of object worth pooling: pool what is
+> expensive outside Java, and nothing else.

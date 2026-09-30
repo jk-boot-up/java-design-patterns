@@ -71,10 +71,10 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Proxy pattern in Java, explained with Spring Boot, using an online store
-> product image. In Spring, a proxy is generated at run time around a bean,
-> and an aspect says what it does on each call, so the bean you receive is
-> not your class. We rebuild the hand-written protection and lazy-loading
-> proxies from Spring, then reuse one aspect across three screens. Then we
-> hear the two ways a call slips past the generated proxy: a call on this
-> from inside the class, and a final method.
+> Proxy pattern in Java: in Spring, a proxy is generated at run time around a
+> bean, and an aspect says what it does on each call, so the bean you receive
+> is not your class. Explained with Spring Boot, using an online store product
+> image. We rebuild the hand-written protection and lazy-loading proxies from
+> Spring, then reuse one aspect across three screens. Then we hear the two
+> ways a call slips past the generated proxy: a call on this from inside the
+> class, and a final method.

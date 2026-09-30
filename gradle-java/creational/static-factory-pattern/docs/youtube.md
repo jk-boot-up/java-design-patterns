@@ -17,7 +17,7 @@ Static Factory Methods in Java - Named Constructors
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
-Static Factory Method in Java 21 — Item 1 of Effective Java, and the creational technique you have already used every time you wrote List.of. We start from a constructor that will not compile, because ten percent off and ten pounds off are both a single number, and end with a discount type that names its own ways in, shares instances where it can, and hides every implementation class from its callers. We also cover, honestly, what it cannot do: a static method is resolved at compile time, so it cannot be overridden or configured — which is exactly why the other factory patterns exist. No prior design-pattern knowledge needed. Full source code and written notes are in the repository.
+Static Factory Method in Java 21: instead of a public constructor, a class offers named static methods that create its instances, and may hand back shared ones. It is item one of Effective Java, and the creational technique you have already used every time you wrote List.of. We start from a constructor that will not compile, because ten percent off and ten pounds off are both a single number, and end with a discount type that names its own ways in, shares instances where it can, and hides every implementation class from its callers. We also cover, honestly, what it cannot do: a static method is resolved at compile time, so it cannot be overridden or configured — which is exactly why the other factory patterns exist. No prior design-pattern knowledge needed. Full source code and written notes are in the repository.
 
 CHAPTERS
 00:00 Introduction

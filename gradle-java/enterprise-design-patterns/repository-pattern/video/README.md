@@ -70,12 +70,11 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Repository pattern in Java, explained with an online store that needs to
-> find customers in London who ordered in the last month. A repository is an
-> interface that looks like an in-memory collection of your objects, so
-> callers ask for objects and never learn where they are kept, like a
-> library desk that fetches a book by title. We watch the same SQL in three
-> places break on a schema change, hide it behind a repository, and swap the
-> store without touching the callers. Then the costs: a method per question,
-> the leak, and a swap that is rarely used. Every question still needs
-> somewhere to live.
+> Repository pattern in Java: a repository is an interface that looks like an
+> in-memory collection of your objects, so callers ask for objects and never
+> learn where they are kept, like a library desk that fetches a book by title.
+> Explained with an online store that needs to find customers in London who
+> ordered in the last month. We watch the same SQL in three places break on a
+> schema change, hide it behind a repository, and swap the store without
+> touching the callers. Then the costs: a method per question, the leak, and a
+> swap that is rarely used. Every question still needs somewhere to live.

@@ -141,12 +141,12 @@ unreadable at 360p — and set the custom thumbnail under **Details** →
 
 Suggested description:
 
-> Layered Architecture pattern in Java, explained by building a real online
-> shop with four layers, where each layer may only depend on the one
-> directly beneath it, like a customer who talks to the waiter and never
-> walks into the store room. Drawing four boxes costs nothing, so we watch a
-> developer add one import that skips a layer and see that nothing
-> complains. Then we write the rule as a test, watch it catch the shortcut,
-> make a real change and count what it touched, and say plainly what
-> layering does not fix. A layered architecture is not four folders; it is
-> the test that fails when someone skips one.
+> Layered Architecture pattern in Java: the program is split into layers, and
+> each layer may only depend on the one directly beneath it, like a customer
+> who talks to the waiter and never walks into the store room. Explained by
+> building a real online shop with four layers. Drawing four boxes costs
+> nothing, so we watch a developer add one import that skips a layer and see
+> that nothing complains. Then we write the rule as a test, watch it catch the
+> shortcut, make a real change and count what it touched, and say plainly what
+> layering does not fix. A layered architecture is not four folders; it is the
+> test that fails when someone skips one.

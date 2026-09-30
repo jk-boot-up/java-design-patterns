@@ -13,11 +13,11 @@ A narrated, slide-based video built by `./build_video.sh` with the shared videok
 
 Suggested description:
 
-> Recipient List pattern in Java with Apache Camel, whose recipient list
-> step is built in, using an online store sending orders to its warehouses.
-> For each message the list works out who should get it and sends a copy to
-> each of them and to nobody else, like a clerk writing the names on a
-> letter before the post room copies it. We watch every order go to every
-> warehouse, send each order only where it is needed, let rules add
+> Recipient List pattern in Java: for each message the list works out who
+> should get it and sends a copy to each of them and to nobody else, like a
+> clerk writing the names on a letter before the post room copies it.
+> Explained with Apache Camel, whose recipient list step is built in, using an
+> online store sending orders to its warehouses. We watch every order go to
+> every warehouse, send each order only where it is needed, let rules add
 > recipients, change the table while running, and see what happens when one
 > recipient fails.

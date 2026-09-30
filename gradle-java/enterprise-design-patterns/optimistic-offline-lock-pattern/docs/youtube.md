@@ -17,7 +17,7 @@ Optimistic Offline Lock
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
-Optimistic Offline Lock pattern in Java, explained with an online store where two clerks edit the same product at the same time. People edit freely without locking anything, and a clash is only detected on save by checking the data has not changed since it was read, like a shared document checking for other edits when you reconnect. We watch the last write silently win, then add a version number to every row, and reload, reapply and save so both changes are kept. The costs: a busy row, and finding out only at the end. It costs nothing until there is a clash.
+Optimistic Offline Lock pattern in Java: people edit freely without locking anything, and a clash is only detected on save by checking the data has not changed since it was read, like a shared document checking for other edits when you reconnect. Explained with an online store where two clerks edit the same product at the same time. We watch the last write silently win, then add a version number to every row, and reload, reapply and save so both changes are kept. The costs: a busy row, and finding out only at the end. It costs nothing until there is a clash.
 
 CHAPTERS
 00:00 Introduction

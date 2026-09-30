@@ -69,11 +69,13 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Repository pattern in Java, explained with Spring Data. Where the plain
-> version built two implementations by hand, this one has none: we declare
-> an interface and Spring Data supplies the class behind it, like ordering
-> from a catalogue by item name. We hear a query built from a method's name,
-> a name that can be wrong, the leak on speed, and a surprising leak of
-> managed entities: objects that change the database without anyone calling
-> save. We also ask what happened to swapping the store. The interface hides
-> the database, but the objects it returns are still being watched by it.
+> Repository pattern in Java: a repository is an interface that looks like a
+> collection of objects and hides the database behind it. Explained with
+> Spring Data. Where the plain version built two implementations by hand, this
+> one has none: we declare an interface and Spring Data supplies the class
+> behind it, like ordering from a catalogue by item name. We hear a query
+> built from a method's name, a name that can be wrong, the leak on speed, and
+> a surprising leak of managed entities: objects that change the database
+> without anyone calling save. We also ask what happened to swapping the
+> store. The interface hides the database, but the objects it returns are
+> still being watched by it.

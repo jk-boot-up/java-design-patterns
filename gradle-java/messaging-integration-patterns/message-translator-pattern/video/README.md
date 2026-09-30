@@ -13,12 +13,12 @@ A narrated, slide-based video built by `./build_video.sh` with the shared videok
 
 Suggested description:
 
-> Message Translator and Normalizer patterns in Java, explained with an
-> online store warehouse that takes orders from its own web form and from
-> marketplaces that each send their own format. A translator turns one
+> Message Translator and Normalizer patterns in Java: a translator turns one
 > format into the format your system uses, and a normalizer recognises each
 > incoming format and picks the right translator, like one interpreter per
-> language at an international meeting. We watch the warehouse try to read
-> every format itself, add translators and a normalizer, and welcome a new
-> marketplace with one more translator. Translate at the edge, so the inside
-> speaks one language.
+> language at an international meeting. Explained with an online store
+> warehouse that takes orders from its own web form and from marketplaces that
+> each send their own format. We watch the warehouse try to read every format
+> itself, add translators and a normalizer, and welcome a new marketplace with
+> one more translator. Translate at the edge, so the inside speaks one
+> language.

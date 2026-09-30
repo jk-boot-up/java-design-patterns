@@ -17,7 +17,7 @@ Railway-Oriented Programming with Vavr
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
-Railway-Oriented Programming in Java with Vavr, an open-source functional library that provides the two tracks, using an online store checkout. Each step runs on the success track and a failure switches to the other track so every later step is skipped. We wrap a throwing library, chain the steps with Vavr's Either, skip on failure and catch exceptions with Try, recover with map and orElse, and use Validation to report every problem in a form at once. Keep failures on their own track, and when checking a form, collect them all.
+Railway-Oriented Programming in Java: each step runs on the success track and a failure switches to the other track so every later step is skipped. Explained with Vavr, an open-source functional library that provides the two tracks, using an online store checkout. We wrap a throwing library, chain the steps with Vavr's Either, skip on failure and catch exceptions with Try, recover with map and orElse, and use Validation to report every problem in a form at once. Keep failures on their own track, and when checking a form, collect them all.
 
 CHAPTERS
 00:00 Introduction

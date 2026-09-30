@@ -71,12 +71,12 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Singleton pattern in Java, explained with Spring Boot, using an online
-> store's order number generator. In Spring, singleton is a scope: the
-> container keeps one instance and hands it to everyone who asks, like a
-> shared office printer. We share the generator between three callers and
-> then hear how the guarantee weakens: nothing stops a plain new, a second
-> container makes a second instance, a scope change quietly ends the
-> sharing, and a counter that is not thread-safe loses numbers. We also
-> answer when the bean is built. A Spring singleton is one per container,
-> and only as safe as the data inside it.
+> Singleton pattern in Java: in Spring, singleton is a scope: the container
+> keeps one instance and hands it to everyone who asks, like a shared office
+> printer. Explained with Spring Boot, using an online store's order number
+> generator. We share the generator between three callers and then hear how
+> the guarantee weakens: nothing stops a plain new, a second container makes a
+> second instance, a scope change quietly ends the sharing, and a counter that
+> is not thread-safe loses numbers. We also answer when the bean is built. A
+> Spring singleton is one per container, and only as safe as the data inside
+> it.

@@ -17,7 +17,7 @@ Strangler Fig in Java - Replacing Legacy Safely
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
-Strangler Fig pattern in Java, explained by replacing an online store's checkout. You grow the new system around the old one piece at a time, behind a router that can send each piece to either, the way a strangler fig grows around a tree. We see why the big-bang rewrite fails on a Monday, then use a router with a switch per capability and shadow reads to move one piece at a time on evidence, and roll one capability back. The bill is two systems and two truths, and the outcome nobody warns you about: the migration that stalls half finished.
+Strangler Fig pattern in Java: you grow the new system around the old one piece at a time, behind a router that can send each piece to either, the way a strangler fig grows around a tree. Explained by replacing an online store's checkout. We see why the big-bang rewrite fails on a Monday, then use a router with a switch per capability and shadow reads to move one piece at a time on evidence, and roll one capability back. The bill is two systems and two truths, and the outcome nobody warns you about: the migration that stalls half finished.
 
 CHAPTERS
 00:00 Introduction

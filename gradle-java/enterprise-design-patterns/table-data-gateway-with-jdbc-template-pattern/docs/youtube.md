@@ -17,7 +17,7 @@ Table Data Gateway with Spring JdbcTemplate
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
-Table Data Gateway pattern in Java, explained with Spring's JdbcTemplate, using an online store's product table. One class holds all the SQL for one table and everyone else asks it, while JdbcTemplate takes care of the database plumbing, like a library desk that fetches and returns books the same careful way every time. We watch hand-written JDBC leak connections, rebuild the gateway on JdbcTemplate, turn errors into exceptions that mean something, and update stock in one statement. We finish with the bill.
+Table Data Gateway pattern in Java: one class holds all the SQL for one table and everyone else asks it, while JdbcTemplate takes care of the database plumbing, like a library desk that fetches and returns books the same careful way every time. Explained with Spring's JdbcTemplate, using an online store's product table. We watch hand-written JDBC leak connections, rebuild the gateway on JdbcTemplate, turn errors into exceptions that mean something, and update stock in one statement. We finish with the bill.
 
 CHAPTERS
 00:00 Introduction

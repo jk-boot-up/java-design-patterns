@@ -17,7 +17,7 @@ Memento Pattern in Java - Restoring a Saved Cart
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
-Memento pattern in Java, explained by adding an undo button to an online shop's basket. A memento is a sealed copy of an object's state: the object takes the copy itself and hands it to someone else to keep, like a save point in a video game. We show how one misplaced equals sign makes undo empty the whole basket, how to let a caretaker keep your state without ever seeing inside it, and how two interfaces do that with no framework at all. We finish with tests on the structure and the one honest cost of the pattern.
+Memento pattern in Java: a memento is a sealed copy of an object's state: the object takes the copy itself and hands it to someone else to keep, like a save point in a video game. Explained by adding an undo button to an online shop's basket. We show how one misplaced equals sign makes undo empty the whole basket, how to let a caretaker keep your state without ever seeing inside it, and how two interfaces do that with no framework at all. We finish with tests on the structure and the one honest cost of the pattern.
 
 CHAPTERS
 00:00 Introduction

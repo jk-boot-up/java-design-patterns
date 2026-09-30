@@ -13,11 +13,11 @@ A narrated, slide-based video built by `./build_video.sh` with the shared videok
 
 Suggested description:
 
-> Request-Reply pattern with a Correlation Identifier in Java, explained
-> with an online store checkout that reserves stock by sending requests over
-> a queue to an inventory service that works on several at once. Each
-> request gets a unique ID and says where the reply should go, and each
-> reply quotes that ID, so replies can return in any order and still be
-> matched, like numbered cloakroom tickets. We watch replies matched by
-> arrival order go wrong, add correlation IDs and return addresses, and keep
-> many requests in flight at once. We finish with the bill.
+> Request-Reply pattern with a Correlation Identifier in Java: each request
+> gets a unique ID and says where the reply should go, and each reply quotes
+> that ID, so replies can return in any order and still be matched, like
+> numbered cloakroom tickets. Explained with an online store checkout that
+> reserves stock by sending requests over a queue to an inventory service that
+> works on several at once. We watch replies matched by arrival order go
+> wrong, add correlation IDs and return addresses, and keep many requests in
+> flight at once. We finish with the bill.

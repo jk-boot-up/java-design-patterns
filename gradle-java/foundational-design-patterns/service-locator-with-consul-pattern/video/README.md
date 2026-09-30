@@ -69,12 +69,11 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Service Locator pattern in Java, explained with Consul, a real service
-> registry. A locator is still right when what is available is only known
-> while the program runs, and finding services across a network is exactly
-> that, like a taxi dispatcher who knows which cars are free right now. We
-> hear Consul answer as services come and go without the caller's code
-> changing, then the old costs return, a new one appears in a stale cache,
-> and we hear the alternative: be given an address and never ask. Finding
-> services is a fair use of a locator, but being given an address is better
-> still.
+> Service Locator pattern in Java: a locator is still right when what is
+> available is only known while the program runs, and finding services across
+> a network is exactly that, like a taxi dispatcher who knows which cars are
+> free right now. Explained with Consul, a real service registry. We hear
+> Consul answer as services come and go without the caller's code changing,
+> then the old costs return, a new one appears in a stale cache, and we hear
+> the alternative: be given an address and never ask. Finding services is a
+> fair use of a locator, but being given an address is better still.

@@ -17,7 +17,7 @@ Active Object with Spring - One Thread, One Mailbox
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
-Active Object pattern in Java, explained with Spring Boot, using the same shop stock. We build it from a Spring bean and a one-thread executor: each call drops a message into a mailbox and returns at once, and one worker owns the data, so there is no lock, like a post box emptied by a single postal worker. Then we hear the two ways the guarantee breaks, a call that skips the proxy and a read that skips the mailbox, along with errors that arrive later and the ceiling of one worker. The guarantee only holds for calls that go through the queue.
+Active Object pattern in Java: each method call becomes a message in a queue, and one private thread works through the queue, so callers never wait and the data needs no lock. Explained with Spring Boot, using the same shop stock. We build it from a Spring bean and a one-thread executor: each call drops a message into a mailbox and returns at once, and one worker owns the data, so there is no lock, like a post box emptied by a single postal worker. Then we hear the two ways the guarantee breaks, a call that skips the proxy and a read that skips the mailbox, along with errors that arrive later and the ceiling of one worker. The guarantee only holds for calls that go through the queue.
 
 CHAPTERS
 00:00 Introduction

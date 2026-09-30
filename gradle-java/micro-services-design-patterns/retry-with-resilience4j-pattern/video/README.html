@@ -119,7 +119,7 @@ try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
 <h2>Publishing Notes</h2>
 <p>Upload <code>retry-with-resilience4j-pattern-explained.mp4</code>, with <code>../docs/thumbnail.png</code> as the thumbnail and the <code>.srt</code> as the captions. Title, description, chapters and tags live in <a href="../docs/youtube.html"><code>../docs/youtube.md</code></a>.</p>
 <p>Suggested description:</p>
-<blockquote><p>Retry with Backoff pattern in Java, explained with Resilience4j, using an online store&#x27;s flaky payment gateway. A retry is safe only when the failure is temporary and doing the operation twice cannot do it twice. In Resilience4j the retry is an annotation on a method, and the attempts and waits are configuration. We retry a flaky call, add a growing wait between attempts, and give up cleanly. Then the three ways it goes wrong: retrying what should not be retried, a retry that charges the customer twice, and retries that multiply across layers.</p></blockquote>
+<blockquote><p>Retry with Backoff pattern in Java: a retry is safe only when the failure is temporary and doing the operation twice cannot do it twice. Explained with Resilience4j, using an online store&#x27;s flaky payment gateway. In Resilience4j the retry is an annotation on a method, and the attempts and waits are configuration. We retry a flaky call, add a growing wait between attempts, and give up cleanly. Then the three ways it goes wrong: retrying what should not be retried, a retry that charges the customer twice, and retries that multiply across layers.</p></blockquote>
 </main>
 <footer>
 Generated from <code>README.md</code> by <code>docs/make_readme_html.py</code> &mdash;

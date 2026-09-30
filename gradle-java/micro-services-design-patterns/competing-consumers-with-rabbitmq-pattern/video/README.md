@@ -104,12 +104,11 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Competing Consumers pattern in Java, explained with a real RabbitMQ
-> broker. Several workers read one shared queue, each job goes to exactly
-> one of them, and adding a worker adds capacity without anyone else
-> changing. In our online store every order becomes a pick order, and
-> several warehouse pickers share the queue while the broker decides who
-> gets which. We watch one picker handed the whole queue while another
-> stands idle, fix it with prefetch, see a picker die holding five orders
-> and hand back three, and lose three orders for good by never saying done.
-> Two settings decide it all.
+> Competing Consumers pattern in Java: several workers read one shared queue,
+> each job goes to exactly one of them, and adding a worker adds capacity
+> without anyone else changing. Explained with a real RabbitMQ broker. In our
+> online store every order becomes a pick order, and several warehouse pickers
+> share the queue while the broker decides who gets which. We watch one picker
+> handed the whole queue while another stands idle, fix it with prefetch, see
+> a picker die holding five orders and hand back three, and lose three orders
+> for good by never saying done. Two settings decide it all.

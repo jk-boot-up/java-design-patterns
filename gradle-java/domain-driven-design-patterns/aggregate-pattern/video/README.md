@@ -69,12 +69,12 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Aggregate pattern from domain-driven design in Java, explained with an
-> online store order and its lines. An aggregate is a small group of objects
-> treated as one unit, with a single root object as the only way in, so the
-> group's rules cannot be broken from outside, like a bank teller who guards
-> the vault. We watch an order break all its own rules when anyone can reach
+> Aggregate pattern from domain-driven design in Java: an aggregate is a small
+> group of objects treated as one unit, with a single root object as the only
+> way in, so the group's rules cannot be broken from outside, like a bank
+> teller who guards the vault. Explained with an online store order and its
+> lines. We watch an order break all its own rules when anyone can reach
 > inside, then let one root guard them. We hear why an aggregate refers to
-> others only by ID, how it is saved whole or not at all, and what goes
-> wrong when one is drawn too big. An aggregate is where a rule lives, and
-> where a save begins and ends.
+> others only by ID, how it is saved whole or not at all, and what goes wrong
+> when one is drawn too big. An aggregate is where a rule lives, and where a
+> save begins and ends.

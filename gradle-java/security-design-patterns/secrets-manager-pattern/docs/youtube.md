@@ -17,7 +17,7 @@ Secrets Manager
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
-Secrets Manager pattern in Java, explained with an online store's key for its card-payment company. Passwords and keys are kept out of the code in one guarded store, each service gets only the secrets it is allowed, every read is logged, and a secret can be replaced without rebuilding anything, like a hotel key cabinet with a signing-out book. We watch a key hard-coded in the source, move it into a manager, rotate it without a rebuild, and respond to a leak. We finish with the bill.
+Secrets Manager pattern in Java: passwords and keys are kept out of the code in one guarded store, each service gets only the secrets it is allowed, every read is logged, and a secret can be replaced without rebuilding anything, like a hotel key cabinet with a signing-out book. Explained with an online store's key for its card-payment company. We watch a key hard-coded in the source, move it into a manager, rotate it without a rebuild, and respond to a leak. We finish with the bill.
 
 CHAPTERS
 00:00 Introduction

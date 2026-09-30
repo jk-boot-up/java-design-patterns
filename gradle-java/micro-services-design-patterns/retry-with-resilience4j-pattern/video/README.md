@@ -71,11 +71,11 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Retry with Backoff pattern in Java, explained with Resilience4j, using an
-> online store's flaky payment gateway. A retry is safe only when the
-> failure is temporary and doing the operation twice cannot do it twice. In
-> Resilience4j the retry is an annotation on a method, and the attempts and
-> waits are configuration. We retry a flaky call, add a growing wait between
-> attempts, and give up cleanly. Then the three ways it goes wrong: retrying
-> what should not be retried, a retry that charges the customer twice, and
-> retries that multiply across layers.
+> Retry with Backoff pattern in Java: a retry is safe only when the failure is
+> temporary and doing the operation twice cannot do it twice. Explained with
+> Resilience4j, using an online store's flaky payment gateway. In Resilience4j
+> the retry is an annotation on a method, and the attempts and waits are
+> configuration. We retry a flaky call, add a growing wait between attempts,
+> and give up cleanly. Then the three ways it goes wrong: retrying what should
+> not be retried, a retry that charges the customer twice, and retries that
+> multiply across layers.

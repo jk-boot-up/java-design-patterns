@@ -17,7 +17,7 @@ Interpreter with SpEL - Expressions You Did Not Write
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
-Interpreter pattern in Java, explained with the Spring Expression Language, SpEL, a ready-made interpreter that turns a rule written as text into a tree and checks it against an object, like a calculator you never had to build. We keep the same online shop promotion rules and let the library run them. Then we look at the costs: a language bigger than you wanted that can reach into the program, two kinds of typo that surface at different times, missing values, and parsing once instead of every time. Choosing the evaluation context is your safety decision.
+Interpreter pattern in Java: a rule is written as text, turned into a tree of small objects, and evaluated against your data. Explained with the Spring Expression Language, SpEL, a ready-made interpreter that turns a rule written as text into a tree and checks it against an object, like a calculator you never had to build. We keep the same online shop promotion rules and let the library run them. Then we look at the costs: a language bigger than you wanted that can reach into the program, two kinds of typo that surface at different times, missing values, and parsing once instead of every time. Choosing the evaluation context is your safety decision.
 
 CHAPTERS
 00:00 Introduction

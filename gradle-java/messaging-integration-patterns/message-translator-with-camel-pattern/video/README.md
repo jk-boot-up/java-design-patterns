@@ -13,11 +13,11 @@ A narrated, slide-based video built by `./build_video.sh` with the shared videok
 
 Suggested description:
 
-> Message Translator pattern in Java with Apache Camel, using an online
-> store warehouse that takes orders from its web form and from marketplaces.
-> A translator turns a message from one format into another, so the receiver
-> only ever sees the one shape it understands, like an international post
-> room that routes each letter to the right translator. We watch Camel
-> refuse a foreign format sent straight to the warehouse, give each format
-> its own translator route, add a normalizer that picks the route, and
-> support a new format with a new route. We finish with the bill.
+> Message Translator pattern in Java: a translator turns a message from one
+> format into another, so the receiver only ever sees the one shape it
+> understands, like an international post room that routes each letter to the
+> right translator. Explained with Apache Camel, using an online store
+> warehouse that takes orders from its web form and from marketplaces. We
+> watch Camel refuse a foreign format sent straight to the warehouse, give
+> each format its own translator route, add a normalizer that picks the route,
+> and support a new format with a new route. We finish with the bill.

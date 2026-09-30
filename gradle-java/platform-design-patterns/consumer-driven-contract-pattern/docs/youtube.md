@@ -17,7 +17,7 @@ Consumer-Driven Contract
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
-Consumer-Driven Contract pattern in Java, explained with an online store where the catalog team renamed a field in the price service and checkout broke in production. Each consumer writes down exactly what it needs from a service, and the provider checks every release against those contracts before it goes out. We watch the rename break checkout, let consumers write down what they read, let the provider check itself and pass, catch the rename before release with the consumer's name attached, and confirm that adding a field is safe. The bill is that a contract checks shape, not meaning.
+Consumer-Driven Contract pattern in Java: each consumer writes down exactly what it needs from a service, and the provider checks every release against those contracts before it goes out. Explained with an online store where the catalog team renamed a field in the price service and checkout broke in production. We watch the rename break checkout, let consumers write down what they read, let the provider check itself and pass, catch the rename before release with the consumer's name attached, and confirm that adding a field is safe. The bill is that a contract checks shape, not meaning.
 
 CHAPTERS
 00:00 Introduction

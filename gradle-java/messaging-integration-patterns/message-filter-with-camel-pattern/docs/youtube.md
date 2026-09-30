@@ -17,7 +17,7 @@ Message Filter with Apache Camel
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
-Message Filter pattern in Java with Apache Camel, whose filter step is built in, using an online store checkout that announces every order to its services. A filter in front of each receiver lets through only the messages it wants and drops the rest, like a company post room applying each department's rule. We watch every service get every order, put a Camel filter in front, combine two conditions, and change a rule while everything is running. We finish with the bill and a discard channel, because a good filter keeps what it rejects.
+Message Filter pattern in Java: a filter in front of each receiver lets through only the messages it wants and drops the rest, like a company post room applying each department's rule. Explained with Apache Camel, whose filter step is built in, using an online store checkout that announces every order to its services. We watch every service get every order, put a Camel filter in front, combine two conditions, and change a rule while everything is running. We finish with the bill and a discard channel, because a good filter keeps what it rejects.
 
 CHAPTERS
 00:00 Introduction

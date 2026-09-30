@@ -13,11 +13,11 @@ A narrated, slide-based video built by `./build_video.sh` with the shared videok
 
 Suggested description:
 
-> Contract Stub pattern in Java with WireMock, a stub server that answers
-> real web requests, using an online store checkout calling another team's
-> payment service. The stub is built from a written contract, and the real
-> service is checked against the same contract, so the two cannot drift
-> apart, like a fire drill run from a floor plan the builders must keep
-> current. We watch a stub drift, build the WireMock stub from the contract,
+> Contract Stub pattern in Java: the stub is built from a written contract,
+> and the real service is checked against the same contract, so the two cannot
+> drift apart, like a fire drill run from a floor plan the builders must keep
+> current. Explained with WireMock, a stub server that answers real web
+> requests, using an online store checkout calling another team's payment
+> service. We watch a stub drift, build the WireMock stub from the contract,
 > verify the provider against it, and make the stub strict about what it
 > accepts. We finish with the bill.

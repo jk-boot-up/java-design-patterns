@@ -13,11 +13,10 @@ A narrated, slide-based video built by `./build_video.sh` with the shared videok
 
 Suggested description:
 
-> Table Data Gateway pattern in Java, explained with an online store
-> products table holding a code, a name, a price and the stock. A table data
-> gateway is one class per table that holds all of that table's SQL, and the
-> rest of the program asks it plain questions, like bank customers who ask
-> at the counter and never enter the vault. We watch SQL spread through
-> every caller break on a rename, move it into one gateway, fix the rename
-> in one place, and decide where the SQL should live. We finish with the
-> bill.
+> Table Data Gateway pattern in Java: a table data gateway is one class per
+> table that holds all of that table's SQL, and the rest of the program asks
+> it plain questions, like bank customers who ask at the counter and never
+> enter the vault. Explained with an online store products table holding a
+> code, a name, a price and the stock. We watch SQL spread through every
+> caller break on a rename, move it into one gateway, fix the rename in one
+> place, and decide where the SQL should live. We finish with the bill.

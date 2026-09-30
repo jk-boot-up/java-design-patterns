@@ -13,11 +13,11 @@ A narrated, slide-based video built by `./build_video.sh` with the shared videok
 
 Suggested description:
 
-> Backpressure pattern in Java with Project Reactor, where every stream
+> Backpressure pattern in Java: a slow consumer tells a fast producer how much
+> it can take, so work does not pile up in between, like a chef calling for
+> exactly two more tickets. Explained with Project Reactor, where every stream
 > carries demand from consumer to producer, using an online store search
-> indexer reading a supplier's product feed. A slow consumer tells a fast
-> producer how much it can take, so work does not pile up in between, like a
-> chef calling for exactly two more tickets. We watch what Reactor does with
-> a source that ignores demand, produce only what is asked, use limitRate,
-> and keep only the latest item. We finish with the bill: decide on purpose
-> what happens when a source cannot wait.
+> indexer reading a supplier's product feed. We watch what Reactor does with a
+> source that ignores demand, produce only what is asked, use limitRate, and
+> keep only the latest item. We finish with the bill: decide on purpose what
+> happens when a source cannot wait.

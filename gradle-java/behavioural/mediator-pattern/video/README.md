@@ -223,12 +223,11 @@ Two further things that affect how well it plays for viewers:
 
 Suggested description:
 
-> Mediator pattern in Java, explained by building the checkout page of an
-> online shop, where choosing a delivery country changes the couriers, the
-> gift wrapping, the total, and whether the order may be placed at all.
-> Instead of wiring every control to every other one, each control talks to
-> one mediator that holds the rules, like planes that only talk to the
-> control tower. We look closely at one click, show why five controls can
-> need nine connections, move the whole page's rules into one method, and
-> test the structure, not just the behaviour. We finish with the one fair
-> criticism of the pattern.
+> Mediator pattern in Java: instead of wiring every control to every other
+> one, each control talks to one mediator that holds the rules, like planes
+> that only talk to the control tower. Explained by building the checkout page
+> of an online shop, where choosing a delivery country changes the couriers,
+> the gift wrapping, the total, and whether the order may be placed at all. We
+> look closely at one click, show why five controls can need nine connections,
+> move the whole page's rules into one method, and test the structure, not
+> just the behaviour. We finish with the one fair criticism of the pattern.

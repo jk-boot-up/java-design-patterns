@@ -17,7 +17,7 @@ Authorization Policy with Spring Security
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
-Authorization Policy pattern in Java with Spring Security, using an online store with customers, support staff and an admin. A policy decides by rules what each signed-in person may do and refuses anything no rule allows, like a hotel key card where a new door opens for nobody until someone programs it. We watch signed-in-is-enough go wrong, see roles fall short, put rules beside each endpoint, and deny by default. We finish with the bill, including how Spring's error page can count a refusal twice.
+Authorization Policy pattern in Java: a policy decides by rules what each signed-in person may do and refuses anything no rule allows, like a hotel key card where a new door opens for nobody until someone programs it. Explained with Spring Security, using an online store with customers, support staff and an admin. We watch signed-in-is-enough go wrong, see roles fall short, put rules beside each endpoint, and deny by default. We finish with the bill, including how Spring's error page can count a refusal twice.
 
 CHAPTERS
 00:00 Introduction

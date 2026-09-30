@@ -13,11 +13,11 @@ A narrated, slide-based video built by `./build_video.sh` with the shared videok
 
 Suggested description:
 
-> Blackboard pattern in Java, explained with an online store fraud check
-> that looks at where the card is from, where the shopper is, how many
-> orders they placed recently, and more. Independent experts share one board
-> of facts, each adds what it knows as soon as it can, and a controller
-> decides who goes next and stops once the answer is clear, like detectives
-> adding clues to an incident-room board. We watch one method run every
-> check every time, move to a blackboard, stop early, and add a new expert
-> without touching the rest. We finish with the bill.
+> Blackboard pattern in Java: independent experts share one board of facts,
+> each adds what it knows as soon as it can, and a controller decides who goes
+> next and stops once the answer is clear, like detectives adding clues to an
+> incident-room board. Explained with an online store fraud check that looks
+> at where the card is from, where the shopper is, how many orders they placed
+> recently, and more. We watch one method run every check every time, move to
+> a blackboard, stop early, and add a new expert without touching the rest. We
+> finish with the bill.

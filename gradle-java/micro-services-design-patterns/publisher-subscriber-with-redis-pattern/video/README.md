@@ -95,12 +95,11 @@ Title, description, chapters and tags live in `../docs/youtube.md`.
 
 Suggested description:
 
-> Publisher-Subscriber pattern in Java, explained with a real Redis server.
-> One part of a system announces something once to a named channel, any
-> number of others listen there, and the announcer never learns who they
-> are. In our online store the order service announces each order once, and
+> Publisher-Subscriber pattern in Java: one part of a system announces
+> something once to a named channel, any number of others listen there, and
+> the announcer never learns who they are. Explained with a real Redis server.
+> In our online store the order service announces each order once, and
 > inventory, email, analytics and loyalty points each do their own work. We
 > hear Redis copy an order to a program in a different process, tell the
-> publisher how many heard it, keep nothing for a listener that arrives
-> late, and cut off a listener that falls too far behind, and we explain
-> why.
+> publisher how many heard it, keep nothing for a listener that arrives late,
+> and cut off a listener that falls too far behind, and we explain why.

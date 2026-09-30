@@ -254,18 +254,20 @@ Two further things that affect how well it plays for viewers:
 
 Suggested description:
 
-> Event sourcing in Java 21, explained through a loyalty scheme, a row with
-> a hundred and forty in it, and a customer ringing up to ask why. The
-> version that keeps the total is shown fairly: four facts arrive, one is
-> used, and the order id and the date are dropped on the floor. Three weeks
-> later a bug doubles an order — and because a doubled forty-five and an
-> honest hundred write the same number, the bug destroys the evidence of
-> itself. The insight is that the balance was never something the shop was
-> told; it was arithmetic over facts that were then thrown away. So we store
-> past- tense facts in an append-only log with no stored balance anywhere,
-> and the balance becomes a five-line fold and a dated walk a support agent
-> can read down the phone. Then the second half, which is the reason this is
-> the most over-applied pattern in the course: reading gets expensive, the
-> snapshot that fixes it can be quietly wrong with nothing thrown and
-> nothing logged, a right to be forgotten meets a log with no delete, and
-> event sourcing turns out not to be CQRS.
+> Event sourcing in Java 21: instead of storing only the current value, you
+> store every change as a past-tense fact, and work out the current value by
+> replaying them. Explained through a loyalty scheme, a row with a hundred and
+> forty in it, and a customer ringing up to ask why. The version that keeps
+> the total is shown fairly: four facts arrive, one is used, and the order id
+> and the date are dropped on the floor. Three weeks later a bug doubles an
+> order — and because a doubled forty-five and an honest hundred write the
+> same number, the bug destroys the evidence of itself. The insight is that
+> the balance was never something the shop was told; it was arithmetic over
+> facts that were then thrown away. So we store past- tense facts in an
+> append-only log with no stored balance anywhere, and the balance becomes a
+> five-line fold and a dated walk a support agent can read down the phone.
+> Then the second half, which is the reason this is the most over-applied
+> pattern in the course: reading gets expensive, the snapshot that fixes it
+> can be quietly wrong with nothing thrown and nothing logged, a right to be
+> forgotten meets a log with no delete, and event sourcing turns out not to be
+> CQRS.

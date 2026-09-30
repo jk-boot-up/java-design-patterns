@@ -17,7 +17,7 @@ Event Sourcing with EventStoreDB - Real Revisions
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
-Event Sourcing pattern in Java, explained with a real event database, EventStoreDB, recently renamed KurrentDB. Instead of overwriting what it knows, the program writes down each thing that happened, in order, and adds the list up when it needs the current state. Our online store's loyalty scheme keeps every award, spend and expiry rather than one points balance. We watch two checkouts spend the same points at the same moment and the database refuse the second through an expected revision number, see a retry the database recognises, and a screen that catches up by reading the history. We finish with the bill, including what deleting a customer's stream really removes.
+Event Sourcing pattern in Java: instead of overwriting what it knows, the program writes down each thing that happened, in order, and adds the list up when it needs the current state. Explained with a real event database, EventStoreDB, recently renamed KurrentDB. Our online store's loyalty scheme keeps every award, spend and expiry rather than one points balance. We watch two checkouts spend the same points at the same moment and the database refuse the second through an expected revision number, see a retry the database recognises, and a screen that catches up by reading the history. We finish with the bill, including what deleting a customer's stream really removes.
 
 CHAPTERS
 00:00 Introduction

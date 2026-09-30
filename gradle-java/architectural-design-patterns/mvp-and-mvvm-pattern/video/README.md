@@ -69,12 +69,11 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> MVP and MVVM patterns in Java, explained with an online store cart screen
-> that shows a total, an item count and a checkout button, and currently
-> decides all three itself. In Model View Presenter, a presenter tells a
-> passive screen exactly what to show, like a director calling every move
-> from the wings. In Model View ViewModel, the screen binds to some state
-> and updates itself whenever it changes, like actors reacting to a
-> scoreboard. We untangle the screen both ways, show many views sharing one
-> view model, and compare the costs: a longer interface on one side, and
-> hidden wiring on the other.
+> MVP and MVVM patterns in Java: in Model View Presenter, a presenter tells a
+> passive screen exactly what to show, like a director calling every move from
+> the wings. Explained with an online store cart screen that shows a total, an
+> item count and a checkout button, and currently decides all three itself. In
+> Model View ViewModel, the screen binds to some state and updates itself
+> whenever it changes, like actors reacting to a scoreboard. We untangle the
+> screen both ways, show many views sharing one view model, and compare the
+> costs: a longer interface on one side, and hidden wiring on the other.

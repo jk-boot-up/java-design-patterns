@@ -17,7 +17,7 @@ Write-Through Cache with Redis and PostgreSQL
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
-Write-Through Cache pattern in Java with a real Redis cache and a real PostgreSQL database, using an online store's prices. Every write goes to the database and then to the cache before it is finished, so the cache never shows something the database does not have, like updating the back-office price list and then the shelf tag. We watch a write round the cache go stale, write through instead, serve reads from Redis, and handle the moment when one of the two refuses a write. We finish with the bill: put a limit on how long they can disagree.
+Write-Through Cache pattern in Java: every write goes to the database and then to the cache before it is finished, so the cache never shows something the database does not have, like updating the back-office price list and then the shelf tag. Explained with a real Redis cache and a real PostgreSQL database, using an online store's prices. We watch a write round the cache go stale, write through instead, serve reads from Redis, and handle the moment when one of the two refuses a write. We finish with the bill: put a limit on how long they can disagree.
 
 CHAPTERS
 00:00 Introduction

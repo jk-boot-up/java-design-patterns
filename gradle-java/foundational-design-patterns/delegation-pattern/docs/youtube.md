@@ -17,7 +17,7 @@ Delegation
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
-Delegation pattern in Java, explained with an online store order that can be priced in several ways. Instead of doing the job itself, an object hands it to a helper object it holds, and that helper can be swapped, like a manager who passes the diary to an assistant. We watch a subclass multiply for every way of pricing, then let the order hand its pricing on, change the helper while the order lives, combine two helpers, and give the helper a view of the order. The price is an extra call, and forwarding code you must write.
+Delegation pattern in Java: instead of doing the job itself, an object hands it to a helper object it holds, and that helper can be swapped, like a manager who passes the diary to an assistant. Explained with an online store order that can be priced in several ways. We watch a subclass multiply for every way of pricing, then let the order hand its pricing on, change the helper while the order lives, combine two helpers, and give the helper a view of the order. The price is an extra call, and forwarding code you must write.
 
 CHAPTERS
 00:00 Introduction

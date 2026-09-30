@@ -225,10 +225,11 @@ Two further things that affect how well it plays for viewers:
 
 Suggested description:
 
-> Factory Method pattern in Java 21, explained by building an online store's
-> delivery tiers. We start with the problem — a shipping method with an
-> if/else chain buried in the middle of it — and end with an abstract
-> creator whose subclasses answer one question each, and no `switch`
-> anywhere. We also cover, honestly, when the pattern is more machinery than
-> the job needs. No prior design-pattern knowledge needed. Full source code
-> and written notes are in the repository.
+> Factory Method pattern in Java 21: a class leaves the choice of which object
+> to create to its subclasses, through one method they override. Explained by
+> building an online store's delivery tiers. We start with the problem — a
+> shipping method with an if/else chain buried in the middle of it — and end
+> with an abstract creator whose subclasses answer one question each, and no
+> `switch` anywhere. We also cover, honestly, when the pattern is more
+> machinery than the job needs. No prior design-pattern knowledge needed. Full
+> source code and written notes are in the repository.

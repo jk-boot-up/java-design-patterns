@@ -119,7 +119,7 @@ try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
 <h2>Publishing Notes</h2>
 <p>Upload <code>rate-limiter-pattern-explained.mp4</code>, with <code>../docs/thumbnail.png</code> as the thumbnail and the <code>.srt</code> as the captions. Title, description, chapters and tags live in <a href="../docs/youtube.html"><code>../docs/youtube.md</code></a>.</p>
 <p>Suggested description:</p>
-<blockquote><p>Rate Limiter pattern in Java, explained with an online store product search that can serve a hundred requests but receives a thousand. A rate limiter refuses requests beyond an agreed rate, saying no early so the shared service does not fail late. We watch no limit at all, then a token bucket that allows a burst and then a steady rate, give each caller a bucket of their own to protect a polite caller from a greedy one, and make a refusal say exactly when to come back. We finish with the bill.</p></blockquote>
+<blockquote><p>Rate Limiter pattern in Java: a rate limiter refuses requests beyond an agreed rate, saying no early so the shared service does not fail late. Explained with an online store product search that can serve a hundred requests but receives a thousand. We watch no limit at all, then a token bucket that allows a burst and then a steady rate, give each caller a bucket of their own to protect a polite caller from a greedy one, and make a refusal say exactly when to come back. We finish with the bill.</p></blockquote>
 </main>
 <footer>
 Generated from <code>README.md</code> by <code>docs/make_readme_html.py</code> &mdash;

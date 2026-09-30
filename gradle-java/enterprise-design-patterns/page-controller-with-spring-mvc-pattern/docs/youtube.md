@@ -17,7 +17,7 @@ Page Controller with Spring MVC
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
-Page Controller pattern in Java, explained with Spring MVC, the web framework most Java applications use, and an online store's product, basket, reviews and checkout pages. Each page gets its own controller that reads its input, does its work and handles its errors, like department counters in one store sharing the front doors. We watch one handler for every page break, let Spring find a controller for each page, have Spring check the input, and add a new page. We finish with the bill and where checks every page needs should live: in one interceptor.
+Page Controller pattern in Java: each page gets its own controller that reads its input, does its work and handles its errors, like department counters in one store sharing the front doors. Explained with Spring MVC, the web framework most Java applications use, and an online store's product, basket, reviews and checkout pages. We watch one handler for every page break, let Spring find a controller for each page, have Spring check the input, and add a new page. We finish with the bill and where checks every page needs should live: in one interceptor.
 
 CHAPTERS
 00:00 Introduction

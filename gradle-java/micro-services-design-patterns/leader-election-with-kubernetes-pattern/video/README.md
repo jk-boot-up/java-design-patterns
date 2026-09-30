@@ -115,12 +115,11 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Leader Election pattern in Java, explained with a real Kubernetes cluster.
-> Several copies of a program agree that exactly one does a particular job
-> by holding a lease, a claim that runs out unless it is renewed, while the
-> others wait to take over. In our online store three copies of the
-> reporting service run, and every night exactly one must send the sales
-> report: not three, and not none. We watch Kubernetes refuse a write, a
-> leader that dies leave nobody in charge for a whole lease, and a leader
-> that freezes wake up and send the report after losing the lease, which is
-> why fencing matters.
+> Leader Election pattern in Java: several copies of a program agree that
+> exactly one does a particular job by holding a lease, a claim that runs out
+> unless it is renewed, while the others wait to take over. Explained with a
+> real Kubernetes cluster. In our online store three copies of the reporting
+> service run, and every night exactly one must send the sales report: not
+> three, and not none. We watch Kubernetes refuse a write, a leader that dies
+> leave nobody in charge for a whole lease, and a leader that freezes wake up
+> and send the report after losing the lease, which is why fencing matters.

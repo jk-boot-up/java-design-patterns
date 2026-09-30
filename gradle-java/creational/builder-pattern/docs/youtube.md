@@ -17,7 +17,7 @@ Builder Pattern in Java - Building a Purchase Order
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
-Builder pattern in Java 21 — a Gang of Four pattern *and* item two of Effective Java, explained from two angles. We start from a nine-parameter constructor that no one can read at the call site, watch the telescoping-constructor workaround make it worse, and rebuild the same purchase order as a chain of named calls that only gets checked for completeness when build() is called. We cover the Director role, honestly compared to how idiomatic Java actually writes it, and show builder composing with the static factory method rather than competing with it. No prior design-pattern knowledge needed. Full source code and written notes are in the repository.
+Builder pattern in Java 21: a builder assembles a complex object step by step through named calls, and checks it is complete only when you finally ask it to build. It is both a Gang of Four pattern and item two of Effective Java, explained from two angles. We start from a nine-parameter constructor that no one can read at the call site, watch the telescoping-constructor workaround make it worse, and rebuild the same purchase order as a chain of named calls that only gets checked for completeness when build() is called. We cover the Director role, honestly compared to how idiomatic Java actually writes it, and show builder composing with the static factory method rather than competing with it. No prior design-pattern knowledge needed. Full source code and written notes are in the repository.
 
 CHAPTERS
 00:00 Introduction

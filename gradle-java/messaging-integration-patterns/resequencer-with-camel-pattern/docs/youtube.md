@@ -17,7 +17,7 @@ Resequencer with Apache Camel
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
-Resequencer pattern in Java with Apache Camel, whose resequencer is built in, using an online store order-tracking page and its status updates. A resequencer puts out-of-order messages back in order using the number each one carries, like a sorting office that either passes pages on as soon as the next arrives or waits for the whole bundle. We watch updates applied as they arrive, then compare Camel's stream mode and batch mode and what each makes the customer see, handle two orders at once, and decide how long to wait for a missing message. We finish with the bill.
+Resequencer pattern in Java: a resequencer puts out-of-order messages back in order using the number each one carries, like a sorting office that either passes pages on as soon as the next arrives or waits for the whole bundle. Explained with Apache Camel, whose resequencer is built in, using an online store order-tracking page and its status updates. We watch updates applied as they arrive, then compare Camel's stream mode and batch mode and what each makes the customer see, handle two orders at once, and decide how long to wait for a missing message. We finish with the bill.
 
 CHAPTERS
 00:00 Introduction

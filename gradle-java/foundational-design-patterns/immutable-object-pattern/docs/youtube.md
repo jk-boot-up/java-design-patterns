@@ -17,7 +17,7 @@ Immutable Object
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
-Immutable Object pattern in Java, explained with an online store that passes addresses and price lists everywhere, where orders keep a shipping address and checkout reads the prices. An immutable object can never change after it is made; to change something you make a new object, and everyone holding the old one still sees it exactly as it was, like a printed till receipt rather than a café whiteboard. We watch a shared address change under an order, a price list change while being read, and an object get lost in a set, then fix all three with immutable objects. We finish with the bill.
+Immutable Object pattern in Java: an immutable object can never change after it is made; to change something you make a new object, and everyone holding the old one still sees it exactly as it was, like a printed till receipt rather than a café whiteboard. Explained with an online store that passes addresses and price lists everywhere, where orders keep a shipping address and checkout reads the prices. We watch a shared address change under an order, a price list change while being read, and an object get lost in a set, then fix all three with immutable objects. We finish with the bill.
 
 CHAPTERS
 00:00 Introduction

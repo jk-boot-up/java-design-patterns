@@ -69,12 +69,12 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Data Mapper pattern in Java, explained with an online store customer,
-> asking who should know how a customer is saved. A data mapper is a
-> separate class that moves data between an object and its database rows, so
-> the object never knows it is stored, like movers who know how to pack
-> furniture that cannot pack itself. We show when Active Record is fine and
-> what it costs, meet a shape it cannot express, and move the storage into a
-> mapper. Then the bill: a class per entity, and a hand-written mapping that
-> loses a field without any error. A mapper frees your objects from the
-> database, at the price of an extra class you must test.
+> Data Mapper pattern in Java: a data mapper is a separate class that moves
+> data between an object and its database rows, so the object never knows it
+> is stored, like movers who know how to pack furniture that cannot pack
+> itself. Explained with an online store customer, asking who should know how
+> a customer is saved. We show when Active Record is fine and what it costs,
+> meet a shape it cannot express, and move the storage into a mapper. Then the
+> bill: a class per entity, and a hand-written mapping that loses a field
+> without any error. A mapper frees your objects from the database, at the
+> price of an extra class you must test.

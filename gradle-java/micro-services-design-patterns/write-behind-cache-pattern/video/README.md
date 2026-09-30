@@ -13,11 +13,11 @@ A narrated, slide-based video built by `./build_video.sh` with the shared videok
 
 Suggested description:
 
-> Write-Behind Cache pattern in Java, explained with an online store where
-> customers change their shopping carts all the time. A write-behind cache
-> keeps each change in fast memory and answers straight away, then saves the
-> changes to the database a few seconds later in one batch, so a record that
-> changed ten times is saved once, like a document that autosaves every few
-> minutes. We compare writing every change, write behind, keep working while
-> the database is down, and lose changes in a crash before the flush. Answer
-> now, save in a moment, and only for what you can afford to lose.
+> Write-Behind Cache pattern in Java: a write-behind cache keeps each change
+> in fast memory and answers straight away, then saves the changes to the
+> database a few seconds later in one batch, so a record that changed ten
+> times is saved once, like a document that autosaves every few minutes.
+> Explained with an online store where customers change their shopping carts
+> all the time. We compare writing every change, write behind, keep working
+> while the database is down, and lose changes in a crash before the flush.
+> Answer now, save in a moment, and only for what you can afford to lose.

@@ -13,11 +13,11 @@ A narrated, slide-based video built by `./build_video.sh` with the shared videok
 
 Suggested description:
 
-> Polling Consumer pattern in Java with a real RabbitMQ broker, using an
-> online store warehouse label printer. A polling consumer asks for the next
-> message when it is ready instead of having messages pushed at it as fast
-> as they arrive, and RabbitMQ offers push, pull, and a middle way, like a
-> kitchen that asks for the next ticket or keeps a few on the rail. We watch
-> unlimited push overwhelm the printer, protect it by polling, learn that
-> pausing is not polling, and see what polling costs when nothing is
+> Polling Consumer pattern in Java: a polling consumer asks for the next
+> message when it is ready instead of having messages pushed at it as fast as
+> they arrive, and RabbitMQ offers push, pull, and a middle way, like a
+> kitchen that asks for the next ticket or keeps a few on the rail. Explained
+> with a real RabbitMQ broker, using an online store warehouse label printer.
+> We watch unlimited push overwhelm the printer, protect it by polling, learn
+> that pausing is not polling, and see what polling costs when nothing is
 > happening. We finish with RabbitMQ's middle way: prefetch.

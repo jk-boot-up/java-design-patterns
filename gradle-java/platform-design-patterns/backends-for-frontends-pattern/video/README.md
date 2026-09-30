@@ -280,19 +280,21 @@ Two further things that affect how well it plays for viewers:
 
 Suggested description:
 
-> Backends for Frontends pattern in Java 21, starting from one online shop,
-> one coffee maker, and two screens that disagree about what a product is —
-> six fields on a phone, fifteen on a desktop. We watch the phone make five
-> calls before a pixel is drawn, replace them with one shared endpoint that
-> throws away eighty-seven per cent of what it sends, and then fix that
-> completely with a query parameter — because if this pattern were about
-> payload size, the story would end there. It does not: the next thing the
-> phone team asks for is one line of delivery text they could write in an
-> afternoon and wait five weeks to ship. That queue is what the pattern
-> removes. Then the bill, which is most of the second half: a discount rule
-> copied into one backend so the same product advertises a saving on the
-> phone and none on the desktop, with nothing thrown and every test passing;
-> where the shared jobs go and how to tell this pattern from an API gateway;
-> and why six clients need three backends rather than six. No prior design-
-> pattern knowledge needed, and no Docker, HTTP or framework — it all runs
-> in one JVM. Full source code and written notes are in the repository.
+> Backends for Frontends pattern in Java 21: each kind of client, such as the
+> phone app or the desktop website, gets its own small back end shaped to
+> exactly what its screens need. We start from one online shop, one coffee
+> maker, and two screens that disagree about what a product is — six fields on
+> a phone, fifteen on a desktop. We watch the phone make five calls before a
+> pixel is drawn, replace them with one shared endpoint that throws away
+> eighty-seven per cent of what it sends, and then fix that completely with a
+> query parameter — because if this pattern were about payload size, the story
+> would end there. It does not: the next thing the phone team asks for is one
+> line of delivery text they could write in an afternoon and wait five weeks
+> to ship. That queue is what the pattern removes. Then the bill, which is
+> most of the second half: a discount rule copied into one backend so the same
+> product advertises a saving on the phone and none on the desktop, with
+> nothing thrown and every test passing; where the shared jobs go and how to
+> tell this pattern from an API gateway; and why six clients need three
+> backends rather than six. No prior design-pattern knowledge needed, and no
+> Docker, HTTP or framework — it all runs in one JVM. Full source code and
+> written notes are in the repository.

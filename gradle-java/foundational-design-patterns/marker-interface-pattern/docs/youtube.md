@@ -17,7 +17,7 @@ Marker Interface
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
-Marker Interface pattern in Java, explained with an online store that ships milk and yoghurt with ice packs, mugs in bubble wrap, and kettles with nothing special. A marker interface has no methods at all; its name is the whole message, so a class that implements Perishable is saying it must travel cold, and the compiler can check it, like a printed keep-cold sticker the chilled van insists on. We watch free-text tags get misspelt, replace them with a marker interface, let the compiler do the checking, and see the mark passed on to subclasses. We finish with the bill.
+Marker Interface pattern in Java: a marker interface has no methods at all; its name is the whole message, so a class that implements Perishable is saying it must travel cold, and the compiler can check it, like a printed keep-cold sticker the chilled van insists on. Explained with an online store that ships milk and yoghurt with ice packs, mugs in bubble wrap, and kettles with nothing special. We watch free-text tags get misspelt, replace them with a marker interface, let the compiler do the checking, and see the mark passed on to subclasses. We finish with the bill.
 
 CHAPTERS
 00:00 Introduction

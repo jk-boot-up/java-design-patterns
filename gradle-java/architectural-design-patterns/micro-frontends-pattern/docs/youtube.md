@@ -17,7 +17,7 @@ Micro-Frontends
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
-Micro-Frontends pattern in Java, explained with an online store product page built by three teams: the product, a basket summary, and recommendations. The page is split into parts, each owned, built and released by one team, and assembled with a fallback when a part fails, like newspaper desks that each write their own pages. We watch one front end for everything fail as a whole, let each team serve its part, keep a failure inside its slot, and release parts independently. We finish with the bill. One part failing never takes down the rest.
+Micro-Frontends pattern in Java: the page is split into parts, each owned, built and released by one team, and assembled with a fallback when a part fails, like newspaper desks that each write their own pages. Explained with an online store product page built by three teams: the product, a basket summary, and recommendations. We watch one front end for everything fail as a whole, let each team serve its part, keep a failure inside its slot, and release parts independently. We finish with the bill. One part failing never takes down the rest.
 
 CHAPTERS
 00:00 Introduction

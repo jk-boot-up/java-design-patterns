@@ -69,11 +69,11 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Claim Check pattern in Java, explained with an online store that must send
-> an invoice PDF to another service. A claim check stores a large payload
-> somewhere cheap and sends only a small ticket through the message broker,
-> and the receiver redeems the ticket for the payload, the way you collect a
-> coat from a cloakroom. We watch a broker refuse a big message, send a
-> ticket instead and see how little the broker carries, find luggage nobody
+> Claim Check pattern in Java: a claim check stores a large payload somewhere
+> cheap and sends only a small ticket through the message broker, and the
+> receiver redeems the ticket for the payload, the way you collect a coat from
+> a cloakroom. Explained with an online store that must send an invoice PDF to
+> another service. We watch a broker refuse a big message, send a ticket
+> instead and see how little the broker carries, find luggage nobody
 > collected, and catch a changed payload with a checksum. The bill is extra
 > steps, and a ticket that must be hard to guess.

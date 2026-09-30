@@ -69,12 +69,12 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Feature Toggle pattern in Java, explained with an online store gift-wrap
-> feature that is ready but should reach a few customers first and be
-> switched off at once if it goes wrong. A feature toggle puts new code in
-> the deployed program behind a switch read while it runs, so turning it on
-> or off is a setting change, not a new release. We watch a feature that can
-> only be released by deploying, then deploy it dark and switch it on later,
-> turn it on for some customers, stop failures with a kill switch, and
-> choose a safe answer when the switch table cannot be read. The bill is
-> combinations, and old switches nobody removes.
+> Feature Toggle pattern in Java: a feature toggle puts new code in the
+> deployed program behind a switch read while it runs, so turning it on or off
+> is a setting change, not a new release. Explained with an online store
+> gift-wrap feature that is ready but should reach a few customers first and
+> be switched off at once if it goes wrong. We watch a feature that can only
+> be released by deploying, then deploy it dark and switch it on later, turn
+> it on for some customers, stop failures with a kill switch, and choose a
+> safe answer when the switch table cannot be read. The bill is combinations,
+> and old switches nobody removes.

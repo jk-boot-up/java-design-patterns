@@ -119,7 +119,7 @@ try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
 <h2>Publishing Notes</h2>
 <p>Upload <code>event-driven-architecture-with-kafka-pattern-explained.mp4</code>, with <code>../docs/thumbnail.png</code> as the thumbnail and the <code>.srt</code> as the captions. Title, description, chapters and tags live in <a href="../docs/youtube.html"><code>../docs/youtube.md</code></a>.</p>
 <p>Suggested description:</p>
-<blockquote><p>Event-Driven Architecture pattern in Java, explained with Apache Kafka, using a real Kafka broker behind the same online store. Services stop calling each other and write events to a topic instead, and the broker remembers how far each reader has got, like a library that keeps a bookmark for every reader. We lose an order the old way, send events to Kafka, watch a service catch up after an outage, add a new reader that replays history, and then price it honestly: a broker to run, and readers that may see the same event twice.</p></blockquote>
+<blockquote><p>Event-Driven Architecture pattern in Java: services stop calling each other and write events to a topic instead, and the broker remembers how far each reader has got, like a library that keeps a bookmark for every reader. Explained with Apache Kafka, using a real Kafka broker behind the same online store. We lose an order the old way, send events to Kafka, watch a service catch up after an outage, add a new reader that replays history, and then price it honestly: a broker to run, and readers that may see the same event twice.</p></blockquote>
 </main>
 <footer>
 Generated from <code>README.md</code> by <code>docs/make_readme_html.py</code> &mdash;

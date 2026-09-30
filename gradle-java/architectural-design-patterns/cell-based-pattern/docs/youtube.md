@@ -17,7 +17,7 @@ Cell-Based Architecture
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
-Cell-Based Architecture pattern in Java, explained with an online store where thirty customers check out. The whole back end runs as several complete, independent copies called cells, each serving its own share of customers, so a failure or a bad release only ever reaches one cell, like branches of a restaurant chain with their own kitchens. We watch one shared stack fail everyone at once, split it into cells, see the blast radius shrink, and grow by adding a cell. We finish with what all those copies cost. Run small, complete copies, so any problem stays small.
+Cell-Based Architecture pattern in Java: the whole back end runs as several complete, independent copies called cells, each serving its own share of customers, so a failure or a bad release only ever reaches one cell, like branches of a restaurant chain with their own kitchens. Explained with an online store where thirty customers check out. We watch one shared stack fail everyone at once, split it into cells, see the blast radius shrink, and grow by adding a cell. We finish with what all those copies cost. Run small, complete copies, so any problem stays small.
 
 CHAPTERS
 00:00 Introduction

@@ -17,7 +17,7 @@ Leader Election
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
-Leader Election pattern in Java, explained with an online store's nightly sales report, which must be sent exactly once. Leader election makes exactly one of several identical copies of a service responsible for a job, and hands the job to another copy if the leader disappears. We watch three copies each send the same report, then let one hold a lease, replace a dead leader after its lease runs out, find two copies that both believe they lead, and stop the old one with a fencing token. We finish with the bill.
+Leader Election pattern in Java: Leader election makes exactly one of several identical copies of a service responsible for a job, and hands the job to another copy if the leader disappears. Explained with an online store's nightly sales report, which must be sent exactly once. We watch three copies each send the same report, then let one hold a lease, replace a dead leader after its lease runs out, find two copies that both believe they lead, and stop the old one with a fencing token. We finish with the bill.
 
 CHAPTERS
 00:00 Introduction

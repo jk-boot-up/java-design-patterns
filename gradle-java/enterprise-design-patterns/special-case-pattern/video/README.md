@@ -13,11 +13,11 @@ A narrated, slide-based video built by `./build_video.sh` with the shared videok
 
 Suggested description:
 
-> Special Case pattern in Java, explained with an online store checkout that
-> serves registered customers, guests without an account, and old orders
-> from deleted accounts. When there is no ordinary object to return, you
-> return an object for that special case that answers every question in the
-> way that fits, like a conference visitor badge that every door reads the
-> same way. We watch null checks crash a checkout, add a guest special case
-> and an unknown-customer case, and ask for behaviour instead of checking
-> types. We finish with what special cases can hide.
+> Special Case pattern in Java: when there is no ordinary object to return,
+> you return an object for that special case that answers every question in
+> the way that fits, like a conference visitor badge that every door reads the
+> same way. Explained with an online store checkout that serves registered
+> customers, guests without an account, and old orders from deleted accounts.
+> We watch null checks crash a checkout, add a guest special case and an
+> unknown-customer case, and ask for behaviour instead of checking types. We
+> finish with what special cases can hide.

@@ -17,7 +17,7 @@ Modular Monolith
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
-Modular Monolith pattern in Java, explained with an online store that is one program holding a catalogue, orders and payments. It is still built and deployed as one piece, but inside it is split into modules that each own their data and may only be used through their front door, like departments in one store that ask at the counter instead of raiding each other's stockrooms. We watch open tables let the shop sell one kettle twice, add front doors, check the walls automatically, and move a module out into its own service. We finish with the bill.
+Modular Monolith pattern in Java: the program is still built and deployed as one piece, but inside it is split into modules that each own their data and may only be used through their front door, like departments in one store that ask at the counter instead of raiding each other's stockrooms. Explained with an online store that is one program holding a catalogue, orders and payments. We watch open tables let the shop sell one kettle twice, add front doors, check the walls automatically, and move a module out into its own service. We finish with the bill.
 
 CHAPTERS
 00:00 Introduction

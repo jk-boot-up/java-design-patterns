@@ -110,11 +110,11 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Rate Limiter pattern in Java, explained with a real Redis server and the
-> Bucket4j library. Each caller gets a bucket of tokens, every request
-> spends one, and an empty bucket means a refusal until it refills. In our
-> online store a price-comparison robot hammers the product search, and ten
-> searches an hour must mean ten however many copies of the search are
-> running. We watch the limit leak when each server keeps its own bucket,
-> hold when the bucket moves into Redis, survive ninety searches at the same
-> instant, and break when one server's clock disagrees.
+> Rate Limiter pattern in Java: each caller gets a bucket of tokens, every
+> request spends one, and an empty bucket means a refusal until it refills.
+> Explained with a real Redis server and the Bucket4j library. In our online
+> store a price-comparison robot hammers the product search, and ten searches
+> an hour must mean ten however many copies of the search are running. We
+> watch the limit leak when each server keeps its own bucket, hold when the
+> bucket moves into Redis, survive ninety searches at the same instant, and
+> break when one server's clock disagrees.

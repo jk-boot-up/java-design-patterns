@@ -13,11 +13,11 @@ A narrated, slide-based video built by `./build_video.sh` with the shared videok
 
 Suggested description:
 
-> Single Table Inheritance pattern in Java, explained with JPA and
-> Hibernate, using an online store's books, electronics and food. Several
-> related classes live in one database table with a type column saying which
-> class each row is, like one stock book with a word at the start of each
-> line naming the kind of item. We read the SQL Hibernate writes for a table
-> per class and for one table, watch each row come back as its own class,
-> and add a new type. We finish with the bill: a rule the database can no
-> longer keep. Always look at the SQL.
+> Single Table Inheritance pattern in Java: several related classes live in
+> one database table with a type column saying which class each row is, like
+> one stock book with a word at the start of each line naming the kind of
+> item. Explained with JPA and Hibernate, using an online store's books,
+> electronics and food. We read the SQL Hibernate writes for a table per class
+> and for one table, watch each row come back as its own class, and add a new
+> type. We finish with the bill: a rule the database can no longer keep.
+> Always look at the SQL.

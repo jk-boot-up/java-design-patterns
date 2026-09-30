@@ -71,11 +71,11 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Consumer-Driven Contract pattern in Java, explained with Pact. A
-> consumer's test writes a pact file, and the provider's build replays that
-> file against the real service and fails on any difference. With an online
-> store's price service and checkout, we watch a field rename break checkout
-> in production, let two consumers write real pact files, replay them over
-> real HTTP and pass, then catch the rename before release with the consumer
-> named. We confirm that adding a field is safe, and finish with what a pact
-> cannot catch: a change of meaning.
+> Consumer-Driven Contract pattern in Java: a consumer's test writes a pact
+> file, and the provider's build replays that file against the real service
+> and fails on any difference. Explained with Pact. With an online store's
+> price service and checkout, we watch a field rename break checkout in
+> production, let two consumers write real pact files, replay them over real
+> HTTP and pass, then catch the rename before release with the consumer named.
+> We confirm that adding a field is safe, and finish with what a pact cannot
+> catch: a change of meaning.

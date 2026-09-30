@@ -13,10 +13,10 @@ A narrated, slide-based video built by `./build_video.sh` with the shared videok
 
 Suggested description:
 
-> Table Data Gateway pattern in Java, explained with Spring's JdbcTemplate,
-> using an online store's product table. One class holds all the SQL for one
+> Table Data Gateway pattern in Java: one class holds all the SQL for one
 > table and everyone else asks it, while JdbcTemplate takes care of the
 > database plumbing, like a library desk that fetches and returns books the
-> same careful way every time. We watch hand-written JDBC leak connections,
+> same careful way every time. Explained with Spring's JdbcTemplate, using an
+> online store's product table. We watch hand-written JDBC leak connections,
 > rebuild the gateway on JdbcTemplate, turn errors into exceptions that mean
 > something, and update stock in one statement. We finish with the bill.

@@ -69,12 +69,11 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Callback pattern in Java, explained with an online store card payment that
-> takes a while to be answered, while the shop must not stand still. A
-> callback is a piece of code you hand to someone else to run when the thing
-> you asked for has happened, like leaving your phone number with a shop. We
-> watch a caller keep asking for an answer, then hand over what to do and
-> carry on, with the outcome deciding which code runs. We hear a callback
-> that fails, answers that arrive in a different order, and the cost of
-> nesting. The price is code that runs out of written order, and failures no
-> caller sees.
+> Callback pattern in Java: a callback is a piece of code you hand to someone
+> else to run when the thing you asked for has happened, like leaving your
+> phone number with a shop. Explained with an online store card payment that
+> takes a while to be answered, while the shop must not stand still. We watch
+> a caller keep asking for an answer, then hand over what to do and carry on,
+> with the outcome deciding which code runs. We hear a callback that fails,
+> answers that arrive in a different order, and the cost of nesting. The price
+> is code that runs out of written order, and failures no caller sees.

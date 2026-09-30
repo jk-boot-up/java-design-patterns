@@ -13,12 +13,12 @@ A narrated, slide-based video built by `./build_video.sh` with the shared videok
 
 Suggested description:
 
-> Content Enricher pattern in Java, explained with an online store checkout
-> that announces each paid order to a warehouse and an email service with a
-> message that is missing details. A content enricher looks the details up
+> Content Enricher pattern in Java: a content enricher looks the details up
 > once, adds them to the message and passes the fuller message on, so
-> receivers never look anything up themselves, like a post office clerk
-> adding the house number and postcode before the postman sees the letter.
-> We watch the thin message force every receiver to do its own lookup, add
-> an enricher in the middle, and handle a customer who cannot be found. We
-> finish with the bill.
+> receivers never look anything up themselves, like a post office clerk adding
+> the house number and postcode before the postman sees the letter. Explained
+> with an online store checkout that announces each paid order to a warehouse
+> and an email service with a message that is missing details. We watch the
+> thin message force every receiver to do its own lookup, add an enricher in
+> the middle, and handle a customer who cannot be found. We finish with the
+> bill.

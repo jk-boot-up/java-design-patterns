@@ -17,7 +17,7 @@ Gateway Offloading with Spring Cloud Gateway
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
-Gateway Offloading pattern in Java with Spring Cloud Gateway, using an online store's catalog, cart and orders services. Checking the caller, limiting how often they call and compressing the answer move into the gateway in front of the services, like an office reception where the teams upstairs trust that everyone in the corridor was checked. We watch three copies of a check drift apart, check once at the gateway, add a token-bucket rate limit and compression, and learn that every other door must then be locked. We finish with the bill.
+Gateway Offloading pattern in Java: checking the caller, limiting how often they call and compressing the answer move into the gateway in front of the services, like an office reception where the teams upstairs trust that everyone in the corridor was checked. Explained with Spring Cloud Gateway, using an online store's catalog, cart and orders services. We watch three copies of a check drift apart, check once at the gateway, add a token-bucket rate limit and compression, and learn that every other door must then be locked. We finish with the bill.
 
 CHAPTERS
 00:00 Introduction

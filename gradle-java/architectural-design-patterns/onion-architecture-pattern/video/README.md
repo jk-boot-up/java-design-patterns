@@ -69,11 +69,11 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Onion Architecture pattern in Java, explained with an online store whose
-> order class saves itself to a database, so the storage cannot change
-> without editing the order. Onion Architecture puts the business rules at
-> the centre and lets every ring depend only on rings further in, like a
-> tree whose trunk never depends on its leaves. We arrange the code in
-> rings, write the rule as a check, swap the storage without touching the
-> centre, and test the rules with no storage at all. We finish with the
-> cost: the copying and the extra classes the rings need.
+> Onion Architecture pattern in Java: Onion Architecture puts the business
+> rules at the centre and lets every ring depend only on rings further in,
+> like a tree whose trunk never depends on its leaves. Explained with an
+> online store whose order class saves itself to a database, so the storage
+> cannot change without editing the order. We arrange the code in rings, write
+> the rule as a check, swap the storage without touching the centre, and test
+> the rules with no storage at all. We finish with the cost: the copying and
+> the extra classes the rings need.

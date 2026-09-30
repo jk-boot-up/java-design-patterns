@@ -226,14 +226,15 @@ Two further things that affect how well it plays for viewers:
 
 Suggested description:
 
-> Sidecar pattern in Java, part two: swapping the sidecar proxy. An online
-> store takes payments through an NGINX proxy running beside it, and the
-> payment provider asks for at most three attempts with a proper wait
-> between them, which NGINX configuration simply cannot say. Because the
-> only thing connecting a service to its sidecar is an address, we replace
-> the proxy on the same port with forty lines of Java, while the service
-> keeps running and is never told, and the same three attempts now spread
-> out and the payment goes through. Then the longer bill: code to own,
-> features to rewrite, a JVM beside every service, and a gap mid-swap. Swap
-> the proxy only when the thing you need cannot be said in its configuration
-> at all.
+> Sidecar pattern in Java, part two: a sidecar is a helper process that runs
+> beside a service and handles shared chores such as retries, so the service
+> itself stays simple. In this part we swap the sidecar proxy. An online store
+> takes payments through an NGINX proxy running beside it, and the payment
+> provider asks for at most three attempts with a proper wait between them,
+> which NGINX configuration simply cannot say. Because the only thing
+> connecting a service to its sidecar is an address, we replace the proxy on
+> the same port with forty lines of Java, while the service keeps running and
+> is never told, and the same three attempts now spread out and the payment
+> goes through. Then the longer bill: code to own, features to rewrite, a JVM
+> beside every service, and a gap mid-swap. Swap the proxy only when the thing
+> you need cannot be said in its configuration at all.

@@ -17,7 +17,7 @@ Content-Based Router with Camel
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
-Content-Based Router pattern in Java, explained with Apache Camel and a real RabbitMQ broker. A router reads each message and sends it to the one place that suits it, so the sender does not choose and receivers never see messages that are not theirs. In our online store, same-day parcels go to express shipping, gift cards go to digital delivery, and orders of a thousand pounds or more go to a fraud check first. We sort six orders, hear the order of the questions change the answer, and find that Camel quietly drops an order no question claims. That message is only kept if the route says where to keep it.
+Content-Based Router pattern in Java: a router reads each message and sends it to the one place that suits it, so the sender does not choose and receivers never see messages that are not theirs. Explained with Apache Camel and a real RabbitMQ broker. In our online store, same-day parcels go to express shipping, gift cards go to digital delivery, and orders of a thousand pounds or more go to a fraud check first. We sort six orders, hear the order of the questions change the answer, and find that Camel quietly drops an order no question claims. That message is only kept if the route says where to keep it.
 
 CHAPTERS
 00:00 Introduction

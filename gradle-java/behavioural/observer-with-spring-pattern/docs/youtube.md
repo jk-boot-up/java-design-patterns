@@ -17,7 +17,7 @@ Observer with Spring - Events, And Who Runs Them
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
-Observer pattern in Java, explained with Spring Boot, using the same online orders. One object announces that something happened and any number of listeners react, without the announcer knowing who they are, like a radio station that never knows who is tuned in. We publish order events through Spring and then hear how delivery really behaves: on the caller's thread, stopped by one failing listener, moved to another thread, filtered by a condition, and silently dropped when nobody is listening. Spring's events separate the publisher from its listeners, but delivery is synchronous and silent.
+Observer pattern in Java: one object announces that something happened and any number of listeners react, without the announcer knowing who they are, like a radio station that never knows who is tuned in. Explained with Spring Boot, using the same online orders. We publish order events through Spring and then hear how delivery really behaves: on the caller's thread, stopped by one failing listener, moved to another thread, filtered by a condition, and silently dropped when nobody is listening. Spring's events separate the publisher from its listeners, but delivery is synchronous and silent.
 
 CHAPTERS
 00:00 Introduction

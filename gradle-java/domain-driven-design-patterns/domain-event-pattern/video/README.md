@@ -69,11 +69,11 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Domain Event pattern in Java, explained with an online store order being
-> placed. A domain event is a record of something that has already happened,
-> named in the past tense and never changed, and others react to it without
-> the sender knowing who they are, like a birth announcement in a newspaper.
-> We watch an order that calls three services fall into a half-done state,
-> then let it simply say what happened, delivered after the save. We hear a
-> failing reaction retried safely, and the real cost: the gap between saving
-> and telling, which must be kept closed.
+> Domain Event pattern in Java: a domain event is a record of something that
+> has already happened, named in the past tense and never changed, and others
+> react to it without the sender knowing who they are, like a birth
+> announcement in a newspaper. Explained with an online store order being
+> placed. We watch an order that calls three services fall into a half-done
+> state, then let it simply say what happened, delivered after the save. We
+> hear a failing reaction retried safely, and the real cost: the gap between
+> saving and telling, which must be kept closed.

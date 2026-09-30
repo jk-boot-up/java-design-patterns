@@ -17,7 +17,7 @@ Polling Consumer
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
-Polling Consumer pattern in Java, explained with an online store warehouse whose label printer can only print so fast while orders arrive in bursts. A polling consumer decides when to take messages, asking the queue for as many as it can handle each time it is ready while the rest wait safely, like collecting letters from a post office box instead of answering the doorbell. We watch orders pushed at the printer overwhelm it, switch to polling, pause safely, and decide how often to poll. We finish with the bill.
+Polling Consumer pattern in Java: a polling consumer decides when to take messages, asking the queue for as many as it can handle each time it is ready while the rest wait safely, like collecting letters from a post office box instead of answering the doorbell. Explained with an online store warehouse whose label printer can only print so fast while orders arrive in bursts. We watch orders pushed at the printer overwhelm it, switch to polling, pause safely, and decide how often to poll. We finish with the bill.
 
 CHAPTERS
 00:00 Introduction

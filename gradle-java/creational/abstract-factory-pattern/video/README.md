@@ -226,11 +226,12 @@ Two further things that affect how well it plays for viewers:
 
 Suggested description:
 
-> Abstract Factory pattern in Java 21, explained by building an online
-> store's regional checkout. We start with the problem — three separate
-> if/else chains that must all agree with each other, and silently produce a
-> wrong invoice when they don't — and end with a design where a mismatched
-> family is not caught but impossible. We also cover, honestly, why adding a
-> new product kind is the expensive direction, and when the pattern is more
-> machinery than the job needs. No prior design-pattern knowledge needed.
-> Full source code and written notes are in the repository.
+> Abstract Factory pattern in Java 21: one factory creates a whole family of
+> related objects, so the pieces you get always belong together. Explained by
+> building an online store's regional checkout. We start with the problem —
+> three separate if/else chains that must all agree with each other, and
+> silently produce a wrong invoice when they don't — and end with a design
+> where a mismatched family is not caught but impossible. We also cover,
+> honestly, why adding a new product kind is the expensive direction, and when
+> the pattern is more machinery than the job needs. No prior design-pattern
+> knowledge needed. Full source code and written notes are in the repository.

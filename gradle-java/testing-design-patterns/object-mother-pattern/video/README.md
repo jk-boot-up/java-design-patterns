@@ -13,11 +13,11 @@ A narrated, slide-based video built by `./build_video.sh` with the shared videok
 
 Suggested description:
 
-> Object Mother and Test Data Builder patterns in Java, explained with an
-> online store's tests. Both help tests create the objects they need: an
-> Object Mother is a class of ready-made objects with clear names, and a
-> Test Data Builder starts from sensible defaults so each test changes only
-> what it cares about, like a chef's shelf of ready-made sauces and a cook
-> making the usual without onions. We watch test data built by hand bury the
-> point, add an Object Mother, see it multiply, and switch to a builder. We
-> finish with the bill: a test should only show the details it depends on.
+> Object Mother and Test Data Builder patterns in Java: both help tests create
+> the objects they need: an Object Mother is a class of ready-made objects
+> with clear names, and a Test Data Builder starts from sensible defaults so
+> each test changes only what it cares about, like a chef's shelf of
+> ready-made sauces and a cook making the usual without onions. Explained with
+> an online store's tests. We watch test data built by hand bury the point,
+> add an Object Mother, see it multiply, and switch to a builder. We finish
+> with the bill: a test should only show the details it depends on.

@@ -17,7 +17,7 @@ Sidecar on Kubernetes - Two Containers, One Pod
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
-Sidecar pattern on Kubernetes, in Java, explained by showing where sidecars actually live. A sidecar is a helper process that runs beside a service and handles a concern for it, and on Kubernetes the two share a Pod: two or more containers with one network and one fate. We explain what Kubernetes is before any command, the two ways containers share, and what a Pod guarantees: shared by definition, one lifecycle, and injection. Then we test a popular claim about crashes that is not true, since restarts are per container, read READY two of two, and ask honestly whether you need any of it yet.
+Sidecar pattern on Kubernetes, in Java: a sidecar is a helper process that runs beside a service and handles a concern for it, and on Kubernetes the two share a Pod: two or more containers with one network and one fate. Explained by showing where sidecars actually live. We explain what Kubernetes is before any command, the two ways containers share, and what a Pod guarantees: shared by definition, one lifecycle, and injection. Then we test a popular claim about crashes that is not true, since restarts are per container, read READY two of two, and ask honestly whether you need any of it yet.
 
 CHAPTERS
 00:00 Introduction

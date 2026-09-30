@@ -17,7 +17,7 @@ Role Object
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
-Role Object pattern in Java, explained with an online store whose customers can also sell on its marketplace and earn money by referring friends. One core object holds who someone is, and each thing they do for a while is a separate role object that is added and removed as life changes, like one person who is a parent, a nurse and a weekend football coach. We watch a subclass per kind break when someone's role changes, move to one account with many roles, give roles their own behaviour, and drop a role while the identity stays the same. We finish with the bill.
+Role Object pattern in Java: one core object holds who someone is, and each thing they do for a while is a separate role object that is added and removed as life changes, like one person who is a parent, a nurse and a weekend football coach. Explained with an online store whose customers can also sell on its marketplace and earn money by referring friends. We watch a subclass per kind break when someone's role changes, move to one account with many roles, give roles their own behaviour, and drop a role while the identity stays the same. We finish with the bill.
 
 CHAPTERS
 00:00 Introduction

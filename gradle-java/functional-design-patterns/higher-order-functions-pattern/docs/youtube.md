@@ -17,7 +17,7 @@ Higher-Order Functions
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
-Higher-Order Functions in Java, explained with an online store catalogue page and its prices. A higher-order function takes another function or gives one back, so one piece of code can serve many questions and small rules can be joined into bigger ones, like a coffee machine where the pod decides the drink. We watch a copied loop for every question pile up, pass the test in instead, write functions that make functions, and treat price rules as values we can join. We finish with the bill, including why the order of price rules matters.
+Higher-Order Functions in Java: a higher-order function takes another function or gives one back, so one piece of code can serve many questions and small rules can be joined into bigger ones, like a coffee machine where the pod decides the drink. Explained with an online store catalogue page and its prices. We watch a copied loop for every question pile up, pass the test in instead, write functions that make functions, and treat price rules as values we can join. We finish with the bill, including why the order of price rules matters.
 
 CHAPTERS
 00:00 Introduction

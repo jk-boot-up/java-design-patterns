@@ -13,11 +13,11 @@ A narrated, slide-based video built by `./build_video.sh` with the shared videok
 
 Suggested description:
 
-> Authorization Policy pattern in Java, explained with an online store that
-> has customers, support staff and an admin. Signing in proves who you are;
-> authorization decides what you may do, and a policy makes every one of
-> those decisions in one place, from rules about roles and about details
-> such as who owns what, refusing anything no rule allows, like a hotel key-
-> card system. We watch checks scattered through every endpoint, see roles
-> alone fall short, add rules on attributes, and deny by default. We finish
-> with the bill: one place decides, and the answer starts as no.
+> Authorization Policy pattern in Java: signing in proves who you are;
+> authorization decides what you may do, and a policy makes every one of those
+> decisions in one place, from rules about roles and about details such as who
+> owns what, refusing anything no rule allows, like a hotel key-card system.
+> Explained with an online store that has customers, support staff and an
+> admin. We watch checks scattered through every endpoint, see roles alone
+> fall short, add rules on attributes, and deny by default. We finish with the
+> bill: one place decides, and the answer starts as no.

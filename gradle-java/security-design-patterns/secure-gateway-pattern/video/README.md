@@ -13,12 +13,11 @@ A narrated, slide-based video built by `./build_video.sh` with the shared videok
 
 Suggested description:
 
-> Secure Gateway pattern in Java, also called the Gatekeeper, explained with
-> an online store order service that holds the database password. The
-> services holding secrets never face the internet; a separate gatekeeper
-> does, holding no secrets and letting through only requests of a few
-> allowed shapes, like a bank teller with no key to the vault. We watch two
-> tricks export every order from a service facing the internet, put a
-> gatekeeper in front, write an allow-list, and add size and shape limits.
-> We finish with the bill: let only a gate with nothing to steal face the
-> internet.
+> Secure Gateway pattern in Java, also called the Gatekeeper: the services
+> holding secrets never face the internet; a separate gatekeeper does, holding
+> no secrets and letting through only requests of a few allowed shapes, like a
+> bank teller with no key to the vault. Explained with an online store order
+> service that holds the database password. We watch two tricks export every
+> order from a service facing the internet, put a gatekeeper in front, write
+> an allow-list, and add size and shape limits. We finish with the bill: let
+> only a gate with nothing to steal face the internet.

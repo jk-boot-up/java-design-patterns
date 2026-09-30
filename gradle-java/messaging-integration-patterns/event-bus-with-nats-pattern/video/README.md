@@ -72,12 +72,14 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Event Bus pattern in Java, explained with NATS, a real messaging server on
-> the network that keeps nothing. Checkout announces that an order was
-> placed, and the email service, the warehouse and analytics each listen for
-> what they care about, like a warehouse loudspeaker: whoever is in the room
-> hears it, and someone who walks in a second later hears nothing. We
-> subscribe by name, survive a failing subscriber, hear an event nobody
-> hears, and use ask instead of tell when an answer matters. We finish with
-> the bill and the opposite trade. On this bus, publishing always succeeds,
-> and succeeding means nothing.
+> Event Bus pattern in Java: an event bus is one shared line where senders
+> announce events and each listener hears the ones it cares about, without
+> sender and listener knowing each other. Explained with NATS, a real
+> messaging server on the network that keeps nothing. Checkout announces that
+> an order was placed, and the email service, the warehouse and analytics each
+> listen for what they care about, like a warehouse loudspeaker: whoever is in
+> the room hears it, and someone who walks in a second later hears nothing. We
+> subscribe by name, survive a failing subscriber, hear an event nobody hears,
+> and use ask instead of tell when an answer matters. We finish with the bill
+> and the opposite trade. On this bus, publishing always succeeds, and
+> succeeding means nothing.

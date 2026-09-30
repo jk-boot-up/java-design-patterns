@@ -71,12 +71,12 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Thread Pool pattern in Java, explained with Spring Boot, using the same
-> order packing. A pool runs work on a few threads that are created once and
-> reused, so a burst of work cannot create a burst of threads, like a
-> restaurant that does not hire new waiters in a rush. We hear the pool
+> Thread Pool pattern in Java: a pool runs work on a few threads that are
+> created once and reused, so a burst of work cannot create a burst of
+> threads, like a restaurant that does not hire new waiters in a rush.
+> Explained with Spring Boot, using the same order packing. We hear the pool
 > Spring Boot gives you when you configure nothing, watch its queue grow
 > without limit, then bound it and hear a real refusal. We also meet two
 > failures that belong to Spring: an @Async annotation that silently does
-> nothing, and a pool that starves itself. A thread pool you did not
-> configure has a queue that never says no.
+> nothing, and a pool that starves itself. A thread pool you did not configure
+> has a queue that never says no.

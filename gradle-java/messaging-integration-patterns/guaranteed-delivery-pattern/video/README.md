@@ -13,11 +13,11 @@ A narrated, slide-based video built by `./build_video.sh` with the shared videok
 
 Suggested description:
 
-> Guaranteed Delivery pattern in Java, explained with an online store that
-> sends an order confirmation email for every order through a queue in front
-> of a slow email provider. Every message is written to disk before it is
-> accepted, marked done only after it is delivered, and everything not
+> Guaranteed Delivery pattern in Java: every message is written to disk before
+> it is accepted, marked done only after it is delivered, and everything not
 > marked done is sent again after a crash, like recorded delivery with a
-> ledger and a signature. We watch messages kept only in memory disappear,
-> write them to disk first, add acknowledgements, and accept that this means
-> at-least-once delivery. We finish with the bill.
+> ledger and a signature. Explained with an online store that sends an order
+> confirmation email for every order through a queue in front of a slow email
+> provider. We watch messages kept only in memory disappear, write them to
+> disk first, add acknowledgements, and accept that this means at-least-once
+> delivery. We finish with the bill.

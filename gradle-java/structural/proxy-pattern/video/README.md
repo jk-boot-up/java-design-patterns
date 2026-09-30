@@ -212,12 +212,13 @@ Two further things that affect how well it plays for viewers:
 
 Suggested description:
 
-> Proxy design pattern in Java 21, explained by building a product listing
-> where loading a full-resolution image is expensive and not every user is
-> allowed to see one. We start with the problem — a listing that eagerly
-> loads every image it may never show, and an access check copy-pasted into
-> every screen — and end with two small proxies that fix both, including a
-> look at how composing them gets lazy loading and access control at once,
-> and at what actually separates Proxy from Decorator. No prior design-
-> pattern knowledge needed. Full source code and written notes are in the
-> repository.
+> Proxy design pattern in Java 21: a stand-in object with the same interface
+> controls access to the real one, for example by loading it late or checking
+> permission first. Explained by building a product listing where loading a
+> full-resolution image is expensive and not every user is allowed to see one.
+> We start with the problem — a listing that eagerly loads every image it may
+> never show, and an access check copy-pasted into every screen — and end with
+> two small proxies that fix both, including a look at how composing them gets
+> lazy loading and access control at once, and at what actually separates
+> Proxy from Decorator. No prior design-pattern knowledge needed. Full source
+> code and written notes are in the repository.

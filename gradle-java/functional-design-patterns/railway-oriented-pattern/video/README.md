@@ -13,11 +13,11 @@ A narrated, slide-based video built by `./build_video.sh` with the shared videok
 
 Suggested description:
 
-> Railway-Oriented Programming in Java, explained with an online store
-> checkout of four steps. Picture two tracks, one for success and one for
-> failure: every step runs on the success track, and the first failure
-> switches the train to the failure track so every later step is skipped,
-> like a rejected bag sent down an airport side belt. We watch an exception
-> nobody caught become an error page, then return results that keep the
-> steps in a straight line, switch tracks on failure, reuse plain functions,
-> and find a way back. We finish with the bill.
+> Railway-Oriented Programming in Java: picture two tracks, one for success
+> and one for failure: every step runs on the success track, and the first
+> failure switches the train to the failure track so every later step is
+> skipped, like a rejected bag sent down an airport side belt. Explained with
+> an online store checkout of four steps. We watch an exception nobody caught
+> become an error page, then return results that keep the steps in a straight
+> line, switch tracks on failure, reuse plain functions, and find a way back.
+> We finish with the bill.

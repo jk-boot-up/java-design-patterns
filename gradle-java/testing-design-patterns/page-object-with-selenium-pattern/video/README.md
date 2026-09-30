@@ -13,10 +13,10 @@ A narrated, slide-based video built by `./build_video.sh` with the shared videok
 
 Suggested description:
 
-> Page Object pattern in Java with Selenium, driving a real Chromium browser
-> against an online store checkout page. A page object is a class for one
-> page that knows how to find its boxes and buttons and how long the page
-> takes to answer, so tests only say what a shopper does. We watch tests
-> with selectors inside them fail when a button is renamed, move them into a
-> page object, return the next page from each action, and learn why waiting
-> belongs in the page object too. We finish with the bill.
+> Page Object pattern in Java: a page object is a class for one page that
+> knows how to find its boxes and buttons and how long the page takes to
+> answer, so tests only say what a shopper does. Explained with Selenium,
+> driving a real Chromium browser against an online store checkout page. We
+> watch tests with selectors inside them fail when a button is renamed, move
+> them into a page object, return the next page from each action, and learn
+> why waiting belongs in the page object too. We finish with the bill.

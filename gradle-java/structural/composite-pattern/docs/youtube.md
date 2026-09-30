@@ -17,7 +17,7 @@ Composite Pattern in Java - Nested Category Trees
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
-Composite design pattern in Java 21, explained by building a category tree for an e-commerce catalog. We start with the problem — an `instanceof` chain repeated in every operation that walks the tree — and end with one polymorphic method that recurses through leaves and branches alike, no matter how deep the nesting goes. No prior design-pattern knowledge needed. Full source code and written notes are in the repository.
+Composite design pattern in Java 21: single items and groups of items share one interface, so code can treat a whole tree the same way it treats one leaf. Explained by building a category tree for an e-commerce catalog. We start with the problem — an `instanceof` chain repeated in every operation that walks the tree — and end with one polymorphic method that recurses through leaves and branches alike, no matter how deep the nesting goes. No prior design-pattern knowledge needed. Full source code and written notes are in the repository.
 
 CHAPTERS
 00:00 Introduction

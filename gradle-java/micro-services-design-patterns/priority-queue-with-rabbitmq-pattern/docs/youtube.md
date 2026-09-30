@@ -17,7 +17,7 @@ Priority Queue with RabbitMQ
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
-Priority Queue pattern in Java with a real RabbitMQ broker, using an online store warehouse where same-day orders must catch the courier's van. Urgent messages overtake routine ones, and RabbitMQ can make a queue a priority queue, but nobody can overtake someone already in the scanner, as at airport fast-track. We watch first in, first out miss the van, put same-day orders first, survive a flood, and see why prefetch means priority only applies to what is still waiting. We finish with the bill: starvation of routine orders.
+Priority Queue pattern in Java: urgent messages overtake routine ones, and RabbitMQ can make a queue a priority queue, but nobody can overtake someone already in the scanner, as at airport fast-track. Explained with a real RabbitMQ broker, using an online store warehouse where same-day orders must catch the courier's van. We watch first in, first out miss the van, put same-day orders first, survive a flood, and see why prefetch means priority only applies to what is still waiting. We finish with the bill: starvation of routine orders.
 
 CHAPTERS
 00:00 Introduction

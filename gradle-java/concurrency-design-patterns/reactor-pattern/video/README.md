@@ -13,12 +13,12 @@ A narrated, slide-based video built by `./build_video.sh` with the shared videok
 
 Suggested description:
 
-> Reactor pattern in Java, explained with an online store warehouse stock
-> server that has a hundred shop tills connected all day asking short
-> questions. One thread waits for events on many connections at once and
-> hands each event to a short handler, so no connection needs a thread of
-> its own, like one waiter watching a whole restaurant for raised hands. We
-> watch a thread per connection waste threads, replace them with one reactor
-> thread, write a handler per event, and serve every till from one thread.
-> We finish with the bill and the one rule you must never break: every
-> handler must be quick.
+> Reactor pattern in Java: one thread waits for events on many connections at
+> once and hands each event to a short handler, so no connection needs a
+> thread of its own, like one waiter watching a whole restaurant for raised
+> hands. Explained with an online store warehouse stock server that has a
+> hundred shop tills connected all day asking short questions. We watch a
+> thread per connection waste threads, replace them with one reactor thread,
+> write a handler per event, and serve every till from one thread. We finish
+> with the bill and the one rule you must never break: every handler must be
+> quick.

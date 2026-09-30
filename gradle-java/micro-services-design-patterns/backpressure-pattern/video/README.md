@@ -13,11 +13,11 @@ A narrated, slide-based video built by `./build_video.sh` with the shared videok
 
 Suggested description:
 
-> Backpressure pattern in Java, explained with an online store search
-> indexer reading a supplier's product feed that is much faster than the
-> indexer. Backpressure lets a slow consumer tell a fast producer to slow
-> down, so the work waiting in between stays small instead of filling
-> memory, like a kitchen telling front of house to stop seating tables. We
-> watch the waiting pile grow without limit, add a bounded buffer, let the
-> consumer ask only for what it can handle, and keep only the latest item
-> when that is acceptable. We finish with the bill.
+> Backpressure pattern in Java: Backpressure lets a slow consumer tell a fast
+> producer to slow down, so the work waiting in between stays small instead of
+> filling memory, like a kitchen telling front of house to stop seating
+> tables. Explained with an online store search indexer reading a supplier's
+> product feed that is much faster than the indexer. We watch the waiting pile
+> grow without limit, add a bounded buffer, let the consumer ask only for what
+> it can handle, and keep only the latest item when that is acceptable. We
+> finish with the bill.

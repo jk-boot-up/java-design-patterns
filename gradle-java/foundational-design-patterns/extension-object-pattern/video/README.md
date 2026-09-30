@@ -13,12 +13,11 @@ A narrated, slide-based video built by `./build_video.sh` with the shared videok
 
 Suggested description:
 
-> Extension Object pattern in Java, explained with an online store that
-> sells downloadable e-books, kettles with a warranty, plain mugs, and later
-> coffee subscriptions. The core class stays small, other code attaches
-> extra roles to individual objects, and code that needs a role asks whether
-> the object has it, like visas added to a passport that a border guard
-> checks without the passport ever being reprinted. We watch one product
-> class grow a field for everything, shrink it to a core with roles, ask for
-> a role safely, and add a new role without touching the core. We finish
-> with the bill.
+> Extension Object pattern in Java: the core class stays small, other code
+> attaches extra roles to individual objects, and code that needs a role asks
+> whether the object has it, like visas added to a passport that a border
+> guard checks without the passport ever being reprinted. Explained with an
+> online store that sells downloadable e-books, kettles with a warranty, plain
+> mugs, and later coffee subscriptions. We watch one product class grow a
+> field for everything, shrink it to a core with roles, ask for a role safely,
+> and add a new role without touching the core. We finish with the bill.

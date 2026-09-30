@@ -233,11 +233,11 @@ Two further things that affect how well it plays for viewers:
 
 Suggested description:
 
-> Interpreter pattern in Java, explained by writing an online shop's
-> promotion rules as simple text instead of code. You write one small class
-> for each kind of phrase, bigger phrases hold smaller ones, and the result
-> is a tree of objects you run with a single call, like a recipe card built
-> from a few words that combine. We start from rules copied into branches
-> with two bugs and no errors, build the tree, and show it can explain its
-> own decision and refuse a typo. We finish with tests that check the
-> grammar, not just the answer, and the honest limit of the pattern.
+> Interpreter pattern in Java: you write one small class for each kind of
+> phrase, bigger phrases hold smaller ones, and the result is a tree of
+> objects you run with a single call, like a recipe card built from a few
+> words that combine. Explained by writing an online shop's promotion rules as
+> simple text instead of code. We start from rules copied into branches with
+> two bugs and no errors, build the tree, and show it can explain its own
+> decision and refuse a typo. We finish with tests that check the grammar, not
+> just the answer, and the honest limit of the pattern.

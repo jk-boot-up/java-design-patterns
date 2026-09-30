@@ -13,12 +13,12 @@ A narrated, slide-based video built by `./build_video.sh` with the shared videok
 
 Suggested description:
 
-> Guaranteed Delivery pattern in Java with a real RabbitMQ broker, using an
-> online store's order confirmation emails. A message, once accepted, must
-> never be lost, not when the program crashes and not when the broker
-> restarts, and RabbitMQ can give that guarantee if you ask correctly, like
-> recorded delivery with a receipt at each end. We watch a durable queue
+> Guaranteed Delivery pattern in Java: a message, once accepted, must never be
+> lost, not when the program crashes and not when the broker restarts, and
+> RabbitMQ can give that guarantee if you ask correctly, like recorded
+> delivery with a receipt at each end. Explained with a real RabbitMQ broker,
+> using an online store's order confirmation emails. We watch a durable queue
 > lose transient messages, make them persistent and confirmed, acknowledge
 > only after sending, and crash before the acknowledgement to see a message
-> delivered twice. Store it, confirm it, and acknowledge it only when the
-> work is done.
+> delivered twice. Store it, confirm it, and acknowledge it only when the work
+> is done.

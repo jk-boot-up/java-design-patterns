@@ -17,7 +17,7 @@ Spring's Registry - The Context And Its Shared State
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
-Registry pattern in Java, explained with Spring, whose application context is a registry built far better than a hand-written one, like a phone directory everyone shares. We show what Spring fixes, when asking the context for things is used well or badly, and what happens with a registry of strings and with two beans of the same type. Then we meet the failure that is Spring's own: a cached test context that remembers what earlier tests did. The registry done well is one you rarely call, and even then, whatever it holds is shared.
+Registry pattern in Java: a registry is one well-known place where objects are stored by name and looked up by anyone who needs them. Explained with Spring, whose application context is a registry built far better than a hand-written one, like a phone directory everyone shares. We show what Spring fixes, when asking the context for things is used well or badly, and what happens with a registry of strings and with two beans of the same type. Then we meet the failure that is Spring's own: a cached test context that remembers what earlier tests did. The registry done well is one you rarely call, and even then, whatever it holds is shared.
 
 CHAPTERS
 00:00 Introduction

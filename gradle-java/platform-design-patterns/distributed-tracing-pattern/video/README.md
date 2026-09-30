@@ -265,17 +265,19 @@ Two further things that affect how well it plays for viewers:
 
 Suggested description:
 
-> Distributed tracing in Java 21, starting from a product page that takes
-> nine hundred milliseconds with four healthy services behind it and four
-> sets of correct logs that cannot say which one spent the time. We watch
-> two customers interleave in the log until the same service appears to take
-> both 180 and 220 milliseconds, find that no extra field fixes it, and
+> Distributed tracing in Java 21: each request gets one identifier that
+> travels through every service it touches, and each unit of work records a
+> timed span, so you can see where the time went. We start from a product page
+> that takes nine hundred milliseconds with four healthy services behind it
+> and four sets of correct logs that cannot say which one spent the time. We
+> watch two customers interleave in the log until the same service appears to
+> take both 180 and 220 milliseconds, find that no extra field fixes it, and
 > build the pattern instead: one id per request, one span per unit of work,
-> and the one field people skip — the parent. Then we compute self time,
-> which is the whole trick, and spend the second half on the bill: a service
-> that opens no span and produces a trace that passes every check while
-> blaming the wrong code, a context lost across a thread, and a trace
-> sampled away before anybody knew it would be wanted. None of the three
-> throws an exception. No prior design-pattern knowledge needed, and no
-> Docker, collector or OpenTelemetry — it all runs in one JVM. Full source
-> code and written notes are in the repository.
+> and the one field people skip — the parent. Then we compute self time, which
+> is the whole trick, and spend the second half on the bill: a service that
+> opens no span and produces a trace that passes every check while blaming the
+> wrong code, a context lost across a thread, and a trace sampled away before
+> anybody knew it would be wanted. None of the three throws an exception. No
+> prior design-pattern knowledge needed, and no Docker, collector or
+> OpenTelemetry — it all runs in one JVM. Full source code and written notes
+> are in the repository.

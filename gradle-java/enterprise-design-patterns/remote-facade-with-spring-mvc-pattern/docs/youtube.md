@@ -17,7 +17,7 @@ Remote Facade with Spring MVC
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
-Remote Facade pattern in Java, explained with Spring MVC, using an online store phone app that shows and changes an order. A remote facade gives callers across a network a few coarse calls that each do a lot, instead of many small calls that each pay for a trip, like giving a waiter your whole order in one visit. We hear what five round trips cost, return the whole screen as JSON in one call, make a change all or nothing, and keep the fine-grained objects inside. We finish with what the facade costs.
+Remote Facade pattern in Java: a remote facade gives callers across a network a few coarse calls that each do a lot, instead of many small calls that each pay for a trip, like giving a waiter your whole order in one visit. Explained with Spring MVC, using an online store phone app that shows and changes an order. We hear what five round trips cost, return the whole screen as JSON in one call, make a change all or nothing, and keep the fine-grained objects inside. We finish with what the facade costs.
 
 CHAPTERS
 00:00 Introduction

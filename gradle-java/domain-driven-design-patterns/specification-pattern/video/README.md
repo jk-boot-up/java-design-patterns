@@ -69,11 +69,11 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Specification pattern in Java, explained with an online store rule: which
-> products are cheap and available? A specification is a business rule
-> written as an object that can say whether something meets it, explain why
-> not, and combine with other rules, like the requirements in a job advert.
-> We watch the same rule copied into three places drift apart, then name it
-> once, combine it with and, or and not, and hear it explain why a product
-> fails. The same rule then does two jobs. A specification gives a business
-> rule one home, so every feature that needs it agrees.
+> Specification pattern in Java: a specification is a business rule written as
+> an object that can say whether something meets it, explain why not, and
+> combine with other rules, like the requirements in a job advert. Explained
+> with an online store rule: which products are cheap and available? We watch
+> the same rule copied into three places drift apart, then name it once,
+> combine it with and, or and not, and hear it explain why a product fails.
+> The same rule then does two jobs. A specification gives a business rule one
+> home, so every feature that needs it agrees.

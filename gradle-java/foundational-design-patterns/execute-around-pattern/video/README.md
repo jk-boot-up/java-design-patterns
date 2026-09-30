@@ -69,12 +69,12 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Execute Around pattern in Java, explained with an online store where every
-> piece of code that reads orders must open a database connection and close
-> it again, and someone always forgets when something goes wrong. Execute
-> Around puts the setting up and cleaning up in one method, and the caller
-> only hands in the work for the middle, like a car wash that opens and
-> closes its own gate. We watch a connection leak on a failure, move the
+> Execute Around pattern in Java: Execute Around puts the setting up and
+> cleaning up in one method, and the caller only hands in the work for the
+> middle, like a car wash that opens and closes its own gate. Explained with
+> an online store where every piece of code that reads orders must open a
+> database connection and close it again, and someone always forgets when
+> something goes wrong. We watch a connection leak on a failure, move the
 > closing into one place, get results out, undo a failed transaction, and
 > reuse the shape for timing. The price is work trapped in a lambda, and a
 > resource that can still escape.

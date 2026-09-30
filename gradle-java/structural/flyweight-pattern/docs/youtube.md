@@ -17,7 +17,7 @@ Flyweight Pattern in Java - Sharing Badge Styles
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
-Flyweight design pattern in Java 21, explained by building badge rendering for an e-commerce catalog. We start with the problem — a hundred thousand listings each duplicating the same badge artwork — and end with a shared cache of as few as four instances. No prior design-pattern knowledge needed. Full source code and written notes are in the repository.
+Flyweight design pattern in Java 21: many objects share the same unchanging data instead of each holding its own copy, which saves a great deal of memory. Explained by building badge rendering for an e-commerce catalog. We start with the problem — a hundred thousand listings each duplicating the same badge artwork — and end with a shared cache of as few as four instances. No prior design-pattern knowledge needed. Full source code and written notes are in the repository.
 
 CHAPTERS
 00:00 Introduction

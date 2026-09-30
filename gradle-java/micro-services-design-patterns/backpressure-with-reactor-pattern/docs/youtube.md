@@ -7,7 +7,7 @@ Chapter timings are generated from the video's `.srt`. Re-run `python3 docs/make
 ## Title
 
 ```
-Backpressure with Project Reactor
+Backpressure with Project Reactor Design Pattern in Java - Explained
 ```
 
 33 characters — under the 60 YouTube shows before truncating in search results.
@@ -17,7 +17,7 @@ Backpressure with Project Reactor
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
-Backpressure pattern in Java with Project Reactor, where every stream carries demand from consumer to producer, using an online store search indexer reading a supplier's product feed. A slow consumer tells a fast producer how much it can take, so work does not pile up in between, like a chef calling for exactly two more tickets. We watch what Reactor does with a source that ignores demand, produce only what is asked, use limitRate, and keep only the latest item. We finish with the bill: decide on purpose what happens when a source cannot wait.
+Backpressure pattern in Java: a slow consumer tells a fast producer how much it can take, so work does not pile up in between, like a chef calling for exactly two more tickets. Explained with Project Reactor, where every stream carries demand from consumer to producer, using an online store search indexer reading a supplier's product feed. We watch what Reactor does with a source that ignores demand, produce only what is asked, use limitRate, and keep only the latest item. We finish with the bill: decide on purpose what happens when a source cannot wait.
 
 CHAPTERS
 00:00 Introduction
@@ -37,7 +37,7 @@ SOURCE CODE, WRITTEN NOTES AND AN INTERACTIVE ANIMATION
 https://github.com/jk-boot-up/java-design-patterns/tree/main/gradle-java/micro-services-design-patterns/backpressure-with-reactor-pattern
 
 WHAT YOU NEED FIRST
-Java 21 and a working knowledge of classes and interfaces. No prior design-pattern knowledge is assumed. The full prerequisites are in docs/prerequisites.md in the repository.
+Java and a working knowledge of classes and interfaces. No prior design-pattern knowledge is assumed. The full prerequisites are in docs/prerequisites.md in the repository.
 ```
 
 ## Chapters

@@ -17,7 +17,7 @@ Chain of Responsibility with Spring - Filters In Order
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
-Chain of Responsibility pattern in Java, explained with Spring Boot, using the same online checkout. A request passes along a line of checks until one of them answers, like a bag going through passport control, the scanner and a hand search. Spring builds that line for you: every check is a bean of one shared interface, handed over already sorted. We send five orders through the chain, then look at what the framework changes: the order of the checks becomes a cost, a check that throws needs a policy, a property can switch a check off, and sometimes nobody answers at all.
+Chain of Responsibility pattern in Java: a request passes along a line of checks until one of them answers, like a bag going through passport control, the scanner and a hand search. Explained with Spring Boot, using the same online checkout. Spring builds that line for you: every check is a bean of one shared interface, handed over already sorted. We send five orders through the chain, then look at what the framework changes: the order of the checks becomes a cost, a check that throws needs a policy, a property can switch a check off, and sometimes nobody answers at all.
 
 CHAPTERS
 00:00 Introduction

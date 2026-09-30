@@ -17,7 +17,7 @@ Strategy Pattern in Java - Shipping Rules
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
-Strategy design pattern in Java 21, explained by pricing delivery for an online shop four different ways — a flat rate, weight bands, distance, and a free-over-fifty-pounds campaign. We start with the problem — one method with one switch over a shipping-method flag, growing a branch every time marketing invents a rule, and quietly shipping for free when it meets a value it does not recognise — and end with four tiny rule classes behind one interface, a checkout service that holds a rule without ever asking which one it is, and an honest look at where that switch actually went. No prior design-pattern knowledge needed. Full source code and written notes are in the repository.
+Strategy design pattern in Java 21: a family of interchangeable rules sits behind one interface, so the caller can pick a rule without knowing how it works. Explained by pricing delivery for an online shop four different ways — a flat rate, weight bands, distance, and a free-over-fifty-pounds campaign. We start with the problem — one method with one switch over a shipping-method flag, growing a branch every time marketing invents a rule, and quietly shipping for free when it meets a value it does not recognise — and end with four tiny rule classes behind one interface, a checkout service that holds a rule without ever asking which one it is, and an honest look at where that switch actually went. No prior design-pattern knowledge needed. Full source code and written notes are in the repository.
 
 CHAPTERS
 00:00 Introduction

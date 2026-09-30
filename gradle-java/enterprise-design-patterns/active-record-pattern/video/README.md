@@ -69,12 +69,12 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Active Record pattern in Java, explained with an online store order that
-> saves itself. An active record wraps one database row, carries the rules
-> about that row, and knows how to find, save and change itself, like a
-> paper form that files itself but must know how the filing cabinet works.
-> We find and save an order in three lines with its rules beside its data,
-> then hear three costs: a rule you cannot test without the table, a class
-> that is the table, and database queries you cannot see. It is the quickest
-> way to get data in and out, and the price is that the class and the table
-> become one thing.
+> Active Record pattern in Java: an active record wraps one database row,
+> carries the rules about that row, and knows how to find, save and change
+> itself, like a paper form that files itself but must know how the filing
+> cabinet works. Explained with an online store order that saves itself. We
+> find and save an order in three lines with its rules beside its data, then
+> hear three costs: a rule you cannot test without the table, a class that is
+> the table, and database queries you cannot see. It is the quickest way to
+> get data in and out, and the price is that the class and the table become
+> one thing.

@@ -17,7 +17,7 @@ Actor
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
-Actor pattern in Java, explained with an online store where many threads want to change the stock of one product. An actor owns its data, has a mailbox, and handles one message at a time on its own thread, like a bank teller who is the only person allowed to touch the cash drawer. We watch shared stock lose an update, then give it to one actor and lose nothing. We ask the actor a question and get the answer back as a message, show that nobody can reach inside, and let a bad message crash and restart it. The price is messages, and a restart that forgets.
+Actor pattern in Java: an actor owns its data, has a mailbox, and handles one message at a time on its own thread, like a bank teller who is the only person allowed to touch the cash drawer. Explained with an online store where many threads want to change the stock of one product. We watch shared stock lose an update, then give it to one actor and lose nothing. We ask the actor a question and get the answer back as a message, show that nobody can reach inside, and let a bad message crash and restart it. The price is messages, and a restart that forgets.
 
 CHAPTERS
 00:00 Introduction

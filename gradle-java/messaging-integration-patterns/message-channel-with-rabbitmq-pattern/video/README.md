@@ -76,12 +76,13 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Message Channel pattern in Java, explained with a real RabbitMQ broker. In
-> our online store the shop drops a pick order into a channel and goes
-> straight back to selling, and the warehouse takes it out whenever it is
-> ready. We hear the broker hold orders for a warehouse that is not even
-> running, hand an order out again when a picker crashes before saying done,
-> share orders between a slow picker and a fast one, and survive its own
-> restart with some orders kept and others gone. A broker only forgets an
-> order when the receiver says it is done, and only keeps it through a
-> restart if both queue and message were saved.
+> Message Channel pattern in Java: a message channel is a named pipe between
+> programs, where a sender drops a message and a receiver takes it out when it
+> is ready. Explained with a real RabbitMQ broker. In our online store the
+> shop drops a pick order into a channel and goes straight back to selling,
+> and the warehouse takes it out whenever it is ready. We hear the broker hold
+> orders for a warehouse that is not even running, hand an order out again
+> when a picker crashes before saying done, share orders between a slow picker
+> and a fast one, and survive its own restart with some orders kept and others
+> gone. A broker only forgets an order when the receiver says it is done, and
+> only keeps it through a restart if both queue and message were saved.

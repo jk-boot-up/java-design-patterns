@@ -13,11 +13,11 @@ A narrated, slide-based video built by `./build_video.sh` with the shared videok
 
 Suggested description:
 
-> Entity pattern from domain-driven design in Java, with online store
-> customers who change their email, earn points, and sometimes share a name
-> with someone else. An entity is defined by who it is, not by its current
-> details: it has an identity that never changes, like a car's chassis
-> number through new colours, plates and owners. We watch comparing
-> customers by their values go wrong, give them an identity, keep look-
-> alikes apart, and follow one customer's life story. We finish with the
-> bill, including what equality does not tell you.
+> Entity pattern from domain-driven design in Java: an entity is defined by
+> who it is, not by its current details: it has an identity that never
+> changes, like a car's chassis number through new colours, plates and owners.
+> Explained with online store customers who change their email, earn points,
+> and sometimes share a name with someone else. We watch comparing customers
+> by their values go wrong, give them an identity, keep look-alikes apart, and
+> follow one customer's life story. We finish with the bill, including what
+> equality does not tell you.

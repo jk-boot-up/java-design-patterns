@@ -119,7 +119,7 @@ try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
 <h2>Publishing Notes</h2>
 <p>Upload <code>service-mesh-with-envoy-pattern-explained.mp4</code>, with <code>../docs/thumbnail.png</code> as the thumbnail and the <code>.srt</code> as the captions. Title, description, chapters and tags live in <a href="../docs/youtube.html"><code>../docs/youtube.md</code></a>.</p>
 <p>Suggested description:</p>
-<blockquote><p>Service Mesh pattern in Java, explained with Envoy, a real proxy. The proxy in front of a service applies the retry, identity and counting policy from its configuration, and the service carries none of that code. With an online store&#x27;s payment service, we watch three callers retry three different ways, then let one real proxy retry for a caller that has no retry code, change the policy in one file, refuse an unknown caller before it reaches payments, and read the proxy&#x27;s own counters. We finish with the bill.</p></blockquote>
+<blockquote><p>Service Mesh pattern in Java: the proxy in front of a service applies the retry, identity and counting policy from its configuration, and the service carries none of that code. Explained with Envoy, a real proxy. With an online store&#x27;s payment service, we watch three callers retry three different ways, then let one real proxy retry for a caller that has no retry code, change the policy in one file, refuse an unknown caller before it reaches payments, and read the proxy&#x27;s own counters. We finish with the bill.</p></blockquote>
 </main>
 <footer>
 Generated from <code>README.md</code> by <code>docs/make_readme_html.py</code> &mdash;

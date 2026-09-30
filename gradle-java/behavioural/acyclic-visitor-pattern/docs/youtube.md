@@ -17,7 +17,7 @@ Acyclic Visitor
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
-Acyclic Visitor pattern in Java, explained with an online store catalogue of books, food and electronics, and later gift cards, where visitors work out VAT and customs forms. A visitor is an operation kept outside the classes it works on; in the acyclic version each type gets its own tiny visitor interface, so a new type changes nothing that already exists, like hotel staff wearing one badge per language they speak. We see what goes wrong with the classic visitor, fix it, add a product type without touching old code, and write a visitor for just one type. We finish with the bill.
+Acyclic Visitor pattern in Java: a visitor is an operation kept outside the classes it works on; in the acyclic version each type gets its own tiny visitor interface, so a new type changes nothing that already exists, like hotel staff wearing one badge per language they speak. Explained with an online store catalogue of books, food and electronics, and later gift cards, where visitors work out VAT and customs forms. We see what goes wrong with the classic visitor, fix it, add a product type without touching old code, and write a visitor for just one type. We finish with the bill.
 
 CHAPTERS
 00:00 Introduction

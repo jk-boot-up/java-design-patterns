@@ -17,7 +17,7 @@ Page Object
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
-Page Object pattern in Java, explained with an online store checkout page and the automated browser tests that check it. A page object is a class for one page that knows how to find its boxes and buttons and how long it takes to update, so the tests only say what a shopper does, like a hotel concierge who knows the taxi firm's number. We watch tests full of selectors break when one button is renamed, move them into a page object, and return the next page from each action. We finish with the bill.
+Page Object pattern in Java: a page object is a class for one page that knows how to find its boxes and buttons and how long it takes to update, so the tests only say what a shopper does, like a hotel concierge who knows the taxi firm's number. Explained with an online store checkout page and the automated browser tests that check it. We watch tests full of selectors break when one button is renamed, move them into a page object, and return the next page from each action. We finish with the bill.
 
 CHAPTERS
 00:00 Introduction

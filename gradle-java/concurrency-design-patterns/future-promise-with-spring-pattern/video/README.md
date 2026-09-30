@@ -71,12 +71,11 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Future and Promise pattern in Java, explained with Spring Boot, using the
-> same product page. You get a handle to a result straight away and collect
-> it later, like the ticket from a dry cleaner. We learn that the thread
+> Future and Promise pattern in Java: you get a handle to a result straight
+> away and collect it later, like the ticket from a dry cleaner. Explained
+> with Spring Boot, using the same product page. We learn that the thread
 > pool, not the annotation, decides how much runs at once. We hear an error
-> vanish from a method that returns nothing, lose a customer's details
-> between threads, and find that both a timeout and cancel with interrupt
-> leave the work running. Then we compose the page from three futures. A
-> future promises when a value will be ready, never that the work can be
-> stopped.
+> vanish from a method that returns nothing, lose a customer's details between
+> threads, and find that both a timeout and cancel with interrupt leave the
+> work running. Then we compose the page from three futures. A future promises
+> when a value will be ready, never that the work can be stopped.

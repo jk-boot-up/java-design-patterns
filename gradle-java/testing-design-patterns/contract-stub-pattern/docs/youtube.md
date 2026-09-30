@@ -17,7 +17,7 @@ Contract Stub
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
-Contract Stub pattern in Java, explained with an online store checkout that calls a payment service run by another team. A stub is a stand-in for that service in tests; a contract stub is made from a written agreement between the two teams, and the real service is checked against the same agreement, so the two can never quietly drift apart, like a fire drill always run from the current floor plan. We watch a hand-written stub drift, build one from the contract, check the provider too, and make the stub strict. We finish with the bill.
+Contract Stub pattern in Java: a stub is a stand-in for that service in tests; a contract stub is made from a written agreement between the two teams, and the real service is checked against the same agreement, so the two can never quietly drift apart, like a fire drill always run from the current floor plan. Explained with an online store checkout that calls a payment service run by another team. We watch a hand-written stub drift, build one from the contract, check the provider too, and make the stub strict. We finish with the bill.
 
 CHAPTERS
 00:00 Introduction

@@ -221,23 +221,24 @@ Two further things that affect how well it plays for viewers:
 
 Suggested description:
 
-> Visitor design pattern in Java 21, explained by building the reports an
-> online store runs over its product catalog — what the stock is worth, how
-> many lines sit in each category, the CSV export finance wants every
-> Monday, and the compliance audit that says which items cannot go by air.
-> We start with the problem — a report written as a method on the node, so a
-> class whose job is to describe a thing on a shelf ends up carrying an RFC
-> 4180 quoting rule, and the bundle class copied from it eighteen months
-> later drops the quoting (one row of the spreadsheet quietly gains a
-> column) and reads a restriction field that is never set, so a kit with a
-> lithium cell in the box is filed as clear for air freight — and end with
-> `accept` and three `visit` overloads, one traversal written once in
-> `Category.accept`, and a fifth report added as a class that changes no
-> interface and no node type. Covers what double dispatch actually is and
-> why Java needs two method calls to get it, why `visitor.visit(node)` will
-> not compile while `visitor.visit(this)` inside the node will, and Visitor
-> versus simply putting the method on the Composite — the one question to
-> ask before choosing. And the cost, stated as plainly as the benefit:
+> Visitor design pattern in Java 21: each new operation over a set of related
+> classes lives in its own class, instead of being added as a method to every
+> one of them. Explained by building the reports an online store runs over its
+> product catalog — what the stock is worth, how many lines sit in each
+> category, the CSV export finance wants every Monday, and the compliance
+> audit that says which items cannot go by air. We start with the problem — a
+> report written as a method on the node, so a class whose job is to describe
+> a thing on a shelf ends up carrying an RFC 4180 quoting rule, and the bundle
+> class copied from it eighteen months later drops the quoting (one row of the
+> spreadsheet quietly gains a column) and reads a restriction field that is
+> never set, so a kit with a lithium cell in the box is filed as clear for air
+> freight — and end with `accept` and three `visit` overloads, one traversal
+> written once in `Category.accept`, and a fifth report added as a class that
+> changes no interface and no node type. Covers what double dispatch actually
+> is and why Java needs two method calls to get it, why `visitor.visit(node)`
+> will not compile while `visitor.visit(this)` inside the node will, and
+> Visitor versus simply putting the method on the Composite — the one question
+> to ask before choosing. And the cost, stated as plainly as the benefit:
 > adding a single node type breaks every visitor you have ever written, the
 > program prints their names, and a visitor cannot prune the walk. No prior
 > design-pattern knowledge needed. Full source code and written notes are in

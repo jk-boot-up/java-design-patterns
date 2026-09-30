@@ -70,12 +70,11 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Service Layer pattern in Java, explained by deciding where placing an
-> order should live in an online store. A service layer holds the operations
-> your application offers in one place, so every way in calls the same code,
-> like a bank whose withdrawal rules are the same at the app, the cash
-> machine and the counter. We watch the logic in a controller go wrong when
-> a second door appears, try putting it all in the domain object, then give
-> both doors one placeOrder. The costs: an anaemic domain, and a line that
-> is hard to draw. Rules live in the business objects, and the steps live in
-> the service.
+> Service Layer pattern in Java: a service layer holds the operations your
+> application offers in one place, so every way in calls the same code, like a
+> bank whose withdrawal rules are the same at the app, the cash machine and
+> the counter. Explained by deciding where placing an order should live in an
+> online store. We watch the logic in a controller go wrong when a second door
+> appears, try putting it all in the domain object, then give both doors one
+> placeOrder. The costs: an anaemic domain, and a line that is hard to draw.
+> Rules live in the business objects, and the steps live in the service.

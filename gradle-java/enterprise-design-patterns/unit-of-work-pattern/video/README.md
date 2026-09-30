@@ -70,12 +70,12 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Unit of Work pattern in Java, explained with an online store order that
-> writes seven things, where the seventh fails. A unit of work keeps a list
-> of what is new, changed and removed, then writes it all together at the
-> end, or not at all, like a shopping basket that charges nothing until you
-> press pay. We see what half an order looks like, what wrapping it in a
-> transaction fixes and still costs, and how a unit of work does better.
-> Then the costs: the order of writes, knowing what changed, and memory that
+> Unit of Work pattern in Java: a unit of work keeps a list of what is new,
+> changed and removed, then writes it all together at the end, or not at all,
+> like a shopping basket that charges nothing until you press pay. Explained
+> with an online store order that writes seven things, where the seventh
+> fails. We see what half an order looks like, what wrapping it in a
+> transaction fixes and still costs, and how a unit of work does better. Then
+> the costs: the order of writes, knowing what changed, and memory that
 > disagrees with the database. Do the slow work first, then write everything
 > once.

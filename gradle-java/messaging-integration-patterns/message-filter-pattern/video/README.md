@@ -13,11 +13,11 @@ A narrated, slide-based video built by `./build_video.sh` with the shared videok
 
 Suggested description:
 
-> Message Filter pattern in Java, explained with an online store that
-> publishes every order on one channel while a gift-wrap service and a
-> loyalty service each care about only some of them. A filter sits between
-> the channel and one receiver and passes on only the messages that match
-> its rule, without sender or receiver knowing, like an email spam filter.
-> We watch everything go to everyone, put a filter in front of each
-> receiver, chain filters together, and change a rule. We finish with the
-> bill: never lose track of what a filter drops.
+> Message Filter pattern in Java: a filter sits between the channel and one
+> receiver and passes on only the messages that match its rule, without sender
+> or receiver knowing, like an email spam filter. Explained with an online
+> store that publishes every order on one channel while a gift-wrap service
+> and a loyalty service each care about only some of them. We watch everything
+> go to everyone, put a filter in front of each receiver, chain filters
+> together, and change a rule. We finish with the bill: never lose track of
+> what a filter drops.

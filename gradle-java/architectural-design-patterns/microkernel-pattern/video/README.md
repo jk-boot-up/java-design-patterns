@@ -69,11 +69,11 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Microkernel pattern in Java, explained with an online store whose checkout
-> keeps gaining features, and every new feature means editing the same
-> class. A microkernel is a small core that only keeps plugins and runs
-> them, like a power strip that powers whatever you plug in. We move each
-> feature into a plugin, add and remove one while the shop is running,
-> survive a plugin that breaks, and see why the order of plugins matters. We
-> finish with the cost: a narrow plugin interface, and results that depend
-> on what happens to be installed.
+> Microkernel pattern in Java: a microkernel is a small core that only keeps
+> plugins and runs them, like a power strip that powers whatever you plug in.
+> Explained with an online store whose checkout keeps gaining features, and
+> every new feature means editing the same class. We move each feature into a
+> plugin, add and remove one while the shop is running, survive a plugin that
+> breaks, and see why the order of plugins matters. We finish with the cost: a
+> narrow plugin interface, and results that depend on what happens to be
+> installed.

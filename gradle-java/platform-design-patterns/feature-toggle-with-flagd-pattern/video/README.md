@@ -71,11 +71,10 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Feature Toggle pattern in Java, explained with flagd and OpenFeature. With
-> flagd, a flag is an entry in a file that a daemon watches, and the
-> application asks the daemon whether a flag is on for a given customer.
-> Using an online store's gift-wrap feature, we watch a real flag daemon
-> serve a flag that is off, edit the file and see the daemon notice by
-> itself, roll out to a share of customers and to named testers, pull a kill
-> switch, and fall back safely when the daemon is stopped. We finish with
-> the bill.
+> Feature Toggle pattern in Java: With flagd, a flag is an entry in a file
+> that a daemon watches, and the application asks the daemon whether a flag is
+> on for a given customer. Explained with flagd and OpenFeature. Using an
+> online store's gift-wrap feature, we watch a real flag daemon serve a flag
+> that is off, edit the file and see the daemon notice by itself, roll out to
+> a share of customers and to named testers, pull a kill switch, and fall back
+> safely when the daemon is stopped. We finish with the bill.

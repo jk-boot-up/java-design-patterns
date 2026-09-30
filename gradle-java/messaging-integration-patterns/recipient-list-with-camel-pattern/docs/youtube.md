@@ -17,7 +17,7 @@ Recipient List with Apache Camel
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
-Recipient List pattern in Java with Apache Camel, whose recipient list step is built in, using an online store sending orders to its warehouses. For each message the list works out who should get it and sends a copy to each of them and to nobody else, like a clerk writing the names on a letter before the post room copies it. We watch every order go to every warehouse, send each order only where it is needed, let rules add recipients, change the table while running, and see what happens when one recipient fails.
+Recipient List pattern in Java: for each message the list works out who should get it and sends a copy to each of them and to nobody else, like a clerk writing the names on a letter before the post room copies it. Explained with Apache Camel, whose recipient list step is built in, using an online store sending orders to its warehouses. We watch every order go to every warehouse, send each order only where it is needed, let rules add recipients, change the table while running, and see what happens when one recipient fails.
 
 CHAPTERS
 00:00 Introduction

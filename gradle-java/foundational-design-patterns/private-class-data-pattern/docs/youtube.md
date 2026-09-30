@@ -17,7 +17,7 @@ Private Class Data
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
-Private Class Data pattern in Java, explained with an online store that prints invoices, sometimes with a staff discount shown. The values a class must never change move into a separate private data object that cannot be changed, so not even the class's own methods can overwrite them, like a museum exhibit in a glass case that even the staff cannot alter. We watch a method quietly change its own invoice figures, protect them with private class data so nothing can write to them, and keep working state beside the data where it may change. We finish with the bill and when this is just an immutable object.
+Private Class Data pattern in Java: the values a class must never change move into a separate private data object that cannot be changed, so not even the class's own methods can overwrite them, like a museum exhibit in a glass case that even the staff cannot alter. Explained with an online store that prints invoices, sometimes with a staff discount shown. We watch a method quietly change its own invoice figures, protect them with private class data so nothing can write to them, and keep working state beside the data where it may change. We finish with the bill and when this is just an immutable object.
 
 CHAPTERS
 00:00 Introduction

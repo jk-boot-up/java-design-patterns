@@ -13,11 +13,11 @@ A narrated, slide-based video built by `./build_video.sh` with the shared videok
 
 Suggested description:
 
-> Single Table Inheritance pattern in Java, explained with an online store
-> that sells books, food and electronics, each with a code, a name, a price
-> and one field of its own. Several related classes are stored in one
-> database table, a type column says which class each row is, and each row
-> leaves the other types' columns empty, like one expenses form with a
-> section for every kind of trip. We see why a table per type makes simple
-> questions slow, move to one table, turn each row back into its own class,
-> and add a new type. We finish with the bill.
+> Single Table Inheritance pattern in Java: several related classes are stored
+> in one database table, a type column says which class each row is, and each
+> row leaves the other types' columns empty, like one expenses form with a
+> section for every kind of trip. Explained with an online store that sells
+> books, food and electronics, each with a code, a name, a price and one field
+> of its own. We see why a table per type makes simple questions slow, move to
+> one table, turn each row back into its own class, and add a new type. We
+> finish with the bill.

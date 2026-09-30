@@ -26,14 +26,14 @@ library. Scenes live in `scenes.py`.
 
 Suggested description:
 
-> Distributed Tracing pattern in Java, explained with OpenTelemetry and a
-> real Jaeger collector, using an online store product page built by two
-> programs: the page and a recommendations service. One customer request
-> gets one trace ID, every piece of work records a span with its parent, and
-> Jaeger puts the spans back together into one story, like a hospital
-> records office joining forms by wristband number. We watch a forgotten
-> header split one page load into two healthy-looking traces, forward it
-> and get one trace of eight spans, see spans arrive seconds later in
-> batches, sample one trace in four at the front door, and meet a clock that
-> makes an answer arrive before its question. We finish with the bill: a
-> crash loses exactly the spans you would want to read.
+> Distributed Tracing pattern in Java: one customer request gets one trace ID,
+> every piece of work records a span with its parent, and Jaeger puts the
+> spans back together into one story, like a hospital records office joining
+> forms by wristband number. Explained with OpenTelemetry and a real Jaeger
+> collector, using an online store product page built by two programs: the
+> page and a recommendations service. We watch a forgotten header split one
+> page load into two healthy-looking traces, forward it and get one trace of
+> eight spans, see spans arrive seconds later in batches, sample one trace in
+> four at the front door, and meet a clock that makes an answer arrive before
+> its question. We finish with the bill: a crash loses exactly the spans you
+> would want to read.

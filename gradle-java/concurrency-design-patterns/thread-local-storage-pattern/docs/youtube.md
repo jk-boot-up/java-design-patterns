@@ -17,7 +17,7 @@ Thread-Local Storage
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
-Thread-Local Storage pattern in Java, explained with an online store where every layer of a request needs to know which customer it serves, but few of them care. Thread-local storage gives each thread its own private copy of a value that any code on that thread can read without it being passed down, like a conference name badge. We pass the customer through three methods that do not need it, then keep it in the thread instead. We hear a reused thread leak one request's customer into the next, and a value that fails to reach a new thread. The price is a dependency you cannot see, and a clear you must never forget.
+Thread-Local Storage pattern in Java: Thread-local storage gives each thread its own private copy of a value that any code on that thread can read without it being passed down, like a conference name badge. Explained with an online store where every layer of a request needs to know which customer it serves, but few of them care. We pass the customer through three methods that do not need it, then keep it in the thread instead. We hear a reused thread leak one request's customer into the next, and a value that fails to reach a new thread. The price is a dependency you cannot see, and a clear you must never forget.
 
 CHAPTERS
 00:00 Introduction

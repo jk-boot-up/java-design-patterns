@@ -71,12 +71,12 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Circuit Breaker pattern in Java, explained with Resilience4j, using an
-> online store product page that shows recommendations from a separate
-> service. A circuit breaker stops calling a service that keeps failing,
-> fails fast for a while, then lets one probe through to test recovery, like
-> a fuse box that trips and is switched back on once to check. We build the
-> breaker from one annotation and a few settings, and walk through healthy,
-> open and half-open. Then the traps: an annotation that is a proxy and can
-> be skipped by accident, what counts as a failure, and a wrong setting that
-> trips it for the wrong reason. Its state is your only warning sign.
+> Circuit Breaker pattern in Java: a circuit breaker stops calling a service
+> that keeps failing, fails fast for a while, then lets one probe through to
+> test recovery, like a fuse box that trips and is switched back on once to
+> check. Explained with Resilience4j, using an online store product page that
+> shows recommendations from a separate service. We build the breaker from one
+> annotation and a few settings, and walk through healthy, open and half-open.
+> Then the traps: an annotation that is a proxy and can be skipped by
+> accident, what counts as a failure, and a wrong setting that trips it for
+> the wrong reason. Its state is your only warning sign.

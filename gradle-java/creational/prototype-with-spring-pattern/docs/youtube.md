@@ -17,7 +17,7 @@ Prototype with Spring - The Prototype That Is Not New
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
-Prototype pattern in Java, explained with Spring Boot, using the same online store product listings. In Spring, prototype is a scope: every request for the bean builds a fresh one from its definition, like a cookie cutter where icing one cookie does not ice the next. We make the listing a prototype-scoped bean, show each copy is independent, and then hear three surprises: it is not a copy of your edited draft, it is built only once when injected into a singleton unless you ask each time, and Spring never cleans it up. Spring's prototype is a new bean built from its definition, not a copy of your draft.
+Prototype pattern in Java: in Spring, prototype is a scope: every request for the bean builds a fresh one from its definition, like a cookie cutter where icing one cookie does not ice the next. Explained with Spring Boot, using the same online store product listings. We make the listing a prototype-scoped bean, show each copy is independent, and then hear three surprises: it is not a copy of your edited draft, it is built only once when injected into a singleton unless you ask each time, and Spring never cleans it up. Spring's prototype is a new bean built from its definition, not a copy of your draft.
 
 CHAPTERS
 00:00 Introduction

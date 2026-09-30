@@ -283,9 +283,10 @@ def scenes(d, pdir):
 
 def video_readme(d, pdir):
     p = d["project"]
-    # The first line shows above YouTube's fold, so it must name the pattern.
+    # The first line shows above YouTube's fold, so it must name the pattern
+    # and say plainly what it is before any example.
     desc = p.get("youtube_description") or (
-        "Learn the %s pattern in Java. %s" % (p["title"], p["bold"]))
+        "%s pattern in Java: %s" % (p["title"], p["bold"]))
     desc = " ".join(desc.split())
     (pdir / "video" / "README.md").write_text("\n".join([
         "# %s Pattern — Teaching Video" % p["title"], "",

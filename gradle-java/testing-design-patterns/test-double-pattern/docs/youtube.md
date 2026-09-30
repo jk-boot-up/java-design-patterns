@@ -17,7 +17,7 @@ Test Double (Dummy, Stub, Spy, Mock, Fake)
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
-Test Double pattern in Java, explained with an online store checkout that takes money through an outside payment provider. A test double stands in for something your code depends on, just for a test, so it runs fast, offline and without spending real money, like a stunt double taking the fall. We start with the real provider, then meet all five kinds, a dummy, a stub, a spy, a mock and a fake, and the question each one answers. We finish with the bill: a double only checks what you told it to.
+Test Double pattern in Java: a test double stands in for something your code depends on, just for a test, so it runs fast, offline and without spending real money, like a stunt double taking the fall. Explained with an online store checkout that takes money through an outside payment provider. We start with the real provider, then meet all five kinds, a dummy, a stub, a spy, a mock and a fake, and the question each one answers. We finish with the bill: a double only checks what you told it to.
 
 CHAPTERS
 00:00 Introduction

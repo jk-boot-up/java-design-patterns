@@ -17,7 +17,7 @@ Space-Based Architecture
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
-Space-Based Architecture pattern in Java, explained with an online store kettle flash sale, where hundreds of orders arrive at once and every one must check the stock. Each copy of the application keeps the data in its own memory, the copies stay in step through a data grid, and the database is updated in the background so no request waits for it, like festival stalls radioing their sales to each other. We see why more servers did not help, add processing units with the data in memory, let the database catch up, and meet the kettle that was sold twice.
+Space-Based Architecture pattern in Java: each copy of the application keeps the data in its own memory, the copies stay in step through a data grid, and the database is updated in the background so no request waits for it, like festival stalls radioing their sales to each other. Explained with an online store kettle flash sale, where hundreds of orders arrive at once and every one must check the stock. We see why more servers did not help, add processing units with the data in memory, let the database catch up, and meet the kettle that was sold twice.
 
 CHAPTERS
 00:00 Introduction

@@ -17,7 +17,7 @@ Proxy with Spring - The Call That Skips The Proxy
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
-Proxy pattern in Java, explained with Spring Boot, using an online store product image. In Spring, a proxy is generated at run time around a bean, and an aspect says what it does on each call, so the bean you receive is not your class. We rebuild the hand-written protection and lazy-loading proxies from Spring, then reuse one aspect across three screens. Then we hear the two ways a call slips past the generated proxy: a call on this from inside the class, and a final method.
+Proxy pattern in Java: in Spring, a proxy is generated at run time around a bean, and an aspect says what it does on each call, so the bean you receive is not your class. Explained with Spring Boot, using an online store product image. We rebuild the hand-written protection and lazy-loading proxies from Spring, then reuse one aspect across three screens. Then we hear the two ways a call slips past the generated proxy: a call on this from inside the class, and a final method.
 
 CHAPTERS
 00:00 Introduction

@@ -119,7 +119,7 @@ try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
 <h2>Publishing Notes</h2>
 <p>Upload <code>leader-election-pattern-explained.mp4</code>, with <code>../docs/thumbnail.png</code> as the thumbnail and the <code>.srt</code> as the captions. Title, description, chapters and tags live in <a href="../docs/youtube.html"><code>../docs/youtube.md</code></a>.</p>
 <p>Suggested description:</p>
-<blockquote><p>Leader Election pattern in Java, explained with an online store&#x27;s nightly sales report, which must be sent exactly once. Leader election makes exactly one of several identical copies of a service responsible for a job, and hands the job to another copy if the leader disappears. We watch three copies each send the same report, then let one hold a lease, replace a dead leader after its lease runs out, find two copies that both believe they lead, and stop the old one with a fencing token. We finish with the bill.</p></blockquote>
+<blockquote><p>Leader Election pattern in Java: Leader election makes exactly one of several identical copies of a service responsible for a job, and hands the job to another copy if the leader disappears. Explained with an online store&#x27;s nightly sales report, which must be sent exactly once. We watch three copies each send the same report, then let one hold a lease, replace a dead leader after its lease runs out, find two copies that both believe they lead, and stop the old one with a fencing token. We finish with the bill.</p></blockquote>
 </main>
 <footer>
 Generated from <code>README.md</code> by <code>docs/make_readme_html.py</code> &mdash;

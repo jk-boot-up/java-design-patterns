@@ -220,15 +220,15 @@ Two further things that affect how well it plays for viewers:
 
 Suggested description:
 
-> Command design pattern in Java 21, explained by building undo and redo for
-> a shopping cart in an online store. We start with the problem — a hand-
-> rolled undo that writes down what the customer asked for, so undoing "add
-> 2 headphones" deletes the 3 they already had and undoing a coupon takes
-> away the discount they never touched — and end with edits reified as
-> objects that capture the state they need *inside* `execute`, an invoker
-> holding two stacks of an interface it knows nothing about, a new kind of
-> edit added without reopening a single working file, an audit trail that
-> came free, and an honest look at what the pattern costs you. Also covers
-> when *not* to use it, and how Command differs from Memento. No prior
-> design-pattern knowledge needed. Full source code and written notes are in
-> the repository.
+> Command design pattern in Java 21: each request is wrapped up as an object,
+> so it can be stored, queued, logged and undone. Explained by building undo
+> and redo for a shopping cart in an online store. We start with the problem —
+> a hand-rolled undo that writes down what the customer asked for, so undoing
+> "add 2 headphones" deletes the 3 they already had and undoing a coupon takes
+> away the discount they never touched — and end with edits reified as objects
+> that capture the state they need *inside* `execute`, an invoker holding two
+> stacks of an interface it knows nothing about, a new kind of edit added
+> without reopening a single working file, an audit trail that came free, and
+> an honest look at what the pattern costs you. Also covers when *not* to use
+> it, and how Command differs from Memento. No prior design-pattern knowledge
+> needed. Full source code and written notes are in the repository.

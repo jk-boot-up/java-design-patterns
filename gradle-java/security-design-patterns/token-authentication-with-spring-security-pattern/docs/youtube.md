@@ -17,7 +17,7 @@ Token Authentication (JWT) with Spring Security
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
-Token Authentication pattern in Java with Spring Security, using an online store website running as two server instances. After signing in you carry a signed token saying who you are and until when, and Spring Security checks it on every request without looking anything up, like a festival wristband any steward can trust. We watch sessions on one server fail, issue a token from Spring Security, reject forged and expired tokens, and handle signing out early. We finish with the bill: sign in once, carry signed proof, and let the framework check it.
+Token Authentication pattern in Java: after signing in you carry a signed token saying who you are and until when, and Spring Security checks it on every request without looking anything up, like a festival wristband any steward can trust. Explained with Spring Security, using an online store website running as two server instances. We watch sessions on one server fail, issue a token from Spring Security, reject forged and expired tokens, and handle signing out early. We finish with the bill: sign in once, carry signed proof, and let the framework check it.
 
 CHAPTERS
 00:00 Introduction

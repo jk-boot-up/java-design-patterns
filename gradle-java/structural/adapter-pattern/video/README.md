@@ -217,11 +217,12 @@ Two further things that affect how well it plays for viewers:
 
 Suggested description:
 
-> Adapter design pattern in Java 21, explained by building a checkout flow
-> that needs shipping rates from a third-party SDK with completely different
-> units. We start with the problem — every caller converting pounds and
-> cents by hand, coupled directly to the SDK's shape — and end with a single
-> adapter class that translates once, so the rest of the codebase only ever
-> depends on the interface it already expects. No prior design-pattern
-> knowledge needed. Full source code and written notes are in the
-> repository.
+> Adapter design pattern in Java 21: a small class wraps an existing class
+> with the wrong interface and makes it look like the interface your code
+> expects. Explained by building a checkout flow that needs shipping rates
+> from a third-party SDK with completely different units. We start with the
+> problem — every caller converting pounds and cents by hand, coupled directly
+> to the SDK's shape — and end with a single adapter class that translates
+> once, so the rest of the codebase only ever depends on the interface it
+> already expects. No prior design-pattern knowledge needed. Full source code
+> and written notes are in the repository.

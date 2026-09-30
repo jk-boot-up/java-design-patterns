@@ -69,11 +69,11 @@ Title, description, chapters and tags live in
 
 Suggested description:
 
-> Fork-Join pattern in Java, explained by adding up one hundred thousand
-> order totals for an online store's daily report. The job is split into
-> smaller pieces of the same kind, the pieces run at the same time on
-> several workers, and their answers are joined back into one, like
-> districts counting votes in parallel before the totals are added. We split
-> the work in halves until the pieces are small, prove they really run
-> together, find how small is small enough, and see why one oversized piece
-> limits the speed. We finish with the cost.
+> Fork-Join pattern in Java: the job is split into smaller pieces of the same
+> kind, the pieces run at the same time on several workers, and their answers
+> are joined back into one, like districts counting votes in parallel before
+> the totals are added. Explained by adding up one hundred thousand order
+> totals for an online store's daily report. We split the work in halves until
+> the pieces are small, prove they really run together, find how small is
+> small enough, and see why one oversized piece limits the speed. We finish
+> with the cost.

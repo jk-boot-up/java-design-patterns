@@ -13,11 +13,11 @@ A narrated, slide-based video built by `./build_video.sh` with the shared videok
 
 Suggested description:
 
-> Currying in Java, explained with an online store shipping price that
-> depends on the zone, the service and the weight. Currying turns a function
-> of several arguments into a chain of functions that each take one, so the
-> arguments you know early are fixed once and a smaller function is left for
-> the part that changes, like a loyalty card that already knows your usual
-> coffee order. We watch repeated arguments pile up, build a curried
-> function, make ready-made shipping functions, and see why argument order
-> matters. We finish with the bill and when a plain lambda is clearer.
+> Currying in Java: Currying turns a function of several arguments into a
+> chain of functions that each take one, so the arguments you know early are
+> fixed once and a smaller function is left for the part that changes, like a
+> loyalty card that already knows your usual coffee order. Explained with an
+> online store shipping price that depends on the zone, the service and the
+> weight. We watch repeated arguments pile up, build a curried function, make
+> ready-made shipping functions, and see why argument order matters. We finish
+> with the bill and when a plain lambda is clearer.

@@ -17,7 +17,7 @@ Domain Service
 The first two lines are what a viewer sees above the fold, so they carry the hook rather than the boilerplate.
 
 ```
-Domain Service pattern from domain-driven design in Java, with an online store where gold customers get ten percent off, a coupon takes five pounds off baskets over forty, and the two must not simply add up. Some rules involve several objects and belong to none of them, so a domain service holds the rule, keeps no data of its own, and is named in the business's words, like a referee applying the rules to two players. We watch copies of the rule drift apart, move it into one service that explains itself, and use it for every case. We finish with how services can empty your objects.
+Domain Service pattern from domain-driven design in Java: some rules involve several objects and belong to none of them, so a domain service holds the rule, keeps no data of its own, and is named in the business's words, like a referee applying the rules to two players. Explained with an online store where gold customers get ten percent off, a coupon takes five pounds off baskets over forty, and the two must not simply add up. We watch copies of the rule drift apart, move it into one service that explains itself, and use it for every case. We finish with how services can empty your objects.
 
 CHAPTERS
 00:00 Introduction

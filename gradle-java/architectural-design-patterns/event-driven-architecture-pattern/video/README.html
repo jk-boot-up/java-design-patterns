@@ -119,7 +119,7 @@ try{localStorage.setItem("md-theme",b.dataset.t)}catch(e){}})})})();</script>
 <h2>Publishing Notes</h2>
 <p>Upload <code>event-driven-architecture-pattern-explained.mp4</code>, with <code>../docs/thumbnail.png</code> as the thumbnail and the <code>.srt</code> as the captions. Title, description, chapters and tags live in <a href="../docs/youtube.html"><code>../docs/youtube.md</code></a>.</p>
 <p>Suggested description:</p>
-<blockquote><p>Event-Driven Architecture pattern in Java, explained with an online store where orders, inventory and shipping must work together, and any of them may be down. Instead of calling each other and waiting, each service writes facts, called events, to a shared log and reads that log at its own pace, like cooks reading tickets off a kitchen rail. We lose an order the old way, fix it with a log, watch a service catch up after an outage, and add a brand new reader without touching the others. We finish with the cost: nothing happens at the same instant, and the flow is harder to see.</p></blockquote>
+<blockquote><p>Event-Driven Architecture pattern in Java: instead of calling each other and waiting, each service writes facts, called events, to a shared log and reads that log at its own pace, like cooks reading tickets off a kitchen rail. Explained with an online store where orders, inventory and shipping must work together, and any of them may be down. We lose an order the old way, fix it with a log, watch a service catch up after an outage, and add a brand new reader without touching the others. We finish with the cost: nothing happens at the same instant, and the flow is harder to see.</p></blockquote>
 </main>
 <footer>
 Generated from <code>README.md</code> by <code>docs/make_readme_html.py</code> &mdash;

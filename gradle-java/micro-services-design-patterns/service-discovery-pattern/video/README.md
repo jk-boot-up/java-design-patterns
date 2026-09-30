@@ -245,15 +245,17 @@ Two further things that affect how well it plays for viewers:
 
 Suggested description:
 
-> Service discovery in Java 21, starting from four correct lines of code
+> Service discovery in Java 21: services register their addresses in a
+> registry as they start and stop, and callers ask the registry where a
+> service is at the moment they call. We start from four correct lines of code
 > that hold one machine's address. Pricing runs as three interchangeable
 > copies, and a routine rolling deploy takes the checkout down while two
 > healthy copies sit idle — because a constant is not a question you can ask
 > again. We build the registry instead: instances put themselves on a shared
 > list with a lease, and the caller asks that list on every call. Then we
 > spend the second half on the part that gets skipped. A crash leaves the
-> registry briefly lying, the client is handed the name of a dead machine,
-> and what saves it is not the registry but the caller's willingness to try
-> the next one. We watch the lease expire with no client involved at all,
-> and we close on the costs: one more thing to run, a list that is sometimes
-> wrong, and a retry loop every caller now has to carry.
+> registry briefly lying, the client is handed the name of a dead machine, and
+> what saves it is not the registry but the caller's willingness to try the
+> next one. We watch the lease expire with no client involved at all, and we
+> close on the costs: one more thing to run, a list that is sometimes wrong,
+> and a retry loop every caller now has to carry.
